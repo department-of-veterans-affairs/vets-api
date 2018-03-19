@@ -4,8 +4,10 @@ class BackendServices
 
   def self.all
     constants.map do |const|
-      const_get const
-    end
+      val = const_get const
+      next unless val.is_a?(String)
+      val
+    end.compact
   end
 
   GI_BILL_STATUS = 'gibs'

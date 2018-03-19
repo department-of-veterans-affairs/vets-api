@@ -32,9 +32,7 @@ Rails.application.routes.draw do
     end
 
     resource :user, only: [:show]
-    resource :post911_gi_bill_status, only: [:show] do
-      get :availability
-    end
+    resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do

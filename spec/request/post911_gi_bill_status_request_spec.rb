@@ -57,53 +57,6 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     end
   end
 
-  context 'during offline hours' do
-    let(:a_time_outside_hours) { Time.zone.parse('1st Feb 2018 00:15:06-04:00') }
-    before { Timecop.freeze(a_time_outside_hours) }
-    after { Timecop.return }
-
-    describe '#show' do
-      it 'responds 503' do
-        get v0_post911_gi_bill_status_url, nil, auth_header
-        expect(response).to have_http_status(:service_unavailable)
-      end
-      it 'containts a Retry-After header' do
-        get v0_post911_gi_bill_status_url, nil, auth_header
-        expect(response.headers).to include('Retry-After')
-      end
-    end
-
-    describe '#availability' do
-      it 'returns false' do
-        get availability_v0_post911_gi_bill_status_url, nil, auth_header
-        json = JSON.parse(response.body)
-        expect(json['data']['attributes']['is_available']).to eq(false)
-      end
-    end
-
-    context 'on saturday' do
-      let(:saturday_offline_time) { Time.zone.parse('3rd Feb 2018 19:15:06-04:00') }
-      it 'returns false' do
-        get availability_v0_post911_gi_bill_status_url, nil, auth_header
-        json = JSON.parse(response.body)
-        expect(json['data']['attributes']['is_available']).to eq(false)
-      end
-    end
-  end
-
-  context 'during online hours' do
-    let(:a_time_inside_hours) { Time.zone.parse('1st Feb 2018 12:15:06-04:00') }
-    before { Timecop.freeze(a_time_inside_hours) }
-    after { Timecop.return }
-    describe '#availability' do
-      it 'returns true' do
-        get availability_v0_post911_gi_bill_status_url, nil, auth_header
-        json = JSON.parse(response.body)
-        expect(json['data']['attributes']['is_available']).to eq(true)
-      end
-    end
-  end
-
   context 'with deprecated GibsNotFoundUser class' do
     it 'loads the class for coverage' do
       GibsNotFoundUser

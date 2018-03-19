@@ -43,25 +43,6 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/post911_gi_bill_status/availability' do
-        operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Returns a boolean indicatin whether or not GI Bill Status is available'
-          key :operationId, 'getPost911GiBillStatusAvailability'
-          key :tags, ['evss']
-
-          parameter :authorization
-
-          response 200 do
-            key :description, 'Availability was successfully retrieved'
-            schema do
-              key :'$ref', :Availability
-            end
-          end
-        end
-      end
-
       swagger_schema :Post911GiBillStatus do
         key :required, %i[data meta]
 
@@ -98,19 +79,6 @@ module Swagger
                 key :'$ref', :Enrollment
               end
             end
-          end
-        end
-      end
-
-      swagger_schema :Availability do
-        key :required, %i[data]
-        property :data, type: :object do
-          key :required, %i[attributes]
-          property :id, type: :string
-          property :type, type: :string
-          property :attributes, type: :object do
-            key :required, %i[is_available]
-            property :is_available, type: :boolean, example: true
           end
         end
       end
