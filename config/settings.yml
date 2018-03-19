@@ -41,7 +41,7 @@ pension_burial:
     relative_path: '../VETSGOV_PENSION'
   upload:
     enabled: true
-    host: 'icmhsgc.csrarad.com'
+    host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
 # Settings for EVSS
