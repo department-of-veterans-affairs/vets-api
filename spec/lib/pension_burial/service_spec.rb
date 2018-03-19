@@ -26,7 +26,7 @@ RSpec.describe PensionBurial::Service do
           )
         )
         body = response.body
-        expect(body).to eq('Request was received successfully  [uuid: 07029d0e-60b5-4bc4-8606-ef3504f2835f] ')
+        expect(body).to eq('Request was received successfully  [uuid: bd71f985-9bad-45c2-8b63-d052f544c27d] ')
 
         expect(response.status).to eq(200)
       end
