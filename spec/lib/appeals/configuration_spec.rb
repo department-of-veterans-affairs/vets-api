@@ -6,7 +6,7 @@ require 'mvi/service'
 describe Appeals::Configuration do
   describe '#app_token' do
     it 'has an app token' do
-      expect(Appeals::Configuration.instance.app_token).to eq(Settings.appeals_status.app_token)
+      expect(Appeals::Configuration.instance.app_token).to eq(Settings.appeals.app_token)
     end
   end
 
