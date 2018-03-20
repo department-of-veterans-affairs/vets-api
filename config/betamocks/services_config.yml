@@ -183,7 +183,7 @@
 
 # Appeals
 - :name: 'Appeals'
-  :base_uri: <%= "#{URI(Settings.appeals_status.host).host}:#{URI(Settings.appeals_status.host).port}" %>
+  :base_uri: <%= "#{URI(Settings.appeals.host).host}:#{URI(Settings.appeals.host).port}" %>
   :endpoints:
   - :method: :get
     :path: "/api/v2/appeals"
