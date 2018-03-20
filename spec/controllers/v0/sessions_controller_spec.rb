@@ -98,7 +98,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, type: type)
-            expect(response).to be_redirect
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
       end
@@ -107,7 +108,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mfa verify slo].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, type: type)
-            expect(response).not_to be_redirect
             expect(response).to have_http_status(:unauthorized)
           end
         end
@@ -129,7 +129,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
-            expect(response).to be_redirect
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
       end
