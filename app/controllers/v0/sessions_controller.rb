@@ -46,7 +46,8 @@ module V0
             when 'dslogon'
               SAML::SettingsService.dslogon_url
             when 'idme'
-              SAML::SettingsService.idme_loa1_url
+              query = params[:signup] ? '&op=signup' : ''
+              SAML::SettingsService.idme_loa1_url + query
             when 'mfa'
               authenticate
               SAML::SettingsService.mfa_url(current_user)
