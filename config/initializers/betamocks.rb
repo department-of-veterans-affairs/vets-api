@@ -3,7 +3,7 @@
 unless Rails.env.production?
   begin
     ERB.new(File.read(Settings.betamocks.services_config)).result
-  rescue
+  rescue NoMethodError
     raise ArgumentError, 'betamocks services_config error, check that vars from settings.yml are interpolated correctly'
   end
 end
