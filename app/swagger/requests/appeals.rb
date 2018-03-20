@@ -5,7 +5,7 @@ module Swagger
     class Appeals
       include Swagger::Blocks
 
-      swagger_path '/v0/appeals_v2' do
+      swagger_path '/v0/appeals' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
