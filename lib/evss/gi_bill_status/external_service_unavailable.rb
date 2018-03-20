@@ -4,7 +4,7 @@ require 'common/exceptions/base_error'
 
 module EVSS
   module GiBillStatus
-    class ServiceException < Common::Exceptions::BaseError
+    class ExternalServiceUnavailable < Common::Exceptions::BaseError
       def initialize
         super
       end
@@ -14,7 +14,7 @@ module EVSS
       end
 
       def i18n_key
-        'evss.gi_bill_status'
+        'evss.gi_bill_status.external_service_unavailable'
       end
     end
   end
