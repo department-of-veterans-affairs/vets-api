@@ -108,32 +108,22 @@ describe VIC::Service, type: :model do
       ProcessFileJob.drain
       attachment
     end
+    let(:result) { true }
 
     before do
       upload_io = double
       hex = '3e37ec951a66e3c6b6a58ae5c791bb9d'
       allow(SecureRandom).to receive(:hex).and_return(hex)
-      allow(Restforce::UploadIO).to receive(:new).with(
+      expect(Restforce::UploadIO).to receive(:new).with(
         "tmp/#{hex}", 'application/pdf'
       ).and_return(upload_io)
 
-      expect(client).to receive(:create!).with(
-        'ContentVersion',
-        Title: 'description', PathOnClient: 'description.pdf',
-        VersionData: upload_io
-      ).and_return('content_version_id')
-
-      expect(client).to receive(:find).with(
-        'ContentVersion',
-        'content_version_id'
-      ).and_return('ContentDocumentId' => 'document_id')
-
-      expect(client).to receive(:create!).with(
-        'ContentDocumentLink',
-        ContentDocumentId: 'document_id',
-        ShareType: 'V',
-        LinkedEntityId: case_id
-      )
+      expect(client).to receive(:create).with(
+        'Attachment',
+        ParentId: case_id,
+        Name: 'description.pdf',
+        Body: upload_io
+      ).and_return(result)
     end
 
     def call_send_file
@@ -145,6 +135,16 @@ describe VIC::Service, type: :model do
         call_send_file
 
         expect(model_exists?(attachment)).to eq(false)
+      end
+    end
+
+    context 'with a failed upload' do
+      let(:result) { false }
+
+      it 'should raise error' do
+        expect do
+          call_send_file
+        end.to raise_error(VIC::Service::AttachmentUploadFailed)
       end
     end
   end
