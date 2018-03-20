@@ -71,7 +71,7 @@ class BaseFacility < ActiveRecord::Base
     def find_facility_by_id(id)
       type, unique_id = id.split('_')
       return nil unless type && unique_id
-      "Facilities::#{type.upcase}Facility".constantize.find(unique_id)
+      "Facilities::#{type.upcase}Facility".constantize.find_by(unique_id: unique_id)
     end
 
     def query(params)
@@ -81,7 +81,7 @@ class BaseFacility < ActiveRecord::Base
     end
 
     def build_result_set(bbox_num, type, services)
-      conditions = { lat: (bbox_num[1]..bbox_num[3]), long: (bbox_num[0]..bbox_num[2]) }
+      conditions = { lat: (bbox_num[1]..bbox_num[3]), long: (bbox_num[2]..bbox_num[0]) }
       TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
     end
 
