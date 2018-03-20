@@ -102,6 +102,12 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
+
+        it "routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signin: true" do
+          get(:new, type: :idme, signup: true)
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
+        end
       end
 
       context 'routes requiring auth' do
