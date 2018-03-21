@@ -88,17 +88,34 @@ en:
         detail: "The record identified by %{id} could not be found"
         code: 404
         status: 404
+      resource_not_found:
+        <<: *defaults
+        title: Resource not found
+        detail: The requested resource could not be found
+        code: 404
+        status: 404
       routing_error:
         <<: *defaults
         title: Not found
         detail: "There are no routes matching your request: %{path}"
         code: 411
         status: 404
+      unprocessable_entity:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: The request was well-formed but was unable to be followed due to semantic or validation errors
+        code: 422
+        status: 422
       internal_server_error:
         <<: *defaults
         title: Internal server error
         code: 500
         status: 500
+      bad_gateway:
+        <<: *defaults
+        title: Bad Gateway
+        code: 502
+        status: 502
       service_outage:
         <<: *defaults
         title: Service unavailable
@@ -276,8 +293,16 @@ en:
         code: 113
         status: 503
     gi_bill_status:
-      <<: *defaults
-      title: External service unavailable
-      detail: 'EVSS received an error calling external service'
-      code: 113
-      status: 503
+      external_service_unavailable:
+        <<: *defaults
+        title: External service unavailable
+        detail: 'EVSS received an error calling external service'
+        code: 113
+        status: 503
+      outside_working_hours:
+        <<: *defaults
+        title: External service unavailable
+        detail: 'EVSS GI Bill Status is not available outside of working hours'
+        code: 114
+        status: 503
+

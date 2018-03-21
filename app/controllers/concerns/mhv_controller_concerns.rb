@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'mhv_ac/account_creation_error'
 
 module MHVControllerConcerns
@@ -12,13 +13,16 @@ module MHVControllerConcerns
   protected
 
   def authorize
+    # The user must (1) have an account that is either existing or
+    # created and upgraded by us or (2) be eligible to have an
+    # account created and upgraded by us.
     raise_access_denied unless accessible_or_eligible_for_creation?
+
+    # Stop if the user needs to accept terms and conditions.
     raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
-    begin
-      current_user.mhv_account.create_and_upgrade! unless current_user.mhv_account.accessible?
-    ensure
-      raise_something_went_wrong unless current_user.mhv_account.accessible?
-    end
+
+    # Stop if further actions are necessary to access MHV services.
+    raise_something_went_wrong unless authorized?
   end
 
   def raise_requires_terms_acceptance
@@ -27,6 +31,10 @@ module MHVControllerConcerns
 
   def raise_something_went_wrong
     raise MHVAC::AccountCreationError
+  end
+
+  def authorized?
+    current_user.mhv_account.accessible?
   end
 
   def accessible_or_eligible_for_creation?

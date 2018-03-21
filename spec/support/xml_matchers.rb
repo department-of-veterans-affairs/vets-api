@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rspec/expectations'
 
 RSpec::Matchers.define :eq_at_path do |path, expected|

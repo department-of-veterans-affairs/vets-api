@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module SM
   module Middleware
     module Response
@@ -6,7 +7,7 @@ module SM
       class SMParser < Faraday::Response::Middleware
         def on_complete(env)
           return unless env.response_headers['content-type'] =~ /\bjson/
-          env[:body] = parse(env.body) unless env.body.blank?
+          env[:body] = parse(env.body) if env.body.present?
         end
 
         def parse(body = nil)
@@ -32,7 +33,7 @@ module SM
         private
 
         def preferences
-          [:notify_me, :'0'].any? { |k| @parsed_json.key?(k) } ? @parsed_json : nil
+          %i[notify_me 0].any? { |k| @parsed_json.key?(k) } ? @parsed_json : nil
         end
 
         def parsed_folders
@@ -69,7 +70,7 @@ module SM
         end
 
         def fix_attachments(message_json)
-          return message_json.except(:attachments) unless message_json[:attachments].present?
+          return message_json.except(:attachments) if message_json[:attachments].blank?
           message_id = message_json[:id]
           attachments = Array.wrap(message_json[:attachments])
           # remove the outermost object name for attachment and inject message_id

@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 89dffe1340e67a9fb7d8044225db7395ac074994
+  revision: ca1f0178d103f5d8c35fa9b1d90dc44d829edebf
   branch: master
   specs:
-    vets_json_schema (3.13.2)
+    vets_json_schema (3.30.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -27,6 +27,7 @@ GIT
 
 GEM
   remote: https://rubygems.org/
+  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
     aasm (4.12.0)
@@ -88,6 +89,7 @@ GEM
     ast (2.3.0)
     attr_encrypted (3.0.3)
       encryptor (~> 3.0.0)
+    awesome_print (1.8.0)
     awrence (0.1.0)
     aws-sdk (2.6.12)
       aws-sdk-resources (= 2.6.12)
@@ -136,6 +138,7 @@ GEM
     connection_pool (2.2.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
+    crass (1.0.3)
     date_validator (0.9.0)
       activemodel
       activesupport
@@ -212,6 +215,7 @@ GEM
     ice_nine (0.11.2)
     iconv (1.0.4)
     iniparse (1.4.2)
+    iso_country_codes (0.7.8)
     jmespath (1.3.1)
     json (1.8.6)
     json-schema (2.7.0)
@@ -222,11 +226,14 @@ GEM
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
     jwt (2.1.0)
+    levenshtein-ffi (1.1.0)
+      ffi (~> 1.9)
     liquid (4.0.0)
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
-    loofah (2.0.3)
+    loofah (2.2.1)
+      crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
     mail (2.6.4)
@@ -240,13 +247,13 @@ GEM
     mini_magick (4.7.0)
     mini_portile2 (2.3.0)
     minitest (5.10.3)
-    multi_json (1.12.2)
+    multi_json (1.13.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.8.1)
+    nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     nori (2.6.0)
     notiffany (0.0.8)
@@ -261,8 +268,9 @@ GEM
       childprocess (~> 0.5.8)
       iniparse (~> 1.4)
     ox (2.8.2)
-    parser (2.3.1.2)
-      ast (~> 2.2)
+    parallel (1.12.1)
+    parser (2.4.0.2)
+      ast (~> 2.3)
     pdf-core (0.7.0)
     pdf-forms (1.1.1)
       cliver (~> 0.3.2)
@@ -287,11 +295,13 @@ GEM
     pry-nav (0.2.4)
       pry (>= 0.9.10, < 0.11.0)
     puma (2.16.0)
+    pundit (1.1.0)
+      activesupport (>= 3.0.0)
     rack (1.6.5)
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
-    rack-protection (1.5.3)
+    rack-protection (1.5.4)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -324,8 +334,8 @@ GEM
       activesupport (= 4.2.7.1)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rainbow (2.1.0)
-    rake (12.0.0)
+    rainbow (3.0.0)
+    rake (12.3.0)
     rb-fsevent (0.9.7)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
@@ -334,9 +344,12 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
-    redis_rate_limiter (0.1.0)
-      redis
     require_all (1.4.0)
+    restforce (2.5.3)
+      faraday (>= 0.9.0, <= 1.0)
+      faraday_middleware (>= 0.8.8, <= 1.0)
+      hashie (>= 1.2.0, < 4.0)
+      json (>= 1.7.5)
     rspec (3.5.0)
       rspec-core (~> 3.5.0)
       rspec-expectations (~> 3.5.0)
@@ -361,16 +374,17 @@ GEM
     rspec_junit_formatter (0.2.3)
       builder (< 4)
       rspec-core (>= 2, < 4, != 2.12.0)
-    rubocop (0.42.0)
-      parser (>= 2.3.1.1, < 3.0)
+    rubocop (0.52.1)
+      parallel (~> 1.10)
+      parser (>= 2.4.0.2, < 3.0)
       powerpack (~> 0.1)
-      rainbow (>= 1.99.1, < 3.0)
+      rainbow (>= 2.2.2, < 4.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     rubocop-junit-formatter (0.1.3)
-    ruby-progressbar (1.8.1)
+    ruby-progressbar (1.9.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.5.0)
+    ruby-saml (1.7.0)
       nokogiri (>= 1.5.10)
     rufus-scheduler (3.1.10)
     safe_shell (1.0.3)
@@ -403,22 +417,23 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-instrument (0.2.1)
-      sidekiq (~> 4.0)
+    sidekiq-ent (1.6.1)
+      sidekiq (>= 4.2.9)
+      sidekiq-pro (>= 3.5.0)
+    sidekiq-instrument (0.3.0)
+      sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-rate-limiter (0.1.1)
-      redis
-      redis_rate_limiter
-      sidekiq (>= 2.0, < 5.0)
+    sidekiq-pro (3.7.0)
+      sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
       rufus-scheduler (~> 3.1.8)
       sidekiq (>= 3)
       tilt (>= 1.4.0)
-    sidekiq-unique-jobs (4.0.18)
-      sidekiq (>= 2.6)
-      thor
+    sidekiq-unique-jobs (5.0.10)
+      sidekiq (>= 4.0, <= 6.0)
+      thor (~> 0)
     simplecov (0.15.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -448,7 +463,7 @@ GEM
       ethon (>= 0.9.0)
     tzinfo (1.2.4)
       thread_safe (~> 0.1)
-    unicode-display_width (1.1.1)
+    unicode-display_width (1.3.0)
     vcr (3.0.3)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -480,6 +495,7 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   apivore
   attr_encrypted
+  awesome_print (~> 1.8)
   awrence
   aws-sdk
   betamocks!
@@ -512,8 +528,10 @@ DEPENDENCIES
   httpclient
   ice_nine
   iconv
+  iso_country_codes
   json-schema
   jwt
+  levenshtein-ffi
   liquid
   memoist
   mini_magick
@@ -531,6 +549,7 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 2.16.0)
+  pundit
   rack-attack
   rack-cors
   rack-test
@@ -541,9 +560,10 @@ DEPENDENCIES
   redis
   redis-namespace
   require_all
+  restforce
   rspec-rails (~> 3.5)
   rspec_junit_formatter
-  rubocop (~> 0.42.0)
+  rubocop (~> 0.52.1)
   rubocop-junit-formatter
   ruby-saml
   savon
@@ -552,11 +572,13 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq
+  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-rate-limiter
+  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
+  socksify
   spring
   spring-commands-rspec
   statsd-instrument

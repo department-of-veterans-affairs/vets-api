@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'common/exceptions'
 
@@ -65,6 +66,11 @@ describe Mvi, skip_mvi: true do
       describe '#participant_id' do
         it 'should match the response' do
           expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
+        end
+      end
+      describe '#historical_icns' do
+        it 'should match the response' do
+          expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
         end
       end
     end

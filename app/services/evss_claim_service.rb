@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 
 class EVSSClaimService
   include SentryLogging
-  EVSS_CLAIM_KEYS = %w(open_claims historical_claims).freeze
+  EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
   EVSS_COMMON_CLIENT_KEY = 'evss_common_client'.freeze
 
   def initialize(user)

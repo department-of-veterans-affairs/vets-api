@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 require 'emis/responses/response'
 require 'emis/responses/get_veteran_status_response'
 
 namespace :redis do
   desc 'Flush Vets.gov User/Sessions'
-  task flush_session: [:flush_session_store, :flush_users_store]
+  task flush_session: %i[flush_session_store flush_users_store]
 
   desc 'Flush RedisStore: Session'
   task flush_session_store: :environment do
@@ -24,15 +25,38 @@ namespace :redis do
     end
   end
 
+  desc 'Load test sessions from file'
+  task :create_sessions_json, [:sessions_json] => [:environment] do |_, args|
+    raise 'No sessions JSON file provided' unless args[:sessions_json]
+    redis = Redis.current
+    File.open(args[:sessions_json]) do |file|
+      session_ids = []
+      session_data = JSON.parse(file.read)
+      session_data.each do |sdata|
+        token = SecureRandom.uuid.delete '-'
+        uuid = sdata['uuid']
+
+        session = Session.new(token: token, uuid: uuid)
+        session.save
+        session_ids << session
+
+        redis.set "users_b:#{uuid}", sdata['users_b'].to_json
+        redis.set "mvi-profile-response:#{uuid}", sdata['mvi-profile-response'].to_json
+        redis.set "user_identities:#{uuid}", sdata['user_identities'].to_json
+      end
+      session_ids.each { |s| puts "#{s.token}\t#{s.uuid}" }
+    end
+  end
+
   desc 'Create test sessions'
-  task :create_sessions, [:count, :mhv_id] => [:environment] do |_, args|
+  task :create_sessions, %i[count mhv_id] => [:environment] do |_, args|
     args.with_defaults(count: 50, mhv_id: nil)
     redis = Redis.current
 
     args[:count].to_i.times do
       uuid = SecureRandom.uuid.delete '-'
       token = SecureRandom.uuid.delete '-'
-      mhv_ids = [args[:mhv_id] || %w(12210827 10894456 13408508 13492196).sample]
+      mhv_ids = [args[:mhv_id] || %w[12210827 10894456 13408508 13492196].sample]
 
       session = Session.new(token: token, uuid: uuid)
       session.save
@@ -64,7 +88,7 @@ namespace :redis do
           "edipi": '1005079124',
           "family_name": 'USER',
           "gender": 'F',
-          "given_names": %w(TEST T),
+          "given_names": %w[TEST T],
           "icn": '1008710255V058302',
           "mhv_ids": mhv_ids,
           "ssn": '123456789',
@@ -102,7 +126,7 @@ namespace :redis do
         begin
           resp = Oj.load(redis.get(key))[:response]
           count += 1
-          mhvu = !resp.profile.mhv_ids.blank?
+          mhvu = resp.profile.mhv_ids.present?
           patient = patient?(resp.profile.vha_facility_ids)
           mhv_users += 1 if mhvu
           vha_patients += 1 if patient

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'rx/client'
 require 'support/rx_client_helpers'
@@ -44,10 +45,6 @@ RSpec.describe 'prescriptions', type: :request do
   context 'mhv account not upgraded' do
     let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false) }
     let(:current_user) { build(:user, :loa3) }
-
-    before(:each) do
-      allow_any_instance_of(MhvAccount).to receive(:create_and_upgrade!)
-    end
 
     it 'raises forbidden' do
       get '/v0/prescriptions/13651310'

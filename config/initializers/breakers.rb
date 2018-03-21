@@ -1,6 +1,7 @@
 # frozen_string_literal: true
+
+require 'appeals/configuration'
 require 'breakers/statsd_plugin'
-require 'appeals_status/configuration'
 require 'bb/configuration'
 require 'emis/military_information_configuration'
 require 'emis/payment_configuration'
@@ -30,9 +31,8 @@ redis = Redis.new(redis_config['redis'])
 redis_namespace = Redis::Namespace.new('breakers', redis: redis)
 
 services = [
-  AppealsStatus::Configuration.instance.breakers_service,
+  Appeals::Configuration.instance.breakers_service,
   Rx::Configuration.instance.breakers_service,
-  AppealsStatus::Configuration.instance.breakers_service,
   BB::Configuration.instance.breakers_service,
   EMIS::MilitaryInformationConfiguration.instance.breakers_service,
   EMIS::PaymentConfiguration.instance.breakers_service,
@@ -45,6 +45,7 @@ services = [
   EVSS::GiBillStatus::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
+  VIC::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
   MHVAC::Configuration.instance.breakers_service,
@@ -53,9 +54,7 @@ services = [
   SM::Configuration.instance.breakers_service
 ]
 
-if Settings.pension_burial&.upload&.enabled
-  services << PensionBurial::Configuration.instance.breakers_service
-end
+services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled
 
 plugin = Breakers::StatsdPlugin.new
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe PersistentAttachments::PensionBurial do
@@ -15,15 +16,6 @@ RSpec.describe PersistentAttachments::PensionBurial do
     instance.file = file.open
     expect(instance.valid?).to be(true)
     expect(instance.file.shrine_class).to be(ClaimDocumentation::Uploader)
-  end
-
-  context '#process' do
-    it 'starts a background process' do
-      instance.saved_claim = FactoryBot.create(:burial_claim)
-      klass = ClaimDocumentation::PensionBurial::File
-      expect(klass).to receive(:new).with(hash_including(guid: instance.guid)).and_return(double(klass, start!: true))
-      instance.process
-    end
   end
 
   describe '#can_upload_to_api?' do

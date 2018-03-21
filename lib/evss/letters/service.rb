@@ -1,17 +1,29 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
 require 'common/exceptions/external/gateway_timeout'
+require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
     class Service < EVSS::Service
+      include Common::Client::Monitoring
+
       configuration EVSS::Letters::Configuration
+
+      INVALID_ADDRESS_ERROR = 'letterDestination.addressLine1.invalid'
 
       def get_letters
         with_monitoring do
           raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        begin
+          log_edipi if invalid_address_error?(e)
+        ensure
+          handle_error(e)
         end
       end
 
@@ -20,6 +32,8 @@ module EVSS
           raw_response = perform(:get, 'letterBeneficiary')
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       private
@@ -33,6 +47,15 @@ module EVSS
         else
           super(error)
         end
+      end
+
+      def log_edipi
+        InvalidLetterAddressEdipi.find_or_create_by(edipi: @user.edipi)
+      end
+
+      def invalid_address_error?(error)
+        return false unless error.is_a?(Common::Client::Errors::ClientError)
+        error&.body&.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
       end
     end
   end

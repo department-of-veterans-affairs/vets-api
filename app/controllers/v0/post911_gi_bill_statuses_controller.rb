@@ -1,9 +1,13 @@
 # frozen_string_literal: true
+
 require 'evss/gi_bill_status/gi_bill_status_response'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController
     include SentryLogging
+
+    before_action { authorize :evss, :access? }
+    before_action :service_available?, only: :show
 
     STATSD_GI_BILL_TOTAL_KEY = 'api.evss.gi_bill_status.total'
     STATSD_GI_BILL_FAIL_KEY = 'api.evss.gi_bill_status.fail'
@@ -29,7 +33,7 @@ module V0
       case error_type
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:evss_error]
         # 503
-        raise EVSS::GiBillStatus::ServiceException
+        raise EVSS::GiBillStatus::ExternalServiceUnavailable
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
         raise Common::Exceptions::RecordNotFound, @current_user.email
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
@@ -39,6 +43,15 @@ module V0
         # 500
         log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, response.to_h)
         raise Common::Exceptions::InternalServerError
+      end
+    end
+
+    def service_available?
+      unless EVSS::GiBillStatus::Service.within_scheduled_uptime?
+        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ['error:scheduled_downtime'])
+        headers['Retry-After'] = EVSS::GiBillStatus::Service.retry_after_time
+        # 503 response
+        raise EVSS::GiBillStatus::OutsideWorkingHours
       end
     end
 

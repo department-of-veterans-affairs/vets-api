@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 shared_examples_for 'saved_claim_with_confirmation_number' do
   it_should_behave_like 'saved_claim'
 
@@ -15,6 +16,14 @@ shared_examples_for 'saved_claim' do
 
   it 'descends from saved_claim' do
     expect(described_class.ancestors).to include(SavedClaim)
+  end
+
+  describe '#process_attachments!' do
+    it 'should start a job to submit the saved claim' do
+      expect(SubmitSavedClaimJob).to receive(:perform_async).with(instance.id)
+
+      instance.process_attachments!
+    end
   end
 
   context 'a record' do

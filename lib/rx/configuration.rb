@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/response/json_parser'
@@ -20,6 +21,10 @@ module Rx
 
     def base_path
       "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
+    end
+
+    def caching_enabled?
+      Settings.mhv.rx.collection_caching_enabled || false
     end
 
     def service_name

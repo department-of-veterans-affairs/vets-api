@@ -1,4 +1,8 @@
 pipeline {
+  options {
+    buildDiscarder(logRotator(daysToKeepStr: '60'))
+  }
+
   agent {
     label 'vetsgov-general-purpose'
   }
@@ -12,8 +16,10 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'make ci'
+        withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
+          withEnv(['RAILS_ENV=test', 'CI=true']) {
+            sh 'make ci'
+          }
         }
       }
     }

@@ -1,9 +1,11 @@
 # frozen_string_literal: true
+
 module V0
   class ClaimDocumentsController < ApplicationController
     skip_before_action(:authenticate)
 
     def create
+      PensionBurial::TagSentry.tag_sentry
       attachment = klass.new(form_id: form_id)
       # add the file after so that we have a form_id and guid for the uploader to use
       attachment.file = params['file']

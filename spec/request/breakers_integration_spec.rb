@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'rx/client'
 require 'support/rx_client_helpers'
@@ -24,6 +25,7 @@ RSpec.describe 'breakers', type: :request do
     allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(:true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)
+    Settings.mhv.rx.collection_caching_enabled = false
   end
 
   after(:all) do

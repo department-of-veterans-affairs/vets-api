@@ -70,6 +70,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.allow_http_connections_when_no_cassette = false
     c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
     c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
+    c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
     c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
     c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
     c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
@@ -77,7 +78,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
     c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
     c.before_record do |i|
-      %i(response request).each do |env|
+      %i[response request].each do |env|
         next unless i.send(env).headers.keys.include?('Token')
         i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
       end

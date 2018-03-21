@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class VCFacilityAdapter
   VC_URL = +Settings.locators.vc
   VC_ID_FIELD = 'stationno'
@@ -24,7 +25,7 @@ class VCFacilityAdapter
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
     m[:address][:mailing] = {}
     m[:phone] = from_gis_attrs(PHONE_KEYMAP, attrs)
-    m[:hours] = {}
+    m[:hours] = from_gis_attrs(HOURS_KEYMAP, attrs)
     m[:services] = {}
     m[:feedback] = {}
     m[:access] = {}
@@ -49,9 +50,9 @@ class VCFacilityAdapter
     'main' => 'sta_phone'
   }.freeze
 
-  HOURS_KEYMAP = %w(
-    Monday Tuesday Wednesday Thursday Friday Saturday Sunday
-  ).each_with_object({}) { |d, h| h[d] = d }
+  HOURS_KEYMAP = %w[
+    monday tuesday wednesday thursday friday saturday sunday
+  ].each_with_object({}) { |d, h| h[d] = d }
 
   # Build a sub-section of the VAFacility model from a flat GIS attribute list,
   # according to the provided key mapping dict. Strip whitespace from string values.

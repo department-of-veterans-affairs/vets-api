@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 desc 'retry failed evss jobs'
 task evss_retry_jobs: :environment do
   RELEASE_TIME = Time.zone.parse('2017-09-20T21:59:58.486Z')
@@ -21,7 +22,7 @@ namespace :evss do
   task :export_gibs_not_found, [:csv_path] => [:environment] do |_, args|
     raise 'No CSV path provided' unless args[:csv_path]
     CSV.open(args[:csv_path], 'wb') do |csv|
-      csv << %w(edipi first_name last_name ssn dob created_at)
+      csv << %w[edipi first_name last_name ssn dob created_at]
       GibsNotFoundUser.find_each do |user|
         csv << [
           user.edipi,
@@ -30,6 +31,20 @@ namespace :evss do
           user.ssn,
           user.dob.strftime('%Y-%m-%d'),
           user.created_at.iso8601
+        ]
+      end
+    end
+  end
+
+  desc 'export EDIPIs users with invalid addresss, usage: rake evss:export_invalid_address_edipis[/export/path.csv]'
+  task :export_invalid_address_edipis, [:csv_path] => [:environment] do |_, args|
+    raise 'No CSV path provided' unless args[:csv_path]
+    CSV.open(args[:csv_path], 'wb') do |csv|
+      csv << %w[edipi created_at]
+      InvalidLetterAddressEdipi.find_each do |i|
+        csv << [
+          i.edipi,
+          i.created_at.iso8601
         ]
       end
     end

@@ -1,8 +1,10 @@
 # frozen_string_literal: true
+
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
 require 'sentry_logging'
+require 'base64'
 
 module SAML
   class User
@@ -39,7 +41,7 @@ module SAML
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
     # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
-      %i(authn_context)
+      %i[authn_context]
     end
 
     def dslogon?
@@ -70,6 +72,14 @@ module SAML
     # this is the real authn-context returned in the response without the use of heuristics
     def real_authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+    # this is to add additional context when we cannot parse for authn_context
+    rescue NoMethodError
+      Raven.extra_context(
+        base64encodedpayload: Base64.encode64(saml_response.response),
+        attributes: saml_response.attributes.to_h
+      )
+      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      raise
     end
 
     # We want to do some logging of when and how the following issues could arise, since loa is

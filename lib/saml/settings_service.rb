@@ -1,13 +1,17 @@
 # frozen_string_literal: true
+
 require 'memoist'
 require 'sentry_logging'
 require 'saml/health_status'
+require 'saml/url_service'
 
 module SAML
   # This class is responsible for putting together a complete ruby-saml
   # SETTINGS object, meaning, our static SP settings + the IDP settings
   # which must be fetched once and only once via IDP metadata.
-  class SettingsService
+  module SettingsService
+    extend URLService
+
     class << self
       include SentryLogging
       extend Memoist

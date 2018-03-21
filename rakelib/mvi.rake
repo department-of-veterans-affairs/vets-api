@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'csv'
 require 'mvi/responses/id_parser'
 
@@ -11,27 +12,32 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
 
     begin
-      user = User.new(
+      uuid = SecureRandom.uuid
+
+      identity = UserIdentity.new(
+        uuid: uuid,
         first_name: ENV['first_name'],
-        last_name: ENV['last_name'],
         middle_name: ENV['middle_name'],
+        last_name: ENV['last_name'],
         birth_date: ENV['birth_date'],
         gender: ENV['gender'],
         ssn: ENV['ssn'],
         email: 'foo@bar.com',
-        uuid: SecureRandom.uuid,
         loa: {
           current: LOA::THREE,
           highest: LOA::THREE
         }
       )
-      puts Oj.dump(
-        edipi: user.edipi,
-        icn: user.icn,
-        mhv_correlation_id: user.mhv_correlation_id,
-        participant_id: user.participant_id,
-        va_profile: user.va_profile
+
+      identity.save
+
+      user = User.new(
+        uuid: uuid,
+        identity: identity
       )
+
+      user.last_signed_in = Time.now.utc
+      pp user.va_profile
     rescue => e
       puts "User query failed: #{e.message}"
     end
@@ -83,7 +89,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
     end
 
     path = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
-    yaml = YAML.load(File.read(path))
+    yaml = YAML.safe_load(File.read(path))
     xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
 
     yaml[:body] = update_ids(xml, ids)
@@ -94,7 +100,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
   desc 'Create missing cache files from mock_mvi_responses.yml'
   task :migrate_mock_data, [:environment] do
-    yaml = YAML.load(
+    yaml = YAML.safe_load(
       File.read(File.join('config', 'mvi_schema', 'mock_mvi_responses.yml'))
     )
     template = Liquid::Template.parse(

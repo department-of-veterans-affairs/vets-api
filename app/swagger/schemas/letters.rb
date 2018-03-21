@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Schemas
     class Letters
@@ -9,7 +10,7 @@ module Swagger
 
         property :data, type: :object do
           property :attributes, type: :object do
-            key :required, [:letters, :full_name]
+            key :required, %i[letters full_name]
             property :letters do
               key :type, :array
               items do
@@ -24,9 +25,9 @@ module Swagger
       end
 
       swagger_schema :Letter do
-        key :required, [:name, :letter_type]
+        key :required, %i[name letter_type]
         property :name, type: :string, example: 'Proof of Service Letter'
-        property :letter_type, type: :string, enum: %w(
+        property :letter_type, type: :string, enum: %w[
           commissary
           proof_of_service
           medicare_partd
@@ -36,7 +37,7 @@ module Swagger
           benefit_summary
           benefit_verification
           certificate_of_eligibility
-        ), example: 'proof_of_service'
+        ], example: 'proof_of_service'
       end
     end
   end

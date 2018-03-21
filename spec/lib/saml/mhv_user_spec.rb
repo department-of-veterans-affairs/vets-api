@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'saml/user'
 require 'ruby-saml'
@@ -33,6 +34,7 @@ RSpec.describe SAML::User do
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 1, highest: 1 },
+          mhv_account_type: 'Advanced',
           mhv_correlation_id: '12345748',
           mhv_icn: '1012853550V207686',
           multifactor: 'true',
@@ -73,6 +75,7 @@ RSpec.describe SAML::User do
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
+          mhv_account_type: 'Premium',
           mhv_correlation_id: '12345748',
           mhv_icn: '1012853550V207686',
           multifactor: 'false',

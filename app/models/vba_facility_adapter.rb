@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class VBAFacilityAdapter
   VBA_URL = +Settings.locators.vba
   VBA_ID_FIELD = 'Facility_Number'
@@ -18,13 +19,15 @@ class VBAFacilityAdapter
   end
 
   def self.where_clause(services)
-    services.map { |s| "#{SERVICES_MAP[s]}='YES'" }.join(' AND ') unless services.nil?
+    services&.map { |s| "#{SERVICES_MAP[s]}='YES'" }&.join(' AND ')
   end
 
   def self.from_gis(record)
     attrs = record['attributes']
     m = from_gis_attrs(TOP_KEYMAP, attrs)
     m[:facility_type] = FACILITY_TYPE
+    m[:lat] = record['geometry']['y']
+    m[:long] = record['geometry']['x']
     m[:address] = {}
     m[:address][:physical] = from_gis_attrs(ADDR_KEYMAP, attrs)
     m[:address][:mailing] = {}
@@ -44,7 +47,7 @@ class VBAFacilityAdapter
   TOP_KEYMAP = {
     unique_id: 'Facility_Number',
     name: 'Facility_Name', classification: 'Facility_Type',
-    website: 'Website_URL', lat: 'Lat', long: 'Long'
+    website: 'Website_URL'
   }.freeze
 
   ADDR_KEYMAP = {
@@ -56,9 +59,9 @@ class VBAFacilityAdapter
     'main' => 'Phone', 'fax' => 'Fax'
   }.freeze
 
-  HOURS_KEYMAP = %w(
+  HOURS_KEYMAP = %w[
     Monday Tuesday Wednesday Thursday Friday Saturday Sunday
-  ).each_with_object({}) { |d, h| h[d] = d }
+  ].each_with_object({}) { |d, h| h[d] = d }
 
   SERVICES_MAP = {
     'ApplyingForBenefits' => 'Applying_for_Benefits',

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 # Secure Messaging Notification Preference Model
 class MessagingPreference < Common::Base

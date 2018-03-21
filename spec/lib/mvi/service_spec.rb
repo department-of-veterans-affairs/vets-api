@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'mvi/service'
 require 'mvi/responses/find_profile_response'
@@ -17,10 +18,18 @@ describe MVI::Service do
   let(:user) { build(:user, :loa3, user_hash) }
 
   let(:mvi_profile) do
-    build(:mvi_profile_response, :missing_attrs, :address_austin, given_names: %w(Mitchell G), vha_facility_ids: [])
+    build(
+      :mvi_profile_response,
+      :missing_attrs,
+      :address_austin,
+      given_names: %w[Mitchell G],
+      vha_facility_ids: [],
+      sec_id: nil,
+      historical_icns: nil
+    )
   end
 
-  describe '.find_profile with icn' do
+  describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before(:each) do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
     end
@@ -55,11 +64,37 @@ describe MVI::Service do
           expect(response.profile).to have_deep_attributes(mvi_profile)
         end
       end
+
+      it 'fetches historical icns if they exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+
+        match = { match_requests_on: %i[method uri headers body] }
+        VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', match) do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
+        end
+      end
+
+      it 'fetches no historical icns if none exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        allow(user).to receive(:mhv_icn).and_return('1008710003V120120^NI^200M^USVHA^P')
+        allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+
+        VCR.use_cassette('mvi/find_candidate/historical_icns_empty', VCR::MATCH_EVERYTHING) do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['historical_icns']).to eq([])
+        end
+      end
     end
 
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if ICN is invalid' do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request (Possible RecordNotFound)', :error
+        )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
           expect(subject.find_profile(user))
@@ -69,6 +104,9 @@ describe MVI::Service do
 
       it 'responds with a SERVER_ERROR if ICN has no matches' do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request (Possible RecordNotFound)', :error
+        )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
           expect(subject.find_profile(user))
@@ -89,6 +127,28 @@ describe MVI::Service do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
           expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+
+      context 'with historical icns' do
+        let(:user_hash) do
+          {
+            first_name: 'RFIRST',
+            last_name: 'RLAST',
+            birth_date: '19790812',
+            gender: 'M',
+            ssn: '768598574'
+          }
+        end
+
+        it 'fetches historical icns when available', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+
+          VCR.use_cassette('mvi/find_candidate/historical_icns_with_traits', VCR::MATCH_EVERYTHING) do
+            response = subject.find_profile(user)
+            expect(response.status).to eq('OK')
+            expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
+          end
         end
       end
 
@@ -117,6 +177,9 @@ describe MVI::Service do
       it 'should raise a invalid request error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Invalid Request', :error
+        )
         VCR.use_cassette('mvi/find_candidate/invalid') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -128,6 +191,9 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Failed Request', :error
+        )
         VCR.use_cassette('mvi/find_candidate/failure') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -151,6 +217,10 @@ describe MVI::Service do
     context 'when a status of 500 is returned' do
       it 'should raise a request failure error' do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI find_profile error: SOAP HTTP call failed',
+          :error
+        )
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -173,9 +243,33 @@ describe MVI::Service do
         }
       end
 
-      it 'raises an MVI::Errors::RecordNotFound error' do
+      it 'returns not found, does not log sentry' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
+          expect(subject).not_to receive(:log_message_to_sentry)
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+        end
+      end
+
+      context 'with an invalid historical icn user' do
+        let(:user_hash) do
+          {
+            first_name: 'sdf',
+            last_name: 'sdgsdf',
+            birth_date: '19800812',
+            gender: 'M',
+            ssn: '111222333'
+          }
+        end
+
+        it 'returns not found for COMP2 requests, does not log sentry', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+          allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
+
+          VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
+            expect(subject).not_to receive(:log_message_to_sentry)
+            expect(subject.find_profile(user)).to have_deep_attributes(
+              MVI::Responses::FindProfileResponse.with_not_found
+            )
+          end
         end
       end
 
@@ -193,6 +287,10 @@ describe MVI::Service do
       end
 
       it 'raises an Common::Client::Errors::HTTPError' do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI find_profile error: SOAP service returned internal server error',
+          :error
+        )
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
           expect(subject.find_profile(user))
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
@@ -206,6 +304,10 @@ describe MVI::Service do
       end
 
       it 'raises MVI::Errors::RecordNotFound' do
+        expect(subject).to receive(:log_message_to_sentry).with(
+          'MVI Duplicate Record', :warn
+        )
+
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Session, type: :model do
@@ -79,10 +80,23 @@ RSpec.describe Session, type: :model do
         expect(subject.save).to eq(true)
       end
 
-      it 'will not save a session beyond the maximum ttl' do
-        subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
-        expect(subject.save).to eq(false)
-        expect(subject.errors.messages).to include(:created_at)
+      context 'when beyond the maximum ttl' do
+        before { subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute) }
+
+        it 'will not save' do
+          expect(subject.save).to eq(false)
+          expect(subject.errors.messages).to include(:created_at)
+        end
+
+        it 'logs info to sentry' do
+          expect(subject).to receive(:log_message_to_sentry).with(
+            'Maximum Session Duration Reached',
+            :info,
+            {},
+            session_token: described_class.obscure_token(subject.token)
+          )
+          subject.save
+        end
       end
     end
 

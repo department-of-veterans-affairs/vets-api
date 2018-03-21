@@ -1,11 +1,12 @@
 # frozen_string_literal: true
+
 module V0
   class MessagesController < SMController
     include Filterable
 
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
-      raise Common::Exceptions::RecordNotFound, params[:folder_id] unless resource.present?
+      raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
       resource = params[:filter].present? ? resource.find_by(params[:filter]) : resource
       resource = resource.sort(params[:sort])
       resource = resource.paginate(pagination_params)
@@ -20,7 +21,7 @@ module V0
       message_id = params[:id].try(:to_i)
       response = client.get_message(message_id)
 
-      raise Common::Exceptions::RecordNotFound, message_id unless response.present?
+      raise Common::Exceptions::RecordNotFound, message_id if response.blank?
 
       render json: response,
              serializer: MessageSerializer,
@@ -55,7 +56,7 @@ module V0
     def thread
       message_id = params[:id].try(:to_i)
       resource = client.get_message_history(message_id)
-      raise Common::Exceptions::RecordNotFound, message_id unless resource.present?
+      raise Common::Exceptions::RecordNotFound, message_id if resource.blank?
 
       render json: resource.data,
              serializer: CollectionSerializer,
@@ -70,11 +71,11 @@ module V0
       message_params[:id] = message_params.delete(:draft_id) if message_params[:draft_id].present?
       create_message_params = { message: message_params }.merge(upload_params)
 
-      if message.uploads.present?
-        client_response = client.post_create_message_reply_with_attachment(params[:id], create_message_params)
-      else
-        client_response = client.post_create_message_reply(params[:id], message_params)
-      end
+      client_response = if message.uploads.present?
+                          client.post_create_message_reply_with_attachment(params[:id], create_message_params)
+                        else
+                          client.post_create_message_reply(params[:id], message_params)
+                        end
 
       render json: client_response,
              serializer: MessageSerializer,

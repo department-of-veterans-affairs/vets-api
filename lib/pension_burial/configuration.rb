@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module PensionBurial
   class Configuration < Common::Client::Configuration::REST
     def base_path
@@ -15,7 +16,6 @@ module PensionBurial
         faraday.request :url_encoded
 
         faraday.use :breakers
-        faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
     end

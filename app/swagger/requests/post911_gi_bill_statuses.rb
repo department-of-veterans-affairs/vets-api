@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Post911GiBillStatuses
@@ -28,11 +29,22 @@ module Swagger
               key :'$ref', :Errors
             end
           end
+
+          response 503 do
+            key :description, 'The backend GI Bill Status service is unavailable'
+            header 'Retry-After' do
+              key :type, :string
+              key :format, 'date'
+            end
+            schema do
+              key :'$ref', :Errors
+            end
+          end
         end
       end
 
       swagger_schema :Post911GiBillStatus do
-        key :required, [:data, :meta]
+        key :required, %i[data meta]
 
         property :meta, description: 'The response from the EVSS service to vets-api', type: :object do
           key :'$ref', :Meta
@@ -43,15 +55,15 @@ module Swagger
           property :attributes, type: :object do
             property :first_name, type: :string, example: 'Abraham'
             property :last_name, type: :string, example: 'Lincoln'
-            property :name_suffix, type: [:string, :null], example: 'Jr'
-            property :date_of_birth, type: [:string, :null], example: '1955-11-12T06:00:00.000+0000'
-            property :va_file_number, type: [:string, :null], example: '123456789'
-            property :regional_processing_office, type: [:string, :null], example: 'Central Office Washington, DC'
-            property :eligibility_date, type: [:string, :null], example: '2004-10-01T04:00:00.000+0000'
-            property :delimiting_date, type: [:string, :null], example: '2015-10-01T04:00:00.000+0000'
-            property :percentage_benefit, type: [:integer, :null], example: 100
-            property :veteran_is_eligible, type: [:boolean, :null], example: false
-            property :active_duty, type: [:boolean, :null], example: false
+            property :name_suffix, type: %i[string null], example: 'Jr'
+            property :date_of_birth, type: %i[string null], example: '1955-11-12T06:00:00.000+0000'
+            property :va_file_number, type: %i[string null], example: '123456789'
+            property :regional_processing_office, type: %i[string null], example: 'Central Office Washington, DC'
+            property :eligibility_date, type: %i[string null], example: '2004-10-01T04:00:00.000+0000'
+            property :delimiting_date, type: %i[string null], example: '2015-10-01T04:00:00.000+0000'
+            property :percentage_benefit, type: %i[integer null], example: 100
+            property :veteran_is_eligible, type: %i[boolean null], example: false
+            property :active_duty, type: %i[boolean null], example: false
             property :original_entitlement, type: :object do
               key :'$ref', :Entitlement
             end
@@ -74,20 +86,20 @@ module Swagger
       swagger_schema :Enrollment do
         key :required, [:begin_date]
         property :begin_date, type: :string, example: '2012-11-01T04:00:00.000+00:00' #
-        property :end_date, type: [:string, :null], example: '2012-12-01T05:00:00.000+00:00'
-        property :facility_code, type: [:string, :null], example: '12345678'
-        property :facility_name, type: [:string, :null], example: 'Purdue University'
-        property :participant_id, type: [:string, :null], example: '11170323'
-        property :training_type, type: [:string, :null], example: 'UNDER_GRAD'
-        property :term_id, type: [:string, :null], example: nil
-        property :hour_type, type: [:string, :null], example: nil
-        property :full_time_hours, type: [:integer, :null], example: 12
-        property :full_time_credit_hour_under_grad, type: [:integer, :null], example: nil
-        property :vacation_day_count, type: [:integer, :null], example: 0
-        property :on_campus_hours, type: [:number, :null], example: 12
-        property :online_hours, type: [:number, :null], example: 0
-        property :yellow_ribbon_amount, type: [:number, :null], example: 0
-        property :status, type: [:string, :null], example: 'Approved'
+        property :end_date, type: %i[string null], example: '2012-12-01T05:00:00.000+00:00'
+        property :facility_code, type: %i[string null], example: '12345678'
+        property :facility_name, type: %i[string null], example: 'Purdue University'
+        property :participant_id, type: %i[string null], example: '11170323'
+        property :training_type, type: %i[string null], example: 'UNDER_GRAD'
+        property :term_id, type: %i[string null], example: nil
+        property :hour_type, type: %i[string null], example: nil
+        property :full_time_hours, type: %i[integer null], example: 12
+        property :full_time_credit_hour_under_grad, type: %i[integer null], example: nil
+        property :vacation_day_count, type: %i[integer null], example: 0
+        property :on_campus_hours, type: %i[number null], example: 12
+        property :online_hours, type: %i[number null], example: 0
+        property :yellow_ribbon_amount, type: %i[number null], example: 0
+        property :status, type: %i[string null], example: 'Approved'
         property :amendments do
           key :type, :array
           items do
@@ -98,15 +110,15 @@ module Swagger
 
       swagger_schema :Amendment do
         key :required, [:type]
-        property :on_campus_hours, type: [:number, :null]
-        property :online_hours, type: [:number, :null]
-        property :yellow_ribbon_amount, type: [:number, :null]
+        property :on_campus_hours, type: %i[number null]
+        property :online_hours, type: %i[number null]
+        property :yellow_ribbon_amount, type: %i[number null]
         property :type, type: :string
-        property :change_effective_date, type: [:string, :null]
+        property :change_effective_date, type: %i[string null]
       end
 
       swagger_schema :Entitlement do
-        key :required, [:days, :months]
+        key :required, %i[days months]
         property :days, type: :integer
         property :months, type: :integer
       end
@@ -114,7 +126,7 @@ module Swagger
       swagger_schema :Meta do
         key :description, 'The response from the EVSS service to vets-api'
         key :required, [:status]
-        property :status, type: :string, enum: %w(OK NOT_FOUND SERVER_ERROR NOT_AUTHORIZED)
+        property :status, type: :string, enum: %w[OK NOT_FOUND SERVER_ERROR NOT_AUTHORIZED]
       end
     end
   end
