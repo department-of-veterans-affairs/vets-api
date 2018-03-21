@@ -123,6 +123,8 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+  gem 'sinatra'
+  gem 'saml_idp', git: 'https://github.com/saneshark/saml_idp', branch: 'idp_multi_cert'
 end
 
 group :production do
