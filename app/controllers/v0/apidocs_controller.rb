@@ -111,7 +111,6 @@ module V0
       Swagger::Schemas::MaintenanceWindows,
       Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::SavedForm,
-      Swagger::Schemas::ServiceHistory,
       Swagger::Schemas::States,
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::VAFacilities,
