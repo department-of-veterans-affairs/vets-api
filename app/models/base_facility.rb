@@ -81,7 +81,9 @@ class BaseFacility < ActiveRecord::Base
     end
 
     def build_result_set(bbox_num, type, services)
-      conditions = { lat: (bbox_num[1]..bbox_num[3]), long: (bbox_num[2]..bbox_num[0]) }
+      lats = bbox_num.values_at(1, 3)
+      longs = bbox_num.values_at(2, 0)
+      conditions = { lat: coord_range(lats), long: coord_range(longs) }
       TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
     end
 
@@ -98,6 +100,10 @@ class BaseFacility < ActiveRecord::Base
         center_y = (bbox[1] + bbox[3]) / 2.0
         Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2)
       end
+    end
+
+    def coord_range(coords)
+      coords.min..coords.max
     end
 
     def service_whitelist(type)
