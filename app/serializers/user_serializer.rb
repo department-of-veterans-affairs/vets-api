@@ -86,7 +86,7 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::APPEALS_STATUS if object.authorize :appeals, :access?
     service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
-    service_list << BackendServices::ID_CARD if object.can_access_id_card?
+    service_list << BackendServices::ID_CARD if object.authorize :id_card, :access?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
