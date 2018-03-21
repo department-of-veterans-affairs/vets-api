@@ -40,7 +40,7 @@ class EVSSClaimService
   end
 
   def request_decision(claim)
-    if @user.can_access_evss_common_client?
+    if @user.authorize(:evss, :access_common_client?)
       EVSS::NewRequestDecision.perform_async(@user.uuid, claim.evss_id)
     else
       EVSS::RequestDecision.perform_async(auth_headers, claim.evss_id)
@@ -60,7 +60,7 @@ class EVSSClaimService
 
   def client
     @client ||= lambda do
-      if @user.can_access_evss_common_client?
+      if @user.authorize(:evss, :access_common_client?)
         EVSS::Claims::Service.new(@user)
       else
         EVSS::ClaimsService.new(auth_headers)
