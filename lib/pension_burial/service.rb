@@ -11,7 +11,6 @@ module PensionBurial
         '',
         body
       )
-
       # TODO: remove logging after confirming that pension burial uploads are working in staging
       if Rails.env.production?
         log_message_to_sentry(
