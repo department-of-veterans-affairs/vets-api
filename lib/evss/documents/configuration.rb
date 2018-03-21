@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EVSS
   module Documents
     class Configuration < EVSS::Configuration
