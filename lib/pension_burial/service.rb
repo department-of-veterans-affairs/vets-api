@@ -11,11 +11,15 @@ module PensionBurial
         '',
         body
       )
+
       # TODO: remove logging after confirming that pension burial uploads are working in staging
       if Rails.env.production?
         log_message_to_sentry(
           'pension burial api upload',
           :info,
+          request: {
+            metadata: body['metadata']
+          },
           response: {
             status: response.status,
             body: response.body
