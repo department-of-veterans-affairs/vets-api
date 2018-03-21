@@ -29,9 +29,7 @@ module PensionBurial
     def status(guid)
       body = {
         'token': Settings.pension_burial.upload.token,
-        'uuid': [
-          guid
-        ]
+        'uuid': [guid].to_json
       }
 
       binding.pry
