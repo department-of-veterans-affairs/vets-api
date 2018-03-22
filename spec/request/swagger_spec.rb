@@ -1095,6 +1095,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/profile/alternate_phone', 200, auth_options)
         end
       end
+
+      it 'supports getting service history data' do
+        expect(subject).to validate(:get, '/v0/profile/service_history', 401)
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject).to validate(:get, '/v0/profile/service_history', 200, auth_options)
+        end
+      end
     end
   end
 
