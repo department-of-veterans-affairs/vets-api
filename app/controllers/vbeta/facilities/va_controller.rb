@@ -4,6 +4,7 @@ require 'common/models/collection'
 require 'will_paginate/array'
 
 class Vbeta::Facilities::VaController < FacilitiesController
+  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   before_action :validate_params, only: [:index]
 
   # Index supports the following query parameters:
@@ -24,7 +25,8 @@ class Vbeta::Facilities::VaController < FacilitiesController
     render json: results, serializer: VAFacilitySerializer
   end
 
-  # just for testing/validation, will not stay long term
+  # FIXME: this is for testing/validation, will not stay long term
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/issues/9374
   def all
     mappings = { 'va_cemetery' => 'nca',
                  'va_benefits_facility' => 'vba',
@@ -47,11 +49,10 @@ class Vbeta::Facilities::VaController < FacilitiesController
     end
   end
 
-  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   def validate_type_and_services_known
     raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
       BaseFacility::TYPES.include?(params[:type])
-    unknown = params[:services].to_a - BaseFacility.service_whitelist(params[:type])
+    unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end

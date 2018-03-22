@@ -74,6 +74,8 @@ class BaseFacility < ActiveRecord::Base
       "Facilities::#{type.upcase}Facility".constantize.find_by(unique_id: unique_id)
     end
 
+    # FIXME: using common collection here to have access to #metadata for serializer output but long term we should
+    # refactor and mix that in -- https://github.com/department-of-veterans-affairs/vets.gov-team/issues/9376
     def query(params)
       bbox_num = params[:bbox].map { |x| Float(x) }
       data = build_result_set(bbox_num, params[:type], params[:services])
@@ -83,31 +85,26 @@ class BaseFacility < ActiveRecord::Base
     def build_result_set(bbox_num, type, services)
       lats = bbox_num.values_at(1, 3)
       longs = bbox_num.values_at(2, 0)
-      conditions = { lat: coord_range(lats), long: coord_range(longs) }
+      conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
       TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
     end
 
     def get_facility_data(conditions, type, facility_type, services)
-      return [] unless type.blank? || type == facility_type
-      facilities = TYPE_MAP[facility_type].constantize.where(conditions)
+      klass = TYPE_MAP[facility_type].constantize
+      return klass.none unless type.blank? || type == facility_type
+      facilities = klass.where(conditions)
       facilities = facilities.where("services->'benefits'->'standard' @> '#{services}'") if services&.any?
       facilities
     end
 
+    # Naive distance calculation, but accurate enough for map display sorting.
+    # If greater precision is ever needed, use Haversine formula.
     def dist_from_center(bbox)
       lambda do |facility|
         center_x = (bbox[0] + bbox[2]) / 2.0
         center_y = (bbox[1] + bbox[3]) / 2.0
         Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2)
       end
-    end
-
-    def coord_range(coords)
-      coords.min..coords.max
-    end
-
-    def service_whitelist(type)
-      SERVICE_WHITELIST[type]
     end
   end
 
