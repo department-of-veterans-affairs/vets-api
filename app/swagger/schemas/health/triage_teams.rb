@@ -7,7 +7,7 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :TriageTeams do
-          key :required, %i[data meta links]
+          key :required, %i[data meta]
 
           property :data, type: :array, minItems: 1, uniqueItems: true do
             items do
@@ -15,8 +15,7 @@ module Swagger
             end
           end
 
-          property :meta, '$ref': :MetaSortPagination
-          property :links, '$ref': :LinksAll
+          property :meta, '$ref': :MetaSort
         end
 
         swagger_schema :TriageTeamsBase do

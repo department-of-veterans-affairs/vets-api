@@ -9,11 +9,9 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 10.megabytes
 
-  def initialize(guid, form_id)
+  def initialize(guid)
+    super
     @guid = guid
-    @form_id = form_id
-
-    super(@guid)
 
     if Rails.env.production?
       set_aws_config(
@@ -34,7 +32,6 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    dir = @form_id || 'anonymous'
-    "profile_photo_attachments/#{dir}"
+    'profile_photo_attachments'
   end
 end
