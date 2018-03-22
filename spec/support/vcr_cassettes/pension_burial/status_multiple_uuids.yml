@@ -1,0 +1,39 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://icmhsgc-test.csrarad.com/VADocument/getStatus
+    body:
+      encoding: UTF-8
+      string: token=<PENSIONS_TOKEN>&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%2C%224a25588c-9200-4405-a2fd-97f0b0fdf790%22%2C%22f7725cce-a76e-4d80-ab20-01c63acfcb87%22%5D
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 22 Mar 2018 18:43:54 GMT
+      Content-Type:
+      - application/json;charset=UTF-8
+      Connection:
+      - close
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '[[{"uuid":"34656d73-7c31-456d-9c49-2024fff1cd47","status":"In Process","errorMessage":"","lastUpdated":"2018-03-20
+        16:57:37"}],[{"uuid":"4a25588c-9200-4405-a2fd-97f0b0fdf790","status":"Received","errorMessage":"","lastUpdated":"2018-03-21
+        00:17:19"}],[{"uuid":"f7725cce-a76e-4d80-ab20-01c63acfcb87","status":"In Process","errorMessage":"","lastUpdated":"2018-03-20
+        17:20:26"}]]'
+    http_version: 
+  recorded_at: Thu, 22 Mar 2018 18:43:54 GMT
+recorded_with: VCR 3.0.3

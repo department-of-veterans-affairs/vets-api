@@ -35,18 +35,24 @@ module PensionBurial
         'uuid': [*guid].to_json
       }
 
-      binding.pry
-
       response = request(
         :post,
         'getStatus',
         body
       )
 
-      result = {}
-      if response.status == 200
-        statuses = JSON.parse(response.body)
+      if Rails.env.production?
+        log_message_to_sentry(
+          'pension burial api status',
+          :info,
+          response: {
+            status: response.status,
+            body: response.body
+          }
+        )
       end
+
+      response
     end
   end
 end
