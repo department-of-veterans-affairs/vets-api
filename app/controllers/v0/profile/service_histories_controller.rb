@@ -5,8 +5,8 @@ module V0
     class ServiceHistoriesController < ApplicationController
       before_action { authorize :emis, :access? }
 
-      # Fetches the service history for the current user.  This is
-      # an array of select military service episode data.
+      # Fetches the service history for the current user.
+      # This is an array of select military service episode data.
       #
       # @return [Response] Sample response.body:
       #   {
