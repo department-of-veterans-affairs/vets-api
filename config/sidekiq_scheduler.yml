@@ -48,6 +48,30 @@ FacilityAccessBulkUpdate:
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
 
+FacilityLocationBulkUpdateNCA:
+  cron: "35 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['nca']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVBA:
+  cron: "40 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vba']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVC:
+  cron: "45 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vc']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVHA:
+  cron: "50 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vha']
+  description: "Download and store facility location data"
+
 MaintenanceWindowRefresh:
   cron: "*/5 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows

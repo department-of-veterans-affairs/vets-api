@@ -79,7 +79,6 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: [:index]
-    get 'appeals_v2', to: 'appeals#index_v2', as: :appeals_v2
 
     scope :messaging do
       scope :health do
@@ -158,6 +157,8 @@ Rails.application.routes.draw do
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
+
+    resources :backend_statuses, param: :service, only: [:show]
 
     resources :apidocs, only: [:index]
 
