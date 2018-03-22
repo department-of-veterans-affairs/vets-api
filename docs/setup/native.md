@@ -67,3 +67,5 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
    - `touch ~/.certs/vetsgov-localhost.crt`
    - `touch ~/.certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
+1. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
+1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
