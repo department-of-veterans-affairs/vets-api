@@ -29,10 +29,10 @@ module PensionBurial
       response
     end
 
-    def status(guid)
+    def status(uuid_or_list)
       body = {
         'token': Settings.pension_burial.upload.token,
-        'uuid': [*guid].to_json
+        'uuid': [*uuid_or_list].to_json
       }
 
       response = request(
