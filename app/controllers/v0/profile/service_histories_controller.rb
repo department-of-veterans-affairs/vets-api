@@ -3,7 +3,7 @@
 module V0
   module Profile
     class ServiceHistoriesController < ApplicationController
-      before_action { authorize :evss, :access? }
+      before_action { authorize :emis, :access? }
 
       # Fetches the service history for the current user.  This is
       # an array of select military service episode data.
