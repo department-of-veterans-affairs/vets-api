@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe PensionBurial::Service do
   describe '#status' do
     context 'with one uuid' do
-      it 'should retrieve the status of a uuid' do
+      it 'should retrieve the status' do
         VCR.use_cassette(
           'pension_burial/status_one_uuid',
           match_requests_on: %i[body method uri]
@@ -20,7 +20,7 @@ RSpec.describe PensionBurial::Service do
     end
 
     context 'with multiple uuids' do
-      it 'should retrieve the statuses of the uuids' do
+      it 'should retrieve the statuses' do
         VCR.use_cassette(
           'pension_burial/status_multiple_uuids',
           match_requests_on: %i[body method uri]
