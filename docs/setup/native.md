@@ -59,13 +59,13 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:
-   - Create a hidden folder in your home directory:  `mkdir ~/.certs`
-   - Copy the [certificate][certificate] to `~/.certs/vetsgov-localhost.crt`
-   - Copy the [key][key] to `~/.certs/vetsgov-localhost.key`
+   - Create certs directory within config:  `mkdir ./config/certs`
+   - Copy the [certificate][certificate] to `./config/certs/vetsgov-localhost.crt`
+   - Copy the [key][key] to `./config/certs/vetsgov-localhost.key`
    - *NOTE*: If you don't have access to these keys, running the following
      commands will provide basic functionality, such as for running unit tests:
-   - `touch ~/.certs/vetsgov-localhost.crt`
-   - `touch ~/.certs/vetsgov-localhost.key`
+   - `touch ./config/certs/vetsgov-localhost.crt`
+   - `touch ./config/certs/vetsgov-localhost.key`
 1. Create dev database: `bundle exec rake db:setup`
 1. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
 1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed
