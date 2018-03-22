@@ -32,7 +32,7 @@ module PensionBurial
     def status(guid)
       body = {
         'token': Settings.pension_burial.upload.token,
-        'uuid': [guid].to_json
+        'uuid': [*guid].to_json
       }
 
       binding.pry
@@ -43,7 +43,10 @@ module PensionBurial
         body
       )
 
-      response
+      result = {}
+      if response.status == 200
+        statuses = JSON.parse(response.body)
+      end
     end
   end
 end
