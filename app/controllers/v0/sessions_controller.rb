@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'base64'
+
 module V0
   class SessionsController < ApplicationController
     skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
@@ -38,23 +40,25 @@ module V0
     # TODO: when deprecated routes can be removed this should be changed to use different method (ie. destroy)
     # rubocop:disable Metrics/CyclomaticComplexity
     def new
-      case params[:type]
-      when 'mhv'
-        redirect_to SAML::SettingsService.mhv_url
-      when 'dslogon'
-        redirect_to SAML::SettingsService.dslogon_url
-      when 'idme'
-        redirect_to SAML::SettingsService.idme_loa1_url
-      when 'mfa'
-        authenticate
-        redirect_to SAML::SettingsService.mfa_url(current_user)
-      when 'verify'
-        authenticate
-        redirect_to SAML::SettingsService.idme_loa3_url(current_user)
-      when 'slo'
-        authenticate
-        redirect_to SAML::SettingsService.slo_url(session)
-      end
+      url = case params[:type]
+            when 'mhv'
+              SAML::SettingsService.mhv_url
+            when 'dslogon'
+              SAML::SettingsService.dslogon_url
+            when 'idme'
+              query = params[:signup] ? '&op=signup' : ''
+              SAML::SettingsService.idme_loa1_url + query
+            when 'mfa'
+              authenticate
+              SAML::SettingsService.mfa_url(current_user)
+            when 'verify'
+              authenticate
+              SAML::SettingsService.idme_loa3_url(current_user)
+            when 'slo'
+              authenticate
+              SAML::SettingsService.slo_url(session)
+            end
+      render json: { url: url }
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
@@ -118,6 +122,9 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
+    rescue NoMethodError
+      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
+      raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end

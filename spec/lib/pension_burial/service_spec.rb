@@ -4,19 +4,30 @@ require 'rails_helper'
 
 RSpec.describe PensionBurial::Service do
   describe '#upload' do
-    let(:file_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-
     it 'should upload a file' do
-      VCR.use_cassette('pension_burial/upload', match_requests_on: [:body]) do
+      header_matcher = lambda do |r1, r2|
+        [r1, r2].each { |r| r.headers.delete('Content-Length') }
+        expect(r1.headers).to eq(r2.headers)
+      end
+
+      VCR.use_cassette(
+        'pension_burial/upload',
+        match_requests_on: [header_matcher, :body, :method, :uri]
+      ) do
         response = described_class.new.upload(
-          { form_id: '99-9999EZ', code: 'V-TESTTEST', guid: '123', original_filename: 'doctors-note.pdf' },
-          StringIO.new(File.read(file_path)),
-          'application/pdf'
+          metadata: get_fixture('pension/metadata').to_json,
+          document: Faraday::UploadIO.new(
+            'spec/fixtures/pension/form.pdf',
+            Mime[:pdf].to_s
+          ),
+          attachment1: Faraday::UploadIO.new(
+            'spec/fixtures/pension/attachment.pdf',
+            Mime[:pdf].to_s
+          )
         )
         body = response.body
+        expect(body).to eq('Request was received successfully  [uuid: bd71f985-9bad-45c2-8b63-d052f544c27d] ')
 
-        expect(body['fileSize']).to eq(10_548)
-        expect(body['metaSize']).to eq(95)
         expect(response.status).to eq(200)
       end
     end

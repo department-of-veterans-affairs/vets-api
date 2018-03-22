@@ -23,17 +23,20 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
   let(:valid_saml_response) do
     double('saml_response', is_valid?: true, errors: [],
+                            is_a?: true,
                             in_response_to: uuid,
                             status_message: '',
                             decrypted_document: response_xml_stub)
   end
   let(:invalid_saml_response) do
     double('saml_response', is_valid?: false,
+                            is_a?: true,
                             in_response_to: uuid,
                             decrypted_document: response_xml_stub)
   end
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
+                            is_a?: true,
                             in_response_to: uuid,
                             errors: ['ruh roh'],
                             status_message: 'Subject did not consent to attribute release',
@@ -41,6 +44,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
   let(:saml_response_too_late) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['Current time is on or after NotOnOrAfter ' \
                               'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
                             decrypted_document: response_xml_stub)
@@ -48,6 +52,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['Current time is earlier than NotBefore ' \
                               'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
                             decrypted_document: response_xml_stub)
@@ -55,6 +60,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:saml_response_unknown_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['The status code of the Response was not Success, ' \
                               'was Requester => NoAuthnContext -> AuthnRequest without ' \
                               'an authentication context.'],
@@ -63,6 +69,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:saml_response_multi_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: [
                               'Subject did not consent to attribute release',
                               'Other random error'
@@ -91,8 +98,15 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, type: type)
-            expect(response).to be_redirect
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body).keys).to eq %w[url]
           end
+        end
+
+        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signin: true' do
+          get(:new, type: :idme, signup: true)
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
         end
       end
 
@@ -100,7 +114,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mfa verify slo].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, type: type)
-            expect(response).not_to be_redirect
             expect(response).to have_http_status(:unauthorized)
           end
         end
@@ -122,7 +135,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
-            expect(response).to be_redirect
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
       end
@@ -264,6 +278,34 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to identity proof URL' do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
+          post :saml_callback
+        end
+      end
+
+      context 'when user has LOA current 1 and highest nil' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: nil, highest: nil }
+          )
+        end
+
+        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+          expect(Raven).to receive(:extra_context).once
+          expect(Raven).to receive(:user_context).once
+          expect(Raven).to receive(:tags_context).twice
+          expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
+          post :saml_callback
+          expect(response.location).to start_with(Settings.saml.relay + '?token=')
+        end
+      end
+
+      context 'when NoMethodError is encountered elsewhere' do
+        it 'redirects to adds context and re-raises the exception' do
+          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          expect(Raven).to receive(:extra_context).twice
+          expect(Raven).not_to receive(:user_context)
+          expect(Raven).not_to receive(:tags_context).once
+          expect(controller).not_to receive(:log_message_to_sentry)
           post :saml_callback
         end
       end
