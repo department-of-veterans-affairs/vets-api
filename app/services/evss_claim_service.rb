@@ -53,14 +53,25 @@ class EVSSClaimService
     uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
-    EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, evss_claim_document.to_serializable_hash)
+
+    document_hash = evss_claim_document.to_serializable_hash
+
+    if access_common_client?
+      EVSS::NewDocumentUpload.perform_async(@user.uuid, document_hash)
+    else
+      EVSS::DocumentUpload.perform_async(auth_headers, @user.uuid, document_hash)
+    end
   end
 
   private
 
+  def access_common_client?
+    @access_common_client ||= @user.authorize(:evss, :access_common_client?)
+  end
+
   def client
     @client ||= lambda do
-      if @user.authorize(:evss, :access_common_client?)
+      if access_common_client?
         EVSS::Claims::Service.new(@user)
       else
         EVSS::ClaimsService.new(auth_headers)
