@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ca1f0178d103f5d8c35fa9b1d90dc44d829edebf
+  revision: b9ba6bf1837a9389788b5d4f94ac977d505c9e0b
   branch: master
   specs:
-    vets_json_schema (3.30.0)
+    vets_json_schema (3.20.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -27,6 +27,7 @@ GIT
 
 GEM
   remote: https://rubygems.org/
+  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
     aasm (4.12.0)
@@ -88,7 +89,6 @@ GEM
     ast (2.3.0)
     attr_encrypted (3.0.3)
       encryptor (~> 3.0.0)
-    awesome_print (1.8.0)
     awrence (0.1.0)
     aws-sdk (2.6.12)
       aws-sdk-resources (= 2.6.12)
@@ -137,7 +137,6 @@ GEM
     connection_pool (2.2.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    crass (1.0.3)
     date_validator (0.9.0)
       activemodel
       activesupport
@@ -231,8 +230,7 @@ GEM
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
-    loofah (2.2.1)
-      crass (~> 1.0.2)
+    loofah (2.0.3)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
     mail (2.6.4)
@@ -300,7 +298,7 @@ GEM
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
-    rack-protection (1.5.4)
+    rack-protection (1.5.3)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -383,7 +381,7 @@ GEM
     rubocop-junit-formatter (0.1.3)
     ruby-progressbar (1.9.0)
     ruby-rc4 (0.1.5)
-    ruby-saml (1.7.0)
+    ruby-saml (1.5.0)
       nokogiri (>= 1.5.10)
     rufus-scheduler (3.1.10)
     safe_shell (1.0.3)
@@ -416,9 +414,14 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
+    sidekiq-ent (1.6.1)
+      sidekiq (>= 4.2.9)
+      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
+    sidekiq-pro (3.7.0)
+      sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -489,7 +492,6 @@ DEPENDENCIES
   active_model_serializers (= 0.10.4)
   apivore
   attr_encrypted
-  awesome_print (~> 1.8)
   awrence
   aws-sdk
   betamocks!
@@ -566,11 +568,12 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq
+  sidekiq-ent!
   sidekiq-instrument
+  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
-  socksify
   spring
   spring-commands-rspec
   statsd-instrument
