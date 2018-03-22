@@ -4,17 +4,10 @@ class PersonalInformationSerializer < ActiveModel::Serializer
   attribute :gender
   attribute :birth_date
 
+  delegate :gender, to: :object
+
   def id
     nil
-  end
-
-  # Returns the veteran's gender.  Object is an instance
-  # of the MVI::Models::MviProfile class.
-  #
-  # @return [String] Either 'M' or 'F'
-  #
-  def gender
-    object.gender
   end
 
   # Returns the veteran's birth date.  Object is an instance
