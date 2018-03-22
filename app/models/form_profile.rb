@@ -151,7 +151,7 @@ class FormProfile
   private
 
   def initialize_military_information(user)
-    return {} unless user.can_prefill_emis?
+    return {} unless user.authorize :emis, :access?
 
     military_information = user.military_information
     military_information_data = {}

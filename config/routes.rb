@@ -151,9 +151,10 @@ Rails.application.routes.draw do
     end
 
     namespace :profile do
+      resource :alternate_phone, only: :show
       resource :email, only: :show
       resource :primary_phone, only: :show
-      resource :alternate_phone, only: :show
+      resource :service_history, only: :show
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
