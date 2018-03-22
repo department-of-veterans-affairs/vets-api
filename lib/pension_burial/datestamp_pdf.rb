@@ -30,7 +30,7 @@ module PensionBurial
     end
 
     def stamp(file_path, stamp_path)
-      out_path = Common::FileHelpers.random_file_path
+      out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       PdfFill::Filler::PDF_FORMS.stamp(file_path, stamp_path, out_path)
       File.delete(file_path)
       out_path
