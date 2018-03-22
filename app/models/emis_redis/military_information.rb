@@ -205,5 +205,15 @@ module EMISRedis
         military_service_episodes.sort_by { |ep| ep.end_date || Time.zone.today + 3650 }.reverse
       end.call
     end
+
+    def service_history
+      service_episodes_by_date.map do |episode|
+        {
+          branch_of_service: episode.branch_of_service,
+          begin_date: episode.begin_date,
+          end_date: episode.end_date
+        }
+      end
+    end
   end
 end
