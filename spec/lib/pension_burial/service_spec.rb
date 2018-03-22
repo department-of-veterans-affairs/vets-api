@@ -12,9 +12,7 @@ RSpec.describe PensionBurial::Service do
         ) do
           response = described_class.new.status('34656d73-7c31-456d-9c49-2024fff1cd47')
           expect(response.status).to eq(200)
-
-          data = JSON.parse(response.body)
-          expect(data.length).to eq(1)
+          expect(JSON.parse(response.body).length).to eq(1)
         end
       end
     end
@@ -32,11 +30,8 @@ RSpec.describe PensionBurial::Service do
               'f7725cce-a76e-4d80-ab20-01c63acfcb87'
             ]
           )
-
           expect(response.status).to eq(200)
-
-          data = JSON.parse(response.body)
-          expect(data.length).to eq(3)
+          expect(JSON.parse(response.body).length).to eq(3)
         end
       end
     end
