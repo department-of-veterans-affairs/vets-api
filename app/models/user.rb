@@ -166,10 +166,6 @@ class User < Common::RedisStore
     true
   end
 
-  def can_prefill_emis?
-    edipi.present? || icn.present?
-  end
-
   def can_access_id_card?
     loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
