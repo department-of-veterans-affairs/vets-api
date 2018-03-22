@@ -64,7 +64,7 @@ module V0
     # A list of all classes that have swagger_* declarations.
     SWAGGERED_CLASSES = [
       Swagger::Requests::Address,
-      Swagger::Requests::Appeals,
+      Swagger::Requests::Appeals::Appeals,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
@@ -92,7 +92,12 @@ module V0
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Address,
-      Swagger::Schemas::Appeals,
+      Swagger::Schemas::Appeals::Appeals,
+      Swagger::Schemas::Appeals::Alert,
+      Swagger::Schemas::Appeals::Event,
+      Swagger::Schemas::Appeals::Evidence,
+      Swagger::Schemas::Appeals::Issue,
+      Swagger::Schemas::Appeals::Status,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::Email,
