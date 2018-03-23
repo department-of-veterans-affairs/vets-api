@@ -11,8 +11,8 @@ module Swagger
             form9_needed scheduled_hearing hearing_no_show held_for_evidence cavc_option
             ramp_eligible ramp_ineligible decision_soon blocked_by_vso
             scheduled_dro_hearing dro_hearing_no_show
-          ], example: 'TODO'
-          property :details, type: :object, example: 'TODO'
+          ], example: 'form9_needed'
+          property :details, type: :object, example: ''
         end
       end
     end

@@ -27,8 +27,6 @@ module Appeals
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
         faraday.request :json
-        # faraday.response :raise_error, error_prefix: service_name
-        # faraday.response :caseflow_errors
         faraday.response :snakecase
         faraday.response :json, content_type: /\bjson$/
         faraday.response :betamocks if mock_enabled?
