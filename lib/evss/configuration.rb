@@ -46,6 +46,11 @@ module EVSS
         faraday.use      :breakers
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
+        if defined?(self.class::EXTRA_MIDDLEWARE)
+          self.class::EXTRA_MIDDLEWARE.each do |middleware|
+            faraday.use(middleware)
+          end
+        end
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         # calls to EVSS returns non JSON responses for some scenarios that don't make it through VAAFI
