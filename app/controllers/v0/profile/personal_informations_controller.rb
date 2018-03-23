@@ -3,7 +3,7 @@
 module V0
   module Profile
     class PersonalInformationsController < ApplicationController
-      before_action { authorize :mvi, :access? }
+      before_action { authorize :mvi, :queryable? }
 
       # Fetches the personal information for the current user.
       # Namely their gender and birth date.
