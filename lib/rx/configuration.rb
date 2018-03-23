@@ -20,7 +20,7 @@ module Rx
     end
 
     def base_path
-      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
+      "#{Settings.mhv.rx.host}/patient/v1/"
     end
 
     def caching_enabled?
@@ -40,6 +40,7 @@ module Rx
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
+        conn.response :betamocks if Settings.mhv.rx.mock
         conn.response :rx_failed_station
         conn.response :rx_parser
         conn.response :snakecase
