@@ -7,8 +7,8 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :Evidence do
-          property :description, type: :string, example: 'TODO'
-          property :date, type: :string, example: 'TODO'
+          property :description, type: :string, example: ''
+          property :date, type: :string, example: ''
         end
       end
     end

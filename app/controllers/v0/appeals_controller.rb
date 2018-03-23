@@ -2,7 +2,6 @@
 
 module V0
   class AppealsController < ApplicationController
-
     before_action { authorize :appeals, :access? }
 
     def index

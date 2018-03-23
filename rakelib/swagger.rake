@@ -6,7 +6,7 @@ namespace :swagger do
     raise IOError, 'No json-schema file provided' unless args[:json_schema_file]
     schema_path = Rails.root.join('spec', 'support', 'schemas', args[:json_schema_file])
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
-    json = JSON.load(schema_path)
+    json = JSON.parse(File.read(schema_path))
     puts "\n-----START BLOCK-----\n\n"
     render_required(json) if json.key?('required')
     render_properties json
@@ -74,7 +74,7 @@ def render_type(type, enum)
   type = [:object] if type == %i[object null] # [object, null] is valid json-schema but swagger throws error
   return type if type.count > 1
   if enum
-    ":string, enum: %w(#{enum.map { |x| x }.join(' ')})"
+    ":string, enum: %w[#{enum.map { |x| x }.join(' ')}]"
   else
     ":#{type.first}"
   end

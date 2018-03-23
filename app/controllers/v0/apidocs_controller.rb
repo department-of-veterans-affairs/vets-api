@@ -97,7 +97,6 @@ module V0
       Swagger::Schemas::Appeals::Event,
       Swagger::Schemas::Appeals::Evidence,
       Swagger::Schemas::Appeals::Issue,
-      Swagger::Schemas::Appeals::Status,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::Email,

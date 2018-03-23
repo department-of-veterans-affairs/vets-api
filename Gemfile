@@ -34,6 +34,7 @@ gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
 gem 'json-schema'
+gem 'jsonapi-serializers'
 gem 'jwt'
 gem 'levenshtein-ffi'
 gem 'liquid'
@@ -70,7 +71,6 @@ gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/
 gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
-gem 'jsonapi-serializers'
 
 group :development do
   gem 'guard-rubocop'
