@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe MVIPolicy do
+describe MviPolicy do
   subject { described_class }
 
   permissions :access? do
