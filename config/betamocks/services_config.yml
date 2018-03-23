@@ -1,6 +1,28 @@
 ---
 :services:
 
+- :name: 'MHV_Rx'
+  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>
+  endpoints:
+    # MHV rx active
+    - :method: :get
+      :path: "/patient/v1/prescription/getactiverx"
+      :file_path: "mhv/prescription/getactiverx"
+      :cache_multiple_responses:
+        :uid_location: 'header' #@todo
+        :uid_locator: 'mhvCorrelationId' #@todo
+    # # MHV rx history
+    # - :method: :get
+    #   :path: "/patient/v1/prescription/gethistoryrx"
+    #   :file_path: "mhv/prescription/gethistoryrx"
+    # MHV Session
+    - :method: :get
+      :path: "/patient/v1/session"
+      :file_path: "mhv/session"
+      :cache_multiple_responses:
+        :uid_location: 'header' #@todo
+        :uid_locator: 'mhvCorrelationId' #@todo
+
 # EVSS
 - :name: 'EVSS'
   :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
@@ -39,8 +61,6 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
-#    :error:
-#      :status: 502
   - :method: :post
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
     :file_path: "evss/pciu_address/address_update"
