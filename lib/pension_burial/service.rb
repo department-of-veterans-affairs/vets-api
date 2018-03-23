@@ -8,7 +8,7 @@ module PensionBurial
 
       response = request(
         :post,
-        '',
+        'upload',
         body
       )
       # TODO: remove logging after confirming that pension burial uploads are working in staging
@@ -19,6 +19,32 @@ module PensionBurial
           request: {
             metadata: body['metadata']
           },
+          response: {
+            status: response.status,
+            body: response.body
+          }
+        )
+      end
+
+      response
+    end
+
+    def status(uuid_or_list)
+      body = {
+        'token': Settings.pension_burial.upload.token,
+        'uuid': [*uuid_or_list].to_json
+      }
+
+      response = request(
+        :post,
+        'getStatus',
+        body
+      )
+
+      if Rails.env.production?
+        log_message_to_sentry(
+          'pension burial api status',
+          :info,
           response: {
             status: response.status,
             body: response.body
