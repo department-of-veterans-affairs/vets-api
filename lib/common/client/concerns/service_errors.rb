@@ -14,7 +14,9 @@ module Common::Client
     def handle_error(error)
       case error.status
       when 401
-        raise Common::Exceptions::Unauthorized, error_details('The upstream server responded 401 Unauthorized')
+        raise Common::Exceptions::BadGateway, error_details(
+          "Received an unauthorized (401) response from the upstream server, check this error's source for event id"
+        )
       when 403
         raise Common::Exceptions::Forbidden, error_details('The upstream server responded 403 Forbidden')
       when 404
@@ -33,7 +35,7 @@ module Common::Client
     end
 
     def log_original_error(error)
-      level, message = if (400...500).cover? error.status
+      level, message = if (401...500).cover? error.status
                          [:info, "#{self.class} handled an expected #{error.message}"]
                        else
                          [:error, "#{self.class} handled an unexpected #{error.message}"]
