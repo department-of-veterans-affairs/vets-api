@@ -25,6 +25,10 @@ module Appeals
       def format_name(attribute_name)
         attribute_name.to_s
       end
+
+      def self_link
+        nil
+      end
     end
   end
 end

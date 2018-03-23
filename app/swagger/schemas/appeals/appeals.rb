@@ -11,9 +11,6 @@ module Swagger
           property :data do
             items do
               property :type, type: :string, example: 'original'
-              property :links, type: :object do
-                property :self, type: :string, example: ''
-              end
               property :id, type: :string, example: 'abc123'
               property :attributes, type: :object do
                 property :appeal_ids do
@@ -39,7 +36,7 @@ module Swagger
                   property :details, type: :object, example: '{}'
                   property :type, type: :string, example: 'ftr'
                 end
-                property :docket, type: :object, example: 'null'
+                property :docket, type: [:object, 'null'], example: {}
                 property :issues do
                   items do
                     key :type, :array

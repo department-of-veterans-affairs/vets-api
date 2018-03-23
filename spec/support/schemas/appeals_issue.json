@@ -20,7 +20,8 @@
         "allowed",
         "denied",
         "remand",
-        "cavc_remand"
+        "cavc_remand",
+        null
       ]
     },
     "date": {
