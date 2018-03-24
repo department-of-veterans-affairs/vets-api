@@ -14,9 +14,7 @@ module Common::Client
     def handle_error(error)
       case error.status
       when 401
-        raise Common::Exceptions::BadGateway, error_details(
-          "The upstream server responded with 401 Unauthorized"
-        )
+        raise Common::Exceptions::BadGateway, error_details("The upstream server responded with 401 Unauthorized")
       when 403
         raise Common::Exceptions::Forbidden, error_details('The upstream server responded 403 Forbidden')
       when 404
