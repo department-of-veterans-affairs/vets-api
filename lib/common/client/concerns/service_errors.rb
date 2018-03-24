@@ -33,7 +33,7 @@ module Common::Client
     end
 
     def log_original_error(error)
-      level, message = if (401...500).cover? error.status
+      level, message = if (402...500).cover? error.status
                          [:info, "#{self.class} handled an expected #{error.message}"]
                        else
                          [:error, "#{self.class} handled an unexpected #{error.message}"]
