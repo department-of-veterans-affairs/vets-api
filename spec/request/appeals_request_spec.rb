@@ -42,7 +42,8 @@ RSpec.describe 'Appeals Status', type: :request do
     context 'with a not authorized response' do
       it 'returns a 502 and logs an error level message' do
         VCR.use_cassette('appeals/not_authorized') do
-          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry).with(anything, :error, anything)
+          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
+            .with('Appeals::Service handled an unexpected 401', :error, anything)
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
@@ -53,7 +54,8 @@ RSpec.describe 'Appeals Status', type: :request do
     context 'with a not found response' do
       it 'returns a 404 and logs an info level message' do
         VCR.use_cassette('appeals/not_found') do
-          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry).with(anything, :info, anything)
+          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
+            .with('Appeals::Service handled an expected 404', :info, anything)
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
           expect(response).to have_http_status(:not_found)
           expect(response).to match_response_schema('errors')
@@ -64,7 +66,8 @@ RSpec.describe 'Appeals Status', type: :request do
     context 'with an unprocessible entity response' do
       it 'returns a 422 and logs an info level message' do
         VCR.use_cassette('appeals/invalid_ssn') do
-          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry).with(anything, :info, anything)
+          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
+            .with('Appeals::Service handled an expected 422', :info, anything)
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
@@ -75,7 +78,8 @@ RSpec.describe 'Appeals Status', type: :request do
     context 'with a server error' do
       it 'returns a 502 and logs an error level message' do
         VCR.use_cassette('appeals/server_error') do
-          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry).with(anything, :error, anything)
+          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
+            .with('Appeals::Service handled an unexpected 500', :error, anything)
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')

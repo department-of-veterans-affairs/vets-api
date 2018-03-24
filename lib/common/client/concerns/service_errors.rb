@@ -34,9 +34,9 @@ module Common::Client
 
     def log_original_error(error)
       level, message = if (402...500).cover? error.status
-                         [:info, "#{self.class} handled an expected #{error.message}"]
+                         [:info, "#{self.class} handled an expected #{error.status}"]
                        else
-                         [:error, "#{self.class} handled an unexpected #{error.message}"]
+                         [:error, "#{self.class} handled an unexpected #{error.status}"]
                        end
       log_message_to_sentry(message, level, extra_context: { url: config.base_path, body: error.body })
       @last_event_id = Raven.last_event_id
