@@ -15,7 +15,7 @@ module Common::Client
       case error.status
       when 401
         raise Common::Exceptions::BadGateway, error_details(
-          "Received an unauthorized (401) response from the upstream server, check this error's source for event id"
+          "The upstream server responded with 401 Unauthorized"
         )
       when 403
         raise Common::Exceptions::Forbidden, error_details('The upstream server responded 403 Forbidden')
