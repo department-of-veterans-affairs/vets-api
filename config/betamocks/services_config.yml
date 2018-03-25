@@ -81,6 +81,13 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
 
+  - :method: :post
+    :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.claims}/rest/vbaClaimStatusService/getClaimDetailById" %>
+    :file_path: "evss/claims/show"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
 # MVI
 - :name: 'MVI'
   :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
