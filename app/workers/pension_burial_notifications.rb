@@ -16,13 +16,11 @@ class PensionBurialNotifications
     statuses = get_statuses(claims.keys)
 
     claims.each do |uuid, claim|
-      old = claim.status.downcase
-      new = statuses[uuid]['status'].downcase
+      old_status = claim.status.downcase
+      new_status = statuses[uuid]['status'].downcase
 
-      if new != old
-        # Do things!
-
-        claim.status = new
+      if new_status != old_status
+        claim.status = new_status
         claim.save!
       end
     end
@@ -31,11 +29,9 @@ class PensionBurialNotifications
   private
 
   def get_statuses(uuids)
-    service = PensionBurial::Service.new
-    response = service.status(uuids)
-    results = JSON.parse(response.body)
+    response = PensionBurial::Service.new.status(uuids)
 
-    results.each_with_object({}) do |row, statuses|
+    JSON.parse(response.body).each_with_object({}) do |row, statuses|
       row.each do |result|
         uuid = result['uuid']
         statuses[uuid] = result
