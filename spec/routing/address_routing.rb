@@ -10,6 +10,10 @@ RSpec.describe 'routes for Address', type: :routing do
     Rails.application.reload_routes!
   end
 
+  before do
+    Settings.reload!
+  end
+
   context '#reference_data_service.enabled=true' do
     before do
       Settings.evss.reference_data_service.enabled = true
@@ -28,6 +32,21 @@ RSpec.describe 'routes for Address', type: :routing do
   context '#reference_data_service.enabled=false' do
     before do
       Settings.evss.reference_data_service.enabled = false
+      Rails.application.reload_routes!
+    end
+
+    it 'does not route to rds' do
+      expect(get('/v0/address/countries')).to route_to(
+        controller: 'v0/addresses',
+        action: 'countries',
+        format: 'json'
+      )
+    end
+  end
+
+  context '#reference_data_service is nil' do
+    before do
+      Settings.evss.reference_data_service = nil
       Rails.application.reload_routes!
     end
 

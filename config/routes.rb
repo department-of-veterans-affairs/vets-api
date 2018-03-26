@@ -152,7 +152,7 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        if Settings.evss.reference_data_service.enabled
+        if Settings.evss&.reference_data_service&.enabled
           get 'countries', to: 'addresses#rds_countries'
           get 'states', to: 'addresses#rds_states'
         else
