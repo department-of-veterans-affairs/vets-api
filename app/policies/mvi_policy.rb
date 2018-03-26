@@ -8,11 +8,11 @@ MviPolicy = Struct.new(:user, :mvi) do
   private
 
   def required_attrs_present?(user)
-    return if user.first_name.blank?
-    return if user.last_name.blank?
-    return if user.birth_date.blank?
-    return if user.ssn.blank?
-    return if user.gender.blank?
+    return false if user.first_name.blank?
+    return false if user.last_name.blank?
+    return false if user.birth_date.blank?
+    return false if user.ssn.blank?
+    return false if user.gender.blank?
 
     true
   end
