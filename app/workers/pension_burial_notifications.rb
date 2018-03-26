@@ -13,6 +13,8 @@ class PensionBurialNotifications
       status: [nil, 'in process']
     ).find_each { |c| claims[c.guid] = c }
 
+    binding.pry; fail
+
     statuses = get_statuses(claims.keys)
 
     claims.each do |uuid, claim|
