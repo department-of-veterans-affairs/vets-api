@@ -17,16 +17,9 @@ module Swagger
             parameter :authorization
 
             response 200 do
-              key :description, 'Response is OK'
+              key :description, 'Array of appeals and related data [alerts, events, evidence, issues]'
               schema do
-                key :'$ref', :Appeals
-              end
-            end
-
-            response 401 do
-              key :description, 'User is not authenticated (logged in)'
-              schema do
-                key :'$ref', :Errors
+                key :'$ref', :Appeal
               end
             end
 

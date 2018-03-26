@@ -55,9 +55,11 @@ http_interactions:
       string: |-
         {
           "errors": [
-            "status": "403",
-            "title": "Forbidden",
-            "detail": "Forbidden"
+            {
+              "status": "403",
+              "title": "Forbidden",
+              "detail": "Forbidden"
+            }
           ]
         }
     http_version:

@@ -92,7 +92,7 @@ module V0
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Address,
-      Swagger::Schemas::Appeals::Appeals,
+      Swagger::Schemas::Appeals::Appeal,
       Swagger::Schemas::Appeals::Alert,
       Swagger::Schemas::Appeals::Event,
       Swagger::Schemas::Appeals::Evidence,
