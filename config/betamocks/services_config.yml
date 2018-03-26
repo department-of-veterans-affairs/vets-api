@@ -2,15 +2,15 @@
 :services:
 
 - :name: 'MHV_Rx'
-  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>
-  endpoints:
+  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>:443
+  :endpoints:
     # MHV rx active
     - :method: :get
       :path: "/patient/v1/prescription/getactiverx"
       :file_path: "mhv/prescription/getactiverx"
       :cache_multiple_responses:
-        :uid_location: 'header' #@todo
-        :uid_locator: 'mhvCorrelationId' #@todo
+        :uid_location: header
+        :uid_locator: 'Token'
     # # MHV rx history
     # - :method: :get
     #   :path: "/patient/v1/prescription/gethistoryrx"
@@ -20,8 +20,8 @@
       :path: "/patient/v1/session"
       :file_path: "mhv/session"
       :cache_multiple_responses:
-        :uid_location: 'header' #@todo
-        :uid_locator: 'mhvCorrelationId' #@todo
+        :uid_location: 'header'
+        :uid_locator: 'mhvCorrelationId'
 
 # EVSS
 - :name: 'EVSS'
