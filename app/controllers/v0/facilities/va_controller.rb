@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
 require 'common/models/collection'
+require 'will_paginate/array'
 
 class V0::Facilities::VaController < FacilitiesController
+  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   before_action :validate_params, only: [:index]
 
   # Index supports the following query parameters:
@@ -10,10 +12,7 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    results = []
-    results = VAFacility.query(bbox: params[:bbox], type: params[:type], services: params[:services]) if params[:bbox]
-    resource = Common::Collection.new(::VAFacility, data: results)
-    resource = resource.paginate(pagination_params)
+    resource = BaseFacility.query(params).paginate
     render json: resource.data,
            serializer: CollectionSerializer,
            each_serializer: VAFacilitySerializer,
@@ -21,9 +20,19 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def show
-    results = VAFacility.find_by(id: params[:id])
+    results = BaseFacility.find_facility_by_id(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
     render json: results, serializer: VAFacilitySerializer
+  end
+
+  # FIXME: this is for testing/validation, will not stay long term
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/issues/9374
+  def all
+    mappings = { 'va_cemetery' => 'nca',
+                 'va_benefits_facility' => 'vba',
+                 'vet_center' => 'vc',
+                 'va_health_facility' => 'vha' }
+    render json: BaseFacility.pluck(:unique_id, :facility_type).map { |id, type| "#{mappings[type]}_#{id}" }.to_json
   end
 
   private
@@ -40,11 +49,10 @@ class V0::Facilities::VaController < FacilitiesController
     end
   end
 
-  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   def validate_type_and_services_known
     raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
-      VAFacility::TYPES.include?(params[:type])
-    unknown = params[:services].to_a - VAFacility.service_whitelist(params[:type])
+      BaseFacility::TYPES.include?(params[:type])
+    unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
   end
 end
