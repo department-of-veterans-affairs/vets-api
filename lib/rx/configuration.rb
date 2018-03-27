@@ -20,7 +20,7 @@ module Rx
     end
 
     def base_path
-      "#{Settings.mhv.rx.host}/patient/v1/"
+      "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
     def caching_enabled?
@@ -33,7 +33,7 @@ module Rx
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        # conn.use :breakers
         conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log
