@@ -25,16 +25,6 @@ class V0::Facilities::VaController < FacilitiesController
     render json: results, serializer: VAFacilitySerializer
   end
 
-  # FIXME: this is for testing/validation, will not stay long term
-  # https://github.com/department-of-veterans-affairs/vets.gov-team/issues/9374
-  def all
-    mappings = { 'va_cemetery' => 'nca',
-                 'va_benefits_facility' => 'vba',
-                 'vet_center' => 'vc',
-                 'va_health_facility' => 'vha' }
-    render json: BaseFacility.pluck(:unique_id, :facility_type).map { |id, type| "#{mappings[type]}_#{id}" }.to_json
-  end
-
   private
 
   def validate_params
