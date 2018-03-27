@@ -3,7 +3,7 @@
 class PensionBurialNotifications
   include Sidekiq::Worker
 
-  ENABLED_DATE = '2018-01-01'.to_date # TODO Update once form is live
+  ENABLED_DATE = '2018-01-01'.to_date # TODO: Update once form is live
   FORM_IDS = ['21P-527EZ', '21P-530'].freeze
 
   def perform
@@ -24,6 +24,8 @@ class PensionBurialNotifications
       new_status = status['status'].downcase
 
       if new_status != old_status
+        # Status has changed, perform follow up actions
+
         claim.status = new_status
         claim.save!
       end
