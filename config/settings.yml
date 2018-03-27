@@ -79,6 +79,8 @@ evss:
   jwt:
     issuer: fake_issuer
     key: fake_key
+  reference_data_service:
+    enabled: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -243,3 +245,4 @@ betamocks:
 faraday_socks_proxy:
   enabled: false
   uri: socks5://localhost:2002
+
