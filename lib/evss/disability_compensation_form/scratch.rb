@@ -20,7 +20,7 @@ headers = {
 }
 
 conn = Faraday.new(
-	"https://csraciapp6.evss.srarad.com/wss-form526-services-web/rest/form526/vi", ssl: { verify: false }
+	"https://csraciapp6.evss.srarad.com/wss-form526-services-web/rest/form526/v1", ssl: { verify: false }
 ) do |faraday|
 	faraday.adapter :httpclient
 end
@@ -28,8 +28,10 @@ end
 response = conn.get do |req|
 	req.url 'ratedDisabilities'
 	req.headers = headers
+	req.body = {}.to_json
 end
 
+p response
 puts response.status
 puts response.body
 
