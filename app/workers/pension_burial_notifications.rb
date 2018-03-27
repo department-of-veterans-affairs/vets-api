@@ -7,19 +7,16 @@ class PensionBurialNotifications
 
   def perform
     claims = {}
+    SavedClaim.where(form_id: FORM_IDS, status: [nil, 'in process']).find_each { |c| claims[c.guid] = c }
 
-    SavedClaim.where(
-      form_id: FORM_IDS,
-      status: [nil, 'in process']
-    ).find_each { |c| claims[c.guid] = c }
+    claim_uuids = claims.keys
 
-    binding.pry; fail
+    get_status(claim_uuids).each do |status|
+      uuid = status['uuid']
+      claim = claims[uuid]
 
-    statuses = get_statuses(claims.keys)
-
-    claims.each do |uuid, claim|
       old_status = claim.status.downcase
-      new_status = statuses[uuid]['status'].downcase
+      new_status = status['status'].downcase
 
       if new_status != old_status
         claim.status = new_status
@@ -30,16 +27,8 @@ class PensionBurialNotifications
 
   private
 
-  def get_statuses(uuids)
+  def get_status(uuids)
     response = PensionBurial::Service.new.status(uuids)
-
-    JSON.parse(response.body).each_with_object({}) do |row, statuses|
-      row.each do |result|
-        uuid = result['uuid']
-        statuses[uuid] = result
-      end
-
-      statuses
-    end
+    JSON.parse(response.body).flatten
   end
 end
