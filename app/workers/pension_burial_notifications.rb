@@ -3,7 +3,7 @@
 class PensionBurialNotifications
   include Sidekiq::Worker
 
-  ENABLED_DATE = '2018-01-01'.to_date
+  ENABLED_DATE = '2018-01-01'.to_date # TODO Update once form is live
   FORM_IDS = ['21P-527EZ', '21P-530'].freeze
 
   def perform
