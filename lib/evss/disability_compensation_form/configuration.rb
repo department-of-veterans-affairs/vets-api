@@ -5,7 +5,7 @@ module EVSS
     class Configuration < EVSS::Configuration
 
       def base_path
-        "#{Settings.evss.url}/wss-form526-services-web/rest/form526/vi"
+        "#{Settings.evss.url}/wss-form526-services-web/rest/form526/v1"
       end
 
       def service_name

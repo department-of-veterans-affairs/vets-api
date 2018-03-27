@@ -70,6 +70,17 @@ FactoryBot.define do
       end
     end
 
+    factory :rated_disabilities_user, traits: [:loa3] do
+      first_name('BEYONCE')
+      last_name('KNOWLES')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796068949')
+
+      after(:build) do
+        stub_mvi(build(:mvi_profile, birls_id: '796068949'))
+      end
+    end
+
     trait :mhv_sign_in do
       email 'abraham.lincoln@vets.gov'
       first_name nil

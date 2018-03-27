@@ -20,18 +20,22 @@ module EVSS
       end
 
       def submit_form
-
       end
 
       def validate_form
-
       end
 
       private
 
       def handle_error(error)
-        require 'pry'
-        binding.pry
+        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
+          log_message_to_sentry(
+            error.message, :error, extra_context: { url: config.base_path, body: error.body }
+          )
+          raise EVSS::DisabilityCompensationForm::ServiceException, error.body
+        else
+          super(error)
+        end
       end
     end
   end
