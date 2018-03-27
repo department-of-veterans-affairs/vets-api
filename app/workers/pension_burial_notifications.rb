@@ -3,11 +3,16 @@
 class PensionBurialNotifications
   include Sidekiq::Worker
 
+  ENABLED_DATE = '2018-01-01'.to_date
   FORM_IDS = ['21P-527EZ', '21P-530'].freeze
 
   def perform
     claims = {}
-    SavedClaim.where(form_id: FORM_IDS, status: [nil, 'in process']).find_each { |c| claims[c.guid] = c }
+    SavedClaim.where(
+      form_id: FORM_IDS,
+      status: [nil, 'in process'],
+      created_at: ENABLED_DATE..Time.zone.now
+    ).find_each { |c| claims[c.guid] = c }
 
     claim_uuids = claims.keys
 
