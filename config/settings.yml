@@ -112,7 +112,7 @@ mhv:
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
-    collection_caching_enabled: true
+    collection_caching_enabled: false
     mock: true
   sm:
     host: https://mhv-api.example.com
