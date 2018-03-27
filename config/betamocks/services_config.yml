@@ -6,7 +6,7 @@
   :endpoints:
     # MHV rx active
     - :method: :get
-      :path: "/patient/v1/prescription/getactiverx"
+      :path: "/mhv-api/patient/v1/prescription/getactiverx"
       :file_path: "mhv/prescription/getactiverx"
       :cache_multiple_responses:
         :uid_location: header
@@ -17,7 +17,7 @@
     #   :file_path: "mhv/prescription/gethistoryrx"
     # MHV Session
     - :method: :get
-      :path: "/patient/v1/session"
+      :path: "/mhv-api/patient/v1/session"
       :file_path: "mhv/session"
       :cache_multiple_responses:
         :uid_location: 'header'
