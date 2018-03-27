@@ -3,6 +3,7 @@
 module V0
   class EducationBenefitsClaimsController < ApplicationController
     skip_before_action(:authenticate)
+    before_action(:tag_rainbows)
 
     def create
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)

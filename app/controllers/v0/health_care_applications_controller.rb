@@ -7,6 +7,7 @@ module V0
     FORM_ID = '10-10EZ'
     # We call authenticate_token because auth is optional on this endpoint.
     skip_before_action(:authenticate)
+    before_action(:tag_rainbows)
 
     def create
       authenticate_token

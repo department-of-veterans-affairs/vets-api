@@ -5,6 +5,7 @@ module V0
     include IgnoreNotFound
 
     before_action :check_access_denied
+    before_action(:tag_rainbows)
 
     def index
       render json: InProgressForm.where(user_uuid: @current_user.uuid)
