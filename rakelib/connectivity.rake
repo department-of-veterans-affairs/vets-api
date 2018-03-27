@@ -12,7 +12,6 @@ REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 Redis.current = Redis.new(REDIS_CONFIG['redis'])
 
 require 'evss/claims_service'
-require 'facilities/async_client'
 require 'gi/client'
 require 'hca/configuration'
 require 'hca/service'
@@ -145,13 +144,6 @@ namespace :connectivity do
       puts "StatsD configured for #{Settings.statsd.host}:#{Settings.statsd.port}."
     else
       puts 'StatsD not configured!'
-    end
-  end
-
-  desc 'Check VHA'
-  task vha: :environment do
-    check 'VHA', Settings.locators.vha do
-      VHAFacilityAdapter.new.query([0, 0, 0, 0])
     end
   end
 end
