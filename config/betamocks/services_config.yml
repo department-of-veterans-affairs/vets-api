@@ -11,10 +11,13 @@
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
-    # # MHV rx history
-    # - :method: :get
-    #   :path: "/patient/v1/prescription/gethistoryrx"
-    #   :file_path: "mhv/prescription/gethistoryrx"
+    # MHV rx history
+    - :method: :get
+      :path: "/mhv-api/patient/v1/prescription/gethistoryrx"
+      :file_path: "mhv/prescription/gethistoryrx"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
     # MHV Session
     - :method: :get
       :path: "/mhv-api/patient/v1/session"
@@ -22,6 +25,13 @@
       :cache_multiple_responses:
         :uid_location: 'header'
         :uid_locator: 'mhvCorrelationId'
+    # MHV rx refill
+    - :method: :post # this starts as a PATCH request Faraday seems to coerce it to a POST
+      :path: "/mhv-api/patient/v1/prescription/rxrefill/*"
+      :file_path: "mhv/prescription/rxrefill"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/rxrefill\/(.+)'
 
 # EVSS
 - :name: 'EVSS'
