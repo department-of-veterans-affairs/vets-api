@@ -43,9 +43,7 @@ module V0
         form, validate_schema: true
       )
 
-      if validation_errors.present?
-        raise Common::Exceptions::SchemaValidationErrors, validation_errors
-      end
+      raise Common::Exceptions::SchemaValidationErrors, validation_errors if validation_errors.present?
     end
   end
 end
