@@ -8,6 +8,11 @@ module Common
           include SentryLogging
 
           def on_complete(env)
+            Raven.extra_context(
+              url: env.url.to_s,
+              body: env.body
+            )
+
             case env.status
             when 200
               doc = Ox.parse(ensure_xml_prolog(env.body))
@@ -16,13 +21,6 @@ module Common
               end
               env.body = doc
             else
-              log_message_to_sentry(
-                'SOAP HTTP call failed',
-                :error,
-                url: env.url.to_s,
-                status: env.status,
-                body: env.body
-              )
               raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
             end
           end
