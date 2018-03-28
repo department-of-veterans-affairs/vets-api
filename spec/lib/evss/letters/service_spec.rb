@@ -32,7 +32,6 @@ describe EVSS::Letters::Service do
         end
 
         it 'should log an error and raise GatewayTimeout' do
-          expect(Rails.logger).to receive(:error).with(/Timeout/)
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.get_letters.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
@@ -66,7 +65,6 @@ describe EVSS::Letters::Service do
         end
 
         it 'should log an error and raise GatewayTimeout' do
-          expect(Rails.logger).to receive(:error).with(/Timeout/)
           expect(StatsD).to receive(:increment).once.with(
             'api.evss.get_letter_beneficiary.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
