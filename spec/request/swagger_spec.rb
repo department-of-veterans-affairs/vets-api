@@ -1040,36 +1040,36 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     describe 'appeals' do
       it 'documents appeals 401' do
-        expect(subject).to validate(:get, '/v0/appeals_v2', 401)
+        expect(subject).to validate(:get, '/v0/appeals', 401)
       end
 
       it 'documents appeals 200' do
         VCR.use_cassette('/appeals/appeals') do
-          expect(subject).to validate(:get, '/v0/appeals_v2', 200, auth_options)
+          expect(subject).to validate(:get, '/v0/appeals', 200, auth_options)
         end
       end
 
       it 'documents appeals 403' do
         VCR.use_cassette('/appeals/forbidden') do
-          expect(subject).to validate(:get, '/v0/appeals_v2', 403, auth_options)
+          expect(subject).to validate(:get, '/v0/appeals', 403, auth_options)
         end
       end
 
       it 'documents appeals 404' do
         VCR.use_cassette('/appeals/not_found') do
-          expect(subject).to validate(:get, '/v0/appeals_v2', 404, auth_options)
+          expect(subject).to validate(:get, '/v0/appeals', 404, auth_options)
         end
       end
 
       it 'documents appeals 422' do
         VCR.use_cassette('/appeals/invalid_ssn') do
-          expect(subject).to validate(:get, '/v0/appeals_v2', 422, auth_options)
+          expect(subject).to validate(:get, '/v0/appeals', 422, auth_options)
         end
       end
 
       it 'documents appeals 502' do
         VCR.use_cassette('/appeals/server_error') do
-          expect(subject).to validate(:get, '/v0/appeals_v2', 502, auth_options)
+          expect(subject).to validate(:get, '/v0/appeals', 502, auth_options)
         end
       end
     end
@@ -1093,6 +1093,20 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         expect(subject).to validate(:get, '/v0/profile/alternate_phone', 401)
         VCR.use_cassette('evss/pciu/alternate_phone') do
           expect(subject).to validate(:get, '/v0/profile/alternate_phone', 200, auth_options)
+        end
+      end
+
+      it 'supports getting service history data' do
+        expect(subject).to validate(:get, '/v0/profile/service_history', 401)
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject).to validate(:get, '/v0/profile/service_history', 200, auth_options)
+        end
+      end
+
+      it 'supports getting personal information data' do
+        expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
         end
       end
     end

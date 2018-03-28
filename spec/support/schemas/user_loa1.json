@@ -39,6 +39,7 @@
                 "last_signed_in",
                 "loa",
                 "multifactor",
+                "verified",
                 "authn_context"
               ],
               "properties": {
@@ -59,6 +60,7 @@
                   }
                 },
                 "multifactor": { "type": "boolean" },
+                "verified": { "type": "boolean" },
                 "authn_context": { "type": [ "string", null ] }
               }
             },
