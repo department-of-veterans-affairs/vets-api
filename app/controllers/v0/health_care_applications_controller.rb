@@ -44,7 +44,6 @@ module V0
       )
 
       if validation_errors.present?
-        log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'health_care_application')
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
