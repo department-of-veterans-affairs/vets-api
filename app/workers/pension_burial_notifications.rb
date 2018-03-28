@@ -20,7 +20,7 @@ class PensionBurialNotifications
       uuid = status['uuid']
       claim = claims[uuid]
 
-      old_status = claim.status.downcase
+      old_status = claim.status&.downcase
       new_status = status['status'].downcase
 
       if new_status != old_status

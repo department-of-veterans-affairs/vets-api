@@ -8,13 +8,36 @@ RSpec.describe PensionBurialNotifications do
   end
 
   before do
-    @no_status = create(:pension_claim, status: nil)
-    @status = create(:burial_claim, status: 'in process')
+    @old_claim = create(:pension_claim, status: nil, created_at: '2017-01-01'.to_date)
+    @no_status_claim = create(:pension_claim, status: nil)
+    @in_process_claim = create(:burial_claim, status: 'in process')
+    @error_claim = create(:burial_claim, status: 'pdf error')
+    @success_claim = create(:burial_claim, status: 'success')
   end
 
   describe '#perform' do
+    let(:mock_statuses) do
+      [
+        {
+          'uuid' => @no_status_claim.guid,
+          'status' => 'In Process'
+        },
+        {
+          'uuid' => @in_process_claim.guid,
+          'status' => 'Success'
+        }
+      ]
+    end
+
     it 'should update the statuses of saved claims' do
+      expect_any_instance_of(PensionBurialNotifications).to receive(:get_status).with(
+        [@no_status_claim.guid, @in_process_claim.guid]
+      ).and_return(mock_statuses)
+
       subject.perform
+
+      expect(@no_status_claim.reload.status).to eq('in process')
+      expect(@in_process_claim.reload.status).to eq('success')
     end
   end
 end
