@@ -11,23 +11,25 @@ class PensionBurialNotifications
     SavedClaim.where(
       form_id: FORM_IDS,
       status: [nil, 'in process'],
-      created_at: ENABLED_DATE..Time.zone.now
+      created_at: ENABLED_DATE.beginning_of_day..Time.zone.now
     ).find_each { |c| claims[c.guid] = c }
 
     claim_uuids = claims.keys
 
-    get_status(claim_uuids).each do |status|
-      uuid = status['uuid']
-      claim = claims[uuid]
+    claim_uuids.each_slice(100) do |uuid_batch|
+      get_status(uuid_batch).each do |status|
+        uuid = status['uuid']
+        claim = claims[uuid]
 
-      old_status = claim.status&.downcase
-      new_status = status['status'].downcase
+        old_status = claim.status&.downcase
+        new_status = status['status'].downcase
 
-      if new_status != old_status
-        # Status has changed, perform follow up actions
+        if new_status != old_status
+          # Status has changed, perform follow up actions
 
-        claim.status = new_status
-        claim.save!
+          claim.status = new_status
+          claim.save!
+        end
       end
     end
   end
