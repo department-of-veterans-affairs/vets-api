@@ -36,6 +36,9 @@ RSpec.describe PensionBurialNotifications do
 
       subject.perform
 
+      expect(@old_claim.reload.status).to be(nil)
+      expect(@error_claim.reload.status).to eq('pdf error')
+      expect(@success_claim.reload.status).to eq('success')
       expect(@no_status_claim.reload.status).to eq('in process')
       expect(@in_process_claim.reload.status).to eq('success')
     end
