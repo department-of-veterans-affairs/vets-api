@@ -46,14 +46,13 @@ module Common
       end
 
       def request(method, path, params = {}, headers = {})
+        raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
+        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+      rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(
           service_name: config.service_name,
           url: config.base_path
         )
-
-        raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Timeout::Error, Faraday::TimeoutError
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
         client_error = Common::Client::Errors::ClientError.new(
