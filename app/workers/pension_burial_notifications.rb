@@ -9,9 +9,9 @@ class PensionBurialNotifications
   def perform
     claims = {}
     SavedClaim.where(
-      form_id: FORM_IDS,
+      created_at: ENABLED_DATE.beginning_of_day..Time.zone.now,
       status: [nil, 'in process'],
-      created_at: ENABLED_DATE.beginning_of_day..Time.zone.now
+      form_id: FORM_IDS
     ).find_each { |c| claims[c.guid] = c }
 
     claim_uuids = claims.keys
