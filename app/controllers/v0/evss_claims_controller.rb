@@ -5,6 +5,7 @@ module V0
     include IgnoreNotFound
 
     before_action { authorize :evss, :access? }
+    before_action(:tag_rainbows)
 
     def index
       claims, synchronized = service.all
