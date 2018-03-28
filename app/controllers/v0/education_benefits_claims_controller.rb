@@ -3,15 +3,12 @@
 module V0
   class EducationBenefitsClaimsController < ApplicationController
     skip_before_action(:authenticate)
+    before_action(:tag_rainbows)
 
     def create
       claim = SavedClaim::EducationBenefits.form_class(form_type).new(education_benefits_claim_params)
 
       unless claim.save
-        validation_error = claim.errors.full_messages.join(', ')
-
-        log_message_to_sentry(validation_error, :error, {}, validation: 'education_benefits_claim')
-
         StatsD.increment("#{stats_key}.failure")
         raise Common::Exceptions::ValidationErrors, claim
       end
