@@ -1102,6 +1102,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/profile/service_history', 200, auth_options)
         end
       end
+
+      it 'supports getting personal information data' do
+        expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
+        end
+      end
     end
   end
 
