@@ -53,6 +53,8 @@ class BaseFacility < ActiveRecord::Base
     VET_CENTER => []
   }.freeze
 
+  DAYS = DateTime::DAYNAMES.rotate.each_with_index.map { |day, index| [day, index] }.to_h.freeze
+
   class << self
     def find_sti_class(type_name)
       FACILITY_MAPPINGS[type_name].constantize || super
@@ -71,7 +73,9 @@ class BaseFacility < ActiveRecord::Base
     def find_facility_by_id(id)
       type, unique_id = id.split('_')
       return nil unless type && unique_id
-      "Facilities::#{type.upcase}Facility".constantize.find_by(unique_id: unique_id)
+      facility = "Facilities::#{type.upcase}Facility".constantize.find_by(unique_id: unique_id)
+      facility&.hours = facility&.hours&.sort_by { |day, _hours| DAYS[day.capitalize] }.to_h
+      facility
     end
 
     # FIXME: using common collection here to have access to #metadata for serializer output but long term we should
