@@ -10,13 +10,14 @@ class PensionBurialNotifications
   def perform
     claims = {}
     SavedClaim.where(
-      form_id: FORM_IDS,
+      created_at: ENABLED_DATE.beginning_of_day..Time.zone.now,
       status: QUERY_STATUSES,
-      created_at: ENABLED_DATE.beginning_of_day..Time.zone.now
+      form_id: FORM_IDS
     ).find_each { |c| claims[c.guid] = c }
 
     claim_uuids = claims.keys
 
+    # batch because the pension/burial API accepts a maximum of 100 uuid's per request
     claim_uuids.each_slice(100) do |uuid_batch|
       get_status(uuid_batch).each do |status|
         uuid = status['uuid']
