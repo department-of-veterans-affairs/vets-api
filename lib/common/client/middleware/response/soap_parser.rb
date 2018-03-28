@@ -5,8 +5,6 @@ module Common
     module Middleware
       module Response
         class SOAPParser < Faraday::Response::Middleware
-          include SentryLogging
-
           def on_complete(env)
             Raven.extra_context(
               url: env.url.to_s,
