@@ -26,7 +26,7 @@
         :uid_location: 'header'
         :uid_locator: 'mhvCorrelationId'
     # MHV rx refill
-    - :method: :post # this starts as a PATCH request Faraday seems to coerce it to a POST
+    - :method: :post
       :path: "/mhv-api/patient/v1/prescription/rxrefill/*"
       :file_path: "mhv/prescription/rxrefill"
       :cache_multiple_responses:
