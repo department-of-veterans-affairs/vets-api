@@ -16,6 +16,7 @@ class PensionBurialNotifications
 
     claim_uuids = claims.keys
 
+    # batch because the pension/burial API accepts a maximum of 100 uuid's per request
     claim_uuids.each_slice(100) do |uuid_batch|
       get_status(uuid_batch).each do |status|
         uuid = status['uuid']
