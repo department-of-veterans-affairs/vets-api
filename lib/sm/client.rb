@@ -126,14 +126,12 @@ module SM
     def get_message(id)
       path = "message/#{id}/read"
       json = perform(:get, path, nil, token_headers).body
-
       Message.new(json)
     end
 
     def get_message_history(id)
       path = "message/#{id}/history"
       json = perform(:get, path, nil, token_headers).body
-
       Common::Collection.new(Message, json)
     end
 
