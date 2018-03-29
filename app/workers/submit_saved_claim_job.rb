@@ -22,8 +22,7 @@ class SubmitSavedClaimJob
       submission["attachment#{j}"] = to_faraday_upload(file_path)
     end
 
-    # Disabled to do load testing without hitting 3rd party api
-    # PensionBurial::Service.new.upload(submission)
+    PensionBurial::Service.new.upload(submission)
     File.delete(@pdf_path)
     @attachment_paths.each { |p| File.delete(p) }
   end
