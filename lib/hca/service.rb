@@ -40,13 +40,11 @@ module HCA
     private
 
     def post_submission(submission)
-      begin
-        perform(:post, '', submission.body)
-      rescue Common::Exceptions::GatewayTimeout => e
-        StatsD.increment(TIMEOUT_KEY)
-        log_exception_to_sentry(e, {}, {}, 'warning')
-        raise
-      end
+      perform(:post, '', submission.body)
+    rescue Common::Exceptions::GatewayTimeout => e
+      StatsD.increment(TIMEOUT_KEY)
+      log_exception_to_sentry(e, {}, {}, 'warning')
+      raise
     end
 
     def soap
