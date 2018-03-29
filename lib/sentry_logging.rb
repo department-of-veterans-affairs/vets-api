@@ -29,12 +29,15 @@ module SentryLogging
   end
 
   def normalize_level(level)
+    # https://docs.sentry.io/clients/ruby/usage/
+    # valid raven levels: debug, info, warning, error, fatal
     level = level.to_s
     return 'warning' if level == 'warn'
     level
   end
 
   def rails_logger(level, message)
+    # rails logger uses 'warn' instead of 'warning'
     level = 'warn' if level == 'warning'
     Rails.logger.send(level, message)
   end
