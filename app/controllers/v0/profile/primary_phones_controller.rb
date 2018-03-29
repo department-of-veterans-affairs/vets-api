@@ -11,10 +11,20 @@ module V0
         render json: response, serializer: PhoneNumberSerializer
       end
 
+      def create
+        response = service.post_primary_phone(primary_phone_params)
+
+        render json: response, serializer: PhoneNumberSerializer
+      end
+
       private
 
       def service
         EVSS::PCIU::Service.new @current_user
+      end
+
+      def primary_phone_params
+        params.permit(:country_code, :number, :extension, :effective_date)
       end
     end
   end

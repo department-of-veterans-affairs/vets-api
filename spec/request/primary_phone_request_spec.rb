@@ -58,4 +58,25 @@ RSpec.describe 'primary phone', type: :request do
       end
     end
   end
+
+  describe 'POST /v0/profile/primary_phone' do
+    let(:phone) { build(:phone_number, :nil_effective_date) }
+
+    context 'with a 200 response' do
+      it 'should match the primary phone schema' do
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          post(
+            '/v0/profile/primary_phone',
+            phone.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('phone_number_response')
+        end
+      end
+    end
+  end
 end
