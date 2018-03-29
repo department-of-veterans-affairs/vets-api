@@ -72,6 +72,21 @@ module EVSS
       rescue StandardError => e
         handle_error(e)
       end
+
+      def post_primary_phone(phone_attrs)
+        with_monitoring do
+          raw_response = perform(
+            :post,
+            'primaryPhoneNumber',
+            EVSS::PCIU::RequestBody.new(phone_attrs, pciu_key: 'cnpPhone').set,
+            headers
+          )
+
+          EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
     end
   end
 end

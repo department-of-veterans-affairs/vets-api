@@ -65,4 +65,26 @@ describe EVSS::PCIU::Service do
       end
     end
   end
+
+  describe '#post_primary_phone' do
+    let(:phone) { build(:phone_number, :nil_effective_date) }
+
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          response = subject.post_primary_phone(phone)
+
+          expect(response).to be_ok
+        end
+      end
+
+      it 'returns a users primary phone number, extension and country code' do
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          response = subject.post_primary_phone(phone)
+
+          expect(response.attributes.keys).to include :country_code, :number, :extension
+        end
+      end
+    end
+  end
 end
