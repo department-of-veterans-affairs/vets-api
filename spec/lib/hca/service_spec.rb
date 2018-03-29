@@ -70,6 +70,22 @@ describe HCA::Service do
     end
   end
 
+  describe '#post_submission' do
+    context 'with a timeout' do
+      it 'should log to statsd' do
+        service = described_class.new
+        expect(service).to receive(:perform).with(:post, '', nil) do
+          raise Common::Exceptions::GatewayTimeout
+        end
+        expect(StatsD).to receive(:increment).with('api.hca.timeout')
+
+        expect do
+          service.send(:post_submission, OpenStruct.new(body: nil))
+        end.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
+  end
+
   describe '.options' do
     before(:each) do
       allow(HCA::Configuration.instance).to receive(:ssl_cert) { cert }

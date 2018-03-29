@@ -5,6 +5,8 @@ require 'hca/enrollment_system'
 
 module HCA
   class Service < Common::Client::Base
+    TIMEOUT_KEY = 'api.hca.timeout'
+
     configuration HCA::Configuration
 
     def initialize(current_user = nil)
@@ -38,7 +40,13 @@ module HCA
     private
 
     def post_submission(submission)
-      perform(:post, '', submission.body)
+      begin
+        perform(:post, '', submission.body)
+      rescue Common::Exceptions::GatewayTimeout => e
+        StatsD.increment(TIMEOUT_KEY)
+        log_exception_to_sentry(e, {}, {}, 'warning')
+        raise
+      end
     end
 
     def soap

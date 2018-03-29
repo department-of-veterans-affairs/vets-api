@@ -37,6 +37,10 @@ module V0
 
     private
 
+    def skip_sentry_exception_types
+      ApplicationController::SKIP_SENTRY_EXCEPTION_TYPES + [Common::Exceptions::GatewayTimeout]
+    end
+
     def validate!(form)
       validation_errors = JSON::Validator.fully_validate(
         VetsJsonSchema::SCHEMAS[FORM_ID],

@@ -49,7 +49,7 @@ module Common
       def request(method, path, params = {}, headers = {})
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Timeout::Error, Faraday::TimeoutError
+      rescue Timeout::Error, Faraday::TimeoutError, Net::ReadTimeout
         log_message_to_sentry(
           "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
         )
