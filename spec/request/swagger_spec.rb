@@ -1109,6 +1109,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
         end
       end
+
+      it 'supports posting primary phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/primary_phone',
+            200,
+            auth_options.update(phone)
+          )
+        end
+      end
     end
   end
 
