@@ -42,7 +42,7 @@
     # SM Folders
     - :method: :get
       :path: "/mhv-sm-api/patient/v1/folder"
-      :file_path: "mhv/secure_messaging/folder"
+      :file_path: "mhv/secure_messaging/folders"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
