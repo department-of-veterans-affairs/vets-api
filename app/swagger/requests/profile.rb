@@ -95,6 +95,37 @@ module Swagger
             end
           end
         end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates/updates a users primar phone number information'
+          key :operationId, 'postPrimaryPhone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create/update a phone number'
+            key :required, true
+
+            schema do
+              property :number, type: :string, example: '4445551212'
+              property :extension, type: :string, example: '101'
+              property :country_code, type: :string, example: '1'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :PhoneNumber
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/service_history' do
