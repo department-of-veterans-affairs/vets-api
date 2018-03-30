@@ -86,5 +86,35 @@ describe EVSS::PCIU::Service do
         end
       end
     end
+
+    context 'with a 500 response' do
+      it 'raises a Common::Exceptions::BackendServiceException error' do
+        VCR.use_cassette('evss/pciu/post_primary_phone_status_500') do
+          expect { subject.post_primary_phone(phone) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
+    context 'with a 403 response' do
+      it 'raises a Common::Exceptions::Forbidden error' do
+        VCR.use_cassette('evss/pciu/post_primary_phone_status_403') do
+          expect { subject.post_primary_phone(phone) }.to raise_error(
+            Common::Exceptions::Forbidden
+          )
+        end
+      end
+    end
+
+    context 'with a 400 response' do
+      it 'raises a Common::Exceptions::BackendServiceException error' do
+        VCR.use_cassette('evss/pciu/post_primary_phone_status_400') do
+          expect { subject.post_primary_phone(phone) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
   end
 end
