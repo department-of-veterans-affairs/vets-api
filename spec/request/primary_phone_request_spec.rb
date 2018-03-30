@@ -78,5 +78,42 @@ RSpec.describe 'primary phone', type: :request do
         end
       end
     end
+
+    context 'with a missing phone number' do
+      it 'should match the errors schema', :aggregate_failures do
+        phone = build :phone_number, :nil_effective_date, number: ''
+
+        post(
+          '/v0/profile/primary_phone',
+          phone.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('errors')
+        expect(errors_for response).to include "number - can't be blank", "number - Only numbers are permitted."
+      end
+    end
+
+    context 'with a number that contains non-numeric characters' do
+      it 'should match the errors schema', :aggregate_failures do
+        phone = build :phone_number, :nil_effective_date, number: '123-456-7890'
+
+        post(
+          '/v0/profile/primary_phone',
+          phone.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('errors')
+        expect(errors_for response).to include "number - Only numbers are permitted."
+      end
+    end
+
   end
 end

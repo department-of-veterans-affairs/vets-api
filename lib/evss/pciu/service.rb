@@ -78,7 +78,7 @@ module EVSS
           raw_response = perform(
             :post,
             'primaryPhoneNumber',
-            EVSS::PCIU::RequestBody.new(phone_attrs, pciu_key: 'cnpPhone').set,
+            RequestBody.new(phone_attrs, pciu_key: 'cnpPhone').set,
             headers
           )
 
