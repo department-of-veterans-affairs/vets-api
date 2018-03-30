@@ -8,7 +8,8 @@ module EVSS
       attribute :extension, String
       attribute :effective_date, DateTime
 
-      validates :country_code, :number, :extension, presence: true
+      validates :number, presence: true
+      validates :number, format: { with: /\A\d+\z/, message: "Only numbers are permitted." }
     end
   end
 end
