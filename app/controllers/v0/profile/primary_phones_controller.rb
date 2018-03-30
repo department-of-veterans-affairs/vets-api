@@ -12,9 +12,15 @@ module V0
       end
 
       def create
-        response = service.post_primary_phone(primary_phone_params)
+        phone = EVSS::PCIU::PhoneNumber.new primary_phone_params
 
-        render json: response, serializer: PhoneNumberSerializer
+        if phone.valid?
+          response = service.post_primary_phone phone
+
+          render json: response, serializer: PhoneNumberSerializer
+        else
+          raise Common::Exceptions::ValidationErrors, phone
+        end
       end
 
       private
