@@ -93,7 +93,7 @@ RSpec.describe 'primary phone', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
-        expect(errors_for response).to include "number - can't be blank", "number - Only numbers are permitted."
+        expect(errors_for(response)).to include "number - can't be blank", 'number - Only numbers are permitted.'
       end
     end
 
@@ -111,7 +111,7 @@ RSpec.describe 'primary phone', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
-        expect(errors_for response).to include "number - Only numbers are permitted."
+        expect(errors_for(response)).to include 'number - Only numbers are permitted.'
       end
     end
 
