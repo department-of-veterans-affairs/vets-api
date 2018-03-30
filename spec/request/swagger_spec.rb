@@ -1120,7 +1120,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             :post,
             '/v0/profile/primary_phone',
             200,
-            auth_options.update(phone)
+            auth_options.merge('_data' => phone.as_json)
           )
         end
       end

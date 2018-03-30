@@ -9,7 +9,7 @@ module EVSS
       attribute :effective_date, DateTime
 
       validates :number, presence: true
-      validates :number, format: { with: /\A\d+\z/, message: "Only numbers are permitted." }
+      validates :number, format: { with: /\A\d+\z/, message: 'Only numbers are permitted.' }
     end
   end
 end
