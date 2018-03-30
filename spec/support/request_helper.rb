@@ -7,4 +7,10 @@ module RequestHelper
       copy_session_variables!
     end
   end
+
+  def errors_for(response)
+    parsed_body = JSON.parse response.body
+
+    parsed_body['errors'].map { |error| error['detail'] }
+  end
 end
