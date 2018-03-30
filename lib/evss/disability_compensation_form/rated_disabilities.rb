@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'evss/disability_compensation_form/special_issue'
 
 module EVSS
   module DisabilityCompensationForm
@@ -16,7 +17,7 @@ module EVSS
       attribute :rating_decision_id, String
       attribute :rating_percentage, Integer
       attribute :related_disability_date, DateTime
-      attribute :special_issues, Array[Hash]
+      attribute :special_issues, Array[EVSS::DisabilityCompensationForm::SpecialIssue]
 
     end
   end
