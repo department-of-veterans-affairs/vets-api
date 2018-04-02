@@ -99,17 +99,39 @@ module Swagger
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Creates/updates a users primar phone number information'
+          key :description, 'Creates/updates a users primary phone number information'
           key :operationId, 'postPrimaryPhone'
           key :tags, %w[
             profile
           ]
 
           parameter :authorization
+
+          parameter do
+            key :name, :number
+            key :in, :body
+            key :description, 'Telephone number. Can only contain numbers.'
+            key :required, true
+          end
+
+          parameter do
+            key :name, :extension
+            key :in, :body
+            key :description, 'Telephone extension.'
+            key :required, false
+          end
+
+          parameter do
+            key :name, :country_code
+            key :in, :body
+            key :description, "The number's country code.  Can be alphanumeric."
+            key :required, false
+          end
+
           parameter do
             key :name, :body
             key :in, :body
-            key :description, 'Attributes to create/update a phone number'
+            key :description, 'Attributes to create/update a phone number.'
             key :required, true
 
             schema do
