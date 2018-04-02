@@ -102,6 +102,34 @@ module EVSS
       rescue StandardError => e
         handle_error(e)
       end
+
+      # POST's the passed phone attributes to the EVSS::PCIU service.
+      # Returns a response object containing the user's alternate phone number,
+      # extension, and country code
+      #
+      # @param phone_attrs [EVSS::PCIU::PhoneNumber] A EVSS::PCIU::PhoneNumber instance
+      # @return [EVSS::PCIU::PhoneNumberResponse] Sample response.phone:
+      #   {
+      #     "country_code" => "1",
+      #     "extension" => "",
+      #     "number" => "4445551212"
+      #     "effective_date" => "2018-02-27T14:41:32.283Z"
+      #   }
+      #
+      def post_alternate_phone(phone_attrs)
+        with_monitoring do
+          raw_response = perform(
+            :post,
+            'secondaryPhoneNumber',
+            RequestBody.new(phone_attrs, pciu_key: 'cnpPhone').set,
+            headers
+          )
+
+          EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
     end
   end
 end
