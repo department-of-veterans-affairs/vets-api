@@ -4,6 +4,7 @@ require 'preneeds/service'
 
 class PreneedsController < ApplicationController
   skip_before_action(:authenticate)
+  before_action(:tag_rainbows)
 
   protected
 

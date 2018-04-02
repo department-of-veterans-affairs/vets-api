@@ -2,6 +2,6 @@
 
 EMISPolicy = Struct.new(:user, :emis) do
   def access?
-    user.edipi.present? || user.icn.present?
+    user.edipi.present?
   end
 end
