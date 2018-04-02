@@ -26,7 +26,7 @@ module EVSS
       # rubocop:enable Style/DateTime
 
       def remove_empty_attrs
-        request_attrs.tap { |instance| instance.as_json.delete_if { |_k, v| v.blank? } }
+        @request_attrs = request_attrs.as_json.delete_if { |_k, v| v.blank? }
       end
 
       def convert_to_json
