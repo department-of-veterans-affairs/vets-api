@@ -154,6 +154,18 @@ describe MVI::Responses::ProfileParser do
     end
   end
 
+  context 'with a vet360 id' do
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+
+    before(:each) do
+      allow(faraday_response).to receive(:body) { body }
+    end
+
+    it 'correctly parses a Vet360 ID' do
+      fail
+    end
+  end
+
   context 'with inactive MHV ID edge cases' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_inactive_mhv_ids.xml')) }
 

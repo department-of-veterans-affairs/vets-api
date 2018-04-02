@@ -65,6 +65,16 @@ describe MVI::Service do
         end
       end
 
+      it 'correctly parses vet360 id if it exists', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/valid_vet360_id') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['vet360_id']).to eq('123456789')
+        end
+      end
+
       it 'fetches historical icns if they exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
         allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
