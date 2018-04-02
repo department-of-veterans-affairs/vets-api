@@ -17,13 +17,11 @@ describe EVSS::PCIU::RequestBody do
 
       expect(results.class).to eq String
       expect(parsed).to eq(
-        {
-          'phone' => {
-            'countryCode' => '1',
-            'number' => '4445551212',
-            'extension' => '101',
-            'effectiveDate' => '2018-04-02T14:02:59.000+00:00'
-          }
+        'phone' => {
+          'countryCode' => '1',
+          'number' => '4445551212',
+          'extension' => '101',
+          'effectiveDate' => '2018-04-02T14:02:59.000+00:00'
         }
       )
       expect(parsed.keys).to include 'phone'
