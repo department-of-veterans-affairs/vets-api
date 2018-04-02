@@ -15,6 +15,8 @@ describe EVSS::DisabilityCompensationForm::Service do
           expect(response).to be_ok
           expect(response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
           expect(response.rated_disabilities.count).to eq 2
+          expect(response.rated_disabilities.first.special_issues).to be_an Array
+          expect(response.rated_disabilities.first.special_issues.first).to be_an EVSS::DisabilityCompensationForm::SpecialIssue
         end
       end
     end

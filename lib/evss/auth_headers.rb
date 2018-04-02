@@ -37,9 +37,18 @@ module EVSS
           edi: @user.edipi,
           firstName: @user.first_name,
           lastName: @user.last_name,
-          birthDate: iso8601_birth_date
+          birthDate: iso8601_birth_date,
+          gender: gender
         }
       }.to_json
+    end
+
+    def gender
+      if @user.gender == 'F'
+        'FEMALE'
+      elsif @user.gender == 'M'
+        'MALE'
+      end
     end
 
     def iso8601_birth_date

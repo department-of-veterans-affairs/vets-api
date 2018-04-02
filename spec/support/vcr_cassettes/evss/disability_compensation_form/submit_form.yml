@@ -27,19 +27,17 @@ http_interactions:
       va-eauth-issueinstant:
       - '2017-12-07T00:55:09Z'
       va-eauth-dodedipnid:
-      - '8932397380'
+      - '4789224336'
       va-eauth-birlsfilenumber:
-      - '796068949'
+      - '796068948'
       va-eauth-pid:
-      - '3797496283'
+      - '7420876015'
       va-eauth-pnid:
       - '796068949'
       va-eauth-birthdate:
-      - '1970-01-05T00:00:00+00:00'
+      - '1959-10-24T00:00:00+00:00'
       va-eauth-authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796068949","edi":"8932397380","firstName":"Beyonce","lastName":"Knowles","birthDate":"1970-01-05T00:00:00+00:00"}}'
-      va-eauth-gender:
-      - FEMALE
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796068949","edi":"4789224336","firstName":"Beyonce","lastName":"Knowles","birthDate":"1959-10-24T00:00:00+00:00","gender":"FEMALE"}}'
       Content-Type:
       - application/json
       Accept-Encoding:
@@ -48,35 +46,32 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 400
-      message: Bad Request
+      code: 200
+      message: OK
     headers:
       Date:
-      - Mon, 02 Apr 2018 18:18:23 GMT
+      - Mon, 02 Apr 2018 22:46:34 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips
       Content-Type:
       - application/json
       Set-Cookie:
-      - WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
-      - WSS-FORM526-SERVICES_JSESSIONID=ZYqHlN6yQI6SfKdJ-r3_gOiKmrCVr2ALYgbS14bbbSygEVkvC8nD!583290864;
+      - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
+      - WSS-FORM526-SERVICES_JSESSIONID=RPeIimX_DLhskhO20bPzBmWWKGghuW-YlSjLgIX3nN28Adki1xRE!-1392655551;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
-      Connection:
-      - close
       Transfer-Encoding:
       - chunked
     body:
       encoding: UTF-8
       string: |-
         {
-          "messages" : [ {
-            "key" : "header.va_eauth_gender.isNull",
-            "severity" : "ERROR",
-            "text" : "Gender is missing"
-          } ]
+          "claimId" : -6820564985530150012,
+          "endProductClaimCode" : "400SUPP",
+          "endProductClaimName" : "400-eBenefits-Supplemental",
+          "inflightDocumentId" : -7166975058082066996
         }
     http_version: 
-  recorded_at: Mon, 02 Apr 2018 18:18:23 GMT
+  recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
 recorded_with: VCR 3.0.3
