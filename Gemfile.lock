@@ -18,23 +18,22 @@ GIT
       script_utils (= 0.0.4)
 
 GIT
-  remote: https://github.com/saneshark/saml_idp
-  revision: 5194047e1af02a331faa69f521afb35dc13a1dbb
-  branch: idp_multi_cert
-  specs:
-    saml_idp (0.7.2)
-      activesupport (>= 3.2)
-      builder (>= 3.0)
-      nokogiri (>= 1.6.2)
-      uuid (>= 2.3)
-
-GIT
   remote: https://github.com/thoughtbot/factory_bot
   revision: 50eeb67241ea78a6b138eea694a2a25413052f49
   ref: 50eeb67241ea78a6b138eea694a2a25413052f49
   specs:
     factory_bot (4.8.2)
       activesupport (>= 3.0.0)
+
+PATH
+  remote: ../saml_idp
+  specs:
+    saml_idp (0.7.2)
+      activesupport (>= 3.2)
+      builder (>= 3.0)
+      nokogiri (>= 1.6.2)
+      uuid (>= 2.3)
+      xmlenc (>= 0.6.4)
 
 GEM
   remote: https://rubygems.org/
@@ -220,7 +219,7 @@ GEM
     httpi (2.4.2)
       rack
       socksify
-    i18n (0.9.1)
+    i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     iconv (1.0.4)
@@ -258,7 +257,7 @@ GEM
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.3.0)
-    minitest (5.10.3)
+    minitest (5.11.3)
     multi_json (1.13.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
@@ -473,7 +472,7 @@ GEM
     ttfunk (1.5.0)
     typhoeus (1.1.2)
       ethon (>= 0.9.0)
-    tzinfo (1.2.4)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.3.0)
     uuid (2.3.8)
@@ -498,6 +497,13 @@ GEM
       hashdiff
     webrick (1.3.1)
     will_paginate (3.1.0)
+    xmlenc (0.7.1)
+      activemodel (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      nokogiri (>= 1.6.0, < 2.0.0)
+      xmlmapper (>= 0.7.3)
+    xmlmapper (0.7.3)
+      nokogiri (~> 1.5)
     zero_downtime_migrations (0.0.7)
       activerecord
 

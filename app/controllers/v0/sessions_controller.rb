@@ -40,25 +40,23 @@ module V0
     # TODO: when deprecated routes can be removed this should be changed to use different method (ie. destroy)
     # rubocop:disable Metrics/CyclomaticComplexity
     def new
-      url = case params[:type]
-            when 'mhv'
-              SAML::SettingsService.mhv_url
-            when 'dslogon'
-              SAML::SettingsService.dslogon_url
-            when 'idme'
-              query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url + query
-            when 'mfa'
-              authenticate
-              SAML::SettingsService.mfa_url(current_user)
-            when 'verify'
-              authenticate
-              SAML::SettingsService.idme_loa3_url(current_user)
-            when 'slo'
-              authenticate
-              SAML::SettingsService.slo_url(session)
-            end
-      render json: { url: url }
+      case params[:type]
+      when 'mhv'
+        redirect_to SAML::SettingsService.mhv_url
+      when 'dslogon'
+        redirect_to SAML::SettingsService.dslogon_url
+      when 'idme'
+        redirect_to SAML::SettingsService.idme_loa1_url
+      when 'mfa'
+        authenticate
+        redirect_to SAML::SettingsService.mfa_url(current_user)
+      when 'verify'
+        authenticate
+        redirect_to SAML::SettingsService.idme_loa3_url(current_user)
+      when 'slo'
+        authenticate
+        redirect_to SAML::SettingsService.slo_url(session)
+      end
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 

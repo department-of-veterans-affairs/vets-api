@@ -124,7 +124,7 @@ group :development, :test do
   gem 'timecop'
   gem 'webmock'
   gem 'sinatra'
-  gem 'saml_idp', git: 'https://github.com/saneshark/saml_idp', branch: 'idp_multi_cert'
+  gem 'saml_idp', path: '../saml_idp'
 end
 
 group :production do

@@ -21,7 +21,7 @@ require 'support/aws_helpers'
 require 'support/request_helper'
 require 'support/uploader_helpers'
 require 'common/exceptions'
-require 'support/mock_saml_idp/idp'
+require 'support/mock_saml/idp'
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
@@ -149,7 +149,7 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
-    # stub_request(:any, /api.idmelabs.com/).to_rack(MockSamlIdp::Idp)
+    stub_request(:any, /api.idmelabs.com/).to_rack(MockSaml::Idp)
     Sidekiq::Worker.clear_all
   end
 

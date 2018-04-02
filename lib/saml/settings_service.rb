@@ -47,8 +47,12 @@ module SAML
         end
       end
 
+      # FIXME: temporarily make this public
+      def metadata
+        get_metadata
+      end
+
       def merged_saml_settings
-        metadata = get_metadata
         return nil if metadata.nil?
         begin
           OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
