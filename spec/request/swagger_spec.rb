@@ -1124,6 +1124,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports posting alternate phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_alternate_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/alternate_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
     end
   end
 
