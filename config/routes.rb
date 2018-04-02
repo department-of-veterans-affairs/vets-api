@@ -163,7 +163,7 @@ Rails.application.routes.draw do
     end
 
     namespace :profile do
-      resource :alternate_phone, only: :show
+      resource :alternate_phone, only: %i[show create]
       resource :email, only: :show
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]

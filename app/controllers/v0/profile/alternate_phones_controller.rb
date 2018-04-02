@@ -11,10 +11,26 @@ module V0
         render json: response, serializer: PhoneNumberSerializer
       end
 
+      def create
+        phone = EVSS::PCIU::PhoneNumber.new alternate_phone_params
+
+        if phone.valid?
+          response = service.post_alternate_phone phone
+
+          render json: response, serializer: PhoneNumberSerializer
+        else
+          raise Common::Exceptions::ValidationErrors, phone
+        end
+      end
+
       private
 
       def service
         EVSS::PCIU::Service.new @current_user
+      end
+
+      def alternate_phone_params
+        params.permit(:country_code, :number, :extension, :effective_date)
       end
     end
   end
