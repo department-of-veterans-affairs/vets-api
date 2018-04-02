@@ -1,6 +1,88 @@
 ---
 :services:
 
+- :name: 'MHV_Rx'
+  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>:443
+  :endpoints:
+    # MHV rx active
+    - :method: :get
+      :path: "/mhv-api/patient/v1/prescription/getactiverx"
+      :file_path: "mhv/prescription/getactiverx"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
+    # MHV rx history
+    - :method: :get
+      :path: "/mhv-api/patient/v1/prescription/gethistoryrx"
+      :file_path: "mhv/prescription/gethistoryrx"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
+    # MHV Session
+    - :method: :get
+      :path: "/mhv-api/patient/v1/session"
+      :file_path: "mhv/session"
+      :cache_multiple_responses:
+        :uid_location: 'header'
+        :uid_locator: 'mhvCorrelationId'
+    # MHV rx refill
+    - :method: :post
+      :path: "/mhv-api/patient/v1/prescription/rxrefill/*"
+      :file_path: "mhv/prescription/rxrefill"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/rxrefill\/(.+)'
+    # SM Session
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/session"
+      :file_path: "mhv/session"
+      :cache_multiple_responses:
+        :uid_location: 'header'
+        :uid_locator: 'mhvCorrelationId'
+    # SM Folders
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/folder"
+      :file_path: "mhv/secure_messaging/folders"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
+    # SM Folder/*
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/folder/*"
+      :file_path: "mhv/secure_messaging/folder"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/folder\/(.+)'
+    # SM Recipients
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/triageteam"
+      :file_path: "mhv/secure_messaging/triageteam"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
+    # SM Folder messages
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/folder/*/message/page/*/pageSize/*"
+      :file_path: "mhv/secure_messaging/folder_messages"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/folder\/(.+)\/message'
+    # SM messages
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/message/*/read"
+      :file_path: "mhv/secure_messaging/messages"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/message\/(.+)\/read'
+    # SM thread
+    - :method: :get
+      :path: "/mhv-sm-api/patient/v1/message/*/history"
+      :file_path: "mhv/secure_messaging/history"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/message\/(.+)\/history'
+
+
 # EVSS
 - :name: 'EVSS'
   :base_uri: <%= "#{URI(Settings.evss.url).host}:#{URI(Settings.evss.url).port}" %>
@@ -39,8 +121,6 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
-#    :error:
-#      :status: 502
   - :method: :post
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
     :file_path: "evss/pciu_address/address_update"
@@ -73,6 +153,20 @@
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
 
+  # Claims
+  - :method: :get
+    :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.claims}/rest/vbaClaimStatusService/getClaims" %>
+    :file_path: "evss/claims/index"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+  - :method: :post
+    :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.claims}/rest/vbaClaimStatusService/getClaimDetailById" %>
+    :file_path: "evss/claims/show"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
 
 # MVI
 - :name: 'MVI'

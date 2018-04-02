@@ -185,6 +185,7 @@ module EducationForm
     end
 
     def perform
+      Sentry::TagRainbows.tag
       # use yesterday as the date otherwise we will miss applications that are submitted after the report is run
       @date = Time.zone.today - 1.day
       folder = 'tmp/daily_reports'

@@ -152,17 +152,20 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-        # temporary
-        get 'rds/countries', to: 'addresses#rds_countries'
-        get 'rds/states', to: 'addresses#rds_states'
+        if Settings.evss&.reference_data_service&.enabled
+          get 'countries', to: 'addresses#rds_countries'
+          get 'states', to: 'addresses#rds_states'
+        else
+          get 'countries', to: 'addresses#countries'
+          get 'states', to: 'addresses#states'
+        end
       end
     end
 
     namespace :profile do
       resource :alternate_phone, only: :show
       resource :email, only: :show
+      resource :personal_information, only: :show
       resource :primary_phone, only: :show
       resource :service_history, only: :show
     end

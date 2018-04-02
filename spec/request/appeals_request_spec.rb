@@ -40,10 +40,10 @@ RSpec.describe 'Appeals Status', type: :request do
     end
 
     context 'with a not authorized response' do
-      it 'returns a 401' do
+      it 'returns a 502' do
         VCR.use_cassette('appeals/not_authorized') do
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
-          expect(response).to have_http_status(:unauthorized)
+          expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
         end
       end

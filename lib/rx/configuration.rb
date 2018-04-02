@@ -40,6 +40,7 @@ module Rx
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
+        conn.response :betamocks if Settings.mhv.rx.mock
         conn.response :rx_failed_station
         conn.response :rx_parser
         conn.response :snakecase

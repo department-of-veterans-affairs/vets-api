@@ -4,6 +4,7 @@ class EVSS::DocumentUpload
   include Sidekiq::Worker
 
   def perform(auth_headers, user_uuid, document_hash)
+    Sentry::TagRainbows.tag
     document = EVSSClaimDocument.new document_hash
     client = EVSS::DocumentsService.new(auth_headers)
     uploader = EVSSClaimDocumentUploader.new(user_uuid, document.tracked_item_id)
