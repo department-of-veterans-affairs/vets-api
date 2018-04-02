@@ -42,7 +42,6 @@ module Common
 
       def perform(method, path, params, headers = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
-
         send(method, path, params || {}, headers || {})
       end
 

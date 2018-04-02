@@ -11,7 +11,7 @@ module HCA
       /^\d{3}-?0{2}-?\d{4}$/
     ].freeze
 
-    FUTURE_DISCHARGE_CUTOFF = 180.days
+    FUTURE_DISCHARGE_CUTOFF = (Settings.hca.future_discharge_testing ? 730 : 180).days
 
     def parse_date(date_string)
       return nil if !date_string.is_a?(String) || date_string.blank?
