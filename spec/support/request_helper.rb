@@ -8,6 +8,11 @@ module RequestHelper
     end
   end
 
+  # Returns an array of errors from the passed JSON
+  #
+  # @param response [String] A response as a string of JSON
+  # @return [Array] An array of error messages from the passed response
+  #
   def errors_for(response)
     parsed_body = JSON.parse response.body
 
