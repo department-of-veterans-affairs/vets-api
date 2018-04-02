@@ -18,9 +18,9 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
       expect(job).to receive(:generate_metadata).and_return(
         metadata: {}
       )
-      # expect_any_instance_of(PensionBurial::Service).to receive(:upload).with(
-      #   'metadata' => '{"metadata":{}}', 'document' => 'faraday1', 'attachment1' => 'faraday1'
-      # )
+      expect_any_instance_of(PensionBurial::Service).to receive(:upload).with(
+        'metadata' => '{"metadata":{}}', 'document' => 'faraday1', 'attachment1' => 'faraday1'
+      )
 
       expect(File).to receive(:delete).with('pdf_path')
       expect(File).to receive(:delete).with('attachment_path')
