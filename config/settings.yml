@@ -79,6 +79,8 @@ evss:
   jwt:
     issuer: fake_issuer
     key: fake_key
+  reference_data_service:
+    enabled: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -114,9 +116,11 @@ mhv:
     host: https://mhv-api.example.com
     app_token: fake-app-token
     collection_caching_enabled: false
+    mock: true
   sm:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+    mock: true
   bb:
     collection_caching_enabled: true
 
@@ -243,3 +247,4 @@ betamocks:
 faraday_socks_proxy:
   enabled: false
   uri: socks5://localhost:2002
+

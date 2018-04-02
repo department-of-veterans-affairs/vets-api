@@ -114,19 +114,19 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_1990_e_expected) do
     {
-      'veteranAddress' => {
+      'relativeAddress' => {
         'street' => user.va_profile[:address][:street],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code]
       },
-      'veteranFullName' => {
+      'relativeFullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => user.ssn
+      'relativeSocialSecurityNumber' => user.ssn
     }
   end
 
@@ -161,13 +161,13 @@ RSpec.describe FormProfile, type: :model do
         }
       ],
       'currentlyActiveDuty' => true,
-      'veteranFullName' => {
+      'relativeFullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => user.ssn,
-      'veteranDateOfBirth' => user.birth_date
+      'relativeSocialSecurityNumber' => user.ssn,
+      'relativeDateOfBirth' => user.birth_date
     }
   end
 
@@ -182,13 +182,13 @@ RSpec.describe FormProfile, type: :model do
         }
       ],
       'currentlyActiveDuty' => true,
-      'veteranFullName' => {
+      'relativeFullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => user.ssn,
-      'veteranDateOfBirth' => user.birth_date
+      'relativeSocialSecurityNumber' => user.ssn,
+      'relativeDateOfBirth' => user.birth_date
     }
   end
 

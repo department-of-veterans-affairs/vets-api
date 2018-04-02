@@ -47,6 +47,35 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/personal_information' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets a users gender and birth date'
+          key :operationId, 'getPersonalInformation'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :required, [:data]
+
+              property :data, type: :object do
+                key :required, [:attributes]
+                property :attributes, type: :object do
+                  property :gender, type: :string, example: 'M'
+                  property :birth_date, type: :string, format: :date, example: '1949-03-04'
+                end
+              end
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/primary_phone' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
