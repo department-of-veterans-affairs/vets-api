@@ -70,9 +70,10 @@ FactoryBot.define do
       end
     end
 
-    factory :rated_disabilities_user, traits: [:loa3] do
-      first_name('BEYONCE')
-      last_name('KNOWLES')
+    factory :disabilities_compensation_user, traits: [:loa3] do
+      first_name('Beyonce')
+      last_name('Knowles')
+      gender('F')
       last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
       ssn('796068949')
 

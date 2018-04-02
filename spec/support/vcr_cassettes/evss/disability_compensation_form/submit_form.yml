@@ -21,23 +21,25 @@ http_interactions:
       va-eauth-assurancelevel:
       - '3'
       va-eauth-firstName:
-      - BEYONCE
+      - Beyonce
       va-eauth-lastName:
-      - KNOWLES
+      - Knowles
       va-eauth-issueinstant:
       - '2017-12-07T00:55:09Z'
       va-eauth-dodedipnid:
-      - '7229195441'
+      - '8932397380'
       va-eauth-birlsfilenumber:
       - '796068949'
       va-eauth-pid:
-      - '7315934256'
+      - '3797496283'
       va-eauth-pnid:
       - '796068949'
       va-eauth-birthdate:
-      - '1947-08-01T00:00:00+00:00'
+      - '1970-01-05T00:00:00+00:00'
       va-eauth-authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796068949","edi":"7229195441","firstName":"BEYONCE","lastName":"KNOWLES","birthDate":"1947-08-01T00:00:00+00:00"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796068949","edi":"8932397380","firstName":"Beyonce","lastName":"Knowles","birthDate":"1970-01-05T00:00:00+00:00"}}'
+      va-eauth-gender:
+      - FEMALE
       Content-Type:
       - application/json
       Accept-Encoding:
@@ -50,14 +52,14 @@ http_interactions:
       message: Bad Request
     headers:
       Date:
-      - Fri, 30 Mar 2018 21:30:59 GMT
+      - Mon, 02 Apr 2018 18:18:23 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips
       Content-Type:
       - application/json
       Set-Cookie:
       - WLS_12.1_App1_Cluster_ROUTEID=.01; path=/
-      - WSS-FORM526-SERVICES_JSESSIONID=FNx40h8TIolhLUhPaUkH4VgamtEaWiWtg27eWmZQPApmKNJQoGst!-1745087126;
+      - WSS-FORM526-SERVICES_JSESSIONID=ZYqHlN6yQI6SfKdJ-r3_gOiKmrCVr2ALYgbS14bbbSygEVkvC8nD!583290864;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -76,5 +78,5 @@ http_interactions:
           } ]
         }
     http_version: 
-  recorded_at: Fri, 30 Mar 2018 21:30:59 GMT
+  recorded_at: Mon, 02 Apr 2018 18:18:23 GMT
 recorded_with: VCR 3.0.3

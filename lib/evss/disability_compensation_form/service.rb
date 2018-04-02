@@ -20,14 +20,18 @@ module EVSS
       end
 
       def submit_form(form_content)
+        if @user.gender == 'F'
+          gender = 'FEMALE'
+        elsif @user.gender == 'M'
+          gender = 'MALE'
+        end
         with_monitoring do	
-          headers = { 'Content-Type' => 'application/json' }
+          headers = { 
+            'va_eauth_gender' => gender,
+            'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'submit', form_content, headers)
           FormSubmitResponse.new(raw_response.status, raw_response)
         end
-      end
-
-      def validate_form
       end
 
       private

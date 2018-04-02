@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/service'
 
 describe EVSS::DisabilityCompensationForm::Service do
-  let(:user) { build(:rated_disabilities_user) }
+  let(:user) { build(:disabilities_compensation_user) }
   subject { described_class.new(user) }
 
   describe '#get_rated_disabilities' do
