@@ -5,6 +5,7 @@ module EducationForm
     include Sidekiq::Worker
 
     def perform
+      Sentry::TagRainbows.tag
       edu_claim_ids = []
       saved_claim_ids = []
 

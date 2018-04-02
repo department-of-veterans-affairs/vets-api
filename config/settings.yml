@@ -41,7 +41,7 @@ pension_burial:
     relative_path: '../VETSGOV_PENSION'
   upload:
     enabled: true
-    host: 'icmhsgc.csrarad.com'
+    host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
 # Settings for EVSS
@@ -66,6 +66,7 @@ evss:
     timeout: 30
   pciu_address:
     timeout: 30
+  mock_claims: false
   mock_letters: false
   mock_gi_bill_status: false
   mock_pciu: true
@@ -78,6 +79,8 @@ evss:
   jwt:
     issuer: fake_issuer
     key: fake_key
+  reference_data_service:
+    enabled: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -113,9 +116,11 @@ mhv:
     host: https://mhv-api.example.com
     app_token: fake-app-token
     collection_caching_enabled: false
+    mock: true
   sm:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+    mock: true
   bb:
     collection_caching_enabled: true
 
@@ -157,16 +162,6 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-# Settings for appeals status. This uses mocking by default but would hit the
-# actual service as described here if that is turned off. The app token listed
-# here is public for the appeals team's demo service, so there is no security
-# concern with having it here.
-appeals_status:
-  mock: true
-  app_token: PUBLICDEMO123
-  host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-
-# Settings for appeals status v2. Needs to live side by side with v1 until UAT is complete.
 appeals:
   mock: true
   app_token: PUBLICDEMO123
@@ -252,3 +247,4 @@ betamocks:
 faraday_socks_proxy:
   enabled: false
   uri: socks5://localhost:2002
+

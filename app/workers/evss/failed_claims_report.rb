@@ -45,6 +45,7 @@ module EVSS
     end
 
     def perform
+      Sentry::TagRainbows.tag
       s3 = Aws::S3::Resource.new(S3_CLAIMS_RESOURCE_OPTIONS)
       failed_uploads = []
       sidekiq_retry_timeout = 21.days.ago

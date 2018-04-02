@@ -40,23 +40,25 @@ module V0
     # TODO: when deprecated routes can be removed this should be changed to use different method (ie. destroy)
     # rubocop:disable Metrics/CyclomaticComplexity
     def new
-      case params[:type]
-      when 'mhv'
-        redirect_to SAML::SettingsService.mhv_url
-      when 'dslogon'
-        redirect_to SAML::SettingsService.dslogon_url
-      when 'idme'
-        redirect_to SAML::SettingsService.idme_loa1_url
-      when 'mfa'
-        authenticate
-        redirect_to SAML::SettingsService.mfa_url(current_user)
-      when 'verify'
-        authenticate
-        redirect_to SAML::SettingsService.idme_loa3_url(current_user)
-      when 'slo'
-        authenticate
-        redirect_to SAML::SettingsService.slo_url(session)
-      end
+      url = case params[:type]
+            when 'mhv'
+              SAML::SettingsService.mhv_url
+            when 'dslogon'
+              SAML::SettingsService.dslogon_url
+            when 'idme'
+              query = params[:signup] ? '&op=signup' : ''
+              SAML::SettingsService.idme_loa1_url + query
+            when 'mfa'
+              authenticate
+              SAML::SettingsService.mfa_url(current_user)
+            when 'verify'
+              authenticate
+              SAML::SettingsService.idme_loa3_url(current_user)
+            when 'slo'
+              authenticate
+              SAML::SettingsService.slo_url(session)
+            end
+      render json: { url: url }
     end
     # rubocop:enable Metrics/CyclomaticComplexity
 
@@ -85,7 +87,8 @@ module V0
 
     def saml_logout_callback
       saml_settings = saml_settings(name_identifier_value: session&.uuid)
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
+                                                               raw_get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
       session         = Session.find(logout_request&.token)
       user            = User.find(session&.uuid)

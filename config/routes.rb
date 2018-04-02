@@ -11,6 +11,16 @@ Rails.application.routes.draw do
       to: 'v0/sessions#new',
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
+  match '/vbeta/*path', to: 'application#cors_preflight', via: [:options]
+  namespace :vbeta, defaults: { format: 'json' } do
+    scope :facilities, module: 'facilities' do
+      resources :va, only: %i[index show], defaults: { format: :json } do
+        # temporary collection for testing/validation will not stay around
+        get :all, on: :collection
+      end
+    end
+  end
+
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
@@ -79,7 +89,6 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: [:index]
-    get 'appeals_v2', to: 'appeals#index_v2', as: :appeals_v2
 
     scope :messaging do
       scope :health do
@@ -143,19 +152,27 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-        # temporary
-        get 'rds/countries', to: 'addresses#rds_countries'
-        get 'rds/states', to: 'addresses#rds_states'
+        if Settings.evss&.reference_data_service&.enabled
+          get 'countries', to: 'addresses#rds_countries'
+          get 'states', to: 'addresses#rds_states'
+        else
+          get 'countries', to: 'addresses#countries'
+          get 'states', to: 'addresses#states'
+        end
       end
     end
 
     namespace :profile do
-      resource :email, only: :show
-      resource :primary_phone, only: :show
       resource :alternate_phone, only: :show
+      resource :email, only: :show
+      resource :personal_information, only: :show
+      resource :primary_phone, only: :show
+      resource :service_history, only: :show
     end
+
+    get 'profile/mailing_address', to: 'addresses#show'
+
+    resources :backend_statuses, param: :service, only: [:show]
 
     resources :apidocs, only: [:index]
 

@@ -25,6 +25,7 @@ class UserSerializer < ActiveModel::Serializer
       last_signed_in: object.last_signed_in,
       loa: object.loa,
       multifactor: object.multifactor,
+      verified: object.loa3?,
       authn_context: object.authn_context
     }
   end
@@ -91,6 +92,7 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
+    service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity

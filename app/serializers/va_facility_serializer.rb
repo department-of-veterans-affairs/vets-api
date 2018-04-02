@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class VAFacilitySerializer < ActiveModel::Serializer
+  type 'va_facilities'
+
   def id
     "#{PREFIX_MAP[object.facility_type]}_#{object.unique_id}"
   end

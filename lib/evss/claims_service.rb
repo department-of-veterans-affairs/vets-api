@@ -10,6 +10,7 @@ module EVSS
 
     def initialize(*args)
       super
+      @use_mock = Settings.evss.mock_claims || false
     end
 
     def all_claims
