@@ -44,10 +44,13 @@ module EVSS
     end
 
     def gender
-      if @user.gender == 'F'
+      case @user.gender
+      when 'F'
         'FEMALE'
-      elsif @user.gender == 'M'
+      when 'M'
         'MALE'
+      else
+        ''
       end
     end
 
