@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDocumentUploader do
-  let(:document_uploader) { described_class.new('1234', '11') }
+  let(:document_uploader) { described_class.new('1234', ['11', nil]) }
   let(:uploader_with_tiff) do
     File.open('spec/fixtures/evss_claim/image.TIF') do |f|
       document_uploader.store!(f)
@@ -103,12 +103,12 @@ RSpec.describe EVSSClaimDocumentUploader do
 
   describe '#store_dir' do
     it 'omits the tracked item id if it is nil' do
-      subject = described_class.new('1234abc', nil)
+      subject = described_class.new('1234abc', EVSSClaimDocument.new.uploader_ids)
       expect(subject.store_dir).to eq('evss_claim_documents/1234abc')
     end
 
     it 'includes the uuid and tracked item id' do
-      subject = described_class.new('1234abc', '13')
+      subject = described_class.new('1234abc', ['13', nil])
       expect(subject.store_dir).to eq('evss_claim_documents/1234abc/13')
     end
   end
