@@ -8,75 +8,74 @@
       "items": {
         "type": "object",
         "properties": {
-          "id": {
+          "type": {
             "type": "string"
           },
-          "type": {
+          "id": {
             "type": "string"
           },
           "attributes": {
             "type": "object",
             "properties": {
+              "appeal_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
               "updated": {
                 "type": "string"
               },
               "active": {
                 "type": "boolean"
               },
-              "incompleteHistory": {
+              "incomplete_history": {
                 "type": "boolean"
               },
               "aoj": {
-                "type": {
-                  "enum": [
-                    "vba",
-                    "vha",
-                    "nca",
-                    "other"
-                  ]
-                }
+                "enum": [
+                  "vba",
+                  "vha",
+                  "nca",
+                  "other"
+                ]
               },
-              "programArea": {
-                "type": {
-                  "enum": [
-                    "compensation",
-                    "pension",
-                    "insurance",
-                    "loan_guaranty",
-                    "education",
-                    "vre",
-                    "medical",
-                    "burial",
-                    "bva",
-                    "other",
-                    "multiple"
-                  ]
-                }
+              "program_area": {
+                "enum": [
+                  "compensation",
+                  "pension",
+                  "insurance",
+                  "loan_guaranty",
+                  "education",
+                  "vre",
+                  "medical",
+                  "burial",
+                  "bva",
+                  "other",
+                  "multiple",
+                  null
+                ]
               },
               "description": {
                 "type": "string"
               },
               "type": {
-                "type": {
-                  "enum": [
-                    "original",
-                    "post_remand",
-                    "post_cavc_remand",
-                    "reconsideration",
-                    "cue"
-                  ]
-                }
+                "enum": [
+                  "original",
+                  "post_remand",
+                  "post_cavc_remand",
+                  "reconsideration",
+                  "cue"
+                ]
               },
               "aod": {
                 "type": "boolean"
               },
               "location": {
-                "type": {
-                  "enum": [
-                    "aoj",
-                    "bva"
-                  ]
-                }
+                "enum": [
+                  "aoj",
+                  "bva"
+                ]
               },
               "status": {
                 "type": "object",
@@ -90,7 +89,10 @@
                 }
               },
               "docket": {
-                "type": ["object", "null"]
+                "type": [
+                  "object",
+                  "null"
+                ]
               },
               "issues": {
                 "type": "array",
@@ -107,7 +109,6 @@
               "events": {
                 "type": "array",
                 "items": {
-                  "$ref": "appeals_event.json"
                 }
               },
               "evidence": {

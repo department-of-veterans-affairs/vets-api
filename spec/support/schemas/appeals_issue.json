@@ -7,23 +7,28 @@
     "description": {
       "type": "string"
     },
-    "diagnosticCode": {
-      "type": ["string", "null"]
+    "diagnostic_code": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
-    "lastAction": {
-      "type": {
-        "enum": [
-          "field_grant",
-          "withdrawn",
-          "allowed",
-          "denied",
-          "remand",
-          "cavc_remand"
-        ]
-      }
+    "last_action": {
+      "enum": [
+        "field_grant",
+        "withdrawn",
+        "allowed",
+        "denied",
+        "remand",
+        "cavc_remand",
+        null
+      ]
     },
     "date": {
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "type": "object"

@@ -24,8 +24,11 @@ module Appeals
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
-        faraday.use Faraday::Response::RaiseError
+        faraday.use      EVSS::ErrorMiddleware
+        faraday.use      Faraday::Response::RaiseError
         faraday.request :json
+        faraday.response :snakecase
+        faraday.response :json, content_type: /\bjson$/
         faraday.response :betamocks if mock_enabled?
         faraday.adapter Faraday.default_adapter
       end

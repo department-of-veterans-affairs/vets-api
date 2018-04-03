@@ -84,7 +84,7 @@ http_interactions:
                 "issues": [{
                   "active": false,
                   "date": "2003-09-30",
-                  "description": "Service connection, lumbosacral strain",
+                  "description": "  ",
                   "diagnosticCode": "5295",
                   "lastAction": "withdrawn"
                 }],

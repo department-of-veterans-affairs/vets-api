@@ -14,8 +14,13 @@ module Appeals
 
     def get_appeals(user)
       with_monitoring do
-        response = perform(:get, '', {}, request_headers(user))
-        Appeals::Responses::Appeals.new(response.body, response.status)
+        raw_response = perform(:get, '', {}, request_headers(user))
+        data = raw_response&.body&.dig(:data)
+        appeal_series = data.map { |a| Appeals::Models::AppealSeries.new(a[:attributes].merge(id: a[:id])) }
+        Appeals::Responses::GetAppealsResponse.new(
+          status: raw_response.status,
+          appeal_series: appeal_series
+        )
       end
     rescue Common::Client::Errors::ClientError => error
       handle_service_error(error)
