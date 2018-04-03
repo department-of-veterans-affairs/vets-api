@@ -11,6 +11,7 @@ class EVSSClaimDocument < Common::Base
   attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
+  attribute :uuid, String
   attribute :file_obj, ActionDispatch::Http::UploadedFile
 
   validates(:file_name, presence: true)
