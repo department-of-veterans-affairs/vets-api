@@ -187,6 +187,7 @@ Rails.application.routes.draw do
       'profile',
       'dashboard',
       'veteran_id_card',
+      EVSSClaimService::EVSS_COMMON_CLIENT_KEY,
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(

@@ -25,10 +25,12 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
     expect(response).to have_http_status(:not_found)
   end
 
-  it 'accepts register request for emis_prefill' do
-    assert_beta_enabled('emis_prefill', false)
-    post '/v0/beta_registration/emis_prefill', nil, auth_header
-    assert_beta_enabled('emis_prefill', true)
+  %w[emis_prefill evss_common_client].each do |feature|
+    it "accepts register request for #{feature}" do
+      assert_beta_enabled(feature, false)
+      post "/v0/beta_registration/#{feature}", nil, auth_header
+      assert_beta_enabled(feature, true)
+    end
   end
 
   it 'accepts register request' do
