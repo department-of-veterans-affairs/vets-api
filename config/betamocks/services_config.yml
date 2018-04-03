@@ -101,10 +101,22 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/primaryPhoneNumber"
+    :file_path: "evss/pciu/post_primary_phone"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
   # PCIU alternate phone
   - :method: :get
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/secondaryPhoneNumber"
     :file_path: "evss/pciu/alternate_phone"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-pciu-services-web/rest/pciuServices/v1/secondaryPhoneNumber"
+    :file_path: "evss/pciu/post_alternate_phone"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
