@@ -28,7 +28,6 @@ describe EVSS::DisabilityCompensationForm::Service do
       end
 
       it 'should log an error and raise GatewayTimeout' do
-        expect(Rails.logger).to receive(:error).with(/Timeout/)
         expect(StatsD).to receive(:increment).once.with(
           'api.evss.get_rated_disabilities.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
