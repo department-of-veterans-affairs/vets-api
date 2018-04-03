@@ -16,6 +16,7 @@ describe EVSS::PCIU::EmailAddress do
     # Valid email formats
     expect(build(:email_address, email: 'john@gmail.com')).to be_valid
     expect(build(:email_address, email: '12john34@gmail.com')).to be_valid
+    expect(build(:email_address, email: 'john+tom@gmail.com')).to be_valid
     expect(build(:email_address, email: 'j@example.com')).to be_valid
     expect(build(:email_address, email: 'jack@anything.io')).to be_valid
     expect(build(:email_address, email: 'jack@anything.org')).to be_valid
