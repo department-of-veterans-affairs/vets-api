@@ -61,7 +61,7 @@ describe MVI::Responses::ProfileParser do
             birls_id: nil,
             sec_id: nil,
             historical_icns: nil,
-            vet360_id: nil,
+            vet360_id: nil
           )
         end
         it 'should set the address to nil' do
