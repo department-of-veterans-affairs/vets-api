@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe EVSS::PCIU::Service do
+describe EVSS::PCIU::PhoneNumber do
   it 'should have valid factory' do
     expect(build(:phone_number)).to be_valid
   end
