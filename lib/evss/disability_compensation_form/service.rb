@@ -4,7 +4,7 @@ require 'common/client/base'
 require 'common/client/concerns/monitoring'
 
 module EVSS
-  module DisabilityCompensationForm #526
+  module DisabilityCompensationForm
     class Service < EVSS::Service
       include Common::Client::Monitoring
 
@@ -20,7 +20,7 @@ module EVSS
       end
 
       def submit_form(form_content)
-        with_monitoring do	
+        with_monitoring do
           headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'submit', form_content, headers)
           FormSubmitResponse.new(raw_response.status, raw_response)

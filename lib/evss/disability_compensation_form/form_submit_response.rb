@@ -11,9 +11,7 @@ module EVSS
       attribute :end_product_claim_name, String
 
       def initialize(status, response = nil)
-        if response
-          super(status, response.body)
-        end
+        super(status, response.body) if response
       end
     end
   end

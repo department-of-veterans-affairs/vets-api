@@ -9,9 +9,7 @@ module EVSS
       attribute :rated_disabilities, Array[EVSS::DisabilityCompensationForm::RatedDisability]
 
       def initialize(status, response = nil)
-        if response
-          super(status, response.body)
-        end
+        super(status, response.body) if response
       end
     end
   end

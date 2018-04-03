@@ -16,7 +16,8 @@ describe EVSS::DisabilityCompensationForm::Service do
           expect(response).to be_an EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse
           expect(response.rated_disabilities.count).to eq 2
           expect(response.rated_disabilities.first.special_issues).to be_an Array
-          expect(response.rated_disabilities.first.special_issues.first).to be_an EVSS::DisabilityCompensationForm::SpecialIssue
+          expect(response.rated_disabilities.first.special_issues.first).
+            to be_an EVSS::DisabilityCompensationForm::SpecialIssue
         end
       end
     end
@@ -39,46 +40,47 @@ describe EVSS::DisabilityCompensationForm::Service do
 
   describe '#submit_form' do
     context 'with valid input' do
-      let(:valid_form_content) {{
+      let(:valid_form_content) {
+        {
         "form526": {
           "veteran": {
-            "emailAddress": "string",
-            "alternateEmailAddress": "string",
+            "emailAddress": 'string',
+            "alternateEmailAddress": 'string',
             "mailingAddress": {
-              "addressLine1": "string",
-              "addressLine2": "string",
-              "addressLine3": "string",
-              "city": "string",
-              "state": "IL",
-              "zipFirstFive": "11111",
-              "zipLastFour": "1111",
-              "country": "string",
-              "militaryStateCode": "AA",
-              "militaryPostOfficeTypeCode": "APO",
-              "type": "DOMESTIC"
+              "addressLine1": 'string',
+              "addressLine2": 'string',
+              "addressLine3": 'string',
+              "city": 'string',
+              "state": 'IL',
+              "zipFirstFive": '11111',
+              "zipLastFour": '1111',
+              "country": 'string',
+              "militaryStateCode": 'AA',
+              "militaryPostOfficeTypeCode": 'APO',
+              "type": 'DOMESTIC'
             },
             "forwardingAddress": {
-              "addressLine1": "string",
-              "addressLine2": "string",
-              "addressLine3": "string",
-              "city": "string",
-              "state": "IL",
-              "zipFirstFive": "11111",
-              "zipLastFour": "1111",
-              "country": "string",
-              "militaryStateCode": "AA",
-              "militaryPostOfficeTypeCode": "APO",
-              "type": "DOMESTIC",
-              "effectiveDate": "2018-03-29T18:50:03.014Z"
+              "addressLine1": 'string',
+              "addressLine2": 'string',
+              "addressLine3": 'string',
+              "city": 'string',
+              "state": 'IL',
+              "zipFirstFive": '11111',
+              "zipLastFour": '1111',
+              "country": 'string',
+              "militaryStateCode": 'AA',
+              "militaryPostOfficeTypeCode": 'APO',
+              "type": 'DOMESTIC',
+              "effectiveDate": '2018-03-29T18:50:03.014Z'
             },
             "primaryPhone": {
-              "areaCode": "202",
-              "phoneNumber": "4561111"
+              "areaCode": '202',
+              "phoneNumber": '4561111'
             },
             "homelessness": {
               "hasPointOfContact": false,
             },
-            "serviceNumber": "string"
+            "serviceNumber": 'string'
           },
           "attachments": [],
           "militaryPayments": {
@@ -88,70 +90,70 @@ describe EVSS::DisabilityCompensationForm::Service do
             "waveBenifitsToRecInactDutyTraiPay": false
           },
           "directDeposit": {
-            "accountType": "CHECKING",
-            "accountNumber": "1234",
-            "bankName": "string",
-            "routingNumber": "123456789"
+            "accountType": 'CHECKING',
+            "accountNumber": '1234',
+            "bankName": 'string',
+            "routingNumber": '123456789'
           },
           "serviceInformation": {
             "servicePeriods": [
               {
-                "serviceBranch": "string",
-                "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
-                "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
+                "serviceBranch": 'string',
+                "activeDutyBeginDate": '2018-03-29T18:50:03.015Z',
+                "activeDutyEndDate": '2018-03-29T18:50:03.015Z'
               }
             ],
             "reservesNationalGuardService": {
               "title10Activation": {
-                "title10ActivationDate": "2018-03-29T18:50:03.015Z",
-                "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
+                "title10ActivationDate": '2018-03-29T18:50:03.015Z',
+                "anticipatedSeparationDate": '2018-03-29T18:50:03.015Z'
               },
-              "obligationTermOfServiceFromDate": "2018-03-29T18:50:03.015Z",
-              "obligationTermOfServiceToDate": "2018-03-29T18:50:03.015Z",
-              "unitName": "string",
+              "obligationTermOfServiceFromDate": '2018-03-29T18:50:03.015Z',
+              "obligationTermOfServiceToDate": '2018-03-29T18:50:03.015Z',
+              "unitName": 'string',
               "unitPhone": {
-                "areaCode": "202",
-                "phoneNumber": "4561111"
+                "areaCode": '202',
+                "phoneNumber": '4561111'
               }
             },
             "servedInCombatZone": true,
-            "separationLocationName": "OTHER",
-            "separationLocationCode": "SOME VALUE",
+            "separationLocationName": 'OTHER',
+            "separationLocationCode": 'SOME VALUE',
             "alternateNames": [
               {
-                "firstName": "string",
-                "middleName": "string",
-                "lastName": "string"
+                "firstName": 'string',
+                "middleName": 'string',
+                "lastName": 'string'
               }
             ],
             "confinements": [
               {
-                "confinementBeginDate": "2018-03-29T18:50:03.015Z",
-                "confinementEndDate": "2018-03-29T18:50:03.015Z",
+                "confinementBeginDate": '2018-03-29T18:50:03.015Z',
+                "confinementEndDate": '2018-03-29T18:50:03.015Z',
                 "verifiedIndicator": false
               }
             ]
           },
           "disabilities": [
             {
-              "diagnosticText": "Diabetes mellitus",
-              "disabilityActionType": "INCREASE",
-              "decisionCode": "SVCCONNCTED",
+              "diagnosticText": 'Diabetes mellitus',
+              "disabilityActionType": 'INCREASE',
+              "decisionCode": 'SVCCONNCTED',
               "specialIssues": [
                 {
-                  "code": "TRM",
-                  "name": "Personal Trauma PTSD"
+                  "code": 'TRM',
+                  "name": 'Personal Trauma PTSD'
                 }
               ],
-              "ratedDisabilityId": "0",
+              "ratedDisabilityId": '0',
               "ratingDecisionId": 63655,
               "diagnosticCode": 5235,
               "secondaryDisabilities": [
                 {
-                  "decisionCode": "",
-                  "ratedDisabilityId": "",
-                  "diagnosticText": "string",
-                  "disabilityActionType": "NONE"
+                  "decisionCode": '',
+                  "ratedDisabilityId": '',
+                  "diagnosticText": 'string',
+                  "disabilityActionType": 'NONE'
                 }
               ]
             }
@@ -159,13 +161,14 @@ describe EVSS::DisabilityCompensationForm::Service do
           "treatments": [],
           "specialCircumstances": [
             {
-              "name": "string",
-              "code": "string",
+              "name": 'string',
+              "code": 'string',
               "needed": false
             }
           ]
         }
-      }.to_json}
+      }.to_json
+      }
 
       it 'returns a form submit response object' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
@@ -176,6 +179,5 @@ describe EVSS::DisabilityCompensationForm::Service do
         end
       end
     end
-
   end
 end
