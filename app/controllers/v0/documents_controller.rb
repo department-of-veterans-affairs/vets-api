@@ -11,6 +11,7 @@ module V0
       document_data = EVSSClaimDocument.new(
         evss_claim_id: claim.evss_id,
         file_obj: params[:file],
+        uuid: SecureRandom.uuid,
         file_name: params[:file].original_filename,
         tracked_item_id: params[:tracked_item_id],
         document_type: params[:document_type]

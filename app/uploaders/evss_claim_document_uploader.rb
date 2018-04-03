@@ -19,7 +19,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     # carrierwave allows only 2 arguments, which they will pass onto different versions by calling the initialize function again, that's why i put all ids in the 2nd argument instead of adding a 3rd argument
     super
     @user_uuid = user_uuid
-    @ids = ids
+    @ids = Array.wrap(ids)
     set_storage_options!
   end
 
