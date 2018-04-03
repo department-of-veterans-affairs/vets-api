@@ -1139,6 +1139,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports posting email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email', 401)
+
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          email_address = build(:email_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
     end
   end
 
