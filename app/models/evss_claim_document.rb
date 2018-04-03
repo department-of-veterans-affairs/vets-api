@@ -52,6 +52,10 @@ class EVSSClaimDocument < Common::Base
     DOCUMENT_TYPES[document_type]
   end
 
+  def uploader_ids
+    [tracked_item_id, uuid]
+  end
+
   def ==(other)
     attributes == other.attributes
   end

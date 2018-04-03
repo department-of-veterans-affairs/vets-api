@@ -44,8 +44,7 @@ class EVSSClaimService
 
   # upload file to s3 and enqueue job to upload to EVSS
   def upload_document(evss_claim_document)
-    ids = [evss_claim_document.tracked_item_id, evss_claim_document.uuid]
-    uploader = EVSSClaimDocumentUploader.new(@user.uuid, ids)
+    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
