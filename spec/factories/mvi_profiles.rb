@@ -39,6 +39,7 @@ FactoryBot.define do
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
     birls_id { Faker::Number.number(10) }
+    vet360_id '123456789'
     sec_id '0001234567'
     historical_icns %w[1000123457V123456 1000123458V123456]
 
