@@ -130,6 +130,31 @@ module EVSS
       rescue StandardError => e
         handle_error(e)
       end
+
+      # POST's the passed email attributes to the EVSS::PCIU service.
+      # Returns a response object containing the user's email and effective date.
+      #
+      # @param email_attrs [EVSS::PCIU::EmailAddress] A EVSS::PCIU::EmailAddress instance
+      # @return [EVSS::PCIU::EmailAddressResponse] Sample response.email_address:
+      #   {
+      #     "effective_date" => "2018-02-27T14:41:32.283Z",
+      #     "value" => "test2@test1.net"
+      #   }
+      #
+      def post_email_address(email_attrs)
+        with_monitoring do
+          raw_response = perform(
+            :post,
+            'emailAddress',
+            { value: email_attrs.email }.to_json,
+            headers
+          )
+
+          EVSS::PCIU::EmailAddressResponse.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
     end
   end
 end
