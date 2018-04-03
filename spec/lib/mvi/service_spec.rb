@@ -205,9 +205,6 @@ describe MVI::Service do
       let(:base_path) { MVI::Configuration.instance.base_path }
       it 'should raise a service error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(Rails.logger).to receive(:error).with(
-          "Timeout while connecting to MVI service : {:extra_context=>{:url=>\"#{base_path}\"}}"
-        )
         expect(Rails.logger).to receive(:error).with('MVI find_profile error: Gateway timeout')
         expect(subject.find_profile(user))
           .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)

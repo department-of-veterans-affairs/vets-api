@@ -85,7 +85,8 @@ module V0
 
     def saml_logout_callback
       saml_settings = saml_settings(name_identifier_value: session&.uuid)
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings, get_params: params)
+      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
+                                                               raw_get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
       session         = Session.find(logout_request&.token)
       user            = User.find(session&.uuid)
