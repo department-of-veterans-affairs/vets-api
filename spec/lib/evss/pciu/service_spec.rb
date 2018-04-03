@@ -78,7 +78,7 @@ describe EVSS::PCIU::Service do
         end
       end
 
-      it 'returns a users primary phone number, extension and country code' do
+      it 'POSTs and returns a users primary phone number, extension and country code' do
         VCR.use_cassette('evss/pciu/post_primary_phone') do
           response = subject.post_primary_phone(phone)
 
@@ -130,7 +130,7 @@ describe EVSS::PCIU::Service do
         end
       end
 
-      it 'returns a users alternate phone number, extension and country code' do
+      it 'POSTs and returns a users alternate phone number, extension and country code' do
         VCR.use_cassette('evss/pciu/post_alternate_phone') do
           response = subject.post_alternate_phone(phone)
 
@@ -163,6 +163,58 @@ describe EVSS::PCIU::Service do
       it 'raises a Common::Exceptions::BackendServiceException error' do
         VCR.use_cassette('evss/pciu/post_alternate_phone_status_400') do
           expect { subject.post_alternate_phone(phone) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+  end
+
+  describe '#post_email_address' do
+    let(:email_address) { build(:email_address) }
+
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          response = subject.post_email_address(email_address)
+
+          expect(response).to be_ok
+        end
+      end
+
+      it 'POSTs and returns a users email address and effective_date' do
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          response = subject.post_email_address(email_address)
+
+          expect(response.email_address.keys).to contain_exactly 'effective_date', 'value'
+        end
+      end
+    end
+
+    context 'with a 500 response' do
+      it 'raises a Common::Exceptions::BackendServiceException error' do
+        VCR.use_cassette('evss/pciu/post_email_address_status_500') do
+          expect { subject.post_email_address(email_address) }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+    end
+
+    context 'with a 403 response' do
+      it 'raises a Common::Exceptions::Forbidden error' do
+        VCR.use_cassette('evss/pciu/post_email_address_status_403') do
+          expect { subject.post_email_address(email_address) }.to raise_error(
+            Common::Exceptions::Forbidden
+          )
+        end
+      end
+    end
+
+    context 'with a 400 response' do
+      it 'raises a Common::Exceptions::BackendServiceException error' do
+        VCR.use_cassette('evss/pciu/post_email_address_status_400') do
+          expect { subject.post_email_address(email_address) }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
