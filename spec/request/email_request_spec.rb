@@ -111,7 +111,7 @@ RSpec.describe 'email', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
-        expect(errors_for(response)).to include "email - is invalid"
+        expect(errors_for(response)).to include 'email - is invalid'
       end
     end
 
