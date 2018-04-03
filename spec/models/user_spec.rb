@@ -191,7 +191,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'has a vet360 id if one exists' do
-          binding.pry; fail
+          expect(user.vet360_id).to be(user.va_profile.vet360_id)
         end
       end
 

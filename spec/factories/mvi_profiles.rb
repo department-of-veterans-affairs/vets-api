@@ -57,6 +57,7 @@ FactoryBot.define do
       edipi '1234'
       participant_id '12345678'
       birls_id '796122306'
+      vet360_id '123456789'
 
       trait :missing_attrs do
         given_names %w[Mitchell]
@@ -70,6 +71,7 @@ FactoryBot.define do
         vha_facility_ids ['200MHS']
         participant_id '9100792239'
         edipi nil
+        vet360_id nil
       end
 
       trait :multiple_mhvids do
@@ -86,6 +88,7 @@ FactoryBot.define do
         edipi '1122334455'
         participant_id '12345678'
         birls_id '123412345'
+        vet360_id nil
       end
 
       trait :address_austin do
