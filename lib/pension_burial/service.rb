@@ -3,7 +3,13 @@
 module PensionBurial
   class Service < Common::Client::Base
     configuration PensionBurial::Configuration
+
     def upload(body)
+      Raven.extra_context(
+        request: {
+          metadata: body['metadata']
+        }
+      )
       body['token'] = Settings.pension_burial.upload.token
 
       response = request(
@@ -11,18 +17,17 @@ module PensionBurial
         'upload',
         body
       )
+      Raven.extra_context(
+        response: {
+          status: response.status,
+          body: response.body
+        }
+      )
       # TODO: remove logging after confirming that pension burial uploads are working in staging
       if Rails.env.production?
         log_message_to_sentry(
           'pension burial api upload',
-          :info,
-          request: {
-            metadata: body['metadata']
-          },
-          response: {
-            status: response.status,
-            body: response.body
-          }
+          :info
         )
       end
 

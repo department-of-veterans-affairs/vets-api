@@ -3,6 +3,9 @@
 class SubmitSavedClaimJob
   include Sidekiq::Worker
 
+  class CentralMailResponseError < StandardError
+  end
+
   def perform(saved_claim_id)
     PensionBurial::TagSentry.tag_sentry
     @claim = SavedClaim.find(saved_claim_id)
@@ -22,9 +25,22 @@ class SubmitSavedClaimJob
       submission["attachment#{j}"] = to_faraday_upload(file_path)
     end
 
-    PensionBurial::Service.new.upload(submission)
+    response = PensionBurial::Service.new.upload(submission)
     File.delete(@pdf_path)
     @attachment_paths.each { |p| File.delete(p) }
+
+    if response.success?
+      update_submission('success')
+    else
+      raise CentralMailResponseError
+    end
+  rescue StandardError
+    update_submission('failed')
+    raise
+  end
+
+  def update_submission(state)
+    @claim.central_mail_submission.update_attributes!(state: state)
   end
 
   def to_faraday_upload(file_path)
