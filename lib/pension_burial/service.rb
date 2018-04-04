@@ -5,6 +5,7 @@ module PensionBurial
     configuration PensionBurial::Configuration
 
     def upload(body)
+      # TODO: find out max file size allowed for the API
       Raven.extra_context(
         request: {
           metadata: body['metadata']
