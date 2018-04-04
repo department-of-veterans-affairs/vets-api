@@ -3,6 +3,8 @@
 class SubmitSavedClaimJob
   include Sidekiq::Worker
 
+  sidekiq_options retry: false
+
   class CentralMailResponseError < StandardError
   end
 
