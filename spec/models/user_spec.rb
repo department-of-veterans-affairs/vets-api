@@ -68,9 +68,7 @@ RSpec.describe User, type: :model do
     end
 
     it 'should return false if user doesnt have edipi or icn' do
-      %w[edipi icn].each do |attr|
-        expect(user).to receive(attr).and_return(nil)
-      end
+      expect(user).to receive(:edipi).and_return(nil)
 
       expect(user.authorize(:emis, :access?)).to eq(false)
     end
@@ -188,6 +186,10 @@ RSpec.describe User, type: :model do
 
         it 'fetches ssn from IDENTITY' do
           expect(user.ssn).to be(user.identity.ssn)
+        end
+
+        it 'has a vet360 id if one exists' do
+          expect(user.vet360_id).to be(user.va_profile.vet360_id)
         end
       end
 

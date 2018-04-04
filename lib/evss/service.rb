@@ -16,6 +16,10 @@ module EVSS
       super(method, path, body, headers)
     end
 
+    def headers
+      { 'Content-Type' => 'application/json' }
+    end
+
     private
 
     def headers_for_user(user)
