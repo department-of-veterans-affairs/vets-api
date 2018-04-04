@@ -42,7 +42,6 @@ module Common
 
       def perform(method, path, params, headers = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
-
         send(method, path, params || {}, headers || {})
       end
 
@@ -50,8 +49,9 @@ module Common
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Timeout::Error, Faraday::TimeoutError
-        log_message_to_sentry(
-          "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
+        Raven.extra_context(
+          service_name: config.service_name,
+          url: config.base_path
         )
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
