@@ -65,7 +65,8 @@ http_interactions:
           "cnpPhone" : {
             "countryCode" : "1",
             "extension" : "",
-            "number" : "4445551212"
+            "number" : "4445551212",
+            "effectiveDate": "2018-03-26T15:41:37.487Z"
           },
           "controlInformation" : {
             "canUpdate" : true,
