@@ -10,4 +10,12 @@ RSpec.describe 'routes for Profile', type: :routing do
       'action' => 'show'
     )
   end
+
+  it 'creates an alias route to the v0/addresses#update RESTful route' do
+    expect(put('/v0/profile/mailing_address')).to route_to(
+      'format' => 'json',
+      'controller' => 'v0/addresses',
+      'action' => 'update'
+    )
+  end
 end

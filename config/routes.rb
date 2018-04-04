@@ -164,13 +164,14 @@ Rails.application.routes.draw do
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
-      resource :email, only: :show
+      resource :email, only: %i[show create]
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
+    put 'profile/mailing_address', to: 'addresses#update'
 
     resources :backend_statuses, param: :service, only: [:show]
 
