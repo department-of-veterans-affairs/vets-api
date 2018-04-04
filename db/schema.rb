@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180226234916) do
+ActiveRecord::Schema.define(version: 20180404214912) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -46,6 +46,13 @@ ActiveRecord::Schema.define(version: 20180226234916) do
   end
 
   add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
+
+  create_table "central_mail_submissions", force: :cascade do |t|
+    t.string  "state",          default: "pending", null: false
+    t.integer "saved_claim_id",                     null: false
+  end
+
+  add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
