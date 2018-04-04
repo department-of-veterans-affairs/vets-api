@@ -165,6 +165,7 @@ Rails.application.routes.draw do
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
+      resource :full_name, only: :show
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
