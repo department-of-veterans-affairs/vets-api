@@ -22,7 +22,7 @@ module V0
       end
       # Tags are used to group endpoints in tools like swagger-ui
       # Groups/tags are displayed in the order declared here, followed
-      # by the order they first appear in the swaggered_classes below, so 
+      # by the order they first appear in the swaggered_classes below, so
       # declare all tags here in desired order.
       tag do
         key :name, 'prescriptions'
