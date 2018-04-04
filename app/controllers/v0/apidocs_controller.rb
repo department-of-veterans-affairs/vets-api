@@ -20,6 +20,26 @@ module V0
           key :name, 'Creative Commons Zero v1.0 Universal'
         end
       end
+      # Tags are used to group endpoints in tools like swagger-ui
+      # Groups/tags are displayed in the order declared here, followed
+      # by the order they first appear in the swaggered_classes below, so 
+      # declare all tags here in desired order.
+      tag do
+        key :name, 'prescriptions'
+        key :description, 'Prescription refill/tracking operations'
+      end
+      tag do
+        key :name, 'health_records'
+        key :description, 'Download electronic health records'
+      end
+      tag do
+        key :name, 'secure_messaging'
+        key :description, 'Send and receive secure messages to health providers'
+      end
+      tag do
+        key :name, 'gi_bill_institutions'
+        key :description, 'Discover institutions at which GI Bill benefits may be used'
+      end
       tag do
         key :name, 'sessions'
         key :description, 'Authentication operations'
