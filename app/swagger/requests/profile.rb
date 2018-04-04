@@ -24,6 +24,38 @@ module Swagger
             end
           end
         end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates/updates a users alternate phone number information'
+          key :operationId, 'postAlternatePhone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create/update a phone number.'
+            key :required, true
+
+            schema do
+              property :number, type: :string, example: '4445551212'
+              property :extension, type: :string, example: '101'
+              property :country_code, type: :string, example: '1'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :PhoneNumber
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/email' do
@@ -45,6 +77,65 @@ module Swagger
             end
           end
         end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates/updates a users email address'
+          key :operationId, 'postEmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create/update an email address.'
+            key :required, true
+
+            schema do
+              property :email, type: :string, example: 'john@example.com'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :Email
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/personal_information' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets a users gender and birth date'
+          key :operationId, 'getPersonalInformation'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :required, [:data]
+
+              property :data, type: :object do
+                key :required, [:attributes]
+                property :attributes, type: :object do
+                  property :gender, type: :string, example: 'M'
+                  property :birth_date, type: :string, format: :date, example: '1949-03-04'
+                end
+              end
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/primary_phone' do
@@ -58,6 +149,38 @@ module Swagger
           ]
 
           parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :PhoneNumber
+            end
+          end
+        end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates/updates a users primary phone number information'
+          key :operationId, 'postPrimaryPhone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create/update a phone number.'
+            key :required, true
+
+            schema do
+              property :number, type: :string, example: '4445551212'
+              property :extension, type: :string, example: '101'
+              property :country_code, type: :string, example: '1'
+            end
+          end
 
           response 200 do
             key :description, 'Response is OK'

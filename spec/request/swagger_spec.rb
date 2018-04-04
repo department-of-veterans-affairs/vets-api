@@ -1101,6 +1101,58 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/profile/service_history', 200, auth_options)
         end
       end
+
+      it 'supports getting personal information data' do
+        expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
+        end
+      end
+
+      it 'supports posting primary phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/primary_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting alternate phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_alternate_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/alternate_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email', 401)
+
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          email_address = build(:email_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
     end
   end
 

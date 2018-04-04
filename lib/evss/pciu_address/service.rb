@@ -38,17 +38,22 @@ module EVSS
 
       def update_address(address)
         with_monitoring do
-          address.address_effective_date = DateTime.now.utc
-          address = address.as_json.delete_if { |_k, v| v.blank? }
-          address_json = {
-            'cnpMailingAddress' => Hash[address.map { |k, v| [k.camelize(:lower), v] }]
-          }.to_json
-          headers = { 'Content-Type' => 'application/json' }
-          raw_response = perform(:post, 'mailingAddress', address_json, headers)
+          raw_response = perform(:post, 'mailingAddress', request_body(address), headers)
+
           EVSS::PCIUAddress::AddressResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
         handle_error(e)
+      end
+
+      private
+
+      def request_body(address)
+        EVSS::PCIU::RequestBody.new(
+          address,
+          pciu_key: 'cnpMailingAddress',
+          date_attr: 'address_effective_date'
+        ).set
       end
     end
   end

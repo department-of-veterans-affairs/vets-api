@@ -5,6 +5,7 @@ module PensionBurial
     module_function
 
     def tag_sentry
+      Sentry::TagRainbows.tag
       Raven.tags_context(feature: 'pension_burial')
     end
   end

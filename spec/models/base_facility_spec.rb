@@ -178,4 +178,22 @@ RSpec.describe BaseFacility, type: :model do
       attrs.each_key { |k| expect(nca_facility[k]).to eq attrs[k] }
     end
   end
+
+  describe '#query' do
+    it 'should find facility in the bbox' do
+      create :vha_648A4
+      bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
+      expect(BaseFacility.query(bbox: bbox).data.first.id).to eq('648A4')
+    end
+  end
+
+  describe '#find_facility_by_id' do
+    before(:each) { create :vha_648A4 }
+    it 'should find facility by id' do
+      expect(BaseFacility.find_facility_by_id('vha_648A4').id).to eq('648A4')
+    end
+    it 'should have hours that are sorted by day' do
+      expect(BaseFacility.find_facility_by_id('vha_648A4').hours.keys).to eq(DateTime::DAYNAMES.rotate)
+    end
+  end
 end
