@@ -123,6 +123,23 @@ http_interactions:
                 "txAuditId": "string",
                 "updateDate": "2018-04-05T13:39:48.039Z",
                 "vet360Id": 0
+              },
+              {
+                "confirmationDate": "2018-04-05T13:39:48.039Z",
+                "createDate": "2018-04-05T13:39:48.039Z",
+                "effectiveEndDate": "2018-04-05T13:39:48.039Z",
+                "effectiveStartDate": "2018-04-05T13:39:48.039Z",
+                "emailAddressText": "jack@example.com",
+                "emailId": 0,
+                "emailPermInd": true,
+                "emailStatusCode": "NO_KNOWN_PROBLEM",
+                "originatingSourceSystem": "string",
+                "sourceDate": "2018-04-05T13:39:48.039Z",
+                "sourceSystem": "string",
+                "sourceSystemUser": "string",
+                "txAuditId": "string",
+                "updateDate": "2018-04-05T13:39:48.039Z",
+                "vet360Id": 0
               }
             ],
             "originatingSourceSystem": "string",

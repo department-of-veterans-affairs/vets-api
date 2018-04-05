@@ -19,9 +19,9 @@ module Vet360
     private
 
     # TODO - figure out the headers Vet360 will need
-    def headers_for_user(user)
-      EVSS::AuthHeaders.new(user).to_h
-    end
+    # def headers_for_user(user)
+    #   EVSS::AuthHeaders.new(user).to_h
+    # end
 
     # TODO - update backend exception params from EVSS to Vet360
     # TODO - perhaps abstract this into a common class for EVSS, Vet360, etc.
