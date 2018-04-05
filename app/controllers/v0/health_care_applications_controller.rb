@@ -38,7 +38,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      ApplicationController::SKIP_SENTRY_EXCEPTION_TYPES + [Common::Exceptions::GatewayTimeout]
+      super + [Common::Exceptions::GatewayTimeout]
     end
 
     def validate!(form)
