@@ -99,6 +99,7 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
+  delegate :vet360_id, to: :mvi
 
   def va_profile
     mvi.profile

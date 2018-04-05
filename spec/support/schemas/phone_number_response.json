@@ -14,6 +14,9 @@
             },
             "country_code": {
               "type": "string"
+            },
+            "effective_date": {
+              "type": "string"
             }
           },
           "type": "object"

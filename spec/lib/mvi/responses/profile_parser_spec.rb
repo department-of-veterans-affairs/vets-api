@@ -60,7 +60,8 @@ describe MVI::Responses::ProfileParser do
             address: nil,
             birls_id: nil,
             sec_id: nil,
-            historical_icns: nil
+            historical_icns: nil,
+            vet360_id: nil
           )
         end
         it 'should set the address to nil' do
@@ -150,6 +151,27 @@ describe MVI::Responses::ProfileParser do
     end
 
     it 'returns an array of mhv ids' do
+      expect(parser.parse).to have_deep_attributes(mvi_profile)
+    end
+  end
+
+  context 'with a vet360 id' do
+    let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
+    let(:mvi_profile) do
+      build(
+        :mvi_profile_response,
+        :address_austin,
+        historical_icns: nil,
+        birls_id: nil,
+        sec_id: nil
+      )
+    end
+
+    before(:each) do
+      allow(faraday_response).to receive(:body) { body }
+    end
+
+    it 'correctly parses a Vet360 ID' do
       expect(parser.parse).to have_deep_attributes(mvi_profile)
     end
   end
