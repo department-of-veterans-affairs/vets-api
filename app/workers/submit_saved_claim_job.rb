@@ -17,17 +17,7 @@ class SubmitSavedClaimJob
       process_record(record)
     end
 
-    submission = {
-      'metadata' => generate_metadata.to_json
-    }
-
-    submission['document'] = to_faraday_upload(@pdf_path)
-    @attachment_paths.each_with_index do |file_path, i|
-      j = i + 1
-      submission["attachment#{j}"] = to_faraday_upload(file_path)
-    end
-
-    response = PensionBurial::Service.new.upload(submission)
+    response = PensionBurial::Service.new.upload(create_request_body)
     File.delete(@pdf_path)
     @attachment_paths.each { |p| File.delete(p) }
 
@@ -39,6 +29,20 @@ class SubmitSavedClaimJob
   rescue StandardError
     update_submission('failed')
     raise
+  end
+
+  def create_request_body
+    body = {
+      'metadata' => generate_metadata.to_json
+    }
+
+    body['document'] = to_faraday_upload(@pdf_path)
+    @attachment_paths.each_with_index do |file_path, i|
+      j = i + 1
+      body["attachment#{j}"] = to_faraday_upload(file_path)
+    end
+
+    body
   end
 
   def update_submission(state)
