@@ -12,16 +12,22 @@ module V0
         info do
           key :version, '0.0.0'
           key :title, 'Benefits'
-          key :description, 'Veterans Benefits Administration (VBA) focused functionality, including form uploads.'
+          key :description, 'Veterans Benefits Administration (VBA) focused functionality, including document uploads.'
           key :termsOfService, ''
           contact do
             key :name, 'Vets.gov'
           end
         end
 
+        security_definition :api_key do
+          key :type, :apiKey
+          key :name, :apikey
+          key :in, :query
+        end
+
         tag do
-          key :name, 'form_uploads'
-          key :description, 'Benefits form uploads functionality'
+          key :name, 'document_uploads'
+          key :description, 'VA Benefits document upload functionality'
         end
 
         key :host, Settings.hostname
@@ -32,7 +38,7 @@ module V0
 
       # A list of all classes that have swagger_* declarations.
       SWAGGERED_CLASSES = [
-        V0::Benefits::FormUploadsController,
+        V0::Benefits::DocumentUploadsController,
         Swagger::Schemas::Errors,
         self
       ].freeze
