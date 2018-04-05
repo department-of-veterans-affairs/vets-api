@@ -53,7 +53,7 @@ module V0
         key :description, 'Terms and conditions form operations'
       end
 
-      key :host, 'vets.gov'
+      key :host, Settings.hostname
       key :basePath, '/'
       key :consumes, ['application/json']
       key :produces, ['application/json']
