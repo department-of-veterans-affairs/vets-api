@@ -37,7 +37,6 @@ class SubmitSavedClaimJob
       raise CentralMailResponseError
     end
   rescue StandardError
-    # TODO test this path
     update_submission('failed')
     raise
   end
