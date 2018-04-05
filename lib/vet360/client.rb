@@ -11,8 +11,14 @@ module Vet360
 
     # CACHE_TTL = 3600 * 1 # 1 hour cache
 
+    #get complete user bio
     def get_bio(user)
       perform(:get, "#{user.vet360_id}", nil, cuf_system_name_header).body
+    end
+
+    #get status of user bio update
+    def get_bio_tx(tx_audit_id)
+      perform(:get, "status/#{tx_audit_id}", nil, cuf_system_name_header).body
     end
 
     private
