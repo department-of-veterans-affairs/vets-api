@@ -13,7 +13,6 @@ module Swagger
           key :operationId, 'listInProgressForms'
           key :tags, %w[
             in_progress_forms
-            forms
           ]
 
           parameter :authorization

@@ -25,6 +25,30 @@ module V0
       # by the order they first appear in the swaggered_classes below, so
       # declare all tags here in desired order.
       tag do
+        key :name, 'authentication'
+        key :description, 'Authentication operations'
+      end
+      tag do
+        key :name, 'user'
+        key :description, 'Current authenticated user data'
+      end
+      tag do
+        key :name, 'profile'
+        key :description, 'User profile information'
+      end
+      tag do
+        key :name, 'benefits_info'
+        key :description, 'Veteran benefits profile information'
+      end
+      tag do
+        key :name, 'benefits_forms'
+        key :description, 'Apply for and claim Veteran benefits'
+      end
+      tag do
+        key :name, 'benefits_status'
+        key :description, 'Check status of benefits claims and appeals'
+      end
+      tag do
         key :name, 'prescriptions'
         key :description, 'Prescription refill/tracking operations'
       end
@@ -37,22 +61,25 @@ module V0
         key :description, 'Send and receive secure messages to health providers'
       end
       tag do
-        key :name, 'gi_bill_institutions'
-        key :description, 'Discover institutions at which GI Bill benefits may be used'
+        key :name, 'terms_and_conditions'
+        key :description, 'Terms and conditions acceptance for access to health tools'
       end
       tag do
-        key :name, 'sessions'
-        key :description, 'Authentication operations'
+        key :name, 'facilities'
+        key :description, 'VA facilities, locations, hours of operation, available services'
+      end
+      tag do
+        key :name, 'gi_bill_institutions'
+        key :description, 'Discover institutions at which GI Bill benefits may be used'
       end
       tag do
         key :name, 'in_progress_forms'
         key :description, 'In-progress form operations'
       end
       tag do
-        key :name, 'terms_and_conditions'
-        key :description, 'Terms and conditions form operations'
+        key :name, 'site'
+        key :description, 'Site service availability and feedback'
       end
-
       key :host, Settings.hostname
       key :basePath, '/'
       key :consumes, ['application/json']
