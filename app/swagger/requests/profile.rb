@@ -77,6 +77,67 @@ module Swagger
             end
           end
         end
+
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates/updates a users email address'
+          key :operationId, 'postEmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create/update an email address.'
+            key :required, true
+
+            schema do
+              property :email, type: :string, example: 'john@example.com'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :Email
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/full_name' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets a users full name with suffix'
+          key :operationId, 'getFullName'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :required, [:data]
+
+              property :data, type: :object do
+                key :required, [:attributes]
+                property :attributes, type: :object do
+                  property :first, type: :string, example: 'Jack'
+                  property :middle, type: :string, example: 'Robert'
+                  property :last, type: :string, example: 'Smith'
+                  property :suffix, type: :string, example: 'Jr.'
+                end
+              end
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/personal_information' do

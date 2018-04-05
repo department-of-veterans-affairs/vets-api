@@ -25,6 +25,8 @@ module EVSS
           raw_response = perform(:post, 'submit', form_content, headers)
           FormSubmitResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       private

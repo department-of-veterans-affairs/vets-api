@@ -1139,6 +1139,31 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports posting email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email', 401)
+
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          email_address = build(:email_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports getting full name data' do
+        expect(subject).to validate(:get, '/v0/profile/full_name', 401)
+
+        user = build(:user_with_suffix, :loa3)
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        expect(subject).to validate(:get, '/v0/profile/full_name', 200, auth_options)
+      end
     end
   end
 
