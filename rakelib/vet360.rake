@@ -7,34 +7,56 @@ namespace :vet360 do
     "Content-Type" => "application/json",
     "Accept" => "application/json"
   }
+  @base_path = "/cuf/person/contact-information/v1"
 
   # TASKS
   desc "Request Vet360 person contact information"
   task :get_contactinfo, [:vet360_id] => [:environment] do |t, args|
     abort "No vet360_id provided" if args[:vet360_id].blank?
-    path = "/cuf/person/contact-information/v1/" + args[:vet360_id]
+    path = "#{@base_path}/#{args[:vet360_id]}"
     response = make_request(:get, path)
   end
 
   desc "Request Vet360 person contact information addresses"
   task :get_contactinfo_addresses, [:vet360_id] => [:environment] do |t, args|
     abort "No vet360_id provided" if args[:vet360_id].blank?
-    path = "/cuf/person/contact-information/v1/" + args[:vet360_id] + "/addresses"
+    path = "#{@base_path}/#{args[:vet360_id]}/addresses"
     response = make_request(:get, path)
   end
 
   desc "Request Vet360 person contact information emails"
   task :get_contactinfo_emails, [:vet360_id] => [:environment] do |t, args|
     abort "No vet360_id provided" if args[:vet360_id].blank?
-    path = "/cuf/person/contact-information/v1/" + args[:vet360_id] + "/emails"
+    path = "#{@base_path}/#{args[:vet360_id]}/emails"
     response = make_request(:get, path)
   end
 
   desc "Request Vet360 person contact information telephones"
   task :get_contactinfo_telephones, [:vet360_id] => [:environment] do |t, args|
     abort "No vet360_id provided" if args[:vet360_id].blank?
-    path = "/cuf/person/contact-information/v1/" + args[:vet360_id] + "/telephones"
+    path = "#{@base_path}/#{args[:vet360_id]}/telephones"
     response = make_request(:get, path)
+  end
+
+  desc "Create Vet360 person contact information addresses"
+  task :post_contactinfo_addresses, [:body] => [:environment] do |t, args|
+    abort "No body provided" if args[:body].blank?
+    path = "#{@base_path}/addresses"
+    response = make_request(:post, path, args[:body], {cufSystemName: "aSystemName"}) #@TODO
+  end
+
+  desc "Create Vet360 person contact information emails"
+  task :post_contactinfo_emails, [:body] => [:environment] do |t, args|
+    abort "No body provided" if args[:body].blank?
+    path = "#{@base_path}/emails"
+    response = make_request(:post, path, args[:body], {cufSystemName: "aSystemName"}) #@TODO
+  end
+
+  desc "Create Vet360 person contact information telephones"
+  task :post_contactinfo_telephones, [:body] => [:environment] do |t, args|
+    abort "No body provided" if args[:body].blank?
+    path = "#{@base_path}/telephones"
+    response = make_request(:post, path, args[:body], {cufSystemName: "aSystemName"}) #@TODO
   end
 
   def conn
@@ -45,11 +67,11 @@ namespace :vet360 do
     end
   end
 
-  def make_request method, route, body = nil
+  def make_request method, route, body = nil, headers = {}
 
     response = conn.send(method) do |req|
       req.url route
-      req.headers = @headers
+      req.headers = @headers + headers
       req.body = body
     end
 
