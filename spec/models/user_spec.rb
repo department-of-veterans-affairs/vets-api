@@ -187,6 +187,10 @@ RSpec.describe User, type: :model do
         it 'fetches ssn from IDENTITY' do
           expect(user.ssn).to be(user.identity.ssn)
         end
+
+        it 'has a vet360 id if one exists' do
+          expect(user.vet360_id).to be(user.va_profile.vet360_id)
+        end
       end
 
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
