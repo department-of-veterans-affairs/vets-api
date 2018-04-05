@@ -1,0 +1,177 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/123456"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Faraday v0.9.2
+      va-eauth-csid:
+      - DSLogon
+      va-eauth-authenticationmethod:
+      - DSLogon
+      va-eauth-pnidtype:
+      - SSN
+      va-eauth-assurancelevel:
+      - '3'
+      va-eauth-firstName:
+      - abraham
+      va-eauth-lastName:
+      - lincoln
+      va-eauth-issueinstant:
+      - '2018-02-22T23:58:23Z'
+      va-eauth-dodedipnid:
+      - '7519464297'
+      va-eauth-birlsfilenumber:
+      - '1921355733'
+      va-eauth-pid:
+      - '8311011868'
+      va-eauth-pnid:
+      - '796111863'
+      va-eauth-birthdate:
+      - '1945-07-27T00:00:00+00:00'
+      va-eauth-authorization:
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"7519464297","firstName":"abraham","lastName":"lincoln","birthDate":"1945-07-27T00:00:00+00:00"}}'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Thu, 22 Feb 2018 23:58:30 GMT
+      Server:
+      - Apache/2.4.6 (CentOS) OpenSSL/1.0.2k-fips
+      Content-Type:
+      - application/json
+      Set-Cookie:
+      - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
+      - wss-pciu-services_JSESSIONID=BrK_9F0UokW49sfMCXMGat8RhSwafYWPUm_5eACV8gOTb_ZJK_x_!1120445591;
+        path=/; HttpOnly
+      Via:
+      - 1.1 csraciapp6.evss.srarad.com
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "bio": {
+            "addresses": [
+              {
+                "addressId": 0,
+                "addressLine1": "string",
+                "addressLine2": "string",
+                "addressLine3": "string",
+                "addressPOU": "RESIDENCE/CHOICE",
+                "addressType": "string",
+                "badAddressIndicator": "string",
+                "cityName": "string",
+                "confidenceScore": "string",
+                "confirmationDate": "2018-04-05T13:39:48.039Z",
+                "countryCodeFIPS": "string",
+                "countryCodeISO2": "string",
+                "countryCodeISO3": "string",
+                "countryName": "string",
+                "county": {
+                  "countyCode": "string",
+                  "countyName": "string"
+                },
+                "createDate": "2018-04-05T13:39:48.039Z",
+                "effectiveEndDate": "2018-04-05T13:39:48.039Z",
+                "effectiveStartDate": "2018-04-05T13:39:48.039Z",
+                "geocodeDate": "2018-04-05T13:39:48.039Z",
+                "geocodePrecision": "string",
+                "intPostalCode": "string",
+                "latitude": "string",
+                "longitude": "string",
+                "originatingSourceSystem": "string",
+                "overrideIndicator": false,
+                "provinceName": "string",
+                "sourceDate": "2018-04-05T13:39:48.039Z",
+                "sourceSystem": "string",
+                "sourceSystemUser": "string",
+                "stateCode": "string",
+                "txAuditId": "string",
+                "updateDate": "2018-04-05T13:39:48.039Z",
+                "vet360Id": 0,
+                "zipCode4": "string",
+                "zipCode5": "string"
+              }
+            ],
+            "createDate": "2018-04-05T13:39:48.039Z",
+            "emails": [
+              {
+                "confirmationDate": "2018-04-05T13:39:48.039Z",
+                "createDate": "2018-04-05T13:39:48.039Z",
+                "effectiveEndDate": "2018-04-05T13:39:48.039Z",
+                "effectiveStartDate": "2018-04-05T13:39:48.039Z",
+                "emailAddressText": "john@example.com",
+                "emailId": 0,
+                "emailPermInd": true,
+                "emailStatusCode": "NO_KNOWN_PROBLEM",
+                "originatingSourceSystem": "string",
+                "sourceDate": "2018-04-05T13:39:48.039Z",
+                "sourceSystem": "string",
+                "sourceSystemUser": "string",
+                "txAuditId": "string",
+                "updateDate": "2018-04-05T13:39:48.039Z",
+                "vet360Id": 0
+              }
+            ],
+            "originatingSourceSystem": "string",
+            "sourceDate": "2018-04-05T13:39:48.039Z",
+            "sourceSystem": "string",
+            "sourceSystemUser": "string",
+            "telephones": [
+              {
+                "areaCode": "303",
+                "confirmationDate": "2018-04-05T13:39:48.039Z",
+                "connectionStatusCode": "NO_KNOWN_PROBLEM",
+                "countryCode": "string",
+                "createDate": "2018-04-05T13:39:48.039Z",
+                "effectiveEndDate": "2018-04-05T13:39:48.039Z",
+                "effectiveStartDate": "2018-04-05T13:39:48.039Z",
+                "internationalIndicator": true,
+                "originatingSourceSystem": "string",
+                "phoneNumber": "5551234",
+                "phoneNumberExt": "string",
+                "phoneType": "MOBILE",
+                "sourceDate": "2018-04-05T13:39:48.039Z",
+                "sourceSystem": "string",
+                "sourceSystemUser": "string",
+                "telephoneId": 0,
+                "textMessageCapableInd": true,
+                "textMessagePermInd": true,
+                "ttyInd": true,
+                "txAuditId": "string",
+                "updateDate": "2018-04-05T13:39:48.039Z",
+                "vet360Id": 0,
+                "voiceMailAcceptableInd": true
+              }
+            ],
+            "txAuditId": "string",
+            "updateDate": "2018-04-05T13:39:48.039Z",
+            "vet360Id": 0
+          },
+          "messages": [
+            {
+              "code": "string",
+              "key": "string",
+              "potentiallySelfCorrectingOnRetry": true,
+              "severity": "INFO",
+              "text": "string"
+            }
+          ],
+          "status": "REJECTED",
+          "txAuditId": "string"
+        }
+    http_version:
+  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+recorded_with: VCR 3.0.3
