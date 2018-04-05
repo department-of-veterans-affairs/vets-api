@@ -6,11 +6,13 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
   stub_virus_scan
   let(:pension_burial) { create(:pension_burial) }
   let(:claim) { pension_burial.saved_claim }
+  let(:central_mail_submission) { claim.central_mail_submission }
 
   describe '#perform' do
-    it 'submits the saved claim' do
-      job = described_class.new
+    let(:job) { described_class.new }
+    let(:success) { true }
 
+    before do
       expect(job).to receive(:process_record).with(claim).and_return('pdf_path')
       expect(job).to receive(:process_record).with(pension_burial).and_return('attachment_path')
       expect(job).to receive(:to_faraday_upload).with('pdf_path').and_return('faraday1')
@@ -20,12 +22,24 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
       )
       expect_any_instance_of(PensionBurial::Service).to receive(:upload).with(
         'metadata' => '{"metadata":{}}', 'document' => 'faraday1', 'attachment1' => 'faraday1'
-      ).and_return(OpenStruct.new(success?: true))
+      ).and_return(OpenStruct.new(success?: success))
 
       expect(File).to receive(:delete).with('pdf_path')
       expect(File).to receive(:delete).with('attachment_path')
+    end
 
+    context 'with an response error' do
+      let(:success) { false }
+
+      it 'raises CentralMailResponseError and updates submission to failed' do
+        expect { job.perform(claim.id) }.to raise_error(SubmitSavedClaimJob::CentralMailResponseError)
+        expect(central_mail_submission.reload.state).to eq('failed')
+      end
+    end
+
+    it 'submits the saved claim and updates submission to success' do
       job.perform(claim.id)
+      expect(central_mail_submission.reload.state).to eq('success')
     end
   end
 
