@@ -11,6 +11,7 @@ module Swagger
         operation :get do
           key :description, 'Gets the status of backend service'
           key :operationId, 'getBackendStatus'
+          key :tags, %w[site]
 
           parameter do
             key :name, 'service'

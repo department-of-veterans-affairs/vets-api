@@ -11,9 +11,7 @@ module Swagger
 
           key :description, 'Submit user feedback about a given page'
           key :operationId, 'postFeedback'
-          key :tags, %w[
-            feedback
-          ]
+          key :tags, %w[site]
 
           parameter do
             key :name, :body

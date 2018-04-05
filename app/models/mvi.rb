@@ -76,6 +76,14 @@ class Mvi < Common::RedisStore
     profile&.birls_id
   end
 
+  # A Vet360 Correlation ID
+  #
+  # @return [String] the Vet360 id
+  def vet360_id
+    return nil unless @user.loa3?
+    profile&.vet360_id
+  end
+
   # A list of ICN's that the user has been identitfied by historically
   #
   # @return [Array[String]] the list of historical icns
