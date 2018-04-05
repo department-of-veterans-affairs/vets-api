@@ -3,6 +3,8 @@
 module Vet360
   module Models
     class Telephone < Base
+      PHONE_TYPES = %w[MOBILE HOME WORK FAX TEMPORARY].freeze
+
       attribute :area_code, String
       attribute :country_code, String
       attribute :created_at, Common::ISO8601Time
@@ -43,7 +45,7 @@ module Vet360
       validates(
         :phone_type,
         presence: true,
-        # Should we validate enum values here?
+        inclusion: { in: PHONE_TYPES }
       )
     end
   end

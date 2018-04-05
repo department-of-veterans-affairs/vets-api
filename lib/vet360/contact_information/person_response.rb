@@ -12,7 +12,7 @@ module Vet360
       def initialize(status, response = nil)
         # TODO - how do we want to customize the response
         @bio = response&.body&.dig('bio')
-binding.pry
+byebug
 
         super(status, person: bio)
       end
@@ -27,7 +27,6 @@ binding.pry
       end
 
       def build_emails
-        # array of email_address hashes
         bio['emails'].map { |e| build_email(e) }
       end
 
@@ -45,7 +44,6 @@ binding.pry
       end
 
       def build_telephones
-        # array of telephone hashes
         bio['telephones'].map { |t| build_telephone(t) }
       end
 
