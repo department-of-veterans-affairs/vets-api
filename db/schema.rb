@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180226234916) do
+ActiveRecord::Schema.define(version: 20180328191601) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -203,7 +203,10 @@ ActiveRecord::Schema.define(version: 20180226234916) do
     t.string   "form_id"
     t.uuid     "guid",              null: false
     t.string   "type"
+    t.string   "status"
   end
+
+  add_index "saved_claims", ["created_at", "status", "form_id"], name: "index_saved_claims_on_created_at_and_status_and_form_id", using: :btree
 
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"
