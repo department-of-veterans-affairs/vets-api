@@ -178,6 +178,16 @@ Rails.application.routes.draw do
 
     resources :apidocs, only: [:index]
 
+    namespace :docs, only: [] do
+      # namespace :health do
+      #   resources :prescriptions
+      #   resources :secure_messages
+      # end
+      # resources :health, only: [:index]
+
+      resources :benefits, only: [:index]
+    end
+
     get 'terms_and_conditions', to: 'terms_and_conditions#index'
     get 'terms_and_conditions/:name/versions/latest', to: 'terms_and_conditions#latest'
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
