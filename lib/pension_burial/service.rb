@@ -4,6 +4,7 @@ module PensionBurial
   class Service < Common::Client::Base
     configuration PensionBurial::Configuration
 
+    # rubocop:disable Metrics/MethodLength
     def upload(body)
       # TODO: find out max file size allowed for the API
       Raven.extra_context(
@@ -34,6 +35,7 @@ module PensionBurial
 
       response
     end
+    # rubocop:enable Metrics/MethodLength
 
     def status(uuid_or_list)
       body = {
