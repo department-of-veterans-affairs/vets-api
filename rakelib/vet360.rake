@@ -116,8 +116,6 @@ namespace :vet360 do
     puts "#{method.upcase}: " + route
     puts "Response status: " + response.status.to_s
     puts "Response body: " + response.body
-
   end
-
 
 end
