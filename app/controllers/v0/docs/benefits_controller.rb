@@ -11,12 +11,17 @@ module V0
         key :swagger, '2.0'
         info do
           key :version, '0.0.0'
-          key :title, 'Benefits Form Uploads Controller'
-          key :description, 'Veterans Benefits Administration Form Uploads functionality via Central Mail API.'
+          key :title, 'Benefits'
+          key :description, 'Veterans Benefits Administration (VBA) focused functionality, including form uploads.'
           key :termsOfService, ''
           contact do
             key :name, 'Vets.gov'
           end
+        end
+
+        tag do
+          key :name, 'form_uploads'
+          key :description, 'Benefits form uploads functionality'
         end
 
         key :host, Settings.hostname

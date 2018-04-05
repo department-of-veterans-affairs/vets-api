@@ -3,23 +3,47 @@ module V0
     class FormUploadsController < ApplicationController
       include Swagger::Blocks
 
-      swagger_path '/' do
+      swagger_path '/form_uploads' do
         operation :post do
+          key :tags, %w[form_uploads]
           key :summary, 'Upload a benefits form'
           key :operationId, 'postBenefitsFormUpload'
+          key :consumes, %w[multipart/form-data]
+
+          parameter do
+            key :name, :apitoken
+            key :description, 'API token provided by Vets.gov.'
+            key :required, true
+            key :type, :string
+            key :in, :query
+          end
+
+          parameter do
+            key :name, :file
+            key :description, 'Form file. Should be provided in PDF format.'
+            key :required, true
+            key :type, :file
+            key :in, :formData
+          end
 
           response 200 do
             key :description, 'Upload received'
 
             schema do
-              property :uuid, type: :string # TODO: is there a uuid type?
+              property :id, type: :string, description: 'Identifier for subsequent getStatus requests'
             end
           end
         end
       end
 
-      swagger_path '/{id}' do
+      def create
+
+      end
+
+      swagger_path '/form_uploads/{id}' do
         operation :get do
+          key :tags, %w[form_uploads]
+
           key :summary, 'Get status for existing benefits form upload'
           key :operationId, 'getBenefitsFormUploadStatus'
 
@@ -31,6 +55,7 @@ module V0
           end
         end
       end
+
     end
   end
 end
