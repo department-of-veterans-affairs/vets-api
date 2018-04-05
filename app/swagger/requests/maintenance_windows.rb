@@ -9,9 +9,7 @@ module Swagger
         operation :get do
           key :description, 'Get a list of scheduled maintenance windows by service'
           key :operationId, 'getMaintenanceWindows'
-          key :tags, [
-            'maintenance_windows'
-          ]
+          key :tags, ['site']
 
           response 200 do
             key :description, 'get list of scheduled maintenance windows'

@@ -12,10 +12,7 @@ module Swagger
 
           key :description, 'Submit a health care application'
           key :operationId, 'addHealthCareApplication'
-          key :tags, %w[
-            hca
-            forms
-          ]
+          key :tags, %w[benefits_forms]
 
           parameter :optional_authorization
 
@@ -39,11 +36,13 @@ module Swagger
         end
       end
 
+      # TODO: This is an interal monitoring endpoint, consider
+      # removing it from swagger documentation
       swagger_path '/v0/health_care_applications/healthcheck' do
         operation :get do
           key :description, 'Check if the HCA submission service is up'
           key :operationId, 'healthcheckHealthCareApplication'
-          key :tags, ['hca']
+          key :tags, %w[benefits_forms]
 
           response 200 do
             key :description, 'health care application health check response'
