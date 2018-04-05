@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/base_service'
-require 'sentry/rescue_evss_errors.rb'
 
 module EVSS
   class DocumentsService < BaseService
@@ -13,7 +12,7 @@ module EVSS
     DEFAULT_TIMEOUT = 180 # seconds
 
     def upload(file_body, document_data)
-      rescue_evss_errors do
+      rescue_evss_errors(/EVSS_15005/) do
         headers = { 'Content-Type' => 'application/octet-stream' }
         post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
           req.params['systemName'] = SYSTEM_NAME

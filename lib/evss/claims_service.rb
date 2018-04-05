@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/base_service'
-require 'sentry/rescue_evss_errors.rb'
 
 module EVSS
   class ClaimsService < BaseService
@@ -17,24 +16,20 @@ module EVSS
     end
 
     def all_claims
-      rescue_evss_errors do
+      rescue_evss_errors(/EVSS_7021|EVSS_7022/) do
         get 'vbaClaimStatusService/getClaims'
       end
     end
 
     def find_claim_by_id(claim_id)
-      rescue_evss_errors do
-        post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
-      end
+      post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
     end
 
     def request_decision(claim_id)
-      rescue_evss_errors do
-        post 'vbaClaimStatusService/set5103Waiver', {
-          claimId: claim_id,
-          systemName: SYSTEM_NAME
-        }.to_json
-      end
+      post 'vbaClaimStatusService/set5103Waiver', {
+        claimId: claim_id,
+        systemName: SYSTEM_NAME
+      }.to_json
     end
 
     def self.breakers_service
