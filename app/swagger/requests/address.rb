@@ -12,7 +12,7 @@ module Swagger
           key :description, 'Get a list of the PCIU supported countries'
           key :operationId, 'getCountries'
           key :tags, %w[
-            evss
+            benefits_info
           ]
 
           parameter :authorization
@@ -33,7 +33,7 @@ module Swagger
           key :description, 'Get a list of the PCIU supported states'
           key :operationId, 'getStates'
           key :tags, %w[
-            evss
+            benefits_info
           ]
 
           parameter :authorization
@@ -54,7 +54,7 @@ module Swagger
           key :description, 'Get a users corp address'
           key :operationId, 'getAddress'
           key :tags, %w[
-            evss
+            benefits_info
           ]
 
           parameter :authorization
@@ -75,7 +75,7 @@ module Swagger
           key :description, 'Updates a users corp address'
           key :operationId, 'getAddress'
           key :tags, %w[
-            evss
+            benefits_info
           ]
 
           parameter :authorization
