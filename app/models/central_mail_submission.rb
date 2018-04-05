@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CentralMailSubmission < ActiveRecord::Base
   belongs_to(:central_mail_claim, inverse_of: :central_mail_submission, foreign_key: 'saved_claim_id')
 
