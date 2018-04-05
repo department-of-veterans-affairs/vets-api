@@ -124,6 +124,12 @@ mhv:
   bb:
     collection_caching_enabled: true
 
+# Settings for Vet360
+vet360:
+  host: https://prod.vet360.va.gov
+  system_name: 'cufSystemName'
+  # mock: false
+
 # Settings for Master Veteran Index
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
