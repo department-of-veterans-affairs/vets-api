@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SavedClaim::Pension < SavedClaim
+class SavedClaim::Pension < CentralMailClaim
   FORM = '21P-527EZ'
   CONFIRMATION = 'PEN'
   PERSISTENT_CLASS = PersistentAttachments::PensionBurial
