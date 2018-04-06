@@ -12,7 +12,7 @@ module EVSS
     DEFAULT_TIMEOUT = 180 # seconds
 
     def upload(file_body, document_data)
-      rescue_evss_errors(/EVSS_15005/) do
+      rescue_evss_errors(%w[EVSS_15005]) do
         headers = { 'Content-Type' => 'application/octet-stream' }
         post 'queuedDocumentUploadService/ajaxUploadFile', file_body, headers do |req|
           req.params['systemName'] = SYSTEM_NAME
