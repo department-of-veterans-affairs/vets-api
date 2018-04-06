@@ -11,9 +11,7 @@ module Swagger
 
           key :description, 'Get the Post 911 GI Bill Status for a Veteran'
           key :operationId, 'getPost911GiBillStatus'
-          key :tags, [
-            'evss'
-          ]
+          key :tags, ['benefits_status']
 
           parameter :authorization
 
