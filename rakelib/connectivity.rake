@@ -138,11 +138,4 @@ namespace :connectivity do
       puts 'StatsD not configured!'
     end
   end
-
-  desc 'Check VHA'
-  task vha: :environment do
-    check 'VHA', Settings.locators.vha do
-      VHAFacilityAdapter.new.query([0, 0, 0, 0])
-    end
-  end
 end

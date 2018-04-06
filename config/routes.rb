@@ -12,15 +12,10 @@ Rails.application.routes.draw do
       to: 'v0/sessions#new',
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
+  # FIXME: needed temporarily to make a smooth transition, will be removed
   match '/vbeta/*path', to: 'application#cors_preflight', via: [:options]
-  namespace :vbeta, defaults: { format: 'json' } do
-    scope :facilities, module: 'facilities' do
-      resources :va, only: %i[index show], defaults: { format: :json } do
-        # temporary collection for testing/validation will not stay around
-        get :all, on: :collection
-      end
-    end
-  end
+  get '/vbeta/facilities/va', to: 'v0/facilities/va#index'
+  get '/vbeta/facilities/va/:id', to: 'v0/facilities/va#show'
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
