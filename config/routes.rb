@@ -217,7 +217,6 @@ Rails.application.routes.draw do
     end
   end
 
-
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'

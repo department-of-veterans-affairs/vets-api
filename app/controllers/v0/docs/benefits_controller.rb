@@ -39,7 +39,6 @@ module V0
       # A list of all classes that have swagger_* declarations.
       SWAGGERED_CLASSES = [
         V0::Benefits::DocumentUploadsController,
-        Swagger::Schemas::Errors,
         self
       ].freeze
 

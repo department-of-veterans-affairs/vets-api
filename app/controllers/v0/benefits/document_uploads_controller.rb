@@ -25,21 +25,21 @@ module V0
           end
           parameter do
             key :name, :document
-            key :description, 'Document contents. Must be provided in PDF format.'
+            key :description, 'Document contents. Must be provided in PDF format. (Max: 25MB)'
             key :required, true
             key :type, :file
             key :in, :formData
           end
           parameter do
             key :name, :attachment1
-            key :description, 'Optional attachment contents. Must be provided in PDF format.'
+            key :description, 'Optional attachment contents. Must be provided in PDF format. (Max: 25MB)'
             key :required, false
             key :type, :file
             key :in, :formData
           end
           parameter do
             key :name, :attachment2
-            key :description, 'Optional attachment contents. Must be provided in PDF format.'
+            key :description, 'Optional attachment contents. Must be provided in PDF format. (Max: 25MB)'
             key :required, false
             key :type, :file
             key :in, :formData
@@ -51,11 +51,17 @@ module V0
 
           response 200 do
             key :description, 'Upload received'
-
             schema do
-              property :id, type: :string, description: 'Identifier for subsequent getStatus requests'
+              property :id, type: :string, example: 'b62e1379-e703-4aa7-a9dd-c74e66710f46', description: 'Identifier for subsequent getStatus requests'
             end
           end
+
+          response 400, description: 'Bad Request' do
+            key :'$ref', :DocumentUploadErrors
+          end
+
+          response 401, description: 'Unauthorized Request'
+          response 403, description: 'Bad API Token'
         end
       end
 
@@ -79,6 +85,28 @@ module V0
         property :ahash1, type: :string, description: 'Optional, SHA-256 hash of first attachment contents, if present'
         property :numberPages2, type: :number, format: :uint32, description: 'Optional, number of pages in second attachment, if present'
         property :ahash2, type: :string, description: 'Optional, SHA-256 hash of second attachment contents, if present'
+      end
+
+      swagger_schema :DocumentUploadErrors do
+        key :required, [:errors]
+
+        property :errors do
+          key :type, :array
+          items do
+            key :required, %i[title detail code status]
+
+            property :title, type: :string, example: 'Partner Service Error', description: 'Error class'
+            property :detail, type: :string, description: 'Error message', example: 'Duplicate - document already uploaded with that id'
+            property :code, type: :string, enum: %w[
+              BENEFITS-DOCUMENT-UPLOAD-DUPLICATE-400
+              BENEFITS-DOCUMENT-UPLOAD-CONFLICT-409
+              BENEFITS-DOCUMENT-UPLOAD-METADATA-412
+              BENEFITS-DOCUMENT-UPLOAD-UNSUPPORTED-415
+              BENEFITS-DOCUMENT-UPLOAD-UNPROCESSABLE-422
+            ], description: 'Unique identifier for error', example: 'BENEFITS-DOCUMENT-UPLOAD-400'
+            property :status, type: :string, description: 'Partner Service HTTP status code', example: '400'
+          end
+        end
       end
       # rubocop:enable Metrics/LineLength, Metrics/BlockLength
 
@@ -105,11 +133,22 @@ module V0
 
           response 200 do
             key :description, 'Upload status retrieved successfully'
-            schema do
-              property :hello, type: :string
-            end
+            key :'$ref', :DocumentUploadStatus
           end
+
+          response 401, description: 'Unauthorized Request'
+          response 403, description: 'Bad API Token'
+          response 404, description: 'Not Found'
         end
+      end
+
+      swagger_schema :DocumentUploadStatus do
+        key :required, %i[uuid status errorMessage lastUpdated]
+
+        property :uuid, type: :string, example: 'b62e1379-e703-4aa7-a9dd-c74e66710f46'
+        property :status, type: :string, enum: ['Received', 'In Process', 'Success', 'Error']
+        property :errorMessage, type: :string
+        property :lastUpdated, type: :string, format: :datetime, example: '2018-01-02 00:01:02' # TODO: what TZ is this?
       end
     end
   end
