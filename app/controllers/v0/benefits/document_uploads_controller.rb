@@ -9,7 +9,7 @@ module V0
       swagger_path '/document_uploads' do
         operation :post do
           key :tags, %w[document_uploads]
-          key :summary, 'Upload a VA benefits document'
+          key :summary, 'Upload a VA benefits document. Max content body size 25MB.'
           key :operationId, 'postBenefitsDocumentUpload'
           key :consumes, %w[multipart/form-data]
 
@@ -25,21 +25,21 @@ module V0
           end
           parameter do
             key :name, :document
-            key :description, 'Document contents. Must be provided in PDF format. (Max: 25MB)'
+            key :description, 'Document contents. Must be provided in PDF format.'
             key :required, true
             key :type, :file
             key :in, :formData
           end
           parameter do
             key :name, :attachment1
-            key :description, 'Optional attachment contents. Must be provided in PDF format. (Max: 25MB)'
+            key :description, 'Optional attachment contents. Must be provided in PDF format.'
             key :required, false
             key :type, :file
             key :in, :formData
           end
           parameter do
             key :name, :attachment2
-            key :description, 'Optional attachment contents. Must be provided in PDF format. (Max: 25MB)'
+            key :description, 'Optional attachment contents. Must be provided in PDF format.'
             key :required, false
             key :type, :file
             key :in, :formData
@@ -62,6 +62,7 @@ module V0
 
           response 401, description: 'Unauthorized Request'
           response 403, description: 'Bad API Token'
+          response 413, description: 'Request too large'
         end
       end
 
@@ -97,13 +98,7 @@ module V0
 
             property :title, type: :string, example: 'Partner Service Error', description: 'Error class'
             property :detail, type: :string, description: 'Error message', example: 'Duplicate - document already uploaded with that id'
-            property :code, type: :string, enum: %w[
-              BENEFITS-DOCUMENT-UPLOAD-DUPLICATE-400
-              BENEFITS-DOCUMENT-UPLOAD-CONFLICT-409
-              BENEFITS-DOCUMENT-UPLOAD-METADATA-412
-              BENEFITS-DOCUMENT-UPLOAD-UNSUPPORTED-415
-              BENEFITS-DOCUMENT-UPLOAD-UNPROCESSABLE-422
-            ], description: 'Unique identifier for error', example: 'BENEFITS-DOCUMENT-UPLOAD-400'
+            property :code, type: :string, description: 'Unique identifier for error', example: 'BENEFITS-DOCUMENT-UPLOAD-400'
             property :status, type: :string, description: 'Partner Service HTTP status code', example: '400'
           end
         end
