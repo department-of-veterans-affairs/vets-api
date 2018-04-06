@@ -58,8 +58,8 @@ Rails.application.routes.draw do
     end
 
     if Settings.pension_burial.upload.enabled
-      resource :pension_claims, only: [:create]
-      resource :burial_claims, only: [:create]
+      resources :pension_claims, only: %i[create show]
+      resources :burial_claims, only: %i[create show]
     end
 
     resources :evss_claims, only: %i[index show] do
