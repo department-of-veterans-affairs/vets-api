@@ -3,6 +3,11 @@
 class SubmitSavedClaimJob
   include Sidekiq::Worker
 
+  sidekiq_options retry: false
+
+  class CentralMailResponseError < StandardError
+  end
+
   def perform(saved_claim_id)
     PensionBurial::TagSentry.tag_sentry
     @claim = SavedClaim.find(saved_claim_id)
@@ -12,19 +17,36 @@ class SubmitSavedClaimJob
       process_record(record)
     end
 
-    submission = {
+    response = PensionBurial::Service.new.upload(create_request_body)
+    File.delete(@pdf_path)
+    @attachment_paths.each { |p| File.delete(p) }
+
+    if response.success?
+      update_submission('success')
+    else
+      raise CentralMailResponseError
+    end
+  rescue StandardError
+    update_submission('failed')
+    raise
+  end
+
+  def create_request_body
+    body = {
       'metadata' => generate_metadata.to_json
     }
 
-    submission['document'] = to_faraday_upload(@pdf_path)
+    body['document'] = to_faraday_upload(@pdf_path)
     @attachment_paths.each_with_index do |file_path, i|
       j = i + 1
-      submission["attachment#{j}"] = to_faraday_upload(file_path)
+      body["attachment#{j}"] = to_faraday_upload(file_path)
     end
 
-    PensionBurial::Service.new.upload(submission)
-    File.delete(@pdf_path)
-    @attachment_paths.each { |p| File.delete(p) }
+    body
+  end
+
+  def update_submission(state)
+    @claim.central_mail_submission.update_attributes!(state: state)
   end
 
   def to_faraday_upload(file_path)
@@ -61,6 +83,7 @@ class SubmitSavedClaimJob
     address = form['claimantAddress'] || form['veteranAddress']
     receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
+    # TODO: make sure required field validations match for us and central mail
     metadata = {
       'veteranFirstName' => veteran_full_name.try(:[], 'first'),
       'veteranLastName' => veteran_full_name.try(:[], 'last'),
