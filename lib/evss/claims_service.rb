@@ -16,7 +16,7 @@ module EVSS
     end
 
     def all_claims
-      rescue_evss_errors(/EVSS_7021|EVSS_7022/) do
+      rescue_evss_errors(%w[EVSS_7021 EVSS_7022]) do
         get 'vbaClaimStatusService/getClaims'
       end
     end
