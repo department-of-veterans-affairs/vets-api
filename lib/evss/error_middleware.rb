@@ -3,10 +3,9 @@
 module EVSS
   class ErrorMiddleware < Faraday::Response::Middleware
     class EVSSError < StandardError
-      attr_reader :message, :details
-      alias to_s message
+      attr_reader :details
       def initialize(message = nil, details = nil)
-        @message = message.to_s
+        super(message)
         @details = details
       end
     end
