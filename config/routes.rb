@@ -3,6 +3,7 @@
 require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
+  match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
@@ -201,6 +202,20 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
+
+  scope '/services' do
+    namespace :v0, defaults: { format: 'json' } do
+      namespace :docs, only: [] do
+        # namespace :health do
+        #   resources :prescriptions
+        #   resources :secure_messages
+        # end
+        # resources :health, only: [:index]
+
+        resources :benefits, only: [:index]
+      end
+    end
+  end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
