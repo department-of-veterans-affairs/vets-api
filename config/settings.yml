@@ -51,6 +51,7 @@ vet360:
   cert_path: ~
   key_path: ~
   root_cert_path: ~
+  system_name: 'VET360'
   contact_information:
     timeout: 30
     mock: false
