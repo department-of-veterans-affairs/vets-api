@@ -1020,9 +1020,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/vha_648A4') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
 
         it '404s on non-existent facility' do
