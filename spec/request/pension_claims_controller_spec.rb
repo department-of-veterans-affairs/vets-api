@@ -56,7 +56,7 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
       it 'should render success' do
         subject
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
-          .to eq(%w[confirmationNumber form regionalOffice submittedAt])
+          .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
       end
     end
   end
