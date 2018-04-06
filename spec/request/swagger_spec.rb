@@ -727,7 +727,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           context 'unsuccessful calls' do
             let(:mhv_account) do
-              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, terms_and_conditions_accepted?: true, accessible?: false)
+              double('mhv_account', eligible?: true,
+                                    needs_terms_acceptance?: false,
+                                    terms_and_conditions_accepted?: true,
+                                    accessible?: false)
             end
 
             it 'raises forbidden when user is not eligible' do
