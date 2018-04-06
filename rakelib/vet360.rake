@@ -10,7 +10,7 @@ namespace :vet360 do
     "Accept" => "application/json"
   }
   @base_path = "/cuf/person/contact-information/v1"
-  @cuf_system_name = "aSystemName" # @TODO
+  @cuf_system_name = "VET360" # @TODO
 
   ###########
   ## TASKS ##
