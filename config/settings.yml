@@ -48,9 +48,6 @@ pension_burial:
 # Settings for Vet360
 vet360:
   url: https://int.vet360.va.gov/person-mdm-cuf-person-hub
-  cert_path: ~
-  key_path: ~
-  root_cert_path: ~
   contact_information:
     timeout: 30
     mock: false
