@@ -13,7 +13,7 @@ module Vet360
         with_monitoring do
           # TODO - guard clause in case there is no vet360_id
           raw_response = perform(:get, @user.vet360_id)
-
+byebug
           Vet360::ContactInformation::PersonResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e

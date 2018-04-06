@@ -12,7 +12,7 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
-      # headers = headers_for_user(@user).merge(headers) - TODO below
+      config.base_request_headers.merge(headers)
       super(method, path, body, headers)
     end
 
