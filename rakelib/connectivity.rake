@@ -11,14 +11,6 @@ Rails.logger = Logger.new(STDOUT)
 REDIS_CONFIG = Rails.application.config_for(:redis).freeze
 Redis.current = Redis.new(REDIS_CONFIG['redis'])
 
-require 'evss/claims_service'
-require 'gi/client'
-require 'hca/configuration'
-require 'hca/service'
-require 'mvi/service'
-require 'rx/client'
-require 'sm/client'
-
 class ConnectivityError < StandardError; end
 
 # Convenience function that runs a connectivity example and prints out
