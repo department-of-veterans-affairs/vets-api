@@ -4,6 +4,7 @@ module V0
   module Benefits
     class DocumentUploadsController < ApplicationController
       include Swagger::Blocks
+      skip_before_action(:authenticate)
 
       # rubocop:disable Metrics/LineLength, Metrics/BlockLength
       swagger_path '/document_uploads' do
@@ -104,8 +105,14 @@ module V0
         end
       end
       # rubocop:enable Metrics/LineLength, Metrics/BlockLength
+      def create
+        submission = DocumentUploadSubmission.create 
+        render status: :accepted,
+               json: submission,
+               serializer: DocumentUploadSerializer,
+               render_location: true
 
-      def create; end
+      end
 
       swagger_path '/document_uploads/{id}' do
         operation :get do
@@ -144,6 +151,13 @@ module V0
         property :status, type: :string, enum: ['Received', 'In Process', 'Success', 'Error']
         property :errorMessage, type: :string
         property :lastUpdated, type: :string, format: :datetime, example: '2018-01-02 00:01:02' # TODO: what TZ is this?
+      end
+
+      def show
+        submission = DocumentUploadSubmission.find_by(guid: params[:id])
+        render json: submission,
+               serializer: DocumentUploadSerializer,
+               render_location: false
       end
     end
   end

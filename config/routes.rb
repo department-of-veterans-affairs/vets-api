@@ -209,6 +209,10 @@ Rails.application.routes.draw do
 
         resources :benefits, only: [:index]
       end
+      
+      namespace :benefits do
+        resources :document_uploads, only: %i[create show]
+      end
     end
   end
 
