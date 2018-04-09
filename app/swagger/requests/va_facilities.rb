@@ -13,6 +13,7 @@ module Swagger
 
           parameter do
             key :name, 'bbox[]'
+            key :description, 'Bounding box Lat/Long coordinates in the form minLong, minLat, maxLong, maxLat'
             key :in, :query
             key :type, :array
             key :required, true
@@ -25,12 +26,14 @@ module Swagger
           end
           parameter do
             key :name, :type
+            key :description, 'Optional facility type'
             key :in, :query
             key :type, :string
             key :enum, %w[health cemetery benefits vet_center]
           end
           parameter do
             key :name, 'services[]'
+            key :description, 'Optional specialty services filter that works along with `type` param. Only available for types \'benefits\' and \'vet_center\'.'
             key :in, :query
             key :type, :array
             key :collectionFormat, :multi
@@ -61,6 +64,7 @@ module Swagger
 
           parameter do
             key :name, :id
+            key :description, 'ID of facility such as vha_648A4'
             key :in, :path
             key :type, :string
             key :required, true
