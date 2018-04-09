@@ -321,4 +321,30 @@ describe MVI::Service do
       end
     end
   end
+
+  describe '.find_profile monitoring' do
+    context 'with a successful request' do
+      it 'should increment find_profile total' do
+        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+
+        allow(StatsD).to receive(:increment)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          subject.find_profile(user)
+        end
+        expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
+      end
+    end
+
+    context 'with an unsuccessful request' do
+      it 'should increment find_profile fail and total' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mvi.find_profile.total')
+        expect(subject.find_profile(user))
+          .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+      end
+    end
+  end
 end
