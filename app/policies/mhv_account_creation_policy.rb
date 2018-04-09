@@ -6,10 +6,10 @@ MhvAccountCreationPolicy = Struct.new(:user, :mhv_account_creation) do
   end
 
   def creatable?
-    eligible? && user.mhv_correlation_id.empty?
+    access? && user.mhv_correlation_id.empty?
   end
 
   def upgradable?
-    eligible? && user.mhv_correlation_id.present? && user.mhv_account.registered_at? && !user.mhv_account.upgraded_at?
+    access? && user.mhv_correlation_id.present? && user.mhv_account.registered_at? && !user.mhv_account.upgraded_at?
   end
 end
