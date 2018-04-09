@@ -50,7 +50,7 @@ def with_settings(settings, temp_values)
   end
 end
 
-VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri body] }.freeze
+VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
 
 VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
