@@ -3,22 +3,22 @@ require 'date'
 require 'json'
 
 headers = {
-	"Content-Type" => "application/json", 
-	"Accept" => "application/json", 
-	"va_eauth_csid" => "DSLogon", 
-	"va_eauth_authenticationmethod" => "DSLogon", 
-	"va_eauth_pnidtype" => "SSN", 
-	"va_eauth_assurancelevel" => "3", 
-	"va_eauth_firstName" => "Mark", 
-	"va_eauth_lastName" => "Webb", 
-	"va_eauth_issueinstant" => DateTime.now.iso8601, 
-	"va_eauth_dodedipnid" => "1013590059", 
-	"va_eauth_pid" => "13367440", 
-	"va_eauth_pnid" => "796104437", 
-	"va_eauth_birthdate" => "1950-10-04T00:00:00+00:00", 
-	"va_eauth_authorization" => "{\"authorizationResponse\":{\"status\":\"VETERAN\",\"idType\":\"SSN\",\"id\":\"796104437\",\"edi\":\"1013590059\",\"firstName\":\"Mark\",\"lastName\":\"Webb\",\"birthDate\":\"1950-10-04T00:00:00+00:00\"}}",
-	"va_eauth_birlsfilenumber" => 796068949,
+	"Content-Type" => "application/json",
+	"Accept" => "application/json",
+	"va_eauth_csid" => "DSLogon",
+	"va_eauth_authenticationmethod" => "DSLogon",
+  "va_eauth_authenticationauthority" => "eauth",
+	"va_eauth_assurancelevel" => "2",
+	"va_eauth_firstName" => "Jane",
+	"va_eauth_lastName" => "Doe",
+	"va_eauth_issueinstant" => "2015-04-17T14:52:48Z",
+	"va_eauth_dodedipnid" => "1026070453",
+	"va_eauth_pnidtype" => "SSN",
+	"va_eauth_pnid" => "123456789",
+  "va_eauth_authorization" =>  '{"authorizationResponse":{"id":"123001002","idType":"SSN","edi":"1026070453","firstName":"JANE","lastName":"DOE","gender":"MALE","status":"VETERAN"}}'
 }
+
+
 
 conn = Faraday.new(
 	"https://csraciapp6.evss.srarad.com/wss-ppiu-services-web/rest/ppiuServices/v1", ssl: { verify: false }
