@@ -36,5 +36,14 @@ describe EVSS::ClaimsService do
         expect(response).to be_success
       end
     end
+
+    context 'with a backend service error' do
+      it 'should rescue EVSSError, and raise Sentry::IgnoredError' do
+        VCR.use_cassette('evss/claims/claims_with_errors') do
+          expect(subject).to receive(:log_exception_to_sentry)
+          expect { subject.all_claims }.to raise_exception(Sentry::IgnoredError)
+        end
+      end
+    end
   end
 end
