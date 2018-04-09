@@ -43,7 +43,7 @@ describe 'bb client' do
       VCR.use_cassette('bb_client/gets_a_list_of_extract_statuses') do
         msg = 'Final health record refresh contained one or more error statuses'
         expect(Raven).to receive(:extra_context).with(refresh_failures: %w[Appointments ImagingStudy])
-        expect(Raven).to receive(:capture_message).with(msg, level: :warn)
+        expect(Raven).to receive(:capture_message).with(msg, level: 'warning')
 
         client.get_extract_status
       end

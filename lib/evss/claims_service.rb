@@ -4,6 +4,8 @@ require 'evss/base_service'
 
 module EVSS
   class ClaimsService < BaseService
+    include Sentry::RescueEVSSErrors
+
     API_VERSION = Settings.evss.versions.claims
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
     DEFAULT_TIMEOUT = 120 # in seconds
@@ -14,7 +16,9 @@ module EVSS
     end
 
     def all_claims
-      get 'vbaClaimStatusService/getClaims'
+      rescue_evss_errors(%w[EVSS_7021 EVSS_7022]) do
+        get 'vbaClaimStatusService/getClaims'
+      end
     end
 
     def find_claim_by_id(claim_id)

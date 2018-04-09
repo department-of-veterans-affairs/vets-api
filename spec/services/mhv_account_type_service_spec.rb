@@ -73,7 +73,7 @@ RSpec.describe MhvAccountTypeService do
   end
 
   describe 'errors' do
-    let(:level) { :info }
+    let(:level) { 'info' }
     let(:extra_context) do
       {
         uuid: user.uuid,

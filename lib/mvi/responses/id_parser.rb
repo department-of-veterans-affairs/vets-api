@@ -21,7 +21,8 @@ module MVI
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
           vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
-          birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first
+          birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
+          vet360_id: select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^\w+$/, CORRELATION_ROOT_ID))&.first
         }
       end
 

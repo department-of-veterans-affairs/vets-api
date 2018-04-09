@@ -70,6 +70,26 @@ FactoryBot.define do
       end
     end
 
+    factory :user_with_suffix, traits: [:loa3] do
+      first_name('Jack')
+      middle_name('Robert')
+      last_name('Smith')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796043735')
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile_response,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: '600061742',
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
     trait :mhv_sign_in do
       email 'abraham.lincoln@vets.gov'
       first_name nil

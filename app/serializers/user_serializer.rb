@@ -56,7 +56,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def health_terms_current
-    !object.mhv_account.needs_terms_acceptance?
+    object.mhv_account.terms_and_conditions_accepted?
   end
 
   def in_progress_forms

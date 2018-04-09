@@ -52,6 +52,7 @@
                 <id extension="123456^PI^200MHV^USVHA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="1234^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12" />
                 <id extension="12345678^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
+                <id extension="123456789^PI^200VETS^USDVA^A" root="2.16.840.1.113883.4.349" />
                 <statusCode code="active"/>
                 <patientPerson>
                   <name use="L">

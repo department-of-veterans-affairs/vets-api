@@ -154,7 +154,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
 
         it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error).twice
+          expect(Raven).to receive(:capture_exception).with(error, level: 'error').twice
 
           subject
 

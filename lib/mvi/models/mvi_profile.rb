@@ -34,6 +34,7 @@ module MVI
       attribute :participant_id, String
       attribute :birls_id, String
       attribute :sec_id, String
+      attribute :vet360_id, String
       attribute :historical_icns, Array[String]
 
       def mhv_correlation_id

@@ -10,7 +10,7 @@ module Swagger
           operation :post do
             key :description, 'creates a message draft'
             key :operationId, 'messageDraftsCreate'
-            key :tags, %w[messages]
+            key :tags, %w[secure_messaging]
 
             parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
               schema do
@@ -33,7 +33,7 @@ module Swagger
             operation op do
               key :description, 'update a message draft'
               key :operationId, 'messageDraftsUpdate'
-              key :tags, %w[messages]
+              key :tags, %w[secure_messaging]
 
               parameter name: :id, in: :path, type: :integer, required: true, description: 'message draft id'
               parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
@@ -53,7 +53,7 @@ module Swagger
           operation :post do
             key :description, 'creates a reply message draft'
             key :operationId, 'messageDraftsReplyCreate'
-            key :tags, %w[messages]
+            key :tags, %w[secure_messaging]
 
             parameter name: :reply_id, in: :path, type: :integer, required: true, description: 'message replied to id'
             parameter name: :message_draft, in: :body, required: true, description: 'body of reply draft message' do
@@ -76,7 +76,7 @@ module Swagger
           operation :put do
             key :description, 'updates a reply message draft'
             key :operationId, 'messageDraftsReplyUpdate'
-            key :tags, %w[messages]
+            key :tags, %w[secure_messaging]
 
             parameter name: :reply_id, in: :path, type: :integer, required: true, description: 'message replied to id'
             parameter name: :draft_id, in: :path, type: :integer, required: true, description: 'message draft updated'
