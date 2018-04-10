@@ -223,7 +223,7 @@ class User < Common::RedisStore
     @mvi ||= Mvi.for_user(self)
   end
 
-  def vet360
-    @vet360 ||= Vet360Cache.for_user(self)
+  def vet360_contact_info
+    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 end
