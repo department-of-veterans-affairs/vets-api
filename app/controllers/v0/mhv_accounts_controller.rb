@@ -5,10 +5,8 @@ require 'mhv_ac/account_creation_error'
 module V0
   class MhvAccountsController < ApplicationController
     include ActionController::Serialization
-    include MHVControllerConcerns
 
-    skip_before_action :authorize, only: [:show]
-    skip_before_action :authenticate_client
+    before_action :authorize, only: :create
 
     def show
       render json: mhv_account,
@@ -30,11 +28,25 @@ module V0
       mhv_account.eligible?
     end
 
+    def authorize
+      raise_access_denied unless creatable_or_upgradable?
+      # Stop if the user needs to accept terms and conditions.
+      raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
+    end
+
+    private
+
+    def creatable_or_upgradable?
+      current_user.authorize(:mhv_account_creation, :creatable?) || current_user.authorize(:mhv_account_creation, :upgradable?)
+    end
+
     def raise_access_denied
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to MHV services'
     end
 
-    private
+    def raise_requires_terms_acceptance
+      raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service'
+    end
 
     def register_mhv_account
       mhv_accounts_service.create
