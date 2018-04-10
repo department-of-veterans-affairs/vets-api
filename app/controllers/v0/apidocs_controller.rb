@@ -81,6 +81,7 @@ module V0
         key :description, 'Site service availability and feedback'
       end
       key :host, Settings.hostname
+      key :schemes, %w[https http]
       key :basePath, '/'
       key :consumes, ['application/json']
       key :produces, ['application/json']
