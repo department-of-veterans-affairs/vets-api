@@ -32,14 +32,13 @@ module Vet360
       validates(
         :phone_number,
         presence: true,
-        format: { with: /[a-zA-Z]+/ },
+        format: { with: /[^a-zA-Z]+/ },
         length: { maximum: 14, minimum: 1 }
       )
 
       validates(
         :extension,
-        format: { with: /[a-zA-Z0-9]+/ },
-        length: { maximum: 10, minimum: 1 }
+        length: { maximum: 10 }
       )
 
       validates(

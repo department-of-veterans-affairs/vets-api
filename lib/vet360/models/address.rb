@@ -9,6 +9,7 @@ module Vet360
       attribute :address_pou, String  # purpose of use
       attribute :address_type, String
       attribute :city, String
+      attribute :confirmation_date, Common::ISO8601Time
       attribute :country, String
       attribute :country_code_iso2, String
       attribute :country_code_iso3, String
