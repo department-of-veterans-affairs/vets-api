@@ -83,6 +83,15 @@ describe PdfFill::Filler do
                 end
               end
 
+              expect(described_class::PDF_FORMS).to receive(:fill_form).with(
+                "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+                "tmp/pdfs/#{form_id}_#{saved_claim.id}.pdf",
+                get_fixture("pdf_fill/#{form_id}/#{type}_converted"),
+                flatten: true
+              )
+
+              allow(described_class).to receive(:combine_extras)
+
               file_path = described_class.fill_form(saved_claim)
 
               if type == 'overflow'
@@ -93,12 +102,6 @@ describe PdfFill::Filler do
 
                 File.delete(extras_path)
               end
-
-              expect(
-                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}")
-              ).to eq(true)
-
-              File.delete(file_path)
             end
           end
         end
