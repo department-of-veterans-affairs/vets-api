@@ -37,8 +37,7 @@ FactoryBot.define do
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
-                             mhv_account_type: t.mhv_account_type
-                             )
+                             mhv_account_type: t.mhv_account_type)
       user.instance_variable_set(:@identity, user_identity)
     end
 

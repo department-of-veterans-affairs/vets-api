@@ -37,7 +37,8 @@ module V0
     private
 
     def creatable_or_upgradable?
-      current_user.authorize(:mhv_account_creation, :creatable?) || current_user.authorize(:mhv_account_creation, :upgradable?)
+      current_user.authorize(:mhv_account_creation, :creatable?) ||
+        current_user.authorize(:mhv_account_creation, :upgradable?)
     end
 
     def raise_access_denied
