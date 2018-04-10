@@ -3,6 +3,9 @@
 module Vet360
   module Models
     class Address < Base
+      RESIDENCE = 'RESIDENCE/CHOICE'.freeze
+      CORRESPONDENCE = 'CORRESPONDENCE'.freeze
+
       attribute :address_line_1, String
       attribute :address_line_2, String
       attribute :address_line_3, String
