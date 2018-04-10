@@ -1,13 +1,12 @@
+# frozen_string_literal: true
+
 # frozen_string_literal
 
 module EVSS
   class DisabilityCompensationAuthHeaders
-
     def self.add_headers(auth_headers, user)
-      auth_headers.merge({'gender': gender(user)})
+      auth_headers.merge('gender': gender(user))
     end
-
-    private
 
     def self.gender(user)
       case user.gender
@@ -21,4 +20,3 @@ module EVSS
     end
   end
 end
-
