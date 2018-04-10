@@ -31,11 +31,27 @@ RSpec.describe ApplicationController, type: :controller do
     end
   end
 
+  describe '#authenticate_token' do
+    it 'should memoize #authentication authentication attempt' do
+      expect_any_instance_of(ApplicationController).to receive(:authenticate_with_http_token).exactly(1).times
+      controller.send :authenticate_token
+      controller.send :authenticate_token
+    end
+  end
+
   describe '#clear_saved_form' do
     let(:user) { create(:user) }
 
     subject do
       controller.clear_saved_form(form_id)
+    end
+
+    context "with or without a saved form" do
+      let(:form_id) { 'anything' }
+      it 'should call #authenticate_token' do
+        expect(controller).to receive(:authenticate_token)
+        subject
+      end
     end
 
     context 'with a saved form' do
