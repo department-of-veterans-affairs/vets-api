@@ -55,7 +55,10 @@ class ApplicationController < ActionController::API
   # rubocop:disable Metrics/BlockLength
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
-    if skip_sentry_exception_types.include?(exception.class) == false
+    if skip_sentry_exception_types.include?(exception.class)
+      Rails.logger.error "#{exception.message}."
+      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+    else
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
@@ -69,9 +72,6 @@ class ApplicationController < ActionController::API
         end
       end
       log_exception_to_sentry(exception, extra)
-    else
-      Rails.logger.error "#{exception.message}."
-      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
     end
 
     va_exception =
@@ -130,9 +130,9 @@ class ApplicationController < ActionController::API
 
   def authenticate_token
     @authenticate_token_status ||= begin
-      authenticate_with_http_token do |token, _options|
+      @return_value = authenticate_with_http_token do |token, _options|
         @session = Session.find(token)
-        return false if @session.nil?
+        next false if @session.nil?
         # TODO: ensure that this prevents against timing attack vectors
         ActiveSupport::SecurityUtils.secure_compare(
           ::Digest::SHA256.hexdigest(token),
@@ -141,9 +141,9 @@ class ApplicationController < ActionController::API
         @current_user = User.find(@session.uuid)
         SSOService.extend_session!(@session, @current_user)
       end
+      :already_attempted
     end
-  ensure
-    @authenticate_token_status = :already_attempted
+    @return_value
   end
 
   attr_reader :current_user, :session
