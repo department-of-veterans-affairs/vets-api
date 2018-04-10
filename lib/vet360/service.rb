@@ -4,7 +4,6 @@ require 'common/client/base'
 
 module Vet360
   class Service < Common::Client::Base
-    # TODO - what should this be? keep it?
     STATSD_KEY_PREFIX = 'api.vet360'
 
     def initialize(user)
@@ -17,11 +16,6 @@ module Vet360
     end
 
     private
-
-    # TODO - figure out the headers Vet360 will need
-    # def headers_for_user(user)
-    #   EVSS::AuthHeaders.new(user).to_h
-    # end
 
     # TODO - update backend exception params from EVSS to Vet360
     # TODO - perhaps abstract this into a common class for EVSS, Vet360, etc.
@@ -45,7 +39,7 @@ module Vet360
     def raise_backend_exception(key, source, error = nil)
       raise Common::Exceptions::BackendServiceException.new(
         key,
-        { source: "EVSS::#{source}" },
+        { source: "#{source}" },
         error&.status,
         error&.body
       )

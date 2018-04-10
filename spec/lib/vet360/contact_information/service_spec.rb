@@ -13,7 +13,7 @@ describe Vet360::ContactInformation::Service do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/person', { match_requests_on: %i[headers] }) do
+        VCR.use_cassette('vet360/contact_information/person', match_requests_on: %i[body uri method]) do
           response = subject.get_person
 byebug
           expect(response).to be_ok

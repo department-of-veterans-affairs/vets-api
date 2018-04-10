@@ -8,13 +8,13 @@ http_interactions:
       string: ''
     headers:
       User-Agent:
-      - Vets.gov Agent
+        - Vets.gov Agent
       Content-Type:
-      - application/json
+        - application/json
       cufSystemName:
-      - VETSGOV
+        - VETSGOV
       Accept:
-      - application/json
+        - application/json
   response:
     status:
       code: 200
