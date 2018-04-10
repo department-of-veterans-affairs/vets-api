@@ -10,13 +10,11 @@ RSpec.describe 'Messages Integration', type: :request do
 
   let(:mhv_account_type) { 'Premium' }
   let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
-  let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
   let(:message_id) { 573_059 }
 
   before(:each) do
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
@@ -154,13 +152,6 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'with a user that does not PREMIUM' do
     let(:mhv_account_type) { 'Advanced' }
-    let(:mhv_account) do
-      double('mhv_account',
-             accessible?: false,
-             eligible?: false,
-             needs_terms_acceptance?: false,
-             upgraded?: false)
-    end
     let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
 
     it 'gives me a 403' do
@@ -174,13 +165,6 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'with a user that is not a va patient', :skip_mvi do
     let(:mhv_account_type) { 'Premium' }
-    let(:mhv_account) do
-      double('mhv_account',
-             accessible?: false,
-             eligible?: true,
-             needs_terms_acceptance?: true,
-             upgraded?: false)
-    end
     let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
     let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
 

@@ -8,49 +8,41 @@ RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
 
-  let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: true) }
-  let(:current_user) { build(:user, :mhv) }
+  let(:mhv_account_type) { 'Advanced' }
+  let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
 
   before(:each) do
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 
-  context 'forbidden user' do
-    let(:mhv_account) { double('mhv_account', eligible?: false, needs_terms_acceptance?: false, accessible?: false) }
-    let(:current_user) { build(:user) }
+  context 'with a user that does not have mhv account level of ADVANCED or PREMIUM' do
+    let(:mhv_account_type) { 'Basic' }
 
-    it 'raises access denied' do
+    it 'gives me a 403' do
       get '/v0/prescriptions/13651310'
 
-      expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq('You do not have access to prescriptions')
+      expect(response).not_to be_success
+      expect(response.status).to eq(403)
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You do not have access to prescriptions')
     end
   end
 
-  context 'terms of service not accepted' do
-    let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: true, accessible?: false) }
-    let(:current_user) { build(:user, :loa3) }
+  context 'with a user that is not a va patient', :skip_mvi do
+    let(:mhv_account_type) { 'Premium' }
+    let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
+    let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
 
-    it 'raises access denied' do
-      get '/v0/prescriptions/13651310'
-      expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq('You have not accepted the terms of service')
+    before(:each) do
+      stub_mvi(mvi_profile)
     end
-  end
 
-  context 'mhv account not upgraded' do
-    let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false) }
-    let(:current_user) { build(:user, :loa3) }
-
-    it 'raises forbidden' do
+    it 'gives me a 403' do
       get '/v0/prescriptions/13651310'
-      expect(response).to have_http_status(:forbidden)
-      expect(JSON.parse(response.body)['errors'].first['detail'])
-        .to eq('Failed to create or upgrade health tools account access')
+
+      expect(response).not_to be_success
+      expect(response.status).to eq(403)
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You do not have access to prescriptions')
     end
   end
 
