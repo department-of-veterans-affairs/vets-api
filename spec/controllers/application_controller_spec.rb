@@ -46,7 +46,7 @@ RSpec.describe ApplicationController, type: :controller do
       controller.clear_saved_form(form_id)
     end
 
-    context "with or without a saved form" do
+    context 'with or without a saved form' do
       let(:form_id) { 'anything' }
       it 'should call #authenticate_token' do
         expect(controller).to receive(:authenticate_token)
