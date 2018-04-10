@@ -222,4 +222,8 @@ class User < Common::RedisStore
   def mvi
     @mvi ||= Mvi.for_user(self)
   end
+
+  def vet360
+    @vet360 ||= Vet360Cache.for_user(self)
+  end
 end
