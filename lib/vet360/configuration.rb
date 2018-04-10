@@ -5,7 +5,7 @@ require 'common/client/configuration/rest'
 module Vet360
   class Configuration < Common::Client::Configuration::REST
     def self.base_request_headers
-      super.merge({ 'cufSystemName' => 'VETSGOV' })
+      super.merge({ 'cufSystemName' => 'VETSGOV' }) # @TODO We should read 'VETSGOV' from config
     end
 
     # TODO - Connect with Wyatt on need for these ssl settings

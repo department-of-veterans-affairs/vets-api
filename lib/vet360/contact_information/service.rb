@@ -19,6 +19,26 @@ byebug
       rescue StandardError => e
         handle_error(e)
       end
+
+      def post_email(request_body)
+        post_or_put_email(:post, request_body)
+      end
+
+      def put_email(request_body)
+        post_or_put_email(:put, request_body)
+      end
+
+      private
+
+      def post_or_put_email(method, request_body)
+        with_monitoring do
+          json = perform(method, "cuf/person/contact-information/v1/emails", request_body).body
+          Vet360::ContactInformation::EmailTxResponse.new(json.status, json)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
     end
   end
 end
