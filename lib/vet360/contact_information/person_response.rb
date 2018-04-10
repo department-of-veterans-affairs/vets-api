@@ -12,6 +12,7 @@ module Vet360
       def initialize(status, response = nil)
         # TODO: how do we want to customize the response
         @bio = response&.body&.dig('bio')
+
         super(status, person: Vet360::Models::Person.from_response(@bio))
       end
     end
