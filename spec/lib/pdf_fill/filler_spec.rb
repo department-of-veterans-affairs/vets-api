@@ -42,6 +42,24 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
+    def simplify_fields(fields)
+      fields.map do |field|
+        {
+          name: field.name,
+          value: field.value
+        }
+      end
+    end
+
+    def compare_pdfs(pdf1, pdf2)
+      fields = []
+      [pdf1, pdf2].each do |pdf|
+        fields << simplify_fields(described_class::PDF_FORMS.get_fields(pdf))
+      end
+
+      fields[0] == fields[1]
+    end
+
     %w[21P-527EZ 21P-530].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
@@ -64,19 +82,6 @@ describe PdfFill::Filler do
                 end
               end
 
-              if type == 'kitchen_sink'
-                allow(PdfFill::FormValue).to receive(:new).and_return('FormValue')
-              end
-
-              expect(described_class::PDF_FORMS).to receive(:fill_form).with(
-                "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
-                "tmp/pdfs/#{form_id}_#{saved_claim.id}.pdf",
-                get_fixture("pdf_fill/#{form_id}/#{type}_converted"),
-                flatten: true
-              )
-
-              allow(described_class).to receive(:combine_extras)
-
               file_path = described_class.fill_form(saved_claim)
 
               if type == 'overflow'
@@ -87,6 +92,12 @@ describe PdfFill::Filler do
 
                 File.delete(extras_path)
               end
+
+              expect(
+                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+              ).to eq(true)
+
+              File.delete(file_path)
             end
           end
         end
