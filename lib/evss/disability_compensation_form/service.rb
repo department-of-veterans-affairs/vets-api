@@ -31,6 +31,10 @@ module EVSS
 
       private
 
+      def headers_for_user(user)
+        EVSS::DisabilityCompensationAuthHeaders.add_headers(EVSS::AuthHeaders.new(user).to_h, user)
+      end
+
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
           log_message_to_sentry(
