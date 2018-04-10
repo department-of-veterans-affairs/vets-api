@@ -35,6 +35,9 @@ development: &defaults
   pciu_address_dependencies:
     namespace: pciu-address-dependencies
     each_ttl: 604800
+  vet360_contact_info_response:
+    namespace: vet360-contact-info-response
+    each_ttl: 60
 
 test:
   <<: *defaults
