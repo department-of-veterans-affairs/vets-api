@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'mhv_ac/account_creation_error'
-
 module V0
   class MhvAccountsController < ApplicationController
     include ActionController::Serialization
@@ -14,7 +12,6 @@ module V0
     end
 
     def create
-      raise MHVAC::AccountCreationError if mhv_account.accessible?
       register_mhv_account unless mhv_account.previously_registered?
       upgrade_mhv_account
       render json: mhv_account,
