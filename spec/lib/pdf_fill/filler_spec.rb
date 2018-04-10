@@ -42,25 +42,6 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
-    def simplify_fields(fields)
-      fields.map do |field|
-        {
-          name: field.name,
-          value: field.value
-        }
-      end
-    end
-
-    def compare_pdfs(pdf1, pdf2)
-      fields = []
-      [pdf1, pdf2].each do |pdf|
-        fields << simplify_fields(described_class::PDF_FORMS.get_fields(pdf))
-      end
-      p fields
-
-      fields[0] == fields[1]
-    end
-
     %w[21P-527EZ 21P-530].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
