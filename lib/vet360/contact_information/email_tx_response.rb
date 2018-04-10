@@ -4,7 +4,7 @@ require 'vet360/response'
 
 module Vet360
   module ContactInformation
-    class EmailTxResponse < Vet360::TxResponse
+    class EmailUpdateResponse < Vet360::AsyncResponse
       attribute :email, Hash
 
       def initialize(status, response = nil)
