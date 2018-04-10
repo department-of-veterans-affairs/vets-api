@@ -325,7 +325,7 @@ describe MVI::Service do
   describe '.find_profile monitoring' do
     context 'with a successful request' do
       it 'should increment find_profile total' do
-        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+        allow(user).to receive(:mhv_icn)
 
         allow(StatsD).to receive(:increment)
         VCR.use_cassette('mvi/find_candidate/valid') do
