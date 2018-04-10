@@ -31,9 +31,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
   let(:mhv_account) do
-    double('mhv_account', account_state: 'updated',
+    double('mhv_account', account_state: 'upgraded',
                           ineligible?: false,
                           eligible?: true,
+                          terms_and_conditions_accepted?: true,
                           needs_terms_acceptance?: false,
                           accessible?: true)
   end
@@ -726,7 +727,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           context 'unsuccessful calls' do
             let(:mhv_account) do
-              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
+              double('mhv_account', eligible?: true,
+                                    needs_terms_acceptance?: false,
+                                    terms_and_conditions_accepted?: true,
+                                    accessible?: false)
             end
 
             it 'raises forbidden when user is not eligible' do
@@ -1020,9 +1024,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/vha_648A4') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
 
         it '404s on non-existent facility' do
