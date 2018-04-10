@@ -65,6 +65,10 @@ describe PdfFill::Filler do
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
+            before do
+              allow(PdfFill::FormValue).to receive(:new).and_return('value')
+            end
+
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
             end
@@ -83,10 +87,15 @@ describe PdfFill::Filler do
                 end
               end
 
+              expected_hash = get_fixture("pdf_fill/#{form_id}/#{type}_converted")
+              if form_id == '21P-530' && type == 'kitchen_sink'
+                expected_hash["form1[0].#subform[37].FULL_NAME[0]"] = 'value'
+              end
+
               expect(described_class::PDF_FORMS).to receive(:fill_form).with(
                 "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
                 "tmp/pdfs/#{form_id}_#{saved_claim.id}.pdf",
-                get_fixture("pdf_fill/#{form_id}/#{type}_converted"),
+                expected_hash,
                 flatten: true
               )
 
