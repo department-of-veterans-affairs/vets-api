@@ -15,7 +15,7 @@ gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
 gem 'attr_encrypted'
-gem 'aws-sdk'
+gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'breakers'
 gem 'carrierwave-aws'
