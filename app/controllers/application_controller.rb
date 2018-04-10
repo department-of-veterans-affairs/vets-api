@@ -142,8 +142,8 @@ class ApplicationController < ActionController::API
         SSOService.extend_session!(@session, @current_user)
       end
     end
-    ensure
-      @authenticate_token_status = :already_attempted
+  ensure
+    @authenticate_token_status = :already_attempted
   end
 
   attr_reader :current_user, :session
