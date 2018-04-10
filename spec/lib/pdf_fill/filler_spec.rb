@@ -52,21 +52,6 @@ describe PdfFill::Filler do
     end
 
     def compare_pdfs(pdf1, pdf2)
-      MiniMagick::Tool::Convert.new do |convert|
-        convert << '-alpha' << 'off'
-        convert << pdf1
-        convert << "#{pdf1}.png"
-      end
-      binding.pry; fail
-
-      result = MiniMagick::Tool::Compare.new do |compare|
-        compare << '-metric' << 'AE'
-        compare << "#{pdf1}-0.png"
-        compare << "#{pdf2}-0.png"
-        compare << 'PNG'
-      end
-      binding.pry; fail
-
       fields = []
       [pdf1, pdf2].each do |pdf|
         fields << simplify_fields(described_class::PDF_FORMS.get_fields(pdf))
