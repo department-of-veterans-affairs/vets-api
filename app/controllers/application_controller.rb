@@ -130,7 +130,7 @@ class ApplicationController < ActionController::API
 
   def authenticate_token
     @authenticate_token_status ||= begin
-      @return_value = authenticate_with_http_token do |token, _options|
+      @authenticate_token_return_val = authenticate_with_http_token do |token, _options|
         @session = Session.find(token)
         next false if @session.nil?
         # TODO: ensure that this prevents against timing attack vectors
@@ -143,7 +143,7 @@ class ApplicationController < ActionController::API
       end
       :already_attempted
     end
-    @return_value
+    @authenticate_token_return_val
   end
 
   attr_reader :current_user, :session
