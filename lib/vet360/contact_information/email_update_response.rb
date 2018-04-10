@@ -9,7 +9,7 @@ module Vet360
 
       def initialize(status, response = nil)
         @tx_audit_id = response&.body&.dig('txAuditId')
-        super(status, response)
+        super(status, email: response)
       end
 
     end
