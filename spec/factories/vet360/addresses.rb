@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :vet360_address, class: 'Vet360::Models::Address' do
     address_line_1 '123 Main Street'
-    address_pou 'RESIDENCE/CHOICE'
+    address_pou Vet360::Models::Address::RESIDENCE
     city 'Denver'
     country 'USA'
     state_abbr 'CO'
@@ -15,7 +15,7 @@ FactoryBot.define do
     updated_at           '2017-04-09T11:52:03-06:00'
 
     trait :mailing do
-      address_pou 'CORRESPONDENCE'
+      address_pou Vet360::Models::Address::CORRESPONDENCE
       address_line_1 '1515 Broadway'
     end
   end
