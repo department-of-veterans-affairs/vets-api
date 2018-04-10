@@ -8,7 +8,8 @@ RSpec.describe 'Messages Integration', type: :request do
   include SM::ClientHelpers
   include SchemaMatchers
 
-  let(:current_user) { build(:user, :mhv) }
+  let(:mhv_account_type) { 'Premium' }
+  let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
   let(:mhv_account) { double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: true) }
   let(:user_id) { '10616687' }
   let(:inbox_id) { 0 }
@@ -151,7 +152,8 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  context 'with a user that does not have access' do
+  context 'with a user that does not PREMIUM' do
+    let(:mhv_account_type) { 'Advanced' }
     let(:mhv_account) do
       double('mhv_account',
              accessible?: false,
@@ -159,7 +161,7 @@ RSpec.describe 'Messages Integration', type: :request do
              needs_terms_acceptance?: false,
              upgraded?: false)
     end
-    let(:current_user) { build(:user, :loa1) }
+    let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
 
     it 'gives me a 403' do
       get "/v0/messaging/health/messages/#{message_id}"
@@ -170,7 +172,8 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  context 'with a user that has not accepted T&C' do
+  context 'with a user that is not a va patient', :skip_mvi do
+    let(:mhv_account_type) { 'Premium' }
     let(:mhv_account) do
       double('mhv_account',
              accessible?: false,
@@ -178,14 +181,19 @@ RSpec.describe 'Messages Integration', type: :request do
              needs_terms_acceptance?: true,
              upgraded?: false)
     end
-    let(:current_user) { build(:user, :loa1) }
+    let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
+    let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
+
+    before(:each) do
+      stub_mvi(mvi_profile)
+    end
 
     it 'gives me a 403' do
       get "/v0/messaging/health/messages/#{message_id}"
 
       expect(response).not_to be_success
       expect(response.status).to eq(403)
-      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You have not accepted the terms of service')
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You do not have access to messaging')
     end
   end
 end
