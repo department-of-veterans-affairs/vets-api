@@ -23,10 +23,6 @@ describe Vet360Redis::ContactInformation do
     Vet360::ContactInformation::PersonResponse.new(200, raw_response)
   end
 
-  before do
-    allow(user).to receive(:vet360_id).and_return('123456')
-  end
-
   describe '.new' do
     it 'creates an instance with user attributes' do
       expect(contact_info.user).to eq(user)
