@@ -57,11 +57,10 @@ describe Vet360::ContactInformation::Service do
         VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do #@TODO match on body!
             begin
               response = subject.post_email(email) 
-            rescue
-              expect(response.metadata[:status]).to equal(400)
+            rescue Common::Exceptions::BackendServiceException => e
+              expect(e.status_code).to equal(400)
+              #expect(e.message).to equal('Foobar') #@TODO
             end
-            # byebug
-            
         end
       end
 
