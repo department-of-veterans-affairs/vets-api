@@ -266,6 +266,61 @@ en:
         code: 'EVSS502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      VET360_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'VET360_502'
+        detail: 'Received an an invalid response from the upstream server'
+        status: 502
+      VET360_CORE100:
+        <<: *external_defaults
+        title: Unexpected Error
+        code: 'VET360_CORE100'
+        detail: 'There was an error encountered processing the request'
+        status: 400
+      VET360_CORE101:
+        <<: *external_defaults
+        title: Access Denied
+        code: 'VET360_CORE101'
+        detail: 'You do not have access to perform the requested operation'
+        status: 400
+      VET360_CORE103:
+        <<: *external_defaults
+        title: Not Found
+        code: 'VET360_CORE103'
+        detail: 'The Vet360 id could not be found'
+        status: 404
+      VET360_CORE105:
+        <<: *external_defaults
+        title: Malformed Request
+        code: 'VET360_CORE105'
+        detail: 'The request was malformed and could not be processed'
+        status: 400
+      VET360_CORE106:
+        <<: *external_defaults
+        title: Null Request
+        code: 'VET360_CORE106'
+        detail: 'The request cannot be null'
+        status: 400
+      VET360_CORE109:
+        <<: *external_defaults
+        title: Incorrect Result Size
+        code: 'VET360_CORE109'
+        detail: 'Incorrect Result Set Size' # TODO: Update this error message once we have more info
+        status: 500
+      VET360_CORE302:
+        <<: *external_defaults
+        title: Null Request
+        code: 'VET360_CORE302'
+        detail: 'The request may not be null'
+        status: 400
+      VET360_CORE303:
+        <<: *external_defaults
+        title: Null Transaction Audit ID
+        code: 'VET360_CORE303'
+        detail: 'The transaction audit id may not be null'
+        status: 400
+
   evss:
     letters:
       unable_to_determine_eligibilty:
