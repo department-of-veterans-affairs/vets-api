@@ -30,6 +30,21 @@ class UserSerializer < ActiveModel::Serializer
     }
   end
 
+  def vet360_contact_information
+    person = object.vet360_contact_info
+
+    {
+      email: person.email&.email_address,
+      residential_address: person.address&.domestic_address,
+      mailing_address: person.mailing_address&.domestic_address,
+      mobile_phone: person.mobile_phone&.details,
+      home_phone: person.home_phone&.details,
+      work_phone: person.work_phone&.details,
+      temporary_phone: person.temporary_phone&.details,
+      fax_number: person.fax&.details
+    }
+  end
+
   def va_profile
     status = object.va_profile_status
     return { status: status } unless status == RESPONSE_STATUS[:ok]
