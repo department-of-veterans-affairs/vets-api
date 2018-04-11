@@ -22,7 +22,7 @@ module V0
 
     def upload
       params.require :file
-      
+
       document = EVSSClaimDocument.new(
         file_obj: params[:file],
         file_name: params[:file].original_filename,
