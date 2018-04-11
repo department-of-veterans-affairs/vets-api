@@ -150,7 +150,7 @@ RSpec.describe 'Messages Integration', type: :request do
     end
   end
 
-  context 'with a user that does not PREMIUM' do
+  context 'with a user that is not PREMIUM' do
     let(:mhv_account_type) { 'Advanced' }
     let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
 

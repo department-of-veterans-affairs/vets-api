@@ -27,7 +27,6 @@ module V0
 
     def authorize
       raise_access_denied unless creatable_or_upgradable?
-      # Stop if the user needs to accept terms and conditions.
       raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
     end
 
