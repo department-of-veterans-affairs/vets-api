@@ -10,7 +10,7 @@ describe Vet360::ContactInformation::Service do
     allow(user).to receive(:vet360_id).and_return('123456')
   end
 
-  describe '#get_person' do
+  xdescribe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/person', { match_requests_on: %i[headers] }) do
@@ -21,4 +21,18 @@ byebug
       end
     end
   end
+
+  describe '#post_email' do
+
+    let(:email) { build(:email) }
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/post_email_success') do #@TODO match on body!
+          response = subject.post_email(email)
+          expect(response).to be_ok
+        end
+      end
+    end
+  end
+
 end

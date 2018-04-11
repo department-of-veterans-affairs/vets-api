@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 require 'vet360/response'
+require 'vet360/contact_information/async_response'
 
 module Vet360
   module ContactInformation
-    class EmailUpdateResponse < Vet360::AsyncResponse
+    class EmailUpdateResponse < Vet360::ContactInformation::AsyncResponse
       attribute :email, Hash
 
       def initialize(status, response = nil)
-        @tx_audit_id = response&.body&.dig('txAuditId')
-        super(status, email: response)
+        # @TODO parse and assign the :email data here?
+        super
       end
 
     end

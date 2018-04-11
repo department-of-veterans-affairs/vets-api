@@ -32,8 +32,10 @@ byebug
 
       def post_or_put_email(method, vet360_email)
         with_monitoring do
-          json = perform(method, "cuf/person/contact-information/v1/emails", vet360_email.to_json).body
-          Vet360::ContactInformation::EmailUpdateResponse.new(json.status, json)
+          raw = perform(method, "emails", vet360_email.to_json)
+          # json = JSON.parse(raw)
+# byebug
+          Vet360::ContactInformation::EmailUpdateResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)

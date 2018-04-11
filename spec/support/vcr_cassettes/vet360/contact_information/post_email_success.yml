@@ -1,0 +1,80 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/emails"
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      cufSystemName:
+      - VETSGOV
+      Accept:
+      - application/json
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Application-Context:
+        - edge-gateway:ENV-QA:8766
+      Date:
+        - Thu, 05 Apr 2018 23:45:05 GMT
+      # Expires:
+      #   - 0
+      # X-Content-Type-Options:
+      #   - nosniff
+      # X-XSS-Protection:
+      #   - 1; mode=block
+      # X-Frame-Options:
+      #   - DENY
+      # Cache-Control:
+      #   - no-cache, no-store, max-age=0, must-revalidate
+      # Pragma:
+      #   - no-cache
+      # X-UA-Compatible:
+      #   - IE-edge,chrome=1
+      # Content-Type:
+      #   - application/json;charset=UTF-8
+      # Transfer-Encoding:
+      #   - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "bio": {
+            "confirmationDate": "2018-04-10T20:08:52.008Z",
+            "createDate": "2018-04-10T20:08:52.008Z",
+            "effectiveEndDate": "2018-04-10T20:08:52.008Z",
+            "effectiveStartDate": "2018-04-10T20:08:52.008Z",
+            "emailAddressText": "someone@example.com",
+            "emailId": 0,
+            "emailPermInd": true,
+            "emailStatusCode": "NO_KNOWN_PROBLEM",
+            "originatingSourceSystem": "SOMEWHERE",
+            "sourceDate": "2018-04-10T20:08:52.008Z",
+            "sourceSystem": "SOMETHING",
+            "sourceSystemUser": "SOMEONE",
+            "txAuditId": "7f441880-173f-4deb-aa8b-c26b794eb3e1",
+            "updateDate": "2018-04-10T20:08:52.008Z",
+            "vet360Id": 0
+          },
+          "messages": [
+            {
+              "code": "string",
+              "key": "string",
+              "potentiallySelfCorrectingOnRetry": true,
+              "severity": "INFO",
+              "text": "A message"
+            }
+          ],
+          "status": "COMPLETED_SUCCESS",
+          "txAuditId": "7f441880-173f-4deb-aa8b-c26b794eb3e1"
+        }
+    http_version:
+  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+recorded_with: VCR 3.0.3

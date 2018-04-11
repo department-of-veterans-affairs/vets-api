@@ -9,7 +9,8 @@ module Vet360
       attr_reader :tx_audit_id
 
       def initialize(status, response = nil)
-        @tx_audit_id = response&.body&.dig('txAuditId')
+        @tx_audit_id = JSON.parse(response&.body)&.dig('txAuditId')
+        super(status, tx_audit_id: @tx_audit_id)
       end
 
     end
