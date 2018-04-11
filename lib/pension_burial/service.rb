@@ -6,7 +6,6 @@ module PensionBurial
 
     # rubocop:disable Metrics/MethodLength
     def upload(body)
-      # TODO: find out max file size allowed for the API
       Raven.extra_context(
         request: {
           metadata: body['metadata']

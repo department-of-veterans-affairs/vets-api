@@ -83,13 +83,12 @@ class SubmitSavedClaimJob
     address = form['claimantAddress'] || form['veteranAddress']
     receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
-    # TODO: make sure required field validations match for us and central mail
     metadata = {
-      'veteranFirstName' => veteran_full_name.try(:[], 'first'),
-      'veteranLastName' => veteran_full_name.try(:[], 'last'),
+      'veteranFirstName' => veteran_full_name['first'],
+      'veteranLastName' => veteran_full_name['last'],
       'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
       'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
-      'zipCode' => address.try(:[], 'postalCode'),
+      'zipCode' => address['postalCode'],
       'uuid' => @claim.guid,
       'source' => 'Vets.gov',
       'hashV' => form_pdf_metadata[:hash],
