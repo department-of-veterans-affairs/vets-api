@@ -27,6 +27,13 @@ module Vet360
           updated_at: body['update_date']
         )
       end
+
+      def details
+        {
+          id: id,
+          email_address: email_address
+        }
+      end
     end
   end
 end
