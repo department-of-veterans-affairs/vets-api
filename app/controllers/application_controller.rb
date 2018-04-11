@@ -32,7 +32,6 @@ class ApplicationController < ActionController::API
   end
 
   def clear_saved_form(form_id)
-    authenticate_token
     InProgressForm.form_for_user(form_id, @current_user)&.destroy if @current_user
   end
 
@@ -129,21 +128,12 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_token
-    @authenticate_token_status ||= begin
-      @authenticate_token_return_val = authenticate_with_http_token do |token, _options|
-        @session = Session.find(token)
-        next false if @session.nil?
-        # TODO: ensure that this prevents against timing attack vectors
-        ActiveSupport::SecurityUtils.secure_compare(
-          ::Digest::SHA256.hexdigest(token),
-          ::Digest::SHA256.hexdigest(@session.token)
-        )
-        @current_user = User.find(@session.uuid)
-        SSOService.extend_session!(@session, @current_user)
-      end
-      :already_attempted
+    authenticate_with_http_token do |token, _options|
+      @session = Session.find(token)
+      return false if @session.nil?
+      @current_user = User.find(@session.uuid)
+      SSOService.extend_session!(@session, @current_user)
     end
-    @authenticate_token_return_val
   end
 
   attr_reader :current_user, :session
