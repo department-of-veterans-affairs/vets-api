@@ -228,4 +228,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
   end
+
+  after(:all) do
+    FileUtils.remove_dir('tmp/spool_files')
+  end
 end
