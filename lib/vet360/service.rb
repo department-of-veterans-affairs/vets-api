@@ -30,7 +30,7 @@ module Vet360
         raise Common::Exceptions::Forbidden if error.status == 403
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
 
-        message = parse_message(error)
+        message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
         raise_backend_exception('VET360_502', self.class, error)
       else
@@ -38,10 +38,20 @@ module Vet360
       end
     end
 
-    def parse_message(error)
+    def parse_messages(error)
       # TODO: Parse messages as Message model
       binding.pry
-      JSON.parse(error.body)&.dig('messages')&.first
+      messages = JSON.parse(error.body)&.dig('messages')
+
+      messages&.map do |m|
+        Vet360::Models::Message.new(
+          code: m['code'],
+          key: m['key'],
+          retryable: m['potentially_self_correcting_on_retry'],
+          severity: m['severity'],
+          text: m['text']
+        )
+      end
     end
 
     def raise_backend_exception(key, source, error = nil)
