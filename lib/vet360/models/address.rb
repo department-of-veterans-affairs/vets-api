@@ -3,8 +3,11 @@
 module Vet360
   module Models
     class Address < Base
-      RESIDENCE = 'RESIDENCE/CHOICE'.freeze
+      RESIDENCE      = 'RESIDENCE/CHOICE'.freeze
       CORRESPONDENCE = 'CORRESPONDENCE'.freeze
+      DOMESTIC       = 'domestic'.freeze
+      INTERNATIONAL  = 'international'.freeze
+      MILITARY       = 'military overseas'.freeze
 
       attribute :address_line_1, String
       attribute :address_line_2, String
@@ -60,6 +63,17 @@ module Vet360
       end
       # rubocop:enable Metrics/MethodLength
 
+      def details
+        case address_type
+        when DOMESTIC
+          domestic_address
+        when INTERNATIONAL
+          international_address
+        when MILITARY
+          military_address
+        end
+      end
+
       def domestic_address
         {
           address_line_1: address_line_1,
@@ -70,6 +84,14 @@ module Vet360
           zip_code: zip_code,
           zip_code_suffix: zip_code_suffix
         }
+      end
+
+      def international_address
+        # TODO
+      end
+
+      def military_address
+        # TODO
       end
     end
   end
