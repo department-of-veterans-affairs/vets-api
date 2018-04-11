@@ -52,74 +52,154 @@ describe Vet360Redis::ContactInformation do
   end
 
   describe 'contact information attributes' do
-    before do
-      allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(person_response)
-    end
+    context 'with a successful response' do
+      before do
+        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(person_response)
+      end
 
-    describe '#email' do
-      it 'returns the users email address object', :aggregate_failures do
-        expect(contact_info.email).to eq person.emails.first
-        expect(contact_info.email.class).to eq Vet360::Models::Email
+      describe '#email' do
+        it 'returns the users email address object', :aggregate_failures do
+          expect(contact_info.email).to eq person.emails.first
+          expect(contact_info.email.class).to eq Vet360::Models::Email
+        end
+      end
+
+      describe '#address' do
+        it 'returns the users address object', :aggregate_failures do
+          residence = address_for Vet360::Models::Address::RESIDENCE
+
+          expect(contact_info.address).to eq residence
+          expect(contact_info.address.class).to eq Vet360::Models::Address
+        end
+      end
+
+      describe '#mailing_address' do
+        it 'returns the users mailing address object', :aggregate_failures do
+          residence = address_for Vet360::Models::Address::CORRESPONDENCE
+
+          expect(contact_info.mailing_address).to eq residence
+          expect(contact_info.address.class).to eq Vet360::Models::Address
+        end
+      end
+
+      describe '#home_phone' do
+        it 'returns the users home phone object', :aggregate_failures do
+          phone = phone_for Vet360::Models::Telephone::HOME
+
+          expect(contact_info.home_phone).to eq phone
+          expect(contact_info.home_phone.class).to eq Vet360::Models::Telephone
+        end
+      end
+
+      describe '#mobile_phone' do
+        it 'returns the users mobile phone object', :aggregate_failures do
+          phone = phone_for Vet360::Models::Telephone::MOBILE
+
+          expect(contact_info.mobile_phone).to eq phone
+          expect(contact_info.mobile_phone.class).to eq Vet360::Models::Telephone
+        end
+      end
+
+      describe '#work_phone' do
+        it 'returns the users work phone object', :aggregate_failures do
+          phone = phone_for Vet360::Models::Telephone::WORK
+
+          expect(contact_info.work_phone).to eq phone
+          expect(contact_info.work_phone.class).to eq Vet360::Models::Telephone
+        end
+      end
+
+      describe '#temporary_phone' do
+        it 'returns the users temporary phone object', :aggregate_failures do
+          phone = phone_for Vet360::Models::Telephone::TEMPORARY
+
+          expect(contact_info.temporary_phone).to eq phone
+          expect(contact_info.temporary_phone.class).to eq Vet360::Models::Telephone
+        end
+      end
+
+      describe '#fax' do
+        it 'returns the users FAX object', :aggregate_failures do
+          phone = phone_for Vet360::Models::Telephone::FAX
+
+          expect(contact_info.fax).to eq phone
+          expect(contact_info.fax.class).to eq Vet360::Models::Telephone
+        end
       end
     end
 
-    describe '#address' do
-      it 'returns the users address object', :aggregate_failures do
-        residence = address_for Vet360::Models::Address::RESIDENCE
+    context 'with an error response' do
+      before do
+        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+          Common::Exceptions::BackendServiceException
+        )
+      end
 
-        expect(contact_info.address).to eq residence
-        expect(contact_info.address.class).to eq Vet360::Models::Address
+      describe '#email' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.email }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#address' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.address }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#mailing_address' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.mailing_address }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#home_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.home_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#mobile_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.mobile_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#work_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.work_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#temporary_phone' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.temporary_phone }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
+      end
+
+      describe '#fax' do
+        it 'raises a Common::Exceptions::BackendServiceException error' do
+          expect { contact_info.fax }.to raise_error(
+            Common::Exceptions::BackendServiceException
+          )
+        end
       end
     end
 
-    describe '#mailing_address' do
-      it 'returns the users mailing address object', :aggregate_failures do
-        residence = address_for Vet360::Models::Address::CORRESPONDENCE
-
-        expect(contact_info.mailing_address).to eq residence
-        expect(contact_info.address.class).to eq Vet360::Models::Address
-      end
-    end
-
-    describe '#home_phone' do
-      it 'returns the users home phone object', :aggregate_failures do
-        phone = phone_for Vet360::Models::Telephone::HOME
-
-        expect(contact_info.home_phone).to eq phone
-        expect(contact_info.home_phone.class).to eq Vet360::Models::Telephone
-      end
-    end
-
-    describe '#mobile_phone' do
-      it 'returns the users mobile phone object', :aggregate_failures do
-        phone = phone_for Vet360::Models::Telephone::MOBILE
-
-        expect(contact_info.mobile_phone).to eq phone
-        expect(contact_info.mobile_phone.class).to eq Vet360::Models::Telephone
-      end
-    end
-
-    describe '#work_phone' do
-      it 'returns the users work phone object', :aggregate_failures do
-        phone = phone_for Vet360::Models::Telephone::WORK
-
-        expect(contact_info.work_phone).to eq phone
-        expect(contact_info.work_phone.class).to eq Vet360::Models::Telephone
-      end
-    end
-
-    describe '#temporary_phone' do
-      it 'returns the users temporary phone object', :aggregate_failures do
-        phone = phone_for Vet360::Models::Telephone::TEMPORARY
-
-        expect(contact_info.temporary_phone).to eq phone
-        expect(contact_info.temporary_phone.class).to eq Vet360::Models::Telephone
-      end
-    end
-
-    describe '#fax' do
-      it 'returns the users FAX object', :aggregate_failures do
-        phone = phone_for Vet360::Models::Telephone::FAX
 
         expect(contact_info.fax).to eq phone
         expect(contact_info.fax.class).to eq Vet360::Models::Telephone
