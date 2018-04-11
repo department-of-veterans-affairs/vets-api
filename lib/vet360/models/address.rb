@@ -9,7 +9,7 @@ module Vet360
       DOMESTIC       = 'domestic'.freeze
       INTERNATIONAL  = 'international'.freeze
       MILITARY       = 'military overseas'.freeze
-      ADDERSS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
+      ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
       attribute :address_line_1, String
       attribute :address_line_2, String
@@ -43,7 +43,7 @@ module Vet360
       validates(
         :address_type,
         presence: true,
-        inclusion: { in: ADDERSS_TYPES }
+        inclusion: { in: ADDRESS_TYPES }
       )
 
       # rubocop:disable Metrics/MethodLength
