@@ -79,6 +79,7 @@ module Vet360
 
       def details
         {
+          id: id,
           number: number,
           extension: extension,
           country_code: country_code,

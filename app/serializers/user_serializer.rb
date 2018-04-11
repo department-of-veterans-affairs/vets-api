@@ -34,7 +34,7 @@ class UserSerializer < ActiveModel::Serializer
     person = object.vet360_contact_info
 
     {
-      email: person.email&.email_address,
+      email: person.email&.details,
       residential_address: person.address&.details,
       mailing_address: person.mailing_address&.details,
       mobile_phone: person.mobile_phone&.details,
