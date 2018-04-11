@@ -35,4 +35,17 @@ byebug
     end
   end
 
+  describe '#put_email' do
+
+    let(:email) { build(:email) }
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/put_email_success') do #@TODO match on body!
+          response = subject.put_email(email)
+          expect(response).to be_ok
+        end
+      end
+    end
+  end
+
 end
