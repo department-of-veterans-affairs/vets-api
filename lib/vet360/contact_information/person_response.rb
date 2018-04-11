@@ -10,14 +10,10 @@ module Vet360
       attr_reader :bio
 
       def initialize(status, response = nil)
-        # TODO - how do we want to customize the response
+        # TODO: how do we want to customize the response
         @bio = response&.body&.dig('bio')
-byebug
-
         super(status, person: bio)
       end
-
-      # private
 
       def build_person
         Vet360::Models::Person.new(
@@ -25,6 +21,8 @@ byebug
           telephones: build_telephones
         )
       end
+
+      private
 
       def build_emails
         bio['emails'].map { |e| build_email(e) }
