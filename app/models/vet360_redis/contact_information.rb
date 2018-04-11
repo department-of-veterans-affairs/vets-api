@@ -140,7 +140,7 @@ module Vet360Redis
     def value_for(key)
       value = response&.person&.dig(key.to_sym)
 
-      value.present? ? value : nil
+      value.presence
     end
 
     def dig_out(key, type, matcher)

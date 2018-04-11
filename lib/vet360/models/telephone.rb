@@ -3,11 +3,11 @@
 module Vet360
   module Models
     class Telephone < Base
-      MOBILE      = 'MOBILE'.freeze
-      HOME        = 'HOME'.freeze
-      WORK        = 'WORK'.freeze
-      FAX         = 'FAX'.freeze
-      TEMPORARY   = 'TEMPORARY'.freeze
+      MOBILE      = 'MOBILE'
+      HOME        = 'HOME'
+      WORK        = 'WORK'
+      FAX         = 'FAX'
+      TEMPORARY   = 'TEMPORARY'
       PHONE_TYPES = [MOBILE, HOME, WORK, FAX, TEMPORARY].freeze
 
       attribute :area_code, String
