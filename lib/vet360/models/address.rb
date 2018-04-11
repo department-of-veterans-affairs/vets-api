@@ -5,9 +5,11 @@ module Vet360
     class Address < Base
       RESIDENCE      = 'RESIDENCE/CHOICE'.freeze
       CORRESPONDENCE = 'CORRESPONDENCE'.freeze
+      ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
       DOMESTIC       = 'domestic'.freeze
       INTERNATIONAL  = 'international'.freeze
       MILITARY       = 'military overseas'.freeze
+      ADDERSS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
       attribute :address_line_1, String
       attribute :address_line_2, String
@@ -33,6 +35,18 @@ module Vet360
       attribute :zip_code_suffix, String
 
       validates :source_date, presence: true
+
+      validates(
+        :address_pou,
+        presence: true,
+        inclusion: { in: ADDRESS_POUS }
+      )
+
+      validates(
+        :address_type,
+        presence: true,
+        inclusion: { in: ADDERSS_TYPES }
+      )
 
       # rubocop:disable Metrics/MethodLength
       def self.from_response(body)

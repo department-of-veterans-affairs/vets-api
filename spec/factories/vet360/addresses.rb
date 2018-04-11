@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :vet360_address, class: 'Vet360::Models::Address' do
     address_line_1 '123 Main Street'
     address_pou Vet360::Models::Address::RESIDENCE
+    address_type Vet360::Models::Address::DOMESTIC
     city 'Denver'
     country 'USA'
     state_abbr 'CO'
@@ -17,6 +18,14 @@ FactoryBot.define do
     trait :mailing do
       address_pou Vet360::Models::Address::CORRESPONDENCE
       address_line_1 '1515 Broadway'
+    end
+
+    trait :international do
+      address_type Vet360::Models::Address::INTERNATIONAL
+    end
+
+    trait :military_overseas do
+      address_type Vet360::Models::Address::MILITARY
     end
   end
 end
