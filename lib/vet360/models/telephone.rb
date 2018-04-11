@@ -72,6 +72,19 @@ module Vet360
           is_voicemailable: body['voice_mail_acceptable_ind']
         )
       end
+
+      def number
+        area_code + phone_number
+      end
+
+      def details
+        {
+          number: number,
+          extension: extension,
+          country_code: country_code,
+          phone_type: phone_type
+        }
+      end
     end
   end
 end
