@@ -42,9 +42,11 @@ RSpec.describe PensionBurial::Service do
   describe '#upload' do
     context 'with an bad response status' do
       it 'should increment statsd' do
-        expect(service).to receive(:request).and_return(OpenStruct.new(
-          success?: false
-        ))
+        expect(service).to receive(:request).and_return(
+          OpenStruct.new(
+            success?: false
+          )
+        )
 
         expect { service.upload('metadata' => nil) }.to trigger_statsd_increment(
           'api.pension_burial.upload.fail'
