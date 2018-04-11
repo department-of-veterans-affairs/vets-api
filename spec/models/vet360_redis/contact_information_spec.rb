@@ -23,6 +23,12 @@ describe Vet360Redis::ContactInformation do
     Vet360::ContactInformation::PersonResponse.new(200, raw_response)
   end
 
+  let(:empty_response) do
+    raw_response = OpenStruct.new(body: nil)
+
+    Vet360::ContactInformation::PersonResponse.new(500, raw_response)
+  end
+
   describe '.new' do
     it 'creates an instance with user attributes' do
       expect(contact_info.user).to eq(user)
@@ -200,9 +206,57 @@ describe Vet360Redis::ContactInformation do
       end
     end
 
+    context 'with an empty respose body' do
+      before do
+        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(empty_response)
+      end
 
-        expect(contact_info.fax).to eq phone
-        expect(contact_info.fax.class).to eq Vet360::Models::Telephone
+      describe '#email' do
+        it 'returns nil' do
+          expect(contact_info.email).to be_nil
+        end
+      end
+
+      describe '#address' do
+        it 'returns nil' do
+          expect(contact_info.address).to be_nil
+        end
+      end
+
+      describe '#mailing_address' do
+        it 'returns nil' do
+          expect(contact_info.mailing_address).to be_nil
+        end
+      end
+
+      describe '#home_phone' do
+        it 'returns nil' do
+          expect(contact_info.home_phone).to be_nil
+        end
+      end
+
+      describe '#mobile_phone' do
+        it 'returns nil' do
+          expect(contact_info.mobile_phone).to be_nil
+        end
+      end
+
+      describe '#work_phone' do
+        it 'returns nil' do
+          expect(contact_info.work_phone).to be_nil
+        end
+      end
+
+      describe '#temporary_phone' do
+        it 'returns nil' do
+          expect(contact_info.temporary_phone).to be_nil
+        end
+      end
+
+      describe '#fax' do
+        it 'returns nil' do
+          expect(contact_info.fax).to be_nil
+        end
       end
     end
   end
