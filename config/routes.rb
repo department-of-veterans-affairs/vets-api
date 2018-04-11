@@ -58,6 +58,9 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    # TODO: do this properly with resources once route is solidified
+    post 'evss_claims/documents/upload', to: 'documents#upload'
+
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
