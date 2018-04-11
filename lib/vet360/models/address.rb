@@ -3,12 +3,12 @@
 module Vet360
   module Models
     class Address < Base
-      RESIDENCE      = 'RESIDENCE/CHOICE'.freeze
-      CORRESPONDENCE = 'CORRESPONDENCE'.freeze
+      RESIDENCE      = 'RESIDENCE/CHOICE'
+      CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
-      DOMESTIC       = 'domestic'.freeze
-      INTERNATIONAL  = 'international'.freeze
-      MILITARY       = 'military overseas'.freeze
+      DOMESTIC       = 'domestic'
+      INTERNATIONAL  = 'international'
+      MILITARY       = 'military overseas'
       ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
       attribute :address_line_1, String
