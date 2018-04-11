@@ -33,6 +33,31 @@ byebug
         end
       end
     end
+
+    context 'when a duplicate exists' do
+      it 'raises an exception' do
+        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do #@TODO match on body!
+          response = nil
+          expect {
+            response = subject.post_email(email)
+          }.to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+
+      it 'has a status code 400' do
+        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do #@TODO match on body!
+            begin
+              response = subject.post_email(email) 
+            rescue
+              expect(response.metadata[:status]).to equal(400)
+            end
+            # byebug
+            
+        end
+      end
+
+    end
+
   end
 
   describe '#put_email' do
