@@ -55,6 +55,18 @@ module Vet360
         )
       end
       # rubocop:enable Metrics/MethodLength
+
+      def domestic_address
+        {
+          address_line_1: address_line_1,
+          address_line_2: address_line_2,
+          address_line_3: address_line_3,
+          city: city,
+          state_abbr: state_abbr,
+          zip_code: zip_code,
+          zip_code_suffix: zip_code_suffix
+        }
+      end
     end
   end
 end
