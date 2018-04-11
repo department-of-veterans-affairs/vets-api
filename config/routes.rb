@@ -199,6 +199,7 @@ Rails.application.routes.draw do
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do
+    mount VbaDocuments::Engine, at: '/vba_documents'
     namespace :v0, defaults: { format: 'json' } do
       namespace :docs, only: [] do
         # namespace :health do

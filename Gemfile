@@ -2,6 +2,8 @@
 
 source 'https://rubygems.org'
 
+gem 'vba_documents', path: 'modules/vba_documents'
+
 # Anchored versions, do not change
 gem 'puma', '~> 2.16.0'
 gem 'rails', '4.2.7.1'

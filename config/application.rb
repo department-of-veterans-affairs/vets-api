@@ -20,6 +20,11 @@ Bundler.require(*Rails.groups)
 
 module VetsAPI
   class Application < Rails::Application
+
+    #config.before_initialize do
+    #  VbaDocuments::Engine.instance.initializers.map{ |e| e.run Rails.application }
+    #end
+
     # This needs to be enabled for Shrine to surface errors properly for
     # file uploads.
     config.active_record.raise_in_transactional_callbacks = true
@@ -65,5 +70,6 @@ module VetsAPI
     config.middleware.use 'OliveBranch::Middleware'
     config.middleware.use 'StatsdMiddleware'
     config.middleware.use 'Rack::Attack'
+
   end
 end
