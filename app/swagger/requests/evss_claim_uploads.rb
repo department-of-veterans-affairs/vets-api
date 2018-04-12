@@ -1,10 +1,15 @@
 # frozen_string_literal: true
+
 # require 'evss_claim_document'
 
 module Swagger
   module Requests
     class EVSSClaimUploads
       include Swagger::Blocks
+
+      def self.doc_types
+        EVSSClaimDocument::DOCUMENT_TYPES.map { |k, _v| k }
+      end
 
       swagger_path '/v0/evss_claims/documents/upload' do
         operation :post do
@@ -32,7 +37,7 @@ module Swagger
             key :description, 'The type of document being uploaded'
             key :required, true
             key :type, :string
-            key :enum, EVSSClaimDocument::DOCUMENT_TYPES.map { |k, _v| k }
+            key :enum, Swagger::Requests::EVSSClaimUploads.doc_types
           end
 
           response 201 do
