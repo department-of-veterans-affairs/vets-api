@@ -20,6 +20,7 @@ module EVSS
 
       def initialize(args)
         raise ArgumentError, "invalid status type: #{args['status']}" unless LETTER_TYPES.include? args['status']
+        raise ArgumentError, "invalid type: #{args['type']}" unless args['status'] == 'compensation'
         super(args)
       end
     end
