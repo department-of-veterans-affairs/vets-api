@@ -39,18 +39,8 @@ module Vet360
     end
 
     def parse_messages(error)
-      # TODO: Parse messages as Message model
       messages = error.body&.dig('messages')
-
-      messages&.map do |m|
-        Vet360::Models::Message.new(
-          code: m['code'],
-          key: m['key'],
-          retryable: m['potentially_self_correcting_on_retry'],
-          severity: m['severity'],
-          text: m['text']
-        )
-      end
+      Vet360::Models::Message.from_response(messages)
     end
 
     def raise_backend_exception(key, source, error = nil)
