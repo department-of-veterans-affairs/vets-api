@@ -183,7 +183,7 @@ RSpec.describe BaseFacility, type: :model do
     it 'should find facility in the bbox' do
       create :vha_648A4
       bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
-      expect(BaseFacility.query(bbox: bbox).data.first.id).to eq('648A4')
+      expect(BaseFacility.query(bbox: bbox).first.id).to eq('648A4')
     end
   end
 
