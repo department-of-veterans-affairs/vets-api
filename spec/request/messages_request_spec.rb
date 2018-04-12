@@ -22,18 +22,18 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
-    before(:each) { get'/v0/messaging/health/messages/categories' }
+    before(:each) { get '/v0/messaging/health/messages/categories' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
-    before(:each) { get'/v0/messaging/health/messages/categories' }
+    before(:each) { get '/v0/messaging/health/messages/categories' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Premium User' do
@@ -43,7 +43,7 @@ RSpec.describe 'Messages Integration', type: :request do
       before(:each) { get'/v0/messaging/health/messages/categories' }
       let(:va_patient) { false }
 
-      include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
     end
 
     it 'responds to GET messages/categories' do

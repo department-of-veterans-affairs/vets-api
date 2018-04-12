@@ -19,18 +19,18 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
-    before(:each) { get'/v0/messaging/health/preferences' }
+    before(:each) { get '/v0/messaging/health/preferences' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
-    before(:each) { get'/v0/messaging/health/preferences' }
+    before(:each) { get '/v0/messaging/health/preferences' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Premium User' do
@@ -40,7 +40,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       before(:each) { get'/v0/messaging/health/preferences' }
       let(:va_patient) { false }
 
-      include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
     end
 
     it 'responds to GET #show of preferences' do

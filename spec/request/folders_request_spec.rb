@@ -22,18 +22,18 @@ RSpec.describe 'Folders Integration', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
-    before(:each) { get'/v0/messaging/health/folders' }
+    before(:each) { get '/v0/messaging/health/folders' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
-    before(:each) { get'/v0/messaging/health/folders' }
+    before(:each) { get '/v0/messaging/health/folders' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Premium User' do
@@ -43,7 +43,7 @@ RSpec.describe 'Folders Integration', type: :request do
       before(:each) { get'/v0/messaging/health/folders' }
       let(:va_patient) { false }
 
-      include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
     end
 
     describe '#index' do

@@ -27,7 +27,7 @@ RSpec.describe 'Messages Integration', type: :request do
     before(:each) { post '/v0/messaging/health/message_drafts', params }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Advanced User' do
@@ -35,7 +35,7 @@ RSpec.describe 'Messages Integration', type: :request do
     before(:each) { post '/v0/messaging/health/message_drafts', params }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Premium User' do
@@ -45,7 +45,7 @@ RSpec.describe 'Messages Integration', type: :request do
       before(:each) { post '/v0/messaging/health/message_drafts', params }
       let(:va_patient) { false }
 
-      include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
     end
 
     describe 'drafts' do

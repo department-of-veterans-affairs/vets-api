@@ -5,6 +5,7 @@ require 'rx/client'
 require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 
+# rubocop:disable Metrics/LineLength
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
@@ -22,7 +23,7 @@ RSpec.describe 'prescriptions', type: :request do
     before(:each) { get '/v0/prescriptions/13651310' }
 
     include_examples 'for user account level', message: 'You do not have access to prescriptions'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to prescriptions'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'
   end
 
   %w[Premium Advanced].each do |account_level|
@@ -33,7 +34,7 @@ RSpec.describe 'prescriptions', type: :request do
         before(:each) { get '/v0/prescriptions/13651310' }
         let(:va_patient) { false }
 
-        include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to prescriptions'
+        include_examples 'for non va patient user', authorized: false, message: 'You do not have access to prescriptions'
       end
 
       it 'responds to GET #show' do
@@ -161,3 +162,4 @@ RSpec.describe 'prescriptions', type: :request do
     end
   end
 end
+# rubocop:enable Metrics/LineLength

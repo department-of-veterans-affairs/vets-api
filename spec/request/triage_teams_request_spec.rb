@@ -22,7 +22,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
     before(:each) { get '/v0/messaging/health/recipients' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Advanced User' do
@@ -30,7 +30,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
     before(:each) { get '/v0/messaging/health/recipients' }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
-    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+    include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
   end
 
   context 'Premium User' do
@@ -40,7 +40,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
       before(:each) { get '/v0/messaging/health/recipients' }
       let(:va_patient) { false }
 
-      include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to messaging'
+      include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
     end
 
     it 'responds to GET #index' do

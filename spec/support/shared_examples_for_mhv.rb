@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 shared_examples 'for user account level' do |options|
   it "with MHV account level #{options[:account_level]}" do
     expect(response).not_to be_success
@@ -6,7 +8,7 @@ shared_examples 'for user account level' do |options|
   end
 end
 
-shared_examples 'for user that is not a va patient' do |options|
+shared_examples 'for non va patient user' do |options|
   let(:va_patient) { false }
 
   it "is #{options[:authorized] ? '' : 'NOT'} authorized" do
