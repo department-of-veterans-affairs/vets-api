@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe PensionBurial::Service do
+  let(:service) { described_class.new }
+
   describe '#status' do
     context 'with one uuid' do
       it 'should retrieve the status' do
@@ -38,6 +40,20 @@ RSpec.describe PensionBurial::Service do
   end
 
   describe '#upload' do
+    context 'with an bad response status' do
+      it 'should increment statsd' do
+        expect(service).to receive(:request).and_return(
+          OpenStruct.new(
+            success?: false
+          )
+        )
+
+        expect { service.upload('metadata' => nil) }.to trigger_statsd_increment(
+          'api.pension_burial.upload.fail'
+        )
+      end
+    end
+
     it 'should upload a file' do
       header_matcher = lambda do |r1, r2|
         [r1, r2].each { |r| r.headers.delete('Content-Length') }
