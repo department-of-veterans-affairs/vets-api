@@ -57,8 +57,6 @@ Rails.application.routes.draw do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
-
-    # TODO: do this properly with resources once route is solidified
     post 'evss_claims/documents/upload', to: 'documents#upload'
 
     get 'welcome', to: 'example#welcome', as: :welcome

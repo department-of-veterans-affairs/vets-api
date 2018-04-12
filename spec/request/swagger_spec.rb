@@ -321,6 +321,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'evss claims for increase' do
+      let(:file) do
+        Rack::Test::UploadedFile.new("#{::Rails.root}/spec/fixtures/files/doctors-note.pdf", 'application/pdf')
+      end
+      let(:document_type) { 'L023' }
+
+      it 'responds 201' do
+        params = { file: file, document_type: document_type }
+        expect(subject).to validate(
+          :post, '/v0/evss_claims/documents/upload', 201, auth_options.merge('_data' => params)
+        )
+      end
+
+      it 'responds 401' do
+        expect(subject).to validate(:post, '/v0/evss_claims/documents/upload', 401)
+      end
+    end
+
     describe 'secure messaging' do
       include SM::ClientHelpers
 
