@@ -185,7 +185,7 @@ Rails.application.routes.draw do
       resource(
         :beta_registrations,
         path: "/beta_registration/#{feature}",
-        only: %i[show create],
+        only: %i[show create destroy],
         defaults: { feature: feature }
       )
     end
