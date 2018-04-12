@@ -21,8 +21,8 @@ describe Vet360::ContactInformation::Service do
       end
     end
 
-    context 'when successful' do
-      it 'returns a status of 404' do
+    context 'when not successful' do
+      it 'rasies an exception' do
         VCR.use_cassette('vet360/contact_information/person_error', match_requests_on: %i[body uri method]) do
           expect { subject.get_person }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
@@ -37,9 +37,11 @@ describe Vet360::ContactInformation::Service do
 
   describe '#get_email_transaction_status' do
     context 'when successful' do
+      let(:transaction_id) { 'abcdef' }
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
-          response = subject.get_email_transaction_status('123456')
+        VCR.use_cassette('vet360/contact_information/email_transaction_status',
+                         match_requests_on: %i[body uri method]) do
+          response = subject.get_email_transaction_status(transaction_id)
           expect(response).to be_ok
         end
       end

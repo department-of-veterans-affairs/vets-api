@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/123456"
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/123456/emails/status/abcdef"
     body:
       encoding: US-ASCII
       string: ''
@@ -47,14 +47,14 @@ http_interactions:
       string: |-
         {
           "messages": [],
-          "status": "string",
-          "txAuditId": "string",
+          "status": "COMPLETED_SUCCESS",
+          "txAuditId": "abcdef",
           "txInteractionType": "string",
           "txMessages": [],
           "txOutput": [],
           "txPullInput": "string",
           "txPushInput": {},
-          "txStatus": "string",
+          "txStatus": "COMPLETED_SUCCESS",
           "txType": "string"
         }
     http_version:

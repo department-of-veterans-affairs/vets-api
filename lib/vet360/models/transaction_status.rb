@@ -14,9 +14,8 @@ module Vet360
       ].freeze
 
       attribute :messages, Array[Message]
+      attribute :id, String
       attribute :status, String
-      attribute :transaction_id, String
-      attribute :transaction_status, String
 
       validates(
         :status,
@@ -24,11 +23,13 @@ module Vet360
         inclusion: { in: STATUSES }
       )
 
-      validates(
-        :transaction_status,
-        presence: true,
-        inclusion: { in: STATUSES }
-      )
+      def self.from_response(body)
+        Vet360::Models::TransactionStatus.new(
+          messages: Vet360::Models::Message.from_response(body['messages']),
+          id: body['tx_audit_id'],
+          status: body['tx_status']
+        )
+      end
     end
   end
 end
