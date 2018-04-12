@@ -1,15 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/controller_spec_helper'
 
 RSpec.describe V0::BurialClaimsController, type: :controller do
-  describe '#create' do
-    it 'should delete the saved form' do
-      expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('21P-530').once
-
-      post(:create, burial_claim: { form: build(:burial_claim).form })
-    end
-  end
+  it_should_behave_like 'a controller that deletes an InProgressForm', 'burial_claim', 'burial_claim', '21P-530'
 
   describe '#show' do
     it 'should return the submission status' do
