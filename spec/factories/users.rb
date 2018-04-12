@@ -17,6 +17,7 @@ FactoryBot.define do
       mhv_icn nil
       multifactor false
       mhv_account_type nil
+      va_patient nil
 
       loa do
         { current: LOA::TWO, highest: LOA::THREE }
@@ -118,6 +119,7 @@ FactoryBot.define do
       ssn '796111864'
       multifactor true
       mhv_account_type 'Premium'
+      va_patient true
 
       loa do
         {
@@ -127,13 +129,13 @@ FactoryBot.define do
       end
 
       # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
-      after(:build) do
+      after(:build) do |_user, t|
         stub_mvi(
           build(
             :mvi_profile,
             icn: '1000123456V123456',
             mhv_ids: %w[12345678901],
-            vha_facility_ids: %w[358]
+            vha_facility_ids: t.va_patient ? %w[358] : []
           )
         )
       end
