@@ -24,7 +24,7 @@ class BackendServices
   RX = 'rx'
   MESSAGING = 'messaging'
   HEALTH_RECORDS = 'health-records'
-  MHV_BASED_SERVICES = [RX, MESSAGING, HEALTH_RECORDS].freeze
+  MHV_AC = 'mhv-accounts'
 
   # Core Form Features
   SAVE_IN_PROGRESS = 'form-save-in-progress'
