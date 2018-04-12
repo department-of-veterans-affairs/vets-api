@@ -14,7 +14,7 @@ module V0
     end
 
     def destroy
-      BetaRegistration.where(user_uuid: current_user.uuid, feature: params[:feature]).first.try(:destroy)
+      BetaRegistration.find_by(user_uuid: current_user.uuid, feature: params[:feature])&.destroy!
       head :no_content
     end
   end
