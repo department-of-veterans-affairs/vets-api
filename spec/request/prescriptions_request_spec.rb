@@ -3,169 +3,161 @@
 require 'rails_helper'
 require 'rx/client'
 require 'support/rx_client_helpers'
+require 'support/shared_examples_for_mhv'
 
 RSpec.describe 'prescriptions', type: :request do
   include Rx::ClientHelpers
   include SchemaMatchers
 
-  let(:mhv_account_type) { 'Advanced' }
-  let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
+  let(:va_patient) { true }
+  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
 
   before(:each) do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)
     use_authenticated_current_user(current_user: current_user)
   end
 
-  context 'with a user that does not have mhv account level of ADVANCED or PREMIUM' do
+  context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
+    before(:each) { get '/v0/prescriptions/13651310' }
 
-    it 'gives me a 403' do
-      get '/v0/prescriptions/13651310'
-
-      expect(response).not_to be_success
-      expect(response.status).to eq(403)
-      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You do not have access to prescriptions')
-    end
+    include_examples 'for user account level', message: 'You do not have access to prescriptions'
+    include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to prescriptions'
   end
 
-  context 'with a user that is not a va patient', :skip_mvi do
-    let(:mhv_account_type) { 'Premium' }
-    let(:current_user) { build(:user, :mhv, mhv_account_type: mhv_account_type) }
-    let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
+  %w[Premium Advanced].each do |account_level|
+    context "#{account_level} User" do
+      let(:mhv_account_type) { account_level }
 
-    before(:each) do
-      stub_mvi(mvi_profile)
-    end
+      context 'not a va patient' do
+        before(:each) { get '/v0/prescriptions/13651310' }
+        let(:va_patient) { false }
 
-    it 'gives me a 403' do
-      get '/v0/prescriptions/13651310'
-
-      expect(response).not_to be_success
-      expect(response.status).to eq(403)
-      expect(JSON.parse(response.body)['errors'].first['detail']).to eq('You do not have access to prescriptions')
-    end
-  end
-
-  it 'responds to GET #show' do
-    VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
-      get '/v0/prescriptions/13651310'
-    end
-
-    expect(response).to be_success
-    expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('prescription')
-  end
-
-  it 'responds to GET #index with no parameters' do
-    VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
-      get '/v0/prescriptions'
-    end
-
-    expect(response).to be_success
-    expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('prescriptions')
-    expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
-  end
-
-  it 'responds to GET #index with refill_status=active' do
-    VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
-      get '/v0/prescriptions?refill_status=active'
-    end
-
-    expect(response).to be_success
-    expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('prescriptions')
-    expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
-  end
-
-  it 'responds to GET #index with filter' do
-    VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
-      get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess'
-    end
-
-    expect(response).to be_success
-    expect(response.body).to be_a(String)
-    expect(response).to match_response_schema('prescriptions_filtered')
-  end
-
-  it 'responds to POST #refill' do
-    VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-      patch '/v0/prescriptions/13650545/refill'
-    end
-
-    expect(response).to be_success
-    expect(response.body).to be_empty
-  end
-
-  context 'nested resources' do
-    it 'responds to GET #show of nested tracking resource' do
-      VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
-        get '/v0/prescriptions/13650541/trackings'
+        include_examples 'for user that is not a va patient', authorized: false, message: 'You do not have access to prescriptions'
       end
 
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('trackings')
-      expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
-    end
+      it 'responds to GET #show' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_single_prescription') do
+          get '/v0/prescriptions/13651310'
+        end
 
-    it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions' do
-      VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
-        get '/v0/prescriptions/13650541/trackings'
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('prescription')
       end
 
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      expect(response).to match_response_schema('trackings')
-      expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
-    end
-  end
+      it 'responds to GET #index with no parameters' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/v0/prescriptions'
+        end
 
-  context 'preferences' do
-    it 'responds to GET #show of preferences' do
-      VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
-        get '/v0/prescriptions/preferences'
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('prescriptions')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      attrs = JSON.parse(response.body)['data']['attributes']
-      expect(attrs['email_address']).to eq('Praneeth.Gaganapally@va.gov')
-      expect(attrs['rx_flag']).to be true
-    end
+      it 'responds to GET #index with refill_status=active' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_active_prescriptions') do
+          get '/v0/prescriptions?refill_status=active'
+        end
 
-    it 'responds to PUT #update of preferences' do
-      VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
-        params = { email_address: 'kamyar.karshenas@va.gov',
-                   rx_flag: false }
-        put '/v0/prescriptions/preferences', params
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('prescriptions')
+        expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
       end
 
-      expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body)['data']['id'])
-        .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
-      expect(JSON.parse(response.body)['data']['attributes'])
-        .to eq('email_address' => 'kamyar.karshenas@va.gov', 'rx_flag' => false)
-    end
+      it 'responds to GET #index with filter' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions') do
+          get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess'
+        end
 
-    it 'requires all parameters for update' do
-      VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
-        params = { email_address: 'kamyar.karshenas@va.gov' }
-        put '/v0/prescriptions/preferences', params
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('prescriptions_filtered')
       end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-    end
+      it 'responds to POST #refill' do
+        VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
+          patch '/v0/prescriptions/13650545/refill'
+        end
 
-    it 'returns a custom exception mapped from i18n when email contains spaces' do
-      VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
-        params = { email_address: 'kamyar karshenas@va.gov',
-                   rx_flag: false }
-        put '/v0/prescriptions/preferences', params
+        expect(response).to be_success
+        expect(response.body).to be_empty
       end
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(JSON.parse(response.body)['errors'].first['code']).to eq('RX157')
+      context 'nested resources' do
+        it 'responds to GET #show of nested tracking resource' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_a_list_of_tracking_history_for_a_prescription') do
+            get '/v0/prescriptions/13650541/trackings'
+          end
+
+          expect(response).to be_success
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('trackings')
+          expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+        end
+
+        it 'responds to GET #show of nested tracking resource with a shipment having no other prescriptions' do
+          VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_with_empty_other_prescriptions') do
+            get '/v0/prescriptions/13650541/trackings'
+          end
+
+          expect(response).to be_success
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('trackings')
+          expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
+        end
+      end
+
+      context 'preferences' do
+        it 'responds to GET #show of preferences' do
+          VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
+            get '/v0/prescriptions/preferences'
+          end
+
+          expect(response).to be_success
+          expect(response.body).to be_a(String)
+          attrs = JSON.parse(response.body)['data']['attributes']
+          expect(attrs['email_address']).to eq('Praneeth.Gaganapally@va.gov')
+          expect(attrs['rx_flag']).to be true
+        end
+
+        it 'responds to PUT #update of preferences' do
+          VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
+            params = { email_address: 'kamyar.karshenas@va.gov',
+                       rx_flag: false }
+            put '/v0/prescriptions/preferences', params
+          end
+
+          expect(response).to have_http_status(200)
+          expect(JSON.parse(response.body)['data']['id'])
+            .to eq('59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948')
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('email_address' => 'kamyar.karshenas@va.gov', 'rx_flag' => false)
+        end
+
+        it 'requires all parameters for update' do
+          VCR.use_cassette('rx_client/preferences/sets_rx_preferences', record: :none) do
+            params = { email_address: 'kamyar.karshenas@va.gov' }
+            put '/v0/prescriptions/preferences', params
+          end
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it 'returns a custom exception mapped from i18n when email contains spaces' do
+          VCR.use_cassette('rx_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
+            params = { email_address: 'kamyar karshenas@va.gov',
+                       rx_flag: false }
+            put '/v0/prescriptions/preferences', params
+          end
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)['errors'].first['code']).to eq('RX157')
+        end
+      end
     end
   end
 end
