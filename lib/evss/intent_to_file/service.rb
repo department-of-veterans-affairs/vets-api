@@ -15,7 +15,7 @@ module EVSS
       def get_intent_to_file
         with_monitoring do
           raw_response = perform(:get, '')
-          EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
+          EVSS::IntentToFile::IntentToFilesResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
         handle_error(e)
@@ -26,19 +26,19 @@ module EVSS
         # future expansion will include 'pension' and 'survivor' accessible via the path
         with_monitoring do
           raw_response = perform(:get, 'compensation/active')
-          EVSS::IntentToFile::ActiveResponse.new(raw_response.status, raw_response)
+          EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
         handle_error(e)
       end
 
-      def submit_intent_to_file(content)
+      def create_intent_to_file(content)
         # intent_to_file currently only handles 'compensation'
         # future expansion will include 'pension' and 'survivor' accessible via the path
         with_monitoring do
           headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'compensation', content, headers)
-          EVSS::IntentToFile::ActiveResponse.new(raw_response.status, raw_response)
+          EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
         handle_error(e)
