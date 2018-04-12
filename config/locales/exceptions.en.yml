@@ -305,4 +305,28 @@ en:
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-
+    intent_to_file:
+      partner_service_error:
+        <<: *defaults
+        title: Partner Service Error
+        detail: 'Error calling out to partner service'
+        code: 'intentToFile.partner.service.error'
+        status: 502 # TODO: reviewed in PR
+      internal_service_error:
+        <<: *defaults
+        title: Internal Service Error
+        detail: 'Internal service error'
+        code: 'intentToFile.service.error'
+        status: 502
+      intent_type_invalid:
+        <<: *defaults
+        title: Intent Type Invalid
+        detail: 'Invalid intent type'
+        code: 'intenttofile.intentType.invalid'
+        status: 400
+      partner_service_invalid:
+        <<: *defaults
+        title: Partner Service Invalid
+        detail: 'Error on data from external service'
+        code: 'intenttofile.partner.service.invalid'
+        status: 502
