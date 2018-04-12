@@ -48,7 +48,7 @@ http_interactions:
         {
           "messages": [
             {
-              "code": "CORE103"
+              "code": "CORE103",
               "key": "_CUF_NOT_FOUND",
               "potentiallySelfCorrectingOnRetry": true,
               "severity": "INFO",
