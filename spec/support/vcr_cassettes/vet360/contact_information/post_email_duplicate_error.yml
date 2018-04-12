@@ -65,11 +65,11 @@ http_interactions:
           },
           "messages": [
             {
-              "code": "EMAIL306",
-              "key": "DuplicateEmailAddress",
+              "code": "EMAIL301",
+              "key": "EmailAddressType",
               "potentiallySelfCorrectingOnRetry": true,
               "severity": "ERROR",
-              "text": "Cannot accept a request with multiple emailAddress records."
+              "text": "Can not insert a record for an email address that already exists. Pull the email record and update it using the emailId provided."
             }
           ],
           "status": "COMPLETED_FAILURE",

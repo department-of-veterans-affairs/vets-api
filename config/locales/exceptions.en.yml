@@ -320,6 +320,12 @@ en:
         code: 'VET360_CORE303'
         detail: 'The transaction audit id may not be null'
         status: 400
+      VET360_EMAIL301:
+        <<: *external_defaults
+        title: Email Address Already Exists
+        code: 'VET360_EMAIL301'
+        detail: 'Can not insert a record for an email address that already exists. Pull the email record and update it using the emailId provided.'
+        status: 400
 
   evss:
     letters:

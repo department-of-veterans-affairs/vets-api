@@ -40,7 +40,7 @@ module Vet360
 
     def parse_messages(error)
       # TODO: Parse messages as Message model
-      binding.pry
+      # binding.pry
       messages = JSON.parse(error.body)&.dig('messages')
 
       messages&.map do |m|
