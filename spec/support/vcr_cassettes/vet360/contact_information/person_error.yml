@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/123456"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+        - Vets.gov Agent
+      Content-Type:
+        - application/json
+      cufSystemName:
+        - VETSGOV
+      Accept:
+        - application/json
+  response:
+    status:
+      code: 404
+      message: Not Found
+    headers:
+      X-Application-Context:
+        - edge-gateway:ENV-QA:8766
+      Date:
+        - Thu, 05 Apr 2018 23:45:05 GMT
+      Expires:
+        - 0
+      X-Content-Type-Options:
+        - nosniff
+      X-XSS-Protection:
+        - 1; mode=block
+      X-Frame-Options:
+        - DENY
+      Cache-Control:
+        - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+        - no-cache
+      X-UA-Compatible:
+        - IE-edge,chrome=1
+      Content-Type:
+        - application/json;charset=UTF-8
+      Transfer-Encoding:
+        - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "messages": [
+            {
+              "code": "CORE103",
+              "key": "_CUF_NOT_FOUND",
+              "potentiallySelfCorrectingOnRetry": true,
+              "severity": "INFO",
+              "text": "The {0} for id/criteria {1} could not be found. Please correct your request and try again!"
+            }
+          ],
+          "status": "REJECTED",
+          "txAuditId": "string"
+        }
+    http_version:
+  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+recorded_with: VCR 3.0.3

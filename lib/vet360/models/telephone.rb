@@ -32,14 +32,13 @@ module Vet360
       validates(
         :phone_number,
         presence: true,
-        format: { with: /[a-zA-Z]+/ },
+        format: { with: /[^a-zA-Z]+/ },
         length: { maximum: 14, minimum: 1 }
       )
 
       validates(
         :extension,
-        format: { with: /[a-zA-Z0-9]+/ },
-        length: { maximum: 10, minimum: 1 }
+        length: { maximum: 10 }
       )
 
       validates(
@@ -47,6 +46,27 @@ module Vet360
         presence: true,
         inclusion: { in: PHONE_TYPES }
       )
+
+      def self.from_response(body)
+        Vet360::Models::Telephone.new(
+          area_code: body['area_code'],
+          country_code: body['country_code'],
+          created_at: body['create_date'],
+          effective_end_date: body['effective_end_date'],
+          effective_start_date: body['effective_start_date'],
+          extension: body['phone_number_ext'],
+          id: body['telephone_id'],
+          is_international: body['international_indicator'],
+          phone_number: body['phone_number'],
+          phone_type: body['phone_type'],
+          source_date: body['source_date'],
+          is_textable: body['text_message_capable_ind'],
+          transaction_id: body['tx_audit_id'],
+          is_tty: body['tty_ind'],
+          updated_at: body['update_date'],
+          is_voicemailable: body['voice_mail_acceptable_ind']
+        )
+      end
     end
   end
 end
