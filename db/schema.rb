@@ -54,14 +54,6 @@ ActiveRecord::Schema.define(version: 20180411001427) do
 
   add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
 
-  create_table "document_upload_submissions", force: :cascade do |t|
-    t.string "status", default: "pending", null: false
-    t.uuid   "guid",                       null: false
-  end
-
-  add_index "document_upload_submissions", ["guid"], name: "index_document_upload_submissions_on_guid", using: :btree
-  add_index "document_upload_submissions", ["status"], name: "index_document_upload_submissions_on_status", using: :btree
-
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
     t.datetime "processed_at"
