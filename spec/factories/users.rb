@@ -16,6 +16,8 @@ FactoryBot.define do
       ssn '796111863'
       mhv_icn nil
       multifactor false
+      mhv_account_type nil
+      va_patient nil
 
       loa do
         { current: LOA::TWO, highest: LOA::THREE }
@@ -35,7 +37,8 @@ FactoryBot.define do
                              ssn: t.ssn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
-                             multifactor: t.multifactor)
+                             multifactor: t.multifactor,
+                             mhv_account_type: t.mhv_account_type)
       user.instance_variable_set(:@identity, user_identity)
     end
 
@@ -127,12 +130,26 @@ FactoryBot.define do
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
       ssn '796111864'
       multifactor true
+      mhv_account_type 'Premium'
+      va_patient true
 
       loa do
         {
           current: LOA::THREE,
           highest: LOA::THREE
         }
+      end
+
+      # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
+      after(:build) do |_user, t|
+        stub_mvi(
+          build(
+            :mvi_profile,
+            icn: '1000123456V123456',
+            mhv_ids: %w[12345678901],
+            vha_facility_ids: t.va_patient ? %w[358] : []
+          )
+        )
       end
     end
 
