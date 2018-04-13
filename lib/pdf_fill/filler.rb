@@ -43,7 +43,7 @@ module PdfFill
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
         new_hash,
-        flatten: true
+        flatten: Rails.env.production?
       )
 
       combine_extras(file_path, hash_converter.extras_generator)

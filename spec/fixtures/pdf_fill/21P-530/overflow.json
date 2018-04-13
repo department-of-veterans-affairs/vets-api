@@ -110,8 +110,7 @@
     "city": "cXXXXXXXXXXXXXXXXXXXXcXXXXXXXXXXXXXXXXXXXX",
     "state": "VA",
     "country": "US",
-    "postalCode1": "12345",
-    "postalCode2": "1234"
+    "postalCode": "12345"
   },
   "claimantEmail": "XXXXXXXXXXXXXXXXXXXX@XXXXXXXXXXXXXXXXXXXX.com",
   "veteranFullName": {

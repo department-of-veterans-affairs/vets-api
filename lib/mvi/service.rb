@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'mvi/configuration'
 require 'mvi/responses/find_profile_response'
+require 'common/client/concerns/monitoring'
 require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 require 'mvi/errors/errors'
@@ -15,6 +16,8 @@ module MVI
   # * PRPA_IN201302UV02 (TODO(AJD): Update Person)
   # * PRPA_IN201305UV02 (aliased as .find_profile)
   class Service < Common::Client::Base
+    include Common::Client::Monitoring
+
     # The MVI Service SOAP operations vets.gov has access to
     OPERATIONS = {
       add_person: 'PRPA_IN201301UV02',
@@ -25,13 +28,17 @@ module MVI
     # @return [MVI::Configuration] the configuration for this service
     configuration MVI::Configuration
 
+    STATSD_KEY_PREFIX = 'api.mvi'
+
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
-      raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
-      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+      with_monitoring do
+        raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+        MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+      end
     rescue Faraday::ConnectionFailed => e
       log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
