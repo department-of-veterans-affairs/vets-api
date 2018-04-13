@@ -28,6 +28,11 @@ module Vet360
       attribute :zip_code_suffix, String
 
       validates :source_date, presence: true
+
+      def self.from_response(body)
+        # TODO: Map address response object to model
+        Vet360::Models::Address.new
+      end
     end
   end
 end

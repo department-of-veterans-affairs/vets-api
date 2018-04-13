@@ -32,12 +32,18 @@ module Vet360
         }.to_json
       end
 
-      def self.from_response(response)
-        hash = JSON.parse(response.body)
-        byebug
-        # @TODO
+      def self.from_response(body)
+        Vet360::Models::Email.new(
+          created_at: body['create_date'],
+          effective_end_date: body['effective_end_date'],
+          effective_start_date: body['effective_start_date'],
+          email_address: body['email_address_text'],
+          id: body['email_id'],
+          source_date: body['source_date'],
+          transaction_id: body['tx_audit_id'],
+          updated_at: body['update_date']
+        )
       end
-
     end
   end
 end
