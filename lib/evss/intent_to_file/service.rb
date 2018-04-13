@@ -10,8 +10,6 @@ module EVSS
 
       configuration EVSS::IntentToFile::Configuration
 
-      INVALID_ADDRESS_ERROR = 'letterDestination.addressLine1.invalid'
-
       def get_intent_to_file
         with_monitoring do
           raw_response = perform(:get, '')
