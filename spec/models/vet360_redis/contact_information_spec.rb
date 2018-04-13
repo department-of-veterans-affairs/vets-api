@@ -70,12 +70,12 @@ describe Vet360Redis::ContactInformation do
         end
       end
 
-      describe '#address' do
-        it 'returns the users address object', :aggregate_failures do
+      describe '#residential_address' do
+        it 'returns the users residential address object', :aggregate_failures do
           residence = address_for Vet360::Models::Address::RESIDENCE
 
-          expect(contact_info.address).to eq residence
-          expect(contact_info.address.class).to eq Vet360::Models::Address
+          expect(contact_info.residential_address).to eq residence
+          expect(contact_info.residential_address.class).to eq Vet360::Models::Address
         end
       end
 
@@ -84,7 +84,7 @@ describe Vet360Redis::ContactInformation do
           residence = address_for Vet360::Models::Address::CORRESPONDENCE
 
           expect(contact_info.mailing_address).to eq residence
-          expect(contact_info.address.class).to eq Vet360::Models::Address
+          expect(contact_info.mailing_address.class).to eq Vet360::Models::Address
         end
       end
 
@@ -124,12 +124,12 @@ describe Vet360Redis::ContactInformation do
         end
       end
 
-      describe '#fax' do
+      describe '#fax_number' do
         it 'returns the users FAX object', :aggregate_failures do
           phone = phone_for Vet360::Models::Telephone::FAX
 
-          expect(contact_info.fax).to eq phone
-          expect(contact_info.fax.class).to eq Vet360::Models::Telephone
+          expect(contact_info.fax_number).to eq phone
+          expect(contact_info.fax_number.class).to eq Vet360::Models::Telephone
         end
       end
     end
@@ -149,9 +149,9 @@ describe Vet360Redis::ContactInformation do
         end
       end
 
-      describe '#address' do
+      describe '#residential_address' do
         it 'raises a Common::Exceptions::BackendServiceException error' do
-          expect { contact_info.address }.to raise_error(
+          expect { contact_info.mailing_address }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -197,9 +197,9 @@ describe Vet360Redis::ContactInformation do
         end
       end
 
-      describe '#fax' do
+      describe '#fax_number' do
         it 'raises a Common::Exceptions::BackendServiceException error' do
-          expect { contact_info.fax }.to raise_error(
+          expect { contact_info.fax_number }.to raise_error(
             Common::Exceptions::BackendServiceException
           )
         end
@@ -217,9 +217,9 @@ describe Vet360Redis::ContactInformation do
         end
       end
 
-      describe '#address' do
+      describe '#residential_address' do
         it 'returns nil' do
-          expect(contact_info.address).to be_nil
+          expect(contact_info.mailing_address).to be_nil
         end
       end
 
@@ -253,9 +253,9 @@ describe Vet360Redis::ContactInformation do
         end
       end
 
-      describe '#fax' do
+      describe '#fax_number' do
         it 'returns nil' do
-          expect(contact_info.fax).to be_nil
+          expect(contact_info.fax_number).to be_nil
         end
       end
     end

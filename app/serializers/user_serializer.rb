@@ -35,13 +35,13 @@ class UserSerializer < ActiveModel::Serializer
 
     {
       email: person.email&.details,
-      residential_address: person.address&.details,
+      residential_address: person.residential_address&.details,
       mailing_address: person.mailing_address&.details,
       mobile_phone: person.mobile_phone&.details,
       home_phone: person.home_phone&.details,
       work_phone: person.work_phone&.details,
       temporary_phone: person.temporary_phone&.details,
-      fax_number: person.fax&.details
+      fax_number: person.fax_number&.details
     }
   end
 
