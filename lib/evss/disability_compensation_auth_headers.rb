@@ -15,7 +15,7 @@ module EVSS
       when 'M'
         'MALE'
       else
-        raise Common::Exceptions::UnprocessableEntity, error_details('Gender is required and must be "FEMALE" or "MALE"')
+        raise Common::Exceptions::UnprocessableEntity, error_details('Gender is required & must be "FEMALE" or "MALE"')
       end
     end
   end

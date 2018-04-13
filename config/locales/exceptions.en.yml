@@ -305,4 +305,28 @@ en:
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-
+    526:
+      not_eligible:
+        <<: *defaults
+        title: Proxy error
+        detail: 'Upstream server returned not eligible response'
+        code: 111
+        status: 502
+      external_service_unavailable:
+        <<: *defaults
+        title: External service unavailable
+        detail: 'EVSS received an error calling external service'
+        code: 113
+        status: 503
+      form_in_process:
+        <<: *defaults
+        title: Form in process
+        detail: 'This form has already been submitted'
+        # code: 113
+        status: 409
+      disabled:
+        <<: *defaults
+        title: Form disabled
+        detail: 'Form submissions are currently disabled by EVSS'
+        # code:
+        status: 503
