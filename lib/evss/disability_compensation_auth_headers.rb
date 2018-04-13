@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# frozen_string_literal
-
 module EVSS
   class DisabilityCompensationAuthHeaders
     def self.add_headers(auth_headers, user)
