@@ -18,7 +18,7 @@ module Vet360
           updated_at: body['update_date'],
           transaction_id: body['trx_audit_id'],
           addresses: body['addresses'].map { |a| Vet360::Models::Address.from_response(a) },
-          emails: body['emails'].map { |e| Vet360::Models::Telephone.from_response(e) },
+          emails: body['emails'].map { |e| Vet360::Models::Email.from_response(e) },
           telephones: body['telephones'].map { |t| Vet360::Models::Telephone.from_response(t) }
         )
       end
