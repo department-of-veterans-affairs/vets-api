@@ -6,7 +6,7 @@ module Vet360
       attribute :address_line_1, String
       attribute :address_line_2, String
       attribute :address_line_3, String
-      attribute :address_pou, String  # purpose of use
+      attribute :address_pou, String # purpose of use
       attribute :address_type, String
       attribute :city, String
       attribute :confirmation_date, Common::ISO8601Time
