@@ -310,23 +310,34 @@ en:
         <<: *defaults
         title: Proxy error
         detail: 'Upstream server returned not eligible response'
-        code: 111
+        code: 120
         status: 502
       external_service_unavailable:
         <<: *defaults
         title: External service unavailable
         detail: 'EVSS received an error calling external service'
-        code: 113
+        code: 121
         status: 503
       form_in_process:
         <<: *defaults
         title: Form in process
         detail: 'This form has already been submitted'
-        # code: 113
+        code: 122
         status: 409
       disabled:
         <<: *defaults
         title: Form disabled
         detail: 'Form submissions are currently disabled by EVSS'
-        # code:
-        status: 503
+        code: 123
+        status: 502
+      marshall_error:
+        <<: *defaults
+        title: Marshall error
+        detail: 'Unexpected marshalling error'
+        code: 124
+        status: 500
+      start_batch_job_error:
+        <<: *defaults
+        title: Cannot launch the 526 post submit batch job
+        code: 125
+        status: 502
