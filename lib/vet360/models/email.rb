@@ -4,8 +4,6 @@ module Vet360
   module Models
     class Email < Base
       attribute :created_at, Common::ISO8601Time
-      attribute :effective_end_date, Common::ISO8601Time
-      attribute :effective_start_date, Common::ISO8601Time
       attribute :email_address, String
       attribute :id, Integer
       attribute :source_date, Common::ISO8601Time
@@ -22,8 +20,6 @@ module Vet360
       def self.from_response(body)
         Vet360::Models::Email.new(
           created_at: body['create_date'],
-          effective_end_date: body['effective_end_date'],
-          effective_start_date: body['effective_start_date'],
           email_address: body['email_address_text'],
           id: body['email_id'],
           source_date: body['source_date'],

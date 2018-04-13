@@ -48,7 +48,7 @@ pension_burial:
 # Settings for Vet360
 vet360:
   url: "https://int.vet360.va.gov"
-  system_name: 'VET360'
+  system_name: 'VETSGOV'
   contact_information:
     timeout: 30
     mock: false

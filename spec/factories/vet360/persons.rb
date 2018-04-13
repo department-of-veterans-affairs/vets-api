@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :person, class: 'Vet360::Models::Person' do
     addresses   [FactoryBot.build(:vet360_address), FactoryBot.build(:vet360_address, :mailing)]
     emails      [FactoryBot.build(:email)]
-    # TODO - the telephone factory will not register??
+    # TODO: the telephone factory will not register??
     # telephones  [FactoryBot.build(:telephone)]
     source_date '2018-04-09T11:52:03-06:00'
     created_at  '2017-04-09T11:52:03-06:00'
