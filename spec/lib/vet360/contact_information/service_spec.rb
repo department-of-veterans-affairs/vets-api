@@ -21,7 +21,7 @@ describe Vet360::ContactInformation::Service do
       end
     end
 
-    context 'when successful' do
+    context 'when not successful' do
       xit 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/person_error', match_requests_on: %i[body uri method]) do
           expect { subject.get_person }.to raise_error do |e|
