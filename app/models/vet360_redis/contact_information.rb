@@ -43,9 +43,9 @@ module Vet360Redis
     # Returns the user's residence. In Vet360, a user can only have one
     # residence address.
     #
-    # @return [Vet360::Models::Address] The user's one residence address model
+    # @return [Vet360::Models::Address] The user's one residential address model
     #
-    def address
+    def residential_address
       return unless @user.loa3?
 
       dig_out('addresses', 'address_pou', Vet360::Models::Address::RESIDENCE)
@@ -111,7 +111,7 @@ module Vet360Redis
     #
     # @return [Vet360::Models::Telephone] The user's one fax number model
     #
-    def fax
+    def fax_number
       return unless @user.loa3?
 
       dig_out('telephones', 'phone_type', Vet360::Models::Telephone::FAX)
@@ -129,7 +129,8 @@ module Vet360Redis
     end
 
     # @return [Vet360::ContactInformation::PersonResponse] the response returned from
-    # Vet360::ContactInformation::Service#get_person
+    # the redis cache.  If that is unavailable, it calls the
+    # Vet360::ContactInformation::Service#get_person endpoint.
     #
     def response
       @response ||= response_from_redis_or_service
@@ -148,8 +149,8 @@ module Vet360Redis
 
       return if response_value.blank?
 
-      response_value.find do |address|
-        address.send(type) == matcher
+      response_value.find do |contact_info|
+        contact_info.send(type) == matcher
       end
     end
 

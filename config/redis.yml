@@ -37,7 +37,7 @@ development: &defaults
     each_ttl: 604800
   vet360_contact_info_response:
     namespace: vet360-contact-info-response
-    each_ttl: 60
+    each_ttl: 60 # TODO: Verify that this is the best TTL
 
 test:
   <<: *defaults
