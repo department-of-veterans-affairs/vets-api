@@ -14,13 +14,6 @@ module VBADocuments
 
     private
 
-    def process(upload)
-      return false unless bucket.object(upload.guid).exists?
-      VBADocuments::UploadProcessor.perform_async(upload.guid)
-      upload.update(status: 'uploaded')
-      true
-    end
-
     def bucket
       @bucket ||= begin
         s3 = Aws::S3::Resource.new(region: Settings.documents.s3.region,
