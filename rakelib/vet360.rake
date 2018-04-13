@@ -209,14 +209,14 @@ namespace :vet360 do
 
     response = conn.send(method) do |req|
       req.url route
-      req.headers = @headers + headers
+      req.headers = @headers.merge(headers)
       req.body = body
     end
 
     # print results to console
-    puts "#{method.upcase}: " + route
-    puts "Response status: " + response.status.to_s
-    puts "Response body: " + response.body
+    puts "#{method.upcase}: #{route}"
+    puts "Response status: #{response.status}"
+    puts "Response body: #{response.body}"
   end
 
 end
