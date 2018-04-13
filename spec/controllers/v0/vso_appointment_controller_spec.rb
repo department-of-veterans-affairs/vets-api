@@ -34,24 +34,25 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
       expect(response).to have_http_status(:bad_request)
     end
 
-    it 'should accept a basic example', :isolate do
+    it 'should accept a basic example' do
       VCR.use_cassette('vso_appointments/upload') do
         # fill in everything with junk by default
         payload = {}
         VsoAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
 
+        # This will actually accept camel case, but /shrug
         payload = payload.merge(
-          "veteranFullName": {
-            "first": "Graham",
-            "last": "Testuser",
+          "veteran_full_name": {
+            "first": 'Graham',
+            "last": 'Testuser'
           },
-          "claimantFullName": {
-            "first": "the artist formely known as claimant"
+          "claimant_full_name": {
+            "first": 'the artist formely known as claimant'
           },
-          "claimantAddress": {
-            "street": "123 Fake St"
+          "claimant_address": {
+            "street": '123 Fake St'
           },
-          "appointmentDate": '2018-04-09'
+          "appointment_date": '2018-04-09'
         )
 
         post :create, payload

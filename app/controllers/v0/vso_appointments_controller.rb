@@ -10,9 +10,9 @@ module V0
 
     def appt_params
       params.permit(VsoAppointment.attribute_set.map(&:name) + [
-        veteranFullName: [:first, :middle, :last, :suffix],
-        claimantFullName: [:first, :middle, :last, :suffix],
-        claimantAddress: [:street, :street2, :city, :country, :state, :postal_code]
+        veteran_full_name: %i[first middle last suffix],
+        claimant_full_name: %i[first middle last suffix],
+        claimant_address: %i[street street2 city country state postal_code]
       ])
     end
 

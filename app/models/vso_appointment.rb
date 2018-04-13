@@ -6,39 +6,39 @@ class VsoAppointment
   include ActiveModel::Validations
   include Virtus.model(nullify_blank: true)
 
-  attribute :veteranFullName, Preneeds::FullName
-  attribute :veteranSSN, String
-  attribute :vaFileNumber, String
-  attribute :insuranceNumber, String
-  attribute :claimantFullName, Preneeds::FullName
-  attribute :claimantAddress, Preneeds::Address
-  attribute :claimantEmail, String
-  attribute :claimantDaytimePhone, String
-  attribute :claimantEveningPhone, String
+  attribute :veteran_full_name, Preneeds::FullName
+  attribute :veteran_ssn, String
+  attribute :va_file_number, String
+  attribute :insurance_number, String
+  attribute :claimant_full_name, Preneeds::FullName
+  attribute :claimant_address, Preneeds::Address
+  attribute :claimant_email, String
+  attribute :claimant_daytime_phone, String
+  attribute :claimant_evening_phone, String
   attribute :relationship, String
-  attribute :appointmentDate, String
-  attribute :organizationName, String
-  attribute :organizationEmail, String
-  attribute :organizationRepresentativeName, String
-  attribute :organizationRepresentativeTitle, String
-  attribute :disclosureExceptionDrugAbuse, Boolean
-  attribute :disclosureExceptionAlcoholism, Boolean
-  attribute :disclosureExceptionHIV, Boolean
-  attribute :disclosureExceptionSickleCellAnemia, Boolean
+  attribute :appointment_date, String
+  attribute :organization_name, String
+  attribute :organization_email, String
+  attribute :organization_representative_name, String
+  attribute :organization_representative_title, String
+  attribute :disclosure_exception_drug_abuse, Boolean
+  attribute :disclosure_exception_alcoholism, Boolean
+  attribute :disclosure_exception_hiv, Boolean
+  attribute :disclosure_exception_sickle_cell_anemia, Boolean
 
-  validates :veteranFullName, presence: true
-  validates :veteranSSN, presence: true
-  validates :vaFileNumber, presence: true
-  validates :insuranceNumber, presence: true
-  validates :claimantFullName, presence: true
-  validates :claimantAddress, presence: true
-  validates :claimantEmail, presence: true
-  validates :claimantDaytimePhone, presence: true
-  validates :claimantEveningPhone, presence: true
+  validates :veteran_full_name, presence: true
+  validates :veteran_ssn, presence: true
+  validates :va_file_number, presence: true
+  validates :insurance_number, presence: true
+  validates :claimant_full_name, presence: true
+  validates :claimant_address, presence: true
+  validates :claimant_email, presence: true
+  validates :claimant_daytime_phone, presence: true
+  validates :claimant_evening_phone, presence: true
   validates :relationship, presence: true
-  validates :appointmentDate, presence: true, format: /\A[\d]{4}-[\d]{2}-[\d]{2}\Z/
-  validates :organizationName, presence: true
-  validates :organizationEmail, presence: true
-  validates :organizationRepresentativeName, presence: true
-  validates :organizationRepresentativeTitle, presence: true
+  validates :appointment_date, presence: true, format: /\A[\d]{4}-[\d]{2}-[\d]{2}\Z/
+  validates :organization_name, presence: true
+  validates :organization_email, presence: true
+  validates :organization_representative_name, presence: true
+  validates :organization_representative_title, presence: true
 end

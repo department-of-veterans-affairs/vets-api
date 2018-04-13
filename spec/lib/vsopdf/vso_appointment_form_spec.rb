@@ -8,11 +8,11 @@ describe VsoAppointmentForm do
   include SchemaMatchers
 
   form = VsoAppointmentForm.new(VsoAppointment.new(
-                                  veteranFullName: {
+                                  veteran_full_name: {
                                     first: 'Graham',
                                     last: 'Test'
                                   },
-                                  claimantAddress: {
+                                  claimant_address: {
                                     street: '123 Fake St',
                                     street2: 'apt #1',
                                     city: 'Philadelphia',
@@ -20,14 +20,14 @@ describe VsoAppointmentForm do
                                     state: 'PA',
                                     postal_code: '19119'
                                   },
-                                  appointmentDate: '2018-01-02',
-                                  insuranceNumber: '12345',
-                                  vaFileNumber: '111223333',
-                                  claimantEveningPhone: '555-1212',
-                                  organizationName: 'some org',
-                                  organizationRepresentativeName: 'John Smith',
-                                  organizationRepresentativeTitle: 'Director of weird field names',
-                                  disclosureExceptionHIV: true
+                                  appointment_date: '2018-01-02',
+                                  insurance_number: '12345',
+                                  va_file_number: '111223333',
+                                  claimant_evening_phone: '555-1212',
+                                  organization_name: 'some org',
+                                  organization_representative_name: 'John Smith',
+                                  organization_representative_title: 'Director of weird field names',
+                                  disclosure_exception_hiv: true
   ))
 
   it 'should translate a VsoAppointment object' do
