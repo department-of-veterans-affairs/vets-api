@@ -6,12 +6,12 @@ class VsoAppointment
   include ActiveModel::Validations
   include Virtus.model(nullify_blank: true)
 
-  attribute :veteranFullName, String
+  attribute :veteranFullName, Preneeds::FullName
   attribute :veteranSSN, String
   attribute :vaFileNumber, String
   attribute :insuranceNumber, String
-  attribute :claimantFullName, String
-  attribute :claimantAddress, String
+  attribute :claimantFullName, Preneeds::FullName
+  attribute :claimantAddress, Preneeds::Address
   attribute :claimantEmail, String
   attribute :claimantDaytimePhone, String
   attribute :claimantEveningPhone, String
@@ -27,7 +27,7 @@ class VsoAppointment
   attribute :disclosureExceptionSickleCellAnemia, Boolean
 
   validates :veteranFullName, presence: true
-  validates :veteranSSN, presence: true, format: /\A[\d]{3}-[\d]{2}-[\d]{4}\Z/
+  validates :veteranSSN, presence: true
   validates :vaFileNumber, presence: true
   validates :insuranceNumber, presence: true
   validates :claimantFullName, presence: true

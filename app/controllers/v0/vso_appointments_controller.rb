@@ -9,7 +9,11 @@ module V0
     wrap_parameters VsoAppointment, format: :json
 
     def appt_params
-      params.permit(VsoAppointment.attribute_set.map(&:name))
+      params.permit(VsoAppointment.attribute_set.map(&:name) + [
+        veteranFullName: [:first, :middle, :last, :suffix],
+        claimantFullName: [:first, :middle, :last, :suffix],
+        claimantAddress: [:street, :street2, :city, :country, :state, :postal_code]
+      ])
     end
 
     def create

@@ -8,7 +8,19 @@ describe VsoAppointmentForm do
   include SchemaMatchers
 
   form = VsoAppointmentForm.new(VsoAppointment.new(
-                                  veteranFullName: 'Graham Test',
+                                  veteranFullName: {
+                                    first: 'Graham',
+                                    last: 'Test'
+                                  },
+                                  claimantAddress: {
+                                    street: '123 Fake St',
+                                    street2: 'apt #1',
+                                    city: 'Philadelphia',
+                                    country: 'USA',
+                                    state: 'PA',
+                                    postal_code: '19119'
+                                  },
+                                  appointmentDate: '2018-01-02',
                                   insuranceNumber: '12345',
                                   vaFileNumber: '111223333',
                                   claimantEveningPhone: '555-1212',
@@ -28,15 +40,15 @@ describe VsoAppointmentForm do
     expect(args['F[0].Page_1[0].nameofservice[0]']).to eq 'some org'
     expect(args['F[0].Page_1[0].jobtitile[0]']).to eq 'John Smith, Director of weird field names'
     expect(args['F[0].Page_1[0].infectionwiththehumanimmunodeficiencyvirushiv[0]']).to eq 1
+    expect(args['F[0].Page_1[0].address[0]']).to eq("123 Fake St\napt #1\nPhiladelphia, PA 19119\nUSA")
+    expect(args['F[0].Page_1[0].Dateappt[0]']).to eq('2018-01-02')
   end
 
   it 'should generate a valid pdf' do
     path = form.generate_pdf
 
     # Read the pdf and get a hash of the filled fields
-    fields = {}
-    PdfForms.new(Settings.binaries.pdftk).get_fields(path).each { |f| fields[f.name] = f.value }
-
+    fields = PdfForms.new(Settings.binaries.pdftk).get_fields(path).map { |f| [f.name, f.value] }.to_h
     expect(fields['F[0].Page_1[0].nameofvet[0]']).to eq 'Graham Test'
   end
 

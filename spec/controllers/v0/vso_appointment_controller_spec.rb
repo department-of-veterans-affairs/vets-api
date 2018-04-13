@@ -41,7 +41,16 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
         VsoAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
 
         payload = payload.merge(
-          "veteranSSN": '111-22-3333',
+          "veteranFullName": {
+            "first": "Graham",
+            "last": "Testuser",
+          },
+          "claimantFullName": {
+            "first": "the artist formely known as claimant"
+          },
+          "claimantAddress": {
+            "street": "123 Fake St"
+          },
           "appointmentDate": '2018-04-09'
         )
 
