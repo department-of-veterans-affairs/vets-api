@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_dependency 'common/exceptions'
 
-module VbaDocuments
+module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
     type 'document_upload'
 

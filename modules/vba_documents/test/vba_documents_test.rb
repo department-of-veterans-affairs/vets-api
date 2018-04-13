@@ -1,7 +1,7 @@
 require 'test_helper'
 
-class VbaDocumentsTest < ActiveSupport::TestCase
+class VBADocumentsTest < ActiveSupport::TestCase
   test "truth" do
-    assert_kind_of Module, VbaDocuments
+    assert_kind_of Module, VBADocuments
   end
 end

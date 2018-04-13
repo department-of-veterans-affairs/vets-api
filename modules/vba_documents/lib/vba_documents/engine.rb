@@ -1,8 +1,8 @@
 require 'aws-sdk-s3'
 
-module VbaDocuments
+module VBADocuments
   class Engine < ::Rails::Engine
-    isolate_namespace VbaDocuments
+    isolate_namespace VBADocuments
 
     initializer :append_migrations do |app|
       unless app.root.to_s.match root.to_s

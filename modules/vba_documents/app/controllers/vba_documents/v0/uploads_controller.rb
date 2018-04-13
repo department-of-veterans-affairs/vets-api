@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 require_dependency "vba_documents/application_controller"
 
-module VbaDocuments
+module VBADocuments
   module V0
     class UploadsController < ApplicationController
       include Swagger::Blocks
@@ -107,10 +107,10 @@ module VbaDocuments
       end
       # rubocop:enable Metrics/LineLength, Metrics/BlockLength
       def create
-        submission = VbaDocuments::UploadSubmission.create 
+        submission = VBADocuments::UploadSubmission.create 
         render status: :accepted,
                json: submission,
-               serializer: VbaDocuments::UploadSerializer,
+               serializer: VBADocuments::UploadSerializer,
                render_location: true
 
       end
@@ -155,9 +155,9 @@ module VbaDocuments
       end
 
       def show
-        submission = VbaDocuments::UploadSubmission.find_by(guid: params[:id])
+        submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
         render json: submission,
-               serializer: VbaDocuments::UploadSerializer,
+               serializer: VBADocuments::UploadSerializer,
                render_location: false
       end
     end

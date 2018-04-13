@@ -1,4 +1,4 @@
-module VbaDocuments
+module VBADocuments
   class UploadSubmission < ActiveRecord::Base
     include SetGuid
 

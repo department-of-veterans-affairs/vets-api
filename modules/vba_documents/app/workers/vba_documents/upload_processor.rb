@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   class UploadProcessor
     include Sidekiq::Worker
 
     def perform(guid)
-      upload = VbaDocuments::UploadSubmission.find_by(guid: guid)
+      upload = VBADocuments::UploadSubmission.find_by(guid: guid)
       object = bucket.object(upload.guid)
       tempfile = Tempfile.new(upload.guid)
       object.download_file(tempfile.path)
@@ -17,7 +17,7 @@ module VbaDocuments
 
     def process(upload)
       return false unless bucket.object(upload.guid).exists?  
-      VbaDocuments::UploadProcessor.perform_async(upload.guid)
+      VBADocuments::UploadProcessor.perform_async(upload.guid)
       upload.update(status: 'uploaded')
       return true
     end

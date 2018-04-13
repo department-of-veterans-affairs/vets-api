@@ -1,4 +1,4 @@
 require "vba_documents/engine"
 
-module VbaDocuments
+module VBADocuments
 end

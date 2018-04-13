@@ -6,7 +6,7 @@ require "vba_documents/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "vba_documents"
-  s.version     = VbaDocuments::VERSION
+  s.version     = VBADocuments::VERSION
   s.authors     = ["Patrick Vinograd"]
   s.email       = ["patrick@adhocteam.us"]
   s.homepage    = "https://api.vets.gov/services/vba_documents/docs/v0"

@@ -1,4 +1,4 @@
-class CreateVbaDocumentsUploadSubmissions < ActiveRecord::Migration
+class CreateVBADocumentsUploadSubmissions < ActiveRecord::Migration
   def change
     create_table :vba_documents_upload_submissions do |t|
       t.string("status", default: "pending", index: true, null: false)

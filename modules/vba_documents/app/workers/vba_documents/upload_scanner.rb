@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module VbaDocuments
+module VBADocuments
   class UploadScanner
     include Sidekiq::Worker
 
     def perform
-      VbaDocuments::UploadSubmission.where(status: 'pending').find_each do |upload|
+      VBADocuments::UploadSubmission.where(status: 'pending').find_each do |upload|
         # TODO expire records after upload URL is obsolete (default 900 secs)
         process(upload)  
       end
@@ -17,7 +17,7 @@ module VbaDocuments
       Rails.logger.info("Processing: " + upload.inspect)
       Rails.logger.info("Upload exists: " + bucket.object(upload.guid).exists?.to_s)
       return false unless bucket.object(upload.guid).exists?
-      VbaDocuments::UploadProcessor.perform_async(upload.guid)
+      VBADocuments::UploadProcessor.perform_async(upload.guid)
       upload.update(status: 'uploaded')
       return true
     end

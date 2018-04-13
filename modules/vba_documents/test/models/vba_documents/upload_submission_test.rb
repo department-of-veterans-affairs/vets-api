@@ -1,6 +1,6 @@
 require 'test_helper'
 
-module VbaDocuments
+module VBADocuments
   class UploadSubmissionTest < ActiveSupport::TestCase
     # test "the truth" do
     #   assert true
