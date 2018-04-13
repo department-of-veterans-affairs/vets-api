@@ -170,4 +170,29 @@ RSpec.describe UserSerializer, type: :serializer do
       end
     end
   end
+
+  describe '#health_terms_current' do
+    context 'with an ineligible user' do
+      let(:user) { create(:user, :loa1) }
+
+      it 'should be false' do
+        expect(user.mhv_account.terms_and_conditions_accepted?).to be_falsey
+        expect(attributes['health_terms_current']).to be_falsey
+      end
+    end
+
+    context 'with an eligible user' do
+      let(:user) { create(:user, :mhv) }
+
+      it 'without terms accepted should be false' do
+        allow(user.mhv_account).to receive(:terms_and_conditions_accepted?).and_return(false)
+        expect(attributes['health_terms_current']).to be_falsey
+      end
+
+      it 'when terms are accepted should be true' do
+        allow(user.mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
+        expect(attributes['health_terms_current']).to be_truthy
+      end
+    end
+  end
 end

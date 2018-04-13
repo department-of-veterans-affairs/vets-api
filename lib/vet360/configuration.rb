@@ -4,13 +4,14 @@ require 'common/client/configuration/rest'
 
 module Vet360
   class Configuration < Common::Client::Configuration::REST
+
     def self.base_request_headers
-      super.merge({ 'cufSystemName' => Settings.vet360.cuf_system_name })
+      super.merge('cufSystemName' => Settings.vet360.system_name)
     end
 
-    # TODO - research the middleware settings needed for Vet360
+    # TODO: research the middleware settings needed for Vet360
     def connection
-      # TODO - Former version contained ssl_options
+      # TODO: Former version contained ssl_options
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
         # faraday.use      EVSS::ErrorMiddleware # Probably need to build Vet360::ErrorMiddleware

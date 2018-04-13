@@ -7,7 +7,7 @@ describe Vet360::ContactInformation::Service do
   subject { described_class.new(user) }
 
   before do
-    allow(user).to receive(:vet360_id).and_return('123456')
+    allow(user).to receive(:vet360_id).and_return('1')
   end
 
   xdescribe '#get_person' do
@@ -21,8 +21,8 @@ describe Vet360::ContactInformation::Service do
       end
     end
 
-    context 'when successful' do
-      it 'returns a status of 404' do
+    context 'when not successful' do
+      xit 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/person_error', match_requests_on: %i[body uri method]) do
           expect { subject.get_person }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)

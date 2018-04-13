@@ -56,7 +56,7 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def health_terms_current
-    !object.mhv_account.needs_terms_acceptance?
+    object.mhv_account.terms_and_conditions_accepted?
   end
 
   def in_progress_forms
@@ -81,7 +81,10 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
+    service_list << BackendServices::RX if object.authorize :mhv_prescriptions, :access?
+    service_list << BackendServices::MESSAGING if object.authorize :mhv_messaging, :access?
+    service_list << BackendServices::HEALTH_RECORDS if object.authorize :mhv_health_records, :access?
+    service_list << BackendServices::MHV_AC if object.authorize :mhv_account_creation, :access?
     service_list << BackendServices::EVSS_CLAIMS if object.authorize :evss, :access?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if object.authorize :appeals, :access?

@@ -23,15 +23,13 @@ module Vet360
       )
 
       def self.from_response(body)
-        body.map do |msg|
-          Vet360::Models::Message.new(
-            code: msg['code'],
-            key: msg['key'],
-            retryable: msg['potentially_self_correcting_on_retry'],
-            severity: msg['severity'],
-            text: msg['text']
-          )
-        end
+        Vet360::Models::Message.new(
+          code: body['code'],
+          key: body['key'],
+          retryable: body['potentially_self_correcting_on_retry'],
+          severity: body['severity'],
+          text: body['text']
+        )
       end
     end
   end

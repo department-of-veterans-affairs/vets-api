@@ -128,12 +128,6 @@ en:
         detail: "Did not receive a timely response from an upstream server"
         code: 504
         status: 504
-      account_creation_error:
-        <<: *defaults
-        title: Operation failed
-        detail: "Failed to create or upgrade health tools account access"
-        code: "MHVAC1"
-        status: 403
       id_card_attribute_error:
         <<: *defaults
         title: Request failed
@@ -237,7 +231,7 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
-      MHVACCTCREATION155: # Account is already Upgraded
+      MHVACCTCREATION155: # TODO: Might be able to remove this 
         <<: *external_defaults
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
@@ -366,4 +360,3 @@ en:
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-
