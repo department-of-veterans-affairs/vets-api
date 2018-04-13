@@ -5,14 +5,14 @@ require 'vet360/response'
 module Vet360
   module ContactInformation
     class PersonResponse < Vet360::Response
-      attribute :person, Hash
+      attribute :person, Vet360::Models::Person
 
       attr_reader :bio
 
       def initialize(status, response = nil)
         # TODO: how do we want to customize the response
         @bio = response&.body&.dig('bio')
-        super(status, person: bio)
+        super(status, person: build_person)
       end
 
       def build_person
