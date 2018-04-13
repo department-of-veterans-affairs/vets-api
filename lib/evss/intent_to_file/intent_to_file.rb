@@ -6,8 +6,17 @@ module EVSS
   module IntentToFile
     class IntentToFile < Common::Base
       STATUS_TYPES = %w[
-        expired
         active
+        claim_recieved
+        duplicate
+        expired
+        incomplete
+      ].freeze
+
+      ITF_TYPE = %w[
+        compensation
+        pension
+        survivor
       ].freeze
 
       attribute :id, String
@@ -16,11 +25,11 @@ module EVSS
       attribute :participant_id, Integer
       attribute :source, String
       attribute :status, String
-      attribute :type, String # Can only currently be "compensation"?
+      attribute :type, String
 
       def initialize(args)
-        raise ArgumentError, "invalid status type: #{args['status']}" unless LETTER_TYPES.include? args['status']
-        raise ArgumentError, "invalid type: #{args['type']}" unless args['status'] == 'compensation'
+        raise ArgumentError, "invalid status type: #{args['status']}" unless STATUS_TYPES.include? args['status']
+        raise ArgumentError, "invalid type: #{args['type']}" unless ITF_TYPE.include? args['type']
         super(args)
       end
     end
