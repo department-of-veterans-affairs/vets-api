@@ -51,8 +51,8 @@ http_interactions:
       #   - no-cache
       # X-UA-Compatible:
       #   - IE-edge,chrome=1
-      # Content-Type:
-      #   - application/json;charset=UTF-8
+      Content-Type:
+        - application/json;charset=UTF-8
       # Transfer-Encoding:
       #   - chunked
     body:
