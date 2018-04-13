@@ -55,3 +55,7 @@ StatsD.increment("#{EVSS::Service::STATSD_KEY_PREFIX}.update_address.fail", 0)
 # init appeals
 StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.total", 0)
 StatsD.increment("#{Appeals::Service::STATSD_KEY_PREFIX}.get_appeals.fail", 0)
+
+# init  mvi
+StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
+StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)

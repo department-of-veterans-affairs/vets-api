@@ -30,19 +30,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
-  let(:mhv_account) do
-    double('mhv_account', account_state: 'updated',
-                          ineligible?: false,
-                          eligible?: true,
-                          needs_terms_acceptance?: false,
-                          accessible?: true)
-  end
   let(:mhv_user) { build(:user, :mhv) }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
@@ -725,9 +717,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
 
           context 'unsuccessful calls' do
-            let(:mhv_account) do
-              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
-            end
+            let(:mhv_user) { build(:user, :loa1) } # a user without mhv_correlation_id
 
             it 'raises forbidden when user is not eligible' do
               expect(subject).to validate(:get, '/v0/health_records/refresh', 403)
@@ -1020,9 +1010,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/vha_648A4') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
 
         it '404s on non-existent facility' do
