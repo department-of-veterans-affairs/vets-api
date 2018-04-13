@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-require_dependency "vba_documents/application_controller"
+
+require_dependency 'vba_documents/application_controller'
 
 module VBADocuments
   module V0
@@ -107,12 +108,11 @@ module VBADocuments
       end
       # rubocop:enable Metrics/LineLength, Metrics/BlockLength
       def create
-        submission = VBADocuments::UploadSubmission.create 
+        submission = VBADocuments::UploadSubmission.create
         render status: :accepted,
                json: submission,
                serializer: VBADocuments::UploadSerializer,
                render_location: true
-
       end
 
       swagger_path '/document_uploads/{id}' do

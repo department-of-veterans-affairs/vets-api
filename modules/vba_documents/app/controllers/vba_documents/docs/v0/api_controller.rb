@@ -13,7 +13,7 @@ module VBADocuments
           info do
             key :version, '0.0.0'
             key :title, 'Benefits'
-            key :description, 'Veterans Benefits Administration (VBA) focused functionality, including document uploads.'
+            key :description, 'Veterans Benefits Administration (VBA) document uploads.'
             key :termsOfService, ''
             contact do
               key :name, 'Vets.gov'

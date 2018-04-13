@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VBADocuments
   class UploadSubmission < ActiveRecord::Base
     include SetGuid
@@ -11,8 +13,7 @@ module VBADocuments
     private
 
     def rewrite_url(url)
-      # TODO remove puts
-      puts url
+      Rails.logger.info(url)
       rewritten = url.sub!(Settings.documents.location.prefix, Settings.documents.location.replacement)
       raise 'Unable to provide document upload location' unless rewritten
       rewritten
