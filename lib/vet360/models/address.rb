@@ -29,7 +29,7 @@ module Vet360
 
       validates :source_date, presence: true
 
-      def self.from_response(body)
+      def self.from_response(_body)
         # TODO: Map address response object to model
         Vet360::Models::Address.new
       end
