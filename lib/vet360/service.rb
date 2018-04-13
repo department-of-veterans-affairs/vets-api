@@ -40,7 +40,7 @@ module Vet360
 
     def parse_messages(error)
       messages = error.body&.dig('messages')
-      Vet360::Models::Message.from_response(messages)
+      messages&.map { |m| Vet360::Models::Message.from_response(m) }
     end
 
     def raise_backend_exception(key, source, error = nil)
