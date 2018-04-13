@@ -5,7 +5,20 @@ http_interactions:
     uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/emails"
     body:
       encoding: UTF-8
-      string: ''
+      string: |-
+        {
+          "bio": {
+            "confirmationDate": "2018-04-13T14:21:17.695Z",
+            "emailAddressText": "string",
+            "emailId": 0,
+            "emailPermInd": true,
+            "originatingSourceSystem": "string",
+            "sourceDate": "2018-04-13T14:21:17.695Z",
+            "sourceSystemUser": "string",
+            "vet360Id": 0
+          }
+        }
+
     headers:
       User-Agent:
       - Vets.gov Agent

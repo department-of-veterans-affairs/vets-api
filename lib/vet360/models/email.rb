@@ -18,6 +18,26 @@ module Vet360
         format: { with: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX },
         length: { maximum: 255, minimum: 6 }
       )
+
+      def to_request()
+        {
+          bio: {
+            emailAddressText: @email_address,
+            emailId: @id,
+            # emailPermInd: true, # @TODO ??
+            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            sourceDate: @source_date,
+            vet360Id: 1 # current_user.vet360_id # @TODO
+          }
+        }.to_json
+      end
+
+      def self.from_response(response)
+        hash = JSON.parse(response.body)
+        byebug
+        # @TODO
+      end
+
     end
   end
 end

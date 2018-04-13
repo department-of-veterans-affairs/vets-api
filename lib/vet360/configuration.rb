@@ -5,7 +5,7 @@ require 'common/client/configuration/rest'
 module Vet360
   class Configuration < Common::Client::Configuration::REST
     def self.base_request_headers
-      super.merge({ 'cufSystemName' => 'VETSGOV' }) # @TODO We should read 'VETSGOV' from config
+      super.merge({ 'cufSystemName' => Settings.vet360.cuf_system_name })
     end
 
     # TODO - research the middleware settings needed for Vet360
