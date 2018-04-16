@@ -2,8 +2,6 @@
 
 class SavedClaim::Pension < CentralMailClaim
   FORM = '21P-527EZ'
-  CONFIRMATION = 'PEN'
-  PERSISTENT_CLASS = PersistentAttachments::PensionBurial
 
   def regional_office
     PensionBurial::ProcessingOffice.address_for(open_struct_form.veteranAddress.postalCode)
