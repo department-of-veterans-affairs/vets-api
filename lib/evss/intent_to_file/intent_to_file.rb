@@ -5,6 +5,7 @@ require 'common/models/base'
 module EVSS
   module IntentToFile
     class IntentToFile < Common::Base
+      # The spelling of these status types has been validated with the partner team
       STATUS_TYPES = %w[
         active
         claim_recieved
