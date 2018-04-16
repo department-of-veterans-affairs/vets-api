@@ -64,7 +64,9 @@ describe EVSS::IntentToFile::Service do
 
         it 'should increment intent_to_file total' do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
-            expect { subject.get_active_compensation }.to trigger_statsd_increment('api.evss.get_active_compensation.total')
+            expect do
+              subject.get_active_compensation
+            end.to trigger_statsd_increment('api.evss.get_active_compensation.total')
           end
         end
       end
@@ -126,7 +128,9 @@ describe EVSS::IntentToFile::Service do
             'api.evss.create_intent_to_file_compensation.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.create_intent_to_file_compensation.total')
-          expect { subject.create_intent_to_file_compensation(valid_request_body) }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect do
+            subject.create_intent_to_file_compensation(valid_request_body)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
 
@@ -135,7 +139,8 @@ describe EVSS::IntentToFile::Service do
         it 'should log an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
             expect(StatsD).to receive(:increment).once.with(
-              'api.evss.create_intent_to_file_compensation.fail', tags: ['error:Common::Client::Errors::ClientError', 'status:404']
+              'api.evss.create_intent_to_file_compensation.fail',
+              tags: ['error:Common::Client::Errors::ClientError', 'status:404']
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.create_intent_to_file_compensation.total')
             expect { subject }.to raise_error(EVSS::IntentToFile::ServiceException)
@@ -148,7 +153,8 @@ describe EVSS::IntentToFile::Service do
         it 'should log an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
             expect(StatsD).to receive(:increment).once.with(
-              'api.evss.create_intent_to_file_compensation.fail', tags: ['error:Common::Client::Errors::ClientError', 'status:502']
+              'api.evss.create_intent_to_file_compensation.fail',
+              tags: ['error:Common::Client::Errors::ClientError', 'status:502']
             )
             expect(StatsD).to receive(:increment).once.with('api.evss.create_intent_to_file_compensation.total')
             expect { subject }.to raise_error(EVSS::IntentToFile::ServiceException)
