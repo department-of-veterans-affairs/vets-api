@@ -5,11 +5,13 @@ RSpec.describe CentralMail::DeleteOldClaims, uploader_helpers: true, type: :mode
     stub_virus_scan
 
     it 'should delete old central mail claims' do
-      new_attachment = create(:pension_burial)
+      new_attachment_success = create(:pension_burial)
       old_attachment_pending = create(:pension_burial)
       old_attachment_success = create(:pension_burial)
       file = old_attachment_success.file
-      old_attachment_success.saved_claim.central_mail_submission.update_column(:state, 'success')
+      [new_attachment_success, old_attachment_success].each do |attachment|
+        attachment.saved_claim.central_mail_submission.update_column(:state, 'success')
+      end
 
       [old_attachment_pending, old_attachment_success].each do |attachment|
         attachment.saved_claim.update_column(:created_at, 2.months.ago - 1.day)
@@ -17,7 +19,7 @@ RSpec.describe CentralMail::DeleteOldClaims, uploader_helpers: true, type: :mode
 
       described_class.new.perform
 
-      expect(model_exists?(new_attachment)).to eq(true)
+      expect(model_exists?(new_attachment_success)).to eq(true)
       expect(model_exists?(old_attachment_pending)).to eq(true)
 
       expect(model_exists?(old_attachment_success)).to eq(false)
