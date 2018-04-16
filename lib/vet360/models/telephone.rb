@@ -9,6 +9,8 @@ module Vet360
       attribute :country_code, String
       attribute :created_at, Common::ISO8601Time
       attribute :extension, String
+      attribute :effective_end_date, Common::ISO8601Time
+      attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
       attribute :is_international, Boolean
       attribute :is_textable, Boolean
