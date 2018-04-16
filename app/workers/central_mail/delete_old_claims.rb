@@ -1,6 +1,10 @@
+# frozen_string_literal: true
+
 module CentralMail
   class DeleteOldClaims
     include Sidekiq::Worker
+
+    sidekiq_options retry: false
 
     EXPIRATION_TIME = 2.months
 
@@ -11,9 +15,7 @@ module CentralMail
         central_mail_submissions: { state: 'pending' }
       ).where(
         'created_at < ?', EXPIRATION_TIME.ago
-      ).find_each do |central_mail_claim|
-        central_mail_claim.destroy!
-      end
+      ).find_each(&:destroy!)
     end
   end
 end

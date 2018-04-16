@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CentralMail::DeleteOldClaims, uploader_helpers: true, type: :model do
