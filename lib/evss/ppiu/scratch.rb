@@ -29,7 +29,7 @@ end
 response = conn.get do |req|
   req.url 'paymentInformation'
   req.headers = headers
-  req.body = { 'paymentType' => 'CNP' }.to_json
+  req.params['paymentType'] = 'CNP'
 end
 
 puts response.status
