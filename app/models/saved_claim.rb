@@ -46,7 +46,7 @@ class SavedClaim < ActiveRecord::Base
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.update_all(saved_claim_id: id)
 
-    SubmitSavedClaimJob.perform_async(id)
+    CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
 
   def confirmation_number

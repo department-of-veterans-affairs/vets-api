@@ -49,7 +49,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
         }.to_json
       )
 
-      expect(SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
+      expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
       claim.process_attachments!
       expect(claim.persistent_attachments.size).to eq(2)
     end
