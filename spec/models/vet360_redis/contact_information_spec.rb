@@ -17,16 +17,14 @@ describe Vet360Redis::ContactInformation do
     ]
   end
 
-  let(:person_response) do
-    raw_response = OpenStruct.new(body: { 'bio' => person })
-
-    Vet360::ContactInformation::PersonResponse.new(200, raw_response)
+  before do
+    allow(Vet360::Models::Person).to receive(:from_response).and_return(person)
   end
 
-  let(:empty_response) do
-    raw_response = OpenStruct.new(body: nil)
+  let(:person_response) do
+    raw_response = OpenStruct.new(body: { 'bio' => person.to_hash })
 
-    Vet360::ContactInformation::PersonResponse.new(500, raw_response)
+    Vet360::ContactInformation::PersonResponse.new(200, raw_response)
   end
 
   describe '.new' do
@@ -60,6 +58,7 @@ describe Vet360Redis::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
+        # allow(Vet360::Models::Person).to receive(:from_response).and_return(person)
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(person_response)
       end
 
@@ -207,7 +206,14 @@ describe Vet360Redis::ContactInformation do
     end
 
     context 'with an empty respose body' do
+      let(:empty_response) do
+        raw_response = OpenStruct.new(body: nil)
+
+        Vet360::ContactInformation::PersonResponse.new(500, raw_response)
+      end
+
       before do
+        allow(Vet360::Models::Person).to receive(:from_response).and_return(nil)
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(empty_response)
       end
 
