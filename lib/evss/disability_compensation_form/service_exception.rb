@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
+require 'evss/service_exception'
 
 module EVSS
   module DisabilityCompensationForm
-    class ServiceException < Common::Exceptions::BaseError
+    class ServiceException < EVSS::ServiceException
       ERROR_MAP = {
         serviceError: 'evss.526.external_service_unavailable',
         ServiceException: 'evss.526.external_service_unavailable',
@@ -30,25 +30,6 @@ module EVSS
       }.freeze
 
       attr_reader :key, :messages
-
-      def initialize(original_body)
-        @messages = original_body['messages']
-        @key = error_key
-        super
-      end
-
-      private
-
-      def error_key
-        # in case of multiple errors highest priority code is the one set for the http response
-        key = ERROR_MAP.select { |k, _v| messages_has_key?(k) }
-        return key.values.first unless key.empty?
-        ERROR_MAP[:default]
-      end
-
-      def messages_has_key?(key)
-        @messages.any? { |m| m['key'].include? key.to_s }
-      end
     end
   end
 end
