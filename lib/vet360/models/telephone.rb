@@ -55,8 +55,6 @@ module Vet360
           area_code: body['area_code'],
           country_code: body['country_code'],
           created_at: body['create_date'],
-          effective_end_date: body['effective_end_date'],
-          effective_start_date: body['effective_start_date'],
           extension: body['phone_number_ext'],
           id: body['telephone_id'],
           is_international: body['international_indicator'],
