@@ -261,6 +261,12 @@ en:
         detail: 'Received an an invalid response from the upstream server'
         status: 502
   evss:
+    external_service_unavailable:
+      <<: *defaults
+      title: External service unavailable
+      detail: 'EVSS received an error calling external service'
+      code: 113
+      status: 503
     letters:
       unable_to_determine_eligibilty:
         <<: *defaults
@@ -280,19 +286,7 @@ en:
         detail: 'One or more unprocessable letter destination properties'
         code: 112
         status: 422
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 113
-        status: 503
     gi_bill_status:
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 113
-        status: 503
       outside_working_hours:
         <<: *defaults
         title: External service unavailable
@@ -306,12 +300,6 @@ en:
         detail: 'Upstream server returned not eligible response'
         code: 120
         status: 502
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 121
-        status: 503
       form_in_process:
         <<: *defaults
         title: Form in process
@@ -335,3 +323,10 @@ en:
         title: Cannot launch the 526 post submit batch job
         code: 125
         status: 502
+    ppiu:
+      unprocessable_entity:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: 'One or more unprocessable user payment properties'
+        code: 126
+        status: 422
