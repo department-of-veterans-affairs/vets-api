@@ -49,9 +49,8 @@ class SavedClaim < ActiveRecord::Base
     SubmitSavedClaimJob.perform_async(id)
   end
 
-  # Return a unique confirmation number that somewhat masks the sequentialness.
   def confirmation_number
-    "V-#{self.class::CONFIRMATION}-#{guid[0..6]}#{id}".upcase
+    guid
   end
 
   # Convert the json into an OStruct
