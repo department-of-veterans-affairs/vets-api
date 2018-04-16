@@ -139,7 +139,7 @@ module Vet360Redis
     private
 
     def value_for(key)
-      value = response&.person&.dig(key.to_sym)
+      value = response&.person&.send(key)
 
       value.presence
     end
