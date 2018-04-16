@@ -27,12 +27,29 @@ module Vet360
         post_or_put_email(:put, vet360_email)
       end
 
+      def post_address(vet360_address)
+        post_or_put_address(:post, vet360_address)
+      end
+
+      def put_address(vet360_address)
+        post_or_put_address(:put, vet360_address)
+      end
+
       private
 
       def post_or_put_email(method, vet360_email)
         with_monitoring do
           raw = perform(method, "emails", vet360_email.to_request)
           Vet360::ContactInformation::EmailUpdateResponse.new(raw.status, Vet360::Models::Email.from_response(raw))
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end      
+
+      def post_or_put_address(method, vet360_address)
+        with_monitoring do
+          raw = perform(method, "addresses", vet360_address.to_request)
+          Vet360::ContactInformation::AddressUpdateResponse.new(raw.status, Vet360::Models::Address.from_response(raw))
         end
       rescue StandardError => e
         handle_error(e)

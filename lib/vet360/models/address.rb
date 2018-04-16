@@ -26,6 +26,36 @@ module Vet360
 
       validates :source_date, presence: true
 
+      def to_request()
+        {
+          bio: {
+            addressId: @id,
+            addressLine1: @address_line_1,
+            addressLine2: @address_line_2,
+            addressLine3: @address_line_3,
+            addressPOU: @address_pou,
+            addressType: @address_type,
+            cityName: @city,
+            # countryCodeFIPS: ??
+            countryCodeISO2: @country_code_iso2,
+            countryCodeISO3: @country_code_iso3,
+            countryName: @country_name,
+            county: {
+              countyCode: @county_code,
+              county_name: @county_name
+            },
+            intPostalCode: @international_postal_code,
+            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            # provinceName?
+            sourceDate: @source_date,
+            stateCode: @state_abbr,
+            vet360Id: 1, #current_user.vet360_id # @TODO
+            zipCode4: @zip_code,
+            zipCode5: @zip_code_suffix
+          }
+        }.to_json
+      end
+
       # rubocop:disable Metrics/MethodLength
       def self.from_response(body)
         Vet360::Models::Address.new(
