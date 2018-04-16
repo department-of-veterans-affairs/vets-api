@@ -37,7 +37,7 @@ RSpec.describe PersistentAttachments::PensionBurial, uploader_helpers: true do
   describe '#delete_file' do
     stub_virus_scan
 
-    it 'should delete the file after destorying the model' do
+    it 'should delete the file after destroying the model' do
       instance.file = file.open
       instance.save!
       shrine_file = instance.file
