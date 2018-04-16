@@ -310,23 +310,23 @@ en:
         <<: *defaults
         title: Partner Service Error
         detail: 'Error calling out to partner service'
-        code: 'intentToFile.partner.service.error'
+        code: 131
         status: 502 # TODO: reviewed in PR
       internal_service_error:
         <<: *defaults
         title: Internal Service Error
         detail: 'Internal service error'
-        code: 'intentToFile.service.error'
+        code: 132
         status: 502
       intent_type_invalid:
         <<: *defaults
         title: Intent Type Invalid
         detail: 'Invalid intent type'
-        code: 'intenttofile.intentType.invalid'
+        code: 133
         status: 400
       partner_service_invalid:
         <<: *defaults
         title: Partner Service Invalid
         detail: 'Error on data from external service'
-        code: 'intenttofile.partner.service.invalid'
+        code: 134
         status: 502
