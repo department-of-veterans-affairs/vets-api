@@ -4,15 +4,13 @@ require 'common/exceptions/base_error'
 
 module EVSS
   class ServiceException < Common::Exceptions::BaseError
-    ERROR_MAP = {}
-
     def initialize(original_body)
       @messages = original_body['messages']
       @key = error_key
       super
     end
 
-    private 
+    private
 
     def error_key
       # in case of multiple errors highest priority code is the one set for the http response
