@@ -13,7 +13,9 @@ module EVSS
       when 'M'
         'MALE'
       else
-        raise Common::Exceptions::UnprocessableEntity, error_details('Gender is required & must be "FEMALE" or "MALE"')
+        raise Common::Exceptions::UnprocessableEntity,
+              detail: 'Gender is required & must be "FEMALE" or "MALE"',
+              source: self.class, event_id: Raven.last_event_id
       end
     end
   end

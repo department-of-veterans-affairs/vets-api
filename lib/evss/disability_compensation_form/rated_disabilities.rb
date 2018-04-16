@@ -10,8 +10,8 @@ module EVSS
 
       attribute :decision_code, String
       attribute :decision_text, String
-      attribute :diagnostic_code, Integer
-      attribute :diagnostic_text, String
+      attribute :classification_code, Integer
+      attribute :name, String
       attribute :effective_date, DateTime
       attribute :rated_disability_id, String
       attribute :rating_decision_id, String

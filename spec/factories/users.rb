@@ -85,6 +85,10 @@ FactoryBot.define do
       end
     end
 
+    factory :blank_gender_user do
+      gender('')
+    end
+
     factory :user_with_suffix, traits: [:loa3] do
       first_name('Jack')
       middle_name('Robert')
