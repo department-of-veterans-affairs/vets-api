@@ -76,38 +76,6 @@ module Vet360
         )
       end
       # rubocop:enable Metrics/MethodLength
-
-      def details
-        case address_type
-        when DOMESTIC
-          domestic_address
-        when INTERNATIONAL
-          international_address
-        when MILITARY
-          military_address
-        end
-      end
-
-      def domestic_address
-        {
-          id: id,
-          address_line_1: address_line_1,
-          address_line_2: address_line_2,
-          address_line_3: address_line_3,
-          city: city,
-          state_abbr: state_abbr,
-          zip_code: zip_code,
-          zip_code_suffix: zip_code_suffix
-        }
-      end
-
-      def international_address
-        # TODO
-      end
-
-      def military_address
-        # TODO
-      end
     end
   end
 end
