@@ -46,6 +46,15 @@ redis:
 This is also where you will place any other customizations, such as API tokens
 or certificate paths.
 
+Config settings that vary in value depending on the deployment environment will need
+to be additionally  in the relevant [devops](https://github.com/department-of-veterans-affairs/devops/blob/master/ansible/deployment/config/vets-api) configs. Things such as:
+
+* API keys/tokens
+* 3rd party service hostnames
+* Betamocks settings
+
+will need to be set in the devops configs to be properly configured for each deployment environment.
+
 ### Optional Application Configuration
 
 The following features require additional configuration, click for details.
