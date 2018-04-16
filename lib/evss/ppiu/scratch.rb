@@ -6,7 +6,7 @@ headers = {
   "Content-Type" => "application/json",
   "Accept" => "application/json",
   "va_eauth_assurancelevel" => "2",
-  "va_eauth_pnid" => "123456789",
+  "va_eauth_pnid" => "123003010",
   "va_eauth_firstName" => "Jane",
   "va_eauth_lastName" => "Doe",
   "va_eauth_csid" => "DSLogon",
@@ -15,7 +15,7 @@ headers = {
   "va_eauth_authenticationmethod" => "DSLogon",
   "va_eauth_authenticationauthority" => "eauth",
   "va_eauth_issueinstant" => "2015-04-17T14:52:48Z",
-  "va_eauth_authorization" =>  '{"authorizationResponse":{"id":"123456789","idType":"SSN","edi":"1026070453","firstName":"JANE","lastName":"DOE","status":"VETERAN"}}'
+  "va_eauth_authorization" =>  '{"authorizationResponse":{"id":"123003010","idType":"SSN","edi":"1026070453","firstName":"JANE","lastName":"DOE","status":"VETERAN"}}'
 }
 
 
