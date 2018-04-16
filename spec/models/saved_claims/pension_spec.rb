@@ -15,9 +15,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     it 'should set the attachments saved_claim_id' do
       attachment1 = create(:pension_burial)
       attachment2 = create(:pension_burial)
-      # rubocop:disable Rails/SkipsModelValidations
       [attachment1, attachment2].each { |a| a.update_column(:saved_claim_id, nil) }
-      # rubocop:enable Rails/SkipsModelValidations
 
       claim = create(
         :pension_claim,
