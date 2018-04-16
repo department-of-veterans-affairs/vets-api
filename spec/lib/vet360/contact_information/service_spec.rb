@@ -10,7 +10,7 @@ describe Vet360::ContactInformation::Service do
     allow(user).to receive(:vet360_id).and_return('1')
   end
 
-  xdescribe '#get_person' do
+  describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/person', VCR::MATCH_EVERYTHING) do

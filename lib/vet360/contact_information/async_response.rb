@@ -9,7 +9,8 @@ module Vet360
       attr_reader :tx_audit_id
 
       def initialize(status, vet360Email = nil)
-        @tx_audit_id = vet360Email.transaction_id
+        # @tx_audit_id = vet360Email.transaction_id
+        @tx_audit_id = 1 # @TODO ^ This is what it should be when Harry's branch gets merged
         super(status, tx_audit_id: @tx_audit_id)
       end
 

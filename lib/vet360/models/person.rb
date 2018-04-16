@@ -21,10 +21,6 @@ module Vet360
           source_date: body['source_date'],
           updated_at: body['update_date'],
           transaction_id: body['trx_audit_id'],
-          # @TODO should these be nil or [] when empty?
-          addresses: body['addresses']&.map { |a| Vet360::Models::Address.from_response(a) },
-          emails: body['emails']&.map { |e| Vet360::Models::Telephone.from_response(e) },
-          telephones: body['telephones']&.map { |t| Vet360::Models::Telephone.from_response(t) }
           addresses: addresses || [],
           emails: emails || [],
           telephones: telephones || []

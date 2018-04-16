@@ -17,7 +17,7 @@ module Vet360
         length: { maximum: 255, minimum: 6 }
       )
 
-      def to_request()
+      def to_request(vet360_id)
         {
           bio: {
             emailAddressText: @email_address,
@@ -25,7 +25,7 @@ module Vet360
             # emailPermInd: true, # @TODO ??
             originatingSourceSystem: Settings.vet360.cuf_system_name,
             sourceDate: @source_date,
-            vet360Id: 1 # current_user.vet360_id # @TODO
+            vet360Id: vet360_id
           }
         }.to_json
       end
