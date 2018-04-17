@@ -1,6 +1,6 @@
 COMPOSE_DEV  := docker-compose
 COMPOSE_TEST := docker-compose -f docker-compose.test.yml
-BASH         := run --rm vets-api bash --login
+BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) -c
 
@@ -24,15 +24,15 @@ db:
 	@$(BASH_DEV) "bundle exec rake db:setup db:migrate"
 
 .PHONY: guard
-guard: db
+guard:
 	@$(BASH_DEV) "bundle exec guard"
 
 .PHONY: lint
-lint: db
+lint:
 	@$(BASH_DEV) "bundle exec rake lint"
 
 .PHONY: security
-security: db
+security:
 	@$(BASH_DEV) "bundle exec rake security"
 
 .PHONY: spec
@@ -41,7 +41,7 @@ spec: db
 
 .PHONY: up
 up: db
-	@$(COMPOSE_DEV) up
+	@$(BASH_DEV) "foreman start"
 
 .PHONY: rebuild
 rebuild:
@@ -53,3 +53,7 @@ clean:
 	rm -r data || true
 	$(COMPOSE_TEST) run vets-api rm -r coverage log tmp || true
 	$(COMPOSE_TEST) down
+
+.PHONY: clean_pids
+clean_pids:
+	rm -rf ./tmp/pids/*
