@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
+require 'vet360/contact_information/transaction_status_response'
 
 module Vet360
   module ContactInformation
@@ -20,13 +21,15 @@ module Vet360
         handle_error(e)
       end
 
-      def get_email_transaction_status(transaction_id)
+      def get_email_transaction_status(transaction)
         with_monitoring do
-          route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
+          route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
           raw_response = perform(:get, route)
 
-          Vet360::ContactInformation::TransactionStatusResponse.new(raw_response.status, raw_response)
+          Vet360::ContactInformation::EmailTransactionStatusResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
       end
     end
   end

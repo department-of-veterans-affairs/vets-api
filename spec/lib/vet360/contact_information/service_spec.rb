@@ -38,11 +38,12 @@ describe Vet360::ContactInformation::Service do
 
   describe '#get_email_transaction_status' do
     context 'when successful' do
-      let(:transaction_id) { 'abcdef' }
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+      let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
+
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status',
-                         match_requests_on: %i[body uri method]) do
-          response = subject.get_email_transaction_status(transaction_id)
+        VCR.use_cassette('vet360/contact_information/email_transaction_status', match_requests_on: %i[uri]) do
+          response = subject.get_email_transaction_status(transaction)
           expect(response).to be_ok
         end
       end
