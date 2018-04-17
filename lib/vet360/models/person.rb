@@ -11,6 +11,9 @@ module Vet360
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
 
+      # Converts a decoded JSON response from Vet360 to an instance of this model
+      # @params body [Hash] the decoded response body from Vet360
+      # @return [Vet360::Models::Person] the model built from the response body
       def self.from_response(body)
         addresses = body['addresses']&.map { |a| Vet360::Models::Address.from_response(a) }
         emails = body['emails']&.map { |e| Vet360::Models::Email.from_response(e) }
