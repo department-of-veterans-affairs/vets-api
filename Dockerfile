@@ -27,9 +27,9 @@ COPY . APP_PATH
 
 EXPOSE 3000
 
-CMD ["rails", "s", "-b", "0.0.0.0"]
-CMD ["sidekiq", "-q", "default", "-q", "critical", "-q", "tasker"]
+#CMD ["rails", "s", "-b", "0.0.0.0"]
 
+#CMD ["/sbin/my_init"]
 
 
 #FROM centos:6

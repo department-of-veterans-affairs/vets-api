@@ -29,7 +29,7 @@ services:
       "Settings.saml.key_path": "/src/vets-api/config/certs/vetsgov-localhost.key"
       "Settings.redis.host": "redis"
       "Settings.redis.port": "6379"
-      "Settings.binaries.clamdscan": "clamscan"           # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
+      "Settings.binaries.clamdscan": "clamscan" # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
