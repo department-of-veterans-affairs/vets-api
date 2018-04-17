@@ -21,11 +21,21 @@ module V0
       #   }
       #
       def show
-        log_message_to_sentry('PersonalInformationsController bug', :info, { params: params, current_user: @current_user }, { profile: 'pciu_profile'})
+        log_message_to_sentry(
+          'PersonalInformationsController bug',
+          :info,
+          params: params, current_user: @current_user,
+          profile: 'pciu_profile'
+        )
 
         response = Mvi.for_user(@current_user).profile
 
-        log_message_to_sentry('PersonalInformationsController bug', :info, { response: response, params: params, current_user: @current_user }, { profile: 'pciu_profile'})
+        log_message_to_sentry(
+          'PersonalInformationsController bug',
+          :info,
+          response: response, params: params, current_user: @current_user,
+          profile: 'pciu_profile'
+        )
 
         render json: response, serializer: PersonalInformationSerializer
       end
