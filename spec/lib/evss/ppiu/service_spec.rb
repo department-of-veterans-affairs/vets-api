@@ -13,7 +13,6 @@ describe EVSS::PPIU::Service do
           response = subject.get_payment_information
           expect(response).to be_ok
           expect(response).to be_an EVSS::PPIU::PaymentInformationResponse
-          expect(response.responses.count).to eq 1
           expect(response.responses.first.control_information)
             .to be_an EVSS::PPIU::ControlInformation
           expect(response.responses.first.payment_account)
@@ -29,12 +28,24 @@ describe EVSS::PPIU::Service do
         allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
       end
 
-      it 'should log an error and raise GatewayTimeout' do
+      it 'logs an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
           'api.evss.get_payment_information.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.evss.get_payment_information.total')
         expect { subject.get_payment_information }.to raise_error(Common::Exceptions::GatewayTimeout)
+      end
+    end
+
+    context 'with a client error' do
+      it 'logs the message to sentry' do
+        VCR.use_cassette('evss/ppiu/service_error') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.evss.get_payment_information.fail', tags: ['error:Common::Client::Errors::ClientError', 'status:500']
+          )
+          expect(StatsD).to receive(:increment).once.with('api.evss.get_payment_information.total')
+          expect { subject.get_payment_information }.to raise_error(EVSS::PPIU::ServiceException)
+        end
       end
     end
   end

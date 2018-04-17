@@ -41,8 +41,8 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 200
-      message: OK
+      code: 500
+      message: Internal Server Error
     headers:
       Date:
       - Mon, 16 Apr 2018 23:38:20 GMT
@@ -62,27 +62,10 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "responses" : [ {
-            "controlInformation" : {
-              "canUpdateAddress" : true,
-              "corpAvailIndicator" : true,
-              "corpRecFoundIndicator" : true,
-              "hasNoBDNPaymentsIndicator" : true,
-              "indentityIndicator" : true,
-              "indexIndicator" : true,
-              "isCompetentIndicator" : true,
-              "noFiduciaryAssignedIndicator" : true,
-              "notDeceasedIndicator" : true
-            },
-            "paymentAccount" : {
-              "accountNumber" : "xxxxxxxxx1234",
-              "accountType" : "Checking",
-              "financialInstitutionName" : "Comerica",
-              "financialInstitutionRoutingNumber" : "xxxxx2115"
-            },
-            "paymentAddress" : {
-            },
-            "paymentType" : "CNP"
+          "messages": [ {
+            "key": "ppiu.paymenthistory.partner.service.exception",
+            "text": "PaymentHistory partner service exception",
+            "severity": "FATAL"
           } ]
         }
     http_version: 
