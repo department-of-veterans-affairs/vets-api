@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/controller_spec_helper'
 
 RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
+  it_should_behave_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
+
   def parsed_body
     JSON.parse(response.body)
   end

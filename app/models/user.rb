@@ -85,6 +85,10 @@ class User < Common::RedisStore
     identity.mhv_correlation_id || mvi.mhv_correlation_id
   end
 
+  def mhv_account_type
+    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+  end
+
   def loa
     identity&.loa || {}
   end
@@ -217,5 +221,9 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  def vet360_contact_info
+    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 end

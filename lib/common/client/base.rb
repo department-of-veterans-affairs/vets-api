@@ -55,12 +55,15 @@ module Common
         )
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
+        error_class = case e
+                      when Faraday::ParsingError
+                        Common::Client::Errors::ParsingError
+                      else
+                        Common::Client::Errors::ClientError
+                      end
+
         response_hash = e.response&.to_hash
-        client_error = Common::Client::Errors::ClientError.new(
-          e.message,
-          response_hash&.dig(:status),
-          response_hash&.dig(:body)
-        )
+        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
         raise client_error
       end
 

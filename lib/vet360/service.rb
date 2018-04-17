@@ -23,12 +23,13 @@ module Vet360
     # TODO: update exception params from EVSS to Vet360, perhaps abstract this into a common class for services
     def handle_error(error)
       case error
-      when Faraday::ParsingError
+      when Common::Client::Errors::ParsingError
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
         raise_backend_exception('VET360_502', self.class)
       when Common::Client::Errors::ClientError
-        raise Common::Exceptions::Forbidden if error.status == 403
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
+
+        raise Common::Exceptions::Forbidden if error.status == 403
 
         message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
@@ -39,9 +40,8 @@ module Vet360
     end
 
     def parse_messages(error)
-      # TODO: Parse messages as Message model
       messages = error.body&.dig('messages')
-      Vet360::Models::Message.from_response(messages)
+      messages&.map { |m| Vet360::Models::Message.from_response(m) }
     end
 
     def raise_backend_exception(key, source, error = nil)
