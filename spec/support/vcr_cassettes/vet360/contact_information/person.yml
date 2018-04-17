@@ -91,7 +91,8 @@ http_interactions:
               "updateDate" : "2018-04-16T17:07:29Z",
               "emailId" : 21,
               "txAuditId" : "119e9eec-fc95-41b7-9f42-5710588bb855"
-            }
+              }
+          ],
           "updateDate": "2018-04-09T23:33:18Z",
           "txAuditId": "316955d7-3db4-40f8-87ec-6c02199afcb9",
           "sourceSystem": "VBACORP",
