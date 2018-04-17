@@ -7,12 +7,12 @@ module Vet360
     class TransactionStatusResponse < Vet360::Response
       attribute :transaction, Vet360::Models::Transaction
 
-      attr_reader :trx
+      attr_reader :response_body
 
       def initialize(status, response = nil)
-        @trx = response&.body
+        @response_body = response&.body
 
-        super(status, transaction: Vet360::Models::Transaction.from_response(@trx))
+        super(status, transaction: Vet360::Models::Transaction.from_response(@response_body))
       end
     end
 
