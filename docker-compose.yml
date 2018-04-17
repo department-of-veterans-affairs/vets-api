@@ -13,12 +13,16 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data:cached
 
-  api:
-    build: .
+  vets-api:
+    build:
+      context: .
+      args:
+        exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
+        sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
     ports:
       - "3000:3000"
     volumes:
-      - .:/usr/src/app:cached
+      - .:/src/vets-api:cached
     environment:
       "Settings.database_url": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/config/certs/vetsgov-localhost.crt"
@@ -30,6 +34,12 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+    depends_on:
+      - postgres
+      - redis
+    links:
+      - postgres
+      - redis
 
 volumes:
   db-data:
@@ -77,5 +87,5 @@ volumes:
 #      - postgres
 #      - redis
 #    command: bash --login -c "foreman start"
-
-
+#
+#

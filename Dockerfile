@@ -4,7 +4,7 @@ ARG sidekiq_license
 ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
 ARG exclude_sidekiq_ent
 ENV EXCLUDE_SIDEKIQ_ENTERPRISE=$exclude_sidekiq_ent
-ENV APP_PATH /usr/src/app
+ENV APP_PATH /src/vets-api
 
 # Match the jenkins uid/gid on the host (504)
 RUN groupadd -r vets-api && \
@@ -28,9 +28,10 @@ COPY . APP_PATH
 EXPOSE 3000
 
 CMD ["rails", "s", "-b", "0.0.0.0"]
+CMD ["sidekiq", "-q", "default", "-q", "critical", "-q", "tasker"]
 
 
-#
+
 #FROM centos:6
 #
 #ARG sidekiq_license
