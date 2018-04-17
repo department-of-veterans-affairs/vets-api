@@ -14,7 +14,6 @@ module Vet360
         @email = response&.body&.dig('bio')
         super(status, person: Vet360::Models::Person.from_response(@email))
       end
-
     end
   end
 end

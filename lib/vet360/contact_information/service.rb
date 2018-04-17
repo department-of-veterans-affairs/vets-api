@@ -32,13 +32,12 @@ module Vet360
 
       def post_or_put_email(method, vet360_email)
         with_monitoring do
-          raw = perform(method, "emails", vet360_email.to_request(@user.vet360_id))
+          raw = perform(method, 'emails', vet360_email.to_request(@user.vet360_id))
           Vet360::ContactInformation::EmailUpdateResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)
       end
-
     end
   end
 end

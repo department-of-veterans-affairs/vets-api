@@ -37,11 +37,10 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#post_email' do
-
     let(:email) { build(:email) }
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/post_email_success') do #@TODO match on body!
+        VCR.use_cassette('vet360/contact_information/post_email_success') do # @TODO match on body!
           response = subject.post_email(email)
           expect(response).to be_ok
         end
@@ -50,41 +49,37 @@ describe Vet360::ContactInformation::Service do
 
     context 'when a duplicate exists' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do #@TODO match on body!
-          expect {
+        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do # @TODO match on body!
+          expect do
             response = subject.post_email(email)
-          }.to raise_error(Common::Exceptions::BackendServiceException)
+          end.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
 
       it 'the exception matches what we expect' do
-        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do #@TODO match on body!
-            begin
-              response = subject.post_email(email) 
-            rescue Common::Exceptions::BackendServiceException => e
-              # byebug
-              expect(e.status_code).to eq(400)
-              expect(e.errors.first.code).to eq('VET360_EMAIL301')
-              expect(e.errors.first.title).to eq('Email Address Already Exists')
-            end
+        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do # @TODO match on body!
+          begin
+            response = subject.post_email(email)
+          rescue Common::Exceptions::BackendServiceException => e
+            # byebug
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_EMAIL301')
+            expect(e.errors.first.title).to eq('Email Address Already Exists')
+          end
         end
       end
-
     end
-
   end
 
   describe '#put_email' do
-
     let(:email) { build(:email) }
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_email_success') do #@TODO match on body!
+        VCR.use_cassette('vet360/contact_information/put_email_success') do # @TODO match on body!
           response = subject.put_email(email)
           expect(response).to be_ok
         end
       end
     end
   end
-
 end
