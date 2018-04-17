@@ -42,7 +42,7 @@ describe Vet360::ContactInformation::Service do
       let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
 
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/email_transaction_status', match_requests_on: %i[uri]) do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_email_transaction_status(transaction)
           expect(response).to be_ok
         end
