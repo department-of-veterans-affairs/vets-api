@@ -3,6 +3,14 @@
 module Vet360
   module Models
     class Address < Base
+      RESIDENCE      = 'RESIDENCE/CHOICE'
+      CORRESPONDENCE = 'CORRESPONDENCE'
+      ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
+      DOMESTIC       = 'domestic'
+      INTERNATIONAL  = 'international'
+      MILITARY       = 'military overseas'
+      ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
+
       attribute :address_line_1, String
       attribute :address_line_2, String
       attribute :address_line_3, String
@@ -15,6 +23,8 @@ module Vet360
       attribute :county_code, String
       attribute :county_name, String
       attribute :created_at, Common::ISO8601Time
+      attribute :effective_end_date, Common::ISO8601Time
+      attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
       attribute :international_postal_code, String
       attribute :source_date, Common::ISO8601Time
@@ -25,6 +35,18 @@ module Vet360
       attribute :zip_code_suffix, String
 
       validates :source_date, presence: true
+
+      validates(
+        :address_pou,
+        presence: true,
+        inclusion: { in: ADDRESS_POUS }
+      )
+
+      validates(
+        :address_type,
+        presence: true,
+        inclusion: { in: ADDRESS_TYPES }
+      )
 
       # rubocop:disable Metrics/MethodLength
       def self.from_response(body)
@@ -41,6 +63,8 @@ module Vet360
           county_code: body.dig('county', 'county_code'),
           county_name: body.dig('county', 'county_name'),
           created_at: body['create_date'],
+          effective_end_date: body['effective_end_date'],
+          effective_start_date: body['effective_start_date'],
           id: body['address_id'],
           international_postal_code: body['int_postal_code'],
           source_date: body['source_date'],

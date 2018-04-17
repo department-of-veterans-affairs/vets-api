@@ -3,12 +3,19 @@
 module Vet360
   module Models
     class Telephone < Base
-      PHONE_TYPES = %w[MOBILE HOME WORK FAX TEMPORARY].freeze
+      MOBILE      = 'MOBILE'
+      HOME        = 'HOME'
+      WORK        = 'WORK'
+      FAX         = 'FAX'
+      TEMPORARY   = 'TEMPORARY'
+      PHONE_TYPES = [MOBILE, HOME, WORK, FAX, TEMPORARY].freeze
 
       attribute :area_code, String
       attribute :country_code, String
       attribute :created_at, Common::ISO8601Time
       attribute :extension, String
+      attribute :effective_end_date, Common::ISO8601Time
+      attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
       attribute :is_international, Boolean
       attribute :is_textable, Boolean
@@ -50,8 +57,6 @@ module Vet360
           area_code: body['area_code'],
           country_code: body['country_code'],
           created_at: body['create_date'],
-          effective_end_date: body['effective_end_date'],
-          effective_start_date: body['effective_start_date'],
           extension: body['phone_number_ext'],
           id: body['telephone_id'],
           is_international: body['international_indicator'],
