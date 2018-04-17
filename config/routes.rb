@@ -57,6 +57,7 @@ Rails.application.routes.draw do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
+    post 'evss_claims/documents/upload', to: 'documents#upload'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited

@@ -117,6 +117,7 @@ module V0
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
       Swagger::Requests::EducationBenefitsClaims,
+      Swagger::Requests::EVSSClaimUploads,
       Swagger::Requests::Feedbacks,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,

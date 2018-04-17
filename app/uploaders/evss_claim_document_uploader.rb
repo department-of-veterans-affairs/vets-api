@@ -15,7 +15,7 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def initialize(user_uuid, tracked_item_id)
+  def initialize(user_uuid, tracked_item_id = nil)
     super
     @user_uuid = user_uuid
     @tracked_item_id = tracked_item_id

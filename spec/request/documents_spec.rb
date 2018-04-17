@@ -19,6 +19,16 @@ RSpec.describe 'Documents management', type: :request do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
+  it 'should upload and store a file' do
+    params = { file: file, document_type: document_type }
+    post '/v0/evss_claims/documents/upload', params, 'Authorization' => "Token token=#{session.token}"
+    expect(response).to have_http_status(:created) # TODO: should response be 200 ???
+
+    uploader = EVSSClaimDocumentUploader.new(user.uuid)
+    uploader.retrieve_from_store!(file.original_filename)
+    expect(uploader.file.size).to eq(file.size)
+  end
+
   it 'should upload a file' do
     params = { file: file, tracked_item_id: tracked_item_id, document_type: document_type }
     expect do

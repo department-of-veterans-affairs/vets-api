@@ -20,6 +20,22 @@ module V0
       render_job_id(jid)
     end
 
+    def upload
+      params.require :file
+
+      document = EVSSClaimDocument.new(
+        file_obj: params[:file],
+        file_name: params[:file].original_filename,
+        document_type: params[:document_type]
+      )
+      raise Common::Exceptions::ValidationErrors, document.errors unless document.valid?
+
+      uploader = EVSSClaimDocumentUploader.new(@current_user.uuid)
+      uploader.store!(document.file_obj)
+
+      render json: {}, status: :created
+    end
+
     private
 
     def service
