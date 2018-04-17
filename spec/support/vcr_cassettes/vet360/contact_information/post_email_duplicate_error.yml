@@ -18,30 +18,32 @@ http_interactions:
   response:
     status:
       code: 400 # @TODO Who knows what they'll actually send. this should technically be 409
-      message: Bad Request #@TODO ^
+      message: Bad Request # @TODO ^
     headers:
       X-Application-Context:
-        - edge-gateway:ENV-QA:8766
+      - edge-gateway:ENV-INT-DEV:8766
       Date:
-        - Thu, 05 Apr 2018 23:45:05 GMT
-      # Expires:
-      #   - 0
-      # X-Content-Type-Options:
-      #   - nosniff
-      # X-XSS-Protection:
-      #   - 1; mode=block
-      # X-Frame-Options:
-      #   - DENY
-      # Cache-Control:
-      #   - no-cache, no-store, max-age=0, must-revalidate
-      # Pragma:
-      #   - no-cache
-      # X-UA-Compatible:
-      #   - IE-edge,chrome=1
+      - Fri, 13 Apr 2018 21:07:24 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=31536000 ; includeSubDomains
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
       Content-Type:
-        - application/json;charset=UTF-8
-      # Transfer-Encoding:
-      #   - chunked
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
     body:
       encoding: UTF-8
       string: |-
