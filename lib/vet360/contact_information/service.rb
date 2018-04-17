@@ -22,6 +22,8 @@ module Vet360
       end
 
       def get_email_transaction_status(transaction)
+        return nil if transaction.id.blank?
+
         with_monitoring do
           route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
           raw_response = perform(:get, route)
