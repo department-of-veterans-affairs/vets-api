@@ -76,3 +76,8 @@ MaintenanceWindowRefresh:
   cron: "*/5 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
   description: "Poll PagerDuty API for maintenance window information"
+
+VBADocuments::UploadScanner:
+  cron: "*/30 * * * * * America/New_York"
+  class: VBADocuments::UploadScanner
+  description: "Poll upload bucket for unprocessed uploads"
