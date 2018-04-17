@@ -30,19 +30,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
-  let(:mhv_account) do
-    double('mhv_account', account_state: 'updated',
-                          ineligible?: false,
-                          eligible?: true,
-                          needs_terms_acceptance?: false,
-                          accessible?: true)
-  end
   let(:mhv_user) { build(:user, :mhv) }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
@@ -725,9 +717,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
 
           context 'unsuccessful calls' do
-            let(:mhv_account) do
-              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
-            end
+            let(:mhv_user) { build(:user, :loa1) } # a user without mhv_correlation_id
 
             it 'raises forbidden when user is not eligible' do
               expect(subject).to validate(:get, '/v0/health_records/refresh', 403)
@@ -1020,9 +1010,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/vha_648A4') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
 
         it '404s on non-existent facility' do
@@ -1108,6 +1097,61 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         VCR.use_cassette('mvi/find_candidate/valid') do
           expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
         end
+      end
+
+      it 'supports posting primary phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/primary_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting alternate phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_alternate_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/alternate_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email', 401)
+
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          email_address = build(:email_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports getting full name data' do
+        expect(subject).to validate(:get, '/v0/profile/full_name', 401)
+
+        user = build(:user_with_suffix, :loa3)
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        expect(subject).to validate(:get, '/v0/profile/full_name', 200, auth_options)
       end
     end
   end

@@ -65,6 +65,16 @@ describe MVI::Service do
         end
       end
 
+      it 'correctly parses vet360 id if it exists', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+        allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/valid_vet360_id') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile['vet360_id']).to eq('123456789')
+        end
+      end
+
       it 'fetches historical icns if they exist', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
         allow(user).to receive(:mhv_icn).and_return('1008787551V609092^NI^200M^USVHA^P')
         allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
@@ -308,6 +318,32 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
           expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
         end
+      end
+    end
+  end
+
+  describe '.find_profile monitoring' do
+    context 'with a successful request' do
+      it 'should increment find_profile total' do
+        allow(user).to receive(:mhv_icn)
+
+        allow(StatsD).to receive(:increment)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          subject.find_profile(user)
+        end
+        expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
+      end
+    end
+
+    context 'with an unsuccessful request' do
+      it 'should increment find_profile fail and total' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        expect(StatsD).to receive(:increment).once.with(
+          'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+        )
+        expect(StatsD).to receive(:increment).once.with('api.mvi.find_profile.total')
+        expect(subject.find_profile(user))
+          .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
       end
     end
   end

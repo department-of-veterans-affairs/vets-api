@@ -85,6 +85,10 @@ class User < Common::RedisStore
     identity.mhv_correlation_id || mvi.mhv_correlation_id
   end
 
+  def mhv_account_type
+    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+  end
+
   def loa
     identity&.loa || {}
   end
@@ -99,6 +103,7 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
+  delegate :vet360_id, to: :mvi
 
   def va_profile
     mvi.profile

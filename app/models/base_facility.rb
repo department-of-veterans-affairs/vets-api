@@ -78,12 +78,10 @@ class BaseFacility < ActiveRecord::Base
       facility
     end
 
-    # FIXME: using common collection here to have access to #metadata for serializer output but long term we should
-    # refactor and mix that in -- https://github.com/department-of-veterans-affairs/vets.gov-team/issues/9376
     def query(params)
+      return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
-      data = build_result_set(bbox_num, params[:type], params[:services])
-      Common::Collection.new(::VAFacility, data: data.sort_by(&(dist_from_center bbox_num)))
+      build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
     end
 
     def build_result_set(bbox_num, type, services)
@@ -109,6 +107,14 @@ class BaseFacility < ActiveRecord::Base
         center_y = (bbox[1] + bbox[3]) / 2.0
         Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2)
       end
+    end
+
+    def per_page
+      20
+    end
+
+    def max_per_page
+      100
     end
   end
 

@@ -11,9 +11,7 @@ module Swagger
 
           key :description, 'Get a list of available letters for a veteran'
           key :operationId, 'getLetters'
-          key :tags, %w[
-            evss
-          ]
+          key :tags, %w[benefits_status]
 
           parameter :authorization
 
@@ -32,9 +30,7 @@ module Swagger
 
           key :description, 'Returns service history, and a list of benefit options for use with POST /v0/letters'
           key :operationId, 'getLettersBeneficiary'
-          key :tags, %w[
-            evss
-          ]
+          key :tags, %w[benefits_status]
 
           parameter :authorization
 
@@ -53,9 +49,7 @@ module Swagger
 
           key :description, 'Returns a letter as a PDF blob'
           key :operationId, 'postLetter'
-          key :tags, %w[
-            evss
-          ]
+          key :tags, %w[benefits_status]
 
           parameter :authorization
           parameter do

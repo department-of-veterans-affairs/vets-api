@@ -10,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Get a list of triageTeams'
             key :operationId, 'triageTeamsIndex'
-            key :tags, %w[triage_teams]
+            key :tags, %w[secure_messaging]
 
             parameter name: :page, in: :query, required: false, type: :integer,
                       description: 'Page of results, greater than 0'

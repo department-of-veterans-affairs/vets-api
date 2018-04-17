@@ -3,6 +3,7 @@
 require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
+  match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
@@ -10,16 +11,6 @@ Rails.application.routes.draw do
   get '/sessions/:type/new',
       to: 'v0/sessions#new',
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
-
-  match '/vbeta/*path', to: 'application#cors_preflight', via: [:options]
-  namespace :vbeta, defaults: { format: 'json' } do
-    scope :facilities, module: 'facilities' do
-      resources :va, only: %i[index show], defaults: { format: :json } do
-        # temporary collection for testing/validation will not stay around
-        get :all, on: :collection
-      end
-    end
-  end
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
@@ -58,8 +49,8 @@ Rails.application.routes.draw do
     end
 
     if Settings.pension_burial.upload.enabled
-      resource :pension_claims, only: [:create]
-      resource :burial_claims, only: [:create]
+      resources :pension_claims, only: %i[create show]
+      resources :burial_claims, only: %i[create show]
     end
 
     resources :evss_claims, only: %i[index show] do
@@ -163,14 +154,16 @@ Rails.application.routes.draw do
     end
 
     namespace :profile do
-      resource :alternate_phone, only: :show
-      resource :email, only: :show
+      resource :alternate_phone, only: %i[show create]
+      resource :email, only: %i[show create]
+      resource :full_name, only: :show
       resource :personal_information, only: :show
-      resource :primary_phone, only: :show
+      resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
+    put 'profile/mailing_address', to: 'addresses#update'
 
     resources :backend_statuses, param: :service, only: [:show]
 
@@ -192,13 +185,27 @@ Rails.application.routes.draw do
       resource(
         :beta_registrations,
         path: "/beta_registration/#{feature}",
-        only: %i[show create],
+        only: %i[show create destroy],
         defaults: { feature: feature }
       )
     end
   end
 
   root 'v0/example#index', module: 'v0'
+
+  scope '/services' do
+    namespace :v0, defaults: { format: 'json' } do
+      namespace :docs, only: [] do
+        # namespace :health do
+        #   resources :prescriptions
+        #   resources :secure_messages
+        # end
+        # resources :health, only: [:index]
+
+        resources :benefits, only: [:index]
+      end
+    end
+  end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
