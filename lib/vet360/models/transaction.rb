@@ -20,7 +20,7 @@ module Vet360
       def self.from_response(body)
         messages = body['messages']&.map { |m| Vet360::Models::Message.from_response(m) }
 
-        Vet360::Models::TransactionStatus.new(
+        Vet360::Models::Transaction.new(
           messages: messages,
           id: body['tx_audit_id'],
           status: body['tx_status']
