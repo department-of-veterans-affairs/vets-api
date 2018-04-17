@@ -51,7 +51,7 @@ describe Vet360::ContactInformation::Service do
       it 'raises an exception' do
         VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do # @TODO match on body!
           expect do
-            response = subject.post_email(email)
+            subject.post_email(email)
           end.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
@@ -59,9 +59,8 @@ describe Vet360::ContactInformation::Service do
       it 'the exception matches what we expect' do
         VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do # @TODO match on body!
           begin
-            response = subject.post_email(email)
+            subject.post_email(email)
           rescue Common::Exceptions::BackendServiceException => e
-            # byebug
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_EMAIL301')
             expect(e.errors.first.title).to eq('Email Address Already Exists')

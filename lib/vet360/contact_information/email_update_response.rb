@@ -12,7 +12,7 @@ module Vet360
 
       def initialize(status, response = nil)
         @email = response&.body&.dig('bio')
-        super(status, person: Vet360::Models::Person.from_response(@email))
+        super(status, transaction: Vet360::Models::Transaction.from_response(response&.body))
       end
     end
   end
