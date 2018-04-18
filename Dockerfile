@@ -11,7 +11,7 @@ RUN groupadd -r vets-api && \
       useradd -r -g vets-api vets-api
 
 RUN apt-get update -qq && apt-get install -y build-essential \
-											 git \
+		                             git \
                                              libpq-dev \
                                              clamav \
                                              imagemagick \
