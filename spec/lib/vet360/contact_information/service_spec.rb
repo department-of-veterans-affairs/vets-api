@@ -13,7 +13,7 @@ describe Vet360::ContactInformation::Service do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/person', { match_requests_on: %i[method uri headers] }) do
+        VCR.use_cassette('vet360/contact_information/person', { match_requests_on: %i[method uri headers body] }) do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(Vet360::Models::Person)
@@ -23,7 +23,7 @@ describe Vet360::ContactInformation::Service do
 
     context 'when not successful' do
       it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/person_error', { match_requests_on: %i[method uri headers] }) do
+        VCR.use_cassette('vet360/contact_information/person_error', { match_requests_on: %i[method uri headers body] }) do
           expect { subject.get_person }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
