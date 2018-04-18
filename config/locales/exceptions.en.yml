@@ -231,7 +231,7 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
-      MHVACCTCREATION155: # TODO: Might be able to remove this 
+      MHVACCTCREATION155: # TODO: Might be able to remove this
         <<: *external_defaults
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
@@ -334,4 +334,29 @@ en:
         <<: *defaults
         title: Cannot launch the 526 post submit batch job
         code: 125
+        status: 502
+    intent_to_file:
+      partner_service_error:
+        <<: *defaults
+        title: Partner Service Error
+        detail: 'Error calling out to partner service'
+        code: 131
+        status: 502 # TODO: reviewed in PR
+      internal_service_error:
+        <<: *defaults
+        title: Internal Service Error
+        detail: 'Internal service error'
+        code: 132
+        status: 502
+      intent_type_invalid:
+        <<: *defaults
+        title: Intent Type Invalid
+        detail: 'Invalid intent type'
+        code: 133
+        status: 400
+      partner_service_invalid:
+        <<: *defaults
+        title: Partner Service Invalid
+        detail: 'Error on data from external service'
+        code: 134
         status: 502

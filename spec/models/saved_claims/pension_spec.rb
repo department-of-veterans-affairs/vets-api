@@ -15,9 +15,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
     it 'should set the attachments saved_claim_id' do
       attachment1 = create(:pension_burial)
       attachment2 = create(:pension_burial)
-      # rubocop:disable Rails/SkipsModelValidations
       [attachment1, attachment2].each { |a| a.update_column(:saved_claim_id, nil) }
-      # rubocop:enable Rails/SkipsModelValidations
 
       claim = create(
         :pension_claim,
@@ -49,7 +47,7 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
         }.to_json
       )
 
-      expect(SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
+      expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
       claim.process_attachments!
       expect(claim.persistent_attachments.size).to eq(2)
     end
