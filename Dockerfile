@@ -13,7 +13,6 @@ RUN groupadd -r vets-api && \
 RUN apt-get update -qq && apt-get install -y build-essential \
 											 git \
                                              libpq-dev \
-                                             nodejs \
                                              clamav \
                                              imagemagick \
                                              pdftk
