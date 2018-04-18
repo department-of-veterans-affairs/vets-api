@@ -99,10 +99,8 @@ describe EVSS::IntentToFile::Service do
     end
 
     describe '#create_intent_to_file_compensation' do
-      let(:valid_request_body) { '{ "source": "VETS.GOV" }' }
-      let(:invalid_request_body) { '{"source": "Invalid type" }' }
       context 'with a valid intent to file request' do
-        subject { described_class.new(user).create_intent_to_file_compensation(valid_request_body) }
+        subject { described_class.new(user).create_intent_to_file_compensation }
         it 'returns an active compensation response object' do
           VCR.use_cassette('evss/intent_to_file/create_compensation') do
             response = subject
@@ -129,13 +127,13 @@ describe EVSS::IntentToFile::Service do
           )
           expect(StatsD).to receive(:increment).once.with('api.evss.create_intent_to_file_compensation.total')
           expect do
-            subject.create_intent_to_file_compensation(valid_request_body)
+            subject.create_intent_to_file_compensation
           end.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
 
       context 'with an invalid intent to file type' do
-        subject { described_class.new(user).create_intent_to_file_compensation(invalid_request_body) }
+        subject { described_class.new(user).create_intent_to_file_compensation }
         it 'should log an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
             expect(StatsD).to receive(:increment).once.with(
@@ -149,7 +147,7 @@ describe EVSS::IntentToFile::Service do
       end
 
       context 'with a partner service error' do
-        subject { described_class.new(user).create_intent_to_file_compensation(valid_request_body) }
+        subject { described_class.new(user).create_intent_to_file_compensation }
         it 'should log an error and raise a ServiceException' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
             expect(StatsD).to receive(:increment).once.with(
@@ -163,7 +161,7 @@ describe EVSS::IntentToFile::Service do
       end
 
       context 'when service returns a 403' do
-        subject { described_class.new(user).create_intent_to_file_compensation(valid_request_body) }
+        subject { described_class.new(user).create_intent_to_file_compensation }
         it 'contains 403 in meta' do
           VCR.use_cassette('evss/intent_to_file/create_compensation_403') do
             expect { subject }.to raise_error(Common::Exceptions::Forbidden)
