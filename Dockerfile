@@ -6,16 +6,15 @@ ARG exclude_sidekiq_ent
 ENV EXCLUDE_SIDEKIQ_ENTERPRISE=$exclude_sidekiq_ent
 ENV APP_PATH /src/vets-api
 
-# Match the jenkins uid/gid on the host (504)
 RUN groupadd -r vets-api && \
-      useradd -r -g vets-api vets-api
-
-RUN apt-get update -qq && apt-get install -y build-essential \
-		                             git \
-                                             libpq-dev \
-                                             clamav \
-                                             imagemagick \
-                                             pdftk
+useradd -r -g vets-api vets-api && \
+apt-get update -qq && \
+apt-get install -y build-essential \
+git \
+libpq-dev \
+clamav \
+imagemagick \
+pdftk
 
 WORKDIR $APP_PATH
 ADD Gemfile $APP_PATH
