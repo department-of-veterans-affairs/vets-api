@@ -12,11 +12,6 @@ module Vet360
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
 
-      # TODO: Rename `to_request` to `in_json`
-      # TODO: Add vet360_id attribute to each relevant class
-      # TODO: Don't pass vet360_id into `in_json` methods, use attribute
-      # TODO: Convert `from_response` to `build_from`
-
       # Converts a decoded JSON response from Vet360 to an instance of this model
       # @params body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Person] the model built from the response body
