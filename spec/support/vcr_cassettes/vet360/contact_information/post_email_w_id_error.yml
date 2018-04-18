@@ -5,7 +5,7 @@ http_interactions:
     uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/emails"
     body:
       encoding: US-ASCII
-      string: '{"bio":{"emailAddressText":"person103@example.com","emailId":4,"originatingSourceSystem":null,"sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1"}}'
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":null,"sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1"}}'
     headers:
       Accept:
       - application/json
