@@ -21,7 +21,3 @@ WORKDIR $APP_PATH
 ADD Gemfile $APP_PATH
 ADD Gemfile.lock $APP_PATH
 RUN bundle install
-
-COPY . APP_PATH
-
-EXPOSE 3000
