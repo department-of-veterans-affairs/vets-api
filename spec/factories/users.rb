@@ -73,6 +73,22 @@ FactoryBot.define do
       end
     end
 
+    factory :disabilities_compensation_user, traits: [:loa3] do
+      first_name('Beyonce')
+      last_name('Knowles')
+      gender('F')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796068949')
+
+      after(:build) do
+        stub_mvi(build(:mvi_profile, birls_id: '796068948'))
+      end
+    end
+
+    factory :blank_gender_user do
+      gender('')
+    end
+
     factory :user_with_suffix, traits: [:loa3] do
       first_name('Jack')
       middle_name('Robert')

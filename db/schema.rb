@@ -191,6 +191,9 @@ ActiveRecord::Schema.define(version: 20180416231107) do
     t.string   "encrypted_file_data_iv", null: false
   end
 
+  add_index "persistent_attachments", ["guid"], name: "index_persistent_attachments_on_guid", unique: true, using: :btree
+  add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
+
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
