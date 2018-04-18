@@ -13,9 +13,8 @@ describe Vet360::ContactInformation::Service do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/person', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('vet360/contact_information/person', { match_requests_on: %i[method uri headers] }) do
           response = subject.get_person
-
           expect(response).to be_ok
           expect(response.person).to be_a(Vet360::Models::Person)
         end
@@ -24,7 +23,7 @@ describe Vet360::ContactInformation::Service do
 
     context 'when not successful' do
       it 'returns a status of 404' do
-        VCR.use_cassette('vet360/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('vet360/contact_information/person_error', { match_requests_on: %i[method uri headers] }) do
           expect { subject.get_person }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
@@ -40,7 +39,7 @@ describe Vet360::ContactInformation::Service do
     let(:email) { build(:email) }
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/post_email_success') do # @TODO match on body!
+        VCR.use_cassette('vet360/contact_information/post_email_success', { match_requests_on: %i[method uri headers] }) do
           response = subject.post_email(email)
           expect(response).to be_ok
         end
@@ -49,7 +48,7 @@ describe Vet360::ContactInformation::Service do
 
     context 'when a duplicate exists' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error') do # @TODO match on body!
+        VCR.use_cassette('vet360/contact_information/post_email_duplicate_error', { match_requests_on: %i[method uri headers] }) do
           expect { subject.post_email(email) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -62,7 +61,7 @@ describe Vet360::ContactInformation::Service do
 
     context 'when an ID is included' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do # @TODO match on body!
+        VCR.use_cassette('vet360/contact_information/post_email_w_id_error', { match_requests_on: %i[method uri headers] }) do
           expect { subject.post_email(email) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -77,7 +76,7 @@ describe Vet360::ContactInformation::Service do
     let(:email) { build(:email) }
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/put_email_success') do # @TODO match on body!
+        VCR.use_cassette('vet360/contact_information/put_email_success', { match_requests_on: %i[method uri headers] }) do
           response = subject.put_email(email)
           expect(response).to be_ok
         end

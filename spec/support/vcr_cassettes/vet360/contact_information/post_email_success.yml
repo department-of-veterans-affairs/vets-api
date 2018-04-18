@@ -4,30 +4,19 @@ http_interactions:
     method: post
     uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/emails"
     body:
-      encoding: UTF-8
-      string: |-
-        {
-          "bio": {
-            "confirmationDate": "2018-04-13T14:21:17.695Z",
-            "emailAddressText": "string",
-            "emailId": 0,
-            "emailPermInd": true,
-            "originatingSourceSystem": "string",
-            "sourceDate": "2018-04-13T14:21:17.695Z",
-            "sourceSystemUser": "string",
-            "vet360Id": 0
-          }
-        }
-
+      encoding: US-ASCII
+      string: '{"bio":{"emailAddressText":"person101@example.com","emailId":2,"originatingSourceSystem":null,"sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1"}}'
     headers:
-      User-Agent:
-      - Vets.gov Agent
-      Content-Type:
-      - application/json
-      cufSystemName:
-      - VETSGOV
       Accept:
       - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Cufsystemname:
+      - VETSGOV
   response:
     status:
       code: 200

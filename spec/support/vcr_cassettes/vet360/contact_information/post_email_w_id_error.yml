@@ -4,17 +4,19 @@ http_interactions:
     method: post
     uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/emails"
     body:
-      encoding: UTF-8
-      string: ''
+      encoding: US-ASCII
+      string: '{"bio":{"emailAddressText":"person103@example.com","emailId":4,"originatingSourceSystem":null,"sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1"}}'
     headers:
-      User-Agent:
-      - Vets.gov Agent
-      Content-Type:
-      - application/json
-      cufSystemName:
-      - VETSGOV
       Accept:
       - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Cufsystemname:
+      - VETSGOV
   response:
     status:
       code: 400 # @TODO Who knows what they'll actually send. this should technically be 409
