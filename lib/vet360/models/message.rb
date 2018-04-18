@@ -22,7 +22,7 @@ module Vet360
         inclusion: { in: SEVERITY_LEVELS }
       )
 
-      def self.from_response(body)
+      def self.build_from(body)
         Vet360::Models::Message.new(
           code: body['code'],
           key: body['key'],

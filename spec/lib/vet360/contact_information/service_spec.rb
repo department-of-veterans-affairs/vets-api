@@ -36,7 +36,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#post_email' do
-    let(:email) { build(:email) }
+    let(:email) { build(:email, vet360_id: user.vet360_id) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
@@ -79,7 +79,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#put_email' do
-    let(:email) { build(:email) }
+    let(:email) { build(:email, vet360_id: user.vet360_id) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do

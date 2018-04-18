@@ -13,7 +13,7 @@ module Vet360
         @response_body = response&.body
         super(
           status,
-          transaction: Vet360::Models::Transaction.from_response(@response_body)
+          transaction: Vet360::Models::Transaction.build_from(@response_body)
         )
       end
     end

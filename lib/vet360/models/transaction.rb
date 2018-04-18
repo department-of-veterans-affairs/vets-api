@@ -17,8 +17,8 @@ module Vet360
       attribute :id, String
       attribute :status, String
 
-      def self.from_response(body)
-        messages = body['messages']&.map { |m| Vet360::Models::Message.from_response(m) }
+      def self.build_from(body)
+        messages = body['messages']&.map { |m| Vet360::Models::Message.build_from(m) }
 
         Vet360::Models::Transaction.new(
           messages: messages || [],
