@@ -12,7 +12,7 @@ module Vet360
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
 
-      # Converts a decoded JSON response from Vet360 to an instance of this model
+      # Converts a decoded JSON response from Vet360 to an instance of the Person model
       # @params body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Person] the model built from the response body
       def self.build_from(body)

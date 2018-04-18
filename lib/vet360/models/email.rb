@@ -20,6 +20,9 @@ module Vet360
         length: { maximum: 255, minimum: 6 }
       )
 
+      # Converts an instance of the Email model to a JSON encoded string suitable for use in
+      # the body of a request to Vet360
+      # @return [String] JSON-encoded string suitable for requests to Vet360
       def in_json
         {
           bio: {
@@ -33,6 +36,9 @@ module Vet360
         }.to_json
       end
 
+      # Converts a decoded JSON response from Vet360 to an instance of the Email model
+      # @params body [Hash] the decoded response body from Vet360
+      # @return [Vet360::Models::Email] the model built from the response body
       def self.build_from(body)
         Vet360::Models::Email.new(
           created_at: body['create_date'],

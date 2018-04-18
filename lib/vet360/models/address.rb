@@ -49,6 +49,9 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
+      # Converts a decoded JSON response from Vet360 to an instance of the Address model
+      # @params body [Hash] the decoded response body from Vet360
+      # @return [Vet360::Models::Address] the model built from the response body
       # rubocop:disable Metrics/MethodLength
       def self.build_from(body)
         Vet360::Models::Address.new(
