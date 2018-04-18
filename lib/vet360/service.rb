@@ -28,9 +28,7 @@ module Vet360
         raise_backend_exception('VET360_502', self.class)
       when Common::Client::Errors::ClientError
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
-
         raise Common::Exceptions::Forbidden if error.status == 403
-
         message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
         raise_backend_exception('VET360_502', self.class, error)
