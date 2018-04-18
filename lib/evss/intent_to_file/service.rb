@@ -10,6 +10,8 @@ module EVSS
 
       configuration EVSS::IntentToFile::Configuration
 
+      ITF_SOURCE = 'VETS.GOV'
+
       def get_intent_to_file
         with_monitoring do
           raw_response = perform(:get, '')
@@ -29,11 +31,11 @@ module EVSS
         handle_error(e)
       end
 
-      def create_intent_to_file_compensation(content)
+      def create_intent_to_file_compensation
         # intent_to_file currently only handles 'compensation'
         # future expansion will include 'pension' and 'survivor' accessible via the path
         with_monitoring do
-          create_intent_to_file(content, 'compensation')
+          create_intent_to_file('compensation')
         end
       rescue StandardError => e
         handle_error(e)
@@ -46,9 +48,8 @@ module EVSS
         EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
       end
 
-      def create_intent_to_file(content, type)
-        headers = { 'Content-Type' => 'application/json' }
-        raw_response = perform(:post, type.to_s, content, headers)
+      def create_intent_to_file(type)
+        raw_response = perform(:post, type.to_s, { source: ITF_SOURCE }.to_json, headers)
         EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
       end
 
