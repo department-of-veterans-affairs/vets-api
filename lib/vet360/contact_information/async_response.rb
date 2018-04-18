@@ -5,14 +5,19 @@ require 'vet360/response'
 module Vet360
   module ContactInformation
     class AsyncResponse < Vet360::Response
+      attribute :transaction, Vet360::Models::Transaction
 
-      attr_reader :tx_audit_id
+      attr_reader :response_body
 
-      def initialize(status, vet360Email = nil)
-        @tx_audit_id = vet360Email.transaction_id
-        super(status, tx_audit_id: @tx_audit_id)
+      def initialize(status, response = nil)
+        @response_body = response&.body
+        super(
+          status,
+          transaction: Vet360::Models::Transaction.build_from(@response_body)
+        )
       end
-
     end
+
+    class EmailUpdateResponse < AsyncResponse; end
   end
 end

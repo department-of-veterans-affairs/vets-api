@@ -7,12 +7,12 @@ module Vet360
     class PersonResponse < Vet360::Response
       attribute :person, Vet360::Models::Person
 
-      attr_reader :bio
+      attr_reader :response_body
 
       def initialize(status, response = nil)
-        # TODO: how do we want to customize the response
-        @bio = response&.body&.dig('bio')
-        super(status, person: Vet360::Models::Person.from_response(@bio))
+        @response_body = response&.body
+
+        super(status, person: Vet360::Models::Person.build_from(@response_body&.dig('bio')))
       end
     end
   end

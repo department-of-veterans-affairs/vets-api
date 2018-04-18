@@ -314,11 +314,59 @@ en:
         code: 'VET360_CORE303'
         detail: 'The transaction audit id may not be null'
         status: 400
+      VET360_EMAIL101:
+        <<: *external_defaults
+        title: Email Address Text Null
+        code: 'VET360_EMAIL101'
+        detail: 'Email address may not be null'
+        status: 400
+      VET360_EMAIL200:
+        <<: *external_defaults
+        title: Email ID Not Null
+        code: 'VET360_EMAIL200'
+        detail: 'Email ID must be null.'
+        status: 400
+      VET360_EMAIL201:
+        <<: *external_defaults
+        title: Email ID Null
+        code: 'VET360_EMAIL201'
+        detail: 'Email ID may not be null'
+        status: 400
       VET360_EMAIL301:
         <<: *external_defaults
         title: Email Address Already Exists
         code: 'VET360_EMAIL301'
         detail: 'Can not insert a record for an email address that already exists. Pull the email record and update it using the emailId provided.'
+        status: 400
+      VET360_EMAIL302:
+        <<: *external_defaults
+        title: Email Address Size
+        code: 'VET360_EMAIL302'
+        detail: 'Email address text must be between 1 and 255'
+        status: 400
+      VET360_EMAIL304:
+        <<: *external_defaults
+        title: Check Email Domain
+        code: 'VET360_EMAIL304'
+        detail: "AlphaNumeric ToplevelDomainName must be <= 63 Characters."
+        status: 400
+      VET360_EMAIL305:
+        <<: *external_defaults
+        title: Check Email Address
+        code: 'VET360_EMAIL305'
+        detail: "Email address cannot have 2 @ symbols, must have at least one period '.' after the @ character, and cannot have '.%' or '%.' or '%..%' or \" ( ) , : ; < > @ [ ] or space unless in a quoted string in the local part."
+        status: 400
+      VET360_EMAIL306:
+        <<: *external_defaults
+        title: Duplicate Email Address
+        code: 'VET360_EMAIL306'
+        detail: "Cannot accept a request with multiple emailAddress records."
+        status: 400
+      VET360_EMAIL307:
+        <<: *external_defaults
+        title: Email Inactive
+        code: 'VET360_EMAIL307'
+        detail: "Cannot modify an existing inactive record."
         status: 400
 
   evss:
