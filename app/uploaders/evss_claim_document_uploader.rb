@@ -47,8 +47,8 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     store_dir = "evss_claim_documents/#{@user_uuid}"
-    @ids.each do |id|
-      store_dir += "/#{id}" if id
+    @ids.compact.each do |id|
+      store_dir += "/#{id}"
     end
     store_dir
   end
