@@ -13,7 +13,7 @@ module Vet360
         COMPLETED_FAILURE
       ].freeze
 
-      attribute :messages, Array[Message]
+      attribute :messages, Array[Vet360::Models::Message]
       attribute :id, String
       attribute :status, String
 
@@ -21,7 +21,7 @@ module Vet360
         messages = body['messages']&.map { |m| Vet360::Models::Message.from_response(m) }
 
         Vet360::Models::Transaction.new(
-          messages: messages,
+          messages: messages || [],
           id: body['tx_audit_id'],
           status: body['tx_status']
         )
