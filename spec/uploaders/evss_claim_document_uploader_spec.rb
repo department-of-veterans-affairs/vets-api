@@ -111,6 +111,12 @@ RSpec.describe EVSSClaimDocumentUploader do
       subject = described_class.new('1234abc', ['13', nil])
       expect(subject.store_dir).to eq('evss_claim_documents/1234abc/13')
     end
+
+    it 'includes both uuids' do
+      uuid = SecureRandom.uuid
+      subject = described_class.new('1234abc', [nil, uuid])
+      expect(subject.store_dir).to eq("evss_claim_documents/1234abc/#{uuid}")
+    end
   end
 
   describe '#store!' do
