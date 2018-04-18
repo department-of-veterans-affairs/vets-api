@@ -78,6 +78,7 @@ describe Vet360::ContactInformation::Service do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_email_success', { match_requests_on: %i[method uri headers] }) do
           response = subject.put_email(email)
+          expect(response.transaction.id).to eq('7f441880-173f-4deb-aa8b-c26b794eb3e1')
           expect(response).to be_ok
         end
       end
