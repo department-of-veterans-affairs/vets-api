@@ -58,6 +58,12 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    scope :evss_claims do
+      get 'intent_to_file', to: 'intent_to_files#index'
+      get 'intent_to_file/compensation/active', to: 'intent_to_files#active_compensation'
+      post 'intent_to_file/compensation', to: 'intent_to_files#submit_compensation'
+    end
+
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
