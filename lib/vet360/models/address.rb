@@ -50,6 +50,7 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
+      # rubocop:disable Metrics/MethodLength
       def in_json
         {
           bio: {
@@ -78,6 +79,7 @@ module Vet360
           }
         }.to_json
       end
+      # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
       def self.build_from(body)
