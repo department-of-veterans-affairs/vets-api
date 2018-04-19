@@ -60,8 +60,8 @@ module Vet360
             addressPOU: @address_pou,
             addressType: @address_type,
             cityName: @city,
-            countryCodeISO2: country_code_iso2,
-            countryCodeISO3: country_code_iso3,
+            countryCodeISO2: @country_code_iso2,
+            countryCodeISO3: @country_code_iso3,
             countryName: @country,
             county: {
               countyCode: @county_code,
