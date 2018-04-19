@@ -107,7 +107,7 @@ describe Vet360::ContactInformation::Service do
 
     context 'when an ID is included' do
       it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', { match_requests_on: %i[method uri headers body] }) do
+        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
           address.id = 42
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
@@ -117,9 +117,5 @@ describe Vet360::ContactInformation::Service do
         end
       end
     end
-
   end
-
-
-
 end

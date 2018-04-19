@@ -296,12 +296,6 @@ en:
         code: 'VET360_ADDR118'
         detail: 'City name size must be between 0 and 100.'
         status: 400
-      VET360_ADDR111:
-        <<: *external_defaults
-        title: Check Address Line
-        code: 'VET360_ADDR111'
-        detail: 'Required data set missing.'
-        status: 400
       VET360_ADDR120:
         <<: *external_defaults
         title: State Code Size
@@ -452,6 +446,12 @@ en:
         code: 'VET360_CORE109'
         detail: 'Incorrect Result Set Size' # TODO: Update this error message once we have more info
         status: 500
+      VET360_CORE111:
+        <<: *external_defaults
+        title: Check Address Line
+        code: 'VET360_CORE111'
+        detail: 'Required data set missing.'
+        status: 400
       VET360_CORE302:
         <<: *external_defaults
         title: Null Request

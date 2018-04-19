@@ -50,6 +50,7 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
+      # rubocop:disable Metrics/MethodLength
       def in_json
         {
           bio: {
@@ -60,8 +61,8 @@ module Vet360
             addressPOU: @address_pou,
             addressType: @address_type,
             cityName: @city,
-            countryCodeISO2: country_code_iso2,
-            countryCodeISO3: country_code_iso3,
+            countryCodeISO2: @country_code_iso2,
+            countryCodeISO3: @country_code_iso3,
             countryName: @country,
             county: {
               countyCode: @county_code,
@@ -70,7 +71,6 @@ module Vet360
             intPostalCode: @international_postal_code,
             provinceName: @province,
             stateCode: @state_abbr,
-            vet360Id: @vet360_id,
             zipCode4: @zip_code,
             zipCode5: @zip_code_suffix,
             originatingSourceSystem: Settings.vet360.cuf_system_name,
@@ -79,6 +79,7 @@ module Vet360
           }
         }.to_json
       end
+      # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
       def self.build_from(body)
