@@ -5,7 +5,7 @@ require 'common/client/configuration/rest'
 module Vet360
   class Configuration < Common::Client::Configuration::REST
     def self.base_request_headers
-      super.merge('cufSystemName' => Settings.vet360.system_name)
+      super.merge('cufSystemName' => Vet360::Models::Base::SOURCE_SYSTEM)
     end
 
     # TODO: research the middleware settings needed for Vet360

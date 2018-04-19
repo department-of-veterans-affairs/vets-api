@@ -76,7 +76,7 @@ module Vet360
             stateCode: @state_abbr,
             zipCode4: @zip_code,
             zipCode5: @zip_code_suffix,
-            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            originatingSourceSystem: SOURCE_SYSTEM,
             sourceDate: @source_date,
             vet360Id: @vet360_id
           }
