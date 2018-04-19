@@ -10,7 +10,7 @@ describe Vet360::ContactInformation::Service do
     allow(user).to receive(:vet360_id).and_return('1')
   end
 
-  xdescribe '#get_person' do
+  describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/person', VCR::MATCH_EVERYTHING) do
@@ -35,7 +35,7 @@ describe Vet360::ContactInformation::Service do
     end
   end
 
-  xdescribe '#post_email' do
+  describe '#post_email' do
     let(:email) { build(:email, vet360_id: user.vet360_id) }
     context 'when successful' do
       it 'returns a status of 200' do
@@ -78,7 +78,7 @@ describe Vet360::ContactInformation::Service do
     end
   end
 
-  xdescribe '#put_email' do
+  describe '#put_email' do
     let(:email) { build(:email, vet360_id: user.vet360_id) }
     context 'when successful' do
       it 'returns a status of 200' do
@@ -105,12 +105,10 @@ describe Vet360::ContactInformation::Service do
       end
     end
 
-    # this isn't ready to work yet
-    # need to update the casset with the error info
-    # need to add the ADDR exception mappings
-    xcontext 'when an ID is included' do
+    context 'when an ID is included' do
       it 'raises an exception' do
         VCR.use_cassette('vet360/contact_information/post_address_w_id_error', { match_requests_on: %i[method uri headers body] }) do
+          address.id = 42
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
