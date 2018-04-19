@@ -25,9 +25,18 @@ GIT
     factory_bot (4.8.2)
       activesupport (>= 3.0.0)
 
+PATH
+  remote: ../saml_idp
+  specs:
+    saml_idp (0.7.2)
+      activesupport (>= 3.2)
+      builder (>= 3.0)
+      nokogiri (>= 1.6.2)
+      uuid (>= 2.3)
+      xmlenc (>= 0.6.4)
+
 GEM
   remote: https://rubygems.org/
-  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
     aasm (4.12.0)
@@ -210,7 +219,7 @@ GEM
     httpi (2.4.2)
       rack
       socksify
-    i18n (0.9.1)
+    i18n (0.9.5)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     iconv (1.0.4)
@@ -236,6 +245,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
+    macaddr (1.7.1)
+      systemu (~> 2.6.2)
     mail (2.6.4)
       mime-types (>= 1.16, < 4)
     memoist (0.15.0)
@@ -246,7 +257,7 @@ GEM
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.3.0)
-    minitest (5.10.3)
+    minitest (5.11.3)
     multi_json (1.13.1)
     multipart-post (2.0.0)
     nenv (0.3.0)
@@ -417,14 +428,9 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
-    sidekiq-ent (1.6.1)
-      sidekiq (>= 4.2.9)
-      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
-    sidekiq-pro (3.7.0)
-      sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -439,6 +445,10 @@ GEM
       json (>= 1.8, < 3)
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
+    sinatra (1.4.8)
+      rack (~> 1.5)
+      rack-protection (~> 1.4)
+      tilt (>= 1.3, < 3)
     slop (3.6.0)
     socksify (1.7.0)
     spring (2.0.2)
@@ -454,6 +464,7 @@ GEM
       sprockets (>= 3.0.0)
     statsd-instrument (2.1.2)
     swagger-blocks (2.0.0)
+    systemu (2.6.5)
     thor (0.19.4)
     thread_safe (0.3.6)
     tilt (2.0.2)
@@ -461,9 +472,11 @@ GEM
     ttfunk (1.5.0)
     typhoeus (1.1.2)
       ethon (>= 0.9.0)
-    tzinfo (1.2.4)
+    tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.3.0)
+    uuid (2.3.8)
+      macaddr (~> 1.0)
     vcr (3.0.3)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -484,6 +497,13 @@ GEM
       hashdiff
     webrick (1.3.1)
     will_paginate (3.1.0)
+    xmlenc (0.7.1)
+      activemodel (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      nokogiri (>= 1.6.0, < 2.0.0)
+      xmlmapper (>= 0.7.3)
+    xmlmapper (0.7.3)
+      nokogiri (~> 1.5)
     zero_downtime_migrations (0.0.7)
       activerecord
 
@@ -566,18 +586,18 @@ DEPENDENCIES
   rubocop (~> 0.52.1)
   rubocop-junit-formatter
   ruby-saml
+  saml_idp!
   savon
   sdoc (~> 0.4.0)
   sentry-raven
   shrine
   shrine-memory
   sidekiq
-  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov
+  sinatra
   socksify
   spring
   spring-commands-rspec

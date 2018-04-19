@@ -123,6 +123,8 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+  gem 'sinatra'
+  gem 'saml_idp', path: '../saml_idp'
 end
 
 group :production do
