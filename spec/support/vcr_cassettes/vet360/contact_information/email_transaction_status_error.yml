@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1/emails/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
     body:
       encoding: US-ASCII
       string: ''
@@ -25,7 +25,7 @@ http_interactions:
       X-Application-Context:
       - edge-gateway:ENV-INT-DEV:8766
       Date:
-      - Fri, 13 Apr 2018 21:11:23 GMT
+      - Fri, 13 Apr 2018 21:07:24 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -48,17 +48,19 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{
-        "messages": [
-          {
-            "code": "CORE103",
-            "key": "_CUF_NOT_FOUND",
-            "severity": "ERROR",
-            "text": "The PersonBio for id/criteria mdm.cuf.person.bio.PersonBio@a7ecb8b[vet360Id=123456,addresses=[],telephones=[],emails=[],createDate=<null>,updateDate=<null>,txAuditId=<null>,sourceSystem=<null>,sourceDate=<null>,originatingSourceSystem=<null>,sourceSystemUser=<null>] could not be found. Please correct your request and try again!"
-          }
-        ],
-        "txAuditId": "f062d5e8-bd73-4fe7-a699-5fd55d8900a9",
-        "status": "REJECTED"
-      }'
+      string: |-
+        {
+          "messages": [
+            {
+              "code": "CORE103",
+              "key": "_CUF_NOT_FOUND",
+              "severity": "ERROR",
+              "text": ""
+            }
+          ],
+          "txAuditId": "f062d5e8-bd73-4fe7-a699-5fd55d8900a9",
+          "status": "REJECTED"
+        }
     http_version:
-  recorded_at: Fri, 13 Apr 2018 21:11:24 GMT
+  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+recorded_with: VCR 3.0.3
