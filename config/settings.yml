@@ -44,6 +44,16 @@ pension_burial:
     host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
+
+# Settings for Vet360
+vet360:
+  url: "https://int.vet360.va.gov"
+  system_name: 'VETSGOV'
+  contact_information:
+    timeout: 30
+    mock: false
+
+
 # Settings for EVSS
 evss:
   url: https://csraciapp6.evss.srarad.com
