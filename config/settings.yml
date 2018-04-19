@@ -71,6 +71,7 @@ evss:
     bucket: evss_s3_bucket
     region: evss_s3_region
   letters:
+    url: https://csraciapp6.evss.srarad.com
     timeout: 55
   pciu:
     timeout: 30

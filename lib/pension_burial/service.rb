@@ -33,14 +33,6 @@ module PensionBurial
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.upload.fail") unless response.success?
 
-      # TODO: remove logging after confirming that pension burial uploads are working in staging
-      if Rails.env.production?
-        log_message_to_sentry(
-          'pension burial api upload',
-          :info
-        )
-      end
-
       response
     end
     # rubocop:enable Metrics/MethodLength
