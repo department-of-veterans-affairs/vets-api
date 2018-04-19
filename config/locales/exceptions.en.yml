@@ -266,6 +266,150 @@ en:
         code: 'VET360_502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      VET360_ADDR101:
+        <<: *external_defaults
+        title: Address Type Size
+        code: 'VET360_ADDR101'
+        detail: 'Address type size must be between 0 and 35.'
+        status: 400
+      VET360_ADDR108:
+        <<: *external_defaults
+        title: Address Line 1 Size
+        code: 'VET360_ADDR108'
+        detail: 'Size must be between 0 and 100.'
+        status: 400
+      VET360_ADDR110:
+        <<: *external_defaults
+        title: Address Line 2 Size
+        code: 'VET360_ADDR110'
+        detail: 'Size must be between 0 and 100.'
+        status: 400
+      VET360_ADDR112:
+        <<: *external_defaults
+        title: Address Line 3 Size
+        code: 'VET360_ADDR112'
+        detail: 'Size must be between 0 and 100.'
+        status: 400
+      VET360_ADDR118:
+        <<: *external_defaults
+        title: City Name Size
+        code: 'VET360_ADDR118'
+        detail: 'City name size must be between 0 and 100.'
+        status: 400
+      VET360_ADDR120:
+        <<: *external_defaults
+        title: State Code Size
+        code: 'VET360_ADDR120'
+        detail: 'State code size must be 2.'
+        status: 400
+      VET360_ADDR121:
+        <<: *external_defaults
+        title: State Code Pattern
+        code: 'VET360_ADDR121'
+        detail: 'State code pattern must match "^[a-zA-Z]+$".'
+        status: 400
+      VET360_ADDR122:
+        <<: *external_defaults
+        title: Zip Code 5 Size
+        code: 'VET360_ADDR122'
+        detail: 'Zip code 5 size must be between 0 and 5.'
+        status: 400
+      VET360_ADDR124:
+        <<: *external_defaults
+        title: Zip Code 4 Size
+        code: 'VET360_ADDR124'
+        detail: 'Zip code 4 size must be between 0 and 4.'
+        status: 400
+      VET360_ADDR125:
+        <<: *external_defaults
+        title: Zip Code 4 Pattern
+        code: 'VET360_ADDR125'
+        detail: 'Zip code 4 pattern must match "[0-9]+".'
+        status: 400
+      VET360_ADDR126:
+        <<: *external_defaults
+        title: Province Name Size
+        code: 'VET360_ADDR126'
+        detail: 'Province name size must be between 0 and 100.'
+        status: 400
+      VET360_ADDR128:
+        <<: *external_defaults
+        title: Int Postal Code Size
+        code: 'VET360_ADDR128'
+        detail: 'International postal code size must be between 0 and 100.'
+        status: 400
+      VET360_ADDR130:
+        <<: *external_defaults
+        title: Country Name Size
+        code: 'VET360_ADDR130'
+        detail: 'Country name size must be between 0 and 35.'
+        status: 400
+      VET360_ADDR131:
+        <<: *external_defaults
+        title: Country Name Pattern
+        code: 'VET360_ADDR131'
+        detail: 'Country name pattern must match "^[a-zA-Z]+$"'
+        status: 400
+      VET360_ADDR134:
+        <<: *external_defaults
+        title: County Code ISO2 Size
+        code: 'VET360_ADDR134'
+        detail: 'County code size must be between 0 and 3.'
+        status: 400
+      VET360_ADDR135:
+        <<: *external_defaults
+        title: County Code ISO2 Pattern
+        code: 'VET360_ADDR135'
+        detail: 'County code pattern must match "^[a-zA-Z]+$"'
+        status: 400
+      VET360_ADDR136:
+        <<: *external_defaults
+        title: County Code ISO3 Size
+        code: 'VET360_ADDR136'
+        detail: 'County code size must be between 0 and 3.'
+        status: 400
+      VET360_ADDR137:
+        <<: *external_defaults
+        title: County Code ISO3 Pattern
+        code: 'VET360_ADDR137'
+        detail: 'County code pattern must match "^[a-zA-Z]+$"'
+        status: 400
+      VET360_ADDR146:
+        <<: *external_defaults
+        title: Address POU Null
+        code: 'VET360_ADDR146'
+        detail: 'Address POU may not be null'
+        status: 400
+      VET360_ADDR200:
+        <<: *external_defaults
+        title: Address ID Not Null
+        code: 'VET360_ADDR200'
+        detail: 'Address ID must be null.'
+        status: 400
+      VET360_ADDR201:
+        <<: *external_defaults
+        title: Address ID Null
+        code: 'VET360_ADDR201'
+        detail: 'Address ID may not be null.'
+        status: 400
+      VET360_ADDR300:
+        <<: *external_defaults
+        title: Address Inactive
+        code: 'VET360_ADDR300'
+        detail: 'Cannot modify an existing inactive record.'
+        status: 400
+      VET360_ADDR301:
+        <<: *external_defaults
+        title: Address POU
+        code: 'VET360_ADDR301'
+        detail: 'Cannot insert a record for an address POU that already exists.'
+        status: 400
+      VET360_ADDR304:
+        <<: *external_defaults
+        title: Duplicate Address POU
+        code: 'VET360_ADDR304'
+        detail: 'Cannot accept a request with multiple addresses of the same POU.'
+        status: 400
       VET360_CORE100:
         <<: *external_defaults
         title: Unexpected Error
@@ -302,6 +446,12 @@ en:
         code: 'VET360_CORE109'
         detail: 'Incorrect Result Set Size' # TODO: Update this error message once we have more info
         status: 500
+      VET360_CORE111:
+        <<: *external_defaults
+        title: Check Address Line
+        code: 'VET360_CORE111'
+        detail: 'Required data set missing.'
+        status: 400
       VET360_CORE302:
         <<: *external_defaults
         title: Null Request
