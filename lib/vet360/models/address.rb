@@ -70,7 +70,6 @@ module Vet360
             intPostalCode: @international_postal_code,
             provinceName: @province,
             stateCode: @state_abbr,
-            vet360Id: @vet360_id,
             zipCode4: @zip_code,
             zipCode5: @zip_code_suffix,
             originatingSourceSystem: Settings.vet360.cuf_system_name,

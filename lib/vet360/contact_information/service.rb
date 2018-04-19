@@ -62,7 +62,6 @@ module Vet360
       rescue StandardError => e
         handle_error(e)
       end
-
     end
   end
 end
