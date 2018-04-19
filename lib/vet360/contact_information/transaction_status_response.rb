@@ -12,7 +12,7 @@ module Vet360
       def initialize(status, response = nil)
         @response_body = response&.body
 
-        super(status, transaction: Vet360::Models::Transaction.from_response(@response_body))
+        super(status, transaction: Vet360::Models::Transaction.build_from(@response_body))
       end
     end
 
