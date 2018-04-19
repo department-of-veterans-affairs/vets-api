@@ -31,6 +31,7 @@ PATH
     vba_documents (0.0.1)
       aws-sdk-s3 (~> 1)
       rails (~> 4.2.7.1)
+      sidekiq
 
 GEM
   remote: https://rubygems.org/

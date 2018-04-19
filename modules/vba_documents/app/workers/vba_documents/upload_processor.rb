@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
 
 module VBADocuments
