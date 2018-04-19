@@ -67,7 +67,12 @@ class ApplicationController < ActionController::API
         end
         # Warn about VA900 needing to be added to exception.en.yml
         if exception.generic_error?
-          log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
+          log_message_to_sentry(
+            'Unmapped VA900',
+            :warn,
+            { i18n_exception_hint: exception.va900_hint, original_body_message: exception.original_body },
+            external_status: exception.original_status
+          )
         end
       end
       log_exception_to_sentry(exception, extra)
