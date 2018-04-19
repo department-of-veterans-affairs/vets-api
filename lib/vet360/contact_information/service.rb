@@ -21,24 +21,30 @@ module Vet360
         handle_error(e)
       end
 
-      def post_email(vet360_email)
-        post_or_put_email(:post, vet360_email)
+      # POSTs a new address to the vet360 API
+      # @params address [Vet360::Models::Email] the email to create
+      # @returns [Vet360::ContactInformation::EmailUpdateResponse] response wrapper around an transaction object
+      def post_email(email)
+        post_or_put_email(:post, email)
       end
 
-      def put_email(vet360_email)
-        post_or_put_email(:put, vet360_email)
+      # PUTs a new address to the vet360 API
+      # @params address [Vet360::Models::Email] the email to update
+      # @returns [Vet360::ContactInformation::EmailUpdateResponse] response wrapper around a transaction object
+      def put_email(email)
+        post_or_put_email(:put, email)
       end
 
       # POSTs a new address to the vet360 API
       # @params address [Vet360::Models::Address] the address to send
-      # @returns [Vet360::Models::Transaction] a transaction object to track the status
+      # @returns [Vet360::ContactInformation::AddressUpdateResponse] response wrapper around an transaction object
       def post_address(address)
         post_or_put_address(:post, address)
       end
 
       # PUTs a new address to the vet360 API
       # @params address [Vet360::Models::Address] the address to update
-      # @returns [Vet360::Models::Transaction] a transaction object to track the status
+      # @returns [Vet360::ContactInformation::AddressUpdateResponse] response wrapper around a transaction object
       def put_address(address)
         post_or_put_address(:put, address)
       end
