@@ -40,12 +40,35 @@ module Vet360
         handle_error(e)
       end
 
+      # POSTs a new address to the vet360 API
+      # @params address [Vet360::Models::Address] the address to send
+      # @returns [Vet360::Models::Transaction] a transaction object to track the status
+      def post_address(address)
+        post_or_put_address(:post, address)
+      end
+
+      # PUTs a new address to the vet360 API
+      # @params address [Vet360::Models::Address] the address to update
+      # @returns [Vet360::Models::Transaction] a transaction object to track the status
+      def put_address(address)
+        post_or_put_address(:put, address)
+      end
+
       private
 
       def post_or_put_email(method, vet360_email)
         with_monitoring do
           raw = perform(method, 'emails', vet360_email.in_json)
           Vet360::ContactInformation::EmailTransactionResponse.new(raw.status, raw)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
+      def post_or_put_address(method, address)
+        with_monitoring do
+          raw = perform(method, 'addresses', address.in_json)
+          Vet360::ContactInformation::AddressUpdateResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)

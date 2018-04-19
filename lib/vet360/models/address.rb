@@ -27,6 +27,7 @@ module Vet360
       attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
       attribute :international_postal_code, String
+      attribute :province, String
       attribute :source_date, Common::ISO8601Time
       attribute :state_abbr, String
       attribute :transaction_id, String
@@ -52,6 +53,37 @@ module Vet360
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @params body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Address] the model built from the response body
+      # rubocop:disable Metrics/MethodLength
+      def in_json
+        {
+          bio: {
+            addressId: @id,
+            addressLine1: @address_line_1,
+            addressLine2: @address_line_2,
+            addressLine3: @address_line_3,
+            addressPOU: @address_pou,
+            addressType: @address_type,
+            cityName: @city,
+            countryCodeISO2: @country_code_iso2,
+            countryCodeISO3: @country_code_iso3,
+            countryName: @country,
+            county: {
+              countyCode: @county_code,
+              countyName: @county_name
+            },
+            intPostalCode: @international_postal_code,
+            provinceName: @province,
+            stateCode: @state_abbr,
+            zipCode4: @zip_code,
+            zipCode5: @zip_code_suffix,
+            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            sourceDate: @source_date,
+            vet360Id: @vet360_id
+          }
+        }.to_json
+      end
+      # rubocop:enable Metrics/MethodLength
+
       # rubocop:disable Metrics/MethodLength
       def self.build_from(body)
         Vet360::Models::Address.new(

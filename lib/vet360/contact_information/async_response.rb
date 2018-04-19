@@ -19,5 +19,7 @@ module Vet360
     end
 
     class EmailUpdateResponse < AsyncResponse; end
+
+    class AddressUpdateResponse < AsyncResponse; end
   end
 end
