@@ -68,7 +68,7 @@ module Vet360
       def post_or_put_address(method, address)
         with_monitoring do
           raw = perform(method, 'addresses', address.in_json)
-          Vet360::ContactInformation::AddressUpdateResponse.new(raw.status, raw)
+          Vet360::ContactInformation::AddressTransactionResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)
