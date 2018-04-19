@@ -50,6 +50,7 @@ vet360:
   url: "https://int.vet360.va.gov"
   system_name: 'VETSGOV'
   contact_information:
+    enabled: true
     timeout: 30
     mock: false
 
