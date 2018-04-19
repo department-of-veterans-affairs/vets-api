@@ -12,7 +12,7 @@ module Vet360
       def initialize(status, response = nil)
         @response_body = response&.body
 
-        super(status, person: Vet360::Models::Person.from_response(@response_body&.dig('bio')))
+        super(status, person: Vet360::Models::Person.build_from(@response_body&.dig('bio')))
       end
     end
   end

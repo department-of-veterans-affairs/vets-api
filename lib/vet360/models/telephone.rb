@@ -19,13 +19,14 @@ module Vet360
       attribute :id, Integer
       attribute :is_international, Boolean
       attribute :is_textable, Boolean
+      attribute :is_tty, Boolean
+      attribute :is_voicemailable, Boolean
       attribute :phone_number, String
       attribute :phone_type, String
       attribute :source_date, Common::ISO8601Time
       attribute :transaction_id, String
-      attribute :is_tty, Boolean
       attribute :updated_at, Common::ISO8601Time
-      attribute :is_voicemailable, Boolean
+      attribute :vet360_id, String
 
       validates(
         :area_code,
@@ -52,7 +53,7 @@ module Vet360
         inclusion: { in: PHONE_TYPES }
       )
 
-      def self.from_response(body)
+      def self.build_from(body)
         Vet360::Models::Telephone.new(
           area_code: body['area_code'],
           country_code: body['country_code'],
@@ -60,14 +61,15 @@ module Vet360
           extension: body['phone_number_ext'],
           id: body['telephone_id'],
           is_international: body['international_indicator'],
+          is_textable: body['text_message_capable_ind'],
+          is_voicemailable: body['voice_mail_acceptable_ind'],
           phone_number: body['phone_number'],
           phone_type: body['phone_type'],
           source_date: body['source_date'],
-          is_textable: body['text_message_capable_ind'],
           transaction_id: body['tx_audit_id'],
           is_tty: body['tty_ind'],
           updated_at: body['update_date'],
-          is_voicemailable: body['voice_mail_acceptable_ind']
+          vet360_id: body['vet360_id']
         )
       end
     end

@@ -31,6 +31,7 @@ module Vet360
       attribute :state_abbr, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
+      attribute :vet360_id, String
       attribute :zip_code, String
       attribute :zip_code_suffix, String
 
@@ -48,8 +49,11 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
+      # Converts a decoded JSON response from Vet360 to an instance of the Address model
+      # @params body [Hash] the decoded response body from Vet360
+      # @return [Vet360::Models::Address] the model built from the response body
       # rubocop:disable Metrics/MethodLength
-      def self.from_response(body)
+      def self.build_from(body)
         Vet360::Models::Address.new(
           address_line_1: body['address_line_1'],
           address_line_2: body['address_line_2'],
@@ -70,7 +74,8 @@ module Vet360
           source_date: body['source_date'],
           state_abbr: body['state_code'],
           transaction_id: body['tx_audit_id'],
-          updated_at: body['updateDate'],
+          updated_at: body['update_date'],
+          vet360_id: body['vet360_id'],
           zip_code: body['zip_code5'],
           zip_code_suffix: body['zip_code4']
         )

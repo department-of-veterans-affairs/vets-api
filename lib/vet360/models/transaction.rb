@@ -13,15 +13,15 @@ module Vet360
         COMPLETED_FAILURE
       ].freeze
 
-      attribute :messages, Array[Message]
+      attribute :messages, Array[Vet360::Models::Message]
       attribute :id, String
       attribute :status, String
 
-      def self.from_response(body)
-        messages = body['messages']&.map { |m| Vet360::Models::Message.from_response(m) }
+      def self.build_from(body)
+        messages = body['messages']&.map { |m| Vet360::Models::Message.build_from(m) }
 
         Vet360::Models::Transaction.new(
-          messages: messages,
+          messages: messages || [],
           id: body['tx_audit_id'],
           status: body['tx_status']
         )
