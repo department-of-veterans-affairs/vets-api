@@ -15,6 +15,11 @@ module Vet360
         faraday.use      :breakers
         # faraday.use      EVSS::ErrorMiddleware # Probably need to build Vet360::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
+
+        # @TODO Remove for production...
+        # (This is really helpful for setting up cassettes)
+        # faraday.response :logger, ::Logger.new(STDOUT), bodies: true
+
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
         faraday.response :json, content_type: /\bjson/ # ensures only json content types parsed

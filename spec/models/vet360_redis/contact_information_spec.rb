@@ -18,7 +18,7 @@ describe Vet360Redis::ContactInformation do
   end
 
   before do
-    allow(Vet360::Models::Person).to receive(:from_response).and_return(person)
+    allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
   end
 
   let(:person_response) do
@@ -58,7 +58,7 @@ describe Vet360Redis::ContactInformation do
   describe 'contact information attributes' do
     context 'with a successful response' do
       before do
-        # allow(Vet360::Models::Person).to receive(:from_response).and_return(person)
+        allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(person_response)
       end
 
@@ -213,7 +213,7 @@ describe Vet360Redis::ContactInformation do
       end
 
       before do
-        allow(Vet360::Models::Person).to receive(:from_response).and_return(nil)
+        allow(Vet360::Models::Person).to receive(:build_from).and_return(nil)
         allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(empty_response)
       end
 

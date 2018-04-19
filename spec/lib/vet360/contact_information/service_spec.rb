@@ -92,4 +92,30 @@ describe Vet360::ContactInformation::Service do
       end
     end
   end
+
+  describe '#post_address' do
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
+          address.id = nil
+          response = subject.post_address(address)
+          expect(response).to be_ok
+        end
+      end
+    end
+
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
+          address.id = 42
+          expect { subject.post_address(address) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_ADDR200')
+          end
+        end
+      end
+    end
+  end
 end
