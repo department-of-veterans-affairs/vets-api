@@ -8,7 +8,8 @@ module EVSS
       attribute :states, Array[String]
 
       def initialize(status, response = nil)
-        super(status, states: response&.body&.dig('cnp_states'))
+        states = response&.body&.dig('cnp_states') || response&.body&.dig('states')
+        super(status, states: states)
       end
     end
   end

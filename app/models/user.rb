@@ -10,6 +10,7 @@ require 'saml/user'
 
 class User < Common::RedisStore
   include BetaSwitch
+  include Authorization
 
   UNALLOCATED_SSN_PREFIX = '796' # most test accounts use this
 
@@ -43,6 +44,19 @@ class User < Common::RedisStore
     identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
 
+  def full_name_normalized
+    {
+      first: first_name&.capitalize,
+      middle: middle_name&.capitalize,
+      last: last_name&.capitalize,
+      suffix: va_profile&.normalized_suffix
+    }
+  end
+
+  def ssn_normalized
+    ssn&.gsub(/[^\d]/, '')
+  end
+
   def middle_name
     identity.middle_name || (mhv_icn.present? ? mvi&.profile&.given_names.to_a[1..-1]&.join(' ').presence : nil)
   end
@@ -68,8 +82,11 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    # FIXME-IDENTITY: doing .try for now since this could return no method error until persisted properly
-    identity.try(:mhv_correlation_id) || mvi.mhv_correlation_id
+    identity.mhv_correlation_id || mvi.mhv_correlation_id
+  end
+
+  def mhv_account_type
+    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
   end
 
   def loa
@@ -86,6 +103,7 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
+  delegate :vet360_id, to: :mvi
 
   def va_profile
     mvi.profile
@@ -145,20 +163,12 @@ class User < Common::RedisStore
     mhv_account.account_state
   end
 
-  def can_access_appeals?
-    loa3? && ssn.present?
-  end
-
   def can_save_partial_forms?
     true
   end
 
   def can_access_prefill_data?
     true
-  end
-
-  def can_prefill_emis?
-    edipi.present? || icn.present?
   end
 
   def can_access_id_card?
@@ -184,6 +194,12 @@ class User < Common::RedisStore
   # have been made.
   def recache
     mvi.cache(uuid, mvi.mvi_response)
+  end
+
+  # destroy both UserIdentity and self
+  def destroy
+    identity&.destroy
+    super
   end
 
   %w[veteran_status military_information payment].each do |emis_method|

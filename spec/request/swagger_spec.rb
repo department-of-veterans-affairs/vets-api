@@ -30,24 +30,20 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
-  let(:mhv_account) do
-    double('mhv_account', account_state: 'updated',
-                          ineligible?: false,
-                          eligible?: true,
-                          needs_terms_acceptance?: false,
-                          accessible?: true)
-  end
   let(:mhv_user) { build(:user, :mhv) }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
   context 'has valid paths' do
     let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
+
+    it 'supports getting backend service status' do
+      expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, auth_options.merge('service' => 'gibs'))
+    end
 
     it 'supports fetching authentication urls' do
       expect(subject).to validate(:get, '/v0/sessions/authn_urls', 200)
@@ -721,9 +717,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
 
           context 'unsuccessful calls' do
-            let(:mhv_account) do
-              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
-            end
+            let(:mhv_user) { build(:user, :loa1) } # a user without mhv_correlation_id
 
             it 'raises forbidden when user is not eligible' do
               expect(subject).to validate(:get, '/v0/health_records/refresh', 403)
@@ -790,6 +784,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       before { Settings.evss.mock_letters = false }
 
       it 'supports getting EVSS Gi Bill Status' do
+        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
         expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 401)
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
           # TODO: this cassette was hacked to return all 3 entitlements since
@@ -799,6 +794,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         VCR.use_cassette('evss/gi_bill_status/vet_not_found') do
           expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 404, auth_options)
         end
+        Timecop.return
+      end
+
+      it 'supports Gi Bill Status 503 condition' do
+        # Timecop.freeze(Time.zone.parse('1st Feb 2018 00:15:06'))
+        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
+        expect(subject).to validate(:get, '/v0/post911_gi_bill_status', 503, auth_options)
+        Timecop.return
       end
 
       it 'supports getting EVSS Letters' do
@@ -1007,9 +1010,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/vha_648A4') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
 
         it '404s on non-existent facility' do
@@ -1022,6 +1024,134 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/facilities/va', 400,
                                       '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
         end
+      end
+    end
+
+    describe 'appeals' do
+      it 'documents appeals 401' do
+        expect(subject).to validate(:get, '/v0/appeals', 401)
+      end
+
+      it 'documents appeals 200' do
+        VCR.use_cassette('/appeals/appeals') do
+          expect(subject).to validate(:get, '/v0/appeals', 200, auth_options)
+        end
+      end
+
+      it 'documents appeals 403' do
+        VCR.use_cassette('/appeals/forbidden') do
+          expect(subject).to validate(:get, '/v0/appeals', 403, auth_options)
+        end
+      end
+
+      it 'documents appeals 404' do
+        VCR.use_cassette('/appeals/not_found') do
+          expect(subject).to validate(:get, '/v0/appeals', 404, auth_options)
+        end
+      end
+
+      it 'documents appeals 422' do
+        VCR.use_cassette('/appeals/invalid_ssn') do
+          expect(subject).to validate(:get, '/v0/appeals', 422, auth_options)
+        end
+      end
+
+      it 'documents appeals 502' do
+        VCR.use_cassette('/appeals/server_error') do
+          expect(subject).to validate(:get, '/v0/appeals', 502, auth_options)
+        end
+      end
+    end
+
+    describe 'profiles' do
+      it 'supports getting email address data' do
+        expect(subject).to validate(:get, '/v0/profile/email', 401)
+        VCR.use_cassette('evss/pciu/email') do
+          expect(subject).to validate(:get, '/v0/profile/email', 200, auth_options)
+        end
+      end
+
+      it 'supports getting primary phone number data' do
+        expect(subject).to validate(:get, '/v0/profile/primary_phone', 401)
+        VCR.use_cassette('evss/pciu/primary_phone') do
+          expect(subject).to validate(:get, '/v0/profile/primary_phone', 200, auth_options)
+        end
+      end
+
+      it 'supports getting alternate phone number data' do
+        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 401)
+        VCR.use_cassette('evss/pciu/alternate_phone') do
+          expect(subject).to validate(:get, '/v0/profile/alternate_phone', 200, auth_options)
+        end
+      end
+
+      it 'supports getting service history data' do
+        expect(subject).to validate(:get, '/v0/profile/service_history', 401)
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject).to validate(:get, '/v0/profile/service_history', 200, auth_options)
+        end
+      end
+
+      it 'supports getting personal information data' do
+        expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
+        end
+      end
+
+      it 'supports posting primary phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/primary_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting alternate phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_alternate_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/alternate_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email', 401)
+
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          email_address = build(:email_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports getting full name data' do
+        expect(subject).to validate(:get, '/v0/profile/full_name', 401)
+
+        user = build(:user_with_suffix, :loa3)
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        expect(subject).to validate(:get, '/v0/profile/full_name', 200, auth_options)
       end
     end
   end

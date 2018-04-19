@@ -1,17 +1,21 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/controller_spec_helper'
 
 RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
+  it_should_behave_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
+
   def parsed_body
     JSON.parse(response.body)
   end
 
   let(:user) { create(:user) }
+  let(:form) { build(:vic_submission).form }
 
   describe '#create' do
     def send_create
-      post(:create, vic_submission: { form: build(:vic_submission).form })
+      post(:create, vic_submission: { form: form })
     end
 
     context 'with a valid form' do
@@ -23,13 +27,30 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
       end
 
       context 'with a user' do
-        it 'creates a vic submission with a user' do
+        before do
           expect(controller).to receive(:authenticate_token)
           allow(controller).to receive(:current_user).and_return(user)
-          expect_any_instance_of(VIC::VICSubmission).to receive(:user_uuid=).with(user.uuid)
           expect(controller).to receive(:clear_saved_form).with('VIC')
+        end
+
+        it 'creates a vic submission with a user' do
+          expect_any_instance_of(VIC::VICSubmission).to receive(:user=).with(user)
           send_create
           expect(response.ok?).to eq(true)
+        end
+
+        context 'with an anonymous flagged submission' do
+          let(:form) do
+            form = build(:vic_submission).send(:parsed_form)
+            form['processAsAnonymous'] = true
+            form.to_json
+          end
+
+          it 'should not associate the vic_submission with a user' do
+            expect_any_instance_of(VIC::VICSubmission).not_to receive(:user=)
+            send_create
+            expect(response.ok?).to eq(true)
+          end
         end
       end
     end

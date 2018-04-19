@@ -3,7 +3,7 @@
 module PensionBurial
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      "https://#{Settings.pension_burial.upload.host}/VADocument/upload"
+      "https://#{Settings.pension_burial.upload.host}/VADocument"
     end
 
     def service_name
@@ -16,7 +16,6 @@ module PensionBurial
         faraday.request :url_encoded
 
         faraday.use :breakers
-        faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
     end

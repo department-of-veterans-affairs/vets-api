@@ -19,6 +19,7 @@ require 'support/model_helpers'
 require 'support/authenticated_session_helper'
 require 'support/aws_helpers'
 require 'support/request_helper'
+require 'support/uploader_helpers'
 require 'common/exceptions'
 
 WebMock.disable_net_connect!(allow_localhost: true)
@@ -58,6 +59,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.pension_burial.upload.token }
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
+  c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
   c.filter_sensitive_data('<GIDS_URL>') { Settings.gids.url }
   c.filter_sensitive_data('<MHV_HOST>') { Settings.mhv.rx.host }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
@@ -102,6 +104,7 @@ RSpec.configure do |config|
   end
   config.include(SAML, type: :controller)
   config.include(AwsHelpers, type: :aws_helpers)
+  config.include(UploaderHelpers, uploader_helpers: true)
 
   # Adding support for url_helper
   config.include Rails.application.routes.url_helpers

@@ -50,6 +50,13 @@ module Swagger
           property :pagination, '$ref': :Pagination
         end
 
+        swagger_schema :MetaSort do
+          key :type, :object
+          key :required, %i[sort]
+
+          property :pagination, '$ref': :Sort
+        end
+
         swagger_schema :Filter do
           key :type, :object
         end

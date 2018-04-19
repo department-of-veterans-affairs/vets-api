@@ -8,9 +8,6 @@ require 'attr_encrypted'
 #    the vets-json-schema struct so that validations can be run on submit
 # * `CONFIRMATION` should be a small ident used as part of the confirmation
 #    number to quickly determine the form/product type
-# *  Optionally `PERSISTENT_CLASS`, which is a subclass of `PersistentAttachment`
-#    that can be used when the subclass implements to_pdf as a way to convert
-#    the raw submission into a filled PDF using the PdfFill lib.
 # *  `regional_office()`, which returns an array or string of the location of
 #    the claim processing facility
 # *  `attachment_keys()` returns a list of symbols corresponding to the keys
@@ -26,7 +23,7 @@ class SavedClaim < ActiveRecord::Base
   validate(:form_must_be_string)
   attr_encrypted(:form, key: Settings.db_encryption_key)
 
-  has_many :persistent_attachments
+  has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
@@ -42,17 +39,15 @@ class SavedClaim < ActiveRecord::Base
   # Run after a claim is saved, this processes any files and workflows that are present
   # and sends them to our internal partners for processing.
   def process_attachments!
-    GenerateClaimPDFJob.perform_async(id) if respond_to?(:to_pdf)
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.update_all(saved_claim_id: id)
-    persistent_attachments.map(&:process)
-    true
+
+    CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
 
-  # Return a unique confirmation number that somewhat masks the sequentialness.
   def confirmation_number
-    "V-#{self.class::CONFIRMATION}-#{guid[0..6]}#{id}".upcase
+    guid
   end
 
   # Convert the json into an OStruct
@@ -82,7 +77,7 @@ class SavedClaim < ActiveRecord::Base
   end
 
   def to_pdf
-    File.open(PdfFill::Filler.fill_form(self))
+    PdfFill::Filler.fill_form(self)
   end
 
   private

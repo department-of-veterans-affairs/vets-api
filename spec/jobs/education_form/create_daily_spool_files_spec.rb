@@ -47,7 +47,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     it 'should log a message on holidays', run_at: '2017-01-02 03:00:00 EDT' do
       expect(subject).not_to receive(:write_files)
-      expect(subject.logger).to receive(:info).with("Skipping on a Holiday: New Year's Day")
+      expect(subject.logger).to receive('info').with("Skipping on a Holiday: New Year's Day")
       expect(subject.perform).to be false
     end
 
@@ -227,5 +227,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         expect(EducationBenefitsClaim.unprocessed).to be_empty
       end
     end
+  end
+
+  after(:all) do
+    FileUtils.remove_dir('tmp/spool_files')
   end
 end

@@ -11,9 +11,7 @@ module Swagger
 
           key :description, 'Get the Post 911 GI Bill Status for a Veteran'
           key :operationId, 'getPost911GiBillStatus'
-          key :tags, [
-            'evss'
-          ]
+          key :tags, ['benefits_status']
 
           parameter :authorization
 
@@ -25,6 +23,17 @@ module Swagger
           end
           response 404 do
             key :description, 'Veteran Gi Bill Status not found in EVSS'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 503 do
+            key :description, 'The backend GI Bill Status service is unavailable'
+            header 'Retry-After' do
+              key :type, :string
+              key :format, 'date'
+            end
             schema do
               key :'$ref', :Errors
             end

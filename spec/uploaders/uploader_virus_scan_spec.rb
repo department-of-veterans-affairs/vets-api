@@ -2,29 +2,20 @@
 
 require 'rails_helper'
 
-describe UploaderVirusScan do
+describe UploaderVirusScan, uploader_helpers: true do
   class UploaderVirusScanTest < CarrierWave::Uploader::Base
     include UploaderVirusScan
   end
+  let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/va.gif', 'image/gif') }
 
   def store_image
-    UploaderVirusScanTest.new.store!(
-      Rack::Test::UploadedFile.new('spec/fixtures/files/va.gif', 'image/gif')
-    )
+    UploaderVirusScanTest.new.store!(file)
   end
 
   context 'in production' do
-    before do
-      expect(Common::VirusScan).to receive(:scan).and_return(OpenStruct.new(result))
-    end
+    stub_virus_scan
 
     context 'with no virus' do
-      let(:result) do
-        {
-          safe?: true
-        }
-      end
-
       it 'should run the virus scan' do
         expect(Rails.env).to receive(:production?).and_return(true)
 
@@ -42,6 +33,7 @@ describe UploaderVirusScan do
 
       it 'should raise an error' do
         expect(Rails.env).to receive(:production?).and_return(true)
+        expect(file).to receive(:delete)
 
         expect { store_image }.to raise_error(
           UploaderVirusScan::VirusFoundError, 'virus found'

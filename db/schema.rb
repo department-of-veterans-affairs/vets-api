@@ -11,11 +11,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180130213405) do
+ActiveRecord::Schema.define(version: 20180416231107) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "base_facilities", id: false, force: :cascade do |t|
+    t.string   "unique_id",      null: false
+    t.string   "name",           null: false
+    t.string   "facility_type",  null: false
+    t.string   "classification"
+    t.string   "website"
+    t.float    "lat",            null: false
+    t.float    "long",           null: false
+    t.jsonb    "address"
+    t.jsonb    "phone"
+    t.jsonb    "hours"
+    t.jsonb    "services"
+    t.jsonb    "feedback"
+    t.jsonb    "access"
+    t.string   "fingerprint"
+    t.datetime "created_at",     null: false
+    t.datetime "updated_at",     null: false
+  end
+
+  add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
     t.string   "user_uuid",  null: false
@@ -25,6 +46,14 @@ ActiveRecord::Schema.define(version: 20180130213405) do
   end
 
   add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
+
+  create_table "central_mail_submissions", force: :cascade do |t|
+    t.string  "state",          default: "pending", null: false
+    t.integer "saved_claim_id",                     null: false
+  end
+
+  add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
+  add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
@@ -117,6 +146,14 @@ ActiveRecord::Schema.define(version: 20180130213405) do
 
   add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
 
+  create_table "invalid_letter_address_edipis", force: :cascade do |t|
+    t.string   "edipi",      null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "invalid_letter_address_edipis", ["edipi"], name: "index_invalid_letter_address_edipis_on_edipi", using: :btree
+
   create_table "maintenance_windows", force: :cascade do |t|
     t.string   "pagerduty_id"
     t.string   "external_service"
@@ -154,6 +191,9 @@ ActiveRecord::Schema.define(version: 20180130213405) do
     t.string   "encrypted_file_data_iv", null: false
   end
 
+  add_index "persistent_attachments", ["guid"], name: "index_persistent_attachments_on_guid", unique: true, using: :btree
+  add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
+
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
@@ -175,6 +215,9 @@ ActiveRecord::Schema.define(version: 20180130213405) do
     t.uuid     "guid",              null: false
     t.string   "type"
   end
+
+  add_index "saved_claims", ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type", using: :btree
+  add_index "saved_claims", ["guid"], name: "index_saved_claims_on_guid", unique: true, using: :btree
 
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"

@@ -120,8 +120,6 @@ Style/RescueStandardError:
     - "lib/mvi/messages/find_profile_message_helpers.rb"
     - "lib/mvi/responses/profile_parser.rb"
     - "lib/saml/settings_service.rb"
-    - "lib/workflow/runner.rb"
-    - "lib/workflow/task/shared/datestamp_pdf_task.rb"
     - "rakelib/connectivity.rake"
     - "rakelib/mvi.rake"
     - "rakelib/redis.rake"
@@ -160,7 +158,6 @@ Style/DateTime:
     - "lib/common/models/attribute_types/date_time_string.rb"
     - "lib/evss/auth_headers.rb"
     - "lib/evss/pciu_address/service.rb"
-    - "lib/workflow/task/shared/datestamp_pdf_task.rb"
     - "rakelib/evss.rake"
     - "rakelib/mvi.rake"
 
@@ -185,6 +182,7 @@ Rails/SkipsModelValidations:
   Exclude:
     - "app/workers/education_form/create_daily_spool_files.rb"
     - "app/models/saved_claim.rb"
+    - 'spec/**/*.rb'
 
 # Need to revisit why this is necessary:
 Lint/RescueException:

@@ -86,6 +86,7 @@ module MVI
 
       private
 
+      # rubocop:disable MethodLength
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
         correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
@@ -105,9 +106,12 @@ module MVI
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
           sec_id: correlation_ids[:sec_id],
-          birls_id: correlation_ids[:birls_id]
+          birls_id: correlation_ids[:birls_id],
+          vet360_id: correlation_ids[:vet360_id],
+          historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns
         )
       end
+      # rubocop:enable MethodLength
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         return if mhv_ids.blank?

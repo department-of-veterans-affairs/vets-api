@@ -20,6 +20,10 @@ module BB
       "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
+    def caching_enabled?
+      Settings.mhv.bb.collection_caching_enabled || false
+    end
+
     def service_name
       'BB'
     end

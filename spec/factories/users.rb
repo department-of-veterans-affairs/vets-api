@@ -16,6 +16,8 @@ FactoryBot.define do
       ssn '796111863'
       mhv_icn nil
       multifactor false
+      mhv_account_type nil
+      va_patient nil
 
       loa do
         { current: LOA::TWO, highest: LOA::THREE }
@@ -35,7 +37,8 @@ FactoryBot.define do
                              ssn: t.ssn,
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
-                             multifactor: t.multifactor)
+                             multifactor: t.multifactor,
+                             mhv_account_type: t.mhv_account_type)
       user.instance_variable_set(:@identity, user_identity)
     end
 
@@ -70,6 +73,42 @@ FactoryBot.define do
       end
     end
 
+    factory :disabilities_compensation_user, traits: [:loa3] do
+      first_name('Beyonce')
+      last_name('Knowles')
+      gender('F')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796068949')
+
+      after(:build) do
+        stub_mvi(build(:mvi_profile, birls_id: '796068948'))
+      end
+    end
+
+    factory :blank_gender_user do
+      gender('')
+    end
+
+    factory :user_with_suffix, traits: [:loa3] do
+      first_name('Jack')
+      middle_name('Robert')
+      last_name('Smith')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796043735')
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile_response,
+            edipi: '1007697216',
+            birls_id: '796043735',
+            participant_id: '600061742',
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
     trait :mhv_sign_in do
       email 'abraham.lincoln@vets.gov'
       first_name nil
@@ -95,12 +134,26 @@ FactoryBot.define do
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
       ssn '796111864'
       multifactor true
+      mhv_account_type 'Premium'
+      va_patient true
 
       loa do
         {
           current: LOA::THREE,
           highest: LOA::THREE
         }
+      end
+
+      # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
+      after(:build) do |_user, t|
+        stub_mvi(
+          build(
+            :mvi_profile,
+            icn: '1000123456V123456',
+            mhv_ids: %w[12345678901],
+            vha_facility_ids: t.va_patient ? %w[358] : []
+          )
+        )
       end
     end
 

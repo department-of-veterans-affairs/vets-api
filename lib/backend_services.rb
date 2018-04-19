@@ -1,6 +1,16 @@
 # frozen_string_literal: true
 
 class BackendServices
+  def self.all
+    constants.map do |const|
+      val = const_get const
+      next unless val.is_a?(String)
+      val
+    end.compact
+  end
+
+  GI_BILL_STATUS = 'gibs'
+
   FACILITIES = 'facilities'
   HCA = 'hca'
   EDUCATION_BENEFITS = 'edu-benefits'
@@ -14,7 +24,7 @@ class BackendServices
   RX = 'rx'
   MESSAGING = 'messaging'
   HEALTH_RECORDS = 'health-records'
-  MHV_BASED_SERVICES = [RX, MESSAGING, HEALTH_RECORDS].freeze
+  MHV_AC = 'mhv-accounts'
 
   # Core Form Features
   SAVE_IN_PROGRESS = 'form-save-in-progress'

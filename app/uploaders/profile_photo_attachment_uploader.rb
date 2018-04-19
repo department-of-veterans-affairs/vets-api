@@ -1,18 +1,17 @@
 # frozen_string_literal: true
 
 class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
+  PROCESSING_CLASS = VIC::ProcessingUploader
   include ValidateFileSize
-  include ReencodeImages
   include SetAwsConfig
-  include UploaderVirusScan
+  include AsyncProcessing
+  include LogMetrics
 
   MAX_FILE_SIZE = 10.megabytes
 
-  def initialize(guid, form_id)
+  def initialize(guid)
+    super
     @guid = guid
-    @form_id = form_id
-
-    super(@guid)
 
     if Rails.env.production?
       set_aws_config(
@@ -22,12 +21,10 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
         Settings.vic.s3.bucket
       )
     end
-
-    self.aws_acl = 'public-read'
   end
 
   def extension_white_list
-    %w[jpg jpeg gif png]
+    %w[jpg jpeg gif png tif tiff]
   end
 
   def filename
@@ -35,7 +32,6 @@ class ProfilePhotoAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    dir = @form_id || 'anonymous'
-    "profile_photo_attachments/#{dir}"
+    'profile_photo_attachments'
   end
 end

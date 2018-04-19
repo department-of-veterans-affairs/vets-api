@@ -3,10 +3,14 @@
 require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
+  match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
+  get '/sessions/:type/new',
+      to: 'v0/sessions#new',
+      constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :in_progress_forms, only: %i[index show update destroy]
@@ -45,8 +49,8 @@ Rails.application.routes.draw do
     end
 
     if Settings.pension_burial.upload.enabled
-      resource :pension_claims, only: [:create]
-      resource :burial_claims, only: [:create]
+      resources :pension_claims, only: %i[create show]
+      resources :burial_claims, only: %i[create show]
     end
 
     resources :evss_claims, only: %i[index show] do
@@ -76,7 +80,6 @@ Rails.application.routes.draw do
     end
 
     resources :appeals, only: [:index]
-    get 'appeals_v2', to: 'appeals#index_v2', as: :appeals_v2
 
     scope :messaging do
       scope :health do
@@ -140,10 +143,29 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
+        if Settings.evss&.reference_data_service&.enabled
+          get 'countries', to: 'addresses#rds_countries'
+          get 'states', to: 'addresses#rds_states'
+        else
+          get 'countries', to: 'addresses#countries'
+          get 'states', to: 'addresses#states'
+        end
       end
     end
+
+    namespace :profile do
+      resource :alternate_phone, only: %i[show create]
+      resource :email, only: %i[show create]
+      resource :full_name, only: :show
+      resource :personal_information, only: :show
+      resource :primary_phone, only: %i[show create]
+      resource :service_history, only: :show
+    end
+
+    get 'profile/mailing_address', to: 'addresses#show'
+    put 'profile/mailing_address', to: 'addresses#update'
+
+    resources :backend_statuses, param: :service, only: [:show]
 
     resources :apidocs, only: [:index]
 
@@ -152,14 +174,18 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
+    resource :mhv_account, only: %i[show create]
+
     [
+      'profile',
+      'dashboard',
       'veteran_id_card',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
         :beta_registrations,
         path: "/beta_registration/#{feature}",
-        only: %i[show create],
+        only: %i[show create destroy],
         defaults: { feature: feature }
       )
     end
@@ -167,14 +193,25 @@ Rails.application.routes.draw do
 
   root 'v0/example#index', module: 'v0'
 
+  scope '/services' do
+    namespace :v0, defaults: { format: 'json' } do
+      namespace :docs, only: [] do
+        # namespace :health do
+        #   resources :prescriptions
+        #   resources :secure_messages
+        # end
+        # resources :health, only: [:index]
+
+        resources :benefits, only: [:index]
+      end
+    end
+  end
+
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
-
-  # Supports retrieval of VIC photo uploads during local development
-  get '/content/vic/*path', to: 'content/vic_local_uploads#find_file' if Rails.env.development?
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]

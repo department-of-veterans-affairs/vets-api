@@ -23,17 +23,20 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
   let(:valid_saml_response) do
     double('saml_response', is_valid?: true, errors: [],
+                            is_a?: true,
                             in_response_to: uuid,
                             status_message: '',
                             decrypted_document: response_xml_stub)
   end
   let(:invalid_saml_response) do
     double('saml_response', is_valid?: false,
+                            is_a?: true,
                             in_response_to: uuid,
                             decrypted_document: response_xml_stub)
   end
   let(:saml_response_click_deny) do
     double('saml_response', is_valid?: false,
+                            is_a?: true,
                             in_response_to: uuid,
                             errors: ['ruh roh'],
                             status_message: 'Subject did not consent to attribute release',
@@ -41,6 +44,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
   let(:saml_response_too_late) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['Current time is on or after NotOnOrAfter ' \
                               'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
                             decrypted_document: response_xml_stub)
@@ -48,6 +52,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['Current time is earlier than NotBefore ' \
                               'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
                             decrypted_document: response_xml_stub)
@@ -55,6 +60,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:saml_response_unknown_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: ['The status code of the Response was not Success, ' \
                               'was Requester => NoAuthnContext -> AuthnRequest without ' \
                               'an authentication context.'],
@@ -63,6 +69,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:saml_response_multi_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+                            is_a?: true,
                             errors: [
                               'Subject did not consent to attribute release',
                               'Other random error'
@@ -85,12 +92,54 @@ RSpec.describe V0::SessionsController, type: :controller do
     Redis.current.set("benchmark_api.auth.logout_#{uuid}", Time.now.to_f)
   end
 
+  context 'when not logged in' do
+    describe 'new' do
+      context 'routes not requiring auth' do
+        %w[mhv dslogon idme].each do |type|
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            get(:new, type: type)
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body).keys).to eq %w[url]
+          end
+        end
+
+        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signin: true' do
+          get(:new, type: :idme, signup: true)
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
+        end
+      end
+
+      context 'routes requiring auth' do
+        %w[mfa verify slo].each do |type|
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            get(:new, type: type)
+            expect(response).to have_http_status(:unauthorized)
+          end
+        end
+      end
+    end
+  end
+
   context 'when logged in' do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
+    end
+
+    describe 'new' do
+      context 'routes not requiring auth' do
+        %w[mhv dslogon idme mfa verify slo].each do |type|
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            request.env['HTTP_AUTHORIZATION'] = auth_header
+            get(:new, type: type)
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body).keys).to eq %w[url]
+          end
+        end
+      end
     end
 
     it 'returns a url for leveling up or verifying current level' do
@@ -113,24 +162,24 @@ RSpec.describe V0::SessionsController, type: :controller do
       expect(response).to have_http_status(202)
     end
 
-    it 'responds with error when logout request is not found' do
+    it 'redirects as success even when logout fails, but it logs the failure' do
       expect(Rails.logger).to receive(:error).exactly(1).times
       expect(post(:saml_logout_callback, SAMLResponse: '-'))
-        .to redirect_to(Settings.saml.logout_relay + '?success=false')
+        .to redirect_to(Settings.saml.logout_relay + '?success=true')
     end
 
-    context ' logout has been requested' do
+    context 'logout has been requested' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
-      context ' logout_response is invalid' do
+      context 'logout_response is invalid' do
         before do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
 
-        it 'redirects to error' do
+        it 'redirects as success and logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(Settings.saml.logout_relay + '?success=false')
+            .to redirect_to(Settings.saml.logout_relay + '?success=true')
         end
       end
       context ' logout_response is success' do
@@ -156,7 +205,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
-      it 'uplevels an LOA 1 session to LOA 3, time is different' do
+      it 'uplevels an LOA 1 session to LOA 3' do
         existing_user = User.find(uuid)
         expect(existing_user.last_signed_in).to be_a(Time)
         expect(existing_user.multifactor).to be_falsey
@@ -173,7 +222,15 @@ RSpec.describe V0::SessionsController, type: :controller do
             levenshtein_distance: 8
           }
         )
-        post :saml_callback
+
+        once = { times: 1, value: 1 }
+        callback_tags = ['status:success', 'context:dslogon']
+        expect { post(:saml_callback) }
+          .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+          .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+
+        expect(response.location).to start_with(Settings.saml.relay + '?token=')
+
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).not_to eq('155256322')
@@ -186,17 +243,11 @@ RSpec.describe V0::SessionsController, type: :controller do
         existing_user = User.find(uuid)
         allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
         expect(existing_user.ssn).to eq('796111863')
-        expect(controller).not_to receive(:log_message_to_sentry)
+        expect_any_instance_of(SSOService).not_to receive(:log_message_to_sentry)
         post :saml_callback
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).to eq('796111863')
-      end
-
-      it 'saves status:success to the login timer' do
-        login_tags = ['status:success', 'context:dslogon', "loa:#{LOA::THREE}", 'multifactor:false']
-        expect { post(:saml_callback) }
-          .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
       end
 
       context 'changing multifactor' do
@@ -218,7 +269,48 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when user clicked DENY' do
+      context 'when user has LOA current 1 and highest 3' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: LOA::ONE, highest: LOA::THREE }
+          )
+        end
+
+        it 'redirects to identity proof URL' do
+          expect(SAML::SettingsService).to receive(:idme_loa3_url)
+          post :saml_callback
+        end
+      end
+
+      context 'when user has LOA current 1 and highest nil' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: nil, highest: nil }
+          )
+        end
+
+        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+          expect(Raven).to receive(:extra_context).once
+          expect(Raven).to receive(:user_context).once
+          expect(Raven).to receive(:tags_context).twice
+          expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
+          post :saml_callback
+          expect(response.location).to start_with(Settings.saml.relay + '?token=')
+        end
+      end
+
+      context 'when NoMethodError is encountered elsewhere' do
+        it 'redirects to adds context and re-raises the exception' do
+          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          expect(Raven).to receive(:extra_context).twice
+          expect(Raven).not_to receive(:user_context)
+          expect(Raven).not_to receive(:tags_context).once
+          expect(controller).not_to receive(:log_message_to_sentry)
+          post :saml_callback
+        end
+      end
+
+      context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
@@ -228,7 +320,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context ' when too much time passed to consume the SAML Assertion' do
+      context 'when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
@@ -236,15 +328,9 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
           expect(response).to have_http_status(:found)
         end
-
-        it 'saves status:failure to the login timer' do
-          login_tags = ['status:failure', 'context:dslogon', 'loa:none', 'multifactor:none']
-          expect { post(:saml_callback) }
-            .to trigger_statsd_measure(described_class::TIMER_LOGIN_KEY, tags: login_tags)
-        end
       end
 
-      context ' when clock drift causes us to consume the Assertion before its creation' do
+      context 'when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
 
         it 'redirects to an auth failure page' do
@@ -255,10 +341,13 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          early_msg_tag = ['error:auth_too_early']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:auth_too_early']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: early_msg_tag, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
@@ -266,7 +355,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
               :error,                 saml_response: {
@@ -283,10 +372,13 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          tags = ['error:unknown']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:unknown']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
@@ -294,7 +386,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_multi_error) }
 
         it 'logs a generic error' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
               :error,                 saml_response: {
@@ -311,10 +403,13 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          tags = ['error:multiple']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:multiple']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
@@ -326,7 +421,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error' do
-          expect(controller).to receive(:log_message_to_sentry)
+          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! on User/Session Validation',
               :error,
@@ -346,10 +441,13 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          tags = ['error:validations_failed']
+          callback_tags = ['status:failure', 'context:dslogon']
+          failed_tags = ['error:validations_failed']
+
           expect { post(:saml_callback) }
-            .to trigger_statsd_increment(described_class::STATSD_LOGIN_FAILED_KEY, tags: tags, **once)
-            .and trigger_statsd_increment(described_class::STATSD_LOGIN_TOTAL_KEY, **once)
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
     end

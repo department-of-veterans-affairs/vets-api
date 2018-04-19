@@ -63,17 +63,6 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           )
         ).to eq(true)
       end
-
-      it 'should log the validation errors' do
-        expect(Raven).to receive(:tags_context).once.with(
-          controller_name: 'health_care_applications',
-          sign_in_method: 'not-signed-in'
-        )
-        expect(Raven).to receive(:tags_context).once.with(validation: 'health_care_application')
-        expect(Raven).to receive(:capture_message).with(/privacyAgreementAccepted/, level: :error)
-
-        subject
-      end
     end
 
     context 'with valid params' do
@@ -102,8 +91,6 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:current_user) { build(:user, :mhv) }
 
         before do
-          profile = build(:mvi_profile, icn: '1000123456V123456')
-          stub_mvi(profile)
           use_authenticated_current_user(current_user: current_user)
         end
 
@@ -167,7 +154,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
 
         it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error).twice
+          expect(Raven).to receive(:capture_exception).with(error, level: 'error').twice
 
           subject
 

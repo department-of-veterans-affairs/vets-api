@@ -2,7 +2,6 @@
 
 require 'common/client/concerns/monitoring'
 require 'common/client/concerns/service_errors'
-require 'appeals_status/responses/get_appeals_response'
 
 module Appeals
   class Service < Common::Client::Base

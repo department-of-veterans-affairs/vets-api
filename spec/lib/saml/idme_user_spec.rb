@@ -8,6 +8,7 @@ RSpec.describe SAML::User do
   describe 'ID.me' do
     let(:saml_response) do
       instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
+                                                    response: 'base64decoded-stuff',
                                                     decrypted_document: decrypted_document_partial)
     end
     let(:decrypted_document_partial) { REXML::Document.new(response_partial) }
@@ -23,6 +24,20 @@ RSpec.describe SAML::User do
           'multifactor'        => ['true'],
           'level_of_assurance' => [3]
         )
+      end
+
+      context 'add additional context when no decrypted document' do
+        it 'adds additional context for NoMethodError' do
+          allow(REXML::XPath).to receive(:first).and_raise(NoMethodError)
+          expect(Raven).to receive(:extra_context).with(
+            base64encodedpayload: Base64.encode64('base64decoded-stuff'),
+            attributes: saml_attributes.to_h
+          )
+          expect(Raven).to receive(:tags_context).with(
+            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+          )
+          expect { described_instance }.to raise_error(NoMethodError)
+        end
       end
 
       it 'has various important attributes' do
@@ -70,6 +85,15 @@ RSpec.describe SAML::User do
           'level_of_assurance' => [3],
           'multifactor'        => ['true']
         )
+      end
+
+      it 'returns loa current 1 if KeyError in LOA::MAPPING lookup for loa_current' do
+        stub_const('LOA::MAPPING', {})
+        expect_any_instance_of(SAML::UserAttributes::IdMe)
+          .to receive(:loa_current).exactly(3).times.and_call_original
+        expect_any_instance_of(SAML::UserAttributes::IdMe).to receive(:log_message_to_sentry).once
+        expect(described_instance.to_hash.slice(:loa))
+          .to eq(loa: { current: 1, highest: 3 })
       end
 
       it 'has various important attributes' do

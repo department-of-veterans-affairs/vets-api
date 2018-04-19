@@ -73,6 +73,7 @@ gem 'zero_downtime_migrations'
 
 group :development do
   gem 'guard-rubocop'
+  gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
@@ -100,6 +101,7 @@ group :test do
 end
 
 group :development, :test do
+  gem 'awesome_print', '~> 1.8' # Pretty print your Ruby objects in full color and with proper indentation
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -126,7 +128,7 @@ end
 group :production do
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
-  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE']
+  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
     source 'https://enterprise.contribsys.com/' do
       gem 'sidekiq-ent'
       gem 'sidekiq-pro'

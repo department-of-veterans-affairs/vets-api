@@ -6,7 +6,7 @@ binaries:
 hostname: www.example.com
 
 # For CORS requests; separate multiple origins with a comma
-web_origin: http://localhost:3000,http://localhost:3001
+web_origin: http://localhost:3000,http://localhost:3001,null
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
 
@@ -41,7 +41,7 @@ pension_burial:
     relative_path: '../VETSGOV_PENSION'
   upload:
     enabled: true
-    host: 'icmhsgc.csrarad.com'
+    host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
 # Settings for EVSS
@@ -62,11 +62,25 @@ evss:
     region: evss_s3_region
   letters:
     timeout: 55
+  pciu:
+    timeout: 30
   pciu_address:
     timeout: 30
+  mock_claims: false
   mock_letters: false
   mock_gi_bill_status: false
+  mock_pciu: true
   mock_pciu_address: false
+  aws:
+    url: http://fake.evss-reference-data-service.dev/v1
+    cert_path: ~
+    key_path: ~
+    root_ca: ~
+  jwt:
+    issuer: fake_issuer
+    key: fake_key
+  reference_data_service:
+    enabled: false
 
 # Settings for GI Bill Data Service
 gids:
@@ -93,6 +107,7 @@ locators:
   vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
   vha_access_satisfaction: https://www.accesstoshep.va.gov/
   vha_access_waittime: https://www.accesstopwt.va.gov/
+  base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
 
 # Settings for MyHealthEVet
 mhv:
@@ -100,9 +115,14 @@ mhv:
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+    collection_caching_enabled: false
+    mock: true
   sm:
     host: https://mhv-api.example.com
     app_token: fake-app-token
+    mock: true
+  bb:
+    collection_caching_enabled: true
 
 # Settings for Master Veteran Index
 mvi:
@@ -142,16 +162,6 @@ emis:
     soap_namespaces:
       xmlns:v11: http://viers.va.gov/cdi/eMIS/RequestResponse/VetStatus/v1
 
-# Settings for appeals status. This uses mocking by default but would hit the
-# actual service as described here if that is turned off. The app token listed
-# here is public for the appeals team's demo service, so there is no security
-# concern with having it here.
-appeals_status:
-  mock: true
-  app_token: PUBLICDEMO123
-  host: https://dsva-appeals-certification-dev-1895622301.us-gov-west-1.elb.amazonaws.com
-
-# Settings for appeals status v2. Needs to live side by side with v1 until UAT is complete.
 appeals:
   mock: true
   app_token: PUBLICDEMO123
@@ -233,3 +243,8 @@ betamocks:
   recording: false
   cache_dir: /cache
   services_config: config/betamocks/services_config.yml
+
+faraday_socks_proxy:
+  enabled: false
+  uri: socks5://localhost:2002
+

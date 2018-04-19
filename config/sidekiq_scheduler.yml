@@ -19,6 +19,11 @@ EducationForm::CreateSpoolSubmissionsReport:
   cron: "15 4 * * MON-FRI America/New_York"
   description: "Send the daily report to the call center about spool file submissions"
 
+CentralMail::DeleteOldClaims:
+  cron: "30 2 * * * America/New_York"
+  class: CentralMail::DeleteOldClaims
+  description: "Clear out central mail claims older than 2 months"
+
 DeleteOldApplications:
   cron: "0 0 * * * America/New_York"
   class: EducationForm::DeleteOldApplications
@@ -47,6 +52,30 @@ FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
+
+FacilityLocationBulkUpdateNCA:
+  cron: "35 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['nca']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVBA:
+  cron: "40 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vba']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVC:
+  cron: "45 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vc']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVHA:
+  cron: "50 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vha']
+  description: "Download and store facility location data"
 
 MaintenanceWindowRefresh:
   cron: "*/5 * * * * America/New_York"
