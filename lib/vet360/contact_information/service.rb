@@ -37,20 +37,6 @@ module Vet360
         post_or_put_email(:put, email)
       end
 
-      # GET's the status of a transaction id from the Vet360 api
-      # @params address [Vet360::Models::Transaction] the email to update
-      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
-      def get_email_transaction_status(transaction)
-        with_monitoring do
-          route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
-          raw_response = perform(:get, route)
-
-          Vet360::ContactInformation::EmailTransactionResponse.new(raw_response.status, raw_response)
-        end
-      rescue StandardError => e
-        handle_error(e)
-      end
-
       # POSTs a new address to the vet360 API
       # @params address [Vet360::Models::Address] the address to send
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around an transaction object
@@ -65,7 +51,33 @@ module Vet360
         post_or_put_address(:put, address)
       end
 
+      # GET's the status of a transaction id from the Vet360 api
+      # @params transaction [Vet360::Models::Transaction] the transaction check
+      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
+      def get_email_transaction_status(transaction)
+        route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
+        get_transaction_status(route, EmailTransactionResponse)
+      end
+
+      # GET's the status of a transaction id from the Vet360 api
+      # @params transaction [Vet360::Models::Transaction] the transaction to check
+      # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around a transaction object
+      def get_address_transaction_status(transaction)
+        route = "#{@user.vet360_id}/addresses/status/#{transaction.id}"
+        get_transaction_status(route, AddressTransactionResponse)
+      end
+
       private
+
+      def get_transaction_status(route, klass)
+        with_monitoring do
+          raw_response = perform(:get, route)
+
+          klass.new(raw_response.status, raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
 
       def post_or_put_email(method, email)
         with_monitoring do
