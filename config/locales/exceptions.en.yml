@@ -341,7 +341,7 @@ en:
         title: Partner Service Error
         detail: 'Error calling out to partner service'
         code: 131
-        status: 502 # TODO: reviewed in PR
+        status: 502
       internal_service_error:
         <<: *defaults
         title: Internal Service Error
