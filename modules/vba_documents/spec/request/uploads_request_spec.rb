@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
   describe '#create /v0/uploads' do
     it 'should return a UUID and location' do
-      with_settings(Settings.documents.location,
+      with_settings(Settings.vba_documents.location,
                     'prefix': 'https://fake.s3.url/foo/',
                     'replacement': 'https://api.vets.gov/proxy/') do
         s3_client = instance_double(Aws::S3::Resource)

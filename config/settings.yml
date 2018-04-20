@@ -184,8 +184,9 @@ preneeds:
   host: http://some.fakesite.com
   wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
   burial_form_schema: 'config/preneeds/burial_form_schema.json'
- 
-documents:
+
+# Settings for VBA Document upload service module
+vba_documents:
   location:
     prefix:  http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath

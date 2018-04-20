@@ -143,10 +143,10 @@ module VBADocuments
 
     def bucket
       @bucket ||= begin
-        s3 = Aws::S3::Resource.new(region: Settings.documents.s3.region,
-                                   access_key_id: Settings.documents.s3.aws_access_key_id,
-                                   secret_access_key: Settings.documents.s3.aws_secret_access_key)
-        s3.bucket(Settings.documents.s3.bucket)
+        s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
+                                   access_key_id: Settings.vba_documents.s3.aws_access_key_id,
+                                   secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
+        s3.bucket(Settings.vba_documents.s3.bucket)
       end
     end
   end

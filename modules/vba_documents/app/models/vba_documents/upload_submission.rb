@@ -14,16 +14,16 @@ module VBADocuments
 
     def rewrite_url(url)
       Rails.logger.info(url)
-      rewritten = url.sub!(Settings.documents.location.prefix, Settings.documents.location.replacement)
+      rewritten = url.sub!(Settings.vba_documents.location.prefix, Settings.vba_documents.location.replacement)
       raise 'Unable to provide document upload location' unless rewritten
       rewritten
     end
 
     def signed_url(guid)
-      s3 = Aws::S3::Resource.new(region: Settings.documents.s3.region,
-                                 access_key_id: Settings.documents.s3.aws_access_key_id,
-                                 secret_access_key: Settings.documents.s3.aws_secret_access_key)
-      obj = s3.bucket(Settings.documents.s3.bucket).object(guid)
+      s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
+                                 access_key_id: Settings.vba_documents.s3.aws_access_key_id,
+                                 secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
+      obj = s3.bucket(Settings.vba_documents.s3.bucket).object(guid)
       obj.presigned_url(:put, {})
     end
   end
