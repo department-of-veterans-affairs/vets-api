@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
+RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
   stub_virus_scan
   let(:pension_burial) { create(:pension_burial) }
   let(:claim) { pension_burial.saved_claim }
@@ -32,7 +32,7 @@ RSpec.describe SubmitSavedClaimJob, uploader_helpers: true do
       let(:success) { false }
 
       it 'raises CentralMailResponseError and updates submission to failed' do
-        expect { job.perform(claim.id) }.to raise_error(SubmitSavedClaimJob::CentralMailResponseError)
+        expect { job.perform(claim.id) }.to raise_error(CentralMail::SubmitSavedClaimJob::CentralMailResponseError)
         expect(central_mail_submission.reload.state).to eq('failed')
       end
     end

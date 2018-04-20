@@ -15,10 +15,13 @@ To start, fetch this code:
    - Create a folder in your vets-api directory:  `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE*: If you don't have access to these keys, running the following
+   - *NOTE:* If you don't have access to these keys, running the following
      commands will provide basic functionality:
    - `touch config/certs/vetsgov-localhost.crt`
    - `touch config/certs/vetsgov-localhost.key`
+1. Set Sidekiq environment variables
+   - `export BUNDLE_ENTERPRISE__CONTRIBSYS__COM=***`, where `***` is the Sidekiq Enterprise [license key](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Vets-API/Sidekiq%20Enterprise%20Setup.md).
+   - *NOTE:*  Only members of the internal team have access to this license. If you don't have access to Sidekiq Enterprise (not necessary for 99% of things), you can instead set: `export EXCLUDE_SIDEKIQ_ENTERPRISE=true`. Remember to revert changes to [Gemfile.lock](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Gemfile.lock) before merging any PR's this way!
 1. Run the vets-api dependencies and application
     - `make up`
 
@@ -55,7 +58,6 @@ The following features require additional configuration, click for details.
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
-- [Sidekiq Enterprise](/docs/setup/sidekiq_enterprise.md)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 

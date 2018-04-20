@@ -168,6 +168,11 @@ en:
         code: 'SM116'
         detail: 'Folder must be empty before you can delete it'
         status: 422
+      SM117:
+        <<: *external_defaults
+        code: 'SM117'
+        detail: 'A data integrity issue was encountered'
+        status: 502
       SM119: # 'Triage team does not exist' when trying to create new message
         <<: *external_defaults
         code: 'SM119'
@@ -202,6 +207,11 @@ en:
         code: 'SM901'
         detail: 'Service is temporarily unavailable'
         status: 503
+      SM903:
+        <<: *external_defaults
+        code: 'SM903'
+        detail: 'Service is temporarily unavailable'
+        status: 503
       SM904: # 'Message Service Error' - treating as 404, see gets_a_message_thread_id_error
         <<: *external_defaults
         code: 'SM904'
@@ -210,6 +220,16 @@ en:
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      BB99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'BB99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      RX99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'RX99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
       RX135: # 'The User has not accepted the Rx Agreement. Please login to MHV to accept it'
@@ -231,10 +251,30 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
-      MHVACCTCREATION155: # TODO: Might be able to remove this 
+      MHVACCTCREATION99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'MHVACCTCREATION99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 400
+      MHVACCTCREATION150:
+        <<: *external_defaults
+        code: 'MHVACCTCREATION150'
+        detail: 'MVI Unknown Issue Occurred'
+        status: 502
+      MHVACCTCREATION155: # TODO: Might be able to remove this
         <<: *external_defaults
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
+        status: 422
+      MHVACCTCREATION158: # 'Sign-in Partner Blocked'
+        <<: *external_defaults
+        code: 'MHVACCTCREATION158'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      MHVACCTCREATION159:
+        <<: *external_defaults
+        code: 'MHVACCTCREATION159'
+        detail: 'User is not matched or correlated in MVI'
         status: 422
       APPEALSSTATUS404:
         <<: *external_defaults
@@ -261,6 +301,12 @@ en:
         detail: 'Received an an invalid response from the upstream server'
         status: 502
   evss:
+    external_service_unavailable:
+      <<: *defaults
+      title: External service unavailable
+      detail: 'EVSS received an error calling external service'
+      code: 113
+      status: 503
     letters:
       unable_to_determine_eligibilty:
         <<: *defaults
@@ -280,19 +326,7 @@ en:
         detail: 'One or more unprocessable letter destination properties'
         code: 112
         status: 422
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 113
-        status: 503
     gi_bill_status:
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 113
-        status: 503
       outside_working_hours:
         <<: *defaults
         title: External service unavailable
@@ -306,12 +340,6 @@ en:
         detail: 'Upstream server returned not eligible response'
         code: 120
         status: 502
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 121
-        status: 503
       form_in_process:
         <<: *defaults
         title: Form in process
@@ -334,4 +362,36 @@ en:
         <<: *defaults
         title: Cannot launch the 526 post submit batch job
         code: 125
+        status: 502
+    ppiu:
+      unprocessable_entity:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: 'One or more unprocessable user payment properties'
+        code: 126
+        status: 422
+    intent_to_file:
+      partner_service_error:
+        <<: *defaults
+        title: Partner Service Error
+        detail: 'Error calling out to partner service'
+        code: 131
+        status: 502 # TODO: reviewed in PR
+      internal_service_error:
+        <<: *defaults
+        title: Internal Service Error
+        detail: 'Internal service error'
+        code: 132
+        status: 502
+      intent_type_invalid:
+        <<: *defaults
+        title: Intent Type Invalid
+        detail: 'Invalid intent type'
+        code: 133
+        status: 400
+      partner_service_invalid:
+        <<: *defaults
+        title: Partner Service Invalid
+        detail: 'Error on data from external service'
+        code: 134
         status: 502
