@@ -13,7 +13,6 @@ module VBADocuments
     private
 
     def rewrite_url(url)
-      Rails.logger.info(url)
       rewritten = url.sub!(Settings.vba_documents.location.prefix, Settings.vba_documents.location.replacement)
       raise 'Unable to provide document upload location' unless rewritten
       rewritten
