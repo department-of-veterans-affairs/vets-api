@@ -22,6 +22,9 @@ module Vet360
         inclusion: { in: SEVERITY_LEVELS }
       )
 
+      # Converts a decoded JSON response from Vet360 to an instance of the Message model
+      # @params body [Hash] the decoded response body from Vet360
+      # @return [Vet360::Models::Message] the model built from the response body
       def self.build_from(body)
         Vet360::Models::Message.new(
           code: body['code'],

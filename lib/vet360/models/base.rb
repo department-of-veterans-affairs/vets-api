@@ -9,6 +9,8 @@ module Vet360
       include ActiveModel::Validations
       include ActiveModel::Serialization
       include Virtus.model(nullify_blank: true)
+
+      SOURCE_SYSTEM = 'VETSGOV'
     end
   end
 end

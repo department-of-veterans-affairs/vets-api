@@ -29,7 +29,7 @@ module Vet360
             emailAddressText: @email_address,
             emailId: @id,
             # emailPermInd: true, # @TODO ??
-            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            originatingSourceSystem: SOURCE_SYSTEM,
             sourceDate: @source_date,
             vet360Id: @vet360_id
           }

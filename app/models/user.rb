@@ -224,6 +224,7 @@ class User < Common::RedisStore
   end
 
   def vet360_contact_info
+    return nil unless Settings.vet360.contact_information.enabled
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 end

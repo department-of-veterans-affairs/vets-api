@@ -74,6 +74,9 @@ module Vet360
         inclusion: { in: PHONE_TYPES }
       )
 
+      # Converts a decoded JSON response from Vet360 to an instance of the Telephone model
+      # @params body [Hash] the decoded response body from Vet360
+      # @return [Vet360::Models::Telephone] the model built from the response body
       def self.build_from(body)
         Vet360::Models::Telephone.new(
           area_code: body['area_code'],

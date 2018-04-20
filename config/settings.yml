@@ -48,8 +48,8 @@ pension_burial:
 # Settings for Vet360
 vet360:
   url: "https://int.vet360.va.gov"
-  system_name: 'VETSGOV'
   contact_information:
+    enabled: true
     timeout: 30
     mock: false
 
@@ -71,6 +71,7 @@ evss:
     bucket: evss_s3_bucket
     region: evss_s3_region
   letters:
+    url: https://csraciapp6.evss.srarad.com
     timeout: 55
   pciu:
     timeout: 30
