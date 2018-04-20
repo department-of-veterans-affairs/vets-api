@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "intent_to_file": {
+              "description": "Array of letters available for the user to download",
+              "items": {
+                "$ref": "intent_to_file_base.json"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object",
+          "required": ["intent_to_file"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": ["object", "null"]
+    }
+  },
+  "type": "object"
+}
