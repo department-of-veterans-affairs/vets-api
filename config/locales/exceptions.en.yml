@@ -265,6 +265,11 @@ en:
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
         status: 422
+      MHVACCTCREATION158: # 'Sign-in Partner Blocked'
+        code: 'MHVACCTCREATION158'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+        source: ~
       MHVACCTCREATION159:
         <<: *external_defaults
         code: 'MHVACCTCREATION159'
