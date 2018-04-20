@@ -27,14 +27,14 @@ module Vet360
       # @params email [Vet360::Models::Email] the email to create
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around an transaction object
       def post_email(email)
-        post_or_put_email(:post, email)
+        post_or_put_data(:post, email, 'emails', Vet360::ContactInformation::EmailTransactionResponse)
       end
 
       # PUTs a new address to the vet360 API
       # @params email [Vet360::Models::Email] the email to update
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def put_email(email)
-        post_or_put_email(:put, email)
+        post_or_put_data(:put, email, 'emails', Vet360::ContactInformation::EmailTransactionResponse)
       end
 
       # GET's the status of a transaction id from the Vet360 api
@@ -55,31 +55,36 @@ module Vet360
       # @params address [Vet360::Models::Address] the address to send
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around an transaction object
       def post_address(address)
-        post_or_put_address(:post, address)
+        post_or_put_data(:post, address, 'addresses', Vet360::ContactInformation::AddressTransactionResponse)
       end
 
       # PUTs a new address to the vet360 API
       # @params address [Vet360::Models::Address] the address to update
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around a transaction object
       def put_address(address)
-        post_or_put_address(:put, address)
+        post_or_put_data(:put, address, 'addresses', Vet360::ContactInformation::AddressTransactionResponse)
+      end
+
+      # POSTs a new telephone to the vet360 API
+      # @params telephone [Vet360::Models::Telephone] the telephone to send
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around an transaction object
+      def post_telephone(telephone)
+        post_or_put_data(:post, telephone, 'telephones', Vet360::ContactInformation::TelephoneTransactionResponse)
+      end
+
+      # PUTs a new telephone to the vet360 API
+      # @params telephone [Vet360::Models::Telephone] the telephone to update
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around a transaction object
+      def put_telephone(telephone)
+        post_or_put_data(:put, telephone, 'telephones', Vet360::ContactInformation::TelephoneTransactionResponse)
       end
 
       private
 
-      def post_or_put_email(method, email)
+      def post_or_put_data(method, model, path, response_class)
         with_monitoring do
-          raw = perform(method, 'emails', email.in_json)
-          Vet360::ContactInformation::EmailTransactionResponse.new(raw.status, raw)
-        end
-      rescue StandardError => e
-        handle_error(e)
-      end
-
-      def post_or_put_address(method, address)
-        with_monitoring do
-          raw = perform(method, 'addresses', address.in_json)
-          Vet360::ContactInformation::AddressTransactionResponse.new(raw.status, raw)
+          raw = perform(method, path, model.in_json)
+          response_class.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)
