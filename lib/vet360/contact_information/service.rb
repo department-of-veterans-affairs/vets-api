@@ -69,11 +69,11 @@ module Vet360
 
       private
 
-      def get_transaction_status(route, klass)
+      def get_transaction_status(route, response_class)
         with_monitoring do
           raw_response = perform(:get, route)
 
-          klass.new(raw_response.status, raw_response)
+          response_class.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
         handle_error(e)
