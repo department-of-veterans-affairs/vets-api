@@ -28,7 +28,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103')
-            expect(e.errors.first.title).to eq('Not Found')
           end
         end
       end
@@ -57,7 +56,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_EMAIL301')
-            expect(e.errors.first.title).to eq('Email Address Already Exists')
           end
         end
       end
@@ -93,6 +91,33 @@ describe Vet360::ContactInformation::Service do
     end
   end
 
+  describe '#get_telephone_transaction_status' do
+    let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+    let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
+
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_telephone_transaction_status(transaction)
+          expect(response).to be_ok
+          expect(response.transaction).to be_a(Vet360::Models::Transaction)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      it 'returns a status of 404' do
+        VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_telephone_transaction_status(transaction) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(404)
+            expect(e.errors.first.code).to eq('VET360_CORE103')
+          end
+        end
+      end
+    end
+  end
+
   describe '#get_email_transaction_status' do
     let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
     let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
@@ -114,7 +139,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103')
-            expect(e.errors.first.title).to eq('Not Found')
           end
         end
       end
