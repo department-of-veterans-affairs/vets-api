@@ -15,11 +15,11 @@ module Swagger
           status
           type
         ]
-        property :id, type: :string
-        property :creation_date, type: :string
-        property :expiration_date, type: :string
-        property :participant_id, type: :integer
-        property :source, type: :string
+        property :id, type: :string, example: '1'
+        property :creation_date, type: :string, example: '2018-01-21T19:53:45.810+00:00'
+        property :expiration_date, type: :string, example: '2018-02-21T19:53:45.810+00:00'
+        property :participant_id, type: :integer, example: 1
+        property :source, type: :string, example: 'EBN'
         property :status, type: :string, enum: %w[
           active
           claim_recieved
