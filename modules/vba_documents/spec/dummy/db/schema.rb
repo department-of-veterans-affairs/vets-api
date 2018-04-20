@@ -24,6 +24,8 @@ ActiveRecord::Schema.define(version: 20_180_411_001_427) do
     t.datetime 'updated_at',                     null: false
   end
 
-  add_index 'vba_documents_upload_submissions', ['guid'], name: 'index_vba_documents_upload_submissions_on_guid', using: :btree
-  add_index 'vba_documents_upload_submissions', ['status'], name: 'index_vba_documents_upload_submissions_on_status', using: :btree
+  add_index 'vba_documents_upload_submissions', ['guid'], name: 'index_vba_documents_upload_submissions_on_guid',
+                                                          using: :btree
+  add_index 'vba_documents_upload_submissions', ['status'], name: 'index_vba_documents_upload_submissions_on_status',
+                                                            using: :btree
 end
