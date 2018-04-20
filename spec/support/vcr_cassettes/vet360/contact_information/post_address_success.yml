@@ -1,0 +1,92 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/addresses"
+    body:
+      encoding: US-ASCII
+      string: '{"bio":{"addressId":null,"addressLine1":"123 Main Street","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE/CHOICE","addressType":"domestic","cityName":"Denver","countryCodeISO2":null,"countryCodeISO3":null,"countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"CO","zipCode4":"80202","zipCode5":null,"originatingSourceSystem":null,"sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1"}}'
+
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Cufsystemname:
+      - VETSGOV
+
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Application-Context:
+      - edge-gateway:ENV-INT-DEV:8766
+      Date:
+      - Fri, 13 Apr 2018 21:07:24 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=31536000 ; includeSubDomains
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "bio": {
+            "vet360Id": 1,
+            "addressId": 1,
+            "addressType": "Domestic",
+            "addressPOU": "CORRESPONDENCE",
+            "badAddressIndicator": "N",
+            "addressLine1": "123 Wasted Lane",
+            "cityName": "Washington",
+            "stateCode": "DC",
+            "zipCode5": "20420",
+            "zipCode4": "0001",
+            "confidenceScore": "100",
+            "latitude": "38.901",
+            "longitude": "-77.0347",
+            "geocodePrecision": "0",
+            "geocodeDate": "2018-04-13T17:01:18Z",
+            "createDate": "2018-04-09T23:33:18Z",
+            "updateDate": "2018-04-13T17:01:20Z",
+            "txAuditId": "af528bdf-09d1-4de4-8238-800949684d42",
+            "originatingSourceSystem": "VET360Test",
+            "sourceSystemUser": "VAEBENEFITS",
+            "effectiveStartDate": "2018-04-13T09:24:56Z",
+            "sourceSystem": "VETSGOV",
+            "sourceDate": "2018-04-09T18:32:46Z"
+          },
+          "messages": [{
+            "code": "string",
+            "key": "string",
+            "potentiallySelfCorrectingOnRetry": true,
+            "severity": "INFO",
+            "text": "A message"
+          }],
+          "status": "COMPLETED_SUCCESS",
+          "txAuditId": "7f441880-173f-4deb-aa8b-c26b794eb3e1"
+        }
+    http_version:
+  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+recorded_with: VCR 3.0.3
