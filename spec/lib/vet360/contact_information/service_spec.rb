@@ -91,6 +91,57 @@ describe Vet360::ContactInformation::Service do
     end
   end
 
+  describe '#post_address' do
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
+          address.id = nil
+          response = subject.post_address(address)
+          expect(response).to be_ok
+        end
+      end
+    end
+
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
+          address.id = 42
+          expect { subject.post_address(address) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_ADDR200')
+          end
+        end
+      end
+    end
+  end
+
+  describe '#post_telephone' do
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil) }
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
+          response = subject.post_telephone(telephone)
+          expect(response).to be_ok
+        end
+      end
+    end
+
+    context 'when an ID is included' do
+      it 'raises an exception' do
+        VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error', VCR::MATCH_EVERYTHING) do
+          telephone.id = 42
+          expect { subject.post_telephone(telephone) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PHON124')
+          end
+        end
+      end
+    end
+  end
+
   describe '#get_telephone_transaction_status' do
     let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
     let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
@@ -147,51 +198,28 @@ describe Vet360::ContactInformation::Service do
     end
   end
 
-  describe '#post_address' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+  describe '#get_address_transaction_status' do
+    let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+    let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
+
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
-          address.id = nil
-          response = subject.post_address(address)
+        VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_address_transaction_status(transaction)
           expect(response).to be_ok
+          expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
         end
       end
     end
 
-    context 'when an ID is included' do
-      it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
-          address.id = 42
-          expect { subject.post_address(address) }.to raise_error do |e|
+    context 'when not successful' do
+      it 'returns a status of 404' do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_address_transaction_status(transaction) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_ADDR200')
-          end
-        end
-      end
-    end
-  end
-
-  describe '#post_telephone' do
-    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil) }
-    context 'when successful' do
-      it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
-          response = subject.post_telephone(telephone)
-          expect(response).to be_ok
-        end
-      end
-    end
-
-    context 'when an ID is included' do
-      it 'raises an exception' do
-        VCR.use_cassette('vet360/contact_information/post_telephone_w_id_error', VCR::MATCH_EVERYTHING) do
-          telephone.id = 42
-          expect { subject.post_telephone(telephone) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_PHON124')
+            expect(e.status_code).to eq(404)
+            expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
       end

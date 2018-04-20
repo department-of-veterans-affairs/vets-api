@@ -30,11 +30,19 @@ module Vet360
         post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
       end
 
-      # PUTs a new address to the vet360 API
+      # PUTs an updated address to the vet360 API
       # @params address [Vet360::Models::Address] the address to update
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around a transaction object
       def put_address(address)
         post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
+      end
+
+      # GET's the status of an address transaction from the Vet360 api
+      # @params transaction [Vet360::Models::Transaction] the transaction to check
+      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
+      def get_address_transaction_status(transaction)
+        route = "#{@user.vet360_id}/addresses/status/#{transaction.id}"
+        get_transaction_status(route, AddressTransactionResponse)
       end
 
       # POSTs a new address to the vet360 API
@@ -44,14 +52,14 @@ module Vet360
         post_or_put_data(:post, email, 'emails', EmailTransactionResponse)
       end
 
-      # PUTs a new address to the vet360 API
+      # PUTs an updated address to the vet360 API
       # @params email [Vet360::Models::Email] the email to update
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def put_email(email)
         post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
       end
 
-      # GET's the status of a transaction id from the Vet360 api
+      # GET's the status of an email transaction from the Vet360 api
       # @params transaction [Vet360::Models::Transaction] the transaction to check
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def get_email_transaction_status(transaction)
@@ -61,19 +69,19 @@ module Vet360
 
       # POSTs a new telephone to the vet360 API
       # @params telephone [Vet360::Models::Telephone] the telephone to send
-      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around an transaction object
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around a transaction object
       def post_telephone(telephone)
         post_or_put_data(:post, telephone, 'telephones', TelephoneTransactionResponse)
       end
 
-      # PUTs a new telephone to the vet360 API
+      # PUTs an updated telephone to the vet360 API
       # @params telephone [Vet360::Models::Telephone] the telephone to update
       # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around a transaction object
       def put_telephone(telephone)
         post_or_put_data(:put, telephone, 'telephones', TelephoneTransactionResponse)
       end
 
-      # GET's the status of a transaction id from the Vet360 api
+      # GET's the status of a telephone transaction from the Vet360 api
       # @params transaction [Vet360::Models::Transaction] the transaction to check
       # @returns [Vet360::ContactInformation::TelephoneTransactionResponse] response wrapper around a transaction object
       def get_telephone_transaction_status(transaction)
