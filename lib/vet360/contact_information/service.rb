@@ -60,6 +60,20 @@ module Vet360
         post_or_put_address(:put, address)
       end
 
+      # POSTs a new telephone to the vet360 API
+      # @params telephone [Vet360::Models::Telephone] the telephone to send
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around an transaction object
+      def post_telephone(telephone)
+        post_or_put_telephone(:post, telephone)
+      end
+
+      # PUTs a new telephone to the vet360 API
+      # @params telephone [Vet360::Models::Telephone] the telephone to update
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around a transaction object
+      def put_telephone(telephone)
+        post_or_put_telephone(:put, telephone)
+      end
+
       private
 
       def post_or_put_email(method, vet360_email)
@@ -75,6 +89,15 @@ module Vet360
         with_monitoring do
           raw = perform(method, 'addresses', address.in_json)
           Vet360::ContactInformation::AddressTransactionResponse.new(raw.status, raw)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
+      def post_or_put_telephone(method, telephone)
+        with_monitoring do
+          raw = perform(method, 'telephones', telephone.in_json)
+          Vet360::ContactInformation::TelephoneTransactionResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)

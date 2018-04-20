@@ -19,6 +19,7 @@ module Vet360
       attribute :id, Integer
       attribute :is_international, Boolean
       attribute :is_textable, Boolean
+      attribute :is_text_permitted, Boolean
       attribute :is_tty, Boolean
       attribute :is_voicemailable, Boolean
       attribute :phone_number, String
@@ -27,6 +28,26 @@ module Vet360
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
+
+      def in_json
+        {
+          bio: {
+            areaCode: @area_code,
+            countryCode: @country_code,
+            internationalIndicator: @is_international,
+            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            phoneNumber: @phone_number,
+            phoneNumberExt: @extension,
+            phoneType: @phone_type,
+            telephoneId: @id,
+            # textMessageCapableInd: @is_textable,
+            # textMessagePermInd: @is_text_permitted,
+            ttyInd: @is_tty,
+            vet360Id: @vet360_id,
+            voiceMailAcceptableInd: @is_voicemailable
+          }
+        }.to_json
+      end
 
       validates(
         :area_code,
@@ -61,7 +82,8 @@ module Vet360
           extension: body['phone_number_ext'],
           id: body['telephone_id'],
           is_international: body['international_indicator'],
-          is_textable: body['text_message_capable_ind'],
+          # is_textable: body['text_message_capable_ind'],
+          # is_text_permitted: body['text_message_perm_ind'],
           is_voicemailable: body['voice_mail_acceptable_ind'],
           phone_number: body['phone_number'],
           phone_type: body['phone_type'],

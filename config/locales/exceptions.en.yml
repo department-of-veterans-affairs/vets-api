@@ -518,6 +518,120 @@ en:
         code: 'VET360_EMAIL307'
         detail: "Cannot modify an existing inactive record."
         status: 400
+      VET360_PHON100:
+        <<: *external_defaults
+        title: Null International Indicator
+        code: 'VET360_PHON100'
+        detail: International indicator may not be null
+        status: 400
+      VET360_PHON104:
+        <<: *external_defaults
+        title: Area Code Size
+        code: 'VET360_PHON104'
+        detail: Area code size must be 3
+        status: 400
+      VET360_PHON105:
+        <<: *external_defaults
+        title: Null Phone Number
+        code: 'VET360_PHON105'
+        detail: Phone number may not be null
+        status: 400
+      VET360_PHON106:
+        <<: *external_defaults
+        title: Null Phone Pattern
+        code: 'VET360_PHON106'
+        detail: 'Phone number pattern must match must match "[^a-zA-Z]+"'
+        status: 400
+      VET360_PHON107:
+        <<: *external_defaults
+        title: Phone Number Size
+        code: 'VET36_PHON107'
+        detail: Phone number size must be between 1 and 14
+        status: 400
+      VET360_PHON108:
+        <<: *external_defaults
+        title: Phone Number Ext Pattern
+        code: 'VET36_PHON108'
+        detail: 'Phone number pattern must match "^[a-zA-Z0-9]+$"'
+        status: 400
+      VET360_PHON109:
+        <<: *external_defaults
+        title: Null Phone Type
+        code: 'VET36_PHON109'
+        detail: Phone type may not be null
+        status: 400
+      VET360_PHON110:
+        <<: *external_defaults
+        title: Phone Ext Size
+        code: 'VET36_PHON110'
+        detail: Phone extension must be between 1 and 10
+        status: 400
+      VET360_PHON124:
+        <<: *external_defaults
+        title: Phone ID Not Null
+        code: 'VET36_PHON124'
+        detail: Phone ID must be null
+        status: 400
+      VET360_PHON125:
+        <<: *external_defaults
+        title: Null Phone ID
+        code: 'VET36_PHON125'
+        detail: Phone ID may not be null
+        status: 400
+      VET360_PHON126:
+        <<: *external_defaults
+        title: Area Code Pattern
+        code: 'VET36_PHON126'
+        detail: 'Phone area code pattern must match "[0-9]+"'
+        status: 400
+      VET360_PHON207:
+        <<: *external_defaults
+        title: Check Domestic Phone Number
+        code: 'VET36_PHON207'
+        detail: Domestic phone number size must be 7 characters, and can not start with a 0 or 1.
+        status: 400
+      VET360_PHON208:
+        <<: *external_defaults
+        title: Check International Phone Number
+        code: 'VET36_PHON208'
+        detail: International phone number must have 12 characters or less.
+        status: 400
+      VET360_PHON209:
+        <<: *external_defaults
+        title: Check Phone Domestic Number Indicator
+        code: 'VET36_PHON209'
+        detail: Domestic numbers must have an area code and country code must be 1.
+        status: 400
+      VET360_PHON210:
+        <<: *external_defaults
+        title: Check Phone International Number Indicator
+        code: 'VET36_PHON210'
+        detail: International numbers must have a valid country code that is not 1, and no area code.
+        status: 400
+      VET360_PHON300:
+        <<: *external_defaults
+        title: Phone Inactive
+        code: 'VET36_PHON300'
+        detail: Cannot modify an existing inactive record.
+        status: 400
+      VET360_PHON301:
+        <<: *external_defaults
+        title: Telephone Type
+        code: 'VET36_PHON301'
+        detail: Can not insert a record for a phone type that already exists.
+        status: 400
+      VET360_PHON303:
+        <<: *external_defaults
+        title: Check Phone End Date
+        code: 'VET36_PHON303'
+        detail: EffectiveEndDate cannot be present when adding a non temporary phone, and must be present for a temporary phone.
+        status: 400
+      VET360_PHON304:
+        <<: *external_defaults
+        title: Duplicate Telephone Type
+        code: 'VET36_PHON304'
+        detail: Cannot accept a request with multiple phones of the same type.
+        status: 400
 
   evss:
     letters:
