@@ -1,4 +1,8 @@
 pipeline {
+  environment {
+    DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
+  }
+
   options {
     buildDiscarder(logRotator(daysToKeepStr: '60'))
   }

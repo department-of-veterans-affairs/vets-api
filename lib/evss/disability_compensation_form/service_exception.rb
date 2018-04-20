@@ -6,8 +6,8 @@ module EVSS
   module DisabilityCompensationForm
     class ServiceException < EVSS::ServiceException
       ERROR_MAP = {
-        serviceError: 'evss.526.external_service_unavailable',
-        ServiceException: 'evss.526.external_service_unavailable',
+        serviceError: 'evss.external_service_unavailable',
+        ServiceException: 'evss.external_service_unavailable',
         notEligible: 'evss.526.not_eligible',
         InProcess: 'evss.526.form_in_process',
         disabled: 'evss.526.disabled',
@@ -28,8 +28,6 @@ module EVSS
         treatments: 'common.exceptions.validation_errors',
         veteran: 'common.exceptions.validation_errors'
       }.freeze
-
-      attr_reader :key, :messages
     end
   end
 end
