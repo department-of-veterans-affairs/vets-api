@@ -28,7 +28,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103')
-            expect(e.errors.first.title).to eq('Not Found')
           end
         end
       end
@@ -57,7 +56,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_EMAIL301')
-            expect(e.errors.first.title).to eq('Email Address Already Exists')
           end
         end
       end
@@ -114,7 +112,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103')
-            expect(e.errors.first.title).to eq('Not Found')
           end
         end
       end
@@ -142,7 +139,6 @@ describe Vet360::ContactInformation::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103')
-            expect(e.errors.first.title).to eq('Not Found')
           end
         end
       end
