@@ -52,7 +52,7 @@ module Vet360
       end
 
       # GET's the status of a transaction id from the Vet360 api
-      # @params transaction [Vet360::Models::Transaction] the transaction check
+      # @params transaction [Vet360::Models::Transaction] the transaction to check
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
       def get_email_transaction_status(transaction)
         route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
