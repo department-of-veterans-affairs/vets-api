@@ -8,4 +8,11 @@ require File.expand_path('../config/application', __FILE__)
 # Load rake support files
 Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].each { |f| require f }
 
+require 'rspec/core/rake_task'
+
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.pattern = Dir.glob(['spec/**/*_spec.rb','modules/vba_documents/spec/**/*_spec.rb'])
+end
+task :default => :spec
+
 Rails.application.load_tasks
