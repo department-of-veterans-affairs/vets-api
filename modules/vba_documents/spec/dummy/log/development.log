@@ -1,0 +1,132 @@
+  [1m[36m (2.8ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" varchar NOT NULL) [0m
+  [1m[35m (0.4ms)[0m  select sqlite_version(*)
+  [1m[36m (1.6ms)[0m  [1mCREATE UNIQUE INDEX "unique_schema_migrations" ON "schema_migrations" ("version")[0m
+  [1m[35mActiveRecord::SchemaMigration Load (0.1ms)[0m  SELECT "schema_migrations".* FROM "schema_migrations"
+Migrating to CreateVbaDocumentsUploadSubmissions (20180411001427)
+  [1m[36mActiveRecord::SchemaMigration Load (0.5ms)[0m  [1mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Migrating to CreateVBADocumentsUploadSubmissions (20180411001427)
+  [1m[35m (0.1ms)[0m  begin transaction
+  [1m[36m (0.1ms)[0m  [1mrollback transaction[0m
+  [1m[36m (5.8ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.5ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36mActiveRecord::SchemaMigration Load (0.4ms)[0m  [1mSELECT "schema_migrations".* FROM "schema_migrations"[0m
+Migrating to CreateVBADocumentsUploadSubmissions (20180411001427)
+  [1m[35m (0.1ms)[0m  BEGIN
+  [1m[36m (4.2ms)[0m  [1mCREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) [0m
+  [1m[35m (0.8ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions"  ("status")
+  [1m[36m (0.9ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions"  ("guid")[0m
+  [1m[35mSQL (0.4ms)[0m  INSERT INTO "schema_migrations" ("version") VALUES ($1)  [["version", "20180411001427"]]
+  [1m[36m (0.5ms)[0m  [1mCOMMIT[0m
+  [1m[35mActiveRecord::SchemaMigration Load (0.2ms)[0m  SELECT "schema_migrations".* FROM "schema_migrations"
+  [1m[36m (1.8ms)[0m  [1mSELECT t2.oid::regclass::text AS to_table, a1.attname AS column, a2.attname AS primary_key, c.conname AS name, c.confupdtype AS on_update, c.confdeltype AS on_delete
+FROM pg_constraint c
+JOIN pg_class t1 ON c.conrelid = t1.oid
+JOIN pg_class t2 ON c.confrelid = t2.oid
+JOIN pg_attribute a1 ON a1.attnum = c.conkey[1] AND a1.attrelid = t1.oid
+JOIN pg_attribute a2 ON a2.attnum = c.confkey[1] AND a2.attrelid = t2.oid
+JOIN pg_namespace t3 ON c.connamespace = t3.oid
+WHERE c.contype = 'f'
+  AND t1.relname = 'vba_documents_upload_submissions'
+  AND t3.nspname = ANY (current_schemas(false))
+ORDER BY c.conname
+[0m
+  [1m[36m (222.5ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (490.0ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.9ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (7.3ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (5.1ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.8ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (3.1ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.2ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.3ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.5ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (310.6ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (628.2ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.4ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (7.8ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (5.1ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.6ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (1.8ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.3ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.5ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.6ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (276.4ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (630.6ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.5ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (7.1ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (2.2ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.7ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (2.0ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.4ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.4ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.5ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (213.6ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (473.8ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.5ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (7.8ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (4.9ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.8ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (2.4ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.3ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.4ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.6ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (206.7ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (458.8ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.5ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (6.9ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (4.4ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.4ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (2.1ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.3ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.3ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.6ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (166.1ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (412.1ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.4ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (7.2ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (5.1ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.6ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (2.1ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.2ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.3ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.6ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (209.4ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (452.0ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.4ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (6.4ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (5.3ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.8ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (1.8ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.5ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.3ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.8ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (218.4ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (480.5ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.3ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (6.1ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (5.1ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.6ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (2.0ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.5ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.5ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.6ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (212.9ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (502.0ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.5ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (5.0ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (4.5ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (1.5ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (1.9ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.3ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.2ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.7ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
+  [1m[36m (326.1ms)[0m  [1mDROP DATABASE IF EXISTS "postgres:///vba_documents_test"[0m
+  [1m[35m (651.0ms)[0m  CREATE DATABASE "postgres:///vba_documents_test" ENCODING = 'unicode'
+  [1m[36mSQL (0.3ms)[0m  [1mCREATE EXTENSION IF NOT EXISTS "plpgsql"[0m
+  [1m[35m (6.1ms)[0m  CREATE TABLE "vba_documents_upload_submissions" ("id" serial primary key, "status" character varying DEFAULT 'pending' NOT NULL, "guid" uuid NOT NULL, "created_at" timestamp NOT NULL, "updated_at" timestamp NOT NULL) 
+  [1m[36m (4.8ms)[0m  [1mCREATE  INDEX  "index_vba_documents_upload_submissions_on_guid" ON "vba_documents_upload_submissions" USING btree ("guid")[0m
+  [1m[35m (2.1ms)[0m  CREATE  INDEX  "index_vba_documents_upload_submissions_on_status" ON "vba_documents_upload_submissions" USING btree ("status")
+  [1m[36m (2.1ms)[0m  [1mCREATE TABLE "schema_migrations" ("version" character varying NOT NULL) [0m
+  [1m[35m (1.4ms)[0m  CREATE UNIQUE INDEX  "unique_schema_migrations" ON "schema_migrations"  ("version")
+  [1m[36m (0.4ms)[0m  [1mSELECT version FROM "schema_migrations"[0m
+  [1m[35m (0.6ms)[0m  INSERT INTO "schema_migrations" (version) VALUES ('20180411001427')
