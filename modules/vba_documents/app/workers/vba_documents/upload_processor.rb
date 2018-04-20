@@ -115,6 +115,8 @@ module VBADocuments
 
     def perfect_metadata(parts, upload)
       metadata = JSON.parse(parts['metadata'])
+      # TODO: This is a fixed value for now, wil later concatenate provided source with our identifer
+      metadata['source'] = 'Vets.gov'
       metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
       doc_info = get_hash_and_pages(parts['document'])
