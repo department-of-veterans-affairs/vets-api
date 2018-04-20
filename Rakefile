@@ -10,6 +10,7 @@ Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].each { |f| require
 
 require 'rspec/core/rake_task'
 
+Rake::Task['spec'].clear
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = Dir.glob(['spec/**/*_spec.rb', 'modules/vba_documents/spec/**/*_spec.rb'])
 end
