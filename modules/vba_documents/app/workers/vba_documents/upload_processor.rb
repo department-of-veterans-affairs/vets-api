@@ -15,7 +15,6 @@ module VBADocuments
       tempfile = download_raw_file(guid)
       begin
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
-        Rails.logger.info(parts)
         validate_parts(parts)
         validate_metadata(parts['metadata'])
         metadata = perfect_metadata(parts, upload)
