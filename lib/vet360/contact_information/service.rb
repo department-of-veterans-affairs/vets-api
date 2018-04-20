@@ -24,31 +24,31 @@ module Vet360
       end
 
       # POSTs a new address to the vet360 API
-      # @params email [Vet360::Models::Email] the email to create
-      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around an transaction object
-      def post_email(email)
-        post_or_put_email(:post, email)
-      end
-
-      # PUTs a new address to the vet360 API
-      # @params email [Vet360::Models::Email] the email to update
-      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
-      def put_email(email)
-        post_or_put_email(:put, email)
-      end
-
-      # POSTs a new address to the vet360 API
       # @params address [Vet360::Models::Address] the address to send
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around an transaction object
       def post_address(address)
-        post_or_put_address(:post, address)
+        post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
       end
 
       # PUTs a new address to the vet360 API
       # @params address [Vet360::Models::Address] the address to update
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around a transaction object
       def put_address(address)
-        post_or_put_address(:put, address)
+        post_or_put_data(:put, address, 'addresses', AddressTransactionResponse)
+      end
+
+      # POSTs a new address to the vet360 API
+      # @params email [Vet360::Models::Email] the email to create
+      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around an transaction object
+      def post_email(email)
+        post_or_put_data(:post, email, 'emails', EmailTransactionResponse)
+      end
+
+      # PUTs a new address to the vet360 API
+      # @params email [Vet360::Models::Email] the email to update
+      # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
+      def put_email(email)
+        post_or_put_data(:put, email, 'emails', EmailTransactionResponse)
       end
 
       # GET's the status of a transaction id from the Vet360 api
@@ -57,6 +57,20 @@ module Vet360
       def get_email_transaction_status(transaction)
         route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
         get_transaction_status(route, EmailTransactionResponse)
+      end
+
+      # POSTs a new telephone to the vet360 API
+      # @params telephone [Vet360::Models::Telephone] the telephone to send
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around an transaction object
+      def post_telephone(telephone)
+        post_or_put_data(:post, telephone, 'telephones', TelephoneTransactionResponse)
+      end
+
+      # PUTs a new telephone to the vet360 API
+      # @params telephone [Vet360::Models::Telephone] the telephone to update
+      # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around a transaction object
+      def put_telephone(telephone)
+        post_or_put_data(:put, telephone, 'telephones', TelephoneTransactionResponse)
       end
 
       # GET's the status of a transaction id from the Vet360 api
@@ -69,29 +83,20 @@ module Vet360
 
       private
 
-      def get_transaction_status(route, response_class)
+      def post_or_put_data(method, model, path, response_class)
         with_monitoring do
-          raw_response = perform(:get, route)
+          raw = perform(method, path, model.in_json)
+          response_class.new(raw.status, raw)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
+      def get_transaction_status(path, response_class)
+        with_monitoring do
+          raw_response = perform(:get, path)
 
           response_class.new(raw_response.status, raw_response)
-        end
-      rescue StandardError => e
-        handle_error(e)
-      end
-
-      def post_or_put_email(method, email)
-        with_monitoring do
-          raw = perform(method, 'emails', email.in_json)
-          EmailTransactionResponse.new(raw.status, raw)
-        end
-      rescue StandardError => e
-        handle_error(e)
-      end
-
-      def post_or_put_address(method, address)
-        with_monitoring do
-          raw = perform(method, 'addresses', address.in_json)
-          AddressTransactionResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)
