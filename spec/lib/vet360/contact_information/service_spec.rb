@@ -101,6 +101,7 @@ describe Vet360::ContactInformation::Service do
           response = subject.get_telephone_transaction_status(transaction)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
         end
       end
     end
@@ -128,6 +129,7 @@ describe Vet360::ContactInformation::Service do
           response = subject.get_email_transaction_status(transaction)
           expect(response).to be_ok
           expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
         end
       end
     end
