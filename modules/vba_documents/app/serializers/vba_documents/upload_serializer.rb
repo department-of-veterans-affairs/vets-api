@@ -6,13 +6,15 @@ module VBADocuments
   class UploadSerializer < ActiveModel::Serializer
     type 'document_upload'
 
-    attributes :guid, :status, :location
+    attributes :guid, :status, :code, :detail, :location
 
     def id
       object.guid
     end
 
     delegate :status, to: :object
+    delegate :code, to: :object
+    delegate :detail, to: :object
 
     def location
       return nil unless @instance_options[:render_location]

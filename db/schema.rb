@@ -240,8 +240,10 @@ ActiveRecord::Schema.define(version: 20180411001427) do
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
 
   create_table "vba_documents_upload_submissions", force: :cascade do |t|
-    t.string   "status",     default: "pending", null: false
     t.uuid     "guid",                           null: false
+    t.string   "status",     default: "pending", null: false
+    t.string   "code"
+    t.string   "detail"
     t.datetime "created_at",                     null: false
     t.datetime "updated_at",                     null: false
   end

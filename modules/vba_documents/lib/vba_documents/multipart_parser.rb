@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-# TODO: capture end of file in case of missing termating separator
+require 'vba_documents/upload_error'
+
 # TODO add support for base64 encoding
 module VBADocuments
   class MultipartParser
@@ -35,6 +36,8 @@ module VBADocuments
           end
         end
       end
+      raise VBADocuments::UploadError.new(code: 'DOC101',
+                                          detail: 'Missing part name parameter in header')
       nil
     end
 
@@ -43,33 +46,44 @@ module VBADocuments
         name, _, value = header.partition(':')
         return value.split(';')[0].strip if name == 'Content-Type'
       end
-      nil
+      raise VBADocuments::UploadError.new(code: 'DOC101',
+                                          detail: 'Missing content-type header')
     end
 
     def self.consume_headers(lines, _separator)
       result = []
       loop do
-        line = lines.next[0].chomp(LINE_BREAK)
+        begin
+          line = lines.next[0].chomp(LINE_BREAK)
+        rescue StopIteration
+          raise VBADocuments::UploadError.new(code: 'DOC101',
+                                              detail: 'Unexpected end of payload')
+        end
         return result if line == ''
         result << line
       end
     end
 
     def self.consume_body(lines, separator, content_type)
-      # TODO: remove text/plain as allowed option
-      if ['application/pdf', 'text/plain'].include?(content_type)
+      if content_type == 'application/pdf'
         consume_body_tempfile(lines, separator)
       elsif content_type == 'application/json'
         consume_body_string(lines, separator)
       else
-        raise "Unsupported content type #{content_type}"
+        raise VBADocuments::UploadError.new(code: 'DOC101',
+                                            detail: "Unsupported content-type #{content_type}")
       end
     end
 
     def self.consume_body_string(lines, separator)
       StringIO.open(+'', 'w') do |tf|
         loop do
-          line = lines.next[0]
+          begin
+            line = lines.next[0]
+          rescue StopIteration
+            raise VBADocuments::UploadError.new(code: 'DOC101',
+                                                detail: 'Unexpected end of payload')
+          end
           linechomp = line.chomp(LINE_BREAK)
           if linechomp == "#{separator}--"
             return tf.string, false
@@ -86,7 +100,12 @@ module VBADocuments
       tf = Tempfile.new('vba_doc')
       tf.binmode
       loop do
-        line = lines.next[0]
+        begin
+          line = lines.next[0]
+        rescue StopIteration
+          raise VBADocuments::UploadError.new(code: 'DOC101',
+                                              detail: 'Unexpected end of payload')
+        end
         linechomp = line.chomp(LINE_BREAK)
         if linechomp == "#{separator}--"
           tf.rewind
