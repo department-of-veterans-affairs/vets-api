@@ -168,6 +168,11 @@ en:
         code: 'SM116'
         detail: 'Folder must be empty before you can delete it'
         status: 422
+      SM117:
+        <<: *external_defaults
+        code: 'SM117'
+        detail: 'A data integrity issue was encountered'
+        status: 502
       SM119: # 'Triage team does not exist' when trying to create new message
         <<: *external_defaults
         code: 'SM119'
@@ -202,6 +207,11 @@ en:
         code: 'SM901'
         detail: 'Service is temporarily unavailable'
         status: 503
+      SM903:
+        <<: *external_defaults
+        code: 'SM903'
+        detail: 'Service is temporarily unavailable'
+        status: 503
       SM904: # 'Message Service Error' - treating as 404, see gets_a_message_thread_id_error
         <<: *external_defaults
         code: 'SM904'
@@ -210,6 +220,16 @@ en:
       SM99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'SM99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      BB99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'BB99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      RX99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'RX99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
       RX135: # 'The User has not accepted the Rx Agreement. Please login to MHV to accept it'
@@ -231,10 +251,30 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
+      MHVACCTCREATION99: # 'Unknown application error occurred'
+        <<: *external_defaults
+        code: 'MHVACCTCREATION99'
+        detail: 'Something went wrong. Please try again later.'
+        status: 400
+      MHVACCTCREATION150:
+        <<: *external_defaults
+        code: 'MHVACCTCREATION150'
+        detail: 'MVI Unknown Issue Occurred'
+        status: 502
       MHVACCTCREATION155: # TODO: Might be able to remove this
         <<: *external_defaults
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
+        status: 422
+      MHVACCTCREATION158: # 'Sign-in Partner Blocked'
+        <<: *external_defaults
+        code: 'MHVACCTCREATION158'
+        detail: 'Something went wrong. Please try again later.'
+        status: 502
+      MHVACCTCREATION159:
+        <<: *external_defaults
+        code: 'MHVACCTCREATION159'
+        detail: 'User is not matched or correlated in MVI'
         status: 422
       APPEALSSTATUS404:
         <<: *external_defaults
