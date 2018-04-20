@@ -128,7 +128,6 @@ module VBADocuments
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
-      Rails.logger.info(metadata)
       metadata
     end
 
