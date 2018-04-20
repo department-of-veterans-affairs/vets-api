@@ -17,43 +17,67 @@ module Common
             json_body = Oj.load(env.body)
             case env.url.path
             when %r{\/NCA_Facilities\/}
-              json_body['features'].map { |loc| attribute_mappings(loc, NCA_MAP) }
+              json_body['features'].map { |location_data| build_facility_attributes(location_data, NCA_MAP) }
             when %r{\/VBA_Facilities\/}
-              json_body['features'].map { |loc| attribute_mappings(loc, VBA_MAP) }
+              json_body['features'].map { |location_data| build_facility_attributes(location_data, VBA_MAP) }
             when %r{\/VHA_VetCenters\/}
-              json_body['features'].map { |loc| attribute_mappings(loc, VC_MAP) }
+              json_body['features'].map { |location_data| build_facility_attributes(location_data, VC_MAP) }
             when %r{\/VHA_Facilities\/}
-              json_body['features'].map { |loc| attribute_mappings(loc, VHA_MAP) }
+              json_body['features'].map { |location_data| build_facility_attributes(location_data, VHA_MAP) }
             else
               Common::Client::Errors::Serialization
             end
           end
 
-          # FIXME: Clean up this flow in a future pass
-          def attribute_mappings(entry, mapping)
-            attrs = entry['attributes']
-            mapped_attrs = { 'address' => {}, 'services' => {} }
-            mapping.slice('unique_id', 'name', 'classification', 'website').each do |key, value|
-              mapped_attrs[key] = strip(attrs[value])
-            end
-            %w[hours access feedback phone].each do |name|
-              mapped_attrs[name] = build_nested_content(mapping[name], attrs)
-            end
-            mapped_attrs['address']['physical'] = build_nested_content(mapping['physical'], attrs)
-            mapped_attrs['address']['mailing'] = build_nested_content(mapping['mailing'], attrs)
-            if mapping['benefits']
-              mapped_attrs['services']['benefits'] = {
-                'standard' => clean_benefits(build_nested_content(mapping['benefits'], attrs)),
-                'other' => attrs['Other_Services']
-              }
-            end
-            mapped_attrs['services']['last_updated'] = services_date(attrs) if mapping['services']
-            mapped_attrs['services']['health'] = services_from_gis(mapping['services'], attrs) if mapping['services']
-
-            mapped_attrs.merge!('lat' => entry['geometry']['y'], 'long' => entry['geometry']['x'])
+          def build_facility_attributes(location, mapping)
+            facility = { 'address' => {},
+                         'services' => {},
+                         'lat' => location['geometry']['y'],
+                         'long' => location['geometry']['x'] }
+            facility.merge!(make_direct_mappings(location, mapping))
+            facility.merge!(make_complex_mappings(location, mapping))
+            facility.merge!(make_address_mappings(location, mapping))
+            facility.merge!(make_benefits_mappings(location, mapping)) if mapping['benefits']
+            facility.merge!(make_service_mappings(location, mapping)) if mapping['services']
+            facility
           end
 
-          def build_nested_content(item, attrs)
+          def make_direct_mappings(location, mapping)
+            %w[unique_id name classification website].each_with_object({}) do |name, attributes|
+              attributes[name] = strip(location['attributes'][mapping[name]])
+            end
+          end
+
+          def make_complex_mappings(location, mapping)
+            %w[hours access feedback phone].each_with_object({}) do |name, attributes|
+              attributes[name] = complex_mapping(mapping[name], location['attributes'])
+            end
+          end
+
+          def make_address_mappings(location, mapping)
+            attributes = {}
+            attributes['physical'] = complex_mapping(mapping['physical'], location['attributes'])
+            attributes['mailing'] = complex_mapping(mapping['mailing'], location['attributes'])
+            { 'address' => attributes }
+          end
+
+          def make_benefits_mappings(location, mapping)
+            attributes = {}
+            attributes['benefits'] = {
+              'standard' => clean_benefits(complex_mapping(mapping['benefits'], location['attributes'])),
+              'other' => location['attributes']['Other_Services']
+            }
+            { 'services' => attributes }
+          end
+
+          def make_service_mappings(location, mapping)
+            attributes = {}
+            attributes['last_updated'] = services_date(location['attributes'])
+            attributes['health'] = services_from_gis(mapping['services'], location['attributes'])
+            { 'services' => attributes }
+          end
+
+          def complex_mapping(item, attrs)
             return {} unless item
             item.each_with_object({}) do |(key, value), hash|
               hash[key] = value.respond_to?(:call) ? value.call(attrs) : strip(attrs[value])

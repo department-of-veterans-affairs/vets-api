@@ -198,17 +198,7 @@ Rails.application.routes.draw do
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do
-    namespace :v0, defaults: { format: 'json' } do
-      namespace :docs, only: [] do
-        # namespace :health do
-        #   resources :prescriptions
-        #   resources :secure_messages
-        # end
-        # resources :health, only: [:index]
-
-        resources :benefits, only: [:index]
-      end
-    end
+    mount VBADocuments::Engine, at: '/vba_documents'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
