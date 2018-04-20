@@ -3,9 +3,11 @@ inherit_from:
 
 AllCops:
   Exclude:
-    - bin/**
+    - 'bin/*'
+    - bin/rails
     - db/migrate/*.rb
-    - spec/dummy/**
+    - 'spec/dummy/**/*'
+    - spec/dummy/db/schema.rb
 
 Metrics/BlockLength:
   Exclude:

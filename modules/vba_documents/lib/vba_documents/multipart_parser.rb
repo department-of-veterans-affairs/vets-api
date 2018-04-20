@@ -2,7 +2,7 @@
 
 require 'vba_documents/upload_error'
 
-# TODO add support for base64 encoding
+# TODO: add support for base64 encoding
 module VBADocuments
   class MultipartParser
     LINE_BREAK = "\r\n"
@@ -38,7 +38,6 @@ module VBADocuments
       end
       raise VBADocuments::UploadError.new(code: 'DOC101',
                                           detail: 'Missing part name parameter in header')
-      nil
     end
 
     def self.get_content_type(headers)

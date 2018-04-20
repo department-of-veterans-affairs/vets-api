@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
 require 'vba_documents/upload_error'
@@ -7,7 +8,7 @@ module VBADocuments
   class UploadProcessor
     include Sidekiq::Worker
 
-    REQUIRED_KEYS = %w(veteranFirstName veteranLastName fileNumber zipCode)
+    REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
@@ -58,15 +59,13 @@ module VBADocuments
     end
 
     def map_downstream_error(status, body)
-      case
-      # Defined values: 400, 401, 409, 412, 415, 422
-      when status.between?(400,499) 
-        raise VBADocuments::UploadError.new(code: 'DOC104', 
-                                            detail: "Downstream status: #{status.to_s} - #{body}")
+      if status.between?(400, 499)
+        raise VBADocuments::UploadError.new(code: 'DOC104',
+                                            detail: "Downstream status: #{status} - #{body}")
       # Defined values: 500
-      when status.between?(500,599)
-        raise VBADocuments::UploadError.new(code: 'DOC201', 
-                                            detail: "Downstream status: #{status.to_s} - #{body}")
+      elsif status.between?(500, 599)
+        raise VBADocuments::UploadError.new(code: 'DOC201',
+                                            detail: "Downstream status: #{status} - #{body}")
       end
     end
 
@@ -77,16 +76,24 @@ module VBADocuments
       tempfile
     end
 
-    def validate_parts(parts) 
-      raise VBADocuments::UploadError.new(code: 'DOC102',
-                                          detail: 'No metadata part present') unless parts.has_key?('metadata')    
-      raise VBADocuments::UploadError.new(code: 'DOC102',
-                                          detail: 'Incorrect content-type for metdata part')unless parts['metadata'].is_a?(String)  
-      raise VBADocuments::UploadError.new(code: 'DOC103',
-                                          detail: 'No document part present') unless parts.has_key?('document')    
-      raise VBADocuments::UploadError.new(code: 'DOC103',
-                                          detail: 'Incorrect content-type for document part') if parts['document'].is_a?(String)  
-      # TODO validate type and sequential naming of attachment parts
+    def validate_parts(parts)
+      unless parts.key?('metadata')
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: 'No metadata part present')
+      end
+      unless parts['metadata'].is_a?(String)
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: 'Incorrect content-type for metdata part')
+      end
+      unless parts.key?('document')
+        raise VBADocuments::UploadError.new(code: 'DOC103',
+                                            detail: 'No document part present')
+      end
+      if parts['document'].is_a?(String)
+        raise VBADocuments::UploadError.new(code: 'DOC103',
+                                            detail: 'Incorrect content-type for document part')
+      end
+      # TODO: validate type and sequential naming of attachment parts
     end
 
     def validate_metadata(metadata_input)
@@ -96,14 +103,14 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: "Missing required keys: #{missing_keys.join(',')}")
       end
-      non_string_vals = REQUIRED_KEYS.select { |k| !metadata[k].is_a? String }
+      non_string_vals = REQUIRED_KEYS.reject { |k| metadata[k].is_a? String }
       if non_string_vals.present?
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: "Non-string values for keys: #{non_string_vals.join(',')}")
       end
-    rescue JSON::ParserError => e
+    rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102',
-                                          detail: 'Invalid JSON content') 
+                                          detail: 'Invalid JSON content')
     end
 
     def perfect_metadata(parts, upload)
@@ -129,9 +136,9 @@ module VBADocuments
         hash: Digest::SHA256.file(file_path).hexdigest,
         pages: PDF::Reader.new(file_path).pages.size
       }
-    rescue PDF::Reader::MalformedPDFError => e
+    rescue PDF::Reader::MalformedPDFError
       raise VBADocuments::UploadError.new(code: 'DOC103',
-                                          detail: 'Invalid PDF content') 
+                                          detail: 'Invalid PDF content')
     end
 
     def bucket

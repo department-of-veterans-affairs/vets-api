@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-# This command will automatically be run when you run "rails" with Rails 4 gems installed from the root of your application.
+# frozen_string_literal: true
 
 ENGINE_ROOT = File.expand_path('../..', __FILE__)
 ENGINE_PATH = File.expand_path('../../lib/vba_documents/engine', __FILE__)

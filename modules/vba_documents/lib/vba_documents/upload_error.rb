@@ -19,8 +19,9 @@ module VBADocuments
     def initialize(message = nil, code: nil, detail: nil)
       if message.nil?
         begin
-          message = UploadError.const_get code
+          message = UploadError.const_get code if code.present?
         rescue NameError
+          message = 'Internal Server Error'
         end
       end
       super(message)
