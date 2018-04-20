@@ -207,6 +207,10 @@ en:
         code: 'SM901'
         detail: 'Service is temporarily unavailable'
         status: 503
+      SM903:
+        code: 'SM903'
+        detail: 'Service is temporarily unavailable'
+        status: 503
       SM904: # 'Message Service Error' - treating as 404, see gets_a_message_thread_id_error
         <<: *external_defaults
         code: 'SM904'
@@ -251,10 +255,20 @@ en:
         code: 'MHVACCTCREATION99'
         detail: 'Something went wrong. Please try again later.'
         status: 400
+      MHVACCTCREATION150:
+        code: 'MHVACCTCREATION150'
+        detail: 'MVI Unknown Issue Occurred'
+        status: 502
+        source: ~
       MHVACCTCREATION155: # TODO: Might be able to remove this
         <<: *external_defaults
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
+        status: 422
+      MHVACCTCREATION159:
+        <<: *external_defaults
+        code: 'MHVACCTCREATION159'
+        detail: 'User is not matched or correlated in MVI'
         status: 422
       APPEALSSTATUS404:
         <<: *external_defaults
