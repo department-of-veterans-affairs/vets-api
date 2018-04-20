@@ -191,6 +191,7 @@ vba_documents:
     prefix:  http://some.fakesite.com/path
     replacement: http://another.fakesite.com/rewrittenpath
   s3:
+    enabled: false
     aws_access_key_id: 'aws_access_key_id'
     aws_secret_access_key: 'aws_secret_access_key'
     region: 'region'
