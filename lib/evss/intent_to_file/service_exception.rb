@@ -18,7 +18,7 @@ module EVSS
       def errors
         Array(
           Common::Exceptions::SerializableError.new(
-            i18n_data.merge(source: 'EVSS::Letters::Service', meta: { messages: @messages })
+            i18n_data.merge(source: 'EVSS::IntentToFile::Service', meta: { messages: @messages })
           )
         )
       end
