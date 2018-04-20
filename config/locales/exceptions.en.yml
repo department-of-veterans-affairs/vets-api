@@ -250,7 +250,7 @@ en:
         <<: *external_defaults
         code: 'MHVACCTCREATION99'
         detail: 'Something went wrong. Please try again later.'
-        status: 502
+        status: 400
       MHVACCTCREATION155: # TODO: Might be able to remove this
         <<: *external_defaults
         code: 'MHVAC155'
