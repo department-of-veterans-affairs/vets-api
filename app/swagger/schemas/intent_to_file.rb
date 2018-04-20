@@ -12,17 +12,14 @@ module Swagger
           expiration_date
           participant_id
           source
-          survivor
+          status
+          type
         ]
         property :id, type: :string
         property :creation_date, type: :string
         property :expiration_date, type: :string
         property :participant_id, type: :integer
-        property :source, type: :string, enum: %w[
-          compensation
-          pension
-          survivor
-        ], example: 'compensation'
+        property :source, type: :string
         property :status, type: :string, enum: %w[
           active
           claim_recieved
@@ -30,6 +27,11 @@ module Swagger
           expired
           incomplete
         ], example: 'active'
+        property :type, type: :string, enum: %w[
+          compensation
+          pension
+          survivor
+        ], example: 'compensation'
       end
 
       swagger_schema :IntentToFiles do
