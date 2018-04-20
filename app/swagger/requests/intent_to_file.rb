@@ -11,7 +11,7 @@ module Swagger
 
           key :description, 'Get a list of all Intent To File requests made by the veteran'
           key :operationId, 'getIntentToFile'
-          key :tags, %w[benefits_forms]
+          key :tags, %w[form_526]
 
           parameter :authorization
 
@@ -30,7 +30,7 @@ module Swagger
 
           key :description, 'Get the current active Intent To File if the veteran has one'
           key :operationId, 'getIntentToFileCompensationActive'
-          key :tags, %w[benefits_forms]
+          key :tags, %w[form_526]
 
           parameter :authorization
 
@@ -49,7 +49,7 @@ module Swagger
 
           key :description, 'Creates a new Intent To File for the veteran'
           key :operationId, 'postIntentToFileCompensation'
-          key :tags, %w[benefits_forms]
+          key :tags, %w[form_526]
 
           parameter :authorization
 

@@ -49,6 +49,10 @@ module V0
         key :description, 'Check status of benefits claims and appeals'
       end
       tag do
+        key :name, 'form_526'
+        key :description, 'Creating and submitting compensation applications'
+      end
+      tag do
         key :name, 'prescriptions'
         key :description, 'Prescription refill/tracking operations'
       end
