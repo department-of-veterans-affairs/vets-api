@@ -43,3 +43,5 @@ shrine:
     bucket: bucketname
     path: remote-testing
     region: us-gov-west-1
+    access_key_id: ABCD1234
+    secret_access_key: 1234ABCD
