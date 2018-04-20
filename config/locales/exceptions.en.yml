@@ -172,7 +172,7 @@ en:
         <<: *external_defaults
         code: 'SM117'
         detail: 'A data integrity issue was encountered'
-        status: 59623c5f11b874409315b05a254a7ace5f6a1b12a21334f7b3ceebe1f1854948 
+        status: 502
       SM119: # 'Triage team does not exist' when trying to create new message
         <<: *external_defaults
         code: 'SM119'
