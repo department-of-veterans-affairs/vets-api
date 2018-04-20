@@ -17,7 +17,7 @@ module Vet360
           # TODO: guard clause in case there is no vet360_id
           raw_response = perform(:get, @user.vet360_id)
 
-          Vet360::ContactInformation::PersonResponse.new(raw_response.status, raw_response)
+          PersonResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
         handle_error(e)
@@ -61,10 +61,10 @@ module Vet360
 
       # GET's the status of a transaction id from the Vet360 api
       # @params transaction [Vet360::Models::Transaction] the transaction to check
-      # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around a transaction object
-      def get_address_transaction_status(transaction)
-        route = "#{@user.vet360_id}/addresses/status/#{transaction.id}"
-        get_transaction_status(route, AddressTransactionResponse)
+      # @returns [Vet360::ContactInformation::TelephoneTransactionResponse] response wrapper around a transaction object
+      def get_telephone_transaction_status(transaction)
+        route = "#{@user.vet360_id}/telephones/status/#{transaction.id}"
+        get_transaction_status(route, TelephoneTransactionResponse)
       end
 
       private
@@ -82,7 +82,7 @@ module Vet360
       def post_or_put_email(method, email)
         with_monitoring do
           raw = perform(method, 'emails', email.in_json)
-          Vet360::ContactInformation::EmailTransactionResponse.new(raw.status, raw)
+          EmailTransactionResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)
@@ -91,7 +91,7 @@ module Vet360
       def post_or_put_address(method, address)
         with_monitoring do
           raw = perform(method, 'addresses', address.in_json)
-          Vet360::ContactInformation::AddressTransactionResponse.new(raw.status, raw)
+          AddressTransactionResponse.new(raw.status, raw)
         end
       rescue StandardError => e
         handle_error(e)
