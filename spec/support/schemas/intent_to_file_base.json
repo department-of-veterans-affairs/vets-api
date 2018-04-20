@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "required": [
+    "status"
+  ],
+  "properties": {
+    "id": {
+      "description": "Display name for the letter",
+      "type": "string"
+    },
+    "creation_date": {
+      "type": "string"
+    },
+    "expiration_date": {
+      "type": "string"
+    },
+    "participant_id": {
+      "type": "integer"
+    },
+    "source": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    }
+  },
+  "type": "object"
+}
