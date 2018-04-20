@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180411001427) do
+ActiveRecord::Schema.define(version: 20180416231107) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -53,6 +53,7 @@ ActiveRecord::Schema.define(version: 20180411001427) do
   end
 
   add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
+  add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
@@ -190,6 +191,9 @@ ActiveRecord::Schema.define(version: 20180411001427) do
     t.string   "encrypted_file_data_iv", null: false
   end
 
+  add_index "persistent_attachments", ["guid"], name: "index_persistent_attachments_on_guid", unique: true, using: :btree
+  add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
+
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
@@ -212,6 +216,7 @@ ActiveRecord::Schema.define(version: 20180411001427) do
     t.string   "type"
   end
 
+  add_index "saved_claims", ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type", using: :btree
   add_index "saved_claims", ["guid"], name: "index_saved_claims_on_guid", unique: true, using: :btree
 
   create_table "terms_and_conditions", force: :cascade do |t|

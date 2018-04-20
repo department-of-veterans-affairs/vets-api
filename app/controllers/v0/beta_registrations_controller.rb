@@ -12,5 +12,10 @@ module V0
       BetaRegistration.find_or_create_by(user_uuid: current_user.uuid, feature: params[:feature])
       render json: { 'user': current_user.email, 'status': 'OK' }
     end
+
+    def destroy
+      BetaRegistration.find_by(user_uuid: current_user.uuid, feature: params[:feature])&.destroy!
+      head :no_content
+    end
   end
 end

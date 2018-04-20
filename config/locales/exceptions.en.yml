@@ -128,12 +128,6 @@ en:
         detail: "Did not receive a timely response from an upstream server"
         code: 504
         status: 504
-      account_creation_error:
-        <<: *defaults
-        title: Operation failed
-        detail: "Failed to create or upgrade health tools account access"
-        code: "MHVAC1"
-        status: 403
       id_card_attribute_error:
         <<: *defaults
         title: Request failed
@@ -237,7 +231,7 @@ en:
         <<: *validation_errors
         code: 'RX157'
         detail: 'Email address is invalid'
-      MHVACCTCREATION155: # Account is already Upgraded
+      MHVACCTCREATION155: # TODO: Might be able to remove this
         <<: *external_defaults
         code: 'MHVAC155'
         detail: 'Account is already upgraded'
@@ -267,6 +261,12 @@ en:
         detail: 'Received an an invalid response from the upstream server'
         status: 502
   evss:
+    external_service_unavailable:
+      <<: *defaults
+      title: External service unavailable
+      detail: 'EVSS received an error calling external service'
+      code: 113
+      status: 503
     letters:
       unable_to_determine_eligibilty:
         <<: *defaults
@@ -286,23 +286,72 @@ en:
         detail: 'One or more unprocessable letter destination properties'
         code: 112
         status: 422
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 113
-        status: 503
     gi_bill_status:
-      external_service_unavailable:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'EVSS received an error calling external service'
-        code: 113
-        status: 503
       outside_working_hours:
         <<: *defaults
         title: External service unavailable
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-
+    526:
+      not_eligible:
+        <<: *defaults
+        title: Proxy error
+        detail: 'Upstream server returned not eligible response'
+        code: 120
+        status: 502
+      form_in_process:
+        <<: *defaults
+        title: Form in process
+        detail: 'This form has already been submitted'
+        code: 122
+        status: 409
+      disabled:
+        <<: *defaults
+        title: Form disabled
+        detail: 'Form submissions are currently disabled by EVSS'
+        code: 123
+        status: 502
+      marshall_error:
+        <<: *defaults
+        title: Marshall error
+        detail: 'Unexpected marshalling error'
+        code: 124
+        status: 500
+      start_batch_job_error:
+        <<: *defaults
+        title: Cannot launch the 526 post submit batch job
+        code: 125
+        status: 502
+    ppiu:
+      unprocessable_entity:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: 'One or more unprocessable user payment properties'
+        code: 126
+        status: 422
+    intent_to_file:
+      partner_service_error:
+        <<: *defaults
+        title: Partner Service Error
+        detail: 'Error calling out to partner service'
+        code: 131
+        status: 502 # TODO: reviewed in PR
+      internal_service_error:
+        <<: *defaults
+        title: Internal Service Error
+        detail: 'Internal service error'
+        code: 132
+        status: 502
+      intent_type_invalid:
+        <<: *defaults
+        title: Intent Type Invalid
+        detail: 'Invalid intent type'
+        code: 133
+        status: 400
+      partner_service_invalid:
+        <<: *defaults
+        title: Partner Service Invalid
+        detail: 'Error on data from external service'
+        code: 134
+        status: 502
