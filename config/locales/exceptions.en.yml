@@ -248,7 +248,7 @@ en:
         detail: 'Email address is invalid'
       MHVACCTCREATION99: # 'Unknown application error occurred'
         <<: *external_defaults
-        code: 'RX99'
+        code: 'MHVACCTCREATION99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
       MHVACCTCREATION155: # TODO: Might be able to remove this
