@@ -29,26 +29,6 @@ module Vet360
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
 
-      def in_json
-        {
-          bio: {
-            areaCode: @area_code,
-            countryCode: @country_code,
-            internationalIndicator: @is_international,
-            originatingSourceSystem: Settings.vet360.cuf_system_name,
-            phoneNumber: @phone_number,
-            phoneNumberExt: @extension,
-            phoneType: @phone_type,
-            telephoneId: @id,
-            # textMessageCapableInd: @is_textable,
-            # textMessagePermInd: @is_text_permitted,
-            ttyInd: @is_tty,
-            vet360Id: @vet360_id,
-            voiceMailAcceptableInd: @is_voicemailable
-          }
-        }.to_json
-      end
-
       validates(
         :area_code,
         presence: true,

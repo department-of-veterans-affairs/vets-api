@@ -96,13 +96,6 @@ module Vet360
           raw = perform(method, path, model.in_json)
           response_class.new(raw.status, raw)
         end
-      end
-
-      def post_or_put_data(method, model, path, response_class)
-        with_monitoring do
-          raw = perform(method, path, model.in_json)
-          response_class.new(raw.status, raw)
-        end
       rescue StandardError => e
         handle_error(e)
       end
