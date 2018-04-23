@@ -19,7 +19,7 @@ unless ENV['NOCOVERAGE']
   require 'simplecov'
 
   SimpleCov.start 'rails' do
-    track_files '{app,lib}/**/*.rb'
+    track_files '**/{app,lib}/**/*.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'
@@ -36,6 +36,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/pension_burial/service.rb'
     add_filter 'spec'
     add_filter 'vendor'
+    add_group 'VBADocuments', 'modules/vba_documents/'
+    add_filter 'version.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end
