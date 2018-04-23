@@ -8,7 +8,7 @@ namespace :vet360 do
   ## GETs
 
   desc 'Request Vet360 person contact information'
-  task :get_contactinfo, [:vet360_id] => [:environment] do |_, args|
+  task :get_person, [:vet360_id] => [:environment] do |_, args|
     abort 'No vet360_id provided' if args[:vet360_id].blank?
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
