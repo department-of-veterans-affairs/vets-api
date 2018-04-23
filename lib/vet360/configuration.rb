@@ -8,12 +8,9 @@ module Vet360
       super.merge('cufSystemName' => Vet360::Models::Base::SOURCE_SYSTEM)
     end
 
-    # TODO: research the middleware settings needed for Vet360
     def connection
-      # TODO: Former version contained ssl_options
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
-        # faraday.use      EVSS::ErrorMiddleware # Probably need to build Vet360::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
 
         # @TODO Remove for production...

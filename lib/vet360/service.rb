@@ -20,7 +20,6 @@ module Vet360
 
     private
 
-    # TODO: update exception params from EVSS to Vet360, perhaps abstract this into a common class for services
     def handle_error(error)
       case error
       when Common::Client::Errors::ParsingError
