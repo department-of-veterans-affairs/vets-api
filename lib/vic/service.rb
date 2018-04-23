@@ -140,6 +140,21 @@ module VIC
       true
     end
 
+    def combine_files(attachment_records)
+      converted_files = attachment_records.map do |attachment|
+        PensionBurial::ConvertToPdf.new(attachment.get_file).run
+      end
+
+      file_path = Common::FileHelpers.random_file_path
+      # TODO check if there is only 1 file
+
+      PdfFill::Filler::PDF_FORMS.cat(*(converted_files + [file_path]))
+
+      binding.pry; fail
+
+      file_path
+    end
+
     def send_files(case_id, form)
       client = get_client
       attachment_records = get_attachment_records(form)

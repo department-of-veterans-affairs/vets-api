@@ -83,6 +83,14 @@ describe VIC::Service, type: :model do
     end
   end
 
+  describe '#combine_files' do
+    it 'should convert files to pdf and combine them' do
+      parsed_form
+      ProcessFileJob.drain
+      service.combine_files(service.get_attachment_records(parsed_form)[:supporting])
+    end
+  end
+
   describe '#send_files' do
     it 'should send the files in the form' do
       parsed_form
