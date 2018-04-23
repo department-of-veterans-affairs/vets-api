@@ -25,7 +25,7 @@ http_interactions:
       X-Application-Context:
       - edge-gateway:ENV-INT-DEV:8766
       Date:
-      - Fri, 13 Apr 2018 21:07:24 GMT
+      - Mon, 23 Apr 2018 17:35:12 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -55,12 +55,12 @@ http_interactions:
               "code": "CORE103",
               "key": "_CUF_NOT_FOUND",
               "severity": "ERROR",
-              "text": ""
+              "text": "The tx for id/criteria d47b3d96-9ddd-42be-ac57-8e564aa38029 could not be found. Please correct your request and try again!"
             }
           ],
           "txAuditId": "d47b3d96-9ddd-42be-ac57-8e564aa38029",
-          "status": "REJECTED"
+          "status": "COMPLETED_FAILURE"
         }
     http_version:
-  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+  recorded_at: Mon, 23 Apr 2018 17:35:12 GMT
 recorded_with: VCR 3.0.3
