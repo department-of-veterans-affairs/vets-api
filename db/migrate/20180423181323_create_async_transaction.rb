@@ -8,6 +8,8 @@ class CreateAsyncTransaction < ActiveRecord::Migration
       t.string :status
       t.string :transaction_id
       t.string :transaction_status
+
+      t.timestamps null: false
     end
   end
 end
