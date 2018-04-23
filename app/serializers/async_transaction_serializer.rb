@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AsyncTransactionSerializer < ActiveModel::Serializer
   attribute :id
   # @TODO Do we actually need to serialize the rest of these?
