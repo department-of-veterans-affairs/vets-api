@@ -43,6 +43,8 @@ module Facilities
       facilities.each do |k, v|
         attrs = { station_number: k,
                   metrics: v['metrics'],
+                  emergency_care: v['ed'],
+                  urgent_care: v['uc'],
                   source_updated: v['source_date'],
                   local_updated: Time.now.utc.iso8601 }
         obj = model.find(k)
@@ -95,7 +97,7 @@ module Facilities
     end
 
     def parse_wait_time_data(records)
-      facilities = Hash.new { |h, k| h[k] = { 'metrics' => {} } }
+      facilities = Hash.new { |h, k| h[k] = { 'metrics' => {}, 'ed' => [], 'uc' => [] } }
       records.each do |rec|
         require_keys(rec, WT_REQUIRED_KEYS)
         id = rec['facilityID']
@@ -104,6 +106,8 @@ module Facilities
         metric = { 'new' => filter(rec['newWaitTime']),
                    'established' => filter(rec['estWaitTime']) }
         facility['metrics'][category] = metric
+        facility['ed'] << rec['ED']
+        facility['uc'] << rec['UC']
         facility['source_date'] = rec['sliceEndDate']
       end
       facilities
