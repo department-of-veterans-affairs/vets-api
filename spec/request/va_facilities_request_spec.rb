@@ -150,4 +150,26 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to have_http_status(:bad_request)
     end
   end
+
+  context 'health services' do
+    it 'includes emergency_care and urgent_care when appropriate' do
+      setup_pdx
+      get '/v0/facilities/va/vha_648'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      services = JSON.parse(response.body)['data']['attributes']['services']
+      expect(services['health']).to include('sl1' => ['EmergencyDept'], 'sl2' => [])
+      expect(services['health']).to include('sl1' => ['UrgentCare'], 'sl2' => [])
+    end
+
+    it 'does not include emergency_care and urgent_care when appropriate' do
+      setup_pdx
+      get '/v0/facilities/va/vha_648A4'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      services = JSON.parse(response.body)['data']['attributes']['services']
+      expect(services['health']).not_to include('sl1' => ['EmergencyDept'], 'sl2' => [])
+      expect(services['health']).not_to include('sl1' => ['UrgentCare'], 'sl2' => [])
+    end
+  end
 end

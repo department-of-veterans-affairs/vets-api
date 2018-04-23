@@ -98,7 +98,7 @@ module Common
 
           def services_from_gis(service_map, attrs)
             return unless service_map
-            service_map.each_with_object([]) do |(k, v), l|
+            services = service_map.each_with_object([]) do |(k, v), l|
               next unless attrs[k] == YES && APPROVED_SERVICES.include?(k)
               sl2 = []
               v.each do |sk|
@@ -106,6 +106,15 @@ module Common
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
+            services.concat(emergency_and_urgent_care(attrs['StationNumber'].upcase))
+          end
+
+          def emergency_and_urgent_care(facility_id)
+            facility_wait_time = FacilityWaitTime.find(facility_id)
+            services = []
+            services << { 'sl1' => ['EmergencyDept'], 'sl2' => [] } if facility_wait_time&.emergency_care&.any?
+            services << { 'sl1' => ['UrgentCare'], 'sl2' => [] } if facility_wait_time&.urgent_care&.any?
+            services
           end
 
           class << self
