@@ -74,6 +74,29 @@ module Vet360
         inclusion: { in: PHONE_TYPES }
       )
 
+      # Converts an instance of the Telphone model to a JSON encoded string suitable for
+      # use in the body of a request to Vet360
+      # @return [String] JSON-encoded string suitable for requests to Vet360
+      def in_json
+        {
+          bio: {
+            areaCode: @area_code,
+            countryCode: @country_code,
+            internationalIndicator: @is_international,
+            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            phoneNumber: @phone_number,
+            phoneNumberExt: @extension,
+            phoneType: @phone_type,
+            telephoneId: @id,
+            # textMessageCapableInd: @is_textable,
+            # textMessagePermInd: @is_text_permitted,
+            ttyInd: @is_tty,
+            vet360Id: @vet360_id,
+            voiceMailAcceptableInd: @is_voicemailable
+          }
+        }.to_json
+      end
+
       # Converts a decoded JSON response from Vet360 to an instance of the Telephone model
       # @params body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Telephone] the model built from the response body
