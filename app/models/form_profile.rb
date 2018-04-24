@@ -185,27 +185,18 @@ class FormProfile
 
   def initialize_contact_information(user)
     address = {}
-    address.tap do |add|
-      if user.va_profile&.address
-        add.merge!({
-          street: user.va_profile.address.street,
-          street2: nil,
-          city: user.va_profile.address.city,
-          state: user.va_profile.address.state,
-          country: user.va_profile.address.country
-        }).merge!(derive_postal_code(user))
-      end
+    if user.va_profile&.address
+      address.merge!(
+        street: user.va_profile.address.street,
+        street2: nil,
+        city: user.va_profile.address.city,
+        state: user.va_profile.address.state,
+        country: user.va_profile.address.country
+      ).merge!(derive_postal_code(user))
     end
 
-    pciu_email = begin
-      user&.pciu_email
-    rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException => e
-    end
-
-    pciu_primary_phone = begin
-      user&.pciu_primary_phone
-    rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException => e
-    end
+    pciu_email = extract_pciu_data(user, :pciu_email)
+    pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
 
     FormContactInformation.new(
       address: address,
@@ -213,6 +204,12 @@ class FormProfile
       us_phone: get_us_phone(pciu_primary_phone),
       home_phone: pciu_primary_phone
     )
+  end
+
+  def extract_pciu_data(user, method)
+    user&.send(method)
+  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
+    return ''
   end
 
   # For 10-10ez forms, this function is overridden to provide a different
