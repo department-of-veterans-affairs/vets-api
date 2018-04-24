@@ -84,10 +84,33 @@ describe VIC::Service, type: :model do
   end
 
   describe '#combine_files' do
-    it 'should convert files to pdf and combine them' do
-      parsed_form
-      ProcessFileJob.drain
-      service.combine_files(service.get_attachment_records(parsed_form)[:supporting])
+    context 'with one record' do
+      it 'should convert the file' do
+        records = [
+          create(:supporting_documentation_attachment)
+        ]
+        ProcessFileJob.drain
+        final_pdf = service.combine_files(records)
+
+        expect(PDF::Reader.new(final_pdf).pages.size).to eq(1)
+
+        File.delete(final_pdf)
+      end
+    end
+
+    context 'with multiple records' do
+      it 'should convert files to pdf and combine them' do
+        records = [
+          create(:supporting_documentation_attachment),
+          create(:supporting_documentation_attachment)
+        ]
+        ProcessFileJob.drain
+        final_pdf = service.combine_files(records)
+
+        expect(PDF::Reader.new(final_pdf).pages.size).to eq(2)
+
+        File.delete(final_pdf)
+      end
     end
   end
 

@@ -145,12 +145,16 @@ module VIC
         PensionBurial::ConvertToPdf.new(attachment.get_file).run
       end
 
+      return converted_files[0] if converted_files.size == 1
+
       file_path = Common::FileHelpers.random_file_path
-      # TODO check if there is only 1 file
+      # TODO check if there are no files
 
       PdfFill::Filler::PDF_FORMS.cat(*(converted_files + [file_path]))
 
-      binding.pry; fail
+      converted_files.each do |file|
+        File.delete(file)
+      end
 
       file_path
     end
