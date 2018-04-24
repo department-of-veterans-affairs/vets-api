@@ -6,10 +6,10 @@
       "properties": {
         "attributes": {
           "properties": {
-            "email_address": {
+            "email": {
               "type": "string"
             },
-            "effective_date": {
+            "effective_at": {
               "type": "string"
             }
           },
