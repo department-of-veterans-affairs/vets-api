@@ -19,7 +19,7 @@ describe EVSS::PCIU::Service do
       it 'returns a users email address value and effective_date' do
         VCR.use_cassette('evss/pciu/email') do
           response = subject.get_email_address
-          expect(response.attributes.keys).to include :effective_date, :email_address
+          expect(response.attributes.keys).to include :effective_at, :email
         end
       end
     end
@@ -184,7 +184,7 @@ describe EVSS::PCIU::Service do
         VCR.use_cassette('evss/pciu/post_email_address') do
           response = subject.post_email_address(email_address)
 
-          expect(response.attributes.keys).to include :effective_date, :email_address
+          expect(response.attributes.keys).to include :effective_at, :email
         end
       end
     end

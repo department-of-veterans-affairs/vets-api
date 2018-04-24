@@ -41,7 +41,7 @@ class User < Common::RedisStore
   delegate :first_name, to: :identity, allow_nil: true
 
   def pciu_email
-    pciu.get_email_address.email_address
+    pciu.get_email_address.email
   end
 
   def pciu_primary_phone
