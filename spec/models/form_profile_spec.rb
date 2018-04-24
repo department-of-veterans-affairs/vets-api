@@ -32,7 +32,7 @@ RSpec.describe FormProfile, type: :model do
   let(:us_phone) do
     form_profile.send(
       :get_us_phone,
-      user.pciu_primary_phone.gsub(/[^\d]/, '')
+      user.pciu_primary_phone
     )
   end
 
