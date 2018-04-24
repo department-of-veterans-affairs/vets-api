@@ -83,15 +83,57 @@ describe VIC::Service, type: :model do
     end
   end
 
+  describe '#combine_files' do
+    context 'with no records' do
+      it 'should return nil' do
+        expect(service.combine_files([])).to eq(nil)
+      end
+    end
+
+    context 'with one record' do
+      it 'should convert the file' do
+        records = [
+          create(:supporting_documentation_attachment)
+        ]
+        ProcessFileJob.drain
+        final_pdf = service.combine_files(records)
+
+        expect(PDF::Reader.new(final_pdf).pages.size).to eq(1)
+
+        File.delete(final_pdf)
+      end
+    end
+
+    context 'with multiple records' do
+      it 'should convert files to pdf and combine them' do
+        records = [
+          create(:supporting_documentation_attachment),
+          create(:supporting_documentation_attachment)
+        ]
+        ProcessFileJob.drain
+        final_pdf = service.combine_files(records)
+
+        expect(PDF::Reader.new(final_pdf).pages.size).to eq(2)
+
+        File.delete(final_pdf)
+      end
+    end
+  end
+
   describe '#send_files' do
     it 'should send the files in the form' do
       parsed_form
       ProcessFileJob.drain
       expect(service).to receive(:get_client).and_return(client)
-      expect(service).to receive(:send_file).with(
-        client, case_id,
-        VIC::SupportingDocumentationAttachment.last,
-        'Discharge Documentation 0'
+      expect(service).to receive(:combine_files).with(
+        [VIC::SupportingDocumentationAttachment.last]
+      ).and_return('combined.pdf')
+      expect(service).to receive(:send_file_with_path).with(
+        client,
+        case_id,
+        'combined.pdf',
+        'application/pdf',
+        'Discharge Documentation'
       )
       expect(service).to receive(:send_file).with(
         client, case_id,
