@@ -30,9 +30,8 @@ ActiveRecord::Schema.define(version: 20180423182604) do
   end
 
   add_index "async_transactions", ["source_id"], name: "index_async_transactions_on_source_id", using: :btree
-  add_index "async_transactions", ["transaction_id", "source_id", "source"], name: "index_async_tx_on_tx_id_and_source_id_and_source", using: :btree
+  add_index "async_transactions", ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true, using: :btree
   add_index "async_transactions", ["transaction_id"], name: "index_async_transactions_on_transaction_id", using: :btree
-  add_index "async_transactions", ["user_uuid", "source"], name: "index_async_transactions_on_user_uuid_and_source", using: :btree
   add_index "async_transactions", ["user_uuid"], name: "index_async_transactions_on_user_uuid", using: :btree
 
   create_table "base_facilities", id: false, force: :cascade do |t|
