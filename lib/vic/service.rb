@@ -82,13 +82,8 @@ module VIC
       converted_form
     end
 
-    def send_file(client, case_id, form_attachment, description)
-      return if form_attachment.blank?
-
-      file_body = form_attachment.get_file.read
-      mime_type = MimeMagic.by_magic(file_body).type
+    def send_file_with_path(client, case_id, file_path, mime_type, description)
       file_name = "#{description}.#{mime_type.split('/')[1]}"
-      file_path = Common::FileHelpers.generate_temp_file(file_body)
 
       content_version_id = client.create!(
         'ContentVersion',
@@ -106,6 +101,16 @@ module VIC
       )
 
       File.delete(file_path)
+    end
+
+    def send_file(client, case_id, form_attachment, description)
+      return if form_attachment.blank?
+
+      file_body = form_attachment.get_file.read
+      mime_type = MimeMagic.by_magic(file_body).type
+      file_path = Common::FileHelpers.generate_temp_file(file_body)
+      send_file_with_path(client, case_id, file_path, mime_type, description)
+
       form_attachment.destroy
     end
 
@@ -163,8 +168,13 @@ module VIC
     def send_files(case_id, form)
       client = get_client
       attachment_records = get_attachment_records(form)
-      attachment_records[:supporting].each_with_index do |form_attachment, i|
-        send_file(client, case_id, form_attachment, "Discharge Documentation #{i}")
+      supporting_records = attachment_records[:supporting].compact
+
+      if supporting_records.present?
+        send_file_with_path(client, case_id, combine_files(supporting_records), Mime[:pdf].to_s, "Discharge Documentation")
+        supporting_records.each do |record|
+          record.destroy
+        end
       end
 
       form_attachment = attachment_records[:profile_photo]
