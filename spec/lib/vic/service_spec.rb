@@ -84,6 +84,12 @@ describe VIC::Service, type: :model do
   end
 
   describe '#combine_files' do
+    context 'with no records' do
+      it 'should return nil' do
+        expect(service.combine_files([])).to eq(nil)
+      end
+    end
+
     context 'with one record' do
       it 'should convert the file' do
         records = [

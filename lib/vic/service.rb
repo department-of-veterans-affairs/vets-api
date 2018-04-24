@@ -141,6 +141,8 @@ module VIC
     end
 
     def combine_files(attachment_records)
+      return if attachment_records.blank?
+
       converted_files = attachment_records.map do |attachment|
         PensionBurial::ConvertToPdf.new(attachment.get_file).run
       end
@@ -148,7 +150,6 @@ module VIC
       return converted_files[0] if converted_files.size == 1
 
       file_path = Common::FileHelpers.random_file_path
-      # TODO check if there are no files
 
       PdfFill::Filler::PDF_FORMS.cat(*(converted_files + [file_path]))
 
