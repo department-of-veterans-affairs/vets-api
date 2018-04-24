@@ -171,10 +171,8 @@ module VIC
       supporting_records = attachment_records[:supporting].compact
 
       if supporting_records.present?
-        send_file_with_path(client, case_id, combine_files(supporting_records), Mime[:pdf].to_s, "Discharge Documentation")
-        supporting_records.each do |record|
-          record.destroy
-        end
+        send_file_with_path(client, case_id, combine_files(supporting_records), Mime[:pdf].to_s, 'Discharge Documentation')
+        supporting_records.each(&:destroy)
       end
 
       form_attachment = attachment_records[:profile_photo]
