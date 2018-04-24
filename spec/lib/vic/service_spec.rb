@@ -125,7 +125,9 @@ describe VIC::Service, type: :model do
       parsed_form
       ProcessFileJob.drain
       expect(service).to receive(:get_client).and_return(client)
-      expect(service).to receive(:combine_files).with([VIC::SupportingDocumentationAttachment.last]).and_return('combined.pdf')
+      expect(service).to receive(:combine_files).with(
+        [VIC::SupportingDocumentationAttachment.last]
+      ).and_return('combined.pdf')
       expect(service).to receive(:send_file_with_path).with(
         client,
         case_id,
