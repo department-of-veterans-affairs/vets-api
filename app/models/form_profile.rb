@@ -184,24 +184,34 @@ class FormProfile
   end
 
   def initialize_contact_information(user)
-    return nil if user.va_profile.nil?
-    if user.va_profile&.address
-      address = {
-        street: user.va_profile.address.street,
-        street2: nil,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        country: user.va_profile.address.country
-      }
+    address = {}
+    address.tap do |add|
+      if user.va_profile&.address
+        add.merge!({
+          street: user.va_profile.address.street,
+          street2: nil,
+          city: user.va_profile.address.city,
+          state: user.va_profile.address.state,
+          country: user.va_profile.address.country
+        }).merge!(derive_postal_code(user))
+      end
     end
 
-    address.merge!(derive_postal_code(user)) if address.present?
+    pciu_email = begin
+      user&.pciu_email
+    rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException => e
+    end
+
+    pciu_primary_phone = begin
+      user&.pciu_primary_phone
+    rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException => e
+    end
 
     FormContactInformation.new(
       address: address,
-      email: user&.pciu_email,
-      us_phone: get_us_phone(user&.pciu_primary_phone),
-      home_phone: user&.pciu_primary_phone
+      email: pciu_email,
+      us_phone: get_us_phone(pciu_primary_phone),
+      home_phone: pciu_primary_phone
     )
   end
 
