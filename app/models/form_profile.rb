@@ -66,7 +66,6 @@ class FormProfile
 
   EMIS_PREFILL_KEY = 'emis_prefill'
 
-  # TODO: unused? looks like they are broken out into the constants immediately below
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
