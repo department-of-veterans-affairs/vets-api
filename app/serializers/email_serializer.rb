@@ -7,5 +7,4 @@ class EmailSerializer < ActiveModel::Serializer
   def id
     nil
   end
-
 end
