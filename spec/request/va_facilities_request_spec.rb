@@ -158,7 +158,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       services = JSON.parse(response.body)['data']['attributes']['services']
-      expect(services['health']).to include('sl1' => ['EmergencyDept'], 'sl2' => [])
+      expect(services['health']).to include('sl1' => ['EmergencyCare'], 'sl2' => [])
       expect(services['health']).to include('sl1' => ['UrgentCare'], 'sl2' => [])
     end
 
@@ -168,7 +168,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response).to be_success
       expect(response.body).to be_a(String)
       services = JSON.parse(response.body)['data']['attributes']['services']
-      expect(services['health']).not_to include('sl1' => ['EmergencyDept'], 'sl2' => [])
+      expect(services['health']).not_to include('sl1' => ['EmergencyCare'], 'sl2' => [])
       expect(services['health']).not_to include('sl1' => ['UrgentCare'], 'sl2' => [])
     end
   end
