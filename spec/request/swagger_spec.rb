@@ -75,6 +75,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     it 'supports getting an in-progress form' do
       FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      email_response = VCR.use_cassette('evss/pciu/email') do
+        EVSS::PCIU::Service.new(mhv_user).get_email_address
+      end
+      phone_response = VCR.use_cassette('evss/pciu/primary_phone') do
+        EVSS::PCIU::Service.new(mhv_user).get_primary_phone
+      end
+      allow_any_instance_of(EVSS::PCIU::Service).to receive(:get_email_address).and_return(email_response)
+      allow_any_instance_of(EVSS::PCIU::Service).to receive(:get_primary_phone).and_return(phone_response)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',

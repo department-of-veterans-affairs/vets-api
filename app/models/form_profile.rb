@@ -66,6 +66,7 @@ class FormProfile
 
   EMIS_PREFILL_KEY = 'emis_prefill'
 
+  # TODO: unused? looks like they are broken out into the constants immediately below
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
@@ -185,7 +186,6 @@ class FormProfile
 
   def initialize_contact_information(user)
     return nil if user.va_profile.nil?
-
     if user.va_profile&.address
       address = {
         street: user.va_profile.address.street,
@@ -198,13 +198,11 @@ class FormProfile
 
     address.merge!(derive_postal_code(user)) if address.present?
 
-    home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
-
     FormContactInformation.new(
       address: address,
-      email: user&.email,
-      us_phone: get_us_phone(home_phone),
-      home_phone: home_phone
+      email: user&.pciu_email,
+      us_phone: get_us_phone(user&.pciu_primary_phone),
+      home_phone: user&.pciu_primary_phone
     )
   end
 

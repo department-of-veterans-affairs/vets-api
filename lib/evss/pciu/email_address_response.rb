@@ -5,12 +5,16 @@ require 'evss/response'
 module EVSS
   module PCIU
     class EmailAddressResponse < EVSS::Response
-      attribute :email_address, Hash
+      attribute :email_address, String
+      attribute :effective_date, String
 
       def initialize(status, response = nil)
-        email_address = response&.body&.dig('cnp_email_address')
+        attributes = {
+          email_address: response&.body&.dig('cnp_email_address', 'value'),
+          effective_date: response&.body&.dig('cnp_email_address', 'effective_date')
+        }
 
-        super(status, email_address: email_address)
+        super(status, attributes)
       end
     end
   end
