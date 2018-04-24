@@ -2,8 +2,6 @@
 
 module AsyncTransaction
   module Vet360
-
     class Base < AsyncTransaction::Base; end
-
   end
 end
