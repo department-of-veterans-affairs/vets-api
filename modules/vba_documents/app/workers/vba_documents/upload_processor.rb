@@ -28,10 +28,10 @@ module VBADocuments
     private
 
     def submit(metadata, parts)
-      parts['document'].rewind
+      parts['content'].rewind
       body = {
         'metadata' => metadata.to_json,
-        'document' => to_faraday_upload(parts['document'], 'document.pdf')
+        'document' => to_faraday_upload(parts['content'], 'document.pdf')
       }
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       attachment_names.each_with_index do |att, i|
@@ -84,11 +84,11 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: 'Incorrect content-type for metdata part')
       end
-      unless parts.key?('document')
+      unless parts.key?('content')
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'No document part present')
       end
-      if parts['document'].is_a?(String)
+      if parts['content'].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'Incorrect content-type for document part')
       end
@@ -118,7 +118,7 @@ module VBADocuments
       metadata['source'] = 'Vets.gov'
       metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
-      doc_info = get_hash_and_pages(parts['document'])
+      doc_info = get_hash_and_pages(parts['content'])
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
