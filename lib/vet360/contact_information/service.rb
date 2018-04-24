@@ -24,7 +24,7 @@ module Vet360
       end
 
       # POSTs a new address to the vet360 API
-      # @params address [Vet360::Models::Address] the address to send
+      # @params address [Vet360::Models::Address] the address to create
       # @returns [Vet360::ContactInformation::AddressTransactionResponse] response wrapper around an transaction object
       def post_address(address)
         post_or_put_data(:post, address, 'addresses', AddressTransactionResponse)
@@ -68,7 +68,7 @@ module Vet360
       end
 
       # POSTs a new telephone to the vet360 API
-      # @params telephone [Vet360::Models::Telephone] the telephone to send
+      # @params telephone [Vet360::Models::Telephone] the telephone to create
       # @returns [Vet360::ContactInformation::TelephoneUpdateResponse] response wrapper around a transaction object
       def post_telephone(telephone)
         post_or_put_data(:post, telephone, 'telephones', TelephoneTransactionResponse)
