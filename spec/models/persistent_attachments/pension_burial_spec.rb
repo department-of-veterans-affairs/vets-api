@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PersistentAttachments::PensionBurial do
+RSpec.describe PersistentAttachments::PensionBurial, uploader_helpers: true do
   let(:file) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
   let(:instance) { described_class.new(form_id: 'T-123') }
 
@@ -31,6 +31,19 @@ RSpec.describe PersistentAttachments::PensionBurial do
         :burial_claim
       )
       expect(instance.send(:stamp_text)).to eq('2017-08-01')
+    end
+  end
+
+  describe '#delete_file' do
+    stub_virus_scan
+
+    it 'should delete the file after destroying the model' do
+      instance.file = file.open
+      instance.save!
+      shrine_file = instance.file
+      expect(shrine_file.exists?).to eq(true)
+      instance.destroy
+      expect(shrine_file.exists?).to eq(false)
     end
   end
 end

@@ -2,6 +2,8 @@
 
 source 'https://rubygems.org'
 
+gem 'vba_documents', path: 'modules/vba_documents'
+
 # Anchored versions, do not change
 gem 'puma', '~> 2.16.0'
 gem 'rails', '4.2.7.1'
@@ -15,7 +17,7 @@ gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
 gem 'attr_encrypted'
-gem 'aws-sdk'
+gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'breakers'
 gem 'carrierwave-aws'

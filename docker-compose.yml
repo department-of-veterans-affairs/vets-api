@@ -15,11 +15,12 @@ services:
       args:
         exclude_sidekiq_ent: "${EXCLUDE_SIDEKIQ_ENTERPRISE:-false}"
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-    ports:
-      - "3000:3000"
+    image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - .:/src/vets-api:cached
       - "../vets-api-mockdata:/cache"
+    ports:
+      - "3000:3000"
     environment:
       "Settings.database_url": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/config/certs/vetsgov-localhost.crt"

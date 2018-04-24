@@ -19,4 +19,6 @@ pdftk
 WORKDIR $APP_PATH
 ADD Gemfile $APP_PATH
 ADD Gemfile.lock $APP_PATH
+ADD . /src/vets-api
+
 RUN bundle install

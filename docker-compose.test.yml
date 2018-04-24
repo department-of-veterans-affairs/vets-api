@@ -12,7 +12,7 @@ services:
       context: .
       args:
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
-    image: "vets-api:${BUILD_TAG:-latest}"
+    image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
       - ".:/src/vets-api"
     environment:

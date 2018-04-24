@@ -19,7 +19,7 @@ shared_examples_for 'saved_claim' do
 
   describe '#process_attachments!' do
     it 'should start a job to submit the saved claim' do
-      expect(SubmitSavedClaimJob).to receive(:perform_async).with(instance.id)
+      expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(instance.id)
 
       instance.process_attachments!
     end

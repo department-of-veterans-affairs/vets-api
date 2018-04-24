@@ -15,7 +15,7 @@ To start, fetch this code:
    - Create a folder in your vets-api directory:  `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE*: If you don't have access to these keys, running the following
+   - *NOTE:* If you don't have access to these keys, running the following
      commands will provide basic functionality:
         - `touch config/certs/vetsgov-localhost.crt`
         - `touch config/certs/vetsgov-localhost.key`
@@ -94,7 +94,6 @@ The following features require additional configuration, click for details.
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
-- [Sidekiq Enterprise](/docs/setup/sidekiq_enterprise.md)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 
