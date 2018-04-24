@@ -24,6 +24,11 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :disability_compensation_form, only: [] do
+      get 'rated_disabilities'
+      post 'submit'
+    end
+
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
