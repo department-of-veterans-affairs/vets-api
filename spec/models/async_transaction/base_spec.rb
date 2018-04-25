@@ -19,7 +19,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
 
     it 'accepts a FactoryBot-made transaction' do
-      expect transaction4.valid?.to be true
+      expect(transaction4.valid?).to be true
     end
   end
 
