@@ -31,7 +31,7 @@ module VBADocuments
     private
 
     def submit(metadata, parts)
-      parts['content'].rewind
+      parts[DOC_PART_NAME].rewind
       body = {
         META_PART_NAME => metadata.to_json,
         SUBMIT_DOC_PART_NAME => to_faraday_upload(parts[DOC_PART_NAME], 'document.pdf')
@@ -121,7 +121,7 @@ module VBADocuments
       metadata['source'] = 'Vets.gov'
       metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
-      doc_info = get_hash_and_pages(parts['content'])
+      doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
