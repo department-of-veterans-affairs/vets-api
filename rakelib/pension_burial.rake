@@ -23,6 +23,7 @@ namespace :pension_burial do
 
   desc 'Delete old claims'
   task delete_pre_central_mail: :environment do
+    Rails.application.eager_load!
     scs = SavedClaim.where(type: ['SavedClaim::Burial', 'SavedClaim::Pension']).where(
       'created_at < ?', Date.parse('2018-04-01')
     )
@@ -32,6 +33,5 @@ namespace :pension_burial do
     end
 
     scs.delete_all
-
   end
 end
