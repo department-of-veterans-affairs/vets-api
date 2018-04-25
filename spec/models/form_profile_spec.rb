@@ -7,22 +7,11 @@ RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }
-  let(:email_response) do
-    VCR.use_cassette('evss/pciu/email') do
-      EVSS::PCIU::Service.new(user).get_email_address
-    end
-  end
-  let(:phone_response) do
-    VCR.use_cassette('evss/pciu/primary_phone') do
-      EVSS::PCIU::Service.new(user).get_primary_phone
-    end
-  end
 
   before do
     user.va_profile.suffix = 'Jr.'
     user.va_profile.address.country = 'USA'
-    allow_any_instance_of(EVSS::PCIU::Service).to receive(:get_email_address).and_return(email_response)
-    allow_any_instance_of(EVSS::PCIU::Service).to receive(:get_primary_phone).and_return(phone_response)
+    stub_evss_pciu(user)
   end
 
   let(:form_profile) do
