@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1/addresses/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Application-Context:
+      - edge-gateway:ENV-INT-DEV:8766
+      Date:
+      - Fri, 13 Apr 2018 21:07:24 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=31536000 ; includeSubDomains
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "messages": [],
+          "status": "COMPLETED_SUCCESS",
+          "txAuditId": "d47b3d96-9ddd-42be-ac57-8e564aa38029",
+          "txInteractionType": "string",
+          "txMessages": [],
+          "txOutput": [],
+          "txPullInput": "string",
+          "txPushInput": {},
+          "txStatus": "COMPLETED_SUCCESS",
+          "txType": "string"
+        }
+    http_version:
+  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+recorded_with: VCR 3.0.3

@@ -12,6 +12,7 @@ require 'support/be_a_uuid'
 require 'support/impl_matchers'
 require 'support/negated_matchers'
 require 'support/stub_emis'
+require 'support/stub_evss_pciu'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -30,6 +31,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/vic/configuration.rb'
+    # TODO: Remove once Vet360 is ready to merge into master
+    add_filter 'lib/vet360'
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/pension_burial/service.rb'
     add_filter 'spec'
