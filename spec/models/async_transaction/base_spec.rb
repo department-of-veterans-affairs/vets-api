@@ -3,71 +3,44 @@
 require 'rails_helper'
 
 RSpec.describe AsyncTransaction::Base, type: :model do
-  describe '.save' do
-    it 'works' do
-      saved = AsyncTransaction::Base.new(
-        user_uuid: 'abcdef',
-        type: 'AsyncTransaction::Vet360::AddressTransaction',
-        source_id: 42,
-        source: 'vet360',
-        status: 'sent',
-        transaction_id: 10
-      ).save
-      expect(saved).to be true
-    end
-  end
 
   describe 'Validation' do
+    let(:transaction1) { create(:address_transaction) }
+    let(:transaction2) { build(:address_transaction) }
+    let(:transaction3) { build(:address_transaction, source: nil) }
+    let(:transaction4) { build(:address_transaction) }
+
     it 'ensures uniqueness across source and transaction_id' do
-      AsyncTransaction::Vet360::AddressTransaction.new(
-        user_uuid: 'abcdef',
-        source_id: 42,
-        source: 'vet360',
-        status: 'sent',
-        transaction_id: 10
-      ).save
-      tx2 = AsyncTransaction::Vet360::AddressTransaction.new(
-        user_uuid: 'abcdef',
-        source_id: 42,
-        source: 'vet360',
-        status: 'sent',
-        transaction_id: 10
-      )
-      expect(tx2.valid?).to be false
+      transaction2.id = transaction1.id
+      expect(transaction2.valid?).to be false
     end
 
     it 'ensures presence of required fields' do
-      tx1 = AsyncTransaction::Vet360::AddressTransaction.new(
-        user_uuid: 'abcdef',
-        source_id: 42,
-        # source: 'vet360',
-        status: 'sent',
-        transaction_id: 10
-      )
-      expect(tx1.valid?).to be false
+      expect(transaction3.valid?).to be false
+    end
+
+    it 'accepts a FactoryBot-made transaction' do
+      expect (transaction4.valid?).to be true
     end
   end
 
   describe 'Subclasses' do
-    let(:tx1) { build(:address_transaction, transaction_id: 1) }
-    let(:tx2) { build(:email_transaction, transaction_id: 2) }
-    let(:tx3) { build(:telephone_transaction, transaction_id: 3) }
+    let(:transaction1) { create(:address_transaction, transaction_id: 1) }
+    let(:transaction2) { create(:email_transaction, transaction_id: 2) }
+    let(:transaction3) { create(:telephone_transaction, transaction_id: 3) }
 
     it 'are queryable from the parent' do
-      tx1.save
-      r1 = AsyncTransaction::Vet360::Base.where(transaction_id: tx1.transaction_id, source: tx1.source).first
-      expect(r1.id).to eq(tx1.id)
-      expect(r1).to be_instance_of(AsyncTransaction::Vet360::AddressTransaction)
+      record1 = AsyncTransaction::Vet360::Base.where(transaction_id: transaction1.transaction_id, source: transaction1.source).first
+      expect(record1.id).to eq(transaction1.id)
+      expect(record1).to be_instance_of(AsyncTransaction::Vet360::AddressTransaction)
 
-      tx2.save
-      r2 = AsyncTransaction::Vet360::Base.where(transaction_id: tx2.transaction_id, source: tx2.source).first
-      expect(r2.id).to eq(tx2.id)
-      expect(r2).to be_instance_of(AsyncTransaction::Vet360::EmailTransaction)
+      record2 = AsyncTransaction::Vet360::Base.where(transaction_id: transaction2.transaction_id, source: transaction2.source).first
+      expect(record2.id).to eq(transaction2.id)
+      expect(record2).to be_instance_of(AsyncTransaction::Vet360::EmailTransaction)
 
-      tx3.save
-      r3 = AsyncTransaction::Vet360::Base.where(transaction_id: tx3.transaction_id, source: tx3.source).first
-      expect(r3.id).to eq(tx3.id)
-      expect(r3).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
+      record3 = AsyncTransaction::Vet360::Base.where(transaction_id: transaction3.transaction_id, source: transaction3.source).first
+      expect(record3.id).to eq(transaction3.id)
+      expect(record3).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
     end
   end
 end
