@@ -112,7 +112,7 @@ module Common
           def emergency_and_urgent_care(facility_id)
             facility_wait_time = FacilityWaitTime.find(facility_id)
             services = []
-            services << { 'sl1' => ['EmergencyDept'], 'sl2' => [] } if facility_wait_time&.emergency_care&.any?
+            services << { 'sl1' => ['EmergencyCare'], 'sl2' => [] } if facility_wait_time&.emergency_care&.any?
             services << { 'sl1' => ['UrgentCare'], 'sl2' => [] } if facility_wait_time&.urgent_care&.any?
             services
           end

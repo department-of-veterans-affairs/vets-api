@@ -75,6 +75,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     it 'supports getting an in-progress form' do
       FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      stub_evss_pciu(mhv_user)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',

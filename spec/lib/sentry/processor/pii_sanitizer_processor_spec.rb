@@ -17,11 +17,21 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           street: '1234 Street St.',
           state: 'NV'
         },
+        zipCode: '12345',
+        fileNumber: '123456789',
         json: '{"phone": "5035551234", "postalCode": 97850}',
         array_of_json: ['{"phone": "5035551234", "postalCode": 97850}'],
         gender: 'M',
         phone: '5035551234'
       }
+    end
+
+    it 'should filter zipcode' do
+      expect(result[:zipCode]).to eq('FILTERED')
+    end
+
+    it 'should filter fileNumber' do
+      expect(result[:fileNumber]).to eq('FILTERED')
     end
 
     it 'should filter address data' do
