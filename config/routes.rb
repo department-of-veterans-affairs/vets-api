@@ -16,6 +16,7 @@ Rails.application.routes.draw do
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+    resource :direct_deposit_enrollments, only: [:create]
 
     resources :letters, only: [:index] do
       collection do
