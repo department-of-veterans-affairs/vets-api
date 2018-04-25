@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: put
-    uri: https://internal-dsva-vetsgov-dev-forward-proxy-1631115311.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
     body:
       encoding: UTF-8
       string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":null,"phoneNumber":"5551235","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-25T21:32:20Z","telephoneId":1299,"ttyInd":true,"vet360Id":"323","voiceMailAcceptableInd":true}}'
