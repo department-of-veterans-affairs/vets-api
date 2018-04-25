@@ -109,6 +109,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when a form is not found' do
         it 'returns pre-fill data' do
+          _, phone_response = stub_evss_pciu(user)
+
           get v0_in_progress_form_url('FAKEFORM'), nil, auth_header
 
           expected_data = {
@@ -126,7 +128,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               'country' => user.va_profile.address.country,
               'postal_code' => user.va_profile.address.postal_code
             },
-            'homePhone' => user.va_profile.home_phone.gsub(/[^\d]/, '')
+            'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }
 
           if user.va_profile&.normalized_suffix.present?

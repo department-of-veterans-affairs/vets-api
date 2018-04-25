@@ -40,6 +40,18 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
+  def pciu_email
+    pciu.get_email_address.email
+  end
+
+  def pciu_primary_phone
+    pciu.get_primary_phone.to_s
+  end
+
+  def pciu_alternate_phone
+    pciu.get_alternate_phone.to_s
+  end
+
   def first_name
     identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
@@ -221,6 +233,10 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  def pciu
+    @pciu ||= EVSS::PCIU::Service.new self
   end
 
   def vet360_contact_info
