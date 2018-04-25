@@ -15,8 +15,8 @@ RSpec.describe VBADocuments::MultipartParser do
       expect(result.size).to eq(2)
       expect(result).to have_key('metadata')
       expect(result['metadata']).to be_a(String)
-      expect(result).to have_key('document')
-      expect(result['document']).to be_a(Tempfile)
+      expect(result).to have_key('content')
+      expect(result['content']).to be_a(Tempfile)
     end
 
     it 'parses a valid multipart payload with attachments' do
@@ -25,8 +25,8 @@ RSpec.describe VBADocuments::MultipartParser do
       expect(result.size).to eq(3)
       expect(result).to have_key('metadata')
       expect(result['metadata']).to be_a(String)
-      expect(result).to have_key('document')
-      expect(result['document']).to be_a(Tempfile)
+      expect(result).to have_key('content')
+      expect(result['content']).to be_a(Tempfile)
       expect(result).to have_key('attachment1')
       expect(result['attachment1']).to be_a(Tempfile)
     end
