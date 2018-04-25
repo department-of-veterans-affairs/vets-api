@@ -23,8 +23,15 @@ namespace :pension_burial do
 
   desc 'Delete old claims'
   task delete_pre_central_mail: :environment do
-    SavedClaim.where(type: ['SavedClaim::Burial', 'SavedClaim::Pension']).where(
+    scs = SavedClaim.where(type: ['SavedClaim::Burial', 'SavedClaim::Pension']).where(
       'created_at < ?', Date.parse('2018-04-01')
-    ).destroy_all
+    )
+
+    scs.find_each do |sc|
+      sc.persistent_attachments.delete_all
+    end
+
+    scs.delete_all
+    
   end
 end
