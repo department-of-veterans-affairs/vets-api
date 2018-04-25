@@ -129,10 +129,10 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#get_telephone_transaction_status' do
-    let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
     let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
 
     context 'when successful' do
+      let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_telephone_transaction_status(transaction)
@@ -144,6 +144,7 @@ describe Vet360::ContactInformation::Service do
     end
 
     context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction) }.to raise_error do |e|

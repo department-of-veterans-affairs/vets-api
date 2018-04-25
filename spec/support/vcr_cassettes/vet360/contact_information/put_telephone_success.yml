@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
+    method: put
+    uri: https://internal-dsva-vetsgov-dev-forward-proxy-1631115311.us-gov-west-1.elb.amazonaws.com:4433/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":null,"phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","telephoneId":null,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":null,"phoneNumber":"5551235","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-25T21:32:20Z","telephoneId":1299,"ttyInd":true,"vet360Id":"323","voiceMailAcceptableInd":true}}'
     headers:
       Accept:
       - application/json
@@ -23,7 +23,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Wed, 25 Apr 2018 18:45:33 GMT
+      - Wed, 25 Apr 2018 21:32:21 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -44,7 +44,7 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"a50193df-f4d5-4b6a-b53d-36fed2db1a15","status":"RECEIVED"}'
+      string: '{"txAuditId":"6e1e4e54-e851-4f5e-a2bf-eec0b17738f1","status":"RECEIVED"}'
     http_version:
-  recorded_at: Wed, 25 Apr 2018 18:45:33 GMT
+  recorded_at: Wed, 25 Apr 2018 21:32:21 GMT
 recorded_with: VCR 3.0.3

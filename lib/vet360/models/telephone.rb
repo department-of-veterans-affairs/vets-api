@@ -67,6 +67,7 @@ module Vet360
             phoneNumber: @phone_number,
             phoneNumberExt: @extension,
             phoneType: @phone_type,
+            sourceDate: @source_date,
             telephoneId: @id,
             # textMessageCapableInd: @is_textable,
             # textMessagePermInd: @is_text_permitted,
