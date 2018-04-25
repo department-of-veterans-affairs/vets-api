@@ -70,7 +70,7 @@ describe Vet360::ContactInformation::Service do
           email.id = 42
           email.email_address = 'person42@example.com'
           response = subject.put_email(email)
-          expect(response.transaction.id).to eq('7f441880-173f-4deb-aa8b-c26b794eb3e1')
+          expect(response.transaction.id).to eq('0b6344e3-3348-419c-bad9-c1a634e3d621')
           expect(response).to be_ok
         end
       end
