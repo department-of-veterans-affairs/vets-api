@@ -116,7 +116,7 @@ paths:
         "source": "MyVSO",
         "docType": "21-22"}
         --17de1ed8f01442b2a2d7a93506314b76
-        Content-Disposition: form-data; name="document"
+        Content-Disposition: form-data; name="content"
         Content-Type: application/pdf
         <Binary PDF contents>
         --17de1ed8f01442b2a2d7a93506314b76
@@ -133,7 +133,7 @@ paths:
         ```
         
         Note that the Content-Disposition parameter "name" in each part must be the expected values
-        "metadata", "document", "attachment1"..."attachmentN"
+        "metadata", "content", "attachment1"..."attachmentN"
 
       servers:
         - url: https://dev-api.vets.gov/services_user_content/vba_benefits/
