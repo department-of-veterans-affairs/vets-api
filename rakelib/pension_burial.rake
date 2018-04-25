@@ -32,6 +32,6 @@ namespace :pension_burial do
     end
 
     scs.delete_all
-    
+
   end
 end
