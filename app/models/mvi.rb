@@ -111,6 +111,8 @@ class Mvi < Common::RedisStore
     do_cached_with(key: @user.uuid) do
       mvi_service.find_profile(@user)
     end
+  rescue MVI::Errors::RecordNotFound, MVI::Errors::DuplicateRecord
+     MVI::Responses::FindProfileResponse.with_not_found
   end
 
   def mvi_service
