@@ -18,23 +18,23 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
   let(:valid_parts) do
     { 'metadata' => valid_metadata,
-      'document' => valid_doc }
+      'content' => valid_doc }
   end
 
   let(:valid_parts_attachment) do
     { 'metadata' => valid_metadata,
-      'document' => valid_doc,
+      'content' => valid_doc,
       'attachment1' => valid_doc }
   end
 
   let(:invalid_parts_missing) do
     { 'metadata' => invalid_metadata_missing,
-      'document' => valid_doc }
+      'content' => valid_doc }
   end
 
   let(:invalid_parts_nonstring) do
     { 'metadata' => invalid_metadata_nonstring,
-      'document' => valid_doc }
+      'content' => valid_doc }
   end
 
   before(:each) do
@@ -108,7 +108,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for non-JSON metadata part' do
       allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => valid_doc, 'document' => valid_doc }
+        { 'metadata' => valid_doc, 'content' => valid_doc }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -119,7 +119,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for unparseable JSON metadata part' do
       allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => 'I am not JSON', 'document' => valid_doc }
+        { 'metadata' => 'I am not JSON', 'content' => valid_doc }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -130,7 +130,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for non-PDF document parts' do
       allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => valid_metadata, 'document' => valid_metadata }
+        { 'metadata' => valid_metadata, 'content' => valid_metadata }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -141,7 +141,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for unparseable PDF document parts' do
       allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'metadata' => valid_metadata, 'document' => non_pdf_doc }
+        { 'metadata' => valid_metadata, 'content' => non_pdf_doc }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -170,7 +170,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     it 'sets error status for missing metadata part' do
       allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
-        { 'document' => valid_doc }
+        { 'content' => valid_doc }
       }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
