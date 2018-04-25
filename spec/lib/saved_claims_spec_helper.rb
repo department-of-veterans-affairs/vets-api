@@ -4,14 +4,13 @@ shared_examples_for 'saved_claim_with_confirmation_number' do
   it_should_behave_like 'saved_claim'
 
   it 'responds to #confirmation_number' do
-    expect(subject.confirmation_number).to start_with("V-#{described_class::CONFIRMATION}-")
+    expect(subject.confirmation_number).to eq(subject.guid)
   end
 end
 
 shared_examples_for 'saved_claim' do
   it 'has necessary constants' do
     expect(described_class).to have_constant(:FORM)
-    expect(described_class).to have_constant(:PERSISTENT_CLASS)
   end
 
   it 'descends from saved_claim' do
@@ -20,7 +19,7 @@ shared_examples_for 'saved_claim' do
 
   describe '#process_attachments!' do
     it 'should start a job to submit the saved claim' do
-      expect(SubmitSavedClaimJob).to receive(:perform_async).with(instance.id)
+      expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(instance.id)
 
       instance.process_attachments!
     end

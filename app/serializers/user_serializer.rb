@@ -6,6 +6,7 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
+  # TODO: add the :vet360_contact_information profile to these attributes
   attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
              :in_progress_forms, :prefills_available
 
@@ -27,6 +28,21 @@ class UserSerializer < ActiveModel::Serializer
       multifactor: object.multifactor,
       verified: object.loa3?,
       authn_context: object.authn_context
+    }
+  end
+
+  def vet360_contact_information
+    person = object.vet360_contact_info
+
+    {
+      email: person.email,
+      residential_address: person.residential_address,
+      mailing_address: person.mailing_address,
+      mobile_phone: person.mobile_phone,
+      home_phone: person.home_phone,
+      work_phone: person.work_phone,
+      temporary_phone: person.temporary_phone,
+      fax_number: person.fax_number
     }
   end
 
@@ -81,7 +97,10 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += BackendServices::MHV_BASED_SERVICES if object.mhv_account_eligible?
+    service_list << BackendServices::RX if object.authorize :mhv_prescriptions, :access?
+    service_list << BackendServices::MESSAGING if object.authorize :mhv_messaging, :access?
+    service_list << BackendServices::HEALTH_RECORDS if object.authorize :mhv_health_records, :access?
+    service_list << BackendServices::MHV_AC if object.authorize :mhv_account_creation, :access?
     service_list << BackendServices::EVSS_CLAIMS if object.authorize :evss, :access?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
     service_list << BackendServices::APPEALS_STATUS if object.authorize :appeals, :access?
