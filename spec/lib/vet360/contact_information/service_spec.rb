@@ -93,11 +93,27 @@ describe Vet360::ContactInformation::Service do
       it 'raises an exception' do
         VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
           address.id = 42
+          address.address_line_1 = '1494 Martin Luther King Rd'
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_ADDR200')
           end
+        end
+      end
+    end
+  end
+
+  describe '#put_telephone' do
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
+          telephone.id = 1299
+          telephone.phone_number = '5551235'
+          response = subject.put_telephone(telephone)
+          expect(response.transaction.id).to eq('6e1e4e54-e851-4f5e-a2bf-eec0b17738f1')
+          expect(response).to be_ok
         end
       end
     end
@@ -189,10 +205,10 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#get_address_transaction_status' do
-    let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
     let(:transaction) { Vet360::Models::Transaction.new(id: transaction_id) }
 
     context 'when successful' do
+      let(:transaction_id) { '0faf342f-5966-4d3f-8b10-5e9f911d07d2' }
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
           response = subject.get_address_transaction_status(transaction)
@@ -204,6 +220,7 @@ describe Vet360::ContactInformation::Service do
     end
 
     context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction) }.to raise_error do |e|

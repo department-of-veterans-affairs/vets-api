@@ -63,7 +63,7 @@ module Vet360
             areaCode: @area_code,
             countryCode: @country_code,
             internationalIndicator: @is_international,
-            originatingSourceSystem: Settings.vet360.cuf_system_name,
+            originatingSourceSystem: SOURCE_SYSTEM,
             phoneNumber: @phone_number,
             phoneNumberExt: @extension,
             phoneType: @phone_type,

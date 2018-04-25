@@ -5,7 +5,7 @@ http_interactions:
     uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":null,"phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","telephoneId":42,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","telephoneId":42,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true}}'
     headers:
       Accept:
       - application/json

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/323/addresses/status/0faf342f-5966-4d3f-8b10-5e9f911d07d2
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1/addresses/status/0faf342f-5966-4d3f-8b10-5e9f911d07d2
     body:
       encoding: US-ASCII
       string: ''
