@@ -56,20 +56,24 @@ Rails.application.configure do
   # when problems arise.
   config.log_level = :info
 
-  # Prepend all log lines with the following tags.
-  config.log_tags = [
-    :uuid,
-    proc do |request|
-      if request.headers['Authorization'] =~ /Token token=(.*)/
-        Session.obscure_token(Regexp.last_match[1])
-      else
-        'unauthenticated'
-      end
+  config.log_tags = {
+    request_id: :uuid,
+    session: proc do |request|
+      Session.obscure_token(Regexp.last_match[1]) if request.headers['Authorization'] =~ /Token token=(.*)/
     end,
-    proc do |_request|
-      AppInfo::GIT_REVISION
-    end
-  ]
+    ref: ->(_request) { AppInfo::GIT_REVISION },
+    consumer_id: ->(request) { request.headers['X-Consumer-ID'] },
+    consumer_custom_id: ->(request) { request.headers['X-Consumer-Custom-ID'] },
+    credential_username: ->(request) { request.headers['X-Credential-Username'] }
+  }
+
+  config.rails_semantic_logger.format = :json
+
+  config.semantic_logger.application = if Sidekiq.server?
+                                         'vets-api-worker'
+                                       else
+                                         'vets-api-server'
+                                       end
 
   # Use a different logger for distributed setups.
   # config.logger = ActiveSupport::TaggedLogging.new(SyslogLogger.new)
