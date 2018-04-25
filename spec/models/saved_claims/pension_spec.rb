@@ -8,13 +8,15 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
   let(:instance) { FactoryBot.build(:pension_claim) }
 
   it_should_behave_like 'saved_claim_with_confirmation_number'
-  
-  context 'saved claims w/ attachments' do
-      stub_virus_scan
-      let!(:attachment1) { FactoryBot.create(:pension_burial, saved_claim_id: nil) }
-      let!(:attachment2) { FactoryBot.create(:pension_burial, saved_claim_id: nil) }
 
-      let(:claim) { FactoryBot.create(
+  context 'saved claims w/ attachments' do
+    stub_virus_scan
+
+    let!(:attachment1) { FactoryBot.create(:pension_burial, saved_claim_id: nil) }
+    let!(:attachment2) { FactoryBot.create(:pension_burial, saved_claim_id: nil) }
+
+    let(:claim) do
+      FactoryBot.create(
         :pension_claim,
         form: {
           privacyAgreementAccepted: true,
@@ -42,7 +44,8 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
             city: 'Anytown'
           }
         }.to_json
-      )}
+      )
+    end
 
     describe '#process_attachments!' do
       it 'should set the attachments saved_claim_id' do

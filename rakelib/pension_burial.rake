@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :pension_burial do
   desc 'retry failed pension burial jobs'
   task retry_jobs: :environment do
@@ -22,8 +23,8 @@ namespace :pension_burial do
 
   desc 'Delete old claims'
   task delete_pre_central_mail: :environment do
-    SavedClaim.where(type: ["SavedClaim::Burial", "SavedClaim::Pension"]).where(
-      'created_at < ?', Date.parse("2018-04-01")
+    SavedClaim.where(type: ['SavedClaim::Burial', 'SavedClaim::Pension']).where(
+      'created_at < ?', Date.parse('2018-04-01')
     ).destroy_all
   end
 end
