@@ -68,6 +68,15 @@ Rails.application.configure do
     end,
     proc do |_request|
       AppInfo::GIT_REVISION
+    end,
+    proc do |request|
+      request.headers['X-Consumer-ID'] || 'none'
+    end,
+    proc do |request|
+      request.headers['X-Consumer-Custom-ID'] || 'none'
+    end,
+    proc do |request|
+      request.headers['X-Credential-Username'] || 'none'
     end
   ]
 
