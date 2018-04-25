@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
+    resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do

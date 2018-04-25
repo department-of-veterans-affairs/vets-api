@@ -1,15 +1,14 @@
-# Compose stack to run vets-api
-version: '2.1'
+version: '3'
 services:
+  redis:
+    image: redis:3.2-alpine
   postgres:
-    image: "postgres:9.6"
+    image: postgres:9.6-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
     volumes:
-      - "./data:/var/lib/postgresql/data"
-  redis:
-    image: "redis:3.2"
+      - ./data:/var/lib/postgresql/data:cached
   vets-api:
     build:
       context: .
@@ -18,17 +17,17 @@ services:
         sidekiq_license: "${BUNDLE_ENTERPRISE__CONTRIBSYS__COM}"
     image: "vets-api:${DOCKER_IMAGE:-latest}"
     volumes:
-      - ".:/src/vets-api"
+      - .:/src/vets-api:cached
       - "../vets-api-mockdata:/cache"
     ports:
-      - 3000:3000
+      - "3000:3000"
     environment:
       "Settings.database_url": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/config/certs/vetsgov-localhost.crt"
       "Settings.saml.key_path": "/src/vets-api/config/certs/vetsgov-localhost.key"
       "Settings.redis.host": "redis"
       "Settings.redis.port": "6379"
-      "Settings.binaries.clamdscan": "clamscan"           # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
+      "Settings.binaries.clamdscan": "clamscan" # Not running a separate process within the container for clamdscan, so we use clamscan which requires no daemon
       POSTGRES_HOST: "${POSTGRES_HOST:-postgres}"
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
@@ -39,4 +38,5 @@ services:
     links:
       - postgres
       - redis
-    command: bash --login -c "foreman start"
+volumes:
+  db-data:

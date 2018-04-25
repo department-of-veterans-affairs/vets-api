@@ -8,6 +8,9 @@ module VBADocuments
   class UploadProcessor
     include Sidekiq::Worker
 
+    META_PART_NAME = 'metadata'
+    DOC_PART_NAME = 'content'
+    SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
 
     def perform(guid)
@@ -16,7 +19,7 @@ module VBADocuments
       begin
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
-        validate_metadata(parts['metadata'])
+        validate_metadata(parts[META_PART_NAME])
         metadata = perfect_metadata(parts, upload)
         response = submit(metadata, parts)
         process_response(response, upload)
@@ -28,10 +31,10 @@ module VBADocuments
     private
 
     def submit(metadata, parts)
-      parts['document'].rewind
+      parts[DOC_PART_NAME].rewind
       body = {
-        'metadata' => metadata.to_json,
-        'document' => to_faraday_upload(parts['document'], 'document.pdf')
+        META_PART_NAME => metadata.to_json,
+        SUBMIT_DOC_PART_NAME => to_faraday_upload(parts[DOC_PART_NAME], 'document.pdf')
       }
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       attachment_names.each_with_index do |att, i|
@@ -76,19 +79,19 @@ module VBADocuments
     end
 
     def validate_parts(parts)
-      unless parts.key?('metadata')
+      unless parts.key?(META_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: 'No metadata part present')
       end
-      unless parts['metadata'].is_a?(String)
+      unless parts[META_PART_NAME].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: 'Incorrect content-type for metdata part')
       end
-      unless parts.key?('document')
+      unless parts.key?(DOC_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'No document part present')
       end
-      if parts['document'].is_a?(String)
+      if parts[DOC_PART_NAME].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC103',
                                             detail: 'Incorrect content-type for document part')
       end
@@ -118,7 +121,7 @@ module VBADocuments
       metadata['source'] = 'Vets.gov'
       metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
-      doc_info = get_hash_and_pages(parts['document'])
+      doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
