@@ -106,7 +106,7 @@ describe Vet360::ContactInformation::Service do
   describe '#put_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
     context 'when successful' do
-      it 'returns a status of 200' do
+      xit 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
           address.id = 1299
           address.address_line_1 = '1494 Martin Luther King Rd'
