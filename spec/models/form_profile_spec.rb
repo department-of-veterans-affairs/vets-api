@@ -11,6 +11,7 @@ RSpec.describe FormProfile, type: :model do
   before do
     user.va_profile.suffix = 'Jr.'
     user.va_profile.address.country = 'USA'
+    stub_evss_pciu(user)
   end
 
   let(:form_profile) do
@@ -20,7 +21,7 @@ RSpec.describe FormProfile, type: :model do
   let(:us_phone) do
     form_profile.send(
       :get_us_phone,
-      user.va_profile[:home_phone].gsub(/[^\d]/, '')
+      user.pciu_primary_phone
     )
   end
 
@@ -75,7 +76,7 @@ RSpec.describe FormProfile, type: :model do
       'homePhone' => us_phone,
       'veteranDateOfBirth' => user.birth_date,
       'veteranSocialSecurityNumber' => user.ssn,
-      'email' => user.email
+      'email' => user.pciu_email
     }
   end
 
@@ -108,7 +109,7 @@ RSpec.describe FormProfile, type: :model do
       'homePhone' => us_phone,
       'veteranDateOfBirth' => user.birth_date,
       'veteranSocialSecurityNumber' => user.ssn,
-      'email' => user.email
+      'email' => user.pciu_email
     }
   end
 
@@ -146,7 +147,7 @@ RSpec.describe FormProfile, type: :model do
       },
       'homePhone' => us_phone,
       'veteranSocialSecurityNumber' => user.ssn,
-      'email' => user.email
+      'email' => user.pciu_email
     }
   end
 
@@ -200,7 +201,7 @@ RSpec.describe FormProfile, type: :model do
         'suffix' => user.va_profile[:suffix]
       },
       'veteranDateOfBirth' => user.birth_date,
-      'email' => user.email,
+      'email' => user.pciu_email,
       'veteranAddress' => {
         'street' => user.va_profile[:address][:street],
         'city' => user.va_profile[:address][:city],
@@ -223,7 +224,7 @@ RSpec.describe FormProfile, type: :model do
 
   let(:vvic_expected) do
     {
-      'email' => user.email,
+      'email' => user.pciu_email,
       'serviceBranches' => ['F'],
       'gender' => user.gender,
       'verified' => true,
@@ -269,7 +270,7 @@ RSpec.describe FormProfile, type: :model do
         'postal_code' => user.va_profile[:address][:postal_code]
       },
       'claimantPhone' => us_phone,
-      'claimantEmail' => user.email
+      'claimantEmail' => user.pciu_email
     }
   end
 
@@ -326,7 +327,6 @@ RSpec.describe FormProfile, type: :model do
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
-
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )

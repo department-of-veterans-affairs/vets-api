@@ -184,28 +184,32 @@ class FormProfile
   end
 
   def initialize_contact_information(user)
-    return nil if user.va_profile.nil?
-
+    address = {}
     if user.va_profile&.address
-      address = {
+      address.merge!(
         street: user.va_profile.address.street,
         street2: nil,
         city: user.va_profile.address.city,
         state: user.va_profile.address.state,
         country: user.va_profile.address.country
-      }
+      ).merge!(derive_postal_code(user))
     end
 
-    address.merge!(derive_postal_code(user)) if address.present?
-
-    home_phone = user&.va_profile&.home_phone&.gsub(/[^\d]/, '')
+    pciu_email = extract_pciu_data(user, :pciu_email)
+    pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
 
     FormContactInformation.new(
       address: address,
-      email: user&.email,
-      us_phone: get_us_phone(home_phone),
-      home_phone: home_phone
+      email: pciu_email,
+      us_phone: get_us_phone(pciu_primary_phone),
+      home_phone: pciu_primary_phone
     )
+  end
+
+  def extract_pciu_data(user, method)
+    user&.send(method)
+  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
+    return ''
   end
 
   # For 10-10ez forms, this function is overridden to provide a different
