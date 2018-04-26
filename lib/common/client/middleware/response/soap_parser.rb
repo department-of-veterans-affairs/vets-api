@@ -13,7 +13,7 @@ module Common
 
             case env.status
             when 200
-              doc = parsed_doc(env.body)
+              doc = parse_doc(env.body)
               if doc_includes_error?(doc)
                 raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500)
               end
@@ -25,8 +25,8 @@ module Common
 
           private
 
-          def parsed_doc(body)
-            @parsed_doc ||= Ox.parse(ensure_xml_prolog(body))
+          def parse_doc(body)
+            Ox.parse(ensure_xml_prolog(body))
           end
 
           def ensure_xml_prolog(xml)

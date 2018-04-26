@@ -7,7 +7,7 @@ module HCA
     def on_complete(env)
       super
     rescue Common::Client::Errors::HTTPError
-      doc = parsed_doc(env.body)
+      doc = parse_doc(env.body)
       el = doc.locate('S:Envelope/S:Body/ns0:Fault/faultstring')[0]
 
       if el&.nodes.try(:[], 0) == 'formSubmissionException'
