@@ -2,11 +2,11 @@
 
 FactoryBot.define do
   factory :async_transaction, class: AsyncTransaction::Base do
-    user_uuid 'abcd789-6af0-45e1-a9e2-394347af99'
+    sequence(:user_uuid, 100) { |n| "abcd789-6af0-45e1-a9e2-394347a#{n}" }
     sequence(:source_id, &:to_s)
     source              'vet360'
     status              'started'
-    sequence(:transaction_id, &:to_s)
+    sequence(:transaction_id, 100) { |n| "r3fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     transaction_status 'RECEIVED'
 
     factory :address_transaction, class: AsyncTransaction::Vet360::AddressTransaction do
