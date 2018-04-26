@@ -13,10 +13,8 @@ describe HCA::EnrollmentSystem do
     'street3' =>  '',
     'city' => 'Dulles',
     'country' => 'USA',
-    'postalCode' => '13AA',
-    'provinceCode' => 'ProvinceName',
     'state' => 'VA',
-    'zipcode' => '20101-0101'
+    'postalCode' => '20101-0101'
   }.freeze
 
   TEST_CHILD = {
@@ -873,8 +871,7 @@ describe HCA::EnrollmentSystem do
             "country": 'CAN',
             "state": 'ON',
             "provinceCode": 'ProvinceName',
-            "zipcode": '21231',
-            "postalCode": '13AA'
+            "postalCode": '21231'
           },
           wantsInitialVaContact: true,
           "email": 'foo@example.com',

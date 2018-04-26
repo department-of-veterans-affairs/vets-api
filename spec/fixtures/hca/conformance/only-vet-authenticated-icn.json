@@ -32,7 +32,7 @@
     "city": "Washington",
     "country": "USA",
     "state": "DC",
-    "zipcode": "20005-5500"
+    "postalCode": "20005-5500"
   },
   "email": "foo.bar+va@example.com",
   "homePhone": "1231241234",

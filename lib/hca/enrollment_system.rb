@@ -99,9 +99,11 @@ module HCA
 
       if address['country'] == 'USA'
         formatted['state'] = address['state']
-        formatted.merge!(format_zipcode(address['zipcode']))
+        # TODO: remove `address['zipcode']` reference after frontend changes
+        formatted.merge!(format_zipcode(address['zipcode'] || address['postalCode']))
       else
         formatted['provinceCode'] = address['state'] || address['provinceCode']
+        # TODO: remove `address['zipcode']` reference after frontend changes
         formatted['postalCode'] = address['zipcode'] || address['postalCode']
       end
 

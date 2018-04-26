@@ -207,7 +207,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'zipcode' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code]
       },
       'swAsiaCombat' => true,
       'lastServiceBranch' => 'air force',
@@ -420,56 +420,6 @@ RSpec.describe FormProfile, type: :model do
     context 'when the form mapping can not be found' do
       it 'raises an IOError' do
         expect { described_class.new('foo').prefill(user) }.to raise_error(IOError)
-      end
-    end
-  end
-
-  describe '#derive_postal_code when prefilling a healthcare application' do
-    let(:form_profile) { FormProfile.for('1010ez') }
-
-    context 'with a user in USA' do
-      before { user.va_profile.address.country = 'USA' }
-      it 'returns zipcode rather than postal_code' do
-        expect(form_profile.send(:derive_postal_code, user)).to include(:zipcode)
-      end
-    end
-
-    context 'with a user in MEX' do
-      before { user.va_profile.address.country = 'MEX' }
-      it 'returns zipcode rather than postal_code' do
-        expect(form_profile.send(:derive_postal_code, user)).to include(:zipcode)
-      end
-    end
-
-    context 'when prefilling a healthcare application with a user in CAN' do
-      before { user.va_profile.address.country = 'CAN' }
-      it 'returns zipcode rather than postal_code' do
-        expect(form_profile.send(:derive_postal_code, user)).to include(:zipcode)
-      end
-    end
-
-    context 'when prefilling a healthcare application with a user outside USA, MEX, and CAN' do
-      before { user.va_profile.address.country = 'RUS' }
-      it 'returns postal_code rather than zipcode' do
-        expect(form_profile.send(:derive_postal_code, user)).to include(:postal_code)
-      end
-    end
-  end
-
-  describe '#derive_postal_code when prefilling a non-healthcare application' do
-    let(:form_profile) { FormProfile.for('1990') }
-
-    context 'with a user in USA' do
-      before { user.va_profile.address.country = 'USA' }
-      it 'returns postal_code rather than zipcode' do
-        expect(form_profile.send(:derive_postal_code, user)).to include(:postal_code)
-      end
-    end
-
-    context 'with a user outside USA' do
-      before { user.va_profile.address.country = 'RUS' }
-      it 'returns postal_code rather than zipcode' do
-        expect(form_profile.send(:derive_postal_code, user)).to include(:postal_code)
       end
     end
   end
