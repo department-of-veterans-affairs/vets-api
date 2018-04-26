@@ -28,7 +28,7 @@ describe Common::Client::Base do
 
         TestService2.new.send('sanitize_headers!', symbolized_hash)
 
-        expect(symbolized_hash).to eq({'foo' => '', 'bar' => 'baz'})
+        expect(symbolized_hash).to eq('foo' => '', 'bar' => 'baz')
       end
     end
 
@@ -38,7 +38,7 @@ describe Common::Client::Base do
 
         TestService2.new.send('sanitize_headers!', string_hash)
 
-        expect(string_hash).to eq({'foo' => '', 'bar' => 'baz'})
+        expect(string_hash).to eq('foo' => '', 'bar' => 'baz')
       end
     end
 
