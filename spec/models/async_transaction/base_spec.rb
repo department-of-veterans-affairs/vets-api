@@ -12,7 +12,8 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     it 'ensures uniqueness across source and transaction_id' do
       transaction2.transaction_id = transaction1.transaction_id
       expect(transaction2.valid?).to be false
-      expect(transaction2.errors[:transaction_id]).to eq(["Transaction ID must be unique within a source."])
+      expect(transaction2.errors[:transaction_id])
+        .to eq(['Transaction ID must be unique within a source.'])
     end
 
     it 'ensures presence of required fields' do
