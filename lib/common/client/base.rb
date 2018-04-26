@@ -46,6 +46,7 @@ module Common
       end
 
       def request(method, path, params = {}, headers = {})
+        sanitize_headers!(headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Timeout::Error, Faraday::TimeoutError
@@ -65,6 +66,14 @@ module Common
         response_hash = e.response&.to_hash
         client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
         raise client_error
+      end
+
+      def sanitize_headers!(headers)
+        headers.transform_keys!(&:to_s)
+
+        headers.transform_values! do |value|
+          value.nil? ? '' : value
+        end
       end
 
       def get(path, params, headers = base_headers)
