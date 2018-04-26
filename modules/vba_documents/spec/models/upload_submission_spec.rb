@@ -43,7 +43,6 @@ describe VBADocuments::UploadSubmission, type: :model do
         "lastUpdated": '2018-04-25 00:02:39' }]].to_json
   end
 
-
   before(:each) do
     allow(PensionBurial::Service).to receive(:new) { client_stub }
   end
