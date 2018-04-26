@@ -10,7 +10,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     let(:transaction4) { build(:address_transaction) }
 
     it 'ensures uniqueness across source and transaction_id' do
-      transaction2.id = transaction1.id
+      transaction2.transaction_id = transaction1.transaction_id
       expect(transaction2.valid?).to be false
     end
 

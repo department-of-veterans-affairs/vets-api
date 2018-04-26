@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :async_transaction do
+  factory :async_transaction, class: AsyncTransaction::Base do
     sequence(:id, 1) { |n| n }
     user_uuid 'abcd789-6af0-45e1-a9e2-394347af99'
     sequence(:source_id, &:to_s)
