@@ -882,6 +882,9 @@ GEM
       rails-deprecated_sanitizer (>= 1.0.1)
     rails-html-sanitizer (1.0.4)
       loofah (~> 2.2, >= 2.2.2)
+    rails_semantic_logger (4.2.1)
+      rails (>= 3.2)
+      semantic_logger (~> 4.1)
     railties (4.2.7.1)
       actionpack (= 4.2.7.1)
       activesupport (= 4.2.7.1)
@@ -957,6 +960,8 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
+    semantic_logger (4.2.2)
+      concurrent-ruby (~> 1.0)
     sentry-raven (2.1.2)
       faraday (>= 0.7.6, < 0.10.x)
     shellany (0.0.1)
@@ -1109,6 +1114,7 @@ DEPENDENCIES
   rack-vcr
   rails (= 4.2.7.1)
   rails-api
+  rails_semantic_logger (~> 4.2)
   rainbow
   redis
   redis-namespace
