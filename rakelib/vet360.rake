@@ -25,7 +25,7 @@ namespace :vet360 do
     abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction.new(id: id)
+    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
     trx = Vet360::ContactInformation::Service.new(user).get_email_transaction_status(transaction)
 
