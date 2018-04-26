@@ -36,6 +36,13 @@ describe VBADocuments::UploadSubmission, type: :model do
         "errorMessage": 'Invalid splines',
         "lastUpdated": '2018-04-25 00:02:39' }]].to_json
   end
+  let(:nonsense_body) do
+    [[{ "uuid": 'ignored',
+        "status": 'Whowhatnow?',
+        "errorMessage": '',
+        "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+  end
+
 
   before(:each) do
     allow(PensionBurial::Service).to receive(:new) { client_stub }
@@ -100,6 +107,15 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(faraday_response).to receive(:success?).and_return(false)
       expect(faraday_response).to receive(:status).and_return(401)
       expect(faraday_response).to receive(:body).at_least(:once).and_return('Unauthorized')
+      expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::BadGateway)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
+      expect(updated.status).to eq('received')
+    end
+
+    it 'raises on unexpected status from downstream without updating state' do
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(nonsense_body)
       expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::BadGateway)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('received')

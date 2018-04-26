@@ -16,8 +16,6 @@ module VBADocuments
     def refresh_status!
       if status_in_flight?
         response = PensionBurial::Service.new.status(guid)
-        # TODO: remove
-        Rails.logger.info(response.body)
         if response.success?
           map_downstream_status(response.body)
           save!
@@ -63,6 +61,11 @@ module VBADocuments
         self.status = 'error'
         self.code = 'DOC202'
         self.detail = "Downstream status: #{response_object['errorMessage']}"
+      else
+        log_message_to_sentry('Unknown status value from Central Mail API',
+                              :warning,
+                              status: response_object['status'])
+        raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
     end
   end
