@@ -102,25 +102,23 @@ describe MVI::Service do
     context 'invalid requests' do
       it 'responds with a SERVER_ERROR if ICN is invalid' do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)', :error
-        )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          expect{subject.find_profile(user)}
+            .to raise_error(MVI::Errors::InvalidRequestError)
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::InvalidRequestError'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
 
       it 'responds with a SERVER_ERROR if ICN has no matches' do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request (Possible RecordNotFound)', :error
-        )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          expect{subject.find_profile(user)}
+            .to raise_error(MVI::Errors::InvalidRequestError)
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::InvalidRequestError'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
     end
@@ -187,12 +185,11 @@ describe MVI::Service do
       it 'should raise a invalid request error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Invalid Request', :error
-        )
         VCR.use_cassette('mvi/find_candidate/invalid') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          expect{subject.find_profile(user)}
+            .to raise_error(MVI::Errors::InvalidRequestError)
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::InvalidRequestError'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
     end
@@ -201,12 +198,11 @@ describe MVI::Service do
       it 'should raise a request failure error' do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Failed Request', :error
-        )
         VCR.use_cassette('mvi/find_candidate/failure') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          expect{subject.find_profile(user)}
+            .to raise_error(MVI::Errors::FailedRequestError)
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::FailedRequestError'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
     end
@@ -215,22 +211,21 @@ describe MVI::Service do
       let(:base_path) { MVI::Configuration.instance.base_path }
       it 'should raise a service error' do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(Rails.logger).to receive(:error).with('MVI find_profile error: Gateway timeout')
-        expect(subject.find_profile(user))
-          .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+        expect{subject.find_profile(user)}
+          .to raise_error(Common::Exceptions::GatewayTimeout)
+          .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout'])
+          .and trigger_statsd_increment('api.mvi.find_profile.total')
       end
     end
 
     context 'when a status of 500 is returned' do
       it 'should raise a request failure error' do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI find_profile error: SOAP HTTP call failed',
-          :error
-        )
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          expect{subject.find_profile(user)}
+            .to raise_error(Common::Client::Errors::HTTPError, 'SOAP HTTP call failed')
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:Common::Client::Errors::HTTPError'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
     end
@@ -253,7 +248,10 @@ describe MVI::Service do
       it 'returns not found, does not log sentry' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           expect(subject).not_to receive(:log_message_to_sentry)
-          expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+          expect{subject.find_profile(user)}
+            .to raise_error(MVI::Errors::RecordNotFound)
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::RecordNotFound'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
 
@@ -272,10 +270,10 @@ describe MVI::Service do
           allow(SecureRandom).to receive(:uuid).and_return('5e819d17-ce9b-4860-929e-f9062836ebd0')
 
           VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
-            expect(subject).not_to receive(:log_message_to_sentry)
-            expect(subject.find_profile(user)).to have_deep_attributes(
-              MVI::Responses::FindProfileResponse.with_not_found
-            )
+            expect{subject.find_profile(user)}
+              .to raise_error(MVI::Errors::RecordNotFound)
+              .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::RecordNotFound'])
+              .and trigger_statsd_increment('api.mvi.find_profile.total')
           end
         end
       end
@@ -294,13 +292,11 @@ describe MVI::Service do
       end
 
       it 'raises an Common::Client::Errors::HTTPError' do
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI find_profile error: SOAP service returned internal server error',
-          :error
-        )
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          expect{subject.find_profile(user)}
+            .to raise_error(Common::Client::Errors::HTTPError, 'SOAP service returned internal server error')
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:Common::Client::Errors::HTTPError'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
       end
     end
@@ -311,39 +307,12 @@ describe MVI::Service do
       end
 
       it 'raises MVI::Errors::RecordNotFound' do
-        expect(subject).to receive(:log_message_to_sentry).with(
-          'MVI Duplicate Record', :warn
-        )
-
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
-          expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+          expect{subject.find_profile(user)}
+            .to raise_error(MVI::Errors::DuplicateRecords)
+            .and trigger_statsd_increment('api.mvi.find_profile.fail', tags: ['error:MVI::Errors::DuplicateRecords'])
+            .and trigger_statsd_increment('api.mvi.find_profile.total')
         end
-      end
-    end
-  end
-
-  describe '.find_profile monitoring' do
-    context 'with a successful request' do
-      it 'should increment find_profile total' do
-        allow(user).to receive(:mhv_icn)
-
-        allow(StatsD).to receive(:increment)
-        VCR.use_cassette('mvi/find_candidate/valid') do
-          subject.find_profile(user)
-        end
-        expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
-      end
-    end
-
-    context 'with an unsuccessful request' do
-      it 'should increment find_profile fail and total' do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        expect(StatsD).to receive(:increment).once.with(
-          'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
-        )
-        expect(StatsD).to receive(:increment).once.with('api.mvi.find_profile.total')
-        expect(subject.find_profile(user))
-          .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
       end
     end
   end
