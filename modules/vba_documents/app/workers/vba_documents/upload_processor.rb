@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
+require 'vba_documents/object_store'
 require 'vba_documents/upload_error'
 
 module VBADocuments
@@ -72,9 +73,10 @@ module VBADocuments
     end
 
     def download_raw_file(guid)
-      object = bucket.object(guid)
+      store = VBADocuments::ObjectStore.new
       tempfile = Tempfile.new(guid)
-      object.download_file(tempfile.path)
+      version = store.first_version(guid)
+      store.download(version, tempfile.path)
       tempfile
     end
 
