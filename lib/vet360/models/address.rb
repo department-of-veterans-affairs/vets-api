@@ -11,9 +11,9 @@ module Vet360
       MILITARY       = 'military overseas'
       ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
-      attribute :address_line_1, String
-      attribute :address_line_2, String
-      attribute :address_line_3, String
+      attribute :address_line1, String
+      attribute :address_line2, String
+      attribute :address_line3, String
       attribute :address_pou, String # purpose of use
       attribute :address_type, String
       attribute :city, String
@@ -58,9 +58,9 @@ module Vet360
         {
           bio: {
             addressId: @id,
-            addressLine1: @address_line_1,
-            addressLine2: @address_line_2,
-            addressLine3: @address_line_3,
+            addressLine1: @address_line1,
+            addressLine2: @address_line2,
+            addressLine3: @address_line3,
             addressPOU: @address_pou,
             addressType: @address_type,
             cityName: @city,
@@ -90,9 +90,9 @@ module Vet360
       # rubocop:disable Metrics/MethodLength
       def self.build_from(body)
         Vet360::Models::Address.new(
-          address_line_1: body['address_line_1'],
-          address_line_2: body['address_line_2'],
-          address_line_3: body['address_line_3'],
+          address_line1: body['address_line1'],
+          address_line2: body['address_line2'],
+          address_line3: body['address_line3'],
           address_pou: body['address_pou'],
           address_type: body['address_type'],
           city: body['city_name'],
