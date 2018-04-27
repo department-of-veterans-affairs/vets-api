@@ -9,7 +9,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     let(:transaction3) { build(:address_transaction, source: nil) }
     let(:transaction4) { build(:address_transaction) }
 
-    it 'ensures uniqueness across source and transaction_id' do
+    it 'ensures uniqueness across source and transaction_id', :aggregate_failures do
       transaction2.transaction_id = transaction1.transaction_id
       expect(transaction2.valid?).to be false
       expect(transaction2.errors[:transaction_id])
@@ -30,7 +30,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     let(:transaction2) { create(:email_transaction, transaction_id: 2) }
     let(:transaction3) { create(:telephone_transaction, transaction_id: 3) }
 
-    it 'are queryable from the parent' do
+    it 'are queryable from the parent', :aggregate_failures do
       record1 = AsyncTransaction::Vet360::Base
                 .where(transaction_id: transaction1.transaction_id, source: transaction1.source).first
       expect(record1.id).to eq(transaction1.id)
