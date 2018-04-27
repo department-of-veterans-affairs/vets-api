@@ -85,7 +85,8 @@ module HCA
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
 
-    # TODO: remove `rubocop:disable` statement and refactor when removing `address['zipcode']` references
+    # TODO: remove `rubocop:disable` statement 
+    # After removing `address['zipcode']` references, rubocop tests will pass
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def format_address(address)
       return {} if address.blank?
