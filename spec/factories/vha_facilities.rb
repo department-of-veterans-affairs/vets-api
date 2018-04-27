@@ -113,7 +113,7 @@ FactoryBot.define do
         'sl2' => [] },
       { 'sl1' => ['PrimaryCare'],
         'sl2' => [] },
-      { 'sl1' => ['EmergencyDept'],
+      { 'sl1' => ['EmergencyCare'],
         'sl2' => [] },
       { 'sl1' => ['UrgentCare'],
         'sl2' => [] }
