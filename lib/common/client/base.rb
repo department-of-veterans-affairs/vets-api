@@ -45,11 +45,12 @@ module Common
         send(method, path, params || {}, headers || {})
       end
 
+      # rubocop:disable Metrics/MethodLength
       def request(method, path, params = {}, headers = {})
         log_message_to_sentry(
           'nil headers bug',
           :info,
-          headers: headers, method: method, path: path, params: params, client: self.inspect,
+          headers: headers, method: method, path: path, params: params, client: inspect,
           profile: 'pciu_profile'
         )
         sanitize_headers!(headers) if Settings.vet360.contact_information.enabled
@@ -74,6 +75,7 @@ module Common
         client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
         raise client_error
       end
+      # rubocop:enable Metrics/MethodLength
 
       def sanitize_headers!(headers)
         headers.transform_keys!(&:to_s)
