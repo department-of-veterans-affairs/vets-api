@@ -44,6 +44,16 @@ pension_burial:
     host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
+
+# Settings for Vet360
+vet360:
+  url: "https://int.vet360.va.gov"
+  contact_information:
+    enabled: true
+    timeout: 30
+    mock: false
+
+
 # Settings for EVSS
 evss:
   url: https://csraciapp6.evss.srarad.com
@@ -61,6 +71,7 @@ evss:
     bucket: evss_s3_bucket
     region: evss_s3_region
   letters:
+    url: https://csraciapp6.evss.srarad.com
     timeout: 55
   pciu:
     timeout: 30
@@ -171,7 +182,6 @@ vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
   prefill: true
-
   s3:
     aws_access_key_id: 'aws_access_key_id'
     aws_secret_access_key: 'aws_secret_access_key'
@@ -184,6 +194,18 @@ preneeds:
   host: http://some.fakesite.com
   wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
   burial_form_schema: 'config/preneeds/burial_form_schema.json'
+
+# Settings for VBA Document upload service module
+vba_documents:
+  location:
+    prefix:  http://some.fakesite.com/path
+    replacement: http://another.fakesite.com/rewrittenpath
+  s3:
+    enabled: false
+    aws_access_key_id: 'aws_access_key_id'
+    aws_secret_access_key: 'aws_secret_access_key'
+    region: 'region'
+    bucket: 'bucket'
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?

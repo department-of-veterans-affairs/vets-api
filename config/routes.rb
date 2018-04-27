@@ -40,6 +40,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
+    resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -62,6 +63,10 @@ Rails.application.routes.draw do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
+
+    get 'intent_to_file', to: 'intent_to_files#index'
+    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
+    post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
@@ -199,17 +204,7 @@ Rails.application.routes.draw do
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do
-    namespace :v0, defaults: { format: 'json' } do
-      namespace :docs, only: [] do
-        # namespace :health do
-        #   resources :prescriptions
-        #   resources :secure_messages
-        # end
-        # resources :health, only: [:index]
-
-        resources :benefits, only: [:index]
-      end
-    end
+    mount VBADocuments::Engine, at: '/vba_documents'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

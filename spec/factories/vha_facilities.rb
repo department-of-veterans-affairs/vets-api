@@ -112,6 +112,10 @@ FactoryBot.define do
       { 'sl1' => ['MentalHealthCare'],
         'sl2' => [] },
       { 'sl1' => ['PrimaryCare'],
+        'sl2' => [] },
+      { 'sl1' => ['EmergencyCare'],
+        'sl2' => [] },
+      { 'sl1' => ['UrgentCare'],
         'sl2' => [] }
     ],
              'last_updated' => '2018-03-15'
