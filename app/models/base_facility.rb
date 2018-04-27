@@ -1,61 +1,15 @@
 # frozen_string_literal: true
 
-require 'facilities/shared_client'
+require 'facilities/client'
 
 class BaseFacility < ActiveRecord::Base
+  include Facilities::FacilityMapping
   self.inheritance_column = 'facility_type'
   self.primary_key = 'unique_id'
   after_initialize :generate_fingerprint
 
-  HEALTH = 'health'
-  CEMETERY = 'cemetery'
-  BENEFITS = 'benefits'
-  VET_CENTER = 'vet_center'
-  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER].freeze
-
-  FACILITY_MAPPINGS = {
-    'va_cemetery' => 'Facilities::NCAFacility',
-    'va_benefits_facility' => 'Facilities::VBAFacility',
-    'vet_center' => 'Facilities::VCFacility',
-    'va_health_facility' => 'Facilities::VHAFacility'
-  }.freeze
-
-  TYPE_MAP = {
-    CEMETERY => 'Facilities::NCAFacility',
-    HEALTH => 'Facilities::VHAFacility',
-    BENEFITS => 'Facilities::VBAFacility',
-    VET_CENTER => 'Facilities::VCFacility'
-  }.freeze
-
-  FACILITY_SORT_FIELDS = {
-    'Facilities::NCAFacility' => %w[NCA_Facilities SITE_ID],
-    'Facilities::VBAFacility' => %w[VBA_Facilities Facility_Number],
-    'Facilities::VCFacility' => %w[VHA_VetCenters stationno],
-    'Facilities::VHAFacility' => %w[VHA_Facilities StationNumber]
-  }.freeze
-
-  SERVICE_WHITELIST = {
-    HEALTH => %w[Audiology ComplementaryAlternativeMed DentalServices DiagnosticServices ImagingAndRadiology
-                 LabServices EmergencyDept EyeCare MentalHealthCare OutpatientMHCare OutpatientSpecMHCare
-                 VocationalAssistance OutpatientMedicalSpecialty AllergyAndImmunology CardiologyCareServices
-                 DermatologyCareServices Diabetes Dialysis Endocrinology Gastroenterology Hematology
-                 InfectiousDisease InternalMedicine Nephrology Neurology Oncology PulmonaryRespiratoryDisease
-                 Rheumatology SleepMedicine OutpatientSurgicalSpecialty CardiacSurgery ColoRectalSurgery ENT
-                 GeneralSurgery Gynecology Neurosurgery Orthopedics PainManagement PlasticSurgery Podiatry
-                 ThoracicSurgery Urology VascularSurgery PrimaryCare Rehabilitation UrgentCare
-                 WellnessAndPreventativeCare],
-    BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance eBenefitsRegistrationAssistance
-                   EducationAndCareerCounseling EducationClaimAssistance FamilyMemberClaimAssistance HomelessAssistance
-                   VAHomeLoanAssistance InsuranceClaimAssistanceAndFinancialCounseling PreDischargeClaimAssistance
-                   IntegratedDisabilityEvaluationSystemAssistance VocationalRehabilitationAndEmploymentAssistance
-                   TransitionAssistance UpdatingDirectDepositInformation],
-    CEMETERY => [],
-    VET_CENTER => []
-  }.freeze
-
-  DAYS = DateTime::DAYNAMES.rotate.each_with_index.map { |day, index| [day, index] }.to_h.freeze
-
   class << self
+    include Facilities::FacilityMapping
     def find_sti_class(type_name)
       FACILITY_MAPPINGS[type_name].constantize || super
     end
@@ -67,7 +21,7 @@ class BaseFacility < ActiveRecord::Base
     def pull_source_data
       metadata = Facilities::MetadataClient.new.get_metadata(FACILITY_SORT_FIELDS[name].first)
       max_record_count = metadata['maxRecordCount']
-      Facilities::SharedClient.new.get_all_facilities(*FACILITY_SORT_FIELDS[name], max_record_count).map(&method(:new))
+      Facilities::Client.new.get_all_facilities(*FACILITY_SORT_FIELDS[name], max_record_count).map(&method(:new))
     end
 
     def find_facility_by_id(id)

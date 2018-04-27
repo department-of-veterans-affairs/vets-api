@@ -20,6 +20,7 @@ module Common
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
       class ParsingError < ClientError; end
+      class ValidationError < ClientError; end
       class HTTPError < ClientError
         attr_accessor :code
 

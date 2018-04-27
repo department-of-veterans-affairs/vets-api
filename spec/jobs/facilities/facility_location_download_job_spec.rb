@@ -3,6 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
+  before(:each) { Facilities::FacilityMapping.validate_on_load = false }
+  after(:each) { Facilities::FacilityMapping.validate_on_load = true }
+
   describe 'NCA Facilities' do
     it 'retrieves and persists facilities data' do
       VCR.use_cassette('facilities/va/nca_facilities') do

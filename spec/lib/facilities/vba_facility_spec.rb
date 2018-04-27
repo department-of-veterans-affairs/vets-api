@@ -9,6 +9,9 @@ module Facilities
     end
   end
   RSpec.describe VBAFacility do
+    before(:each) { Facilities::FacilityMapping.validate_on_load = false }
+    after(:each) { Facilities::FacilityMapping.validate_on_load = true }
+
     it 'should be a VBAFacility object' do
       expect(described_class.new).to be_a(VBAFacility)
     end
