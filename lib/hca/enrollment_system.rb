@@ -85,6 +85,8 @@ module HCA
       veteran['understandsFinancialDisclosure'] || veteran['discloseFinancialInformation']
     end
 
+    # TODO: remove `rubocop:disable` statement and refactor when removing `address['zipcode']` references
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def format_address(address)
       return {} if address.blank?
 
@@ -92,9 +94,7 @@ module HCA
       formatted['line1'] = address['street']
 
       (2..3).each do |i|
-        street = address["street#{i}"]
-        next if street.blank?
-        formatted["line#{i}"] = street
+        formatted["line#{i}"] = address["street#{i}"] if address["street#{i}"].present?
       end
 
       if address['country'] == 'USA'
@@ -106,9 +106,9 @@ module HCA
         # TODO: remove `address['zipcode']` reference after frontend changes
         formatted['postalCode'] = address['zipcode'] || address['postalCode']
       end
-
       formatted
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def format_zipcode(zipcode)
       numeric_zip = zipcode.gsub(/\D/, '')
