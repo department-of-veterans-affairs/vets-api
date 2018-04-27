@@ -23,6 +23,12 @@ class V0::Facilities::VaController < FacilitiesController
     render json: results, serializer: VAFacilitySerializer
   end
 
+  def suggested_names
+    raise Common::Exceptions::ParameterMissing.new('name_part') if params[:name_part].blank?
+    results = BaseFacility.suggested_names(params[:facility_type], params[:name_part])
+    render json: results, serializer: VAFacilityNameSerializer
+  end
+
   private
 
   def validate_params

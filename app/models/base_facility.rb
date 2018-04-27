@@ -116,6 +116,11 @@ class BaseFacility < ActiveRecord::Base
     def max_per_page
       100
     end
+
+    def suggested_names(facility_type, name_part)
+      binding.pry
+      BaseFacility.where("facility_type='#{facility_type}' AND name ILIKE '%#{name_part}%'")
+    end
   end
 
   private
