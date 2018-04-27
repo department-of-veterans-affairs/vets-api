@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 26 Apr 2018 22:55:44 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"2f4cb870-8522-4e42-b858-30f726e4c3ab","status":"COMPLETED_SUCCESS","bio":{"vet360Id":323,"addresses":[{"vet360Id":323,"addressId":437,"addressType":"Domestic","addressPOU":"RESIDENCE/CHOICE","addressLine1":"1494
+        Martin Luther King Rd","cityName":"Fulton","stateCode":"MS","zipCode5":"38843","zipCode4":"6911","countryName":"USA","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA","confidenceScore":"88","latitude":"34.1987","longitude":"-88.5259","geocodePrecision":"31","geocodeDate":"2018-04-26T20:08:07Z","createDate":"2018-04-25T21:39:50Z","updateDate":"2018-04-26T20:08:07Z","txAuditId":"2c8c1b3b-1b1c-416c-bc91-a9fb4f79291f","sourceSystem":"VETSGOV","sourceDate":"2018-04-26T20:08:05Z","originatingSourceSystem":"VETSGOV"}],"telephones":[{"vet360Id":323,"telephoneId":1299,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551235","voiceMailAcceptableInd":true,"ttyInd":true,"createDate":"2018-04-25T18:46:46Z","updateDate":"2018-04-25T21:32:21Z","txAuditId":"6e1e4e54-e851-4f5e-a2bf-eec0b17738f1","sourceSystem":"VETSGOV","sourceDate":"2018-04-25T21:32:20Z"}],"emails":[{"vet360Id":323,"emailId":507,"emailAddressText":"person43@example.com","createDate":"2018-04-25T17:17:07Z","updateDate":"2018-04-25T18:16:07Z","txAuditId":"0b6344e3-3348-419c-bad9-c1a634e3d621","sourceSystem":"VETSGOV","sourceDate":"2018-04-25T18:16:05Z","originatingSourceSystem":"VETSGOV"}],"createDate":"2018-04-21T20:09:50Z","updateDate":"2018-04-21T20:09:50Z","txAuditId":"158d91e4-c4ca-4d5e-81f1-76628ad8e5ed","sourceSystem":"VET360-TEST-PARTNER","sourceDate":"2018-04-21T19:51:43Z"}}'
+    http_version:
+  recorded_at: Thu, 26 Apr 2018 22:55:45 GMT
+recorded_with: VCR 3.0.3

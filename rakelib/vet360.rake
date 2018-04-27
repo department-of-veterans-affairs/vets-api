@@ -14,9 +14,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: args[:vet360_id])
 
     person = Vet360::ContactInformation::Service.new(user).get_person
-
-    puts person
-    puts person.person
+    pp person.to_h
   end
 
   desc 'GET Vet360 email transaction status'
@@ -28,9 +26,7 @@ namespace :vet360 do
     transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
     trx = Vet360::ContactInformation::Service.new(user).get_email_transaction_status(transaction)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'GET Vet360 address transaction status'
@@ -39,12 +35,10 @@ namespace :vet360 do
     abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction(id: args[:tx_audit_id])
+    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
     trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(transaction)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'GET Vet360 telephone transaction status'
@@ -56,9 +50,7 @@ namespace :vet360 do
     transaction = Vet360::Models::Transaction(id: args[:tx_audit_id])
 
     trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(transaction)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'Update Vet360 email'
@@ -88,9 +80,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(body)
     trx = Vet360::ContactInformation::Service.new(user).put_email(email)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'Update Vet360 telephone'
@@ -128,9 +118,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: vet360_id)
     telephone = Vet360::Models::Telephone.build_from(body)
     trx = Vet360::ContactInformation::Service.new(user).put_telephone(telephone)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'Update Vet360 address'
@@ -183,9 +171,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: vet360_id)
     address = Vet360::Models::Address.build_from(body)
     trx = Vet360::ContactInformation::Service.new(user).put_address(address)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'Create Vet360 email'
@@ -214,9 +200,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(body)
     trx = Vet360::ContactInformation::Service.new(user).post_email(email)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'Create Vet360 telephone'
@@ -253,9 +237,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: vet360_id)
     telephone = Vet360::Models::Telephone.build_from(body)
     trx = Vet360::ContactInformation::Service.new(user).post_telephone(telephone)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 
   desc 'Create Vet360 address'
@@ -307,8 +289,6 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: vet360_id)
     address = Vet360::Models::Address.build_from(body)
     trx = Vet360::ContactInformation::Service.new(user).post_address(address)
-
-    puts trx
-    puts trx.transaction
+    pp trx.to_h
   end
 end
