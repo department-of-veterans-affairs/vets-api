@@ -47,6 +47,7 @@ module Common
 
       def request(method, path, params = {}, headers = {})
         sanitize_headers!(headers)
+        sanitize_headers!(headers) if Settings.vet360.contact_information.enabled
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Timeout::Error, Faraday::TimeoutError
