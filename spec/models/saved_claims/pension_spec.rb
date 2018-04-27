@@ -9,15 +9,14 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
 
   it_should_behave_like 'saved_claim_with_confirmation_number'
 
-  describe '#process_attachments!' do
+  context 'saved claims w/ attachments' do
     stub_virus_scan
 
-    it 'should set the attachments saved_claim_id' do
-      attachment1 = create(:pension_burial)
-      attachment2 = create(:pension_burial)
-      [attachment1, attachment2].each { |a| a.update_column(:saved_claim_id, nil) }
+    let!(:attachment1) { FactoryBot.create(:pension_burial, saved_claim_id: nil) }
+    let!(:attachment2) { FactoryBot.create(:pension_burial, saved_claim_id: nil) }
 
-      claim = create(
+    let(:claim) do
+      FactoryBot.create(
         :pension_claim,
         form: {
           privacyAgreementAccepted: true,
@@ -46,10 +45,21 @@ RSpec.describe SavedClaim::Pension, uploader_helpers: true do
           }
         }.to_json
       )
+    end
 
-      expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
-      claim.process_attachments!
-      expect(claim.persistent_attachments.size).to eq(2)
+    describe '#process_attachments!' do
+      it 'should set the attachments saved_claim_id' do
+        expect(CentralMail::SubmitSavedClaimJob).to receive(:perform_async).with(claim.id)
+        claim.process_attachments!
+        expect(claim.persistent_attachments.size).to eq(2)
+      end
+    end
+
+    describe '#destroy' do
+      it 'also destroys the persistent_attachments' do
+        claim.process_attachments!
+        expect { claim.destroy }.to change { PersistentAttachment.count }.by(-2)
+      end
     end
   end
 
