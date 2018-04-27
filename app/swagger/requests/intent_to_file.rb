@@ -24,15 +24,23 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/intent_to_file/compensation/active' do
+      swagger_path '/v0/intent_to_file/{type}/active' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Get the current active Intent To File if the veteran has one'
-          key :operationId, 'getIntentToFileCompensationActive'
+          key :operationId, 'getIntentToFileActive'
           key :tags, %w[form_526]
 
           parameter :authorization
+
+          parameter do
+            key :name, :type
+            key :in, :path
+            key :description, 'ITF type. Allowed values: compensation'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'Response is OK'
@@ -43,15 +51,23 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/intent_to_file/compensation' do
+      swagger_path '/v0/intent_to_file/{type}' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Creates a new Intent To File for the veteran'
-          key :operationId, 'postIntentToFileCompensation'
+          key :operationId, 'postIntentToFile'
           key :tags, %w[form_526]
 
           parameter :authorization
+
+          parameter do
+            key :name, :type
+            key :in, :path
+            key :description, 'ITF type. Allowed values: compensation'
+            key :required, true
+            key :type, :string
+          end
 
           response 200 do
             key :description, 'Response is OK'
