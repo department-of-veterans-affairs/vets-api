@@ -1,6 +1,7 @@
 # frozen_string_literal: true
+
 class HealthCareApplication < ActiveRecord::Base
-  validates(:state, presence: true, inclusion: %w(success error failed pending))
+  validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
   def success?

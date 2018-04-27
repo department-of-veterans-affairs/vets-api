@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module HCA
   class SubmissionJob
     include Sidekiq::Worker
@@ -14,7 +15,7 @@ module HCA
 
       begin
         result = HCA::Service.new(user).submit_form(form)
-      rescue => e
+      rescue StandardError => e
         health_care_application.update_attributes!(state: 'error')
         raise e
       end

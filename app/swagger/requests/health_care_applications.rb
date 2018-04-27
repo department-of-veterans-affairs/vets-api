@@ -9,10 +9,10 @@ module Swagger
         operation :get do
           key :description, 'Get a health care application'
           key :operationId, 'getHealthCareApplication'
-          key :tags, %w(
+          key :tags, %w[
             hca
             forms
-          )
+          ]
 
           parameter do
             key :name, :id
