@@ -21,7 +21,7 @@ module Vet360
       # @params body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Transaction] the model built from the response body
       def self.build_from(body)
-        messages = body['messages']&.map { |m| Vet360::Models::Message.build_from(m) }
+        messages = body['tx_messages']&.map { |m| Vet360::Models::Message.build_from(m) }
 
         Vet360::Models::Transaction.new(
           messages: messages || [],

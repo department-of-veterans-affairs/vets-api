@@ -2,13 +2,13 @@
 
 FactoryBot.define do
   factory :vet360_address, class: 'Vet360::Models::Address' do
-    address_line_1 '123 Main Street'
+    address_line1 '1493 Martin Luther King Rd'
     address_pou Vet360::Models::Address::RESIDENCE
     address_type Vet360::Models::Address::DOMESTIC
-    city 'Denver'
+    city 'Fulton'
     country 'USA'
-    state_abbr 'CO'
-    zip_code '80202'
+    state_abbr 'MS'
+    zip_code '38843'
     sequence(:id) { |n| n }
     sequence(:transaction_id, 100) { |n| "c2fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     source_date          '2018-04-09T11:52:03-06:00'
@@ -18,7 +18,7 @@ FactoryBot.define do
 
     trait :mailing do
       address_pou Vet360::Models::Address::CORRESPONDENCE
-      address_line_1 '1515 Broadway'
+      address_line1 '1515 Broadway'
     end
 
     trait :international do
