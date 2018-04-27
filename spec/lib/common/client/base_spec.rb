@@ -26,7 +26,7 @@ describe Common::Client::Base do
       it 'should permanently set any nil values to an empty string' do
         symbolized_hash = { foo: nil, bar: 'baz' }
 
-        TestService2.new.send('sanitize_headers!', symbolized_hash)
+        TestService2.new.send('sanitize_headers!', :request, :get, '', symbolized_hash)
 
         expect(symbolized_hash).to eq('foo' => '', 'bar' => 'baz')
       end
@@ -36,7 +36,7 @@ describe Common::Client::Base do
       it 'should permanently set any nil values to an empty string' do
         string_hash = { 'foo' => nil, 'bar' => 'baz' }
 
-        TestService2.new.send('sanitize_headers!', string_hash)
+        TestService2.new.send('sanitize_headers!', :request, :get, '', string_hash)
 
         expect(string_hash).to eq('foo' => '', 'bar' => 'baz')
       end
@@ -46,7 +46,7 @@ describe Common::Client::Base do
       it 'should return an empty hash' do
         empty_hash = {}
 
-        TestService2.new.send('sanitize_headers!', empty_hash)
+        TestService2.new.send('sanitize_headers!', :request, :get, '', empty_hash)
 
         expect(empty_hash).to eq({})
       end
