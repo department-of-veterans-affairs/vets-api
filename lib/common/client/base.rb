@@ -46,8 +46,14 @@ module Common
       end
 
       def request(method, path, params = {}, headers = {})
-        sanitize_headers!(headers)
+        log_message_to_sentry(
+          'nil headers bug',
+          :info,
+          headers: headers, method: method, path: path, params: params, client: self.inspect,
+          profile: 'pciu_profile'
+        )
         sanitize_headers!(headers) if Settings.vet360.contact_information.enabled
+
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Timeout::Error, Faraday::TimeoutError
