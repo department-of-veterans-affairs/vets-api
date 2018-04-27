@@ -1,7 +1,6 @@
 class AddTrigramIndexToBaseFacilities < ActiveRecord::Migration
   # An index can be created concurrently only outside of a transaction.
   disable_ddl_transaction!
-  safety_assured
 
   def up
     execute <<-SQL

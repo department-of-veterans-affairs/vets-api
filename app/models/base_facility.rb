@@ -11,20 +11,23 @@ class BaseFacility < ActiveRecord::Base
   CEMETERY = 'cemetery'
   BENEFITS = 'benefits'
   VET_CENTER = 'vet_center'
-  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER].freeze
+  DOD_HEALTH = 'dod_health'
+  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER, DOD_HEALTH].freeze
 
   FACILITY_MAPPINGS = {
     'va_cemetery' => 'Facilities::NCAFacility',
     'va_benefits_facility' => 'Facilities::VBAFacility',
     'vet_center' => 'Facilities::VCFacility',
-    'va_health_facility' => 'Facilities::VHAFacility'
+    'va_health_facility' => 'Facilities::VHAFacility',
+    'dod_health' => 'Facilities::DODFacility'
   }.freeze
 
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
     HEALTH => 'Facilities::VHAFacility',
     BENEFITS => 'Facilities::VBAFacility',
-    VET_CENTER => 'Facilities::VCFacility'
+    VET_CENTER => 'Facilities::VCFacility',
+    DOD_HEALTH => 'Facilities::DODFacility'
   }.freeze
 
   FACILITY_SORT_FIELDS = {
@@ -96,6 +99,7 @@ class BaseFacility < ActiveRecord::Base
       return klass.none unless type.blank? || type == facility_type
       facilities = klass.where(conditions)
       facilities = facilities.where("services->'benefits'->'standard' @> '#{services}'") if services&.any?
+      facilities = facilities.where.not(facility_type: 'dod_health')
       facilities
     end
 

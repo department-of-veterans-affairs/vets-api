@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180427004822) do
+ActiveRecord::Schema.define(version: 20180427004001) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,7 +38,6 @@ ActiveRecord::Schema.define(version: 20180427004822) do
     t.datetime "updated_at",     null: false
   end
 
-  add_index "base_facilities", ["name"], name: "index_base_facilities_on_name", using: :gin
   add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|

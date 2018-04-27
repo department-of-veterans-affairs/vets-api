@@ -49,4 +49,23 @@ namespace :evss do
       end
     end
   end
+
+  desc 'imports DoD facilities into base_facilities table'
+  task :import_dod_facilities => :environment do
+    path = File.join(Rails.root, 'rakelib', 'support', 'files', 'dod_facilities.csv')
+    CSV.foreach(path, headers: true) do |row|
+      address = {
+        physical: {
+          zip: nil,
+          city: row['city'],
+          state: row['state'],
+          country: row['country']
+        }
+      }.to_json
+      id = SecureRandom.uuid
+      Facilities::DODFacility.where(name: row['name'], address: address).first_or_create(
+        id: id, name: row['name'], address: address, lat: 0.0, long: 0.0
+      )
+    end
+  end
 end
