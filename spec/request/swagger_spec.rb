@@ -324,14 +324,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports getting an active compensation intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file/{type}/active', 401, 'type' => 'compensation')
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          expect(subject).to validate(:get, '/v0/intent_to_file/{type}/active', 200, auth_options.update('type' => 'compensation'))
+          expect(subject).to validate(
+            :get,
+            '/v0/intent_to_file/{type}/active',
+            200,
+            auth_options.update('type' => 'compensation')
+          )
         end
       end
 
       it 'supports creating an active compensation intent to file' do
         expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
-          expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 200, auth_options.update('type' => 'compensation'))
+          expect(subject).to validate(
+            :post,
+            '/v0/intent_to_file/{type}',
+            200,
+            auth_options.update('type' => 'compensation')
+          )
         end
       end
     end
