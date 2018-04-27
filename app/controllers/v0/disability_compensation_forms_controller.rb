@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 module V0
-  class DisabilityCompensationFormController < ApplicationController
+  class DisabilityCompensationFormsController < ApplicationController
     before_action { authorize :evss, :access? }
 
     def rated_disabilities
       response = service.get_rated_disabilities
       render json: response,
-             serializer: DisabilityCompensationFormSerializer
+             serializer: RatedDisabilitiesSerializer
     end
 
     def submit
       response = service.submit_form(request.body.string)
       render json: response,
-             serializer: DisabilityCompensationFormSerializer
+             serializer: SubmitDisabilityFormSerializer
     end
 
     private
