@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :vet360_address, class: 'Vet360::Models::Address' do
-    address_line_1 '1493 Martin Luther King Rd'
+    address_line1 '1493 Martin Luther King Rd'
     address_pou Vet360::Models::Address::RESIDENCE
     address_type Vet360::Models::Address::DOMESTIC
     city 'Fulton'
@@ -18,7 +18,7 @@ FactoryBot.define do
 
     trait :mailing do
       address_pou Vet360::Models::Address::CORRESPONDENCE
-      address_line_1 '1515 Broadway'
+      address_line1 '1515 Broadway'
     end
 
     trait :international do
