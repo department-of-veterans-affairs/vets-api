@@ -119,4 +119,20 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
   end
+
+  describe 'Invalid `type` in path' do
+    context 'to GET /v0/intent_to_file/{type}/active' do
+      it 'should raise a bad request error' do
+        get '/v0/intent_to_file/invalid/active', nil, auth_header
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'to POST /v0/intent_to_file/{type}' do
+      it 'should raise a bad request error' do
+        post '/v0/intent_to_file/invalid', nil, auth_header
+        expect(response).to have_http_status(:bad_request)
+      end
+    end
+  end
 end
