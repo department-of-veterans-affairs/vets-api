@@ -51,6 +51,22 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
+      with_options if: Proc.new { |a| a.address_type == DOMESTIC } do |address|
+        address.validates :state_abbr, presence: true
+        address.validates :state_abbr, presence: true
+        address.validates :country_code_iso3, presence: true
+      end
+
+      with_options if: Proc.new { |a| a.address_type == INTERNATIONAL } do |address|
+        address.validates :international_postal_code, presence: true
+      end
+
+      with_options if: Proc.new { |a| a.address_type == MILITARY } do |address|
+        address.validates :state_abbr, presence: true
+        address.validates :zip_code, presence: true
+        address.validates :zip_code_suffix, presence: true
+      end
+
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @params body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Address] the model built from the response body
