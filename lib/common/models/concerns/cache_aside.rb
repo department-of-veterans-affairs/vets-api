@@ -1,7 +1,13 @@
 # frozen_string_literal: true
+
 require 'common/models/redis_store'
 
 module Common
+  # Cache Aside pattern for caching responses in redis.
+  # Requires the class mixing it in to be a Common::RedisStore and the
+  # cached response class to implement an #ok? method.
+  # If a model or service class is calling #do_cached_with make sure to require
+  # the response class from that file
   module CacheAside
     extend ActiveSupport::Concern
 

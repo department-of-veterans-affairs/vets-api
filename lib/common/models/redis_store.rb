@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   class RedisStore
     extend ActiveModel::Naming
@@ -10,7 +11,7 @@ module Common
 
     define_model_callbacks :initialize, only: :after
 
-    REQ_CLASS_INSTANCE_VARS = %i(redis_namespace redis_namespace_key).freeze
+    REQ_CLASS_INSTANCE_VARS = %i[redis_namespace redis_namespace_key].freeze
 
     class << self
       attr_accessor :redis_namespace, :redis_namespace_ttl, :redis_namespace_key
@@ -91,8 +92,18 @@ module Common
       save
     end
 
+    # The instance should be frozen once destroyed, since object can no longer be persisted.
+    # See also: ActiveRecord::Persistence#destroy
     def destroy
-      redis_namespace.del(attributes[redis_namespace_key])
+      count = redis_namespace.del(attributes[redis_namespace_key])
+      @destroyed = true
+      freeze
+      count
+    end
+
+    def initialize_dup(other)
+      initialize_copy(other)
+      @destroyed = false
     end
 
     def ttl
@@ -105,6 +116,10 @@ module Common
 
     def persisted?
       @persisted
+    end
+
+    def destroyed?
+      @destroyed == true
     end
   end
 end

@@ -5,8 +5,8 @@ http_interactions:
     uri: "<EVSS_BASE_URL>/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
     body:
       encoding: UTF-8
-      string: '{"cnpMailingAddress":{"type":"DOMESTIC","addressEffectiveDate":"2017-08-07T19:43:59.383Z","addressOne":"225
-        5th St","city":"Springfield","stateCode":"OR","zipCode":"97477","countryName":"USA"}}'
+      string: '{"cnpMailingAddress":{"type":"DOMESTIC","addressEffectiveDate":"2017-09-21T16:43:07.448+00:00","addressOne":"225
+        5th St","city":"Springfield","stateCode":"OR","countryName":"USA","zipCode":"97477"}}'
     headers:
       User-Agent:
       - Faraday v0.9.2
@@ -15,7 +15,7 @@ http_interactions:
       Accept-Encoding:
       - gzip,deflate
       Date:
-      - Tue, 08 Aug 2017 00:04:51 GMT
+      - Thu, 21 Sep 2017 16:43:07 GMT
       Va-Eauth-Csid:
       - DSLogon
       Va-Eauth-Authenticationmethod:
@@ -29,15 +29,17 @@ http_interactions:
       Va-Eauth-Lastname:
       - lincoln
       Va-Eauth-Issueinstant:
-      - '2017-08-08T00:04:50Z'
+      - '2017-09-21T16:43:06Z'
       Va-Eauth-Dodedipnid:
-      - '5549861120'
+      - '5174170684'
       Va-Eauth-Pid:
-      - '3748094944'
+      - '3135073757'
       Va-Eauth-Pnid:
       - '796111863'
+      Va-Eauth-Birthdate:
+      - '1937-11-10T00:00:00+00:00'
       Va-Eauth-Authorization:
-      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"5549861120","firstName":"abraham","lastName":"lincoln"}}'
+      - '{"authorizationResponse":{"status":"VETERAN","idType":"SSN","id":"796111863","edi":"5174170684","firstName":"abraham","lastName":"lincoln","birthDate":"1937-11-10T00:00:00+00:00"}}'
       Content-Type:
       - application/json
   response:
@@ -46,14 +48,14 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 08 Aug 2017 00:01:05 GMT
+      - Thu, 21 Sep 2017 16:43:00 GMT
       Server:
       - Apache/2.4.6 (CentOS) OpenSSL/1.0.1e-fips
       Content-Type:
       - application/json
       Set-Cookie:
       - WLS_12.1_App1_Cluster_ROUTEID=.02; path=/
-      - wss-pciu-services_JSESSIONID=eOS_JS9HEQCEkk8pUP9vhhGPsA9PeQOhRgD2uV1GtCCiTrYw60QZ!927129548;
+      - wss-pciu-services_JSESSIONID=OxOlUkaskqMDZNUJWhhOycw5c3geIYHnFlyq28liOJpn6XefBZ1b!1148555774;
         path=/; HttpOnly
       Via:
       - 1.1 csraciapp6.evss.srarad.com
@@ -76,16 +78,17 @@ http_interactions:
             "zipSuffix" : ""
           },
           "controlInformation" : {
+            "canUpdate" : true,
             "corpAvailIndicator" : true,
             "corpRecFoundIndicator" : true,
             "hasNoBDNPaymentsIndicator" : true,
-            "incompetentIndicator" : false,
             "indentityIndicator" : true,
             "indexIndicator" : true,
+            "isCompetentIndicator" : true,
             "noFiduciaryAssignedIndicator" : true,
             "notDeceasedIndicator" : true
           }
         }
     http_version: 
-  recorded_at: Tue, 08 Aug 2017 00:04:57 GMT
+  recorded_at: Thu, 21 Sep 2017 16:43:14 GMT
 recorded_with: VCR 3.0.3

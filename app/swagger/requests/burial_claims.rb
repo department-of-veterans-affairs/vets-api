@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class BurialClaims
@@ -11,10 +12,7 @@ module Swagger
 
           key :description, 'Submit a burial benefit claim'
           key :operationId, 'addBurialClaim'
-          key :tags, %w(
-            burial
-            forms
-          )
+          key :tags, %w[benefits_forms]
 
           parameter :optional_authorization
 

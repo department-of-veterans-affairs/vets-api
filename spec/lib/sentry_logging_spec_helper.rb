@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'sentry_logging'
 
@@ -29,7 +30,7 @@ shared_examples 'a sentry logger' do
         subject.log_exception_to_sentry(exception)
       end
       it 'logs to Sentry' do
-        expect(Raven).to receive(:capture_exception).with(exception).once
+        expect(Raven).to receive(:capture_exception).with(exception, level: 'error').once
         subject.log_exception_to_sentry(exception)
       end
     end

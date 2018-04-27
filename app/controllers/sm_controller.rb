@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'sm/client'
 
 class SMController < ApplicationController
@@ -9,6 +10,10 @@ class SMController < ApplicationController
 
   def client
     @client ||= SM::Client.new(session: { user_id: current_user.mhv_correlation_id })
+  end
+
+  def authorize
+    raise_access_denied unless current_user.authorize(:mhv_messaging, :access?)
   end
 
   def raise_access_denied

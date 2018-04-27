@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common
   module Client
     # The error class defines the various error types that the client can encounter
@@ -18,6 +19,7 @@ module Common
 
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
+      class ParsingError < ClientError; end
       class HTTPError < ClientError
         attr_accessor :code
 

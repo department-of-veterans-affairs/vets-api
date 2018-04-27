@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
@@ -17,15 +18,15 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   context 'with HTML in the description' do
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: {
-                          'claim_tracked_items': {
-                            'still_need_from_you_list': [
-                              {
-                                description: 'this has <h1>HTML</h1>'
-                              }
-                            ]
-                          }
-                        })
+      FactoryBot.build(:evss_claim, data: {
+                         'claim_tracked_items': {
+                           'still_need_from_you_list': [
+                             {
+                               description: 'this has <h1>HTML</h1>'
+                             }
+                           ]
+                         }
+                       })
     end
     it 'strips the HTML tags' do
       expect(attributes['events_timeline'][0]['description']).to eq('this has HTML')
@@ -34,11 +35,11 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
 
   context 'with different data and list_data' do
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: {
-                          'waiver5103_submitted': true
-                        }, list_data: {
-                          'waiver5103_submitted': false
-                        })
+      FactoryBot.build(:evss_claim, data: {
+                         'waiver5103_submitted': true
+                       }, list_data: {
+                         'waiver5103_submitted': false
+                       })
     end
     it 'should not use list_data' do
       expect(attributes['waiver_submitted']).to eq true
@@ -54,14 +55,14 @@ RSpec.describe EVSSClaimDetailSerializer, type: :serializer do
       end
     end
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: raw_data)
+      FactoryBot.build(:evss_claim, data: raw_data)
     end
     let(:other_documents) do
       attributes['events_timeline'].select { |obj| obj['type'] == 'other_documents_list' }
     end
     it 'should only add documents without a tracked_item_id into other_documents_list' do
       expect(other_documents.count).to eq 1
-      expect(other_documents.select { |obj| !obj['tracked_item_id'].nil? }.count).to eq 0
+      expect(other_documents.reject { |obj| obj['tracked_item_id'].nil? }.count).to eq 0
     end
     it 'should use the upload date for the tracked item' do
       tracked_item = attributes['events_timeline'].detect { |event| event['tracked_item_id'] == 211_684 }

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class Feedbacks
@@ -10,9 +11,7 @@ module Swagger
 
           key :description, 'Submit user feedback about a given page'
           key :operationId, 'postFeedback'
-          key :tags, %w(
-            feedback
-          )
+          key :tags, %w[site]
 
           parameter do
             key :name, :body
@@ -21,7 +20,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :required, [:target_page, :description]
+              key :required, %i[target_page description]
               property :target_page do
                 key :type, :string
                 key :example, '/some/page.html'
@@ -33,7 +32,7 @@ module Swagger
                 key :description, 'Text from user describing their experience'
               end
               property :owner_email do
-                key :type, [:string, :null]
+                key :type, %i[string null]
                 key :example, 'joe.smith@gmail.com'
                 key :description, 'Optionally provide email of the user'
               end

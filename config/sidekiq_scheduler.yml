@@ -2,18 +2,27 @@
 # over all workers. The `every` option will run the job once per worker instance
 # at the specified interval.
 
+ExportBreakerStatus:
+  every: '1m'
+  description: "Send breaker status to statsd"
+
 CreateDailySpoolFiles:
   cron: "0 3 * * MON-FRI America/New_York"
   class: EducationForm::CreateDailySpoolFiles
   description: "Generate a daily set of spool files and transmit them over SFTP to a backend system"
 
-EducationForm::CreateDailyYearToDateReport:
+EducationForm::CreateDailyFiscalYearToDateReport:
   cron: "0 4 * * * America/New_York"
   description: "Send the daily report to VA stakeholders about Education Benefits submissions"
 
 EducationForm::CreateSpoolSubmissionsReport:
-  cron: "15 4 * * * America/New_York"
+  cron: "15 4 * * MON-FRI America/New_York"
   description: "Send the daily report to the call center about spool file submissions"
+
+CentralMail::DeleteOldClaims:
+  cron: "30 2 * * * America/New_York"
+  class: CentralMail::DeleteOldClaims
+  description: "Clear out central mail claims older than 2 months"
 
 DeleteOldApplications:
   cron: "0 0 * * * America/New_York"
@@ -43,3 +52,37 @@ FacilityAccessBulkUpdate:
   cron: "30 4 * * * America/New_York"
   class: Facilities::AccessDataDownload
   description: "Download and cache facility access-to-care metric data"
+
+FacilityLocationBulkUpdateNCA:
+  cron: "35 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['nca']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVBA:
+  cron: "40 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vba']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVC:
+  cron: "45 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vc']
+  description: "Download and store facility location data"
+
+FacilityLocationBulkUpdateVHA:
+  cron: "50 4 * * * America/New_York"
+  class: Facilities::FacilityLocationDownloadJob
+  args: ['vha']
+  description: "Download and store facility location data"
+
+MaintenanceWindowRefresh:
+  cron: "*/5 * * * * America/New_York"
+  class: PagerDuty::PollMaintenanceWindows
+  description: "Poll PagerDuty API for maintenance window information"
+
+VBADocuments::UploadScanner:
+  cron: "0,30 * * * * * America/New_York"
+  class: VBADocuments::UploadScanner
+  description: "Poll upload bucket for unprocessed uploads"

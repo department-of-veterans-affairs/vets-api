@@ -1,12 +1,12 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
-require 'pdf_fill/forms/va21p530'
 
 def basic_class
-  PdfFill::Forms::VA21P530.new({})
+  PdfFill::Forms::Va21p530.new({})
 end
 
-describe PdfFill::Forms::VA21P530 do
+describe PdfFill::Forms::Va21p530 do
   let(:form_data) do
     {}
   end
@@ -218,6 +218,34 @@ describe PdfFill::Forms::VA21P530 do
 
       it 'should split the ssn' do
         expect(subject).to eq('first' => '111', 'second' => '22', 'third' => '3333')
+      end
+    end
+  end
+
+  describe '#extract_va_file_number' do
+    subject do
+      new_form_class.extract_va_file_number(form_data['vaFileNumber'])
+    end
+
+    context 'with a leading `c` character' do
+      context 'with 9 digits' do
+        let(:form_data) do
+          { 'vaFileNumber' => 'c123456789' }
+        end
+
+        it 'should strip the leading character' do
+          expect(subject).to eq('123456789')
+        end
+      end
+
+      context 'with less than 9 digits' do
+        let(:form_data) do
+          { 'vaFileNumber' => 'c12345678' }
+        end
+
+        it 'should leave the file number unchanged' do
+          expect(subject).to eq('c12345678')
+        end
       end
     end
   end

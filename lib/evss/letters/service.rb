@@ -1,70 +1,61 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'common/exceptions/internal/record_not_found'
 require 'common/exceptions/external/gateway_timeout'
+require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
     class Service < EVSS::Service
+      include Common::Client::Monitoring
+
       configuration EVSS::Letters::Configuration
 
-      def get_letters(user)
-        with_exception_handling do
-          raw_response = perform(:get, '', nil, headers_for_user(user))
+      INVALID_ADDRESS_ERROR = 'letterDestination.addressLine1.invalid'
+
+      def get_letters
+        with_monitoring do
+          raw_response = perform(:get, '')
           EVSS::Letters::LettersResponse.new(raw_response.status, raw_response)
         end
+      rescue StandardError => e
+        begin
+          log_edipi if invalid_address_error?(e)
+        ensure
+          handle_error(e)
+        end
       end
 
-      def get_letter_beneficiary(user)
-        with_exception_handling do
-          raw_response = perform(:get, 'letterBeneficiary', nil, headers_for_user(user))
+      def get_letter_beneficiary
+        with_monitoring do
+          raw_response = perform(:get, 'letterBeneficiary')
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
-      end
-
-      def download_by_type(user, type, options = nil)
-        with_exception_handling do
-          headers = headers_for_user(user)
-          if options.blank?
-            response = download_conn.get type do |request|
-              request.headers.update(headers)
-            end
-          else
-            headers['Content-Type'] = 'application/json'
-            response = download_conn.post do |request|
-              request.url "#{type}/generate"
-              request.headers.update(headers)
-              request.body = options
-            end
-          end
-
-          raise Common::Exceptions::RecordNotFound, type if response.status.to_i == 404
-          response.body
-        end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       private
 
-      def with_exception_handling
-        yield
-      rescue Faraday::ParsingError => e
-        log_message_to_sentry(e.message, :error, extra_context: { url: config.base_path })
-        raise Common::Exceptions::Forbidden, detail: 'Missing correlation id'
-      rescue Common::Client::Errors::ClientError => e
-        raise Common::Exceptions::Forbidden if e.status == 403
-        log_message_to_sentry(
-          e.message, :error, extra_context: { url: config.base_path, body: e.body }
-        )
-        raise EVSS::Letters::ServiceException, e.body
+      def handle_error(error)
+        if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
+          log_message_to_sentry(
+            error.message, :error, extra_context: { url: config.base_path, body: error.body }
+          )
+          raise EVSS::Letters::ServiceException, error.body
+        else
+          super(error)
+        end
       end
 
-      # TODO(AJD): move to own service
-      def download_conn
-        @download_conn ||= Faraday.new(config.base_path, ssl: config.ssl_options) do |faraday|
-          faraday.options.timeout = 15
-          faraday.use :breakers
-          faraday.adapter :httpclient
-        end
+      def log_edipi
+        InvalidLetterAddressEdipi.find_or_create_by(edipi: @user.edipi)
+      end
+
+      def invalid_address_error?(error)
+        return false unless error.is_a?(Common::Client::Errors::ClientError)
+        error&.body&.dig('messages')&.any? { |m| m['key'].include? INVALID_ADDRESS_ERROR }
       end
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'saml/settings_service'
 require 'sentry_logging'
 
@@ -23,7 +24,7 @@ module SAML
       def error_message
         return StatusMessages::NOT_ATTEMPTED unless fetch_attempted?
         return StatusMessages::MISSING       unless metadata_received?
-        return StatusMessages::CERT_INVALID  unless idp_cert_valid?
+        return StatusMessages::CERT_INVALID  unless idp_certs_valid?
         ''
       end
 
@@ -39,11 +40,17 @@ module SAML
         SettingsService.merged_saml_settings&.idp_sso_target_url&.blank? == false
       end
 
-      def idp_cert_valid?
+      def idp_certs_valid?
         return false unless fetch_attempted? && metadata_received?
         begin
-          formatted_cert = OneLogin::RubySaml::Utils.format_cert(SettingsService.merged_saml_settings&.idp_cert)
-          OpenSSL::X509::Certificate.new(formatted_cert)
+          signing_cert    = SettingsService.merged_saml_settings&.idp_cert_multi[:signing].first
+          encryption_cert = SettingsService.merged_saml_settings&.idp_cert_multi[:encryption].first
+
+          formatted_signing_cert    = OneLogin::RubySaml::Utils.format_cert(encryption_cert)
+          formatted_encryption_cert = OneLogin::RubySaml::Utils.format_cert(signing_cert)
+
+          OpenSSL::X509::Certificate.new(formatted_signing_cert)
+          OpenSSL::X509::Certificate.new(formatted_encryption_cert)
           return true
         rescue OpenSSL::X509::CertificateError => e
           # if cert is invalid --> "OpenSSL::X509::CertificateError: nested asn1 error"

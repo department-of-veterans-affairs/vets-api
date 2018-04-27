@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/soap'
 
 module MVI
@@ -48,6 +49,7 @@ module MVI
         conn.request :soap_headers
         conn.response :soap_parser
         conn.use :breakers
+        conn.response :betamocks if Settings.mvi.mock
         conn.adapter Faraday.default_adapter
       end
     end

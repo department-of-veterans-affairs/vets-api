@@ -8,12 +8,12 @@ module Swagger
 
         swagger_schema :LinksAll do
           key :type, :object
-          key :required, [:self, :first, :prev, :next, :last]
+          key :required, %i[self first prev next last]
 
           property :self, type: :string
           property :first, type: :string
-          property :prev, type: [:string, :null]
-          property :next, type: [:string, :null]
+          property :prev, type: %i[string null]
+          property :next, type: %i[string null]
           property :last, type: :string
         end
 
@@ -33,7 +33,7 @@ module Swagger
 
         swagger_schema :LinksTracking do
           key :type, :object
-          key :required, [:self, :prescription, :tracking_url]
+          key :required, %i[self prescription tracking_url]
 
           property :self, type: :string
           property :prescription, type: :string

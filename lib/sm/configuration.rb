@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/client/configuration/rest'
 require 'common/client/middleware/request/camelcase'
 require 'common/client/middleware/request/multipart_request'
@@ -34,6 +35,7 @@ module SM
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
+        conn.response :betamocks if Settings.mhv.sm.mock
         conn.response :sm_parser
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name

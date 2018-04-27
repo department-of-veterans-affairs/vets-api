@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'common/models/redis_store'
 
@@ -83,6 +84,26 @@ describe Common::RedisStore do
         'my_namespace:e66fd7b7-94e0-4748-8063-283f55efb0ea'
       )
       subject.destroy
+    end
+
+    it 'freezes the instance after destroy is called' do
+      subject.destroy
+      expect(subject.destroyed?).to eq(true)
+      expect(subject.frozen?).to eq(true)
+    end
+
+    it 'duping a destroyed object returns destroyed == false, frozen == false' do
+      subject.destroy
+      expect(subject.dup.destroyed?).to eq(false)
+      expect(subject.dup.frozen?).to eq(false)
+      expect(subject.dup.attributes).to eq(subject.attributes)
+    end
+
+    it 'cloning a destroyed object returns destroyed == true, frozen == true' do
+      subject.destroy
+      expect(subject.clone.destroyed?).to eq(true)
+      expect(subject.clone.frozen?).to eq(true)
+      expect(subject.clone.attributes).to eq(subject.attributes)
     end
   end
 

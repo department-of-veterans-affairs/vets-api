@@ -1,5 +1,6 @@
 # frozen_string_literal: true
-FactoryGirl.define do
+
+FactoryBot.define do
   factory :burial_claim, class: SavedClaim::Burial do
     form_id '21P-530'
     form do
@@ -9,6 +10,7 @@ FactoryGirl.define do
           first: 'Test',
           last: 'User'
         },
+        claimantEmail: 'foo@foo.com',
         deathDate: '1989-12-13',
         veteranSocialSecurityNumber: '111223333',
         claimantAddress: {

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 describe EVSS::PCIUAddress::Address do
@@ -20,8 +21,7 @@ describe EVSS::PCIUAddress::Address do
         address = EVSS::PCIUAddress::Address.build_address(domestic_address.as_json)
         expect(address.valid?).to be_falsey
         expect(address.errors.messages).to eq(
-          address_one: ["can't be blank"],
-          country_name: ["can't be blank"]
+          address_one: ["can't be blank"]
         )
       end
     end
@@ -67,7 +67,7 @@ describe EVSS::PCIUAddress::Address do
         address = EVSS::PCIUAddress::Address.build_address(military_address.as_json)
         expect(address.valid?).to be_falsey
         expect(address.errors.messages).to eq(
-          zip_code: ["can't be blank"],
+          zip_code: ["can't be blank", 'is invalid'],
           military_post_office_type_code: ['is not included in the list'],
           military_state_code: ['is not included in the list']
         )

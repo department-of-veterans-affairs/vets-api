@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EVSSClaimListSerializer, type: :serializer do
@@ -13,11 +14,11 @@ RSpec.describe EVSSClaimListSerializer, type: :serializer do
 
   context 'with different data and list_data' do
     let(:evss_claim) do
-      FactoryGirl.build(:evss_claim, data: {
-                          'waiver5103_submitted': false
-                        }, list_data: {
-                          'waiver5103_submitted': true
-                        })
+      FactoryBot.build(:evss_claim, data: {
+                         'waiver5103_submitted': false
+                       }, list_data: {
+                         'waiver5103_submitted': true
+                       })
     end
     it 'should not use object.data' do
       expect(attributes['waiver_submitted']).to eq true

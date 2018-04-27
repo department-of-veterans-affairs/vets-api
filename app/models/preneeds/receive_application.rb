@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 
 # DischargeType model
@@ -8,6 +9,7 @@ module Preneeds
     attribute :return_code, Integer
     attribute :application_uuid, String
     attribute :return_description, String
+    attribute :submitted_at, Time, default: ->(_, __) { Time.zone.now }
 
     def receive_application_id
       tracking_number

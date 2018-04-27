@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
-    class VA21P530 < FormBase
+    class Va21p530 < FormBase
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       PLACE_OF_DEATH_KEY = {
@@ -365,6 +366,15 @@ module PdfFill
         hash[key]
       end
 
+      # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
+      # 7-9 digits. The file number field on the 530 form has space for 9 characters so trim the
+      # potential leading 'c' to ensure the file number will fit into the form without overflow.
+      def extract_va_file_number(va_file_number)
+        return va_file_number if va_file_number.blank? || va_file_number.length < 10
+
+        va_file_number.sub(/^[Cc]/, '')
+      end
+
       def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
         return if value.blank?
@@ -387,7 +397,7 @@ module PdfFill
 
         tours_of_duty.each do |tour_of_duty|
           expand_date_range(tour_of_duty, 'dateRange')
-          tour_of_duty['rank'] = combine_hash(tour_of_duty, %w(serviceBranch rank), ', ')
+          tour_of_duty['rank'] = combine_hash(tour_of_duty, %w[serviceBranch rank], ', ')
         end
       end
 
@@ -442,7 +452,7 @@ module PdfFill
       def merge_fields
         expand_signature(@form_data['claimantFullName'])
 
-        %w(veteranFullName claimantFullName).each do |attr|
+        %w[veteranFullName claimantFullName].each do |attr|
           extract_middle_i(@form_data, attr)
         end
 
@@ -458,6 +468,8 @@ module PdfFill
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
 
+        @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
+
         expand_burial_allowance
 
         expand_firm
@@ -466,7 +478,7 @@ module PdfFill
 
         expand_claimant_addr
 
-        %w(
+        %w[
           previouslyReceivedAllowance
           burialAllowance
           plotAllowance
@@ -474,7 +486,7 @@ module PdfFill
           federalCemetery
           stateCemetery
           govtContributions
-        ).each do |attr|
+        ].each do |attr|
           expand_checkbox_in_place(@form_data, attr)
         end
 

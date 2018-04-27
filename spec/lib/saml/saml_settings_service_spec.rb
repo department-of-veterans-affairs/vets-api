@@ -1,10 +1,10 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'saml/settings_service'
 require 'lib/sentry_logging_spec_helper'
 
 RSpec.describe SAML::SettingsService do
-  let(:success_response_body) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/metadata_response_body.txt") }
   before do
     # stub out the sleep call to increase rspec speed
     allow(SAML::SettingsService).to receive(:sleep)
@@ -12,15 +12,18 @@ RSpec.describe SAML::SettingsService do
 
   describe '.saml_settings' do
     context 'with a 200 response' do
-      before { stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: success_response_body) }
       it 'should only ever make 1 external web call' do
-        SAML::SettingsService.merged_saml_settings(true)
-        SAML::SettingsService.saml_settings
-        SAML::SettingsService.saml_settings
-        expect(a_request(:get, Settings.saml.metadata_url)).to have_been_made.at_most_once
+        VCR.use_cassette('saml/idp_metadata') do
+          SAML::SettingsService.merged_saml_settings(true)
+          SAML::SettingsService.saml_settings
+          SAML::SettingsService.saml_settings
+          expect(a_request(:get, Settings.saml.metadata_url)).to have_been_made.at_most_once
+        end
       end
       it 'returns a settings instance' do
-        expect(SAML::SettingsService.merged_saml_settings(true)).to be_an_instance_of(OneLogin::RubySaml::Settings)
+        VCR.use_cassette('saml/idp_metadata') do
+          expect(SAML::SettingsService.merged_saml_settings(true)).to be_an_instance_of(OneLogin::RubySaml::Settings)
+        end
       end
     end
     context 'with metadata 500 responses' do

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 RSpec.describe 'Claim Document Attachment', type: :request do
   let(:file) do
@@ -16,7 +17,7 @@ RSpec.describe 'Claim Document Attachment', type: :request do
     end.to change(PersistentAttachment, :count).by(1)
     expect(response.status).to eq(200)
     resp = JSON.parse(response.body)
-    expect(resp['data']['attributes'].keys.sort).to eq(%w(confirmation_code name size))
-    expect(PersistentAttachment.last).to be_a(PersistentAttachment::PensionBurial)
+    expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
+    expect(PersistentAttachment.last).to be_a(PersistentAttachments::PensionBurial)
   end
 end

@@ -1,9 +1,12 @@
 # frozen_string_literal: true
+
 require 'common/client/base'
 require 'hca/enrollment_system'
 
 module HCA
   class Service < Common::Client::Base
+    TIMEOUT_KEY = 'api.hca.timeout'
+
     configuration HCA::Configuration
 
     def initialize(current_user = nil)
@@ -36,8 +39,22 @@ module HCA
 
     private
 
+    def handle_timeout(e)
+      StatsD.increment(TIMEOUT_KEY)
+      log_exception_to_sentry(e, {}, {}, 'warning')
+      raise Common::Exceptions::GatewayTimeout
+    end
+
     def post_submission(submission)
       perform(:post, '', submission.body)
+    rescue Common::Exceptions::GatewayTimeout => e
+      handle_timeout(e)
+    rescue Common::Client::Errors::HTTPError => e
+      if e.code.to_s == '503'
+        handle_timeout(e)
+      else
+        raise
+      end
     end
 
     def soap

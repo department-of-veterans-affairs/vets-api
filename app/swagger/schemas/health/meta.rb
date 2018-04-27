@@ -15,7 +15,7 @@ module Swagger
 
         swagger_schema :MetaFailedStationList do
           key :type, :object
-          key :required, [:updated_at, :failed_station_list]
+          key :required, %i[updated_at failed_station_list]
 
           property :updated_at, type: :string
           property :failed_station_list, type: :string
@@ -23,10 +23,10 @@ module Swagger
 
         swagger_schema :MetaFailedStationListSortPagination do
           key :type, :object
-          key :required, [:updated_at, :failed_station_list, :sort, :pagination]
+          key :required, %i[updated_at failed_station_list sort pagination]
 
           property :updated_at, type: :string
-          property :failed_station_list, type: [:null, :string]
+          property :failed_station_list, type: %i[null string]
 
           property :pagination, '$ref': :Filter
           property :pagination, '$ref': :Sort
@@ -35,7 +35,7 @@ module Swagger
 
         swagger_schema :MetaFilterSortPagination do
           key :type, :object
-          key :required, [:filter, :sort, :pagination]
+          key :required, %i[filter sort pagination]
 
           property :pagination, '$ref': :Filter
           property :pagination, '$ref': :Sort
@@ -44,10 +44,17 @@ module Swagger
 
         swagger_schema :MetaSortPagination do
           key :type, :object
-          key :required, [:sort, :pagination]
+          key :required, %i[sort pagination]
 
           property :pagination, '$ref': :Sort
           property :pagination, '$ref': :Pagination
+        end
+
+        swagger_schema :MetaSort do
+          key :type, :object
+          key :required, %i[sort]
+
+          property :pagination, '$ref': :Sort
         end
 
         swagger_schema :Filter do
@@ -60,7 +67,7 @@ module Swagger
 
         swagger_schema :Pagination do
           key :type, :object
-          key :required, [:current_page, :per_page, :total_pages, :total_entries]
+          key :required, %i[current_page per_page total_pages total_entries]
 
           property :current_page, type: :integer
           property :per_page, type: :integer

@@ -14,13 +14,13 @@
     "yes": false
   },
   "preferredContactMethod": "email",
-  "educationType": "college",
   "faaFlightCertificatesInformation": "cert1, cert2",
   "gender": "M",
   "highSchoolOrGedCompletionDate": "2010-06-06",
   "homePhone": "5551110000",
   "reserveKicker": false,
-  "school": {
+  "educationProgram": {
+    "educationType": "college",
     "address": {
       "city": "Baltimore",
       "country": "USA",
@@ -28,9 +28,7 @@
       "state": "MD",
       "street": "111 Uni Drive"
     },
-    "educationalObjective": "...",
-    "name": "FakeData University",
-    "startDate": "08/29/2016"
+    "name": "FakeData University"
   },
   "secondaryContact": {
     "fullName": "Sibling Olson",

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Reports
   module Uploader
     module_function
@@ -19,7 +20,7 @@ module Reports
       s3_resource = new_s3_resource
       obj = s3_resource.bucket(s3_bucket).object("#{SecureRandom.uuid}.csv")
       obj.upload_file(report_file, content_type: 'text/csv')
-      obj.presigned_url(:get, expires_in: 1.week)
+      obj.presigned_url(:get, expires_in: 1.week.to_i)
     end
   end
 end

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'common/exceptions'
 
 describe Mvi, skip_mvi: true do
-  let(:user) { build(:loa3_user) }
+  let(:user) { build(:user, :loa3) }
   let(:mvi) { Mvi.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
   let(:profile_response) do
@@ -65,6 +66,16 @@ describe Mvi, skip_mvi: true do
       describe '#participant_id' do
         it 'should match the response' do
           expect(mvi.participant_id).to eq(profile_response.profile.participant_id)
+        end
+      end
+      describe '#historical_icns' do
+        it 'should match the response' do
+          expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
+        end
+      end
+      describe '#vet360_id' do
+        it 'should match the response' do
+          expect(mvi.vet360_id).to eq(profile_response.profile.vet360_id)
         end
       end
     end

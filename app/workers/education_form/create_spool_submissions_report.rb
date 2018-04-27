@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EducationForm
   class CreateSpoolSubmissionsReport
     require 'csv'
@@ -10,12 +11,16 @@ module EducationForm
       [full_name['first'], full_name['last']].compact.join(' ')
     end
 
+    def processed_at_range
+      (@time - 24.hours)..@time
+    end
+
     def create_csv_array
       csv_array = []
       csv_array << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
 
       EducationBenefitsClaim.where(
-        processed_at: @date.beginning_of_day..@date.end_of_day
+        processed_at: processed_at_range
       ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
 
@@ -32,10 +37,11 @@ module EducationForm
     end
 
     def perform
-      @date = Time.zone.today - 1.day
+      Sentry::TagRainbows.tag
+      @time = Time.zone.now
       folder = 'tmp/spool_reports'
       FileUtils.mkdir_p(folder)
-      filename = "#{folder}/#{@date}.csv"
+      filename = "#{folder}/#{@time.to_date}.csv"
 
       CSV.open(filename, 'wb') do |csv|
         create_csv_array.each do |row|

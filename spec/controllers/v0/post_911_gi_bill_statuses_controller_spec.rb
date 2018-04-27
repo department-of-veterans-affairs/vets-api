@@ -1,118 +1,113 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
   include SchemaMatchers
 
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:session) { Session.create(uuid: user.uuid) }
 
   let(:once) { { times: 1, value: 1 } }
 
-  context 'with a mocked gi bill status response' do
-    let(:mock_response) do
-      YAML.load_file(
-        Rails.root.join('config', 'evss', 'mock_gi_bill_status_response.yml.example')
-      )
-    end
+  let(:tz) { ActiveSupport::TimeZone.new(EVSS::GiBillStatus::Service::OPERATING_ZONE) }
+  let(:noon) { tz.parse('1st Feb 2018 12:00:00') }
 
-    before do
-      Settings.evss.mock_gi_bill_status = true
-      allow_any_instance_of(EVSS::GiBillStatus::MockService).to receive(:mocked_response).and_return(mock_response)
-    end
+  context 'inside working hours' do
+    before { Timecop.freeze(noon) }
+    after { Timecop.return }
 
-    it 'should have a response that matches the schema' do
-      request.headers['Authorization'] = "Token token=#{session.token}"
-      get :show
-      expect(response).to have_http_status(:ok)
-      expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
-    end
-
-    it 'does not increment the fail counter' do
-      request.headers['Authorization'] = "Token token=#{session.token}"
-      expect { get :show }
-        .not_to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY)
-    end
-
-    it 'increments the total counter' do
-      request.headers['Authorization'] = "Token token=#{session.token}"
-      expect { get :show }
-        .to trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
-    end
-
-    context 'when EVSS response is 500' do
+    context 'without mocked responses' do
       before do
-        allow_any_instance_of(EVSS::GiBillStatus::GiBillStatusResponse).to receive(:status).and_return(500)
+        Settings.evss.mock_gi_bill_status = false
       end
 
-      it 'should respond with 200 & SERVER_ERROR meta' do
-        request.headers['Authorization'] = "Token token=#{session.token}"
-        get :show
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['meta']['status']).to eq('SERVER_ERROR')
-      end
-    end
+      gi_bill_200 = { cassette_name: 'evss/gi_bill_status/gi_bill_status' }
+      context 'when EVSS response is 403', vcr: gi_bill_200 do
+        it 'should have a response that matches the schema' do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          get :show
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('post911_gi_bill_status', strict: false)
+        end
 
-    context 'when EVSS response is 403' do
-      before do
-        allow_any_instance_of(EVSS::GiBillStatus::GiBillStatusResponse).to receive(:status).and_return(403)
-      end
+        it 'does not increment the fail counter' do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          expect { get :show }
+            .not_to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY)
+        end
 
-      it 'should respond with 200 & NOT_AUTHORIZED meta' do
-        request.headers['Authorization'] = "Token token=#{session.token}"
-        get :show
-        expect(response).to have_http_status(:ok)
-        expect(JSON.parse(response.body)['meta']['status']).to eq('NOT_AUTHORIZED')
-      end
-    end
-  end
-
-  context 'without mock responses' do
-    # must be connected to EVSS openvpn to re-generate VCR
-    before { Settings.evss.mock_gi_bill_status = false }
-
-    vcr_options = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
-    describe 'when EVSS has no knowledge of user', vcr: vcr_options do
-      # special EVSS CI user ssn=796066619
-      let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066619', uuid: 'ertydfh456') }
-      let(:session) { Session.create(uuid: user.uuid) }
-
-      it 'responds with 404' do
-        request.headers['Authorization'] = "Token token=#{session.token}"
-        get :show
-        expect(response).to have_http_status(:not_found)
+        it 'increments the total counter' do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          expect { get :show }
+            .to trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
+        end
       end
 
-      it 'increments the statsd total and fail counters' do
-        request.headers['Authorization'] = "Token token=#{session.token}"
-        vet_not_found_tag = ['error:vet_not_found']
-        expect { get :show }
-          .to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY, tags: vet_not_found_tag, **once)
-          .and trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
+      # this cassette was copied from 'gi_bill_status_500' and manually edited to contain
+      # the 'education.chapter33claimant.partner.service.down' error because the EVSS CI
+      # environment is not capable of returning this error
+      gi_bill_500 = { cassette_name: 'evss/gi_bill_status/gi_bill_status_500_with_err_msg' }
+      context 'when EVSS response is 500 with an error message', vcr: gi_bill_500 do
+        it 'should respond with 503' do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          get :show
+          expect(response).to have_http_status(:service_unavailable)
+        end
       end
-    end
-    describe 'when EVSS has no info of user' do
-      # special EVSS CI user ssn=796066622
-      let(:user) { FactoryGirl.create(:loa3_user, ssn: '796066622', uuid: 'fghj3456') }
-      let(:session) { Session.create(uuid: user.uuid) }
-      it 'renders nil data' do
-        VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
+
+      gi_bill_unauthorized = { cassette_name: 'evss/gi_bill_status/unauthorized' }
+      context 'when EVSS response is http-500 unauthorized', vcr: gi_bill_unauthorized do
+        it 'should respond with 403' do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          get :show
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      gi_bill_404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
+      describe 'when EVSS has no knowledge of user', vcr: gi_bill_404 do
+        # special EVSS CI user ssn=796066619
+        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066619', uuid: 'ertydfh456') }
+        let(:session) { Session.create(uuid: user.uuid) }
+
+        it 'responds with 404' do
           request.headers['Authorization'] = "Token token=#{session.token}"
           get :show
           expect(response).to have_http_status(:not_found)
         end
-      end
-    end
 
-    describe 'when EVSS partners return invalid data' do
-      # special EVSS CI user ssn=301010304
-      let(:user) { FactoryGirl.create(:loa3_user, ssn: '301010304', uuid: 'aaaa1a') }
-      let(:session) { Session.create(uuid: user.uuid) }
-      it 'responds with a 422' do
-        VCR.use_cassette('evss/gi_bill_status/invalid_partner_data') do
+        it 'increments the statsd total and fail counters' do
           request.headers['Authorization'] = "Token token=#{session.token}"
-          get :show
-          expect(response).to have_http_status(:service_unavailable)
+          vet_not_found_tag = ['error:vet_not_found']
+          expect { get :show }
+            .to trigger_statsd_increment(described_class::STATSD_GI_BILL_FAIL_KEY, tags: vet_not_found_tag, **once)
+            .and trigger_statsd_increment(described_class::STATSD_GI_BILL_TOTAL_KEY, **once)
+        end
+      end
+      describe 'when EVSS has no info of user' do
+        # special EVSS CI user ssn=796066622
+        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: 'fghj3456') }
+        let(:session) { Session.create(uuid: user.uuid) }
+        it 'renders nil data' do
+          VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do
+            request.headers['Authorization'] = "Token token=#{session.token}"
+            get :show
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+      end
+
+      describe 'when EVSS partners return invalid data' do
+        # special EVSS CI user ssn=301010304
+        let(:user) { FactoryBot.create(:user, :loa3, ssn: '301010304', uuid: 'aaaa1a') }
+        let(:session) { Session.create(uuid: user.uuid) }
+        it 'responds with a 422' do
+          VCR.use_cassette('evss/gi_bill_status/invalid_partner_data') do
+            request.headers['Authorization'] = "Token token=#{session.token}"
+            get :show
+            expect(response).to have_http_status(:service_unavailable)
+          end
         end
       end
     end

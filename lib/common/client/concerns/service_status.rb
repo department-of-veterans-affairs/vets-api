@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Common::Client
   module ServiceStatus
     extend ActiveSupport::Concern

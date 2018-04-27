@@ -1,18 +1,19 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EVSSClaimService do
-  let(:user) { FactoryGirl.create(:loa3_user) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
-  let(:claim_service) { described_class.new(user) }
-  subject { claim_service }
+  let(:service) { described_class.new(user) }
+  subject { service }
 
   context 'when EVSS client times out' do
     describe '#all' do
       it 'returns all claims for the user' do
         allow(client_stub).to receive(:all_claims) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
-        claim = FactoryGirl.create(:evss_claim, user_uuid: user.uuid)
+        claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject.all
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
@@ -23,7 +24,7 @@ RSpec.describe EVSSClaimService do
       it 'returns claim' do
         allow(client_stub).to receive(:find_claim_by_id) { raise Faraday::Error::TimeoutError }
         allow(subject).to receive(:client) { client_stub }
-        claim = FactoryGirl.build(:evss_claim, user_uuid: user.uuid)
+        claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
         updated_claim, synchronized = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
         expect(synchronized).to eq(false)
@@ -78,11 +79,11 @@ RSpec.describe EVSSClaimService do
 
     describe '#all' do
       subject do
-        claim_service.all
+        service.all
       end
 
       it 'returns all claims for the user' do
-        claim = FactoryGirl.create(:evss_claim, user_uuid: user.uuid)
+        claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
@@ -92,9 +93,9 @@ RSpec.describe EVSSClaimService do
     end
 
     describe '#update_from_remote' do
-      let(:claim) { FactoryGirl.build(:evss_claim, user_uuid: user.uuid) }
+      let(:claim) { FactoryBot.build(:evss_claim, user_uuid: user.uuid) }
       subject do
-        claim_service.update_from_remote(claim)
+        service.update_from_remote(claim)
       end
 
       it 'returns claim' do

@@ -1,8 +1,14 @@
 # frozen_string_literal: true
+
 module V0
-  class EVSSClaimsController < EVSSClaimsBaseController
+  class EVSSClaimsController < ApplicationController
+    include IgnoreNotFound
+
+    before_action { authorize :evss, :access? }
+    before_action(:tag_rainbows)
+
     def index
-      claims, synchronized = claim_service.all
+      claims, synchronized = service.all
       render json: claims,
              serializer: ActiveModel::Serializer::CollectionSerializer,
              each_serializer: EVSSClaimListSerializer,
@@ -12,7 +18,7 @@ module V0
     def show
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       raise Common::Exceptions::RecordNotFound, params[:id] unless claim
-      claim, synchronized = claim_service.update_from_remote(claim)
+      claim, synchronized = service.update_from_remote(claim)
       render json: claim, serializer: EVSSClaimDetailSerializer,
              meta: { successful_sync: synchronized }
     end
@@ -20,9 +26,15 @@ module V0
     def request_decision
       claim = EVSSClaim.for_user(current_user).find_by(evss_id: params[:id])
       raise Common::Exceptions::RecordNotFound, params[:id] unless claim
-      jid = claim_service.request_decision(claim)
+      jid = service.request_decision(claim)
       claim.update_attributes(requested_decision: true)
       render_job_id(jid)
+    end
+
+    private
+
+    def service
+      EVSSClaimService.new(current_user)
     end
   end
 end

@@ -36,7 +36,7 @@
   "homePhone": "1231241234",
   "mobilePhone": "1235551234",
   "discloseFinancialInformation": false,
-  "children": [],
+  "dependents": [],
   "isCoveredByHealthInsurance": true,
   "providers": [
     {

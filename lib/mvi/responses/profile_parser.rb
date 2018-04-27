@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'sentry_logging'
 
 module MVI
@@ -12,8 +13,6 @@ module MVI
       QUERY_XPATH = 'controlActProcess/queryByParameter'
 
       SSN_ROOT_ID = '2.16.840.1.113883.4.1'
-      CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
-      EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
 
       SUBJECT_XPATH = 'controlActProcess/subject'
       PATIENT_XPATH = 'registrationEvent/subject1/patient'
@@ -48,9 +47,21 @@ module MVI
       #
       # @return [Boolean] has failed or invalid code?
       def failed_or_invalid?
-        result = [EXTERNAL_RESPONSE_CODES[:failure], EXTERNAL_RESPONSE_CODES[:invalid_request]].include? @code
-        Rails.logger.warn "MVI returned response with code: #{@code}" if result
-        result
+        invalid_request? || failed_request?
+      end
+
+      # MVI returns failed if MVI throws an internal error.
+      #
+      # @return [Boolean] has failed
+      def failed_request?
+        EXTERNAL_RESPONSE_CODES[:failure] == @code
+      end
+
+      # MVI returns invalid request if request is malformed.
+      #
+      # @return [Boolean] has invalid request
+      def invalid_request?
+        EXTERNAL_RESPONSE_CODES[:invalid_request] == @code
       end
 
       # MVI returns multiple match warnings if a query returns more than one match.
@@ -75,11 +86,11 @@ module MVI
 
       private
 
+      # rubocop:disable MethodLength
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
-        correlation_ids = map_correlation_ids(patient.locate('id'))
-        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a,
-                             correlation_ids[:active_mhv_ids].to_a)
+        correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
+        log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
           given_names: name[:given],
           family_name: name[:family],
@@ -93,9 +104,14 @@ module MVI
           mhv_ids: correlation_ids[:mhv_ids],
           edipi: correlation_ids[:edipi],
           participant_id: correlation_ids[:vba_corp_id],
-          vha_facility_ids: correlation_ids[:vha_facility_ids]
+          vha_facility_ids: correlation_ids[:vha_facility_ids],
+          sec_id: correlation_ids[:sec_id],
+          birls_id: correlation_ids[:birls_id],
+          vet360_id: correlation_ids[:vet360_id],
+          historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns
         )
       end
+      # rubocop:enable MethodLength
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         return if mhv_ids.blank?
@@ -160,37 +176,6 @@ module MVI
         other_ids.each do |oi|
           node = oi.nodes.select { |n| n.attributes[:root] == SSN_ROOT_ID }
           return node.first unless node.empty?
-        end
-      end
-
-      # MVI correlation id source id relationships:
-      # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
-      # NI = national identifier, PI = patient identifier
-      def map_correlation_ids(ids)
-        ids = ids.map(&:attributes)
-        {
-          icn: select_ids(select_extension(ids, /^\w+\^NI\^\w+\^\w+\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
-          active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
-          edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
-          vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID))
-        }
-      end
-
-      def select_ids(extensions)
-        return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.first }
-      end
-
-      def select_facilities(extensions)
-        return nil if extensions.empty?
-        extensions.map { |e| e[:extension].split('^')&.third }
-      end
-
-      def select_extension(ids, pattern, root)
-        ids.select do |id|
-          id[:extension] =~ pattern && id[:root] == root
         end
       end
 

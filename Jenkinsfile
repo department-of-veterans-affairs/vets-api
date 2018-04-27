@@ -1,7 +1,16 @@
 pipeline {
-  agent {
-    label 'vets-api-linting'
+  environment {
+    DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
   }
+
+  options {
+    buildDiscarder(logRotator(daysToKeepStr: '60'))
+  }
+
+  agent {
+    label 'vetsgov-general-purpose'
+  }
+
   stages {
     stage('Checkout Code') {
       steps {
@@ -11,8 +20,10 @@ pipeline {
 
     stage('Run tests') {
       steps {
-        withEnv(['RAILS_ENV=test', 'CI=true']) {
-          sh 'make ci'
+        withCredentials([string(credentialsId: 'sidekiq-enterprise-license', variable: 'BUNDLE_ENTERPRISE__CONTRIBSYS__COM')]) {
+          withEnv(['RAILS_ENV=test', 'CI=true']) {
+            sh 'make ci'
+          }
         }
       }
     }
@@ -30,6 +41,43 @@ pipeline {
           stringParam(name: 'api_branch', value: env.BRANCH_NAME),
           stringParam(name: 'web_branch', value: 'master'),
           stringParam(name: 'source_repo', value: 'vets-api'),
+        ], wait: false
+      }
+    }
+
+    stage('Deploy dev and staging') {
+      when { branch 'master' }
+
+      steps {
+        // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
+        script {
+          commit = sh(returnStdout: true, script: "git rev-parse HEAD").trim()
+        }
+
+        build job: 'builds/vets-api', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+          booleanParam(name: 'release', value: false),
+        ], wait: true
+
+        build job: 'deploys/vets-api-server-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-worker-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-server-staging', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-worker-staging', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
         ], wait: false
       }
     }

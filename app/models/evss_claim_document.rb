@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 require 'pdf/reader'
 
@@ -10,6 +11,7 @@ class EVSSClaimDocument < Common::Base
   attribute :tracked_item_id, Integer
   attribute :document_type, String
   attribute :file_name, String
+  attribute :uuid, String
   attribute :file_obj, ActionDispatch::Http::UploadedFile
 
   validates(:file_name, presence: true)
@@ -48,6 +50,10 @@ class EVSSClaimDocument < Common::Base
 
   def description
     DOCUMENT_TYPES[document_type]
+  end
+
+  def uploader_ids
+    [tracked_item_id, uuid]
   end
 
   def ==(other)

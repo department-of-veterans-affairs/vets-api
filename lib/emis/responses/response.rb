@@ -21,6 +21,16 @@ module EMIS
         locate_one('essResponseCode')&.nodes&.first == 'ERROR'
       end
 
+      def error
+        return nil unless error?
+
+        code = locate_one('code')&.nodes&.first
+        text = locate_one('text')&.nodes&.first
+        ess_text = locate_one('essText')&.nodes&.first
+
+        EMIS::Errors::ServiceError.new("#{code} #{text} #{ess_text}")
+      end
+
       def empty?
         locate_one('essResponseCode')&.nodes&.first.nil?
       end

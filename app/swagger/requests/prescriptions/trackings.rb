@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     module Prescriptions
@@ -9,6 +10,7 @@ module Swagger
           operation :get do
             key :description, 'ship tracking information for prescription'
             key :operationId, 'trackPrescriptions'
+            key :tags, %w[prescriptions]
 
             parameter name: :prescription_id, in: :path, required: true,
                       type: :integer, description: 'id of the presecription'

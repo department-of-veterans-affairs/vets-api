@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/base'
 # Secure Messaging Notification Preference Model
 class MessagingPreference < Common::Base
@@ -18,10 +19,13 @@ class MessagingPreference < Common::Base
 
   attribute :email_address, String
   attribute :frequency, String
-  # Always require frequency to be included in array
   validates :frequency, presence: true, inclusion: { in: FREQUENCY_UPDATE_MAP.keys }
-  # Always require valid email address
-  validates :email_address, presence: true, format: { with: /.+@.+\..+/i }, length: { maximum: 255, minimum: 6 }
+  validates(
+    :email_address,
+    presence: true,
+    format: { with: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX },
+    length: { maximum: 255, minimum: 6 }
+  )
 
   def mhv_params
     raise Common::Exceptions::ValidationErrors, self unless valid?

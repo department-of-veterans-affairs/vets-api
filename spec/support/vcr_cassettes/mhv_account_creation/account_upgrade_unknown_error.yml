@@ -37,6 +37,6 @@ http_interactions:
       encoding: UTF-8
       string: '{"errorCode":99,"developerMessage":"Error:Unknown application error",
         "message":"MVI Unknown Issue Occurred"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 19 May 2017 14:16:21 GMT
 recorded_with: VCR 3.0.3

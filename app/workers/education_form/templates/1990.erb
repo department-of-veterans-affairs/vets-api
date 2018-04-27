@@ -33,7 +33,7 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Type of Education or Training: <%= @applicant.educationType&.titleize %>
+Type of Education or Training: <%= education_type&.titleize %>
 
 <%= parse_with_template_path('school') %>
 
@@ -45,9 +45,9 @@ Education or Career Goal: <%= @applicant.educationObjective %>
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
-Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty.yes) %>
+Are You Now On Active Duty?   <%= yesno(@applicant.currentlyActiveDuty&.yes) %>
 
-Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.currentlyActiveDuty.onTerminalLeave) %>
+Are you Now On Terminal Leave Just Before Discharge? <%= yesno(@applicant.currentlyActiveDuty&.onTerminalLeave) %>
 
 <%= parse_with_template_path('tours_of_duty') %>
 

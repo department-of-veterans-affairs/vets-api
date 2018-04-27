@@ -73,16 +73,17 @@ http_interactions:
             "zipSuffix" : "1865"
           },
           "controlInformation" : {
+            "canUpdate" : true,
             "corpAvailIndicator" : true,
             "corpRecFoundIndicator" : true,
             "hasNoBDNPaymentsIndicator" : true,
-            "incompetentIndicator" : false,
             "indentityIndicator" : true,
             "indexIndicator" : true,
+            "isCompetentIndicator" : true,
             "noFiduciaryAssignedIndicator" : true,
             "notDeceasedIndicator" : true
           }
         }
     http_version: 
-  recorded_at: Fri, 04 Aug 2017 21:50:11 GMT
+  recorded_at: Thu, 21 Sep 2017 16:39:49 GMT
 recorded_with: VCR 3.0.3

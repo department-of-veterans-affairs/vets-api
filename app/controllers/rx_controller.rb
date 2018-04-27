@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'rx/client'
 
 class RxController < ApplicationController
@@ -9,6 +10,10 @@ class RxController < ApplicationController
 
   def client
     @client ||= Rx::Client.new(session: { user_id: current_user.mhv_correlation_id })
+  end
+
+  def authorize
+    raise_access_denied unless current_user.authorize(:mhv_prescriptions, :access?)
   end
 
   def raise_access_denied

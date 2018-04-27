@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     class EducationBenefitsClaims
@@ -10,10 +11,7 @@ module Swagger
 
           key :description, 'Submit an education benefits claim'
           key :operationId, 'addEducationBenefitsClaim'
-          key :tags, %w(
-            education_benefits
-            forms
-          )
+          key :tags, %w[benefits_forms]
 
           parameter do
             key :name, :education_benefits_claim

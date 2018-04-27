@@ -11,14 +11,17 @@ development: &defaults
   sm_store:
     namespace: sm-service
     each_ttl: 1200
-  user_store:
-    namespace: users
+  user_b_store:
+    namespace: users_b
+    each_ttl: 3600
+  user_identity_store:
+    namespace: user_identities
     each_ttl: 3600
   mvi_profile_response:
     namespace: mvi-profile-response
     each_ttl: 86400
-  veteran_status_response:
-    namespace: veteran-status-response
+  emis_response:
+    namespace: emis-response
     each_ttl: 86400
   saml_store:
     namespace: single-logout-request
@@ -29,6 +32,12 @@ development: &defaults
   facility_access_wait_time:
     namespace: facility-access-wait-time
     each_ttl: 2592000
+  pciu_address_dependencies:
+    namespace: pciu-address-dependencies
+    each_ttl: 604800
+  vet360_contact_info_response:
+    namespace: vet360-contact-info-response
+    each_ttl: 60 # TODO: Verify that this is the best TTL
 
 test:
   <<: *defaults

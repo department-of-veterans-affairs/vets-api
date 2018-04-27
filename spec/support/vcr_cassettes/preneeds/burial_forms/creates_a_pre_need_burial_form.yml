@@ -9,9 +9,22 @@ http_interactions:
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tns="http://service.soa.eoas.cem.va.gov/"
         xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"><env:Body><tns:receivePreNeedApplication><preNeedRequest><applicant><applicantEmail>hg@hotmail.com</applicantEmail><applicantPhoneNumber>555-555-5555
         - 234</applicantPhoneNumber><applicantRelationshipToClaimant>Self</applicantRelationshipToClaimant><completingReason>I
-        don&#39;t know</completingReason><mailingAddress><address1>1 West 51st Street</address1><city>NY</city><countryCode>US</countryCode><postalZip>10000</postalZip><state>NY</state></mailingAddress><name><firstName>first_name1</firstName><lastName>last_name1</lastName></name></applicant><applicationStatus></applicationStatus><claimant><address><address1>2
-        West 51st Street</address1><city>NY</city><countryCode>US</countryCode><postalZip>10000</postalZip><state>NY</state></address><dateOfBirth>2001-01-31</dateOfBirth><desiredCemetery>400</desiredCemetery><name><firstName>first_name2</firstName><lastName>last_name2</lastName></name><relationshipToVet>1</relationshipToVet><ssn>123-45-6789</ssn></claimant><currentlyBuriedPersons><cemeteryNumber>400</cemeteryNumber><name><firstName>first_name3</firstName><lastName>last_name3</lastName></name></currentlyBuriedPersons><hasAttachments>false</hasAttachments><hasCurrentlyBuried>1</hasCurrentlyBuried><sendingApplication>vets.gov</sendingApplication><sendingCode></sendingCode><sentTime>2017-06-29T03:13:52Z</sentTime><trackingNumber>8d6ZZlJxLxeHIlOCtoVG</trackingNumber><veteran><address><address1>3
-        West 51st Street</address1><city>NY</city><countryCode>US</countryCode><postalZip>10000</postalZip><state>NY</state></address><currentName><firstName>first_name4</firstName><lastName>last_name4</lastName></currentName><gender>Male</gender><isDeceased>unsure</isDeceased><maritalStatus>Married</maritalStatus><militaryServiceNumber>123456789</militaryServiceNumber><serviceName><firstName>first_name5</firstName><lastName>last_name5</lastName></serviceName><serviceRecords><branchOfService>AF</branchOfService><dischargeType>1</dischargeType></serviceRecords><ssn>123-45-6789</ssn><vaClaimNumber>123456789</vaClaimNumber><militaryStatus>A</militaryStatus></veteran></preNeedRequest></tns:receivePreNeedApplication></env:Body></env:Envelope>
+        don&#39;t know</completingReason><mailingAddress><address1>street 1</address1><address2>street2
+        1</address2><city>NY</city><countryCode>USA</countryCode><postalZip>10000</postalZip><state>NY</state></mailingAddress><name><firstName>first
+        1</firstName><lastName>last 1</lastName><maidenName>maiden 1</maidenName><middleName>middle
+        1</middleName><suffix>Jr.</suffix></name></applicant><applicationStatus>somewhere</applicationStatus><claimant><address><address1>street
+        2</address1><address2>street2 2</address2><city>NY</city><countryCode>USA</countryCode><postalZip>10000</postalZip><state>NY</state></address><dateOfBirth>2001-01-31</dateOfBirth><desiredCemetery>400</desiredCemetery><email>a@b.com</email><name><firstName>first
+        2</firstName><lastName>last 2</lastName><maidenName>maiden 2</maidenName><middleName>middle
+        2</middleName><suffix>Jr.</suffix></name><phoneNumber>1234567890</phoneNumber><relationshipToVet>1</relationshipToVet><ssn>123-45-6789</ssn></claimant><currentlyBuriedPersons><cemeteryNumber>400</cemeteryNumber><name><firstName>first
+        3</firstName><lastName>last 3</lastName><maidenName>maiden 3</maidenName><middleName>middle
+        3</middleName><suffix>Jr.</suffix></name></currentlyBuriedPersons><currentlyBuriedPersons><cemeteryNumber>400</cemeteryNumber><name><firstName>first
+        4</firstName><lastName>last 4</lastName><maidenName>maiden 4</maidenName><middleName>middle
+        4</middleName><suffix>Jr.</suffix></name></currentlyBuriedPersons><hasAttachments>false</hasAttachments><hasCurrentlyBuried>1</hasCurrentlyBuried><sendingApplication>vets.gov</sendingApplication><sendingCode>abc</sendingCode><sentTime>2017-11-21T23:03:55Z</sentTime><trackingNumber>J1g4L0d13DrkhM0TpdVG</trackingNumber><veteran><address><address1>street
+        3</address1><address2>street2 3</address2><city>NY</city><countryCode>USA</countryCode><postalZip>10000</postalZip><state>NY</state></address><currentName><firstName>first
+        5</firstName><lastName>last 5</lastName><maidenName>maiden 5</maidenName><middleName>middle
+        5</middleName><suffix>Jr.</suffix></currentName><dateOfBirth>2001-01-31</dateOfBirth><dateOfDeath>2001-01-31</dateOfDeath><gender>Male</gender><isDeceased>unsure</isDeceased><maritalStatus>Married</maritalStatus><militaryServiceNumber>123456789</militaryServiceNumber><placeOfBirth>Brooklyn,
+        NY</placeOfBirth><serviceName><firstName>first 6</firstName><lastName>last
+        6</lastName><maidenName>maiden 6</maidenName><middleName>middle 6</middleName><suffix>Jr.</suffix></serviceName><serviceRecords><branchOfService>AF</branchOfService><dischargeType>1</dischargeType><enteredOnDutyDate>1940-08-07</enteredOnDutyDate><highestRank>GEN</highestRank><nationalGuardState>N</nationalGuardState><releaseFromDutyDate>1945-08-07</releaseFromDutyDate></serviceRecords><ssn>123-45-6789</ssn><vaClaimNumber>C23456789</vaClaimNumber><militaryStatus>A</militaryStatus></veteran></preNeedRequest></tns:receivePreNeedApplication></env:Body></env:Envelope>
     headers:
       Accept:
       - text/xml;charset=UTF-8
@@ -20,9 +33,9 @@ http_interactions:
       User-Agent:
       - Vets.gov Agent
       Date:
-      - Thu, 29 Jun 2017 03:13:52 GMT
+      - Tue, 21 Nov 2017 23:03:55 GMT
       Content-Length:
-      - '2410'
+      - '3464'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -31,18 +44,16 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Thu, 29 Jun 2017 03:13:53 GMT
+      - Tue, 21 Nov 2017 23:03:55 GMT
       Transfer-Encoding:
       - chunked
       Content-Type:
-      - multipart/related;start="<rootpart*71e3a86a-249a-4b9b-9d3c-2b2d83388c6a@example.jaxws.sun.com>";type="application/xop+xml";boundary="uuid:71e3a86a-249a-4b9b-9d3c-2b2d83388c6a";start-info="text/xml"
+      - text/xml; charset=utf-8
     body:
       encoding: UTF-8
-      string: "--uuid:71e3a86a-249a-4b9b-9d3c-2b2d83388c6a\r\nContent-Id: <rootpart*71e3a86a-249a-4b9b-9d3c-2b2d83388c6a@example.jaxws.sun.com>\r\nContent-Type:
-        application/xop+xml;charset=utf-8;type=\"text/xml\"\r\nContent-Transfer-Encoding:
-        binary\r\n\r\n<?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S=\"http://schemas.xmlsoap.org/soap/envelope/\"><S:Body><ns2:receivePreNeedApplicationResponse
-        xmlns:ns2=\"http://service.soa.eoas.cem.va.gov/\"><return><applicationUUID>f09c3ff2-c047-49f7-b2f5-bc6a2e5b88a9</applicationUUID><returnCode>200</returnCode><returnDescription>PreNeed
-        Application received.</returnDescription></return></ns2:receivePreNeedApplicationResponse></S:Body></S:Envelope>\r\n--uuid:71e3a86a-249a-4b9b-9d3c-2b2d83388c6a--"
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><ns2:receivePreNeedApplicationResponse
+        xmlns:ns2="http://service.soa.eoas.cem.va.gov/"><return><applicationUUID>8da5eb1a-26b4-48e3-99ca-089453472df7</applicationUUID><returnCode>0</returnCode><returnDescription>PreNeed
+        Application Received Successfully.</returnDescription></return></ns2:receivePreNeedApplicationResponse></S:Body></S:Envelope>
     http_version: 
-  recorded_at: Thu, 29 Jun 2017 03:13:53 GMT
+  recorded_at: Tue, 21 Nov 2017 23:03:55 GMT
 recorded_with: VCR 3.0.3

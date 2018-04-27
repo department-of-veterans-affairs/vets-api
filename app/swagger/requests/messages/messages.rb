@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     module Messages
@@ -9,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Gets the messages in a thread'
             key :operationId, 'messagesThreadIndex'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'a message id in a thread'
 
@@ -35,7 +36,7 @@ module Swagger
           operation :get do
             key :description, 'Get the message'
             key :operationId, 'messagesShow'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'the message id'
 
@@ -61,7 +62,7 @@ module Swagger
           operation :post do
             key :description, 'creates a message'
             key :operationId, 'messagesCreate'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :message, in: :body, required: true, description: 'body of message' do
               schema do
@@ -95,7 +96,7 @@ module Swagger
           operation :get do
             key :description, 'Gets a list of message categories'
             key :operationId, 'messagesCategoriesIndex'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             response 200 do
               key :description, 'create message categories response'
@@ -112,7 +113,7 @@ module Swagger
             key :description, 'Gets a message attachment'
             key :operationId, 'messagesAttachmentShow'
             key :produces, ['application/octet-stream', 'application/pdf', 'image/png', 'image/gif', 'image/jpeg']
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :message_id, in: :path, required: true, type: :integer, description: 'a message id'
             parameter name: :id, in: :path, required: true, type: :integer, description: 'an attachmwnt id'
@@ -137,7 +138,7 @@ module Swagger
           operation :patch do
             key :description, 'moves a message to a new folder'
             key :operationId, 'messagesMove'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
             parameter name: :folder_id, in: :query, required: true, type: :integer, description: 'destination folder id'
@@ -159,7 +160,7 @@ module Swagger
           operation :post do
             key :description, 'creates a message reply'
             key :operationId, 'messagesReply'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
             parameter name: :message, in: :body, required: true, description: 'body of message reply' do
@@ -194,7 +195,7 @@ module Swagger
           operation :delete do
             key :description, 'Deletes a specific message'
             key :operationId, 'messagesDelete'
-            key :tags, %w(messages)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the message'
 

@@ -1,0 +1,20 @@
+<h2>Veteran Feedback Received!</h2>
+
+<table border="1">
+  <tr>
+    <td><b>Feedback</b></td>
+    <td><%= ERB::Util.html_escape(@feedback.description) %></td>
+  </tr>
+  <tr>
+    <td><b>Target Page</b></td>
+    <td><%= ERB::Util.html_escape(@feedback.target_page) %></td>
+  </tr>
+  <tr>
+    <td><b>Contact Email</b></td>
+    <td><%= ERB::Util.html_escape(@feedback.owner_email) %></td>
+  </tr>
+  <tr>
+    <td><b>Github Link</b></td>
+    <td><a href="<%= @github_link %>"><%= @github_link %></a></td>
+  </tr>
+</table>

@@ -1,24 +1,24 @@
 # frozen_string_literal: true
+
 require 'common/models/form'
 
 module Preneeds
   class Address < Preneeds::Base
-    attribute :address1, String
-    attribute :address2, String
-    attribute :address3, String
+    attribute :street, String
+    attribute :street2, String
     attribute :city, String
-    attribute :country_code, String
-    attribute :postal_zip, String
+    attribute :country, String
     attribute :state, String
+    attribute :postal_code, String
 
     # Hash attributes must correspond to xsd ordering or API call will fail
-    def message
+    def as_eoas
       hash = {
-        address1: address1, address2: address2, address3: address3, city: city,
-        countryCode: country_code, postalZip: postal_zip, state: state
+        address1: street, address2: street2, city: city,
+        countryCode: country, postalZip: postal_code, state: state
       }
 
-      [:address2, :address3].each { |key| hash.delete(key) if hash[key].nil? }
+      hash.delete(:address2) if hash[:address2].blank?
       hash
     end
 

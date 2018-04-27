@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module EVSS
   class FailedClaimsReport
     include Sidekiq::Worker
@@ -44,11 +45,12 @@ module EVSS
     end
 
     def perform
+      Sentry::TagRainbows.tag
       s3 = Aws::S3::Resource.new(S3_CLAIMS_RESOURCE_OPTIONS)
       failed_uploads = []
       sidekiq_retry_timeout = 21.days.ago
 
-      %w(evss disability).each do |type|
+      %w[evss disability].each do |type|
         s3.bucket(Settings.evss.s3.bucket).objects(prefix: "#{type}_claim_documents").each do |object|
           if object.last_modified < sidekiq_retry_timeout
             failed_uploads << {

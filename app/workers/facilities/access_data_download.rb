@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'facilities/bulk_json_client'
 require 'common/exceptions'
 require 'facility_access'
@@ -19,7 +20,7 @@ module Facilities
       'Specialty Care (Urgent)' => 'specialty_care_urgent'
     }.freeze
 
-    SAT_REQUIRED_KEYS = %w(facilityID ApptTypeName SHEPScore sliceEndDate).freeze
+    SAT_REQUIRED_KEYS = %w[facilityID ApptTypeName SHEPScore sliceEndDate].freeze
 
     WT_KEY_MAP = {
       'PRIMARY CARE' => 'primary_care',
@@ -27,18 +28,23 @@ module Facilities
       'WOMEN\'S HEALTH' => 'womens_health',
       'AUDIOLOGY' => 'audiology',
       'CARDIOLOGY' => 'cardiology',
+      'DERMATOLOGY' => 'dermatology',
       'GASTROENTEROLOGY' => 'gastroenterology',
+      'GYNECOLOGY' => 'gynecology',
       'OPHTHALMOLOGY' => 'opthalmology',
       'OPTOMETRY' => 'optometry',
+      'ORTHOPEDICS' => 'orthopedics',
       'UROLOGY CLINIC' => 'urology_clinic'
     }.freeze
 
-    WT_REQUIRED_KEYS = %w(facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate).freeze
+    WT_REQUIRED_KEYS = %w[facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate].freeze
 
     def update_cache(model, facilities)
       facilities.each do |k, v|
         attrs = { station_number: k,
                   metrics: v['metrics'],
+                  emergency_care: v['ed'],
+                  urgent_care: v['uc'],
                   source_updated: v['source_date'],
                   local_updated: Time.now.utc.iso8601 }
         obj = model.find(k)
@@ -58,7 +64,7 @@ module Facilities
 
     def require_keys(record, required_keys)
       diff = required_keys - record.keys
-      raise AccessDataError, "Missing expected keys: #{diff}" unless diff.blank?
+      raise AccessDataError, "Missing expected keys: #{diff}" if diff.present?
     end
 
     def parse_satisfaction_data(records)
@@ -91,7 +97,7 @@ module Facilities
     end
 
     def parse_wait_time_data(records)
-      facilities = Hash.new { |h, k| h[k] = { 'metrics' => {} } }
+      facilities = Hash.new { |h, k| h[k] = { 'metrics' => {}, 'ed' => [], 'uc' => [] } }
       records.each do |rec|
         require_keys(rec, WT_REQUIRED_KEYS)
         id = rec['facilityID']
@@ -100,6 +106,8 @@ module Facilities
         metric = { 'new' => filter(rec['newWaitTime']),
                    'established' => filter(rec['estWaitTime']) }
         facility['metrics'][category] = metric
+        facility['ed'] << rec['ED']
+        facility['uc'] << rec['UC']
         facility['source_date'] = rec['sliceEndDate']
       end
       facilities
@@ -107,6 +115,15 @@ module Facilities
 
     def update_wait_time_data(client)
       records = client.download
+      uniq_specialties = records.map { |facility| facility['ApptTypeName'] }.uniq
+      unless uniq_specialties == WT_KEY_MAP.keys
+        log_message_to_sentry(
+          'Facility Locator Specialty Wait Time Inconsistency',
+          :error,
+          missing_specialties: uniq_specialties - WT_KEY_MAP.keys,
+          unused_specialties: WT_KEY_MAP.keys - uniq_specialties
+        )
+      end
       facilities = parse_wait_time_data(records)
       update_cache(FacilityWaitTime, facilities)
       logger.info "Updated facility wait time cache for #{facilities.size} facilities"

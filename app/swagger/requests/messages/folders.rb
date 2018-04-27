@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module Swagger
   module Requests
     module Messages
@@ -9,7 +10,7 @@ module Swagger
           operation :get do
             key :description, 'Get a list of folders'
             key :operationId, 'foldersIndex'
-            key :tags, %w(folders)
+            key :tags, %w[secure_messaging]
 
             parameter :optional_page_number
             parameter :optional_page_length
@@ -28,7 +29,7 @@ module Swagger
           operation :get do
             key :description, 'Get a list of messages in a specific folder'
             key :operationId, 'foldersMessageIndex'
-            key :tags, %w(folders)
+            key :tags, %w[secure_messaging]
 
             parameter name: :folder_id, in: :path, required: true, type: :integer, description: 'id of the folder'
             parameter :optional_page_number
@@ -56,7 +57,7 @@ module Swagger
           operation :get do
             key :description, 'Get information about a specific folder'
             key :operationId, 'foldersShow'
-            key :tags, %w(folders)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the folder'
 
@@ -82,7 +83,7 @@ module Swagger
           operation :post do
             key :description, 'Create a new folder'
             key :operationId, 'foldersCreate'
-            key :tags, %w(folders)
+            key :tags, %w[secure_messaging]
 
             parameter name: :folder, in: :body, required: true, description: 'new folder name' do
               schema do
@@ -105,7 +106,7 @@ module Swagger
           operation :delete do
             key :description, 'Deletes a specific folder'
             key :operationId, 'foldersDelete'
-            key :tags, %w(folders)
+            key :tags, %w[secure_messaging]
 
             parameter name: :id, in: :path, required: true, type: :integer, description: 'id of the folder'
 

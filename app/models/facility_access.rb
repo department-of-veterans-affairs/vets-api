@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'common/models/redis_store'
 
 class FacilitySatisfaction < Common::RedisStore
@@ -21,6 +22,8 @@ class FacilityWaitTime < Common::RedisStore
 
   attribute :station_number
   attribute :metrics
+  attribute :emergency_care
+  attribute :urgent_care
   attribute :source_updated
   attribute :local_updated
 

@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+
 class YearToDateReportMailer < ApplicationMailer
   REPORT_TEXT = 'Year to date report'
 
   VA_STAKEHOLDERS = {
-    to: %w(
+    to: %w[
       Christopher.Marino2@va.gov
       224B.VBAVACO@va.gov
       rodney.alexander@va.gov
@@ -18,9 +19,8 @@ class YearToDateReportMailer < ApplicationMailer
       Anne.kainic@va.gov
       ian@adhocteam.us
       dan.hoicowitz.va@gmail.com
-      mark@adhocteam.us
-      joshua.quagliaroli@va.gov
-    )
+      ryan.baker@adhocteam.us
+    ]
   }.freeze
 
   def build(report_file)

@@ -1,10 +1,12 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'hca/service'
 
 describe HCA::Service do
   include SchemaMatchers
 
+  let(:service) { described_class.new }
   let(:cert) { instance_double('OpenSSL::X509::Certificate') }
   let(:key) { instance_double('OpenSSL::PKey::RSA') }
   let(:store) { instance_double('OpenSSL::X509::Store') }
@@ -23,7 +25,7 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryGirl.build(:loa3_user) }
+  let(:current_user) { FactoryBot.build(:user, :loa3) }
 
   describe '#submit_form' do
     context 'conformance tests', run_at: '2016-12-12' do
@@ -32,7 +34,7 @@ describe HCA::Service do
         it "properly formats #{form} for transmission" do
           allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
           service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
-          json = JSON.load(root.join("#{form}.json"))
+          json = JSON.parse(open(root.join("#{form}.json")).read)
           expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
           expect(service).to receive(:post_submission) do |arg|
@@ -64,6 +66,39 @@ describe HCA::Service do
       it 'raises an exception' do
         VCR.use_cassette('hca/health_check_downtime', match_requests_on: [:body]) do
           expect { subject.health_check }.to raise_error(Common::Client::Errors::HTTPError)
+        end
+      end
+    end
+  end
+
+  describe '#post_submission' do
+    context 'with a httperror thats not 503' do
+      it 'should reraise it' do
+        expect(service).to receive(:perform).with(:post, '', nil) do
+          raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', 400)
+        end
+        expect(StatsD).not_to receive(:increment).with('api.hca.timeout')
+
+        expect do
+          service.send(:post_submission, OpenStruct.new(body: nil))
+        end.to raise_error(Common::Client::Errors::HTTPError)
+      end
+    end
+
+    [
+      Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', 503),
+      Common::Exceptions::GatewayTimeout
+    ].each do |error|
+      context "with a #{error}" do
+        it 'should log to statsd' do
+          expect(service).to receive(:perform).with(:post, '', nil) do
+            raise error
+          end
+          expect(StatsD).to receive(:increment).with('api.hca.timeout')
+
+          expect do
+            service.send(:post_submission, OpenStruct.new(body: nil))
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
     end

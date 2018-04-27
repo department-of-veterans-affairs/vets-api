@@ -1,14 +1,14 @@
 # frozen_string_literal: true
+
 class SpoolSubmissionsReportMailer < ApplicationMailer
   REPORT_TEXT = 'Spool submissions report'
-  RECIPIENTS = %w(
+  RECIPIENTS = %w[
     lihan@adhocteam.us
     dana.kuykendall@va.gov
     Jennifer.Waltz2@va.gov
     shay.norton@va.gov
-    Joshua.Quagliaroli@va.gov
     DONALD.NOBLE2@va.gov
-  ).freeze
+  ].freeze
 
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)

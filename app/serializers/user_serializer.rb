@@ -1,10 +1,12 @@
 # frozen_string_literal: true
+
 require 'backend_services'
 require 'common/client/concerns/service_status'
 
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
+  # TODO: add the :vet360_contact_information profile to these attributes
   attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
              :in_progress_forms, :prefills_available
 
@@ -22,7 +24,25 @@ class UserSerializer < ActiveModel::Serializer
       gender: object.gender,
       zip: object.zip,
       last_signed_in: object.last_signed_in,
-      loa: object.loa
+      loa: object.loa,
+      multifactor: object.multifactor,
+      verified: object.loa3?,
+      authn_context: object.authn_context
+    }
+  end
+
+  def vet360_contact_information
+    person = object.vet360_contact_info
+
+    {
+      email: person.email,
+      residential_address: person.residential_address,
+      mailing_address: person.mailing_address,
+      mobile_phone: person.mobile_phone,
+      home_phone: person.home_phone,
+      work_phone: person.work_phone,
+      temporary_phone: person.temporary_phone,
+      fax_number: person.fax_number
     }
   end
 
@@ -43,16 +63,16 @@ class UserSerializer < ActiveModel::Serializer
       status: RESPONSE_STATUS[:ok],
       is_veteran: object.veteran?
     }
-  rescue VeteranStatus::NotAuthorized
+  rescue EMISRedis::VeteranStatus::NotAuthorized
     { status: RESPONSE_STATUS[:not_authorized] }
-  rescue VeteranStatus::RecordNotFound
+  rescue EMISRedis::VeteranStatus::RecordNotFound
     { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
     { status: RESPONSE_STATUS[:server_error] }
   end
 
   def health_terms_current
-    !object.mhv_account.needs_terms_acceptance?
+    object.mhv_account.terms_and_conditions_accepted?
   end
 
   def in_progress_forms
@@ -66,7 +86,8 @@ class UserSerializer < ActiveModel::Serializer
   end
 
   def prefills_available
-    object.can_access_prefill_data? ? FormProfile::MAPPINGS : []
+    return [] unless object.identity.present? && object.can_access_prefill_data?
+    FormProfile.prefill_enabled_forms
   end
 
   # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
@@ -76,12 +97,19 @@ class UserSerializer < ActiveModel::Serializer
       BackendServices::HCA,
       BackendServices::EDUCATION_BENEFITS
     ]
-    service_list += BackendServices::MHV_BASED_SERVICES if object.loa3? && object.mhv_account_eligible?
-    service_list << BackendServices::EVSS_CLAIMS if object.can_access_evss?
+    service_list << BackendServices::RX if object.authorize :mhv_prescriptions, :access?
+    service_list << BackendServices::MESSAGING if object.authorize :mhv_messaging, :access?
+    service_list << BackendServices::HEALTH_RECORDS if object.authorize :mhv_health_records, :access?
+    service_list << BackendServices::MHV_AC if object.authorize :mhv_account_creation, :access?
+    service_list << BackendServices::EVSS_CLAIMS if object.authorize :evss, :access?
     service_list << BackendServices::USER_PROFILE if object.can_access_user_profile?
-    service_list << BackendServices::APPEALS_STATUS if object.can_access_appeals?
+    service_list << BackendServices::APPEALS_STATUS if object.authorize :appeals, :access?
     service_list << BackendServices::SAVE_IN_PROGRESS if object.can_save_partial_forms?
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
+    service_list << BackendServices::ID_CARD if object.can_access_id_card?
+    service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
+    service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

@@ -16,19 +16,22 @@ class ClaimsBaseController < ApplicationController
   # Creates and validates an instance of the class, removing any copies of
   # the form that had been previously saved by the user.
   def create
+    PensionBurial::TagSentry.tag_sentry
     claim = claim_class.new(form: filtered_params[:form])
     unless claim.save
-      validation_error = claim.errors.full_messages.join(', ')
-      log_message_to_sentry(validation_error, :error, {}, validation: short_name)
-
       StatsD.increment("#{stats_key}.failure")
       raise Common::Exceptions::ValidationErrors, claim
     end
     claim.process_attachments!
     StatsD.increment("#{stats_key}.success")
     Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+    authenticate_token
     clear_saved_form(claim.form_id)
     render(json: claim)
+  end
+
+  def show
+    render(json: CentralMailSubmission.joins(:central_mail_claim).where(saved_claims: { guid: params[:id] }).take)
   end
 
   private

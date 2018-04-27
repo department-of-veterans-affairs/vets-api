@@ -1,7 +1,9 @@
 # frozen_string_literal: true
-require 'common/models/collection'
+
+require 'will_paginate/array'
 
 class V0::Facilities::VaController < FacilitiesController
+  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   before_action :validate_params, only: [:index]
 
   # Index supports the following query parameters:
@@ -9,20 +11,14 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    results = []
-    if params[:bbox]
-      results = VAFacility.query(bbox: params[:bbox], type: params[:type], services: params[:services])
-    end
-    resource = Common::Collection.new(::VAFacility, data: results)
-    resource = resource.paginate(pagination_params)
-    render json: resource.data,
-           serializer: CollectionSerializer,
+    resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
+    render json: resource,
            each_serializer: VAFacilitySerializer,
-           meta: resource.metadata
+           meta: metadata(resource)
   end
 
   def show
-    results = VAFacility.find_by(id: params[:id])
+    results = BaseFacility.find_facility_by_id(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
     render json: results, serializer: VAFacilitySerializer
   end
@@ -41,11 +37,17 @@ class V0::Facilities::VaController < FacilitiesController
     end
   end
 
-  TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   def validate_type_and_services_known
     raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
-      VAFacility::TYPES.include?(params[:type])
-    unknown = params[:services].to_a - VAFacility.service_whitelist(params[:type])
+      BaseFacility::TYPES.include?(params[:type])
+    unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+  end
+
+  def metadata(resource)
+    { pagination: { current_page: resource.current_page,
+                    per_page: resource.per_page,
+                    total_pages: resource.total_pages,
+                    total_entries: resource.total_entries } }
   end
 end

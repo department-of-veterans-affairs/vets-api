@@ -12,9 +12,7 @@
 	"stateOfBirth": "Other",
 	"veteranDateOfBirth": "1985-03-07",
 	"maritalStatus": "Married",
-	"isVaServiceConnected": true,
-	"compensableVaServiceConnected": true,
-	"receivesVaPension": true,
+	"vaCompensationType": "highDisability",
 	"isEssentialAcaCoverage": true,
 	"facilityState": "MA",
 	"vaMedicalFacility": "523",
@@ -63,22 +61,22 @@
 		"zipcode": "",
 		"postalCode": "00000"
 	},
-	"children": [{
-		"childFullName": {
+	"dependents": [{
+		"fullName": {
 			"first": "ChildName",
 			"middle": "MiddleC",
 			"last": "LastC",
 			"suffix": "Jr."
 		},
-		"childRelation": "Son",
-		"childSocialSecurityNumber": "222-44-6666",
-		"childBecameDependent": "2006-11-14",
-		"childDateOfBirth": "2006-11-14",
-		"childDisabledBefore18": true,
-		"childAttendedSchoolLastYear": true,
-		"childEducationExpenses": 1000,
-		"childCohabitedLastYear": true,
-		"childReceivedSupportLastYear": false,
+		"dependentRelation": "Son",
+		"socialSecurityNumber": "222-44-6666",
+		"becameDependent": "2006-11-14",
+		"dateOfBirth": "2006-11-14",
+		"disabledBefore18": true,
+		"attendedSchoolLastYear": true,
+		"dependentEducationExpenses": 1000,
+		"cohabitedLastYear": true,
+		"receivedSupportLastYear": false,
 		"grossIncome": 8000,
 		"netIncome": 9000,
 		"otherIncome": 10000

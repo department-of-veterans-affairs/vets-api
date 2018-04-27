@@ -1,30 +1,38 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'saml/settings_service'
 require 'saml/health_status'
 
 RSpec.describe SAML::HealthStatus do
   subject { described_class }
+
   before do
     # stub out the sleep call to increase rspec speed
     allow(SAML::SettingsService).to receive(:sleep)
   end
+
   context 'with a 200 response' do
-    let(:success_response_body) { File.read("#{::Rails.root}/spec/fixtures/files/saml_xml/metadata_response_body.txt") }
     before do
-      stub_request(:get, Settings.saml.metadata_url).to_return(status: 200, body: success_response_body)
-      SAML::SettingsService.merged_saml_settings(true)
+      VCR.use_cassette('saml/idp_metadata') do
+        SAML::SettingsService.merged_saml_settings(true)
+      end
     end
     it '.healthy? returns true' do
       expect(subject.healthy?).to eq(true)
     end
     it '.error_message is blank' do
-      expect(subject.error_message).to eq('')
+      VCR.use_cassette('saml/idp_metadata') do
+        expect(subject.error_message).to eq('')
+      end
     end
   end
 
   context 'retrieve not yet attempted' do
-    before { allow(subject).to receive(:fetch_attempted?) { false } }
+    before do
+      allow(subject).to receive(:fetch_attempted?) { false }
+    end
+
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
     end
@@ -35,10 +43,10 @@ RSpec.describe SAML::HealthStatus do
 
   context 'IDP metadata not found' do
     before do
-      stub_request(:get, Settings.saml.metadata_url).to_return(
-        status: 500, body: 'bad news bears'
-      )
-      SAML::SettingsService.merged_saml_settings(true)
+      # to regenerate: change saml.metadata_url in settings.local.yml to be invalid
+      VCR.use_cassette('saml/idp_metadata_404') do
+        SAML::SettingsService.merged_saml_settings(true)
+      end
     end
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)
@@ -49,10 +57,14 @@ RSpec.describe SAML::HealthStatus do
   end
 
   context 'IDP cert invalid' do
-    let(:invalid_cert_saml_settings) { build(:rubysaml_settings, :invalid_cert) }
     before do
-      allow(SAML::SettingsService).to receive(:fetch_attempted) { true }
-      allow(SAML::SettingsService).to receive(:merged_saml_settings) { invalid_cert_saml_settings }
+      # to regenerate: make copy of valid metadata response 'idp_metadata.yml' &
+      # copy the contents of invalid_idme_cert.crt into:
+      # <md:IDPSSODescriptor><<md:KeyDescriptor><ds:KeyInfo><ds:X509Data><ds:X509Certificate>
+      # fun fact: invalid_idme_cert.crt is an actual cert id.me served in prod (it contains /r chars)
+      VCR.use_cassette('saml/idp_metadata_bad_cert') do
+        SAML::SettingsService.merged_saml_settings(true)
+      end
     end
     it '.healthy? returns false' do
       expect(subject.healthy?).to eq(false)

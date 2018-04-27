@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 require 'hca/service'
 
-RSpec.describe 'Health Care Application Integration', type: [:request, :serializer] do
+RSpec.describe 'Health Care Application Integration', type: %i[request serializer] do
   let(:test_veteran) do
     JSON.parse(
       File.read(
@@ -73,13 +74,6 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
           )
         ).to eq(true)
       end
-
-      it 'should log the validation errors' do
-        expect(Raven).to receive(:tags_context).once.with(validation: 'health_care_application')
-        expect(Raven).to receive(:capture_message).with(/privacyAgreementAccepted/, level: :error)
-
-        subject
-      end
     end
 
     context 'with valid params' do
@@ -114,11 +108,9 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
       end
 
       context 'while authenticated', skip_mvi: true do
-        let(:current_user) { create(:mhv_user) }
+        let(:current_user) { build(:user, :mhv) }
 
         before do
-          profile = build(:mvi_profile, icn: '1000123456V123456')
-          stub_mvi(profile)
           use_authenticated_current_user(current_user: current_user)
         end
 
@@ -134,6 +126,37 @@ RSpec.describe 'Health Care Application Integration', type: [:request, :serializ
             subject
 
             test_submission
+          end
+        end
+      end
+
+      context 'with an invalid discharge date' do
+        let(:discharge_date) { Time.zone.today + 181.days }
+        let(:params) do
+          test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
+
+          {
+            form: test_veteran.to_json
+          }
+        end
+
+        let(:body) do
+          {
+            'errors' => [
+              {
+                'title' => 'Invalid field value',
+                'detail' => "\"#{discharge_date.strftime('%Y-%m-%d')}\" is not a valid value for \"lastDischargeDate\"",
+                'code' => '103',
+                'status' => '400'
+              }
+            ]
+          }
+        end
+
+        it 'should raise an invalid field value error' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            subject
+            expect(JSON.parse(response.body)).to eq(body)
           end
         end
       end

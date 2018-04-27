@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 module V0
   class ApidocsController < ApplicationController
     include Swagger::Blocks
@@ -19,20 +20,68 @@ module V0
           key :name, 'Creative Commons Zero v1.0 Universal'
         end
       end
+      # Tags are used to group endpoints in tools like swagger-ui
+      # Groups/tags are displayed in the order declared here, followed
+      # by the order they first appear in the swaggered_classes below, so
+      # declare all tags here in desired order.
       tag do
-        key :name, 'sessions'
+        key :name, 'authentication'
         key :description, 'Authentication operations'
+      end
+      tag do
+        key :name, 'user'
+        key :description, 'Current authenticated user data'
+      end
+      tag do
+        key :name, 'profile'
+        key :description, 'User profile information'
+      end
+      tag do
+        key :name, 'benefits_info'
+        key :description, 'Veteran benefits profile information'
+      end
+      tag do
+        key :name, 'benefits_forms'
+        key :description, 'Apply for and claim Veteran benefits'
+      end
+      tag do
+        key :name, 'benefits_status'
+        key :description, 'Check status of benefits claims and appeals'
+      end
+      tag do
+        key :name, 'prescriptions'
+        key :description, 'Prescription refill/tracking operations'
+      end
+      tag do
+        key :name, 'health_records'
+        key :description, 'Download electronic health records'
+      end
+      tag do
+        key :name, 'secure_messaging'
+        key :description, 'Send and receive secure messages to health providers'
+      end
+      tag do
+        key :name, 'terms_and_conditions'
+        key :description, 'Terms and conditions acceptance for access to health tools'
+      end
+      tag do
+        key :name, 'facilities'
+        key :description, 'VA facilities, locations, hours of operation, available services'
+      end
+      tag do
+        key :name, 'gi_bill_institutions'
+        key :description, 'Discover institutions at which GI Bill benefits may be used'
       end
       tag do
         key :name, 'in_progress_forms'
         key :description, 'In-progress form operations'
       end
       tag do
-        key :name, 'terms_and_conditions'
-        key :description, 'Terms and conditions form operations'
+        key :name, 'site'
+        key :description, 'Site service availability and feedback'
       end
-
-      key :host, 'vets.gov'
+      key :host, Settings.hostname
+      key :schemes, %w[https http]
       key :basePath, '/'
       key :consumes, ['application/json']
       key :produces, ['application/json']
@@ -62,49 +111,57 @@ module V0
 
     # A list of all classes that have swagger_* declarations.
     SWAGGERED_CLASSES = [
-      Swagger::Requests::InProgressForms,
-      Swagger::Requests::Sessions,
-      Swagger::Requests::TermsAndConditions,
-      Swagger::Requests::User,
-      Swagger::Requests::EducationBenefitsClaims,
-      Swagger::Requests::PensionClaims,
-      Swagger::Requests::BurialClaims,
-      Swagger::Requests::HealthCareApplications,
-      Swagger::Requests::Post911GiBillStatuses,
-      Swagger::Requests::Letters,
+      Swagger::Requests::Address,
+      Swagger::Requests::Appeals,
+      Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
+      Swagger::Requests::BurialClaims,
+      Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Feedbacks,
-      Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::Gibct::CalculatorConstants,
-      Swagger::Requests::Prescriptions::Prescriptions,
-      Swagger::Requests::Prescriptions::Trackings,
-      Swagger::Requests::Messages::TriageTeams,
+      Swagger::Requests::Gibct::Institutions,
+      Swagger::Requests::HealthCareApplications,
+      Swagger::Requests::InProgressForms,
+      Swagger::Requests::Letters,
+      Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::Messages::Folders,
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
+      Swagger::Requests::Messages::TriageTeams,
+      Swagger::Requests::PensionClaims,
+      Swagger::Requests::Post911GiBillStatuses,
+      Swagger::Requests::Prescriptions::Prescriptions,
+      Swagger::Requests::Prescriptions::Trackings,
+      Swagger::Requests::Profile,
+      Swagger::Requests::Sessions,
+      Swagger::Requests::TermsAndConditions,
+      Swagger::Requests::User,
       Swagger::Requests::VAFacilities,
-      Swagger::Requests::Address,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
+      Swagger::Schemas::Address,
+      Swagger::Schemas::Appeals,
       Swagger::Schemas::BB::HealthRecords,
-      Swagger::Schemas::Gibct::Institutions,
+      Swagger::Schemas::Countries,
+      Swagger::Schemas::Email,
+      Swagger::Schemas::Errors,
       Swagger::Schemas::Gibct::CalculatorConstants,
+      Swagger::Schemas::Gibct::Institutions,
+      Swagger::Schemas::Health::Folders,
+      Swagger::Schemas::Health::Links,
+      Swagger::Schemas::Health::Messages,
+      Swagger::Schemas::Health::Meta,
       Swagger::Schemas::Health::Prescriptions,
       Swagger::Schemas::Health::Trackings,
       Swagger::Schemas::Health::TriageTeams,
-      Swagger::Schemas::Health::Folders,
-      Swagger::Schemas::Health::Messages,
-      Swagger::Schemas::Health::Meta,
-      Swagger::Schemas::Health::Links,
-      Swagger::Schemas::Errors,
-      Swagger::Schemas::SavedForm,
-      Swagger::Schemas::TermsAndConditions,
-      Swagger::Schemas::Letters,
       Swagger::Schemas::LetterBeneficiary,
-      Swagger::Schemas::VAFacilities,
-      Swagger::Schemas::Countries,
+      Swagger::Schemas::Letters,
+      Swagger::Schemas::MaintenanceWindows,
+      Swagger::Schemas::PhoneNumber,
+      Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
-      Swagger::Schemas::Address,
+      Swagger::Schemas::TermsAndConditions,
+      Swagger::Schemas::VAFacilities,
       self
     ].freeze
 

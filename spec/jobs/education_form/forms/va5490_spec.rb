@@ -1,11 +1,16 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe EducationForm::Forms::VA5490 do
   context 'method tests' do
-    let(:education_benefits_claim) { build(:education_benefits_claim_5490) }
+    let(:education_benefits_claim) { create(:va5490).education_benefits_claim }
 
-    subject { described_class.new(education_benefits_claim) }
+    subject do
+      education_benefits_claim.instance_variable_set(:@application, nil)
+      education_benefits_claim.saved_claim.instance_variable_set(:@application, nil)
+      described_class.new(education_benefits_claim)
+    end
 
     before do
       allow_any_instance_of(described_class).to receive(:format)
@@ -14,7 +19,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
     describe 'previous benefits' do
       context 'without previous benefits' do
         before do
-          education_benefits_claim.form = {
+          education_benefits_claim.saved_claim.form = {
             privacyAgreementAccepted: true,
             previousBenefits: {
               disability: false,
@@ -36,7 +41,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
 
       context 'with previous benefits' do
         before do
-          education_benefits_claim.form = {
+          education_benefits_claim.saved_claim.form = {
             privacyAgreementAccepted: true,
             previousBenefits: {
               disability: true,
@@ -64,7 +69,7 @@ RSpec.describe EducationForm::Forms::VA5490 do
     end
   end
 
-  %w(kitchen_sink simple).each do |test_application|
+  %w[kitchen_sink simple].each do |test_application|
     test_spool_file('5490', test_application)
   end
 end

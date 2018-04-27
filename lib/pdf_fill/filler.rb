@@ -1,7 +1,4 @@
 # frozen_string_literal: true
-require 'pdf_fill/forms/va21p527ez'
-require 'pdf_fill/forms/va21p530'
-require 'pdf_fill/hash_converter'
 
 module PdfFill
   module Filler
@@ -9,8 +6,8 @@ module PdfFill
 
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     FORM_CLASSES = {
-      '21P-527EZ' => PdfFill::Forms::VA21P527EZ,
-      '21P-530' => PdfFill::Forms::VA21P530
+      '21P-527EZ' => PdfFill::Forms::Va21p527ez,
+      '21P-530' => PdfFill::Forms::Va21p530
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
@@ -45,7 +42,8 @@ module PdfFill
       PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{code}.pdf",
         file_path,
-        new_hash
+        new_hash,
+        flatten: Rails.env.production?
       )
 
       combine_extras(file_path, hash_converter.extras_generator)

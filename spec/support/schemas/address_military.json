@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
+  "required": [
+    "address_one", "type", "zip_code", "military_post_office_type_code", "military_state_code"
+  ],
   "properties": {
     "address_effective_date": {
       "type": "string"
@@ -14,12 +17,6 @@
       "type": "string"
     },
     "type": {
-      "type": "string"
-    },
-    "city": {
-      "type": "string"
-    },
-    "country_name": {
       "type": "string"
     },
     "military_post_office_type_code": {

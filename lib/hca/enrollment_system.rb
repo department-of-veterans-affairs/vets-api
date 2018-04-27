@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 require 'hca/validations'
 
-# frozen_string_literal: true
 module HCA
   # rubocop:disable ModuleLength
   module EnrollmentSystem
@@ -67,6 +68,17 @@ module HCA
       'Guardian Civil' => 9,
       'Spouse' => 10,
       'Dependent' => 11
+    }.freeze
+
+    DEPENDENT_RELATIONSHIP_CODES = {
+      'Spouse' => 2,
+      'Son' => 3,
+      'Daughter' => 4,
+      'Stepson' => 5,
+      'Stepdaughter' => 6,
+      'Father' => 17,
+      'Mother' => 18,
+      'Other' => 99
     }.freeze
 
     def financial_flag?(veteran)
@@ -139,13 +151,15 @@ module HCA
       return if veteran['homePhone'].blank? && veteran['mobilePhone'].blank?
 
       phone = []
-      %w(homePhone mobilePhone).each do |type|
+      %w[homePhone mobilePhone].each do |type|
         number = veteran[type]
 
-        phone << {
-          'phoneNumber' => number,
-          'type' => (type == 'homePhone' ? '1' : '4')
-        } if number.present?
+        if number.present?
+          phone << {
+            'phoneNumber' => number,
+            'type' => (type == 'homePhone' ? '1' : '4')
+          }
+        end
       end
 
       { 'phone' => phone }
@@ -220,10 +234,10 @@ module HCA
       expense_collection = []
 
       [
-        %w(educationExpense 3),
-        %w(childEducationExpenses 16),
-        %w(funeralExpense 19),
-        %w(medicalExpense 18)
+        %w[educationExpense 3],
+        %w[dependentEducationExpenses 16],
+        %w[funeralExpense 19],
+        %w[medicalExpense 18]
       ].each do |expense_type|
         expense = resource[expense_type[0]]
 
@@ -242,56 +256,45 @@ module HCA
       }
     end
 
-    def child_relationship_to_sds_code(child_relationship)
-      case child_relationship
-      when 'Daughter'
-        4
-      when 'Son'
-        3
-      when 'Stepson'
-        5
-      when 'Stepdaughter'
-        6
-      end
+    def dependent_relationship_to_sds_code(dependent_relationship)
+      DEPENDENT_RELATIONSHIP_CODES[dependent_relationship]
     end
 
-    def child_to_dependent_info(child)
+    def dependent_info(dependent)
       {
-        'dob' => Validations.date_of_birth(child['childDateOfBirth']),
-        'relationship' => child_relationship_to_sds_code(child['childRelation']),
+        'dob' => Validations.date_of_birth(dependent['dateOfBirth']),
+        'relationship' => dependent_relationship_to_sds_code(dependent['dependentRelation']),
         'ssns' => {
-          'ssn' => ssn_to_ssntext(child['childSocialSecurityNumber'])
+          'ssn' => ssn_to_ssntext(dependent['socialSecurityNumber'])
         },
-        'startDate' => Validations.date_of_birth(child['childBecameDependent'])
-      }.merge(convert_full_name_alt(child['childFullName']))
+        'startDate' => Validations.date_of_birth(dependent['becameDependent'])
+      }.merge(convert_full_name_alt(dependent['fullName']))
     end
 
-    def child_to_dependent_financials_info(child)
+    def dependent_financials_info(dependent)
       {
-        'incomes' => resource_to_income_collection(child),
-        'expenses' => resource_to_expense_collection(child),
-        'dependentInfo' => child_to_dependent_info(child),
-        'livedWithPatient' => child['childCohabitedLastYear'].present?,
-        'incapableOfSelfSupport' => child['childDisabledBefore18'].present?,
-        'attendedSchool' => child['childAttendedSchoolLastYear'].present?,
-        'contributedToSupport' => child['childReceivedSupportLastYear'].present?
+        'incomes' => resource_to_income_collection(dependent),
+        'expenses' => resource_to_expense_collection(dependent),
+        'dependentInfo' => dependent_info(dependent),
+        'livedWithPatient' => dependent['cohabitedLastYear'].present?,
+        'incapableOfSelfSupport' => dependent['disabledBefore18'].present?,
+        'attendedSchool' => dependent['attendedSchoolLastYear'].present?,
+        'contributedToSupport' => dependent['receivedSupportLastYear'].present?
       }
     end
 
     def veteran_to_dependent_financials_collection(veteran)
-      children = veteran['children']
+      dependents = veteran['dependents']
 
-      if children.present?
+      if dependents.present?
         {
-          'dependentFinancials' => children.map do |child|
-            child_to_dependent_financials_info(child)
-          end
+          'dependentFinancials' => dependents.map { |d| dependent_financials_info(d) }
         }
       end
     end
 
     def spouse?(veteran)
-      %w(Married Separated).include?(veteran['maritalStatus'])
+      %w[Married Separated].include?(veteran['maritalStatus'])
     end
 
     def veteran_to_spouse_financials(veteran)
@@ -395,16 +398,27 @@ module HCA
       DISCHARGE_CODES[discharge_type] || 4
     end
 
+    def discharge_type(veteran)
+      discharge_date = Validations.parse_date(veteran['lastDischargeDate'])
+      return '' if discharge_date&.future?
+
+      discharge_type_to_sds_code(veteran['dischargeType'])
+    end
+
     def veteran_to_military_service_info(veteran)
+      unless Validations.valid_discharge_date?(veteran['lastDischargeDate'])
+        raise Common::Exceptions::InvalidFieldValue.new('lastDischargeDate', veteran['lastDischargeDate'])
+      end
+
       {
         'dischargeDueToDisability' => veteran['disabledInLineOfDuty'].present?,
         'militaryServiceSiteRecords' => {
           'militaryServiceSiteRecord' => {
             'militaryServiceEpisodes' => {
               'militaryServiceEpisode' => {
-                'dischargeType' => discharge_type_to_sds_code(veteran['dischargeType']),
+                'dischargeType' => discharge_type(veteran),
                 'startDate' => Validations.date_of_birth(veteran['lastEntryDate']),
-                'endDate' => Validations.date_of_birth(veteran['lastDischargeDate']),
+                'endDate' => Validations.discharge_date(veteran['lastDischargeDate']),
                 'serviceBranch' => service_branch_to_sds_code(veteran['lastServiceBranch'])
               }
             },
@@ -442,7 +456,7 @@ module HCA
           'receivingTreatment' => veteran['radiumTreatments'].present?
         },
         'serviceConnectionAward' => {
-          'serviceConnectedIndicator' => veteran['isVaServiceConnected'].present?
+          'serviceConnectedIndicator' => veteran['vaCompensationType'] == 'highDisability'
         },
         'specialFactors' => {
           'agentOrangeInd' => veteran['vietnamService'].present?,
@@ -472,7 +486,7 @@ module HCA
           'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
           'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
           'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
-          'numberOfDependentChildren' => veteran['children'].size
+          'numberOfDependentChildren' => veteran['dependents']&.size
         }
       }
     end
@@ -481,11 +495,11 @@ module HCA
       RELATIONSHIP_CODES[relationship]
     end
 
-    def child_to_association(child)
+    def dependent_to_association(dependent)
       {
         'contactType' => relationship_to_contact_type('Dependent'),
-        'relationship' => child['childRelation']
-      }.merge(convert_full_name_alt(child['childFullName']))
+        'relationship' => dependent['dependentRelation']
+      }.merge(convert_full_name_alt(dependent['fullName']))
     end
 
     def spouse_to_association(veteran)
@@ -500,12 +514,16 @@ module HCA
 
     def veteran_to_association_collection(veteran)
       associations = []
-      children = (veteran['children'] || []).map do |child|
-        child_to_association(child)
+
+      dependents_list = veteran['dependents']
+
+      dependents = dependents_list.map do |dependent|
+        dependent_to_association(dependent)
       end.compact
+
       spouse = spouse_to_association(veteran)
 
-      associations += children
+      associations += dependents
       associations << spouse if spouse.present?
 
       return if associations.blank?
