@@ -22,6 +22,7 @@ class MhvAccount < ActiveRecord::Base
 
   after_initialize :setup
 
+  # rubocop:disable Metrics/BlockLength
   aasm(:account_state) do
     state :unknown, initial: true
     state :needs_ssn_resolution,
@@ -65,6 +66,7 @@ class MhvAccount < ActiveRecord::Base
       transitions from: %i[unknown registered], to: :upgrade_failed
     end
   end
+  # rubocop:enable Metrics/BlockLength
 
   def eligible?
     user.authorize :mhv_account_creation, :access?
