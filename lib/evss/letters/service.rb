@@ -7,7 +7,7 @@ require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
-    class LettersServiceException < Common::Exceptions::BackendServiceException;end
+    class LettersServiceException < Common::Exceptions::BackendServiceException; end
     class Service < EVSS::Service
       include Common::Client::Monitoring
 

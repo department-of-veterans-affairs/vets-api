@@ -12,7 +12,9 @@ module EVSS
     end
 
     def self.use_service_exception(exception)
-      raise "[#{exception}] must inherit from BackendServiceException" unless exception.ancestors.include?(Common::Exceptions::BackendServiceException)
+      unless exception.ancestors.include?(Common::Exceptions::BackendServiceException)
+        raise "[#{exception}] must inherit from BackendServiceException" 
+      end
       @service_exception = exception
     end
     delegate :service_exception, to: 'self.class'
