@@ -52,7 +52,6 @@ module EVSS
     end
 
     def raise_backend_exception(key, source, error = nil)
-      byebug
       ex = @service_exception || Common::Exceptions::BackendServiceException
       raise ex.new(
         key,
