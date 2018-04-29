@@ -2,7 +2,7 @@
 
 MhvAccountCreationPolicy = Struct.new(:user, :mhv_account_creation) do
   def access?
-    user.loa3? && user.va_patient?
+    user.loa3?
   end
 
   def creatable?
