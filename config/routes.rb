@@ -59,6 +59,10 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    get 'intent_to_file', to: 'intent_to_files#index'
+    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
+    post 'intent_to_file/:type', to: 'intent_to_files#submit'
+
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
