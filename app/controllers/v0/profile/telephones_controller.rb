@@ -3,14 +3,14 @@
 module V0
   module Profile
     class TelephonesController < ApplicationController
-      before_action { authorize :access? }
+      # before_action { authorize :vet360, :access? }
 
       def create
         phone = Vet360::Models::Telephone.new phone_params
         if phone.valid?
           response = service.post_telephone phone # Vet360::ContactInformation::TransactionResponse
-          transaction = AsyncTransaction::Vet360::TelephoneTransaction.create(response)
-          render json: transaction, serializer: AsyncTransaction::BaseSerializer
+          # transaction = AsyncTransaction::Vet360::TelephoneTransaction.create(response)
+          render json: response, serializer: AsyncTransaction::BaseSerializer
         else
           raise Common::Exceptions::ValidationErrors, phone
         end

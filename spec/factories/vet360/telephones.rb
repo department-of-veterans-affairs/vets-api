@@ -11,7 +11,6 @@ FactoryBot.define do
     is_textable true
     is_tty true
     is_voicemailable true
-    sequence(:id) { |n| n }
     sequence(:transaction_id, 100) { |n| "d2fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     source_date          '2018-04-09T11:52:03-06:00'
     created_at           '2017-04-09T11:52:03-06:00'
