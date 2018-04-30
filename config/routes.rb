@@ -166,6 +166,7 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+      resource :telephones, only: %i[create update]
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
