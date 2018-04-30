@@ -3,9 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'VA GIS Integration', type: :request do
-  before(:each) { Facilities::FacilityMapping.validate_on_load = false }
-  after(:each) { Facilities::FacilityMapping.validate_on_load = true }
-
   BASE_QUERY_PATH = '/v0/facilities/va?'
   PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
   NY_BBOX = 'bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
