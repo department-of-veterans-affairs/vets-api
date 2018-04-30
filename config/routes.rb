@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
+    resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -57,6 +58,10 @@ Rails.application.routes.draw do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
+
+    get 'intent_to_file', to: 'intent_to_files#index'
+    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
+    post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited

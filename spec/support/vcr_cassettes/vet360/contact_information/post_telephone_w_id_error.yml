@@ -2,11 +2,10 @@
 http_interactions:
 - request:
     method: post
-    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones"
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
     body:
-      encoding: US-ASCII
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":null,"phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","telephoneId":42,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true}}'
-
+      encoding: UTF-8
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","telephoneId":42,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true}}'
     headers:
       Accept:
       - application/json
@@ -14,20 +13,17 @@ http_interactions:
       - application/json
       User-Agent:
       - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Cufsystemname:
       - VETSGOV
-
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
       code: 400
-      message: OK
+      message: ''
     headers:
-      X-Application-Context:
-      - edge-gateway:ENV-INT-DEV:8766
       Date:
-      - Fri, 13 Apr 2018 21:07:24 GMT
+      - Wed, 25 Apr 2018 17:01:25 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -40,8 +36,6 @@ http_interactions:
       - no-cache, no-store, max-age=0, must-revalidate
       Pragma:
       - no-cache
-      Strict-Transport-Security:
-      - max-age=31536000 ; includeSubDomains
       X-Ua-Compatible:
       - IE-edge,chrome=1
       Content-Type:
@@ -50,43 +44,8 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: |-
-        {
-          "bio": {
-            "vet360Id": 1,
-            "addressId": 1,
-            "addressType": "Domestic",
-            "addressPOU": "CORRESPONDENCE",
-            "badAddressIndicator": "N",
-            "addressLine1": "123 Wasted Lane",
-            "cityName": "Washington",
-            "stateCode": "DC",
-            "zipCode5": "20420",
-            "zipCode4": "0001",
-            "confidenceScore": "100",
-            "latitude": "38.901",
-            "longitude": "-77.0347",
-            "geocodePrecision": "0",
-            "geocodeDate": "2018-04-13T17:01:18Z",
-            "createDate": "2018-04-09T23:33:18Z",
-            "updateDate": "2018-04-13T17:01:20Z",
-            "txAuditId": "af528bdf-09d1-4de4-8238-800949684d42",
-            "sourceSystem": "VBACORP",
-            "sourceDate": "2018-04-13T09:24:56Z",
-            "originatingSourceSystem": "VET360Test",
-            "sourceSystemUser": "VAEBENEFITS",
-            "effectiveStartDate": "2018-04-13T09:24:56Z"
-          },
-          "messages": [{
-            "code": "PHON124",
-            "key": "telephoneId.Null",
-            "potentiallySelfCorrectingOnRetry": false,
-            "severity": "ERROR",
-            "text": "must be null"
-          }],
-          "status": "REJECTED",
-          "txAuditId": "7f441880-173f-4deb-aa8b-c26b794eb3e1"
-        }
+      string: '{"messages":[{"code":"PHON124","key":"telephoneId.Null","severity":"ERROR","text":"must
+        be null"}],"txAuditId":"e7d665e4-2d84-4bce-8d58-09072fc99de4","status":"REJECTED"}'
     http_version:
-  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+  recorded_at: Wed, 25 Apr 2018 17:01:24 GMT
 recorded_with: VCR 3.0.3
