@@ -2,14 +2,24 @@
 
 module AsyncTransaction
   class BaseSerializer < ActiveModel::Serializer
+    attribute :status
     attribute :transaction_id
-    attribute :transaction_status
     attribute :type
 
     def id
       nil
     end
 
-    delegate :type, to: :object
+    def type
+      object.transaction.type
+    end
+
+    def transaction_id
+      object.transaction.id
+    end
+
+    def status
+      object.transaction.status
+    end
   end
 end
