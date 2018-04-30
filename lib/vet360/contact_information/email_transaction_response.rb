@@ -4,7 +4,7 @@ require 'vet360/response'
 
 module Vet360
   module ContactInformation
-    class TransactionResponse < Vet360::Response
+    class EmailTransactionResponse < Vet360::Response
       attribute :transaction, Vet360::Models::Transaction
 
       attr_reader :response_body
@@ -14,13 +14,9 @@ module Vet360
 
         super(
           status,
-          transaction: Vet360::Models::Transaction.build_from(@response_body)
+          transaction: Vet360::Models::Transaction.build_from(@response_body, 'Vet360::Models::Email')
         )
       end
     end
-
-    class AddressTransactionResponse < TransactionResponse; end
-    class EmailTransactionResponse < TransactionResponse; end
-    class TelephoneTransactionResponse < TransactionResponse; end
   end
 end
