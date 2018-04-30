@@ -29,7 +29,7 @@ RSpec.describe 'email_address', type: :request do
           )
 
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('vet360/email_address_response')
+          expect(response).to match_response_schema('vet360/transaction_response')
         end
       end
     end
