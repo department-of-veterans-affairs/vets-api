@@ -100,8 +100,8 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     after(:each) { Facilities::FacilityMapping.validate_on_load = false }
     it 'raises an error when trying to retrieve and persist facilities data' do
       VCR.use_cassette('facilities/va/vha_facilities') do
-        expect{ Facilities::FacilityLocationDownloadJob.new.perform('vha') }.
-          to raise_error(Common::Client::Errors::ValidationError, 'invalid source data: duplicate ids')
+        expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
+          .to raise_error(Common::Client::Errors::ValidationError, 'invalid source data: duplicate ids')
       end
     end
   end
