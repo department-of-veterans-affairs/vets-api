@@ -33,6 +33,40 @@ RSpec.describe 'email_address', type: :request do
         end
       end
     end
+
+
+    context 'with a 400 response' do
+      it 'should match the errors schema', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
+          post(
+            '/v0/profile/email_addresses',
+            { id: 42, email_address: 'person42@example.com' }.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+    end
+
+    context 'with a 403 response' do
+      it 'should return a forbidden response' do
+        VCR.use_cassette('vet360/contact_information/post_email_status_403') do
+          post(
+            '/v0/profile/email_addresses',
+            { email_address: 'test@example.com' }.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+    end
   end
 
   describe 'PUT /v0/profile/email_addresses' do
