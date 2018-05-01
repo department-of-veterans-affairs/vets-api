@@ -313,6 +313,39 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'intent to file' do
+      it 'supports getting all intent to file' do
+        expect(subject).to validate(:get, '/v0/intent_to_file', 401)
+        VCR.use_cassette('evss/intent_to_file/intent_to_file') do
+          expect(subject).to validate(:get, '/v0/intent_to_file', 200, auth_options)
+        end
+      end
+
+      it 'supports getting an active compensation intent to file' do
+        expect(subject).to validate(:get, '/v0/intent_to_file/{type}/active', 401, 'type' => 'compensation')
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          expect(subject).to validate(
+            :get,
+            '/v0/intent_to_file/{type}/active',
+            200,
+            auth_options.update('type' => 'compensation')
+          )
+        end
+      end
+
+      it 'supports creating an active compensation intent to file' do
+        expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
+        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+          expect(subject).to validate(
+            :post,
+            '/v0/intent_to_file/{type}',
+            200,
+            auth_options.update('type' => 'compensation')
+          )
+        end
+      end
+    end
+
     describe 'secure messaging' do
       include SM::ClientHelpers
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1/telephones/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/1/telephones/status/a50193df-f4d5-4b6a-b53d-36fed2db1a15
     body:
       encoding: US-ASCII
       string: ''
@@ -20,12 +20,10 @@ http_interactions:
   response:
     status:
       code: 200
-      message: OK
+      message: ''
     headers:
-      X-Application-Context:
-      - edge-gateway:ENV-INT-DEV:8766
       Date:
-      - Fri, 13 Apr 2018 21:07:24 GMT
+      - Wed, 25 Apr 2018 21:05:50 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -38,8 +36,6 @@ http_interactions:
       - no-cache, no-store, max-age=0, must-revalidate
       Pragma:
       - no-cache
-      Strict-Transport-Security:
-      - max-age=31536000 ; includeSubDomains
       X-Ua-Compatible:
       - IE-edge,chrome=1
       Content-Type:
@@ -48,19 +44,7 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: |-
-        {
-          "messages": [],
-          "status": "COMPLETED_SUCCESS",
-          "txAuditId": "d47b3d96-9ddd-42be-ac57-8e564aa38029",
-          "txInteractionType": "string",
-          "txMessages": [],
-          "txOutput": [],
-          "txPullInput": "string",
-          "txPushInput": {},
-          "txStatus": "COMPLETED_SUCCESS",
-          "txType": "string"
-        }
+      string: '{"txAuditId":"a50193df-f4d5-4b6a-b53d-36fed2db1a15","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"vet360Id":323,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","voiceMailAcceptableInd":true,"ttyInd":true,"sourceDate":"2018-04-25T18:45:30Z"},"txOutput":[{"vet360Id":323,"telephoneId":1299,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","voiceMailAcceptableInd":true,"ttyInd":true,"createDate":"2018-04-25T18:46:46Z","updateDate":"2018-04-25T18:46:46Z","txAuditId":"a50193df-f4d5-4b6a-b53d-36fed2db1a15","sourceSystem":"VETSGOV","sourceDate":"2018-04-25T18:45:30Z"}]}'
     http_version:
-  recorded_at: Thu, 22 Feb 2018 23:58:38 GMT
+  recorded_at: Wed, 25 Apr 2018 21:05:50 GMT
 recorded_with: VCR 3.0.3
