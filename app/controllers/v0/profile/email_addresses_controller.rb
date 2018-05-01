@@ -18,6 +18,19 @@ module V0
         end
       end
 
+      def update
+        email_address = Vet360::Models::Email.with_defaults(@current_user, email_address_params)
+
+        if email_address.valid?
+          response    = service.put_email email_address
+          transaction = AsyncTransaction::Vet360::EmailTransaction.start @current_user, response
+
+          render json: transaction, serializer: AsyncTransaction::BaseSerializer
+        else
+          raise Common::Exceptions::ValidationErrors, email_address
+        end
+      end
+
       private
 
       def service
@@ -25,7 +38,7 @@ module V0
       end
 
       def email_address_params
-        params.permit(:email_address)
+        params.permit(:email_address, :id)
       end
     end
   end
