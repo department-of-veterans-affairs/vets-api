@@ -147,6 +147,7 @@ module V0
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Address,
       Swagger::Schemas::Appeals,
+      Swagger::Schemas::AsyncTransaction::Vet360,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::RatedDisabilities,
