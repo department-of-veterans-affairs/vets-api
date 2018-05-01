@@ -10,16 +10,8 @@ module AsyncTransaction
       nil
     end
 
-    def type
-      object.transaction.type
-    end
-
-    def transaction_id
-      object.transaction.id
-    end
-
     def status
-      object.transaction.status
+      object.transaction_status
     end
   end
 end
