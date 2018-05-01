@@ -6,11 +6,11 @@ module V0
       before_action { authorize :vet360, :access? }
 
       def create
-        email_address = Vet360::Models::Email.new email_address_params
+        email_address = Vet360::Models::Email.with_defaults(@current_user, email_address_params)
 
         if email_address.valid?
           response    = service.post_email email_address
-          transaction = AsyncTransaction::Vet360::EmailTransaction.start @current_user, response
+          transaction = AsyncTransaction::Vet360::EmailTransaction.start(@current_user, response)
 
           render json: transaction, serializer: AsyncTransaction::BaseSerializer
         else
