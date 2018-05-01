@@ -9,9 +9,10 @@ module V0
         email_address = Vet360::Models::Email.new email_address_params
 
         if email_address.valid?
-          response = service.post_email email_address
+          response    = service.post_email email_address
+          transaction = AsyncTransaction::Vet360::EmailTransaction.start @current_user, response
 
-          render json: response, serializer: AsyncTransaction::BaseSerializer
+          render json: transaction, serializer: AsyncTransaction::BaseSerializer
         else
           raise Common::Exceptions::ValidationErrors, email_address
         end
