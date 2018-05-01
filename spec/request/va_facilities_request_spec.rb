@@ -172,4 +172,15 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(services['health']).not_to include('sl1' => ['UrgentCare'], 'sl2' => [])
     end
   end
+
+  describe '/v0/facilities/suggested_names/:facility_type' do
+    context 'with multiple facility types and found name part' do
+      it 'should return facility names' do
+        setup_pdx
+        get '/v0/facilities/suggested_names?name_part=por&type[]=health'
+        puts response.inspect
+        expect(response).to be_success
+      end
+    end
+  end
 end

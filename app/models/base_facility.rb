@@ -30,6 +30,14 @@ class BaseFacility < ActiveRecord::Base
     DOD_HEALTH => 'Facilities::DODFacility'
   }.freeze
 
+  TYPE_NAME_MAP = {
+    CEMETERY => 'va_cemetery',
+    HEALTH => 'va_health_facility',
+    BENEFITS => 'va_benefits_facility',
+    VET_CENTER => 'vet_center',
+    DOD_HEALTH => 'dod_health'
+  }.freeze
+
   FACILITY_SORT_FIELDS = {
     'Facilities::NCAFacility' => %w[NCA_Facilities SITE_ID],
     'Facilities::VBAFacility' => %w[VBA_Facilities Facility_Number],
@@ -121,9 +129,10 @@ class BaseFacility < ActiveRecord::Base
       100
     end
 
-    def suggested_names(facility_type, name_part)
-      binding.pry
-      BaseFacility.where("facility_type='#{facility_type}' AND name ILIKE '%#{name_part}%'")
+    def suggested_names(facility_types, name_part)
+      BaseFacility.where(
+        facility_type: facility_types.map { |t| TYPE_NAME_MAP[t] }
+      ).where("name ILIKE ?", "%#{name_part}%")
     end
   end
 

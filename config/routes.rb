@@ -109,7 +109,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
-      get 'suggested_names/:facility_type', to: 'va#suggested_names'
+      get 'suggested_names', to: 'va#suggested_names'
     end
 
     scope :gi, module: 'gi' do
