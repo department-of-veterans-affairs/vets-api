@@ -38,7 +38,15 @@ module V0
       end
 
       def email_address_params
-        params.permit(:email_address, :id)
+        params.permit(
+          :email_address,
+          :effective_end_date,
+          :effective_start_date,
+          :id,
+          :source_date,
+          :transaction_id,
+          :vet360_id
+        )
       end
     end
   end
