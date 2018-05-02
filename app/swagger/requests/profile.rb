@@ -139,6 +139,37 @@ module Swagger
             end
           end
         end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing Vet360 email address'
+          key :operationId, 'putVet360EmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create an email address.'
+            key :required, true
+
+            schema do
+              property :id, type: :integer, example: 1
+              property :email_address, type: :string, example: 'john@example.com'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/full_name' do
