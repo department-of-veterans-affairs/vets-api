@@ -154,7 +154,7 @@ module Swagger
           parameter do
             key :name, :body
             key :in, :body
-            key :description, 'Attributes to create an email address.'
+            key :description, 'Attributes to update an email address.'
             key :required, true
 
             schema do
@@ -317,6 +317,89 @@ module Swagger
                   end
                 end
               end
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/telephones' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates a users Vet360 telephone'
+          key :operationId, 'postVet360Telephone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create a telephone.'
+            key :required, true
+
+            schema do
+              key :'$ref', :Telephone
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              property :phone_number, type: :string, example: '5551212'
+              property :area_code, type: :string, example: '303'
+              property :extension, type: :string, example: '101'
+              property :phone_type, type: :string, enum:
+                %w[
+                  MOBILE
+                  HOME
+                  WORK
+                  FAX
+                  TEMPORARY
+                ], example: 'MOBILE'
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing telephone'
+          key :operationId, 'putVet360Telephone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update a telephone'
+            key :required, true
+
+            schema do
+              property :id, type: :integer, example: 1
+              property :phone_number, type: :string, example: '5551212'
+              property :area_code, type: :string, example: '303'
+              property :extension, type: :string, example: '101'
+              property :phone_type, type: :string, enum:
+                %w[
+                  MOBILE
+                  HOME
+                  WORK
+                  FAX
+                  TEMPORARY
+                ], example: 'MOBILE'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
             end
           end
         end
