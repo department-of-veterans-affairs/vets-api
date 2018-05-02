@@ -35,7 +35,7 @@ RSpec.describe 'email_address', type: :request do
 
       it 'creates a new AsyncTransaction::Vet360::EmailTransaction db record' do
         VCR.use_cassette('vet360/contact_information/post_email_success') do
-          expect {
+          expect do
             post(
               '/v0/profile/email_addresses',
               { email_address: 'test@example.com' }.to_json,
@@ -43,7 +43,7 @@ RSpec.describe 'email_address', type: :request do
                 'Content-Type' => 'application/json', 'Accept' => 'application/json'
               )
             )
-          }.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
         end
       end
     end
@@ -119,7 +119,7 @@ RSpec.describe 'email_address', type: :request do
 
       it 'creates a new AsyncTransaction::Vet360::EmailTransaction db record' do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
-          expect {
+          expect do
             put(
               '/v0/profile/email_addresses',
               { id: 42, email_address: 'person42@example.com' }.to_json,
@@ -127,7 +127,7 @@ RSpec.describe 'email_address', type: :request do
                 'Content-Type' => 'application/json', 'Accept' => 'application/json'
               )
             )
-          }.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
         end
       end
     end
