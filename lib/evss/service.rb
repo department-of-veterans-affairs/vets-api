@@ -13,7 +13,7 @@ module EVSS
 
     def self.use_service_exception(exception)
       unless exception.ancestors.include?(Common::Exceptions::BackendServiceException)
-        raise "[#{exception}] must inherit from BackendServiceException" 
+        raise "[#{exception}] must inherit from BackendServiceException"
       end
       @service_exception = exception
     end
@@ -54,7 +54,7 @@ module EVSS
     end
 
     def raise_backend_exception(key, source, error = nil)
-      ex = @service_exception || Common::Exceptions::BackendServiceException
+      ex = service_exception || Common::Exceptions::BackendServiceException
       raise ex.new(
         key,
         { source: "EVSS::#{source}" },
