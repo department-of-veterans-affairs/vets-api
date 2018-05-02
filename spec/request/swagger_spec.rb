@@ -1233,6 +1233,36 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports posting vet360 telephone data' do
+        expect(subject).to validate(:post, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+          telephone = build(:telephone)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 telephone data' do
+        expect(subject).to validate(:put, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+          telephone = build(:telephone, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
     end
   end
 
