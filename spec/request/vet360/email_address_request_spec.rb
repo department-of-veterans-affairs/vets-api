@@ -80,6 +80,22 @@ RSpec.describe 'email_address', type: :request do
         end
       end
     end
+
+    context 'with a validtion issue' do
+      it 'should match the errors schema', :aggregate_failures do
+        post(
+          '/v0/profile/email_addresses',
+          { email_address: '' }.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('errors')
+        expect(errors_for(response)).to include "email-address - can't be blank"
+      end
+    end
   end
 
   describe 'PUT /v0/profile/email_addresses' do
@@ -115,6 +131,21 @@ RSpec.describe 'email_address', type: :request do
         end
       end
     end
+
+    context 'with a validtion issue' do
+      it 'should match the errors schema', :aggregate_failures do
+        put(
+          '/v0/profile/email_addresses',
+          { email_address: '' }.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('errors')
+        expect(errors_for(response)).to include "email-address - can't be blank"
+      end
     end
   end
 end
