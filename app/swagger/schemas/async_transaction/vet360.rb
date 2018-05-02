@@ -25,8 +25,8 @@ module Swagger
               property :transaction_id, type: :string, example: '786efe0e-fd20-4da2-9019-0c00540dba4d'
               property :type, type: :string, enum:
                 %w[
-                  AsyncTransaction::Vet360::AddressTransaction,
-                  AsyncTransaction::Vet360::EmailTransaction,
+                  AsyncTransaction::Vet360::AddressTransaction
+                  AsyncTransaction::Vet360::EmailTransaction
                   AsyncTransaction::Vet360::TelephoneTransaction
                 ], example: 'AsyncTransaction::Vet360::EmailTransaction'
             end
