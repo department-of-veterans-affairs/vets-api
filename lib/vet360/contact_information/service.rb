@@ -40,8 +40,8 @@ module Vet360
       # GET's the status of an address transaction from the Vet360 api
       # @params transaction [Vet360::Models::Transaction] the transaction to check
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
-      def get_address_transaction_status(transaction)
-        route = "#{@user.vet360_id}/addresses/status/#{transaction.id}"
+      def get_address_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
         get_transaction_status(route, AddressTransactionResponse)
       end
 
