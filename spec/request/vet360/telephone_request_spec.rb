@@ -35,7 +35,7 @@ RSpec.describe 'telephone', type: :request do
 
       it 'creates a new AsyncTransaction::Vet360::TelephoneTransaction db record' do
         VCR.use_cassette('vet360/contact_information/post_telephone_success') do
-          expect {
+          expect do
             post(
               '/v0/profile/telephones',
               telephone.to_json,
@@ -43,7 +43,7 @@ RSpec.describe 'telephone', type: :request do
                 'Content-Type' => 'application/json', 'Accept' => 'application/json'
               )
             )
-          }.to change(AsyncTransaction::Vet360::TelephoneTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::Vet360::TelephoneTransaction, :count).from(0).to(1)
         end
       end
     end
@@ -125,7 +125,7 @@ RSpec.describe 'telephone', type: :request do
 
       it 'creates a new AsyncTransaction::Vet360::TelephoneTransaction db record' do
         VCR.use_cassette('vet360/contact_information/put_telephone_success') do
-          expect {
+          expect do
             put(
               '/v0/profile/telephones',
               telephone.to_json,
@@ -133,7 +133,7 @@ RSpec.describe 'telephone', type: :request do
                 'Content-Type' => 'application/json', 'Accept' => 'application/json'
               )
             )
-          }.to change(AsyncTransaction::Vet360::TelephoneTransaction, :count).from(0).to(1)
+          end.to change(AsyncTransaction::Vet360::TelephoneTransaction, :count).from(0).to(1)
         end
       end
     end
