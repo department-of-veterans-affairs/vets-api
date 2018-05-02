@@ -1218,6 +1218,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports putting vet360 email address data' do
+        expect(subject).to validate(:put, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_email_success') do
+          email_address = build(:email, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
     end
   end
 

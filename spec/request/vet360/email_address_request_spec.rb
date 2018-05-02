@@ -34,7 +34,6 @@ RSpec.describe 'email_address', type: :request do
       end
     end
 
-
     context 'with a 400 response' do
       it 'should match the errors schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
