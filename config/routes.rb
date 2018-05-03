@@ -164,6 +164,7 @@ Rails.application.routes.draw do
     end
 
     namespace :profile do
+      resource :addresses, only: %i[create update]
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
       resource :email_addresses, only: %i[create update]
