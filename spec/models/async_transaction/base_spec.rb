@@ -48,7 +48,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
   end
 
-  describe 'refresh_transaction_status()' do
+  describe '.refresh_transaction_status()' do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) { 
       create(:address_transaction,
@@ -68,6 +68,20 @@ RSpec.describe AsyncTransaction::Base, type: :model do
       end
 
     end
+
+    # it 'updates the status', :aggregate_failures do
+    # end
+
+    # it 'raises an exception if transaction not found in db', :aggregate_failures do
+    # end
+
+    # it 'raises an exception if transaction not found in vet360', :aggregate_failures do
+    # end
+
+    # it 'does not make an API request if the tx is finished', :aggregate_failures do
+    # end
+
+
   end
 
 end
