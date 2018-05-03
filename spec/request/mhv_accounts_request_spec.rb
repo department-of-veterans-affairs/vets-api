@@ -29,13 +29,15 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
   let(:user) do
     create(:user, :loa3,
-           ssn: mvi_profile.ssn,
+           ssn: user_ssn,
            first_name: mvi_profile.given_names.first,
            last_name: mvi_profile.family_name,
            gender: mvi_profile.gender,
            birth_date: mvi_profile.birth_date,
            email: 'vets.gov.user+0@gmail.com')
   end
+
+  let(:user_ssn) { mvi_profile.ssn }
 
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
@@ -58,6 +60,36 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it 'raises error for POST #create' do
       post v0_mhv_account_path
       expect(response).to have_http_status(:forbidden)
+    end
+
+    context 'with ssn mismatch' do
+      let(:user_ssn) { mvi_profile.ssn }
+
+      it 'responds to GET #show' do
+        get v0_mhv_account_path
+        expect(response).to be_success
+        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+      end
+
+      it 'raises error for POST #create' do
+        post v0_mhv_account_path
+        expect(response).to have_http_status(:forbidden)
+      end
+    end
+
+    context 'with non va patient' do
+      let(:vha_facility_ids) { [] }
+
+      it 'responds to GET #show' do
+        get v0_mhv_account_path
+        expect(response).to be_success
+        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+      end
+
+      it 'raises error for POST #create' do
+        post v0_mhv_account_path
+        expect(response).to have_http_status(:forbidden)
+      end
     end
   end
 
@@ -96,6 +128,36 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         end
         expect(response).to have_http_status(:bad_request)
       end
+
+      context 'with ssn mismatch' do
+        let(:user_ssn) { mvi_profile.ssn }
+
+        it 'responds to GET #show' do
+          get v0_mhv_account_path
+          expect(response).to be_success
+          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+        end
+
+        it 'raises error for POST #create' do
+          post v0_mhv_account_path
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
+
+      context 'with non va patient' do
+        let(:vha_facility_ids) { [] }
+
+        it 'responds to GET #show' do
+          get v0_mhv_account_path
+          expect(response).to be_success
+          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+        end
+
+        it 'raises error for POST #create' do
+          post v0_mhv_account_path
+          expect(response).to have_http_status(:forbidden)
+        end
+      end
     end
 
     context 'with an account' do
@@ -111,6 +173,36 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it 'raises error for POST #create' do
           post v0_mhv_account_path
           expect(response).to have_http_status(:forbidden)
+        end
+
+        context 'with ssn mismatch' do
+          let(:user_ssn) { mvi_profile.ssn }
+
+          it 'responds to GET #show' do
+            get v0_mhv_account_path
+            expect(response).to be_success
+            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+          end
+
+          it 'raises error for POST #create' do
+            post v0_mhv_account_path
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+
+        context 'with non va patient' do
+          let(:vha_facility_ids) { [] }
+
+          it 'responds to GET #show' do
+            get v0_mhv_account_path
+            expect(response).to be_success
+            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+          end
+
+          it 'raises error for POST #create' do
+            post v0_mhv_account_path
+            expect(response).to have_http_status(:forbidden)
+          end
         end
       end
 
@@ -140,6 +232,36 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           end
           expect(response).to have_http_status(:bad_request)
         end
+
+        context 'with ssn mismatch' do
+          let(:user_ssn) { mvi_profile.ssn }
+
+          it 'responds to GET #show' do
+            get v0_mhv_account_path
+            expect(response).to be_success
+            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+          end
+
+          it 'raises error for POST #create' do
+            post v0_mhv_account_path
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+
+        context 'with non va patient' do
+          let(:vha_facility_ids) { [] }
+
+          it 'responds to GET #show' do
+            get v0_mhv_account_path
+            expect(response).to be_success
+            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+          end
+
+          it 'raises error for POST #create' do
+            post v0_mhv_account_path
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
       end
 
       context 'that is upgraded' do
@@ -157,6 +279,36 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it 'raises error for POST #create' do
           post v0_mhv_account_path
           expect(response).to have_http_status(:forbidden)
+        end
+
+        context 'with ssn mismatch' do
+          let(:user_ssn) { mvi_profile.ssn }
+
+          it 'responds to GET #show' do
+            get v0_mhv_account_path
+            expect(response).to be_success
+            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+          end
+
+          it 'raises error for POST #create' do
+            post v0_mhv_account_path
+            expect(response).to have_http_status(:forbidden)
+          end
+        end
+
+        context 'with non va patient' do
+          let(:vha_facility_ids) { [] }
+
+          it 'responds to GET #show' do
+            get v0_mhv_account_path
+            expect(response).to be_success
+            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+          end
+
+          it 'raises error for POST #create' do
+            post v0_mhv_account_path
+            expect(response).to have_http_status(:forbidden)
+          end
         end
       end
     end
