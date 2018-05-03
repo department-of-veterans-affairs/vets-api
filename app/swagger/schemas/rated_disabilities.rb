@@ -42,7 +42,7 @@ module Swagger
         property :rating_decision_id, type: :string, example: '63655'
         property :rating_percentage, type: :integer, example: '100'
         property :related_disability_date, type: :datetime, example: '2018-03-27T21:00:41.000+0000'
-        property :special_issues, do
+        property :special_issues do
           items do
             key :type, :array
             key :'$ref', :SpecialIssue

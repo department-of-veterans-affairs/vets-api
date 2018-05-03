@@ -120,6 +120,7 @@ module V0
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Feedbacks,
       Swagger::Requests::Gibct::CalculatorConstants,
