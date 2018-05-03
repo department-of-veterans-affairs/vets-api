@@ -12,6 +12,11 @@ module AsyncTransaction
         #'RECEIVED_DEAD_LETTER_QUEUE' #@TODO Do we know what this is?
       ]
 
+      # Updates the status and transaction_status with fresh API data
+      # @params user [User] the user whose tx data is being updated
+      # @params service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @params tx_id [int] the transaction_id
+      # @returns [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
 
         transaction_record = Base.find_by(user_uuid: user.uuid, transaction_id: tx_id)
@@ -31,6 +36,11 @@ module AsyncTransaction
 
       end
 
+      # Requests a transaction from vet360 for an app transaction
+      # @params user [User] the user whose tx data is being updated
+      # @params transaction_record [AsyncTransaction::Vet360::Base] the tx record to be checked
+      # @params service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @returns [Vet360::Models::Transaction]
       def self.fetch_transaction(user, transaction_record, service)
         
         response = case transaction_record
@@ -47,9 +57,10 @@ module AsyncTransaction
 
       end
 
-
+      # Returns true if a transaction is "over"
+      # @return [Boolean]
       def finished?
-        # These SHOULD go hand-in-hand
+        # These SHOULD go hand-in-hand...
         return true if FINAL_STATUSES.include? self.transaction_status
         return true if END_STATUS == self.status
         
