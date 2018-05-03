@@ -11,7 +11,7 @@ module AsyncTransaction
         return unless transaction_record
 
         vet360_service = ::Vet360::ContactInformation::Service.new(user) # @TODO this is stinky
-        fresh_transaction = case transaction_record
+        response = case transaction_record
         when AsyncTransaction::Vet360::AddressTransaction
           vet360_service.get_address_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::EmailTransaction
@@ -24,7 +24,8 @@ module AsyncTransaction
 
         #@TODO Do we need error handling here or let the client do it?
 
-        transaction_record.update!(transaction_status: fresh_transaction.status)
+        transaction_record.update!(transaction_status: response.transaction.status)
+        return transaction_record
 
       end
     end

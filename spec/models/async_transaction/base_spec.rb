@@ -47,4 +47,26 @@ RSpec.describe AsyncTransaction::Base, type: :model do
       expect(record3).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
     end
   end
+
+  describe 'refresh_transaction_status()' do
+    let(:user) { build(:user, :loa3) }
+    let(:transaction1) { 
+      create(:address_transaction,
+        transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+        user_uuid: user.uuid,
+        transaction_status: 'RECEIVED'
+      )
+    }
+
+    it 'updates the transaction_status', :aggregate_failures do
+      
+      # @TODO This is a temporary shim while I figure out how to alter the vet360_id to match the existing cassette
+      VCR.use_cassette('vet360/contact_information/address_transaction_status2') do
+        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(user, transaction1.transaction_id)
+        expect(updated_transaction.transaction_status).to eq('COMPLETED_SUCCESS')
+      end
+
+    end
+  end
+
 end
