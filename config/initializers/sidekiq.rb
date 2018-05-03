@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+Sidekiq::Enterprise.unique! if Rails.env.production?
 
 Sidekiq.configure_server do |config|
   config.redis = REDIS_CONFIG['redis']
