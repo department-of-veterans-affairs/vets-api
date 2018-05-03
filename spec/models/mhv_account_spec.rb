@@ -72,8 +72,8 @@ RSpec.describe MhvAccount, type: :model do
             subject = described_class.new(base_attributes)
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('needs_ssn_resolution')
-            expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_truthy
+            expect(subject.creatable?).to be_falsey
           end
         end
 
@@ -84,8 +84,8 @@ RSpec.describe MhvAccount, type: :model do
             subject = described_class.new(base_attributes)
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('needs_va_patient')
-            expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_truthy
+            expect(subject.creatable?).to be_falsey
           end
         end
 
@@ -99,7 +99,7 @@ RSpec.describe MhvAccount, type: :model do
             )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('registered')
-            expect(subject.eligible?).to be_truthy
+            expect(subject.creatable?).to be_truthy
           end
 
           it 'a priori failed upgrade that has been registered changes to registered' do
@@ -124,26 +124,34 @@ RSpec.describe MhvAccount, type: :model do
             )
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('upgraded')
-            expect(subject.eligible?).to be_truthy
+            expect(subject.creatable?).to be_falsey
             expect(subject.terms_and_conditions_accepted?).to be_truthy
           end
         end
 
+        # NOTE: THIS IS IMPORTANT, we're going to need a database migration, and a change to support multiple mhv_accounts
+        # tied to a certain user. Existing accounts might become outdated, but we should retain the record.
+        # furthoermore we should create a new account again when user acknowledges, perhaps T&C need to be tied to specific
+        # MHV accounts. I can elaborate on this more in discussion.
+        # additionally we should log the specific mhv correlation id of the account that was created / upgraded
+        # TODO TODO TODO TODO
         context 'without mhv id' do
-          it 'a priori registered account changes to registered' do
+          it 'a priori registered account changes to no_account' do
             subject = described_class.new(
               base_attributes.merge(registered_at: Time.current, account_state: :registered)
             )
             subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('registered')
+            expect(subject.creatable?).to be_truthy
+            expect(subject.account_state).to eq('no_account')
           end
 
-          it 'a priori upgraded account changes to upgraded' do
+          it 'a priori upgraded account changes to no_account' do
             subject = described_class.new(
               base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
             )
             subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
+            expect(subject.creatable?).to be_truthy
+            expect(subject.account_state).to eq('no_account')
           end
 
           it 'is able to transition back to upgraded' do
@@ -151,9 +159,9 @@ RSpec.describe MhvAccount, type: :model do
               base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
             )
             subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-            expect(subject.eligible?).to be_truthy
             expect(subject.terms_and_conditions_accepted?).to be_truthy
+            expect(subject.creatable?).to be_truthy
+            expect(subject.account_state).to eq('no_account')
           end
         end
 
@@ -161,7 +169,7 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(base_attributes.merge(registered_at: Time.current))
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('registered')
-          expect(subject.eligible?).to be_truthy
+          expect(subject.creatable?).to be_falsey
           expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
@@ -169,7 +177,7 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(base_attributes)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('unknown')
-          expect(subject.eligible?).to be_truthy
+          expect(subject.creatable?).to be_falsey
           expect(subject.terms_and_conditions_accepted?).to be_truthy
         end
 
@@ -194,7 +202,7 @@ RSpec.describe MhvAccount, type: :model do
             subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('needs_ssn_resolution')
-            expect(subject.eligible?).to be_truthy
+            expect(subject.creatable?).to be_falsey
             expect(subject.terms_and_conditions_accepted?).to be_falsey
           end
         end
@@ -206,7 +214,7 @@ RSpec.describe MhvAccount, type: :model do
             subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('needs_va_patient')
-            expect(subject.eligible?).to be_truthy
+            expect(subject.creatable?).to be_falsey
             expect(subject.terms_and_conditions_accepted?).to be_falsey
           end
         end
@@ -219,7 +227,7 @@ RSpec.describe MhvAccount, type: :model do
             subject = described_class.new(base_attributes)
             subject.send(:setup) # This gets called when object is first loaded
             expect(subject.account_state).to eq('existing')
-            expect(subject.eligible?).to be_truthy
+            expect(subject.creatable?).to be_falsey
             expect(subject.terms_and_conditions_accepted?).to be_falsey
           end
         end
@@ -228,7 +236,7 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'upgraded', upgraded_at: Time.current)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.eligible?).to be_truthy
+          expect(subject.creatable?).to be_falsey
           expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
 
@@ -236,7 +244,7 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'registered', registered_at: Time.current)
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.eligible?).to be_truthy
+          expect(subject.creatable?).to be_falsey
           expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
 
@@ -244,132 +252,8 @@ RSpec.describe MhvAccount, type: :model do
           subject = described_class.new(user_uuid: user.uuid, account_state: 'unknown')
           subject.send(:setup) # This gets called when object is first loaded
           expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.eligible?).to be_truthy
+          expect(subject.creatable?).to be_falsey
           expect(subject.terms_and_conditions_accepted?).to be_falsey
-        end
-      end
-    end
-
-    context 'user with un-dashed uuid' do
-      let(:nodashuser) do
-        create(:user, :loa3,
-               uuid: 'abcdef12345678',
-               ssn: mvi_profile.ssn,
-               first_name: mvi_profile.given_names.first,
-               last_name: mvi_profile.family_name,
-               gender: mvi_profile.gender,
-               birth_date: mvi_profile.birth_date,
-               email: 'vets.gov.user+0@gmail.com')
-      end
-      let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
-      before(:each) do
-        create(:terms_and_conditions_acceptance,
-               terms_and_conditions: terms,
-               user_uuid: nodashuser.uuid)
-      end
-      let(:base_attributes) { { user_uuid: nodashuser.uuid, account_state: 'needs_terms_acceptance' } }
-      let(:vha_facility_ids) { %w[200MH 488] }
-
-      it 'is eligible with at least one facility in range' do
-        subject = described_class.new(base_attributes)
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.eligible?).to be_truthy
-      end
-    end
-  end
-
-  describe 'va_patient eligibility' do
-    subject { described_class.new(user_uuid: user.uuid) }
-    context 'empty facility list' do
-      let(:vha_facility_ids) { [] }
-      it 'is ineligible if vha facility list is empty' do
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).to eq('needs_va_patient')
-      end
-    end
-
-    context 'nil facility list' do
-      let(:vha_facility_ids) { nil }
-      it 'is ineligible if vha facility list is nil' do
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).to eq('needs_va_patient')
-      end
-    end
-
-    context 'with standard range' do
-      it 'is eligible with facility in range' do
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).not_to eq('needs_va_patient')
-      end
-
-      context 'with multiple facilities' do
-        let(:vha_facility_ids) { %w[200MH 488] }
-        it 'is eligible with at least one facility in range' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).not_to eq('needs_va_patient')
-        end
-      end
-
-      context 'with alphanumeric facility' do
-        let(:vha_facility_ids) { ['566GE'] }
-        it 'is eligible with facility in range' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).not_to eq('needs_va_patient')
-        end
-      end
-
-      context 'with excluded facility in middle of range' do
-        let(:vha_facility_ids) { ['719'] }
-        it 'is ineligible' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('needs_va_patient')
-        end
-      end
-    end
-
-    context 'with user facility on edge of range' do
-      before do
-        Settings.mhv.facility_range = [[450, 758]]
-      end
-      it 'is eligible with facility at edge ef range' do
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).not_to eq('needs_va_patient')
-      end
-    end
-
-    context 'with even more abbreviated range' do
-      before do
-        Settings.mhv.facility_range = [[600, 758]]
-      end
-
-      it 'is ineligible with facility out of range' do
-        subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-        subject.send(:setup) # This gets called when object is first loaded
-        expect(subject.account_state).to eq('needs_va_patient')
-      end
-
-      context 'with multiple facilities' do
-        let(:vha_facility_ids) { %w[200MH 488] }
-        it 'is ineligible with all facilities out of range' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('needs_va_patient')
-        end
-      end
-
-      context 'with alphanumeric facility' do
-        let(:vha_facility_ids) { ['566GE'] }
-        it 'is ineligible with facility out of range' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('needs_va_patient')
         end
       end
     end
