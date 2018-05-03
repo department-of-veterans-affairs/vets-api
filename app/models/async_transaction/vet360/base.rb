@@ -15,11 +15,11 @@ module AsyncTransaction
         when AsyncTransaction::Vet360::AddressTransaction
           vet360_service.get_address_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::EmailTransaction
-          vet360_service.get_email_transaction_status()
+          vet360_service.get_email_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::TelephoneTransaction
-          vet360_service.get_telephone_transaction_status()
+          vet360_service.get_telephone_transaction_status(transaction_record.transaction_id)
         else
-          # raise exception
+          # @TODO raise exception
         end
 
         #@TODO Do we need error handling here or let the client do it?

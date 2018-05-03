@@ -62,8 +62,8 @@ module Vet360
       # GET's the status of an email transaction from the Vet360 api
       # @params transaction [Vet360::Models::Transaction] the transaction to check
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
-      def get_email_transaction_status(transaction)
-        route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
+      def get_email_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
         get_transaction_status(route, EmailTransactionResponse)
       end
 
@@ -84,8 +84,8 @@ module Vet360
       # GET's the status of a telephone transaction from the Vet360 api
       # @params transaction [Vet360::Models::Transaction] the transaction to check
       # @returns [Vet360::ContactInformation::TelephoneTransactionResponse] response wrapper around a transaction object
-      def get_telephone_transaction_status(transaction)
-        route = "#{@user.vet360_id}/telephones/status/#{transaction.id}"
+      def get_telephone_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
         get_transaction_status(route, TelephoneTransactionResponse)
       end
 
