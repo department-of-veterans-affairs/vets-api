@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 module Swagger
   module Requests
     class Profile
@@ -500,3 +501,4 @@ module Swagger
     end
   end
 end
+# rubocop:enable Metrics/ClassLength
