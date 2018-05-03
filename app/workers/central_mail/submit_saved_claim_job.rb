@@ -89,7 +89,6 @@ module CentralMail
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
-        'zipCode' => address['postalCode'],
         'uuid' => @claim.guid,
         'source' => 'Vets.gov',
         'hashV' => form_pdf_metadata[:hash],
@@ -97,6 +96,8 @@ module CentralMail
         'docType' => @claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
+
+      metadata['zipCode'] = address['postalCode'] if address['country'] == 'USA'
 
       @attachment_paths.each_with_index do |file_path, i|
         j = i + 1
