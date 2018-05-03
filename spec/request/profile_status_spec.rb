@@ -19,7 +19,7 @@ RSpec.describe 'profile_status', type: :request do
     let(:address) { build(:vet360_address, source_id: '1', transaction_status: 'RECEIVED' ) }
 
     context 'when the requested transaction exists' do
-      it 'it should return a 200 ', :aggregate_failures do
+      it 'it responds with a serialized transaction', :aggregate_failures do
 
         transaction = create(:address_transaction, {user_uuid: user.uuid, transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'})
         
@@ -31,6 +31,9 @@ RSpec.describe 'profile_status', type: :request do
             auth_header
           )
           expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body["data"]["type"]).to eq('async_transaction_vet360_address_transactions')
+          # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
         end
       end
     end
