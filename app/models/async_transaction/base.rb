@@ -3,6 +3,10 @@
 module AsyncTransaction
   class Base < ActiveRecord::Base
     self.table_name = 'async_transactions'
+
+    INITIAL_STATUS = 'requested'
+    END_STATUS = 'completed'
+
     validates :id, uniqueness: true
     validates :user_uuid, :source_id, :source, :status, :transaction_id, presence: true
     validates :transaction_id,

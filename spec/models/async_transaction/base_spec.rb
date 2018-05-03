@@ -60,9 +60,10 @@ RSpec.describe AsyncTransaction::Base, type: :model do
 
     it 'updates the transaction_status', :aggregate_failures do
       
+      service = ::Vet360::ContactInformation::Service.new(user)
       # @TODO This is a temporary shim while I figure out how to alter the vet360_id to match the existing cassette
       VCR.use_cassette('vet360/contact_information/address_transaction_status2') do
-        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(user, transaction1.transaction_id)
+        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(user, service, transaction1.transaction_id)
         expect(updated_transaction.transaction_status).to eq('COMPLETED_SUCCESS')
       end
 
