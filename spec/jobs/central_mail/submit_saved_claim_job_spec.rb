@@ -116,8 +116,8 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
           claim.send(:remove_instance_variable, :@parsed_form)
         end
 
-        it 'should generate metadata without zipcode' do
-          expect(job.generate_metadata.keys.include?('zipCode')).to eq(false)
+        it 'should generate metadata with 00000 for zipcode' do
+          expect(job.generate_metadata['zipCode']).to eq('00000')
         end
       end
 

@@ -4,6 +4,8 @@ module CentralMail
   class SubmitSavedClaimJob
     include Sidekiq::Worker
 
+    FOREIGN_POSTALCODE = '00000'
+
     sidekiq_options retry: false
 
     class CentralMailResponseError < StandardError
@@ -90,14 +92,13 @@ module CentralMail
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => @claim.guid,
+        'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => 'Vets.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => number_attachments,
         'docType' => @claim.form_id,
         'numberPages' => form_pdf_metadata[:pages]
       }
-
-      metadata['zipCode'] = address['postalCode'] if address['country'] == 'USA'
 
       @attachment_paths.each_with_index do |file_path, i|
         j = i + 1
