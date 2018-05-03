@@ -1263,6 +1263,36 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports posting vet360 address data' do
+        expect(subject).to validate(:post, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_address_success') do
+          address = build(:vet360_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 address data' do
+        expect(subject).to validate(:put, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_address_success') do
+          address = build(:vet360_address, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
     end
   end
 

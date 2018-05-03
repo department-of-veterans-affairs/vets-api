@@ -5,6 +5,99 @@ module Swagger
     class Profile
       include Swagger::Blocks
 
+      swagger_path '/v0/profile/addresses' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates a users Vet360 address'
+          key :operationId, 'postVet360Address'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create an address.'
+            key :required, true
+
+            schema do
+              property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
+              property :address_pou, type: :string, enum:
+                %w[
+                  RESIDENCE/CHOICE
+                  CORRESPONDENCE
+                ], example: 'RESIDENCE/CHOICE'
+              property :address_type, type: :string, enum:
+                %w[
+                  domestic
+                  international
+                  military overseas
+                ], example: 'domestic'
+              property :city, type: :string, example: 'Fulton'
+              property :country, type: :string, example: 'USA'
+              property :state_abbr, type: :string, example: 'MS'
+              property :zip_code, type: :string, example: '38843'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing Vet360 address'
+          key :operationId, 'putVet360Address'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update an address.'
+            key :required, true
+
+            schema do
+              property :id, type: :integer, example: 1
+              property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
+              property :address_pou, type: :string, enum:
+                %w[
+                  RESIDENCE/CHOICE
+                  CORRESPONDENCE
+                ], example: 'RESIDENCE/CHOICE'
+              property :address_type, type: :string, enum:
+                %w[
+                  domestic
+                  international
+                  military overseas
+                ], example: 'domestic'
+              property :city, type: :string, example: 'Fulton'
+              property :country, type: :string, example: 'USA'
+              property :state_abbr, type: :string, example: 'MS'
+              property :zip_code, type: :string, example: '38843'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/alternate_phone' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
