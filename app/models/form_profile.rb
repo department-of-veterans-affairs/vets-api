@@ -40,7 +40,6 @@ class FormAddress
   attribute :state
   attribute :country
   attribute :postal_code
-  attribute :zipcode
 end
 
 class FormIdentityInformation
@@ -191,8 +190,9 @@ class FormProfile
         street2: nil,
         city: user.va_profile.address.city,
         state: user.va_profile.address.state,
-        country: user.va_profile.address.country
-      ).merge!(derive_postal_code(user))
+        country: user.va_profile.address.country,
+        postal_code: user.va_profile.address.postal_code
+      )
     end
 
     pciu_email = extract_pciu_data(user, :pciu_email)
@@ -210,13 +210,6 @@ class FormProfile
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException
     return ''
-  end
-
-  # For 10-10ez forms, this function is overridden to provide a different
-  # key for postal_code is used depending on the country. The default behaviour
-  # here is used for other form types
-  def derive_postal_code(user)
-    { postal_code: user.va_profile.address.postal_code }
   end
 
   def get_us_phone(home_phone)
