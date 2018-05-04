@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'hca/service'
 
-RSpec.describe 'Health Care Application Integration', type: %i[request serializer] do
+RSpec.describe V0::HealthCareApplicationsV2Controller, type: %i[serializer controller] do
   let(:test_veteran) do
     JSON.parse(
       File.read(
@@ -12,31 +11,11 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     )
   end
 
-  describe 'GET healthcheck' do
-    subject do
-      get(healthcheck_v0_health_care_applications_path)
-    end
-    let(:body) do
-      { 'formSubmissionId' => 377_609_264,
-        'timestamp' => '2016-12-12T08:06:08.423-06:00' }
-    end
-    let(:es_stub) { double(health_check: { up: true }) }
-
-    it 'should call ES' do
-      VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
-        subject
-        expect(JSON.parse(response.body)).to eq(body)
-      end
-    end
-  end
-
   describe 'GET show' do
     it 'should render json of the application' do
       health_care_application = create(:health_care_application)
 
-      get(
-        v0_health_care_application_path(id: health_care_application.id)
-      )
+      get(:show, id: health_care_application.id)
       expect(response.body).to eq(serialize(health_care_application))
     end
   end

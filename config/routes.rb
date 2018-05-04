@@ -48,11 +48,13 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :health_care_applications, only: %i[create show] do
+    resources :health_care_applications, only: %i[create] do
       collection do
         get(:healthcheck)
       end
     end
+
+    resources :health_care_applications_v2, only: %i[create show]
 
     if Settings.pension_burial.upload.enabled
       resources :pension_claims, only: %i[create show]
