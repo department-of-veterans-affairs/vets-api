@@ -30,6 +30,17 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     end
   end
 
+  describe 'GET show' do
+    it 'should render json of the application' do
+      health_care_application = create(:health_care_application)
+
+      get(
+        v0_health_care_application_path(id: health_care_application.id)
+      )
+      expect(response.body).to eq(serialize(health_care_application))
+    end
+  end
+
   describe 'POST create' do
     subject do
       post(
@@ -72,6 +83,15 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         }
       end
 
+      def test_submission
+        HCA::SubmissionJob.drain
+
+        health_care_application = HealthCareApplication.find(JSON.parse(response.body)['data']['id'])
+        expect(health_care_application.state).to eq('success')
+        expect(health_care_application.form_submission_id).to eq(body['formSubmissionId'])
+        expect(health_care_application.timestamp).to eq(body['timestamp'])
+      end
+
       context 'anonymously' do
         let(:body) do
           { 'formSubmissionId' => 40_124_668_140,
@@ -82,13 +102,13 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         it 'should render success', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
-            expect(JSON.parse(response.body)).to eq(body)
+            test_submission
           end
         end
       end
 
       context 'while authenticated', skip_mvi: true do
-        let(:current_user) { build(:user, :mhv) }
+        let(:current_user) { create(:user, :mhv) }
 
         before do
           use_authenticated_current_user(current_user: current_user)
@@ -104,66 +124,9 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
             expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZ').once
             subject
-            expect(JSON.parse(response.body)).to eq(body)
+
+            test_submission
           end
-        end
-      end
-
-      context 'with an invalid discharge date' do
-        let(:discharge_date) { Time.zone.today + 181.days }
-        let(:params) do
-          test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
-
-          {
-            form: test_veteran.to_json
-          }
-        end
-
-        let(:body) do
-          {
-            'errors' => [
-              {
-                'title' => 'Invalid field value',
-                'detail' => "\"#{discharge_date.strftime('%Y-%m-%d')}\" is not a valid value for \"lastDischargeDate\"",
-                'code' => '103',
-                'status' => '400'
-              }
-            ]
-          }
-        end
-
-        it 'should raise an invalid field value error' do
-          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
-            subject
-            expect(JSON.parse(response.body)).to eq(body)
-          end
-        end
-      end
-
-      context 'with a SOAP error' do
-        let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
-        before do
-          allow_any_instance_of(HCA::Service).to receive(:post) do
-            raise error
-          end
-          Settings.sentry.dsn = 'asdf'
-        end
-        after do
-          Settings.sentry.dsn = nil
-        end
-
-        it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error, level: 'error').twice
-
-          subject
-
-          expect(response.code).to eq('400')
-          expect(JSON.parse(response.body)).to eq(
-            'errors' => [
-              { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
-            ]
-          )
         end
       end
     end
