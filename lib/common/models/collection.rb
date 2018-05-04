@@ -54,6 +54,10 @@ module Common
     def self.fetch(klass, cache_key: nil, ttl: CACHE_DEFAULT_TTL)
       raise 'No Block Given' unless block_given?
       if cache_key
+        if cache_key == 'geteligibledataclass'
+          pry
+        end
+
         json_string = redis_namespace.get(cache_key)
         if json_string.nil?
           collection = new(klass, yield.merge(cache_key: cache_key))
