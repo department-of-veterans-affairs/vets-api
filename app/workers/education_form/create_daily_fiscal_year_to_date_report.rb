@@ -5,6 +5,8 @@ module EducationForm
     include Sidekiq::Worker
     require 'csv'
 
+    sidekiq_options(unique_for: 30.minutes)
+
     TOTALS_HASH = {
       yearly: 0,
       daily_submitted: 0,
