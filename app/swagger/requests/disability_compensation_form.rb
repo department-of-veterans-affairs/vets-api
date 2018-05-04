@@ -11,7 +11,7 @@ module Swagger
 
           key :description, 'Get a list of previously rated disabilities for a veteran'
           key :operationId, 'getRatedDisabilities'
-          key :tags, %w[benefits_info]
+          key :tags, %w[form_526]
 
           parameter :authorization
 
@@ -30,7 +30,7 @@ module Swagger
 
           key :description, 'Submit the disability compensation increase application for a veteran'
           key :operationId, 'postSubmitForm'
-          key :tags, %w[benefits_info]
+          key :tags, %w[form_526]
 
           parameter :authorization
 

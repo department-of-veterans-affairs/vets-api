@@ -13,7 +13,7 @@ module Swagger
             key :required, [:rated_disabilities]
             property :rated_disabilities do
               items do
-                key :type, :array
+                key :type, :object
                 key :'$ref', :RatedDisability
               end
             end
@@ -37,14 +37,14 @@ module Swagger
         property :decision_code, type: :string, example: 'SVCCONNCTED'
         property :decision_text, type: :string, example: 'Service Connected'
         property :name, type: :string, example: 'Diabetes mellitus0'
-        property :effective_date, type: :datetime, example: '2018-03-27T21:00:41.000+0000'
+        property :effective_date, type: :string, example: '2018-03-27T21:00:41.000+0000'
         property :rated_disability_id, type: :string, example: '0'
         property :rating_decision_id, type: :string, example: '63655'
         property :rating_percentage, type: :integer, example: '100'
-        property :related_disability_date, type: :datetime, example: '2018-03-27T21:00:41.000+0000'
+        property :related_disability_date, type: :string, example: '2018-03-27T21:00:41.000+0000'
         property :special_issues do
           items do
-            key :type, :array
+            key :type, :object
             key :'$ref', :SpecialIssue
           end
         end

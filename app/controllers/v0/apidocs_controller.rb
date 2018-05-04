@@ -149,6 +149,7 @@ module V0
       Swagger::Schemas::Appeals,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
+      Swagger::Schemas::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
       Swagger::Schemas::Gibct::CalculatorConstants,
@@ -167,6 +168,7 @@ module V0
       Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
+      Swagger::Schemas::SubmitDisabilityForm,
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::VAFacilities,
       self

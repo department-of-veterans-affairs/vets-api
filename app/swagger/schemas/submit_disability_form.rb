@@ -2,7 +2,7 @@
 
 module Swagger
   module Schemas
-    class SubmitDisabiliyForm
+    class SubmitDisabilityForm
       include Swagger::Blocks
 
       swagger_schema :SubmitDisabilityForm do
