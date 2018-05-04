@@ -28,6 +28,11 @@ module V0
       clear_saved_form(FORM_ID)
 
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+
+      if result[:success]
+        HCASubmissionMailer.build(form['email'], result[:timestamp], result[:formSubmissionId]).deliver_now
+      end
+
       render(json: result)
     end
 

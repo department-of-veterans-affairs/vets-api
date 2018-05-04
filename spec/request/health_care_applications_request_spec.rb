@@ -66,6 +66,17 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     end
 
     context 'with valid params' do
+      def test_confirmation_email(cassette)
+        VCR.use_cassette(cassette, match_requests_on: [:body]) do
+          expect(HCASubmissionMailer).to receive(:build).once.with(
+            'foo@example.com', String, Integer
+          ).and_return(double.tap do |mailer|
+            expect(mailer).to receive(:deliver_now).once
+          end)
+          subject
+        end
+      end
+
       let(:params) do
         {
           form: test_veteran.to_json
@@ -84,6 +95,10 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
+        end
+
+        it 'should send an email', run_at: '2017-01-31' do
+          test_confirmation_email 'hca/submit_anon'
         end
       end
 
@@ -106,6 +121,10 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
+        end
+
+        it 'should send an email', run_at: '2017-01-31' do
+          test_confirmation_email 'hca/submit_auth'
         end
       end
 
