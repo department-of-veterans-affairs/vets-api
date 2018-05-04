@@ -17,5 +17,21 @@ describe Common::HashHelpers do
         a: '', c: {}
       )
     end
+
+    it 'should compact nested arrays' do
+      hash = {
+        a: [
+          nil,
+          {
+            a: 1,
+            b: nil
+          }
+        ]
+      }
+
+      expect(described_class.deep_compact(hash)).to eq(
+        a: [{ a: 1 }]
+      )
+    end
   end
 end
