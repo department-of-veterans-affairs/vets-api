@@ -35,10 +35,10 @@ describe Vet360::Models::Base do
     end
 
     context 'for model instances that do not have the default attributes' do
-      it 'returns nil' do
-        message = Vet360::Models::Message.with_defaults(user, {})
-
-        expect(message).to be_nil
+      it 'raises a RuntimeError' do
+        expect { Vet360::Models::Message.with_defaults(user, {}) }.to raise_error(
+          RuntimeError
+        )
       end
     end
   end
