@@ -3,7 +3,8 @@
 module AsyncTransaction
   module Vet360
     class Base < AsyncTransaction::Base
-      SENT = 'sent'
+      REQUESTED = 'requested'
+      COMPLETED = 'completed'
 
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
@@ -17,7 +18,7 @@ module AsyncTransaction
           user_uuid: user.uuid,
           source_id: user.vet360_id,
           source: 'vet360',
-          status: SENT,
+          status: REQUESTED,
           transaction_id: response.transaction.id,
           transaction_status: response.transaction.status
         )
