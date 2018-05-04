@@ -122,6 +122,7 @@ mhv:
     app_token: fake-app-token
     mock: true
   bb:
+    mock: true
     collection_caching_enabled: true
 
 # Settings for Master Veteran Index
@@ -247,4 +248,3 @@ betamocks:
 faraday_socks_proxy:
   enabled: false
   uri: socks5://localhost:2002
-
