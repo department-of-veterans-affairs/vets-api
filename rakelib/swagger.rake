@@ -6,7 +6,8 @@ namespace :swagger do
     raise IOError, 'No json-schema file provided' unless args[:json_schema_file]
     schema_path = Rails.root.join('spec', 'support', 'schemas', args[:json_schema_file])
     raise IOError, "No json-schema file at #{schema_path}" unless File.exist? schema_path
-    json = JSON.parse(schema_path)
+    schema = File.read(schema_path)
+    json = JSON.parse(schema)
     puts "\n-----START BLOCK-----\n\n"
     render_required(json) if json.key?('required')
     render_properties json
