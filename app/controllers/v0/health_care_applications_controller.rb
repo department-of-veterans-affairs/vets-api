@@ -36,7 +36,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::GatewayTimeout]
+      super + [Common::Exceptions::GatewayTimeout, Common::Exceptions::BackendServiceException]
     end
 
     def validate!(form)
