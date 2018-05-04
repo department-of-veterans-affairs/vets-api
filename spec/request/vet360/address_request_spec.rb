@@ -81,7 +81,7 @@ RSpec.describe 'address', type: :request do
       end
     end
 
-    context 'with a validtion issue' do
+    context 'with a validation issue' do
       it 'should match the errors schema', :aggregate_failures do
         address.address_pou = ''
 
@@ -134,7 +134,7 @@ RSpec.describe 'address', type: :request do
       end
     end
 
-    context 'with a validtion issue' do
+    context 'with a validation issue' do
       it 'should match the errors schema', :aggregate_failures do
         address.address_pou = ''
 
