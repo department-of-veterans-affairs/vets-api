@@ -2,8 +2,6 @@
 
 class SavedClaim::Burial < CentralMailClaim
   FORM = '21P-530'
-  CONFIRMATION = 'BUR'
-  PERSISTENT_CLASS = PersistentAttachments::PensionBurial
 
   def regional_office
     PensionBurial::ProcessingOffice.address_for(open_struct_form.claimantAddress.postalCode)
