@@ -83,7 +83,7 @@ RSpec.describe 'telephone', type: :request do
       end
     end
 
-    context 'with a validtion issue' do
+    context 'with a validation issue' do
       it 'should match the errors schema', :aggregate_failures do
         telephone.phone_number = ''
 
@@ -138,7 +138,7 @@ RSpec.describe 'telephone', type: :request do
       end
     end
 
-    context 'with a validtion issue' do
+    context 'with a validation issue' do
       it 'should match the errors schema', :aggregate_failures do
         telephone.phone_number = ''
 
