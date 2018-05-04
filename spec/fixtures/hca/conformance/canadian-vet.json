@@ -30,7 +30,7 @@
     "city": "St. Albert",
     "country": "CAN",
     "state": "AB",
-    "zipcode": "00111"
+    "postalCode": "00111"
   },
   "email": "foo@example.com",
   "homePhone": "1231241234",
@@ -53,7 +53,7 @@
     "city": "St. Albert",
     "country": "CAN",
     "state": "AB",
-    "zipcode": "00111"
+    "postalCode": "00111"
   },
   "spousePhone": "1112221234",
   "dependents": [

@@ -49,6 +49,10 @@ module V0
         key :description, 'Check status of benefits claims and appeals'
       end
       tag do
+        key :name, 'form_526'
+        key :description, 'Creating and submitting compensation applications'
+      end
+      tag do
         key :name, 'prescriptions'
         key :description, 'Prescription refill/tracking operations'
       end
@@ -122,6 +126,7 @@ module V0
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::InProgressForms,
+      Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::Messages::Folders,
@@ -154,6 +159,7 @@ module V0
       Swagger::Schemas::Health::Prescriptions,
       Swagger::Schemas::Health::Trackings,
       Swagger::Schemas::Health::TriageTeams,
+      Swagger::Schemas::IntentToFile,
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,

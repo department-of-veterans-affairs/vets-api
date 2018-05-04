@@ -6,7 +6,7 @@ module EVSS
       self.read_timeout = Settings.evss.letters.timeout || 55
 
       def base_path
-        "#{Settings.evss.url}/wss-lettergenerator-services-web/rest/letters/v1"
+        "#{Settings.evss.letters.url}/wss-lettergenerator-services-web/rest/letters/v1"
       end
 
       def service_name
