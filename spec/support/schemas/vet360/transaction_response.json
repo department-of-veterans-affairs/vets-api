@@ -6,7 +6,7 @@
       "properties": {
         "attributes": {
           "properties": {
-            "status": {
+            "transaction_status": {
               "type": "string"
             },
             "transaction_id": {
