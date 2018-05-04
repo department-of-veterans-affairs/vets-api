@@ -2,6 +2,8 @@
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
+    include FormAttachmentCreate
+
     before_action { authorize :evss, :access? }
 
     def rated_disabilities
@@ -14,6 +16,19 @@ module V0
       response = service.submit_form(request.body.string)
       render json: response,
              serializer: SubmitDisabilityFormSerializer
+    end
+
+    def upload_ancillary_form
+      params.require :file
+
+      document = FormAttachmentCreate.new.create #how does this object work?
+
+      raise Common::Exceptions::ValidationErrors, document.errors unless document.valid?
+
+      uploader = AncillaryFormAttachmentUploader.new(@current_user.uuid)
+      uploader.store!(document.file_obj)
+
+      #return guid for the upload
     end
 
     private

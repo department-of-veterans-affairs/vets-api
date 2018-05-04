@@ -27,6 +27,7 @@ Rails.application.routes.draw do
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       post 'submit'
+      post 'upload_ancillary_form'
     end
 
     resource :sessions, only: :destroy do
