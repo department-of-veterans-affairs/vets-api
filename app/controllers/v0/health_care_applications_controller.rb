@@ -18,6 +18,7 @@ module V0
       result = begin
         HCA::Service.new(current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
+        log_exception_to_sentry(e)
         raise Common::Exceptions::BackendServiceException.new(
           nil, detail: e.message
         )
