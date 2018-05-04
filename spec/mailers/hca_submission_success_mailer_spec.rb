@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe HCASubmissionMailer, type: [:mailer] do
+RSpec.describe HCASubmissionSuccessMailer, type: [:mailer] do
   let(:email) { 'foo@example.com' }
   let(:date) { '2016-05-25T04:59:39.345-05:00' }
   let(:confirmation_number) { 40_124_668_140 }

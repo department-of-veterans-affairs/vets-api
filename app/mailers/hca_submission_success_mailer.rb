@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-class HCASubmissionMailer < ApplicationMailer
+class HCASubmissionSuccessMailer < ApplicationMailer
   def build(email, received_at, confirmation_number)
     @received_at = received_at
     @confirmation_number = confirmation_number
-    template = File.read('app/mailers/views/hca_submission.html.erb')
+    template = File.read('app/mailers/views/hca_submission_success.html.erb')
 
     mail(
       to: email,
