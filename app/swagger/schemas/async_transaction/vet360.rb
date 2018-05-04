@@ -12,7 +12,7 @@ module Swagger
           property :data, type: :object do
             key :required, [:attributes]
             property :attributes, type: :object do
-              property :status, type: :string, enum:
+              property :transaction_status, type: :string, enum:
                 %w[
                   REJECTED
                   RECEIVED
