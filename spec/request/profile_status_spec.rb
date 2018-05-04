@@ -10,6 +10,13 @@ RSpec.describe 'profile_status', type: :request do
   let(:user) { build(:user, :loa3) }
 
   before do
+    # vet360_id appears in the API request URI so we need it to match the cassette
+    allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+      MVI::Responses::FindProfileResponse.new(
+        status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+        profile: build(:mvi_profile, vet360_id: '1')
+      )
+    )
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
   end
@@ -23,8 +30,7 @@ RSpec.describe 'profile_status', type: :request do
 
         transaction = create(:address_transaction, {user_uuid: user.uuid, transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'})
         
-        # @TODO This is a temporary shim while I figure out how to alter the vet360_id to match the existing cassette
-        VCR.use_cassette('vet360/contact_information/address_transaction_status2') do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
           get(
             "/v0/profile/status/#{transaction.transaction_id}",
             nil,
