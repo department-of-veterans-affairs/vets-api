@@ -19,9 +19,7 @@ module AsyncTransaction
       # @returns [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
 
-        transaction_record = Base.find_by(user_uuid: user.uuid, transaction_id: tx_id)
-
-        raise Common::Exceptions::RecordNotFound, transaction_record unless transaction_record
+        transaction_record = Base.find_by!(user_uuid: user.uuid, transaction_id: tx_id)
 
         # No need for a API request if this tx is already complete
         return transaction_record if transaction_record.finished?
@@ -43,7 +41,7 @@ module AsyncTransaction
       # @returns [Vet360::Models::Transaction]
       def self.fetch_transaction(user, transaction_record, service)
         
-        response = case transaction_record
+        case transaction_record
         when AsyncTransaction::Vet360::AddressTransaction
           service.get_address_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::EmailTransaction
