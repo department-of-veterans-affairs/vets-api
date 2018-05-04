@@ -11,11 +11,28 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180416231107) do
+ActiveRecord::Schema.define(version: 20180423182604) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+
+  create_table "async_transactions", force: :cascade do |t|
+    t.string   "type"
+    t.string   "user_uuid"
+    t.string   "source_id"
+    t.string   "source"
+    t.string   "status"
+    t.string   "transaction_id"
+    t.string   "transaction_status"
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "async_transactions", ["source_id"], name: "index_async_transactions_on_source_id", using: :btree
+  add_index "async_transactions", ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true, using: :btree
+  add_index "async_transactions", ["transaction_id"], name: "index_async_transactions_on_transaction_id", using: :btree
+  add_index "async_transactions", ["user_uuid"], name: "index_async_transactions_on_user_uuid", using: :btree
 
   create_table "base_facilities", id: false, force: :cascade do |t|
     t.string   "unique_id",      null: false
