@@ -39,7 +39,6 @@ module BB
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :betamocks if Settings.mhv.bb.mock
-
         conn.response :bb_parser
         conn.response :snakecase
         conn.response :raise_error, error_prefix: service_name
