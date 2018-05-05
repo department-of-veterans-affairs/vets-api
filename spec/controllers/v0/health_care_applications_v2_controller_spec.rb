@@ -23,20 +23,12 @@ RSpec.describe V0::HealthCareApplicationsV2Controller, type: %i[serializer contr
   describe 'POST create' do
     subject do
       post(
-        v0_health_care_applications_path,
-        params.to_json,
-        'CONTENT_TYPE' => 'application/json',
-        'HTTP_X_KEY_INFLECTION' => 'camel'
+        :create,
+        params
       )
     end
 
     context 'with invalid params' do
-      before do
-        Settings.sentry.dsn = 'asdf'
-      end
-      after do
-        Settings.sentry.dsn = nil
-      end
       let(:params) do
         {
           form: test_veteran.except('privacyAgreementAccepted').to_json
