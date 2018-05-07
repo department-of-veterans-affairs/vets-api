@@ -4,6 +4,13 @@
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>:443
   :endpoints:
+    # data classes
+    - :method: :get
+      :path: "/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+      :file_path: "mhv/bluebutton/geteligibledataclass"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
     # MHV rx active
     - :method: :get
       :path: "/mhv-api/patient/v1/prescription/getactiverx"
