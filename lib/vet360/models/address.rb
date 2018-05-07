@@ -38,6 +38,9 @@ module Vet360
       attribute :zip_code_suffix, String
 
       validates :source_date, presence: true
+      validates :country, presence: true
+      validates :city, presence: true
+      validates :address_line1, presence: true
 
       validates(
         :address_pou,
@@ -53,18 +56,23 @@ module Vet360
 
       with_options if: Proc.new { |a| a.address_type == DOMESTIC } do |address|
         address.validates :state_abbr, presence: true
-        address.validates :state_abbr, presence: true
-        address.validates :country_code_iso3, presence: true
+        address.validates :zip_code, presence: true
+        address.validates :province, absence: true
       end
 
       with_options if: Proc.new { |a| a.address_type == INTERNATIONAL } do |address|
         address.validates :international_postal_code, presence: true
+        address.validates :state_abbr, absence: true
+        address.validates :zip_code, absence: true
+        address.validates :zip_code_suffix, absence: true
+        address.validates :county_name, absence: true
+        address.validates :county_code, absence: true
       end
 
       with_options if: Proc.new { |a| a.address_type == MILITARY } do |address|
         address.validates :state_abbr, presence: true
         address.validates :zip_code, presence: true
-        address.validates :zip_code_suffix, presence: true
+        address.validates :province, absence: true
       end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model

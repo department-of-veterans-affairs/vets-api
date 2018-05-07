@@ -21,8 +21,15 @@ FactoryBot.define do
       address_line1 '1515 Broadway'
     end
 
+    trait :domestic do
+      address_type Vet360::Models::Address::DOMESTIC
+    end
+
     trait :international do
       address_type Vet360::Models::Address::INTERNATIONAL
+      international_postal_code '100-0001'
+      state_abbr nil
+      zip_code nil
     end
 
     trait :military_overseas do
