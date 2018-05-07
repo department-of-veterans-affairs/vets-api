@@ -26,7 +26,7 @@ module AsyncTransaction
 
         api_response = Base.fetch_transaction(user, transaction_record, service)
 
-        transaction_record.status = END_STATUS if FINAL_STATUSES.include? api_response.transaction.status
+        transaction_record.status = COMPLETED if FINAL_STATUSES.include? api_response.transaction.status
         transaction_record.transaction_status = api_response.transaction.status
         transaction_record.save!
 
@@ -60,7 +60,7 @@ module AsyncTransaction
       def finished?
         # These SHOULD go hand-in-hand...
         return true if FINAL_STATUSES.include? self.transaction_status
-        return true if END_STATUS == self.status
+        return true if COMPLETED == self.status
         
         return false
       end
