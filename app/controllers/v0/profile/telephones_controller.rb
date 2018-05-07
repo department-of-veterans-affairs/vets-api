@@ -6,7 +6,7 @@ module V0
       before_action { authorize :vet360, :access? }
 
       def create
-        telephone = Vet360::Models::Telephone.with_defaults(@current_user, telephone_params)
+        telephone = Vet360::Models::Telephone.new(telephone_params).set_defaults(@current_user)
 
         if telephone.valid?
           response    = service.post_telephone telephone
@@ -19,7 +19,7 @@ module V0
       end
 
       def update
-        telephone = Vet360::Models::Telephone.with_defaults(@current_user, telephone_params)
+        telephone = Vet360::Models::Telephone.new(telephone_params).set_defaults(@current_user)
 
         if telephone.valid?
           response    = service.put_telephone telephone

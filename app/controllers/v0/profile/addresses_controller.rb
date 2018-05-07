@@ -6,7 +6,7 @@ module V0
       before_action { authorize :vet360, :access? }
 
       def create
-        address = Vet360::Models::Address.with_defaults(@current_user, address_params)
+        address = Vet360::Models::Address.new(address_params).set_defaults(@current_user)
 
         if address.valid?
           response    = service.post_address address
@@ -19,7 +19,7 @@ module V0
       end
 
       def update
-        address = Vet360::Models::Address.with_defaults(@current_user, address_params)
+        address = Vet360::Models::Address.new(address_params).set_defaults(@current_user)
 
         if address.valid?
           response    = service.put_address address
