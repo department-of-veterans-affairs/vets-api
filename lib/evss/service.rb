@@ -7,18 +7,6 @@ module EVSS
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.evss'
 
-    class << self
-      attr_accessor :service_exception
-    end
-
-    def self.use_service_exception(exception)
-      unless exception.ancestors.include?(Common::Exceptions::BackendServiceException)
-        raise "[#{exception}] must inherit from BackendServiceException"
-      end
-      @service_exception = exception
-    end
-    delegate :service_exception, to: 'self.class'
-
     def initialize(user)
       @user = user
     end
