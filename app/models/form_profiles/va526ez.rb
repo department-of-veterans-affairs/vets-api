@@ -10,7 +10,7 @@ class FormProfiles::VA526ez < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant/information' # TODO: is this returnUrl necessary or can it be omitted
+      returnUrl: '/veteran-information'
     }
   end
 end
