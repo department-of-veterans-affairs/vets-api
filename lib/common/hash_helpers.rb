@@ -9,6 +9,13 @@ module Common
         if v.is_a?(Hash)
           v.delete_if(&delete_if_block)
           nil
+        elsif v.is_a?(Array)
+          v.compact!
+          v.each do |item|
+            delete_if_block.call(nil, item)
+          end
+
+          nil
         else
           v.nil?
         end
