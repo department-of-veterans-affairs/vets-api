@@ -275,10 +275,8 @@ module Swagger
               key :'$ref', :AsyncTransactionVet360
             end
           end
-
         end
       end
-
     end
   end
 end

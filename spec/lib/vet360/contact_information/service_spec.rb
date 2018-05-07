@@ -159,7 +159,6 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#get_telephone_transaction_status' do
-
     context 'when successful' do
       let(:transaction_id) { 'a50193df-f4d5-4b6a-b53d-36fed2db1a15' }
       it 'returns a status of 200' do
@@ -187,7 +186,6 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#get_email_transaction_status' do
-
     context 'when successful' do
       let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
 
@@ -217,7 +215,6 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#get_address_transaction_status' do
-
     context 'when successful' do
       let(:transaction_id) { '0faf342f-5966-4d3f-8b10-5e9f911d07d2' }
       it 'returns a status of 200' do

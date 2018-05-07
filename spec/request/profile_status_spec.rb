@@ -22,14 +22,16 @@ RSpec.describe 'profile_status', type: :request do
   end
 
   describe 'GET /v0/profile/status/:transaction_id' do
-
-    let(:address) { build(:vet360_address, source_id: '1', transaction_status: 'RECEIVED' ) }
+    let(:address) { build(:vet360_address, source_id: '1', transaction_status: 'RECEIVED') }
 
     context 'when the requested transaction exists' do
       it 'it responds with a serialized transaction', :aggregate_failures do
+        transaction = create(
+          :address_transaction,
+          user_uuid: user.uuid,
+          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+        )
 
-        transaction = create(:address_transaction, {user_uuid: user.uuid, transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'})
-        
         VCR.use_cassette('vet360/contact_information/address_transaction_status') do
           get(
             "/v0/profile/status/#{transaction.transaction_id}",
@@ -38,7 +40,7 @@ RSpec.describe 'profile_status', type: :request do
           )
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
-          expect(response_body["data"]["type"]).to eq('async_transaction_vet360_address_transactions')
+          expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
           # @TODO The ...data.attributes.type has the original, non-snake-cased version of the class
         end
       end
