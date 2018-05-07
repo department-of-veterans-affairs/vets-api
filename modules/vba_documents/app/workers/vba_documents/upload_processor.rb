@@ -119,7 +119,7 @@ module VBADocuments
 
     def perfect_metadata(parts, upload)
       metadata = JSON.parse(parts['metadata'])
-      # TODO: This is a fixed value for now, wil later concatenate provided source with our identifer
+      # TODO: This is a fixed value for now, will later concatenate provided source with our identifer
       metadata['source'] = 'Vets.gov'
       metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
@@ -144,15 +144,6 @@ module VBADocuments
     rescue PDF::Reader::MalformedPDFError
       raise VBADocuments::UploadError.new(code: 'DOC103',
                                           detail: 'Invalid PDF content')
-    end
-
-    def bucket
-      @bucket ||= begin
-        s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
-                                   access_key_id: Settings.vba_documents.s3.aws_access_key_id,
-                                   secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
-        s3.bucket(Settings.vba_documents.s3.bucket)
-      end
     end
   end
 end
