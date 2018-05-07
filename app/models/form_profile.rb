@@ -60,6 +60,29 @@ class FormContactInformation
   attribute :email, String
 end
 
+class FormSpecialIssue
+  include Virtus.model
+
+  attribute :code, String
+  attribute :name, String
+end
+
+class FormRatedDisability
+  include Virtus.model
+
+  attribute :name, String
+  attribute :special_issues, Array[FormSpecialIssue]
+  attribute :rated_disability_id, String
+  attribute :rating_decision_id, String
+  attribute :diagnostic_code, Integer
+end
+
+class FormRatedDisabilities
+  include Virtus.model
+
+  attribute :rated_disabilities, Array[FormRatedDisability]
+end
+
 class FormProfile
   include SentryLogging
 
@@ -68,12 +91,14 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
+  EVSS_FORMS = ['21-526EZ'].freeze
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
   VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfiles::VA1010ez,
+    '21-526EZ'  => ::FormProfiles::VA526ez,
     '22-1990'   => ::FormProfiles::VA1990,
     '22-1990N'  => ::FormProfiles::VA1990n,
     '22-1990E'  => ::FormProfiles::VA1990e,
@@ -91,6 +116,7 @@ class FormProfile
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
+  attribute :rated_disabilities_information, FormRatedDisabilities
 
   def self.prefill_enabled_forms
     forms = []
@@ -99,6 +125,7 @@ class FormProfile
     forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
     forms += EDU_FORMS if Settings.edu.prefill
     forms += VIC_FORMS if Settings.vic.prefill
+    forms += EVSS_FORMS if Settings.evss.prefill
 
     forms
   end
@@ -148,6 +175,16 @@ class FormProfile
   end
 
   private
+
+  def initialize_rated_disabilities_information(user)
+    return {} unless user.authorize :evss, :access?
+
+    service = EVSS::DisabilityCompensationForm::Service.new(user)
+    response = service.get_rated_disabilities
+
+    # Remap response object to schema fields
+    FormRatedDisabilities.new(rated_disabilities: response.rated_disabilities)
+  end
 
   def initialize_military_information(user)
     return {} unless user.authorize :emis, :access?
