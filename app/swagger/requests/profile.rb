@@ -78,10 +78,10 @@ module Swagger
                   CORRESPONDENCE
                 ], example: 'RESIDENCE/CHOICE'
               property :address_type, type: :string, enum:
-                %w[
-                  domestic
-                  international
-                  military overseas
+                [
+                  'domestic',
+                  'international',
+                  'military overseas'
                 ], example: 'domestic'
               property :city, type: :string, example: 'Fulton'
               property :country, type: :string, example: 'USA'
