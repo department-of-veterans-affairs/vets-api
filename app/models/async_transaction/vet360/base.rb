@@ -8,8 +8,7 @@ module AsyncTransaction
         'REJECTED',
         'COMPLETED_SUCCESS',
         'COMPLETED_NO_CHANGES_DETECTED',
-        'COMPLETED_FAILURE',
-        #'RECEIVED_DEAD_LETTER_QUEUE' #@TODO Do we know what this is?
+        'COMPLETED_FAILURE'
       ]
 
       # Updates the status and transaction_status with fresh API data

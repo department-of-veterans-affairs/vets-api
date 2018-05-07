@@ -57,6 +57,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
         transaction_status: 'RECEIVED'
       )
     }
+    let(:service) { ::Vet360::ContactInformation::Service.new(user) }
 
     before do
       # vet360_id appears in the API request URI so we need it to match the cassette
@@ -69,17 +70,20 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
 
     it 'updates the transaction_status', :aggregate_failures do
-      
-      service = ::Vet360::ContactInformation::Service.new(user)
-      VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
         updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(user, service, transaction1.transaction_id)
         expect(updated_transaction.transaction_status).to eq('COMPLETED_SUCCESS')
       end
 
     end
 
-    # it 'updates the status', :aggregate_failures do
-    # end
+    it 'updates the status', :aggregate_failures do
+      VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(user, service, transaction1.transaction_id)
+        expect(updated_transaction.status).to eq(AsyncTransaction::Vet360::Base::COMPLETED)
+      end
+
+    end
 
     # it 'raises an exception if transaction not found in db', :aggregate_failures do
     # end
