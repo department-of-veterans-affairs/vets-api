@@ -32,10 +32,10 @@ module Swagger
                   CORRESPONDENCE
                 ], example: 'RESIDENCE/CHOICE'
               property :address_type, type: :string, enum:
-                %w[
-                  domestic
-                  international
-                  military overseas
+                [
+                  'domestic',
+                  'international',
+                  'military overseas'
                 ], example: 'domestic'
               property :city, type: :string, example: 'Fulton'
               property :country, type: :string, example: 'USA'
@@ -435,13 +435,6 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :Telephone
-            end
-          end
-
-          response 200 do
-            key :description, 'Response is OK'
-            schema do
               property :phone_number, type: :string, example: '5551212'
               property :area_code, type: :string, example: '303'
               property :extension, type: :string, example: '101'
@@ -453,6 +446,13 @@ module Swagger
                   FAX
                   TEMPORARY
                 ], example: 'MOBILE'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
             end
           end
         end
