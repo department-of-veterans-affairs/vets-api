@@ -13,7 +13,7 @@ module Vet360
       def set_defaults(user)
         now = Time.zone.now.iso8601
 
-        self.tap do |record|
+        tap do |record|
           record.attributes = {
             effective_start_date: now,
             source_date: now,
