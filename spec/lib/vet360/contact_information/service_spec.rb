@@ -13,7 +13,7 @@ describe Vet360::ContactInformation::Service do
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
-        VCR.use_cassette('vet360/contact_information/person', VCR::MATCH_EVERYTHING) do
+        VCR.use_cassette('vet360/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(Vet360::Models::Person)
@@ -106,12 +106,12 @@ describe Vet360::ContactInformation::Service do
   describe '#put_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
     context 'when successful' do
-      xit 'returns a status of 200' do
+      it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
-          address.id = 1299
-          address.address_line_1 = '1494 Martin Luther King Rd'
+          address.id = 437
+          address.address_line1 = '1494 Martin Luther King Rd'
           response = subject.put_address(address)
-          expect(response.transaction.id).to eq('6e1e4e54-e851-4f5e-a2bf-eec0b17738f1')
+          expect(response.transaction.id).to eq('2c8c1b3b-1b1c-416c-bc91-a9fb4f79291f')
           expect(response).to be_ok
         end
       end

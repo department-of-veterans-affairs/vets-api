@@ -49,6 +49,10 @@ module V0
         key :description, 'Check status of benefits claims and appeals'
       end
       tag do
+        key :name, 'form_526'
+        key :description, 'Creating and submitting compensation applications'
+      end
+      tag do
         key :name, 'prescriptions'
         key :description, 'Prescription refill/tracking operations'
       end
@@ -116,12 +120,14 @@ module V0
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Feedbacks,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::InProgressForms,
+      Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::Messages::Folders,
@@ -143,6 +149,7 @@ module V0
       Swagger::Schemas::Appeals,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
+      Swagger::Schemas::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
       Swagger::Schemas::Gibct::CalculatorConstants,
@@ -154,12 +161,14 @@ module V0
       Swagger::Schemas::Health::Prescriptions,
       Swagger::Schemas::Health::Trackings,
       Swagger::Schemas::Health::TriageTeams,
+      Swagger::Schemas::IntentToFile,
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,
       Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
+      Swagger::Schemas::SubmitDisabilityForm,
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::VAFacilities,
       self

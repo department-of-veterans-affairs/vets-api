@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/exceptions/base_error'
+require 'evss/service_exception'
 
 module EVSS
   module IntentToFile
@@ -14,6 +14,20 @@ module EVSS
       }.freeze
 
       attr_reader :key, :messages
+
+      def errors
+        Array(
+          Common::Exceptions::SerializableError.new(
+            i18n_data.merge(source: 'EVSS::IntentToFile::Service', meta: { messages: @messages })
+          )
+        )
+      end
+
+      private
+
+      def i18n_key
+        @key
+      end
     end
   end
 end
