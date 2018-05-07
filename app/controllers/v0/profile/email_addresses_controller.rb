@@ -3,39 +3,19 @@
 module V0
   module Profile
     class EmailAddressesController < ApplicationController
+      include Vet360::Writeable
+
       before_action { authorize :vet360, :access? }
 
       def create
-        email_address = Vet360::Models::Email.new(email_address_params).set_defaults(@current_user)
-
-        if email_address.valid?
-          response    = service.post_email email_address
-          transaction = AsyncTransaction::Vet360::EmailTransaction.start(@current_user, response)
-
-          render json: transaction, serializer: AsyncTransaction::BaseSerializer
-        else
-          raise Common::Exceptions::ValidationErrors, email_address
-        end
+        write_to_vet360_and_render_transaction!('email', email_address_params)
       end
 
       def update
-        email_address = Vet360::Models::Email.new(email_address_params).set_defaults(@current_user)
-
-        if email_address.valid?
-          response    = service.put_email email_address
-          transaction = AsyncTransaction::Vet360::EmailTransaction.start @current_user, response
-
-          render json: transaction, serializer: AsyncTransaction::BaseSerializer
-        else
-          raise Common::Exceptions::ValidationErrors, email_address
-        end
+        write_to_vet360_and_render_transaction!('email', email_address_params, http_verb: 'put')
       end
 
       private
-
-      def service
-        Vet360::ContactInformation::Service.new @current_user
-      end
 
       def email_address_params
         params.permit(

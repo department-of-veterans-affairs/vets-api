@@ -3,39 +3,19 @@
 module V0
   module Profile
     class AddressesController < ApplicationController
+      include Vet360::Writeable
+
       before_action { authorize :vet360, :access? }
 
       def create
-        address = Vet360::Models::Address.new(address_params).set_defaults(@current_user)
-
-        if address.valid?
-          response    = service.post_address address
-          transaction = AsyncTransaction::Vet360::AddressTransaction.start(@current_user, response)
-
-          render json: transaction, serializer: AsyncTransaction::BaseSerializer
-        else
-          raise Common::Exceptions::ValidationErrors, address
-        end
+        write_to_vet360_and_render_transaction!('address', address_params)
       end
 
       def update
-        address = Vet360::Models::Address.new(address_params).set_defaults(@current_user)
-
-        if address.valid?
-          response    = service.put_address address
-          transaction = AsyncTransaction::Vet360::AddressTransaction.start @current_user, response
-
-          render json: transaction, serializer: AsyncTransaction::BaseSerializer
-        else
-          raise Common::Exceptions::ValidationErrors, address
-        end
+        write_to_vet360_and_render_transaction!('address', address_params, http_verb: 'put')
       end
 
       private
-
-      def service
-        Vet360::ContactInformation::Service.new @current_user
-      end
 
       # rubocop:disable Metrics/MethodLength
       def address_params
