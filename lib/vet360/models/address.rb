@@ -91,7 +91,6 @@ module Vet360
             cityName: @city,
             countryCodeISO2: @country_code_iso2,
             countryCodeISO3: @country_code_iso3,
-            countryCodeFIPS: @country_code_fips,
             countryName: @country,
             county: {
               countyCode: @county_code,
@@ -125,7 +124,6 @@ module Vet360
           country: body['country_name'],
           country_code_iso2: body['country_code_iso2'],
           country_code_iso3: body['country_code_iso3'],
-          country_code_fips3: body['country_code_fips'],
           county_code: body.dig('county', 'county_code'),
           county_name: body.dig('county', 'county_name'),
           created_at: body['create_date'],
