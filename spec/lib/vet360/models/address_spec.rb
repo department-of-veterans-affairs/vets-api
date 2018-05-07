@@ -3,9 +3,7 @@
 require 'rails_helper'
 
 describe Vet360::Models::Address do
-  
   describe 'validation' do
-    
     context 'for any type of address' do
       let(:address) { build(:vet360_address) }
 
@@ -36,7 +34,7 @@ describe Vet360::Models::Address do
 
     context 'when address_type is domestic' do
       let(:address) { build(:vet360_address, :domestic) }
-      
+
       it 'state_code is required', :aggregate_failures do
         expect(address.valid?).to eq(true)
         address.state_abbr = ''
@@ -91,7 +89,7 @@ describe Vet360::Models::Address do
 
       it 'international_postal_code is required', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.international_postal_code  = ''
+        address.international_postal_code = ''
         expect(address.valid?).to eq(false)
       end
     end
@@ -125,4 +123,3 @@ describe Vet360::Models::Address do
     end
   end
 end
-

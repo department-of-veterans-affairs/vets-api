@@ -54,13 +54,13 @@ module Vet360
         inclusion: { in: ADDRESS_TYPES }
       )
 
-      with_options if: Proc.new { |a| a.address_type == DOMESTIC } do |address|
+      with_options if: proc { |a| a.address_type == DOMESTIC } do |address|
         address.validates :state_abbr, presence: true
         address.validates :zip_code, presence: true
         address.validates :province, absence: true
       end
 
-      with_options if: Proc.new { |a| a.address_type == INTERNATIONAL } do |address|
+      with_options if: proc { |a| a.address_type == INTERNATIONAL } do |address|
         address.validates :international_postal_code, presence: true
         address.validates :state_abbr, absence: true
         address.validates :zip_code, absence: true
@@ -69,7 +69,7 @@ module Vet360
         address.validates :county_code, absence: true
       end
 
-      with_options if: Proc.new { |a| a.address_type == MILITARY } do |address|
+      with_options if: proc { |a| a.address_type == MILITARY } do |address|
         address.validates :state_abbr, presence: true
         address.validates :zip_code, presence: true
         address.validates :province, absence: true
