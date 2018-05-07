@@ -29,8 +29,7 @@
 		"country": "USA",
 		"state": "MD",
 		"provinceCode": "",
-		"zipcode": "21231",
-		"postalCode": ""
+		"postalCode": "21231"
 	},
 	"email": "test@example.va",
 	"homePhone": "5554443333",
@@ -52,10 +51,7 @@
 		"street3": "Line 3",
 		"city": "CityName",
 		"country": "ATA",
-		"state": "",
-		"provinceCode": "McMurdo",
-		"zipcode": "",
-		"postalCode": "00000"
+		"postalCode": "12345"
 	},
 	"dependents": [{
 		"fullName": {
