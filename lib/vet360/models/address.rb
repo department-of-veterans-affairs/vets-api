@@ -3,6 +3,8 @@
 module Vet360
   module Models
     class Address < Base
+      include Vet360::Concerns::Defaultable
+
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
