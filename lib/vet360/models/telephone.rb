@@ -7,6 +7,7 @@ module Vet360
 
       VALID_AREA_CODE_REGEX = /[0-9]+/
       VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
+
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
       WORK        = 'WORK'
