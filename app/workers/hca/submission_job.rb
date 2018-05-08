@@ -15,9 +15,9 @@ module HCA
 
       begin
         result = HCA::Service.new(user).submit_form(form)
-      rescue StandardError => e
+      rescue
         health_care_application.update_attributes!(state: 'error')
-        raise e
+        raise
       end
 
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
