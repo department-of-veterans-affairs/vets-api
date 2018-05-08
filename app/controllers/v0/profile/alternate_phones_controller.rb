@@ -3,14 +3,10 @@
 module V0
   module Profile
     class AlternatePhonesController < ApplicationController
-      include Vet360::Writeable
-
       before_action { authorize :evss, :access? }
 
       def show
         response = service.get_alternate_phone
-
-        log_profile_data_to_sentry(response) if response&.number.blank?
 
         render json: response, serializer: PhoneNumberSerializer
       end
@@ -20,8 +16,6 @@ module V0
 
         if phone.valid?
           response = service.post_alternate_phone phone
-
-          log_profile_data_to_sentry(response) if response&.number.blank?
 
           render json: response, serializer: PhoneNumberSerializer
         else
