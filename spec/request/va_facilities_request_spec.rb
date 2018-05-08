@@ -184,7 +184,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     context 'when facilities are found' do
       let(:facilites) { JSON.parse(response.body)['data'] }
 
-      context 'with health facility type' do
+      context 'with a health facility type' do
         it 'returns 3 facilities' do
           get '/v0/facilities/suggested?name_part=por&type[]=health'
           expect(response).to have_http_status(:ok)
@@ -196,7 +196,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
         end
       end
 
-      context 'with dod facility type' do
+      context 'with a dod facility type' do
         it 'returns 2 facilities' do
           get '/v0/facilities/suggested?name_part=por&type[]=dod_health'
           expect(response).to have_http_status(:ok)

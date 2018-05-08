@@ -104,11 +104,10 @@ module Swagger
           end
 
           parameter do
-            key :name, :type
-            key :description, 'Optional facility type'
+            key :name, :name_part
+            key :description, 'inputed partial facility name'
             key :in, :query
             key :type, :string
-            key :enum, %w[health cemetery benefits vet_center]
           end
 
           response 200 do
