@@ -28,16 +28,18 @@ RSpec.describe 'letters', type: :request do
 
     # TODO(AJD): this use case happens, 500 status but unauthorized message
     # check with evss that they shouldn't be returning 403 instead
-    unauthorized_500 = { cassette_name: 'evss/letters/unauthorized' }
-    context 'with an 500 unauthorized response', vcr: unauthorized_500 do
+    unauthorized_five_hundred = { cassette_name: 'evss/letters/unauthorized' }
+    context 'with an 500 unauthorized response', vcr: unauthorized_five_hundred do
       it 'should return a bad gateway response' do
         get '/v0/letters', nil, auth_header
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('letters_errors', strict: false)
       end
-      
+
       it 'should log a letters-specific exception to sentry' do
-        expect_any_instance_of(ApplicationController).to receive(:log_exception_to_sentry).with(EVSS::Letters::LettersServiceException, anything)
+        expect_any_instance_of(ApplicationController)
+          .to receive(:log_exception_to_sentry)
+          .with(EVSS::Letters::LettersServiceException, anything)
         get '/v0/letters', nil, auth_header
       end
     end

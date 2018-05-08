@@ -60,16 +60,10 @@ module Common
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Common::Exceptions::BackendServiceException => e
-        # convert BackendServiceException into a more meaningful exception title, so as
-        # not to fill Sentry with too many "BackendServiceException" entries
-        ex = e
-        ex = service_exception.new(e.key, e.response_values, e.original_status, e.original_body) unless service_exception.nil?
-        raise ex
+        # convert BackendServiceException into a more meaningful exception title for Sentry
+        raise_service_exception(e)
       rescue Timeout::Error, Faraday::TimeoutError
-        Raven.extra_context(
-          service_name: config.service_name,
-          url: config.base_path
-        )
+        Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
         error_class = case e
@@ -124,6 +118,14 @@ module Common
 
       def raise_not_authenticated
         raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
+      end
+
+      def raise_service_exception(e)
+        ex = e
+        unless service_exception.nil?
+          ex = service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
+        end
+        raise ex
       end
     end
   end
