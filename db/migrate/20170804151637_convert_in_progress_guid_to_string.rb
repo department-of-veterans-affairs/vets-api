@@ -1,6 +1,6 @@
 class ConvertInProgressGuidToString < ActiveRecord::Migration
   safety_assured
-  
+
   def up
     change_column :in_progress_forms, :user_uuid, :string, :null => false
 

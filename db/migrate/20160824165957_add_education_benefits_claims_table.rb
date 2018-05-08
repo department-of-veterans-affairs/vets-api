@@ -1,6 +1,6 @@
 class AddEducationBenefitsClaimsTable < ActiveRecord::Migration
   safety_assured
-  
+
   def change
     create_table(:education_benefits_claims) do |t|
       t.datetime(:submitted_at)
