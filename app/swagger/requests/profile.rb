@@ -432,6 +432,15 @@ module Swagger
             key :required, true
             key :type, :string
           end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+
+
         end
       end
 

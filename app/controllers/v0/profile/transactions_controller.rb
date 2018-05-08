@@ -3,8 +3,7 @@
 module V0
   module Profile
     class TransactionsController < ApplicationController
-      # @TODO
-      # before_action { authorize :vet360, :access? }
+      before_action { authorize :vet360, :access? }
 
       def status
         transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
