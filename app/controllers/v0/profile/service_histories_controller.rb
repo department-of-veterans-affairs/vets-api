@@ -3,8 +3,6 @@
 module V0
   module Profile
     class ServiceHistoriesController < ApplicationController
-      include Vet360::Writeable
-
       before_action { authorize :emis, :access? }
 
       # Fetches the service history for the current user.
@@ -29,8 +27,6 @@ module V0
       #
       def show
         response = EMISRedis::MilitaryInformation.for_user(@current_user).service_history
-
-        log_profile_data_to_sentry(response) if response.try(:first).try(:dig, :branch_of_service).blank?
 
         render json: response, serializer: ServiceHistorySerializer
       end

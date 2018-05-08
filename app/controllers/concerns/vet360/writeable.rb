@@ -22,22 +22,6 @@ module Vet360
       render_new_transaction!(type, response)
     end
 
-    # Temporary method for debugging during UAT
-    #
-    def log_profile_data_to_sentry(response)
-      log_message_to_sentry(
-        'Profile controller bug',
-        :info,
-        {
-          controller: self.class.to_s,
-          response: response,
-          params: params,
-          user: @current_user.inspect
-        },
-        profile: 'pciu_profile'
-      )
-    end
-
     private
 
     def build_record(type, params)
