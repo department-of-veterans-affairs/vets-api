@@ -3,6 +3,7 @@
 module AsyncTransaction
   module Vet360
     class Base < AsyncTransaction::Base
+      # :nocov:
       FINAL_STATUSES = %w[
         REJECTED
         COMPLETED_SUCCESS
@@ -11,6 +12,7 @@ module AsyncTransaction
       ].freeze
       REQUESTED = 'requested'
       COMPLETED = 'completed'
+      # :nocov:
 
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
