@@ -39,8 +39,14 @@ module Vet360
       attribute :zip_code, String
       attribute :zip_code_suffix, String
 
+      validates :address_line1, 
+                :address_line2,
+                :address_line3,
+                :city,
+                length: { maximum: 100}
       validates :source_date, presence: true
       validates :country, presence: true
+      validates :country_code_iso3, length: { maxiumum: 3}
       validates :city, presence: true
       validates :address_line1, presence: true
 
