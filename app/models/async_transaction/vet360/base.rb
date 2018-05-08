@@ -3,7 +3,6 @@
 module AsyncTransaction
   module Vet360
     class Base < AsyncTransaction::Base
-      # :nocov:
       FINAL_STATUSES = %w[
         REJECTED
         COMPLETED_SUCCESS
@@ -12,7 +11,6 @@ module AsyncTransaction
       ].freeze
       REQUESTED = 'requested'
       COMPLETED = 'completed'
-      # :nocov:
 
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
@@ -38,13 +36,10 @@ module AsyncTransaction
       # @params tx_id [int] the transaction_id
       # @returns [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
-        transaction_record = Base.find_by!(user_uuid: user.uuid, transaction_id: tx_id)
+        transaction_record = find_transaction!(user.uuid, tx_id)
         return transaction_record if transaction_record.finished?
         api_response = Base.fetch_transaction(transaction_record, service)
-        transaction_record.status = COMPLETED if FINAL_STATUSES.include? api_response.transaction.status
-        transaction_record.transaction_status = api_response.transaction.status
-        transaction_record.save!
-        transaction_record
+        update_transaction_from_api(transaction_record, api_response)
       end
 
       # Requests a transaction from vet360 for an app transaction
@@ -64,6 +59,17 @@ module AsyncTransaction
           # Unexpected transaction type means something went sideways
           raise
         end
+      end
+
+      def self.find_transaction!(user_uuid, transaction_id)
+        Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
+      end
+
+      def self.update_transaction_from_api(transaction_record, api_response)
+        transaction_record.status = COMPLETED if FINAL_STATUSES.include? api_response.transaction.status
+        transaction_record.transaction_status = api_response.transaction.status
+        transaction_record.save!
+        transaction_record
       end
 
       # Returns true if a transaction is "over"
