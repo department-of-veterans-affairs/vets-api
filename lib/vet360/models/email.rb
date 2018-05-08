@@ -3,6 +3,8 @@
 module Vet360
   module Models
     class Email < Base
+      include Vet360::Concerns::Defaultable
+
       attribute :created_at, Common::ISO8601Time
       attribute :email_address, String
       attribute :effective_end_date, Common::ISO8601Time
