@@ -9,7 +9,6 @@ module AsyncTransaction
         COMPLETED_NO_CHANGES_DETECTED
         COMPLETED_FAILURE
       ].freeze
-
       REQUESTED = 'requested'
       COMPLETED = 'completed'
 

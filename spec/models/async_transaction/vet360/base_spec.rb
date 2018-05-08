@@ -63,4 +63,21 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
       end
     end
   end
+
+  describe '.start' do
+    before do
+      allow(user).to receive(:vet360_id).and_return('1')
+    end
+    let(:user) { build(:user, :loa3) }
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    it 'returns an instance with the user uuid', :aggregate_failures do
+      VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
+        service = Vet360::ContactInformation::Service.new(user)        
+        response = service.post_address(address)
+        transaction = AsyncTransaction::Vet360::Base.start(user, response)
+        expect(transaction.user_uuid).to eq(user.uuid)
+        expect(transaction.class).to eq(AsyncTransaction::Vet360::Base)
+      end
+    end
+  end
 end
