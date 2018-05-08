@@ -91,7 +91,18 @@ module Vet360
 
       private
 
+      # This method acts as a beta flag, and is temporarily in place until Vet360
+      # is ready to be released and activated in production
+      #
+      def temporary_short_circuit!
+        unless Settings.vet360.contact_information.enabled
+          raise 'Vet360 service has not been fully integrated into production'
+        end
+      end
+
       def post_or_put_data(method, model, path, response_class)
+        temporary_short_circuit!
+
         with_monitoring do
           raw = perform(method, path, model.in_json)
           response_class.new(raw.status, raw)
@@ -101,6 +112,8 @@ module Vet360
       end
 
       def get_transaction_status(path, response_class)
+        temporary_short_circuit!
+
         with_monitoring do
           raw_response = perform(:get, path)
 

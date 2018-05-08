@@ -39,7 +39,6 @@ describe Vet360::ContactInformation::Service do
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
-          email.id = nil
           email.email_address = 'person42@example.com'
           response = subject.post_email(email)
           expect(response).to be_ok
