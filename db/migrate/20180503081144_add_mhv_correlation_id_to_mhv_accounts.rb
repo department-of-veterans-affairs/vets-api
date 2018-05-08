@@ -7,13 +7,13 @@ class AddMhvCorrelationIdToMhvAccounts < ActiveRecord::Migration
     # so no uniquness constraints can exist here.
 
     # first we will drop the index
-    remove_index :mhv_accounts, name: 'index_mhv_accounts_on_user_uuid'
+    remove_index :mhv_accounts, column: :user_uuid
     # remove uniquness constraint
     change_column :mhv_accounts, :user_uuid, :string, unique: false
-    # add the new column
-    add_column :mhv_accounts, :mhv_correlation_id, :string
+    # add the new column; we would love to put null: false here but obviously thats not possible
+    add_column :mhv_accounts, :mhv_correlation_id, :string, unique: false, null: true
 
-    # add indexes for both
-    add_index :mhv_accounts, [:user_uuid, :mhv_correlation_id]
+    # add indexes for both (will do this in seperate migration)
+    # add_index :mhv_accounts, [:user_uuid, :mhv_correlation_id], unique: true
   end
 end
