@@ -132,7 +132,7 @@ class BaseFacility < ActiveRecord::Base
     def suggested_names(facility_types, name_part)
       BaseFacility.where(
         facility_type: facility_types.map { |t| TYPE_NAME_MAP[t] }
-      ).where("name ILIKE ?", "%#{name_part}%")
+      ).where('name ILIKE ?', "%#{name_part}%")
     end
   end
 

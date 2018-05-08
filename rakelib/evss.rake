@@ -51,8 +51,8 @@ namespace :evss do
   end
 
   desc 'imports DoD facilities into base_facilities table'
-  task :import_dod_facilities => :environment do
-    path = File.join(Rails.root, 'rakelib', 'support', 'files', 'dod_facilities.csv')
+  task import_dod_facilities: :environment do
+    path = Rails.root.join('rakelib', 'support', 'files', 'dod_facilities.csv')
     CSV.foreach(path, headers: true) do |row|
       address = {
         physical: {

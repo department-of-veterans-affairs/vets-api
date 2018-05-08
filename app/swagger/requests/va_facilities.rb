@@ -84,6 +84,48 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/facilities/suggested' do
+        operation :get do
+          key :description, 'Given one or more facility types and a name part returns a list of suggested facilites'
+          key :operationId, 'suggestedFacilities'
+          key :tags, %w[facilities]
+
+          parameter do
+            key :name, 'type[]'
+            key :description, 'facility type'
+            key :in, :query
+            key :type, :array
+            key :collectionFormat, :multi
+            items do
+              key :type, :string
+              key :enum, %w[health cemetery benefits vet_center dod_health]
+            end
+          end
+
+          parameter do
+            key :name, :type
+            key :description, 'Optional facility type'
+            key :in, :query
+            key :type, :string
+            key :enum, %w[health cemetery benefits vet_center]
+          end
+
+          response 200 do
+            key :description, 'Returns a list of facilities'
+            schema do
+              key :'$ref', :VAFacilities
+            end
+          end
+
+          response 400 do
+            key :description, 'Bad request: invalid type or missing name_part parameter'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+        end
+      end
     end
   end
 end
