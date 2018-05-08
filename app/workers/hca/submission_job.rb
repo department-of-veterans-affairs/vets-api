@@ -15,7 +15,7 @@ module HCA
 
       begin
         result = HCA::Service.new(user).submit_form(form)
-      rescue
+      rescue StandardError
         health_care_application.update_attributes!(state: 'error')
         raise
       end
