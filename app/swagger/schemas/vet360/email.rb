@@ -8,13 +8,23 @@ module Swagger
 
         swagger_schema :PostVet360Email do
           key :required, %i[email_address]
-          property :email_address, type: :string, example: 'john@example.com'
+          property :email_address,
+                   type: :string,
+                   example: 'john@example.com',
+                   minimum_length: 6,
+                   maximum_length: 255,
+                   pattern: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX.inspect
         end
 
         swagger_schema :PutVet360Email do
           key :required, %i[email_address id]
           property :id, type: :integer, example: 1
-          property :email_address, type: :string, example: 'john@example.com'
+          property :email_address,
+                   type: :string,
+                   example: 'john@example.com',
+                   minimum_length: 6,
+                   maximum_length: 255,
+                   pattern: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX.inspect
         end
       end
     end
