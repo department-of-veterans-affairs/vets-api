@@ -9,7 +9,6 @@ module VBADocuments
     def perform
       return unless Settings.vba_documents.s3.enabled
       VBADocuments::UploadSubmission.where(status: 'pending').find_each do |upload|
-        # TODO: expire records after upload URL is obsolete (default 900 secs)
         processed = process(upload)
         expire(upload) unless processed
       end
