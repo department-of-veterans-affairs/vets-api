@@ -82,7 +82,7 @@ RSpec.describe V0::HealthCareApplicationsV2Controller, type: %i[serializer contr
         let(:current_user) { create(:user, :mhv) }
 
         before do
-          use_authenticated_current_user(current_user: current_user)
+          allow(controller).to receive(:current_user).and_return(current_user)
         end
 
         let(:body) do
