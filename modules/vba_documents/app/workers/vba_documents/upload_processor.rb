@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
+require 'vba_documents/object_store'
 require 'vba_documents/upload_error'
 
 module VBADocuments
@@ -25,10 +26,21 @@ module VBADocuments
         process_response(response, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
+      ensure
+        tempfile.close
+        close_part_files(parts) if parts.present?
       end
     end
 
     private
+
+    def close_part_files(parts)
+      parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to? :close
+      attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
+      attachment_names.each do |att|
+        parts[att]&.close if parts[att].respond_to? :close
+      end
+    end
 
     def submit(metadata, parts)
       parts[DOC_PART_NAME].rewind
@@ -72,9 +84,10 @@ module VBADocuments
     end
 
     def download_raw_file(guid)
-      object = bucket.object(guid)
+      store = VBADocuments::ObjectStore.new
       tempfile = Tempfile.new(guid)
-      object.download_file(tempfile.path)
+      version = store.first_version(guid)
+      store.download(version, tempfile.path)
       tempfile
     end
 
@@ -117,7 +130,7 @@ module VBADocuments
 
     def perfect_metadata(parts, upload)
       metadata = JSON.parse(parts['metadata'])
-      # TODO: This is a fixed value for now, wil later concatenate provided source with our identifer
+      # TODO: This is a fixed value for now, will later concatenate provided source with our identifer
       metadata['source'] = 'Vets.gov'
       metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
@@ -142,15 +155,6 @@ module VBADocuments
     rescue PDF::Reader::MalformedPDFError
       raise VBADocuments::UploadError.new(code: 'DOC103',
                                           detail: 'Invalid PDF content')
-    end
-
-    def bucket
-      @bucket ||= begin
-        s3 = Aws::S3::Resource.new(region: Settings.vba_documents.s3.region,
-                                   access_key_id: Settings.vba_documents.s3.aws_access_key_id,
-                                   secret_access_key: Settings.vba_documents.s3.aws_secret_access_key)
-        s3.bucket(Settings.vba_documents.s3.bucket)
-      end
     end
   end
 end
