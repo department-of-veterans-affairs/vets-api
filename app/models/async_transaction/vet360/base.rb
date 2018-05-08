@@ -17,16 +17,12 @@ module AsyncTransaction
       # @returns [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
         transaction_record = Base.find_by!(user_uuid: user.uuid, transaction_id: tx_id)
-
         # No need for a API request if this tx is already complete
         return transaction_record if transaction_record.finished?
-
         api_response = Base.fetch_transaction(transaction_record, service)
-
         transaction_record.status = COMPLETED if FINAL_STATUSES.include? api_response.transaction.status
         transaction_record.transaction_status = api_response.transaction.status
         transaction_record.save!
-
         transaction_record
       end
 
@@ -55,7 +51,6 @@ module AsyncTransaction
         # These SHOULD go hand-in-hand...
         return true if FINAL_STATUSES.include? transaction_status
         return true if COMPLETED == status
-
         false
       end
     end
