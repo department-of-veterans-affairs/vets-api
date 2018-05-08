@@ -170,6 +170,11 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+
+      # Vet360 Routes
+      resource :addresses, only: %i[create update]
+      resource :email_addresses, only: %i[create update]
+      resource :telephones, only: %i[create update]
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
