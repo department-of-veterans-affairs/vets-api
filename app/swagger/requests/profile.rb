@@ -19,28 +19,35 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :body
+            key :name, :domestic_body
             key :in, :body
-            key :description, 'Attributes to create an address.'
+            key :description, 'Attributes to create a domestic address.'
             key :required, true
 
             schema do
-              property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
-              property :address_pou, type: :string, enum:
-                %w[
-                  RESIDENCE/CHOICE
-                  CORRESPONDENCE
-                ], example: 'RESIDENCE/CHOICE'
-              property :address_type, type: :string, enum:
-                [
-                  'domestic',
-                  'international',
-                  'military overseas'
-                ], example: 'domestic'
-              property :city, type: :string, example: 'Fulton'
-              property :country, type: :string, example: 'USA'
-              property :state_abbr, type: :string, example: 'MS'
-              property :zip_code, type: :string, example: '38843'
+              key :'$ref', :PostVet360DomesticAddress
+            end
+          end
+
+          parameter do
+            key :name, :international_body
+            key :in, :body
+            key :description, 'Attributes to create an international address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PostVet360InternationalAddress
+            end
+          end
+
+          parameter do
+            key :name, :military_overseas_body
+            key :in, :body
+            key :description, 'Attributes to create a military overseas address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PostVet360MilitaryOverseasAddress
             end
           end
 
@@ -64,29 +71,35 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :body
+            key :name, :domestic_body
             key :in, :body
-            key :description, 'Attributes to update an address.'
+            key :description, 'Attributes to update a domestic address.'
             key :required, true
 
             schema do
-              property :id, type: :integer, example: 1
-              property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
-              property :address_pou, type: :string, enum:
-                %w[
-                  RESIDENCE/CHOICE
-                  CORRESPONDENCE
-                ], example: 'RESIDENCE/CHOICE'
-              property :address_type, type: :string, enum:
-                [
-                  'domestic',
-                  'international',
-                  'military overseas'
-                ], example: 'domestic'
-              property :city, type: :string, example: 'Fulton'
-              property :country, type: :string, example: 'USA'
-              property :state_abbr, type: :string, example: 'MS'
-              property :zip_code, type: :string, example: '38843'
+              key :'$ref', :PutVet360DomesticAddress
+            end
+          end
+
+          parameter do
+            key :name, :international_body
+            key :in, :body
+            key :description, 'Attributes to update an international address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360InternationalAddress
+            end
+          end
+
+          parameter do
+            key :name, :military_overseas_body
+            key :in, :body
+            key :description, 'Attributes to update a military overseas address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360MilitaryOverseasAddress
             end
           end
 
@@ -222,7 +235,7 @@ module Swagger
             key :required, true
 
             schema do
-              property :email_address, type: :string, example: 'john@example.com'
+              key :'$ref', :PostVet360Email
             end
           end
 
@@ -252,8 +265,7 @@ module Swagger
             key :required, true
 
             schema do
-              property :id, type: :integer, example: 1
-              property :email_address, type: :string, example: 'john@example.com'
+              key :'$ref', :PutVet360Email
             end
           end
 
@@ -435,17 +447,7 @@ module Swagger
             key :required, true
 
             schema do
-              property :phone_number, type: :string, example: '5551212'
-              property :area_code, type: :string, example: '303'
-              property :extension, type: :string, example: '101'
-              property :phone_type, type: :string, enum:
-                %w[
-                  MOBILE
-                  HOME
-                  WORK
-                  FAX
-                  TEMPORARY
-                ], example: 'MOBILE'
+              key :'$ref', :PostVet360Telephone
             end
           end
 
@@ -475,18 +477,7 @@ module Swagger
             key :required, true
 
             schema do
-              property :id, type: :integer, example: 1
-              property :phone_number, type: :string, example: '5551212'
-              property :area_code, type: :string, example: '303'
-              property :extension, type: :string, example: '101'
-              property :phone_type, type: :string, enum:
-                %w[
-                  MOBILE
-                  HOME
-                  WORK
-                  FAX
-                  TEMPORARY
-                ], example: 'MOBILE'
+              key :'$ref', :PutVet360Telephone
             end
           end
 
