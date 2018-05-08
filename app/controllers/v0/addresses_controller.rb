@@ -2,15 +2,10 @@
 
 module V0
   class AddressesController < ApplicationController
-    include Vet360::Writeable
-
     before_action { authorize :evss, :access? }
 
     def show
       response = service.get_address
-
-      log_profile_data_to_sentry(response) if response&.address&.address_one.blank?
-
       render json: response,
              serializer: AddressSerializer
     end
@@ -19,9 +14,6 @@ module V0
       address = EVSS::PCIUAddress::Address.build_address(params)
       raise Common::Exceptions::ValidationErrors, address unless address.valid?
       response = service.update_address(address)
-
-      log_profile_data_to_sentry(response) if response&.address&.address_one.blank?
-
       render json: response,
              serializer: AddressSerializer
     end
