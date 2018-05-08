@@ -26,10 +26,21 @@ module VBADocuments
         process_response(response, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
+      ensure
+        tempfile.close
+        close_part_files(parts) if parts.present?
       end
     end
 
     private
+
+    def close_part_files(parts)
+      parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to? :close
+      attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
+      attachment_names.each do |att|
+        parts[att]&.close if parts[att].respond_to? :close
+      end
+    end
 
     def submit(metadata, parts)
       parts[DOC_PART_NAME].rewind
