@@ -60,7 +60,7 @@ module AsyncTransaction
           service.get_telephone_transaction_status(transaction_record.transaction_id)
         else
           # Unexpected transaction type means something went sideways
-          raise Common::Exceptions::InternalServerError, transaction_record
+          raise
         end
       end
 
