@@ -431,7 +431,7 @@ module Swagger
             key :description, 'ID of transaction'
             key :required, true
             key :type, :string
-
+          end
         end
       end
 

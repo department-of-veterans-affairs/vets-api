@@ -3,7 +3,6 @@
 module AsyncTransaction
   module Vet360
     class Base < AsyncTransaction::Base
-
       FINAL_STATUSES = %w[
         REJECTED
         COMPLETED_SUCCESS
