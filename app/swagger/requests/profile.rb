@@ -1,9 +1,103 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 module Swagger
   module Requests
     class Profile
       include Swagger::Blocks
+
+      swagger_path '/v0/profile/addresses' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates a users Vet360 address'
+          key :operationId, 'postVet360Address'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create an address.'
+            key :required, true
+
+            schema do
+              property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
+              property :address_pou, type: :string, enum:
+                %w[
+                  RESIDENCE/CHOICE
+                  CORRESPONDENCE
+                ], example: 'RESIDENCE/CHOICE'
+              property :address_type, type: :string, enum:
+                %w[
+                  domestic
+                  international
+                  military overseas
+                ], example: 'domestic'
+              property :city, type: :string, example: 'Fulton'
+              property :country, type: :string, example: 'USA'
+              property :state_abbr, type: :string, example: 'MS'
+              property :zip_code, type: :string, example: '38843'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing Vet360 address'
+          key :operationId, 'putVet360Address'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update an address.'
+            key :required, true
+
+            schema do
+              property :id, type: :integer, example: 1
+              property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
+              property :address_pou, type: :string, enum:
+                %w[
+                  RESIDENCE/CHOICE
+                  CORRESPONDENCE
+                ], example: 'RESIDENCE/CHOICE'
+              property :address_type, type: :string, enum:
+                %w[
+                  domestic
+                  international
+                  military overseas
+                ], example: 'domestic'
+              property :city, type: :string, example: 'Fulton'
+              property :country, type: :string, example: 'USA'
+              property :state_abbr, type: :string, example: 'MS'
+              property :zip_code, type: :string, example: '38843'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
 
       swagger_path '/v0/profile/alternate_phone' do
         operation :get do
@@ -104,6 +198,69 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :Email
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/email_addresses' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates a users Vet360 email address'
+          key :operationId, 'postVet360EmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create an email address.'
+            key :required, true
+
+            schema do
+              property :email_address, type: :string, example: 'john@example.com'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing Vet360 email address'
+          key :operationId, 'putVet360EmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update an email address.'
+            key :required, true
+
+            schema do
+              property :id, type: :integer, example: 1
+              property :email_address, type: :string, example: 'john@example.com'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
             end
           end
         end
@@ -258,6 +415,116 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/status/{transaction_id}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets an updated transaction by ID'
+          key :operationId, 'getTransactionStatusById'
+          key :tags, %w[profile vet360]
+
+          parameter :authorization
+          parameter do
+            key :name, :transaction_id
+            key :in, :path
+            key :description, 'ID of transaction'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/telephones' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Creates a users Vet360 telephone'
+          key :operationId, 'postVet360Telephone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to create a telephone.'
+            key :required, true
+
+            schema do
+              key :'$ref', :Telephone
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              property :phone_number, type: :string, example: '5551212'
+              property :area_code, type: :string, example: '303'
+              property :extension, type: :string, example: '101'
+              property :phone_type, type: :string, enum:
+                %w[
+                  MOBILE
+                  HOME
+                  WORK
+                  FAX
+                  TEMPORARY
+                ], example: 'MOBILE'
+            end
+          end
+        end
+
+        operation :put do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Updates a users existing telephone'
+          key :operationId, 'putVet360Telephone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes to update a telephone'
+            key :required, true
+
+            schema do
+              property :id, type: :integer, example: 1
+              property :phone_number, type: :string, example: '5551212'
+              property :area_code, type: :string, example: '303'
+              property :extension, type: :string, example: '101'
+              property :phone_type, type: :string, enum:
+                %w[
+                  MOBILE
+                  HOME
+                  WORK
+                  FAX
+                  TEMPORARY
+                ], example: 'MOBILE'
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

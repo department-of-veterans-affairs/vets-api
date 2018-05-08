@@ -2,13 +2,14 @@
 
 require 'rails_helper'
 require_relative '../support/vba_document_fixtures'
+require 'vba_documents/object_store'
 require 'vba_documents/upload_processor'
 
 RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures
 
   let(:client_stub) { instance_double('PensionBurial::Service') }
-  let(:faraday_response) { instance_double('Faraday::Rresponse') }
+  let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
@@ -38,19 +39,17 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   end
 
   before(:each) do
-    s3_client = instance_double(Aws::S3::Resource)
-    allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
-    @s3_bucket = instance_double(Aws::S3::Bucket)
-    @s3_object = instance_double(Aws::S3::Object)
-    allow(s3_client).to receive(:bucket).and_return(@s3_bucket)
-    allow(@s3_bucket).to receive(:object).and_return(@s3_object)
+    objstore = instance_double(VBADocuments::ObjectStore)
+    version = instance_double(Aws::S3::ObjectVersion)
+    allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
+    allow(objstore).to receive(:first_version).and_return(version)
+    allow(objstore).to receive(:download)
   end
 
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission) }
 
     it 'parses and uploads a valid multipart payload' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(PensionBurial::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(200)
@@ -72,7 +71,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'parses and uploads a valid multipart payload with attachments' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
       allow(PensionBurial::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(200)
@@ -96,7 +94,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for invalid multipart format' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse)
         .and_raise(VBADocuments::UploadError.new(code: 'DOC101'))
       described_class.new.perform(upload.guid)
@@ -106,7 +103,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for non-JSON metadata part' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_doc, 'content' => valid_doc }
       }
@@ -117,7 +113,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for unparseable JSON metadata part' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => 'I am not JSON', 'content' => valid_doc }
       }
@@ -128,7 +123,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for non-PDF document parts' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata, 'content' => valid_metadata }
       }
@@ -139,7 +133,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for unparseable PDF document parts' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata, 'content' => non_pdf_doc }
       }
@@ -150,7 +143,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for missing JSON metadata' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_missing }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -159,7 +151,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for out-of-spec JSON metadata' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) { invalid_parts_nonstring }
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
@@ -168,7 +159,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for missing metadata part' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'content' => valid_doc }
       }
@@ -179,7 +169,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for missing document part' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata }
       }
@@ -196,7 +185,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for downstream server error' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(PensionBurial::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(422)
@@ -219,7 +207,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'sets error status for downstream server error' do
-      allow(@s3_object).to receive(:download_file)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(PensionBurial::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(500)

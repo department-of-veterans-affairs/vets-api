@@ -313,6 +313,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'disability compensation' do
+      it 'supports getting rated disabilities' do
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, auth_options)
+        end
+      end
+
+      it 'supports submitting the form' do
+        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
+        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
+        end
+      end
+    end
+
     describe 'intent to file' do
       it 'supports getting all intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file', 401)
@@ -1186,6 +1202,134 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         User.create(user)
 
         expect(subject).to validate(:get, '/v0/profile/full_name', 200, auth_options)
+      end
+
+      it 'supports posting vet360 email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_email_success') do
+          email_address = build(:email)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 email address data' do
+        expect(subject).to validate(:put, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_email_success') do
+          email_address = build(:email, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports posting vet360 telephone data' do
+        expect(subject).to validate(:post, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+          telephone = build(:telephone)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 telephone data' do
+        expect(subject).to validate(:put, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+          telephone = build(:telephone, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting vet360 address data' do
+        expect(subject).to validate(:post, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_address_success') do
+          address = build(:vet360_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 address data' do
+        expect(subject).to validate(:put, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_address_success') do
+          address = build(:vet360_address, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+    end
+
+    describe 'profile/status' do
+      before do
+        # vet360_id appears in the API request URI so we need it to match the cassette
+        allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+          MVI::Responses::FindProfileResponse.new(
+            status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+            profile: build(:mvi_profile, vet360_id: '1')
+          )
+        )
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+      end
+
+      let(:user) { build(:user, :loa3) }
+      it 'supports GETting async transaction' do
+        transaction = create(
+          :address_transaction,
+          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          user_uuid: user.uuid
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/{transaction_id}',
+          401,
+          'transaction_id' => transaction.transaction_id
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/{transaction_id}',
+            200,
+            auth_options.merge('transaction_id' => transaction.transaction_id)
+          )
+        end
       end
     end
   end
