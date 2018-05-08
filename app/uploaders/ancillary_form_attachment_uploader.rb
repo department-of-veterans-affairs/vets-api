@@ -21,7 +21,7 @@ class AncillaryFormAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w[pdf]
+    %w[pdf png gif tiff tif jpeg jpg bmp txt]
   end
 
   def store_dir

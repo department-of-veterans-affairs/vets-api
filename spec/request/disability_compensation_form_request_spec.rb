@@ -119,16 +119,4 @@ RSpec.describe 'Disability compensation form', type: :request do
       end
     end
   end
-
-  describe 'Post /v0/disability_compensation_form/upload_ancillary_form' do
-    context 'with a valid response' do
-      it 'should return a 200 and an upload guid' do
-        VCR.use_cassette('evss/disability_compensation_form/upload_ancillary_form') do
-          post '/v0/disability_compensation_form/upload_ancillary_form', auth_header
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('upload_ancillary_form')
-        end
-      end
-    end
-  end
 end

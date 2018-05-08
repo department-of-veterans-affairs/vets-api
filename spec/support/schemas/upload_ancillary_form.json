@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "id": {
+              "type": "integer"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "string"
+            },
+            "guid": {
+              "type": "string"
+            },
+            "encrypted_file_data": {
+              "type": "string"
+            },
+            "encrypted_file_data_iv": {
+              "type": "string"
+            }
+          },
+          "type": "object",
+          "required": ["id", "created_at", "updated_at", "guid", "encrypted_file_data", "encrypted_file_data_iv"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": ["object", "null"]
+    }
+  },
+  "type": "object"
+}
