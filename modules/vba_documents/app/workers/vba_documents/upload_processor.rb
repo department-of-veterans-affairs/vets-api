@@ -24,8 +24,13 @@ module VBADocuments
         metadata = perfect_metadata(parts, upload)
         response = submit(metadata, parts)
         process_response(response, upload)
+        log_submission(metadata)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
+        Rails.logger.info('VBADocuments: Submission failure',
+                          'uuid' => guid,
+                          'code' => e.code,
+                          'detail' => e.detail)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
@@ -33,6 +38,15 @@ module VBADocuments
     end
 
     private
+
+    def log_submission(metadata)
+      page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
+      Rails.logger.info('VBADocuments: Submission success',
+                        'uuid' => metadata['uuid'],
+                        'source' => metadata['source'],
+                        'docType' => metadata['docType'],
+                        'pageCount' => page_total)
+    end
 
     def close_part_files(parts)
       parts[DOC_PART_NAME]&.close if parts[DOC_PART_NAME].respond_to? :close
