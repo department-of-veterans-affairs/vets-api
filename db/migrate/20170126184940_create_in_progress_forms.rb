@@ -1,6 +1,4 @@
 class CreateInProgressForms < ActiveRecord::Migration
-  safety_assured
-
   def change
     enable_extension 'uuid-ossp'
     create_table :in_progress_forms do |t|

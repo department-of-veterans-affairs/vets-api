@@ -1,6 +1,4 @@
 class AddRegionToEduForm < ActiveRecord::Migration
-  safety_assured
-
   def up
     add_column :education_benefits_claims, :regional_processing_office, :string
     EducationBenefitsClaim.all.each {|claim|

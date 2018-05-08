@@ -1,6 +1,4 @@
 class CleanUpEducationBenefitsDataTransfer < ActiveRecord::Migration
-  safety_assured
-
   def change
     remove_column(:saved_claims, :education_benefits_claim_id)
 
