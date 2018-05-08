@@ -5,6 +5,9 @@ module Vet360
     class Address < Base
       include Vet360::Concerns::Defaultable
 
+      VALID_ALPHA_REGEX = /[a-zA-Z ]+/
+      VALID_NUMERIC_REGEX = /[0-9]+/
+
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
@@ -39,21 +42,40 @@ module Vet360
       attribute :zip_code, String
       attribute :zip_code_suffix, String
 
-      validates :address_line1, presence: true
-      validates :address_line1, 
-                :address_line2,
-                :address_line3,
-                :city,
-                length: { maximum: 100}
-      validates :source_date, presence: true
-      validates :country, presence: true, length: {maximum: 35}, format: {with: /^[a-zA-Z ]+$/}
-      validates :country_code_iso3, length: { maxiumum: 3}
-      validates :city, presence: true
-      validates :international_postal_code, length: {maximum: 35}
-      validates :province, length: {maximum: 100}
-      validates :state_abbr, length: {maximum: 2, minimum: 2}, format: {with: /^[a-zA-Z ]+$/}
-      validates :zip_code, length: {maximum: 5}
-      validates :zip_code_suffix, length: {maximum: 4}, format: {with: /[0-9]+/}
+      validates(:address_line1, presence: true)
+      validates(:source_date, presence: true)
+      validates(:city, presence: true)
+      validates(:country_code_iso3, length: { maximum: 3 })
+      validates(:international_postal_code, length: { maximum: 35 })
+      validates(:zip_code, length: { maximum: 5 })
+
+      validates(
+        :address_line1,
+        :address_line2,
+        :address_line3,
+        :city,
+        :province,
+        length: { maximum: 100 }
+      )
+
+      validates(
+        :country,
+        presence: true,
+        length: { maximum: 35 },
+        format: { with: VALID_ALPHA_REGEX }
+      )
+
+      validates(
+        :state_abbr,
+        length: { maximum: 2, minimum: 2 },
+        format: { with: VALID_ALPHA_REGEX }
+      )
+
+      validates(
+        :zip_code_suffix,
+        length: { maximum: 4 },
+        format: { with: VALID_NUMERIC_REGEX }
+      )
 
       validates(
         :address_pou,
