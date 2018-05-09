@@ -23,14 +23,6 @@ module HCA
       Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
 
       health_care_application.set_result_on_success!(result)
-
-      if form['email'].present?
-        if result[:success]
-          HCASubmissionSuccessMailer.build(form['email'], result[:timestamp], result[:formSubmissionId]).deliver_now
-        else
-          HCASubmissionFailureMailer.build(form['email']).deliver_now
-        end
-      end
     end
   end
 end
