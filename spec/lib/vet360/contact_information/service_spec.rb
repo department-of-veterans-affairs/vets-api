@@ -258,7 +258,9 @@ describe Vet360::ContactInformation::Service do
 
     context 'when using the underlying #post_or_put_data' do
       it 'raises an error', :aggregate_failures do
-        expect { subject.post_email({}) }.to raise_error do |e|
+        email = build(:email)
+
+        expect { subject.post_email(email) }.to raise_error do |e|
           expect(e).to be_a(RuntimeError)
           expect(e.message).to eq(error_message)
         end
