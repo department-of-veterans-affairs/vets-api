@@ -2,7 +2,6 @@
 
 module V0
   class DisabilityCompensationFormsController < ApplicationController
-
     before_action { authorize :evss, :access? }
 
     def rated_disabilities
