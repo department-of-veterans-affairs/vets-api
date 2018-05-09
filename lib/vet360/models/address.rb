@@ -68,13 +68,15 @@ module Vet360
       validates(
         :state_abbr,
         length: { maximum: 2, minimum: 2 },
-        format: { with: VALID_ALPHA_REGEX }
+        format: { with: VALID_ALPHA_REGEX },
+        allow_blank: true
       )
 
       validates(
         :zip_code_suffix,
         length: { maximum: 4 },
-        format: { with: VALID_NUMERIC_REGEX }
+        format: { with: VALID_NUMERIC_REGEX },
+        allow_blank: true
       )
 
       validates(

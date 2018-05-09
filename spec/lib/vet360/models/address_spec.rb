@@ -92,6 +92,12 @@ describe Vet360::Models::Address do
         address.international_postal_code = ''
         expect(address.valid?).to eq(false)
       end
+
+      it 'ensures international_postal_code is < 35 characters', :aggregate_failures do
+        expect(address.valid?).to eq(true)
+        address.international_postal_code = '123456789123456789123567891234567891234'
+        expect(address.valid?).to eq(false)
+      end
     end
 
     context 'when address_type is military' do
