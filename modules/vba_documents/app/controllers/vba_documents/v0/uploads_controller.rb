@@ -18,6 +18,7 @@ module VBADocuments
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
         raise Common::Exceptions::RecordNotFound, params[:id] if submission.nil?
+        raise Common::Exceptions::RecordNotFound, params[:id] if submission.status == 'expired'
         submission.refresh_status!
         render json: submission,
                serializer: VBADocuments::UploadSerializer,

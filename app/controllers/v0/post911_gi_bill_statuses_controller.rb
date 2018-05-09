@@ -4,6 +4,7 @@ require 'evss/gi_bill_status/gi_bill_status_response'
 
 module V0
   class Post911GIBillStatusesController < ApplicationController
+    include IgnoreNotFound
     include SentryLogging
 
     before_action { authorize :evss, :access? }
@@ -41,7 +42,6 @@ module V0
         raise Common::Exceptions::UnexpectedForbidden, detail: 'Missing correlation id'
       else
         # 500
-        log_message_to_sentry('Unexpected EVSS GiBillStatus Response', :error, response.to_h)
         raise Common::Exceptions::InternalServerError
       end
     end
