@@ -140,30 +140,51 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
       end
 
-      context 'with a SOAP error' do
-        let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
+      context 'when hca service raises an error' do
         before do
           allow_any_instance_of(HCA::Service).to receive(:post) do
             raise error
           end
-          Settings.sentry.dsn = 'asdf'
-        end
-        after do
-          Settings.sentry.dsn = nil
         end
 
-        it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error, level: 'error').twice
+        context 'with a validation error' do
+          let(:error) { HCA::SOAPParser::ValidationError.new('error') }
 
-          subject
+          it 'should render error message' do
+            subject
 
-          expect(response.code).to eq('400')
-          expect(JSON.parse(response.body)).to eq(
-            'errors' => [
-              { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
-            ]
-          )
+            expect(response.code).to eq('400')
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                { 'title' => 'Operation failed', 'detail' => 'error', 'code' => 'VA900', 'status' => '400' }
+              ]
+            )
+          end
+        end
+
+        context 'with a SOAP error' do
+          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
+          before do
+            Settings.sentry.dsn = 'asdf'
+          end
+
+          after do
+            Settings.sentry.dsn = nil
+          end
+
+          it 'should render error message' do
+            expect(Raven).to receive(:capture_exception).with(error, level: 'error').twice
+
+            subject
+
+            expect(response.code).to eq('400')
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
+              ]
+            )
+          end
         end
       end
     end

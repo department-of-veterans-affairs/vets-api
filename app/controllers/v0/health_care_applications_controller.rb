@@ -14,6 +14,10 @@ module V0
 
       result = begin
         HCA::Service.new(current_user).submit_form(form)
+      rescue HCA::SOAPParser::ValidationError => e
+        raise Common::Exceptions::BackendServiceException.new(
+          nil, detail: e.message
+        )
       rescue Common::Client::Errors::ClientError => e
         log_exception_to_sentry(e)
 
