@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180427004822) do
+ActiveRecord::Schema.define(version: 20180503172030) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -205,15 +205,16 @@ ActiveRecord::Schema.define(version: 20180427004822) do
   add_index "maintenance_windows", ["start_time"], name: "index_maintenance_windows_on_start_time", using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
-    t.string   "user_uuid",     null: false
-    t.string   "account_state", null: false
+    t.string   "user_uuid",          null: false
+    t.string   "account_state",      null: false
     t.datetime "registered_at"
     t.datetime "upgraded_at"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.string   "mhv_correlation_id"
   end
 
-  add_index "mhv_accounts", ["user_uuid"], name: "index_mhv_accounts_on_user_uuid", using: :btree
+  add_index "mhv_accounts", ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true, using: :btree
 
   create_table "persistent_attachments", force: :cascade do |t|
     t.uuid     "guid"
