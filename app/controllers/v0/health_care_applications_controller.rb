@@ -4,10 +4,7 @@ require 'hca/service'
 
 module V0
   class HealthCareApplicationsController < ApplicationController
-    FORM_ID = '10-10EZ'
-    # We call authenticate_token because auth is optional on this endpoint.
-    skip_before_action(:authenticate)
-    before_action(:tag_rainbows)
+    include HcaValidate
 
     def create
       authenticate_token
@@ -15,16 +12,20 @@ module V0
       form = JSON.parse(params[:form])
       validate!(form)
 
-      health_care_application = HealthCareApplication.create!
+      result = begin
+        HCA::Service.new(current_user).submit_form(form)
+      rescue Common::Client::Errors::ClientError => e
+        log_exception_to_sentry(e)
 
-      HCA::SubmissionJob.perform_async(current_user&.uuid, form, health_care_application.id)
-      clear_saved_form(FORM_ID)
+        raise Common::Exceptions::BackendServiceException.new(
+          nil, detail: e.message
+        )
+      end
 
-      render(json: health_care_application)
-    end
+      clear_saved_form(HcaValidate::FORM_ID)
 
-    def show
-      render(json: HealthCareApplication.find(params[:id]))
+      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+      render(json: result)
     end
 
     def healthcheck
@@ -35,15 +36,6 @@ module V0
 
     def skip_sentry_exception_types
       super + [Common::Exceptions::GatewayTimeout]
-    end
-
-    def validate!(form)
-      validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::SCHEMAS[FORM_ID],
-        form, validate_schema: true
-      )
-
-      raise Common::Exceptions::SchemaValidationErrors, validation_errors if validation_errors.present?
     end
   end
 end

@@ -48,11 +48,13 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :health_care_applications, only: %i[create show] do
+    resource :health_care_applications, only: [:create] do
       collection do
         get(:healthcheck)
       end
     end
+
+    resources :health_care_applications_v2, only: %i[create show]
 
     if Settings.pension_burial.upload.enabled
       resources :pension_claims, only: %i[create show]
@@ -170,6 +172,11 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+
+      # Vet360 Routes
+      resource :addresses, only: %i[create update]
+      resource :email_addresses, only: %i[create update]
+      resource :telephones, only: %i[create update]
     end
 
     get 'profile/mailing_address', to: 'addresses#show'

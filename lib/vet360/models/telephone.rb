@@ -3,6 +3,8 @@
 module Vet360
   module Models
     class Telephone < Base
+      include Vet360::Concerns::Defaultable
+
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
       WORK        = 'WORK'
