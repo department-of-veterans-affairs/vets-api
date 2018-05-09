@@ -7,7 +7,7 @@ describe VIC::Configuration do
     context 'with an env of uat' do
       it 'should return the right url' do
         expect(described_class.get_sf_instance_url('uat')).to eq(
-          'https://va--UAT.cs32.my.salesforce.com'
+          'https://va--UAT.cs33.my.salesforce.com'
         )
       end
     end
