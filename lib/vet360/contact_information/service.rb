@@ -14,7 +14,7 @@ module Vet360
       # @returns [Vet360::ContactInformation::PersonResponse] response wrapper around an person object
       def get_person
         with_monitoring do
-          # TODO: guard clause in case there is no vet360_id
+          vet360_id_present!
           raw_response = perform(:get, @user.vet360_id)
 
           PersonResponse.new(raw_response.status, raw_response)
@@ -100,10 +100,15 @@ module Vet360
         end
       end
 
+      def vet360_id_present!
+        raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
+      end
+
       def post_or_put_data(method, model, path, response_class)
         temporary_short_circuit!
 
         with_monitoring do
+          vet360_id_present!
           raw = perform(method, path, model.in_json)
           response_class.new(raw.status, raw)
         end
@@ -115,6 +120,7 @@ module Vet360
         temporary_short_circuit!
 
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(:get, path)
 
           response_class.new(raw_response.status, raw_response)
