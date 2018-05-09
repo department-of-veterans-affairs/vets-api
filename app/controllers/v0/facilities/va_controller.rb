@@ -25,10 +25,10 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def suggested
-    results = BaseFacility.suggested_names(params[:type], params[:name_part])
+    results = BaseFacility.suggested(params[:type], params[:name_part])
     render json: results,
            serializer: CollectionSerializer,
-           each_serializer: VAFacilitySerializer
+           each_serializer: VASuggestedFacilitySerializer
   end
 
   private
@@ -36,8 +36,8 @@ class V0::Facilities::VaController < FacilitiesController
   def validate_types_name_part
     raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
     raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
-    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) if
-      (BaseFacility::TYPES & params[:type]).blank?
+    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      (params[:type] - BaseFacility::TYPES).empty?
   end
 
   def validate_params

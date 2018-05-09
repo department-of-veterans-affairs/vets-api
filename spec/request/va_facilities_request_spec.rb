@@ -188,9 +188,9 @@ RSpec.describe 'VA GIS Integration', type: :request do
         it 'returns 3 facilities' do
           get '/v0/facilities/suggested?name_part=por&type[]=health'
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('facilities')
+          expect(response).to match_response_schema('suggested_facilities')
           expect(facilites.count).to eq(3)
-          expect(facilites.map { |f| f['attributes']['name'] }).to eq(
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
             ['Portland VA Medical Center', 'Portland VA Medical Center-Vancouver', 'Portland VA Clinic']
           )
         end
@@ -200,8 +200,9 @@ RSpec.describe 'VA GIS Integration', type: :request do
         it 'returns 2 facilities' do
           get '/v0/facilities/suggested?name_part=por&type[]=dod_health'
           expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('suggested_facilities')
           expect(facilites.count).to eq(2)
-          expect(facilites.map { |f| f['attributes']['name'] }).to eq(
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
             ['Portland Army Medical Center', 'Portland Naval Hospital']
           )
         end
@@ -211,8 +212,9 @@ RSpec.describe 'VA GIS Integration', type: :request do
         it 'returns 5 facilities' do
           get '/v0/facilities/suggested?name_part=por&type[]=health&type[]=dod_health'
           expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('suggested_facilities')
           expect(facilites.count).to eq(5)
-          expect(facilites.map { |f| f['attributes']['name'] }).to eq(
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
             [
               'Portland VA Medical Center',
               'Portland VA Medical Center-Vancouver',
@@ -241,6 +243,14 @@ RSpec.describe 'VA GIS Integration', type: :request do
           get '/v0/facilities/suggested?name_part=por&type[]=foo'
           expect(response).to have_http_status(:bad_request)
           expect(error_detail).to eq('"["foo"]" is not a valid value for "type"')
+        end
+      end
+
+      context 'with one valid and one invalid type' do
+        it '' do
+          get '/v0/facilities/suggested?name_part=por&type[]=foo&type[]=health'
+          expect(response).to have_http_status(:bad_request)
+          expect(error_detail).to eq('"["foo", "health"]" is not a valid value for "type"')
         end
       end
 
