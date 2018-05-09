@@ -1074,6 +1074,18 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/facilities/va', 400,
                                       '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
         end
+
+        it 'supports getting a list of facilities by name' do
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/suggested', 200,
+                                      '_query_string' => 'type[]=health&name_part=por')
+        end
+
+        it '400s on invalid type' do
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
+                                      '_query_string' => 'type[]=foo&name_part=por')
+        end
       end
     end
 
