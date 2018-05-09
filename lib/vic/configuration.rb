@@ -5,7 +5,7 @@ module VIC
     def self.get_sf_instance_url(env)
       return 'https://va.my.salesforce.com' if env == 'prod'
 
-      suffix = env == 'uat' ? '32' : '33'
+      suffix = '33'
       prefix = env.upcase
       prefix = "VIC#{prefix}" unless env == 'uat'
 
