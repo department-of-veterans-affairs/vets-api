@@ -19,7 +19,6 @@ module V0
         HCA::Service.new(current_user).submit_form(form)
       rescue Common::Client::Errors::ClientError => e
         log_exception_to_sentry(e)
-
         raise Common::Exceptions::BackendServiceException.new(
           nil, detail: e.message
         )
@@ -38,7 +37,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::GatewayTimeout]
+      super + [Common::Exceptions::GatewayTimeout, Common::Exceptions::BackendServiceException]
     end
 
     def validate!(form)
