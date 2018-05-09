@@ -9,7 +9,6 @@ FactoryBot.define do
     country 'USA'
     state_abbr 'MS'
     zip_code '38843'
-    sequence(:id) { |n| n }
     sequence(:transaction_id, 100) { |n| "c2fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     source_date          '2018-04-09T11:52:03-06:00'
     created_at           '2017-04-09T11:52:03-06:00'
@@ -21,8 +20,15 @@ FactoryBot.define do
       address_line1 '1515 Broadway'
     end
 
+    trait :domestic do
+      address_type Vet360::Models::Address::DOMESTIC
+    end
+
     trait :international do
       address_type Vet360::Models::Address::INTERNATIONAL
+      international_postal_code '100-0001'
+      state_abbr nil
+      zip_code nil
     end
 
     trait :military_overseas do

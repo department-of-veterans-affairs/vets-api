@@ -9,7 +9,5 @@ module AsyncTransaction
     def id
       nil
     end
-
-    delegate :type, to: :object
   end
 end
