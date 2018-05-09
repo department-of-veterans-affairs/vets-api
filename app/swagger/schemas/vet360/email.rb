@@ -11,8 +11,8 @@ module Swagger
           property :email_address,
                    type: :string,
                    example: 'john@example.com',
-                   minimum_length: 6,
-                   maximum_length: 255,
+                   minLength: 6,
+                   maxLength: 255,
                    pattern: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX.inspect
         end
 
@@ -22,8 +22,8 @@ module Swagger
           property :email_address,
                    type: :string,
                    example: 'john@example.com',
-                   minimum_length: 6,
-                   maximum_length: 255,
+                   minLength: 6,
+                   maxLength: 255,
                    pattern: EVSS::PCIU::EmailAddress::VALID_EMAIL_REGEX.inspect
         end
       end

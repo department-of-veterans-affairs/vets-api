@@ -19,9 +19,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maximum_length: 100
-          property :address_line2, type: :string, maximum_length: 100
-          property :address_line3, type: :string, maximum_length: 100
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -30,7 +30,7 @@ module Swagger
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::DOMESTIC
-          property :city, type: :string, example: 'Fulton', maximum_length: 100
+          property :city, type: :string, example: 'Fulton', maxLength: 100
           property :country,
                    type: :string,
                    example: 'USA',
@@ -38,13 +38,13 @@ module Swagger
           property :state_abbr,
                    type: :string,
                    example: 'MS',
-                   minimum_length: 2,
-                   maximum_length: 2,
+                   minLength: 2,
+                   maxLength: 2,
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
           property :zip_code,
                    type: :string,
                    example: '38843',
-                   maximum_length: 5,
+                   maxLength: 5,
                    pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
         end
 
@@ -63,9 +63,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maximum_length: 100
-          property :address_line2, type: :string, maximum_length: 100
-          property :address_line3, type: :string, maximum_length: 100
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -74,7 +74,7 @@ module Swagger
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::DOMESTIC
-          property :city, type: :string, example: 'Fulton', maximum_length: 100
+          property :city, type: :string, example: 'Fulton', maxLength: 100
           property :country,
                    type: :string,
                    example: 'USA',
@@ -82,13 +82,13 @@ module Swagger
           property :state_abbr,
                    type: :string,
                    example: 'MS',
-                   minimum_length: 2,
-                   maximum_length: 2,
+                   minLength: 2,
+                   maxLength: 2,
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
           property :zip_code,
                    type: :string,
                    example: '38843',
-                   maximum_length: 5,
+                   maxLength: 5,
                    pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
         end
 
@@ -104,9 +104,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maximum_length: 100
-          property :address_line2, type: :string, maximum_length: 100
-          property :address_line3, type: :string, maximum_length: 100
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -115,7 +115,7 @@ module Swagger
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::INTERNATIONAL
-          property :city, type: :string, example: 'Florence', maximum_length: 100
+          property :city, type: :string, example: 'Florence', maxLength: 100
           property :country,
                    type: :string,
                    example: 'Italy',
@@ -137,9 +137,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maximum_length: 100
-          property :address_line2, type: :string, maximum_length: 100
-          property :address_line3, type: :string, maximum_length: 100
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -148,7 +148,7 @@ module Swagger
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::INTERNATIONAL
-          property :city, type: :string, example: 'Florence', maximum_length: 100
+          property :city, type: :string, example: 'Florence', maxLength: 100
           property :country,
                    type: :string,
                    example: 'Italy',
@@ -169,9 +169,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maximum_length: 100
-          property :address_line2, type: :string, maximum_length: 100
-          property :address_line3, type: :string, maximum_length: 100
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -180,7 +180,7 @@ module Swagger
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::MILITARY
-          property :city, type: :string, example: 'Fulton', maximum_length: 100
+          property :city, type: :string, example: 'Fulton', maxLength: 100
           property :country,
                    type: :string,
                    example: 'USA',
@@ -188,13 +188,13 @@ module Swagger
           property :state_abbr,
                    type: :string,
                    example: 'MS',
-                   minimum_length: 2,
-                   maximum_length: 2,
+                   minLength: 2,
+                   maxLength: 2,
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
           property :zip_code,
                    type: :string,
                    example: '38843',
-                   maximum_length: 5,
+                   maxLength: 5,
                    pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
         end
 
@@ -213,9 +213,9 @@ module Swagger
           property :address_line1,
                    type: :string,
                    example: '1493 Martin Luther King Rd',
-                   maximum_length: 100
-          property :address_line2, type: :string, maximum_length: 100
-          property :address_line3, type: :string, maximum_length: 100
+                   maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
@@ -224,7 +224,7 @@ module Swagger
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::MILITARY
-          property :city, type: :string, example: 'Fulton', maximum_length: 100
+          property :city, type: :string, example: 'Fulton', maxLength: 100
           property :country,
                    type: :string,
                    example: 'USA',
@@ -232,13 +232,13 @@ module Swagger
           property :state_abbr,
                    type: :string,
                    example: 'MS',
-                   minimum_length: 2,
-                   maximum_length: 2,
+                   minLength: 2,
+                   maxLength: 2,
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
           property :zip_code,
                    type: :string,
                    example: '38843',
-                   maximum_length: 5,
+                   maxLength: 5,
                    pattern: ::Vet360::Models::Address::VALID_NUMERIC_REGEX.inspect
         end
       end

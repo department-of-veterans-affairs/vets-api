@@ -11,19 +11,19 @@ module Swagger
           property :phone_number,
                    type: :string,
                    example: '5551212',
-                   minimum_length: 1,
-                   maximum_length: 14,
+                   minLength: 1,
+                   maxLength: 14,
                    pattern: ::Vet360::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect
           property :area_code,
                    type: :string,
                    example: '303',
-                   minimum_length: 3,
-                   maximum_length: 3,
+                   minLength: 3,
+                   maxLength: 3,
                    pattern: ::Vet360::Models::Telephone::VALID_AREA_CODE_REGEX.inspect
           property :extension,
                    type: :string,
                    example: '101',
-                   maximum_length: 10
+                   maxLength: 10
           property :phone_type,
                    type: :string,
                    enum: ::Vet360::Models::Telephone::PHONE_TYPES,
@@ -36,19 +36,19 @@ module Swagger
           property :phone_number,
                    type: :string,
                    example: '5551212',
-                   minimum_length: 1,
-                   maximum_length: 14,
+                   minLength: 1,
+                   maxLength: 14,
                    pattern: ::Vet360::Models::Telephone::VALID_PHONE_NUMBER_REGEX.inspect
           property :area_code,
                    type: :string,
                    example: '303',
-                   minimum_length: 3,
-                   maximum_length: 3,
+                   minLength: 3,
+                   maxLength: 3,
                    pattern: ::Vet360::Models::Telephone::VALID_AREA_CODE_REGEX.inspect
           property :extension,
                    type: :string,
                    example: '101',
-                   maximum_length: 10
+                   maxLength: 10
           property :phone_type,
                    type: :string,
                    enum: ::Vet360::Models::Telephone::PHONE_TYPES,
