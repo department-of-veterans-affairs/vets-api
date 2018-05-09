@@ -172,6 +172,9 @@ module V0
       Swagger::Schemas::SubmitDisabilityForm,
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::VAFacilities,
+      Swagger::Schemas::Vet360::Address,
+      Swagger::Schemas::Vet360::Email,
+      Swagger::Schemas::Vet360::Telephone,
       self
     ].freeze
 

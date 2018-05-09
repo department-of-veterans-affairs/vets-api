@@ -86,7 +86,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     it 'raises an error if passed unrecognized transaction' do
       expect do
         AsyncTransaction::Vet360::Base.fetch_transaction(Struct.new('Surprise'), nil)
-      end.to raise_exception
+      end.to raise_exception(RuntimeError)
     end
   end
 end
