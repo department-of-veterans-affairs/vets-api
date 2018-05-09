@@ -91,7 +91,7 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
     end
 
     describe '#generate_metadata' do
-      it 'should generate the metadata', run_at: '2017-01-04 03:00:00 EDT' do
+      let(:job) do
         job = described_class.new
         job.instance_variable_set('@claim', claim)
         job.instance_variable_set('@pdf_path', 'pdf_path')
@@ -105,7 +105,23 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
           hash: 'hash2',
           pages: 2
         )
+        job
+      end
 
+      context 'with a non us address' do
+        before do
+          form = JSON.parse(claim.form)
+          form['claimantAddress']['country'] = 'AGO'
+          claim.form = form.to_json
+          claim.send(:remove_instance_variable, :@parsed_form)
+        end
+
+        it 'should generate metadata with 00000 for zipcode' do
+          expect(job.generate_metadata['zipCode']).to eq('00000')
+        end
+      end
+
+      it 'should generate the metadata', run_at: '2017-01-04 03:00:00 EDT' do
         expect(job.generate_metadata).to eq(
           'veteranFirstName' => 'Test',
           'veteranLastName' => 'User',
