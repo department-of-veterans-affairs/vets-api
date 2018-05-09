@@ -39,7 +39,7 @@ describe Vet360::Models::Address do
 
       it 'address_line1 < 100', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.address_line1 = (a * 101).to_s
+        address.address_line1 = 'a' * 101
         expect(address.valid?).to eq(false)
       end
 
