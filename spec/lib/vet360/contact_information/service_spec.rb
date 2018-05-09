@@ -239,4 +239,39 @@ describe Vet360::ContactInformation::Service do
       end
     end
   end
+
+  context 'When a user does not have a vet360_id' do
+    let(:error_message) { 'User does not have a vet360_id' }
+
+    before do
+      allow(user).to receive(:vet360_id).and_return(nil)
+    end
+
+    context 'when calling #get_person' do
+      it 'raises an error', :aggregate_failures do
+        expect { subject.get_person }.to raise_error do |e|
+          expect(e).to be_a(RuntimeError)
+          expect(e.message).to eq(error_message)
+        end
+      end
+    end
+
+    context 'when using the underlying #post_or_put_data' do
+      it 'raises an error', :aggregate_failures do
+        expect { subject.post_email({}) }.to raise_error do |e|
+          expect(e).to be_a(RuntimeError)
+          expect(e.message).to eq(error_message)
+        end
+      end
+    end
+
+    context 'when using the underlying #get_transaction_status' do
+      it 'raises an error', :aggregate_failures do
+        expect { subject.get_address_transaction_status('1234') }.to raise_error do |e|
+          expect(e).to be_a(RuntimeError)
+          expect(e.message).to eq(error_message)
+        end
+      end
+    end
+  end
 end
