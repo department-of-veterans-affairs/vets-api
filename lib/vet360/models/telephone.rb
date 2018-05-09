@@ -5,6 +5,9 @@ module Vet360
     class Telephone < Base
       include Vet360::Concerns::Defaultable
 
+      VALID_AREA_CODE_REGEX = /[0-9]+/
+      VALID_PHONE_NUMBER_REGEX = /[^a-zA-Z]+/
+
       MOBILE      = 'MOBILE'
       HOME        = 'HOME'
       WORK        = 'WORK'
@@ -34,14 +37,14 @@ module Vet360
       validates(
         :area_code,
         presence: true,
-        format: { with: /[0-9]+/ },
+        format: { with: VALID_AREA_CODE_REGEX },
         length: { maximum: 3, minimum: 3 }
       )
 
       validates(
         :phone_number,
         presence: true,
-        format: { with: /[^a-zA-Z]+/ },
+        format: { with: VALID_PHONE_NUMBER_REGEX },
         length: { maximum: 14, minimum: 1 }
       )
 
