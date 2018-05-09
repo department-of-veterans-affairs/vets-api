@@ -183,7 +183,9 @@ class FormProfile
     response = service.get_rated_disabilities
 
     # Remap response object to schema fields
-    FormRatedDisabilities.new(rated_disabilities: response.rated_disabilities)
+    FormRatedDisabilities.new(
+      rated_disabilities: response.rated_disabilities
+    )
   end
 
   def initialize_military_information(user)
@@ -284,6 +286,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
+    hash.deep_transform_keys! { |k| k.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end
