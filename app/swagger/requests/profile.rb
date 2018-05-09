@@ -434,7 +434,7 @@ module Swagger
 
           key :description, 'Gets an updated transaction by ID'
           key :operationId, 'getTransactionStatusById'
-          key :tags, %w[profile vet360]
+          key :tags, %w[profile]
 
           parameter :authorization
           parameter do
