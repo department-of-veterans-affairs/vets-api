@@ -39,7 +39,7 @@ describe Vet360::Models::Address do
 
       it 'address_line1 < 100', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.address_line1 = "#{'a'*101}"
+        address.address_line1 = (a * 101).to_s
         expect(address.valid?).to eq(false)
       end
 
@@ -48,7 +48,6 @@ describe Vet360::Models::Address do
         address.zip_code_suffix = 'Hello'
         expect(address.valid?).to eq(false)
       end
-
     end
 
     context 'when address_type is domestic' do
