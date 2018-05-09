@@ -15,6 +15,11 @@ module V0
         render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
+      def statuses
+        transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(@current_user, service)
+        render json: transactions#, serializer: AsyncTransaction::BaseSerializer
+      end
+
       private
 
       def transaction_params

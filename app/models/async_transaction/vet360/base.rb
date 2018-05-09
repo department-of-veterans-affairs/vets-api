@@ -78,6 +78,32 @@ module AsyncTransaction
         # These SHOULD go hand-in-hand...
         FINAL_STATUSES.include?(transaction_status) || status == COMPLETED
       end
+
+      def self.refresh_transaction_statuses(user, service)
+        ongoing_transactions = []
+        refreshed_transactions = []
+
+        # @TODO move this into a method and add email and phone
+        address_transaction = AsyncTransaction::Vet360::AddressTransaction
+          .where(user_uuid: user.uuid, status: AsyncTransaction::Vet360::Base::REQUESTED)
+          .order(created_at: :desc)
+          .first
+
+byebug
+
+        ongoing_transactions << address_transaction unless address_transaction.nil?
+        # @TODO other address types
+        
+        ongoing_transactions.each do |transaction|
+          refreshed_transactions << AsyncTransaction::Vet360::Base.refresh_transaction_status(
+            user,
+            service,
+            transaction.transaction_id
+          )
+        end
+byebug
+        return refreshed_transactions
+      end
     end
   end
 end

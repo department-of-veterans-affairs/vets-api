@@ -177,6 +177,7 @@ Rails.application.routes.draw do
       resource :email_addresses, only: %i[create update]
       resource :telephones, only: %i[create update]
       get 'status/:transaction_id', to: 'transactions#status'
+      get 'status/', to: 'transactions#statuses'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
