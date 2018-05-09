@@ -274,6 +274,37 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_526_ez_expected) do
+    {
+      'disabilities' => [
+        {
+          'diagnosticCode' => 5238,
+          'name' => 'Diabetes mellitus0',
+          'ratedDisabilityId' => '0',
+          'ratingDecisionId' => '63655',
+          'specialIssues' => [
+            {
+              'code' => 'TRM',
+              'name' => 'Personal Trauma PTSD'
+            }
+          ]
+        },
+        {
+          'diagnosticCode' => 5238,
+          'name' => 'Diabetes mellitus1',
+          'ratedDisabilityId' => '1',
+          'ratingDecisionId' => '63655',
+          'specialIssues' => [
+            {
+              'code' => 'TRM',
+              'name' => 'Personal Trauma PTSD'
+            }
+          ]
+        }
+      ]
+    }
+  end
+
   before(:each) do
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -316,6 +347,8 @@ RSpec.describe FormProfile, type: :model do
         form_id
       end.tap do |schema_form_id|
         schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
+
+        schema['definitions']['disabilities']['items'].except!('required') if schema_form_id == '21-526EZ'
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
@@ -401,6 +434,15 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns the va profile mapped to the healthcare form' do
           expect_prefilled('1010ez')
+        end
+      end
+    end
+
+    context 'with a disability compensation form' do
+      let(:user) { build(:disabilities_compensation_user) }
+      it 'returns prefilled 21-526EZ' do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+          expect_prefilled('21-526EZ')
         end
       end
     end
