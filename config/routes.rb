@@ -118,6 +118,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      get 'suggested', to: 'va#suggested'
     end
 
     scope :gi, module: 'gi' do
