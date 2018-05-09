@@ -3,6 +3,8 @@
 module Vet360
   module Models
     class Address < Base
+      include Vet360::Concerns::Defaultable
+
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
@@ -20,6 +22,7 @@ module Vet360
       attribute :country, String
       attribute :country_code_iso2, String
       attribute :country_code_iso3, String
+      attribute :country_code_fips, String
       attribute :county_code, String
       attribute :county_name, String
       attribute :created_at, Common::ISO8601Time
@@ -37,6 +40,9 @@ module Vet360
       attribute :zip_code_suffix, String
 
       validates :source_date, presence: true
+      validates :country, presence: true
+      validates :city, presence: true
+      validates :address_line1, presence: true
 
       validates(
         :address_pou,
@@ -49,6 +55,27 @@ module Vet360
         presence: true,
         inclusion: { in: ADDRESS_TYPES }
       )
+
+      with_options if: proc { |a| a.address_type == DOMESTIC } do |address|
+        address.validates :state_abbr, presence: true
+        address.validates :zip_code, presence: true
+        address.validates :province, absence: true
+      end
+
+      with_options if: proc { |a| a.address_type == INTERNATIONAL } do |address|
+        address.validates :international_postal_code, presence: true
+        address.validates :state_abbr, absence: true
+        address.validates :zip_code, absence: true
+        address.validates :zip_code_suffix, absence: true
+        address.validates :county_name, absence: true
+        address.validates :county_code, absence: true
+      end
+
+      with_options if: proc { |a| a.address_type == MILITARY } do |address|
+        address.validates :state_abbr, presence: true
+        address.validates :zip_code, presence: true
+        address.validates :province, absence: true
+      end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @params body [Hash] the decoded response body from Vet360

@@ -92,24 +92,21 @@ module HCA
       formatted['line1'] = address['street']
 
       (2..3).each do |i|
-        street = address["street#{i}"]
-        next if street.blank?
-        formatted["line#{i}"] = street
+        formatted["line#{i}"] = address["street#{i}"] if address["street#{i}"].present?
       end
 
       if address['country'] == 'USA'
         formatted['state'] = address['state']
-        formatted.merge!(format_zipcode(address['zipcode']))
+        formatted.merge!(format_zipcode(address['postalCode']))
       else
         formatted['provinceCode'] = address['state'] || address['provinceCode']
-        formatted['postalCode'] = address['zipcode'] || address['postalCode']
+        formatted['postalCode'] = address['postalCode']
       end
-
       formatted
     end
 
-    def format_zipcode(zipcode)
-      numeric_zip = zipcode.gsub(/\D/, '')
+    def format_zipcode(postal_code)
+      numeric_zip = postal_code.gsub(/\D/, '')
       zip_plus_4 = numeric_zip[5..8]
       zip_plus_4 = nil if !zip_plus_4.nil? && zip_plus_4.size != 4
 

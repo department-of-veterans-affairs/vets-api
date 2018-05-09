@@ -24,6 +24,11 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :disability_compensation_form, only: [] do
+      get 'rated_disabilities'
+      post 'submit'
+    end
+
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
@@ -165,6 +170,12 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+
+      # Vet360 Routes
+      resource :addresses, only: %i[create update]
+      resource :email_addresses, only: %i[create update]
+      resource :telephones, only: %i[create update]
+      get 'status/:transaction_id', to: 'transactions#status'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
