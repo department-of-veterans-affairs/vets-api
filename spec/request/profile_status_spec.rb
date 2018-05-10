@@ -62,13 +62,13 @@ RSpec.describe 'profile_status', type: :request do
         )
         VCR.use_cassette('vet360/contact_information/address_and_email_transaction_status') do
           get(
-            "/v0/profile/status/",
+            '/v0/profile/status/',
             nil,
             auth_header
           )
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
-          expect(response_body['data'].kind_of?(Array)).to eq(true)
+          expect(response_body['data'].is_a?(Array)).to eq(true)
           expect(response_body['data'][0]['attributes']['type'])
             .to eq('AsyncTransaction::Vet360::AddressTransaction')
           expect(response_body['data'][1]['attributes']['type'])
