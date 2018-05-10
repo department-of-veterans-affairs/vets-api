@@ -3,12 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe 'VA GIS Integration', type: :request do
+  include SchemaMatchers
+
   BASE_QUERY_PATH = '/v0/facilities/va?'
   PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
   NY_BBOX = 'bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
 
   let(:setup_pdx) do
-    %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
+    %w[
+      vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348
+      vba_348a vba_348d vba_348e vba_348h dod_001 dod_002
+    ].map { |id| create id }
   end
   let(:setup_ny_nca) do
     %w[nca_824 nca_088 nca_808 nca_803 nca_917 nca_815].map { |id| create id }
@@ -170,6 +175,100 @@ RSpec.describe 'VA GIS Integration', type: :request do
       services = JSON.parse(response.body)['data']['attributes']['services']
       expect(services['health']).not_to include('sl1' => ['EmergencyCare'], 'sl2' => [])
       expect(services['health']).not_to include('sl1' => ['UrgentCare'], 'sl2' => [])
+    end
+  end
+
+  describe '/v0/facilities/suggested/:facility_type' do
+    before(:each) { setup_pdx }
+
+    context 'when facilities are found' do
+      let(:facilites) { JSON.parse(response.body)['data'] }
+
+      context 'with a health facility type' do
+        it 'returns 3 facilities' do
+          get '/v0/facilities/suggested?name_part=por&type[]=health'
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(3)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            ['Portland VA Medical Center', 'Portland VA Medical Center-Vancouver', 'Portland VA Clinic']
+          )
+        end
+      end
+
+      context 'with a dod facility type' do
+        it 'returns 2 facilities' do
+          get '/v0/facilities/suggested?name_part=por&type[]=dod_health'
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(2)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            ['Portland Army Medical Center', 'Portland Naval Hospital']
+          )
+        end
+      end
+
+      context 'with multiple facility types' do
+        it 'returns 5 facilities' do
+          get '/v0/facilities/suggested?name_part=por&type[]=health&type[]=dod_health'
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('suggested_facilities')
+          expect(facilites.count).to eq(5)
+          expect(facilites.map { |f| f['attributes']['name'] }).to match_array(
+            [
+              'Portland VA Medical Center',
+              'Portland VA Medical Center-Vancouver',
+              'Portland VA Clinic',
+              'Portland Army Medical Center',
+              'Portland Naval Hospital'
+            ]
+          )
+        end
+      end
+
+      context 'when facilites are not found' do
+        it 'returns an empty array' do
+          get '/v0/facilities/suggested?name_part=xxx&type[]=health'
+          expect(response).to have_http_status(:ok)
+          expect(facilites.count).to eq(0)
+        end
+      end
+    end
+
+    context 'with invalid input' do
+      let(:error_detail) { JSON.parse(response.body)['errors'].first['detail'] }
+
+      context 'with an invalid type' do
+        it '' do
+          get '/v0/facilities/suggested?name_part=por&type[]=foo'
+          expect(response).to have_http_status(:bad_request)
+          expect(error_detail).to eq('"["foo"]" is not a valid value for "type"')
+        end
+      end
+
+      context 'with one valid and one invalid type' do
+        it '' do
+          get '/v0/facilities/suggested?name_part=por&type[]=foo&type[]=health'
+          expect(response).to have_http_status(:bad_request)
+          expect(error_detail).to eq('"["foo", "health"]" is not a valid value for "type"')
+        end
+      end
+
+      context 'when type is missing' do
+        it '' do
+          get '/v0/facilities/suggested?name_part=xxx'
+          expect(response).to have_http_status(:bad_request)
+          expect(error_detail).to eq('The required parameter "type", is missing')
+        end
+      end
+
+      context 'when name_part is missing' do
+        it '' do
+          get '/v0/facilities/suggested?&type[]=health'
+          expect(response).to have_http_status(:bad_request)
+          expect(error_detail).to eq('The required parameter "name_part", is missing')
+        end
+      end
     end
   end
 end
