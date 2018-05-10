@@ -11,7 +11,7 @@ module Swagger
           key :operationId, 'uploadAncillaryForm'
           key :tags, %w[form_526]
 
-          paramter do
+          parameter do
             key :name, :ancillary_form_attachment
             key :description, 'Object containing file name'
             key :required, true
