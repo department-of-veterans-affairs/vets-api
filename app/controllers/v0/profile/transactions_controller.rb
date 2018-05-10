@@ -17,7 +17,7 @@ module V0
 
       def statuses
         transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(@current_user, service)
-        render json: transactions
+        render json: transactions, each_serializer: AsyncTransaction::BaseSerializer
       end
 
       private
