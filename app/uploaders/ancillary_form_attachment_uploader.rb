@@ -1,4 +1,4 @@
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 class AncillaryFormAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
@@ -15,7 +15,7 @@ class AncillaryFormAttachmentUploader < CarrierWave::Uploader::Base
         Settings.disability_compensation_form.s3.aws_access_key_id,
         Settings.disability_compensation_form.s3.aws_secret_access_key,
         Settings.disability_compensation_form.s3.region,
-        Settings.disability_compensation_form.s3.bucket,
+        Settings.disability_compensation_form.s3.bucket
       )
     end
   end

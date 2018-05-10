@@ -3,7 +3,6 @@
 module V0
   class UploadAncillaryFormsController < ApplicationController
     include FormAttachmentCreate
-    FORM_ATTACHMENT_MODEL = AncillaryFormAttachment 
+    FORM_ATTACHMENT_MODEL = AncillaryFormAttachment
   end
 end
-

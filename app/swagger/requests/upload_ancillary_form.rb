@@ -27,11 +27,11 @@ module Swagger
             key :description, 'Response is ok'
             schema do
               property :id, type: :integer, example: 272
-              property :created_at, type: :string, example: "2018-05-08T21:27:56.929Z"
-              property :updated_at, type: :string, example: "2018-05-08T21:27:56.929Z"
-              property :guid, type: :string, example: "1e4d33f4-2bf7-44b9-ba2c-121d9a794d87"
-              property :encrypted_file_data, type: :string, example: "WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim"
-              property :encrypted_file_data_iv, type: :string, example: "ayqrfIpruCPtLGnA"
+              property :created_at, type: :string, example: '2018-05-08T21:27:56.929Z'
+              property :updated_at, type: :string, example: '2018-05-08T21:27:56.929Z'
+              property :guid, type: :string, example: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87'
+              property :encrypted_file_data, type: :string, example: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim'
+              property :encrypted_file_data_iv, type: :string, example: 'ayqrfIpruCPtLGnA'
             end
           end
         end
