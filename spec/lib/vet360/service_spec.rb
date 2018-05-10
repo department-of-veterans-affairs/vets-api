@@ -11,20 +11,22 @@ describe Vet360::Service do
   subject       { described_class.new(user) }
 
   describe '#handle_error' do
-    before do
-      allow_any_instance_of(Common::Client::Base).to receive_message_chain(:config, :base_path) { '' }
-    end
+    context 'when given a Common::Client::Errors::ClientError from a Vet360 service call' do
+      before do
+        allow_any_instance_of(Common::Client::Base).to receive_message_chain(:config, :base_path) { '' }
+      end
 
-    it 'maps the error codes returned from Vet360 to the appropriate vets-api error message', :aggregate_failures do
-      CSV.foreach(file, headers: true) do |row|
-        error = Common::Client::Errors::ClientError.new(message, status, body_for(row))
-        code  = row['Message Code']
+      it 'maps the Vet360 error code to the appropriate vets-api error message', :aggregate_failures do
+        CSV.foreach(file, headers: true) do |row|
+          error = Common::Client::Errors::ClientError.new(message, status, body_for(row))
+          code  = row['Message Code']
 
-        expect { subject.send('handle_error', error) }.to raise_error do |e|
-          p "Failing code: #{code}" if e.errors.first.code != "VET360_#{code}"
+          expect { subject.send('handle_error', error) }.to raise_error do |e|
+            p "Failing code: #{code}" if e.errors.first.code != "VET360_#{code}"
 
-          expect(e.errors.first.code).to eq("VET360_#{code}")
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.errors.first.code).to eq("VET360_#{code}")
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          end
         end
       end
     end
