@@ -15,6 +15,8 @@ module HCA
 
       begin
         result = HCA::Service.new(user).submit_form(form)
+      rescue HCA::SOAPParser::ValidationError
+        return health_care_application.update_attributes!(state: 'failed')
       rescue StandardError
         health_care_application.update_attributes!(state: 'error')
         raise
