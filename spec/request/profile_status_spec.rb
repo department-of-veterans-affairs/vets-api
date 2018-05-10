@@ -68,7 +68,6 @@ RSpec.describe 'profile_status', type: :request do
           )
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
-byebug
           expect(response_body['data'].kind_of?(Array)).to eq(true)
           expect(response_body['data'][0]['attributes']['type'])
             .to eq('AsyncTransaction::Vet360::AddressTransaction')
