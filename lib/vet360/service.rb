@@ -11,6 +11,8 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
+      vet360_id_present!
+
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
       log_to_sentry(response)
@@ -19,6 +21,10 @@ module Vet360
     end
 
     private
+
+    def vet360_id_present!
+      raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
+    end
 
     def handle_error(error)
       case error
