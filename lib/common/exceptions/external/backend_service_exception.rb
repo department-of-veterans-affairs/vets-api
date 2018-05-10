@@ -34,10 +34,6 @@ module Common
 
       alias generic_error? va900?
 
-      def va900_warning
-        "Unmapped VA900 (Backend Response: { status: #{original_status}, message: #{original_body}) }"
-      end
-
       def va900_hint
         <<-MESSAGE.strip_heredoc
           Add the following to exceptions.en.yml
