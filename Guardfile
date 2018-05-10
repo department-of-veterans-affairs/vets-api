@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-guard :rspec, cmd: 'NOCOVERAGE=y bin/rspec' do
+guard :rspec, cmd: 'DISABLE_SPRING=y NOCOVERAGE=y bin/rspec' do
   require 'guard/rspec/dsl'
   dsl = Guard::RSpec::Dsl.new(self)
 
