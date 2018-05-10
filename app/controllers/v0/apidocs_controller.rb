@@ -175,6 +175,7 @@ module V0
       Swagger::Schemas::Vet360::Address,
       Swagger::Schemas::Vet360::Email,
       Swagger::Schemas::Vet360::Telephone,
+      Swagger::Schemas::Vet360::ContactInformation,
       self
     ].freeze
 
