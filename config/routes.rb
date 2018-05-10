@@ -120,6 +120,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      get 'suggested', to: 'va#suggested'
     end
 
     scope :gi, module: 'gi' do
@@ -172,6 +173,12 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+
+      # Vet360 Routes
+      resource :addresses, only: %i[create update]
+      resource :email_addresses, only: %i[create update]
+      resource :telephones, only: %i[create update]
+      get 'status/:transaction_id', to: 'transactions#status'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
