@@ -9,8 +9,8 @@ module V0
     def create
       authenticate_token
 
-      form = JSON.parse(params[:form])
-      validate!(form)
+      health_care_application = HealthCareApplication.new(params.permit(:form))
+      health_care_application.user = current_user
 
       result = begin
         HCA::Service.new(current_user).submit_form(form)

@@ -1,13 +1,28 @@
 # frozen_string_literal: true
 
 class HealthCareApplication < ActiveRecord::Base
-  attr_accessor(:form)
+  include TempFormValidation
+
+  FORM_ID = '10-10EZ'
+
+  attr_accessor(:user)
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
   def success?
     state == 'success'
+  end
+
+  def process!
+    raise(Common::Exceptions::ValidationErrors, self) unless valid?
+
+    if parsed_form[:email].present?
+      save!
+      HCA::SubmissionJob.perform_async(user&.uuid, form, id)
+    else
+      
+    end
   end
 
   def set_result_on_success!(result)
