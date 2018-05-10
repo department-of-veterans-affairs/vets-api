@@ -118,6 +118,27 @@ following command:
 
 - `make rebuild` - Rebuild the `vets_api` image.
 
+### Authentication required for enterprise.contribsys.com
+
+```
+Authentication is required for enterprise.contribsys.com.
+Please supply credentials for this source. You can do this by running:
+ bundle config enterprise.contribsys.com username:password
+ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bundle install -j4' returned a non-zero code: 17
+make: *** [db] Error 1
+```
+
+Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
+developers can bypass the installation of Sidekiq Enterprise with
+
+- `EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
+
+Vets.gov Team Engineers should follow instructions here: 
+
+https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Vets-API/Sidekiq%20Enterprise%20Setup.md
+
+to install the enterprise license on their systems.
+
 ## Deployment instructions
 
 Jenkins deploys `vets-api` upon each merge to `master`:
