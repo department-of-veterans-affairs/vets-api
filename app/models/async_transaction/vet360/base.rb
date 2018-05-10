@@ -12,6 +12,9 @@ module AsyncTransaction
       REQUESTED = 'requested'
       COMPLETED = 'completed'
 
+      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
+      scope :requested, -> { where(status: Base::REQUESTED).order(created_at: :desc) }
+
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
       # @param user [User] The user associated with the transaction
@@ -80,29 +83,34 @@ module AsyncTransaction
       end
 
       def self.refresh_transaction_statuses(user, service)
-        ongoing_transactions = []
+        ongoing_transactions = last_ongoing_transactions_for_user(user)
         refreshed_transactions = []
-
-        # @TODO move this into a method and add email and phone
-        address_transaction = AsyncTransaction::Vet360::AddressTransaction
-          .where(user_uuid: user.uuid, status: AsyncTransaction::Vet360::Base::REQUESTED)
-          .order(created_at: :desc)
-          .first
-
-byebug
-
-        ongoing_transactions << address_transaction unless address_transaction.nil?
-        # @TODO other address types
         
         ongoing_transactions.each do |transaction|
-          refreshed_transactions << AsyncTransaction::Vet360::Base.refresh_transaction_status(
+          refreshed_transactions << refresh_transaction_status(
             user,
             service,
             transaction.transaction_id
           )
         end
-byebug
+        
         return refreshed_transactions
+      end
+
+      def self.last_ongoing_transactions_for_user(user)
+
+        ongoing_transactions = []
+        
+        address_transaction = AddressTransaction.requested.for_user(user).first
+        email_transaction = EmailTransaction.requested.for_user(user).first
+        telephone_transaction = TelephoneTransaction.requested.for_user(user).first
+
+        ongoing_transactions << address_transaction unless address_transaction.nil?
+        ongoing_transactions << email_transaction unless email_transaction.nil?
+        ongoing_transactions << telephone_transaction unless telephone_transaction.nil?
+
+        return ongoing_transactions
+
       end
     end
   end
