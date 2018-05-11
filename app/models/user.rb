@@ -163,7 +163,7 @@ class User < Common::RedisStore
     facilities = va_profile&.vha_facility_ids
     facilities.to_a.any? do |f|
       Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
-      Settings.mhv.facility_specific.include?(f)
+        Settings.mhv.facility_specific.include?(f)
     end
   end
 

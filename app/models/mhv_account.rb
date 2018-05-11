@@ -9,26 +9,21 @@ class MhvAccount < ActiveRecord::Base
   INELIGIBLE_STATES = %i[
     needs_identity_verification needs_ssn_resolution needs_va_patient
     state_ineligible country_ineligible needs_terms_acceptance
+    has_multiple_active_mhv_ids
   ].freeze
-  # These will be refactored out
-  LEGACY_STATES = %i[registered upgraded existing].freeze
-  # These can probably refactored out too if we have timestamps those should suffice
-  FAILED_STATES = %i[register_failed upgrade_failed].freeze
-  # These states will replace the need for Legacy and Failed states
-  ACCOUNT_STATES = %i[no_account basic advanced premium].freeze
 
-  ALL_STATES = (INELIGIBLE_STATES + LEGACY_STATES + FAILED_STATES + ACCOUNT_STATES).freeze
+  PERSISTED_STATES = %i[register_failed upgrade_failed registered upgraded existing].freeze
+  ELIGIBLE_STATES = %i[no_account].freeze
+  ALL_STATES = (INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
   after_initialize :setup
 
   # rubocop:disable Metrics/BlockLength
   aasm(:account_state) do
     state :unknown, initial: true
-    state *INELIGIBLE_STATES
-    state *LEGACY_STATES
-    state *FAILED_STATES
-    state *ACCOUNT_STATES
+    state(*ALL_STATES)
 
+    # NOTE: This is eligibility for account creation or upgrade, not for access to services.
     event :check_eligibility do
       transitions from: ALL_STATES, to: :needs_identity_verification, unless: :identity_proofed?
       transitions from: ALL_STATES, to: :needs_ssn_resolution, if: :ssn_mismatch?
@@ -40,18 +35,13 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :unknown
     end
 
-    event :check_account_level do
+    event :check_account_state do
       transitions from: %i[unknown], to: :no_account, unless: :exists?
       # The states below this line and the next comment will be removed when reintroducing upgrade.665
       transitions from: %i[unknown], to: :upgraded, if: :previously_upgraded?
-      transitions from: %i[unknown], to: :existing, if: :registered_outside_vetsgov?
       transitions from: %i[unknown], to: :registered, if: :previously_registered?
-      transitions from: %i[unknown], to: :unknown
-      # These states will not happen if the above ones exist, but commenting them anyway
-      # transitions from: %i[unknown], to: :basic, if: :basic_account?
-      # transitions from: %i[unknown], to: :advanced, if: :advanced_account?
-      # transitions from: %i[unknown], to: :premium, if: :premium_account?
-      # transitions from: %i[unknown], to: :unknown
+      # this could mean that vets.gov created / upgraded before we started tracking mhv_ids
+      transitions from: %i[unknown], to: :existing
     end
 
     event :register do
@@ -84,6 +74,10 @@ class MhvAccount < ActiveRecord::Base
     mhv_correlation_id.present?
   end
 
+  def account_level
+    user.mhv_account_type || 'unknown'
+  end
+
   private
 
   def user
@@ -107,13 +101,16 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def multiple_active_mhv_ids?
-    false
+    return false if previously_upgraded? || previously_registered?
+    user.va_profile.active_mhv_ids.size > 1
   end
 
+  # for now lets not handle this
   def state_eligible?
     true
   end
 
+  # fot now lets not handle this
   def country_eligible?
     true
   end
@@ -126,29 +123,17 @@ class MhvAccount < ActiveRecord::Base
                                   .where(user_uuid: user_uuid).limit(1).first
   end
 
-  # deprecated after account upgrade reintroduced
-  def registered_outside_vetsgov?
-    exists? && !previously_registered?
-  end
-
-  # deprecated after account upgrade reintroduced
   def previously_upgraded?
     exists? && unknown? && upgraded_at?
   end
 
-  # deprecated after account upgrade reintroduced
   def previously_registered?
     exists? && unknown? && registered_at?
-  end
-
-  # TODO: remove this in future migration
-  def mhv_correlation_id
-    user.mhv_correlation_id
   end
 
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
     check_eligibility if may_check_eligibility?
-    check_account_level if may_check_account_level?
+    check_account_level if may_check_account_state?
   end
 end

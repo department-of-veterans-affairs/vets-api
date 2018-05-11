@@ -409,7 +409,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when it matches exactly to a facility_specific' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %W[759MM])}
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759MM]) }
 
       it 'is true' do
         expect(user.va_patient?).to be_truthy
@@ -417,7 +417,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when it does not match exactly to a facility_specific and is outside of ranges' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %W[759])}
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759]) }
 
       it 'is false' do
         expect(user.va_patient?).to be_falsey

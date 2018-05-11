@@ -129,12 +129,7 @@ RSpec.describe MhvAccount, type: :model do
           end
         end
 
-        # NOTE: THIS IS IMPORTANT, we're going to need a database migration, and a change to support multiple mhv_accounts
-        # tied to a certain user. Existing accounts might become outdated, but we should retain the record.
-        # furthoermore we should create a new account again when user acknowledges, perhaps T&C need to be tied to specific
-        # MHV accounts. I can elaborate on this more in discussion.
-        # additionally we should log the specific mhv correlation id of the account that was created / upgraded
-        # TODO TODO TODO TODO
+        # TODO: TODO TODO TODO
         context 'without mhv id' do
           it 'a priori registered account changes to no_account' do
             subject = described_class.new(
