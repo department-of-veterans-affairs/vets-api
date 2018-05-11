@@ -35,6 +35,8 @@ RSpec.describe HealthCareApplication, type: :model do
   end
 
   describe '#process!' do
+    let(:health_care_application) { build(:health_care_application) }
+
     context 'with an invalid record' do
       it 'should raise a validation error' do
         expect do
@@ -44,9 +46,19 @@ RSpec.describe HealthCareApplication, type: :model do
     end
 
     context 'with an email' do
+      context 'with async_compatible not set' do
+        it 'should submit sync', run_at: '2017-01-31' do
+          VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
+            result = health_care_application.process!
+            expect(result).to eq(
+              {:success=>true, :formSubmissionId=>40124668140, :timestamp=>"2016-05-25T04:59:39.345-05:00"}
+            )
+          end
+        end
+      end
+
       context 'with async compatible flag set' do
         it 'should save the record and submit async' do
-          health_care_application = build(:health_care_application)
           health_care_application.async_compatible = true
           expect(HCA::SubmissionJob).to receive(:perform_async)
 
