@@ -6,6 +6,7 @@ class HealthCareApplication < ActiveRecord::Base
   FORM_ID = '10-10EZ'
 
   attr_accessor(:user)
+  attr_accessor(:async_compatible)
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
@@ -17,11 +18,29 @@ class HealthCareApplication < ActiveRecord::Base
   def process!
     raise(Common::Exceptions::ValidationErrors, self) unless valid?
 
-    if parsed_form[:email].present?
+    if parsed_form['email'].present? && async_compatible
       save!
-      HCA::SubmissionJob.perform_async(user&.uuid, form, id)
+      HCA::SubmissionJob.perform_async(user&.uuid, parsed_form, id)
+
+      self
     else
-      
+      result = begin
+        HCA::Service.new(user).submit_form(parsed_form)
+      rescue HCA::SOAPParser::ValidationError => e
+        raise Common::Exceptions::BackendServiceException.new(
+          nil, detail: e.message
+        )
+      rescue Common::Client::Errors::ClientError => e
+        log_exception_to_sentry(e)
+
+        raise Common::Exceptions::BackendServiceException.new(
+          nil, detail: e.message
+        )
+      end
+
+      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+
+      result
     end
   end
 

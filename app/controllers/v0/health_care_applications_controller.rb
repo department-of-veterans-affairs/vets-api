@@ -1,34 +1,21 @@
 # frozen_string_literal: true
 
-require 'hca/service'
-
 module V0
   class HealthCareApplicationsController < ApplicationController
-    include HcaValidate
+    skip_before_action(:authenticate)
+    before_action(:tag_rainbows)
 
     def create
       authenticate_token
 
       health_care_application = HealthCareApplication.new(params.permit(:form))
+      health_care_application.async_compatible = params[:async_compatible]
       health_care_application.user = current_user
 
-      result = begin
-        HCA::Service.new(current_user).submit_form(form)
-      rescue HCA::SOAPParser::ValidationError => e
-        raise Common::Exceptions::BackendServiceException.new(
-          nil, detail: e.message
-        )
-      rescue Common::Client::Errors::ClientError => e
-        log_exception_to_sentry(e)
+      result = health_care_application.process!
 
-        raise Common::Exceptions::BackendServiceException.new(
-          nil, detail: e.message
-        )
-      end
+      clear_saved_form(HealthCareApplication::FORM_ID)
 
-      clear_saved_form(HcaValidate::FORM_ID)
-
-      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
       render(json: result)
     end
 

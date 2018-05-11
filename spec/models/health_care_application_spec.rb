@@ -34,6 +34,29 @@ RSpec.describe HealthCareApplication, type: :model do
     end
   end
 
+  describe '#process!' do
+    context 'with an invalid record' do
+      it 'should raise a validation error' do
+        expect do
+          described_class.new(form: {}.to_json).process!
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+      end
+    end
+
+    context 'with an email' do
+      context 'with async compatible flag set' do
+        it 'should save the record and submit async' do
+          health_care_application = build(:health_care_application)
+          health_care_application.async_compatible = true
+          expect(HCA::SubmissionJob).to receive(:perform_async)
+
+          expect(health_care_application.process!).to eq(health_care_application)
+          expect(health_care_application.id.present?).to eq(true)
+        end
+      end
+    end
+  end
+
   describe '#set_result_on_success!' do
     let(:result) do
       {
