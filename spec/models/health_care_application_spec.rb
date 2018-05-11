@@ -45,6 +45,25 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
+    context 'with no email' do
+      before do
+        new_form = JSON.parse(health_care_application.form)
+        new_form.delete('email')
+        health_care_application.form = new_form.to_json
+        health_care_application.instance_variable_set(:@parsed_form, nil)
+      end
+
+      it 'should sumbit sync' do
+        result = { formSubmissionId: '123' }
+        expect_any_instance_of(HCA::Service).to receive(
+          :submit_form
+        ).with(health_care_application.send(:parsed_form)).and_return(
+          result
+        )
+        expect(health_care_application.process!).to eq(result)
+      end
+    end
+
     context 'with an email' do
       context 'with async_compatible not set' do
         it 'should submit sync', run_at: '2017-01-31' do
