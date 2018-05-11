@@ -209,6 +209,10 @@ describe HCA::EnrollmentSystem do
     'format_zipcode',
     [
       [
+        [nil],
+        {}
+      ],
+      [
         '12345',
         { 'zipCode' => '12345', 'zipPlus4' => nil }
       ],
