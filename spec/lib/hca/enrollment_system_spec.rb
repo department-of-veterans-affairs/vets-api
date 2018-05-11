@@ -224,6 +224,18 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#format_address' do
+    context 'with no zipcode' do
+      it 'should format addr correctly' do
+        test_address.delete('postalCode')
+        expect(described_class.format_address(test_address)).to eq(
+          'city' => 'Dulles',
+          'country' => 'USA',
+          'line1' => '123 NW 8th St',
+          'state' => 'VA'
+        )
+      end
+    end
+
     it 'should format the address correctly' do
       expect(described_class.format_address(test_address)).to eq(
         'city' => 'Dulles',
