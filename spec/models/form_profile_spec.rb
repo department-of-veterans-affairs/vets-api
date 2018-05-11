@@ -376,11 +376,7 @@ RSpec.describe FormProfile, type: :model do
       end.tap do |schema_form_id|
         schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
 
-        if schema_form_id == '21-526EZ'
-          schema['definitions']['disabilities']['items'].except!('required')
-          schema['definitions']['directDeposit']['properties']['routingNumber'].except!('pattern')
-          schema['definitions']['directDeposit']['properties']['accountNumber'].except!('pattern')
-        end
+        filter_526_schema_fields!(schema) if schema_form_id == '21-526EZ'
 
         schema_data = prefilled_data.deep_dup
 
@@ -396,6 +392,12 @@ RSpec.describe FormProfile, type: :model do
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
+    end
+
+    def filter_526_schema_fields!(schema)
+      schema['definitions']['disabilities']['items'].except!('required')
+      schema['definitions']['directDeposit']['properties']['routingNumber'].except!('pattern')
+      schema['definitions']['directDeposit']['properties']['accountNumber'].except!('pattern')
     end
 
     context 'when emis is down', skip_emis: true do

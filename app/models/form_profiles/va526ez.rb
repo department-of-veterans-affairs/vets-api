@@ -133,7 +133,7 @@ class FormProfiles::VA526ez < FormProfile
 
     if raw_account
       account = VA526ez::FormPaymentAccountInformation.new(
-        account_type: raw_account&.account_type.upcase,
+        account_type: raw_account&.account_type&.upcase,
         account_number: raw_account&.account_number,
         routing_number: raw_account&.financial_institution_routing_number,
         bank_name: raw_account&.financial_institution_name
