@@ -14,8 +14,7 @@ EVSSPolicy = Struct.new(:user, :evss) do
           edipi_present: user.edipi.present?,
           ssn_present: user.ssn.present?,
           participant_id_present: user.participant_id.present?,
-          user_loa: user&.loa,
-          user: user.inspect
+          user_loa: user&.loa
         },
         profile: 'pciu_profile'
       )
