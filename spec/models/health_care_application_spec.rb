@@ -70,7 +70,7 @@ RSpec.describe HealthCareApplication, type: :model do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             result = health_care_application.process!
             expect(result).to eq(
-              {:success=>true, :formSubmissionId=>40124668140, :timestamp=>"2016-05-25T04:59:39.345-05:00"}
+              success: true, formSubmissionId: 40_124_668_140, timestamp: '2016-05-25T04:59:39.345-05:00'
             )
           end
         end
