@@ -10,11 +10,11 @@ module TempFormValidation
     validate(:form_matches_schema, on: :create)
   end
 
-  private
-
   def parsed_form
     @parsed_form ||= JSON.parse(form)
   end
+
+  private
 
   def form_matches_schema
     if form.present?
