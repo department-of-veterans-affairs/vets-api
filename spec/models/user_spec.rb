@@ -340,6 +340,7 @@ RSpec.describe User, type: :model do
 
     before(:each) do
       Settings.mhv.facility_range = [[450, 758]]
+      Settings.mhv.facility_specific = ['759MM']
       stub_mvi(mvi_profile)
     end
 
@@ -401,6 +402,22 @@ RSpec.describe User, type: :model do
 
     context 'when there are multiple facilities all outside of defined range' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[449MH 759MH]) }
+      it 'is false' do
+        expect(user.va_patient?).to be_falsey
+      end
+    end
+
+    context 'when it matches exactly to a facility_specific' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %W[759MM])}
+
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when it does not match exactly to a facility_specific and is outside of ranges' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %W[759])}
+
       it 'is false' do
         expect(user.va_patient?).to be_falsey
       end

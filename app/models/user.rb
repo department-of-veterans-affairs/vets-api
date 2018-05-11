@@ -162,7 +162,8 @@ class User < Common::RedisStore
   def va_patient?
     facilities = va_profile&.vha_facility_ids
     facilities.to_a.any? do |f|
-      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
+      Settings.mhv.facility_specific.include?(f)
     end
   end
 
@@ -195,7 +196,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
   end
 
   def in_progress_forms
