@@ -2,6 +2,7 @@
 
 class HealthCareApplication < ActiveRecord::Base
   include TempFormValidation
+  include SentryLogging
 
   FORM_ID = '10-10EZ'
 
