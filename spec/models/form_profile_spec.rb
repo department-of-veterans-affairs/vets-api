@@ -276,12 +276,19 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v21_526_ez_expected) do
     {
+      'directDeposit' => {
+        'accountType' => 'CHECKING',
+        'accountNumber' => 'xxxxxxxxx1234',
+        'routingNumber' => 'xxxxx2115',
+        'bankName' => 'Comerica'
+      },
       'disabilities' => [
         {
           'diagnosticCode' => 5238,
           'name' => 'Diabetes mellitus0',
           'ratedDisabilityId' => '0',
           'ratingDecisionId' => '63655',
+          'ratingPercentage' => 100,
           'specialIssues' => [
             {
               'code' => 'TRM',
@@ -294,6 +301,7 @@ RSpec.describe FormProfile, type: :model do
           'name' => 'Diabetes mellitus1',
           'ratedDisabilityId' => '1',
           'ratingDecisionId' => '63655',
+          'ratingPercentage' => 100,
           'specialIssues' => [
             {
               'code' => 'TRM',
@@ -301,7 +309,27 @@ RSpec.describe FormProfile, type: :model do
             }
           ]
         }
-      ]
+      ],
+      'dateOfBirth' => '1809-02-12',
+      'fullName' => {
+        'first' => 'Beyonce',
+        'last' => 'Knowles',
+        'suffix' => 'Jr.'
+      },
+      'gender' => 'F',
+      'socialSecurityNumber' => '796068949',
+      'veteran' => {
+        'mailingAddress' => {
+          'type' => 'DOMESTIC',
+          'country' => 'USA',
+          'city' => 'Washington',
+          'state' => 'DC',
+          'zipCode' => '20011',
+          'addressLine1' => '140 Rock Creek Church Rd NW'
+        },
+        'primaryPhone' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      }
     }
   end
 
@@ -348,7 +376,12 @@ RSpec.describe FormProfile, type: :model do
       end.tap do |schema_form_id|
         schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
 
-        schema['definitions']['disabilities']['items'].except!('required') if schema_form_id == '21-526EZ'
+        if schema_form_id == '21-526EZ'
+          schema['definitions']['disabilities']['items'].except!('required')
+          schema['definitions']['directDeposit']['properties']['routingNumber'].except!('pattern')
+          schema['definitions']['directDeposit']['properties']['accountNumber'].except!('pattern')
+        end
+
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
@@ -441,8 +474,12 @@ RSpec.describe FormProfile, type: :model do
     context 'with a disability compensation form' do
       let(:user) { build(:disabilities_compensation_user) }
       it 'returns prefilled 21-526EZ' do
-        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-          expect_prefilled('21-526EZ')
+        VCR.use_cassette('evss/pciu_address/address_domestic') do
+          VCR.use_cassette('evss/ppiu/payment_information') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              expect_prefilled('21-526EZ')
+            end
+          end
         end
       end
     end
