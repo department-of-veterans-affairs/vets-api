@@ -85,6 +85,13 @@ RSpec.describe HealthCareApplication, type: :model do
           expect(health_care_application.id.present?).to eq(true)
         end
       end
+
+      context 'when state changes to "failed"' do
+        it 'should send a failure email to the email address provided on the form' do
+          expect(health_care_application).to receive(:send_failure_mail)
+          health_care_application.update_attributes!(state: 'failed')
+        end
+      end
     end
   end
 

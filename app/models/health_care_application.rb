@@ -12,8 +12,14 @@ class HealthCareApplication < ActiveRecord::Base
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
+  after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
+
   def success?
     state == 'success'
+  end
+
+  def failed?
+    state == 'failed'
   end
 
   def submit_sync
@@ -60,5 +66,9 @@ class HealthCareApplication < ActiveRecord::Base
 
   def form_submission_id
     form_submission_id_string&.to_i
+  end
+
+  def send_failure_mail
+    HCASubmissionFailureMailer.build(parsed_form['email']).deliver_now
   end
 end
