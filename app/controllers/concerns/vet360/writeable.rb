@@ -31,8 +31,7 @@ module Vet360
         {
           controller: self.class.to_s,
           response: response,
-          params: params,
-          user: @current_user.inspect
+          params: params
         },
         profile: 'pciu_profile'
       )
