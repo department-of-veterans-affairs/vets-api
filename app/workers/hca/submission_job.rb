@@ -10,6 +10,7 @@ module HCA
     end
 
     def perform(user_uuid, form, health_care_application_id)
+      Sentry::TagRainbows.tag
       health_care_application = HealthCareApplication.find(health_care_application_id)
       user = User.find(user_uuid)
 
