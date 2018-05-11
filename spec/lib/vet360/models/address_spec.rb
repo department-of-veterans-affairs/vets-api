@@ -30,6 +30,24 @@ describe Vet360::Models::Address do
         address.country = ''
         expect(address.valid?).to eq(false)
       end
+
+      it 'country must be alphabetic', :aggregate_failures do
+        expect(address.valid?).to eq(true)
+        address.country = '42'
+        expect(address.valid?).to eq(false)
+      end
+
+      it 'address_line1 < 100', :aggregate_failures do
+        expect(address.valid?).to eq(true)
+        address.address_line1 = 'a' * 101
+        expect(address.valid?).to eq(false)
+      end
+
+      it 'zip_code_suffix must be numeric', :aggregate_failures do
+        expect(address.valid?).to eq(true)
+        address.zip_code_suffix = 'Hello'
+        expect(address.valid?).to eq(false)
+      end
     end
 
     context 'when address_type is domestic' do
@@ -90,6 +108,12 @@ describe Vet360::Models::Address do
       it 'international_postal_code is required', :aggregate_failures do
         expect(address.valid?).to eq(true)
         address.international_postal_code = ''
+        expect(address.valid?).to eq(false)
+      end
+
+      it 'ensures international_postal_code is < 35 characters', :aggregate_failures do
+        expect(address.valid?).to eq(true)
+        address.international_postal_code = '123456789123456789123567891234567891234'
         expect(address.valid?).to eq(false)
       end
     end

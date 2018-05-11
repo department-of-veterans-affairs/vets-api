@@ -50,6 +50,7 @@ class BaseFacility < ActiveRecord::Base
       return klass.none unless type.blank? || type == facility_type
       facilities = klass.where(conditions)
       facilities = facilities.where("services->'benefits'->'standard' @> '#{services}'") if services&.any?
+      facilities = facilities.where.not(facility_type: 'dod_health')
       facilities
     end
 
@@ -69,6 +70,12 @@ class BaseFacility < ActiveRecord::Base
 
     def max_per_page
       100
+    end
+
+    def suggested(facility_types, name_part)
+      BaseFacility.where(
+        facility_type: facility_types.map { |t| TYPE_NAME_MAP[t] }
+      ).where('name ILIKE ?', "%#{name_part}%")
     end
   end
 
