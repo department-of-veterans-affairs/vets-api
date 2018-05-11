@@ -43,7 +43,7 @@ RSpec.describe MhvAccountsService do
   let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
   let(:tc_accepted) { double('terms_and_conditions_accepted', terms_and_conditions: terms, created_at: Time.current) }
   let(:mhv_account) do
-    double(
+    instance_double(
       'mhv_account',
       may_register?: true,
       may_upgrade?: true,
@@ -60,6 +60,7 @@ RSpec.describe MhvAccountsService do
   describe 'account creation and upgrade' do
     context 'account creation' do
       before(:each) do
+        allow(mhv_account).to receive(:mhv_correlation_id=)
         allow(mhv_account).to receive(:registered_at=)
         allow(mhv_account).to receive(:register!)
       end
@@ -129,6 +130,7 @@ RSpec.describe MhvAccountsService do
     before(:each) do
       allow(SM::Client).to receive(:new).and_return(ac_client)
       allow(subject).to receive(:mhv_ac_client) { ac_client }
+      allow(mhv_account).to receive(:mhv_correlation_id=)
       allow(mhv_account).to receive(:registered_at=)
       allow(mhv_account).to receive(:register!)
       allow(mhv_account).to receive(:upgraded_at=)
@@ -195,6 +197,7 @@ RSpec.describe MhvAccountsService do
     before(:each) do
       allow(SM::Client).to receive(:new).and_return(ac_client)
       allow(subject).to receive(:mhv_ac_client) { ac_client }
+      allow(mhv_account).to receive(:mhv_correlation_id=)
       allow(mhv_account).to receive(:registered_at=)
       allow(mhv_account).to receive(:register!)
       allow(mhv_account).to receive(:upgraded_at=)

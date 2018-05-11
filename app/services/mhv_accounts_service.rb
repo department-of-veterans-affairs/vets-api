@@ -28,9 +28,12 @@ class MhvAccountsService
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
         StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
-        @user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
-        @user.recache
+        mhv_id = client_response[:correlation_id].to_s
         mhv_account.registered_at = Time.current
+        mhv_account.mhv_correlation_id = mhv_id
+        @user.va_profile.mhv_ids = [mhv_id] + @user.va_profile.mhv_ids
+        @user.va_profile.active_mhv_ids = [mhv_id] + @user.va_profile.active_mhv_ids
+        @user.recache
         mhv_account.register!
       end
     end

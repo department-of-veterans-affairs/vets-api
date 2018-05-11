@@ -70,6 +70,14 @@ class MhvAccount < ActiveRecord::Base
     terms_and_conditions_accepted.present?
   end
 
+  def terms_and_conditions_accepted
+    @terms_and_conditions_accepted ||=
+      TermsAndConditionsAcceptance.joins(:terms_and_conditions)
+                                  .includes(:terms_and_conditions)
+                                  .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
+                                  .where(user_uuid: user_uuid).limit(1).first
+  end
+
   def exists?
     mhv_correlation_id.present?
   end
@@ -82,10 +90,6 @@ class MhvAccount < ActiveRecord::Base
 
   def user
     @user ||= User.find(user_uuid)
-  end
-
-  def mhv_correlation_id
-    user.mhv_correlation_id
   end
 
   def identity_proofed?
@@ -115,14 +119,6 @@ class MhvAccount < ActiveRecord::Base
     true
   end
 
-  def terms_and_conditions_accepted
-    @terms_and_conditions_accepted ||=
-      TermsAndConditionsAcceptance.joins(:terms_and_conditions)
-                                  .includes(:terms_and_conditions)
-                                  .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
-                                  .where(user_uuid: user_uuid).limit(1).first
-  end
-
   def previously_upgraded?
     exists? && unknown? && upgraded_at?
   end
@@ -134,6 +130,6 @@ class MhvAccount < ActiveRecord::Base
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
     check_eligibility if may_check_eligibility?
-    check_account_level if may_check_account_state?
+    check_account_state if may_check_account_state?
   end
 end
