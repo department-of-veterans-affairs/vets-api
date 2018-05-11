@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe HCA::SubmissionJob, type: :job do
   let(:user) { create(:user) }
   let(:health_care_application) { create(:health_care_application) }
-  let(:form) { { foo: true, 'email' => 'foo@example.com' } }
+  let(:form) { { foo: true, email: 'foo@example.com' } }
   let(:result) do
     {
       formSubmissionId: 123,
