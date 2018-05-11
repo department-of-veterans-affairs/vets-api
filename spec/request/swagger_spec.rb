@@ -1074,6 +1074,18 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/facilities/va', 400,
                                       '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
         end
+
+        it 'supports getting a list of facilities by name' do
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/suggested', 200,
+                                      '_query_string' => 'type[]=health&name_part=por')
+        end
+
+        it '400s on invalid type' do
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
+                                      '_query_string' => 'type[]=foo&name_part=por')
+        end
       end
     end
 
@@ -1290,6 +1302,44 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             '/v0/profile/addresses',
             200,
             auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+    end
+
+    describe 'profile/status' do
+      before do
+        # vet360_id appears in the API request URI so we need it to match the cassette
+        allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+          MVI::Responses::FindProfileResponse.new(
+            status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+            profile: build(:mvi_profile, vet360_id: '1')
+          )
+        )
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+      end
+
+      let(:user) { build(:user, :loa3) }
+      it 'supports GETting async transaction' do
+        transaction = create(
+          :address_transaction,
+          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          user_uuid: user.uuid
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/{transaction_id}',
+          401,
+          'transaction_id' => transaction.transaction_id
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/{transaction_id}',
+            200,
+            auth_options.merge('transaction_id' => transaction.transaction_id)
           )
         end
       end

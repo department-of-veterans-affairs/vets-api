@@ -49,6 +49,18 @@ RSpec.describe HCA::SubmissionJob, type: :job do
         expect(hca_service).to receive(:submit_form).with(form).once.and_raise(error)
       end
 
+      context 'with a validation error' do
+        let(:error) { HCA::SOAPParser::ValidationError }
+
+        it 'should set the record to failed' do
+          subject
+
+          health_care_application.reload
+
+          expect(health_care_application.state).to eq('failed')
+        end
+      end
+
       it 'should set the health_care_application state to error' do
         expect { subject }.to raise_error(error)
         health_care_application.reload

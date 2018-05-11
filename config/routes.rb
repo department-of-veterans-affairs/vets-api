@@ -54,8 +54,6 @@ Rails.application.routes.draw do
       end
     end
 
-    resources :health_care_applications_v2, only: %i[create show]
-
     if Settings.pension_burial.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
@@ -120,6 +118,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      get 'suggested', to: 'va#suggested'
     end
 
     scope :gi, module: 'gi' do
@@ -177,6 +176,7 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update]
       resource :email_addresses, only: %i[create update]
       resource :telephones, only: %i[create update]
+      get 'status/:transaction_id', to: 'transactions#status'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
