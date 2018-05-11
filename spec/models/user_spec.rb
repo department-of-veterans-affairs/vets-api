@@ -328,7 +328,8 @@ RSpec.describe User, type: :model do
           let(:mvi_profile) { build(:mvi_profile) }
           it 'has a mhv correlation id' do
             stub_mvi(mvi_profile)
-            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
+            expect(loa3_user.mhv_correlation_id).not_to eq(mvi_profile.mhv_ids.first)
+            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
           end
         end
       end
