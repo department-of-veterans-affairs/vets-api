@@ -70,6 +70,7 @@ FactoryBot.define do
         home_phone nil
         icn '1008714701V416111'
         mhv_ids nil
+        active_mhv_ids nil
         vha_facility_ids ['200MHS']
         participant_id '9100792239'
         edipi nil

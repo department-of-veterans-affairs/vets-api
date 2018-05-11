@@ -328,7 +328,7 @@ RSpec.describe User, type: :model do
           let(:mvi_profile) { build(:mvi_profile) }
           it 'has a mhv correlation id' do
             stub_mvi(mvi_profile)
-            expect(loa3_user.mhv_correlation_id).not_to eq(mvi_profile.mhv_ids.first)
+            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
           end
         end
@@ -340,9 +340,15 @@ RSpec.describe User, type: :model do
     let(:user) { build(:user, :loa3) }
 
     before(:each) do
-      Settings.mhv.facility_range = [[450, 758]]
-      Settings.mhv.facility_specific = ['759MM']
       stub_mvi(mvi_profile)
+    end
+
+    around(:each) do |example|
+      with_settings(Settings.mhv, facility_range: [[450, 758]]) do
+        with_settings(Settings.mhv, facility_specific: ['759MM']) do
+          example.run
+        end
+      end
     end
 
     context 'when there are no facilities' do
