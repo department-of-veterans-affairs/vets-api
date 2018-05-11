@@ -5,6 +5,8 @@ module TempFormValidation
 
   included do
     attr_accessor(:form)
+
+    validates(:form, presence: true, on: :create)
     validate(:form_matches_schema, on: :create)
   end
 
@@ -15,6 +17,6 @@ module TempFormValidation
   end
 
   def form_matches_schema
-    errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form))
+    errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form)) if form.present?
   end
 end
