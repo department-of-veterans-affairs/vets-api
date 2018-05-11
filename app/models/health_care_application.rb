@@ -68,6 +68,8 @@ class HealthCareApplication < ActiveRecord::Base
     form_submission_id_string&.to_i
   end
 
+  private
+
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email']).deliver_now
   end
