@@ -141,6 +141,11 @@ class MhvAccount < ActiveRecord::Base
     exists? && unknown? && registered_at?
   end
 
+  # TODO: remove this in future migration
+  def mhv_correlation_id
+    user.mhv_correlation_id
+  end
+
   def setup
     raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
     check_eligibility if may_check_eligibility?
