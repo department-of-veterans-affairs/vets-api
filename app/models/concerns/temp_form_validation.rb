@@ -17,6 +17,8 @@ module TempFormValidation
   end
 
   def form_matches_schema
-    errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form)) if form.present?
+    if form.present?
+      errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form))
+    end
   end
 end

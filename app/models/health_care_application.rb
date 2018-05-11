@@ -16,6 +16,26 @@ class HealthCareApplication < ActiveRecord::Base
     state == 'success'
   end
 
+  def submit_sync
+    result = begin
+      HCA::Service.new(user).submit_form(parsed_form)
+    rescue HCA::SOAPParser::ValidationError => e
+      raise Common::Exceptions::BackendServiceException.new(
+        nil, detail: e.message
+      )
+    rescue Common::Client::Errors::ClientError => e
+      log_exception_to_sentry(e)
+
+      raise Common::Exceptions::BackendServiceException.new(
+        nil, detail: e.message
+      )
+    end
+
+    Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
+
+    result
+  end
+
   def process!
     raise(Common::Exceptions::ValidationErrors, self) unless valid?
 
@@ -25,23 +45,7 @@ class HealthCareApplication < ActiveRecord::Base
 
       self
     else
-      result = begin
-        HCA::Service.new(user).submit_form(parsed_form)
-      rescue HCA::SOAPParser::ValidationError => e
-        raise Common::Exceptions::BackendServiceException.new(
-          nil, detail: e.message
-        )
-      rescue Common::Client::Errors::ClientError => e
-        log_exception_to_sentry(e)
-
-        raise Common::Exceptions::BackendServiceException.new(
-          nil, detail: e.message
-        )
-      end
-
-      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
-
-      result
+      submit_sync
     end
   end
 
