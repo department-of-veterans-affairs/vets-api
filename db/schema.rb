@@ -138,6 +138,14 @@ ActiveRecord::Schema.define(version: 20180503172030) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
+  create_table "health_care_applications", force: :cascade do |t|
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.string   "state",                     default: "pending", null: false
+    t.string   "form_submission_id_string"
+    t.string   "timestamp"
+  end
+
   create_table "form_attachments", force: :cascade do |t|
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
