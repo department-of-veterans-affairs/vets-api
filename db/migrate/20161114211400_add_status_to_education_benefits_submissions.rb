@@ -1,4 +1,6 @@
 class AddStatusToEducationBenefitsSubmissions < ActiveRecord::Migration
+  safety_assured
+
   def change
     add_column(:education_benefits_submissions, :status, :string, null: false, default: 'submitted')
     EducationBenefitsSubmission.update_all(status: 'processed')

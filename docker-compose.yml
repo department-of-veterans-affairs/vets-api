@@ -22,7 +22,12 @@ services:
     ports:
       - "3000:3000"
     environment:
-      "Settings.database_url": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+      "Settings.database_url_development": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT
+      :-5432}/${POSTGRES_DATABASE:-vets_api_development}?pool=4"
+      "Settings.database_url_test": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/$
+      {POSTGRES_DATABASE:-vets_api_test}?pool=4"
+      "Settings.database_url": "postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-password}@${POSTGRES_HOST:-postgres}:${POSTGRES_PORT:-5432}/$
+      {POSTGRES_DATABASE:-vets_api}?pool=4"
       "Settings.saml.cert_path": "/src/vets-api/config/certs/vetsgov-localhost.crt"
       "Settings.saml.key_path": "/src/vets-api/config/certs/vetsgov-localhost.key"
       "Settings.redis.host": "redis"

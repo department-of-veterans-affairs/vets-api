@@ -10,6 +10,8 @@ web_origin: http://localhost:3000,http://localhost:3001,null
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
 
+database_url_development: postgres:///vets-api_development
+database_url_test: postgres:///vets-api_test
 database_url: postgres:///vets-api
 
 relative_url_root: /
