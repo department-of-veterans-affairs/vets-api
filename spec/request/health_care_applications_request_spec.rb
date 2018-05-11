@@ -79,6 +79,24 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             'success' => true }
         end
 
+        context 'with async_compatible set' do
+          before do
+            params[:async_compatible] = true
+          end
+
+          it 'should submit async' do
+            subject
+            body = JSON.parse(response.body)
+            expect(body).to eq(
+              {"data"=>
+              {"id"=>HealthCareApplication.last.id.to_s,
+               "type"=>"health_care_applications",
+               "attributes"=>
+                {"state"=>"pending", "formSubmissionId"=>nil, "timestamp"=>nil}}}
+            )
+          end
+        end
+
         it 'should render success', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
