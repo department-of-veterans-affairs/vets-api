@@ -4,8 +4,6 @@ module HCA
   class SubmissionJob
     include Sidekiq::Worker
 
-    sidekiq_options unique_for: 30.minutes
-
     sidekiq_retries_exhausted do |msg, _e|
       health_care_application = HealthCareApplication.find(msg['args'][2])
       health_care_application.update_attributes!(state: 'failed', form: msg['args'][1].to_json)
