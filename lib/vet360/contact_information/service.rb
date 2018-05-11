@@ -14,7 +14,6 @@ module Vet360
       # @returns [Vet360::ContactInformation::PersonResponse] response wrapper around an person object
       def get_person
         with_monitoring do
-          # TODO: guard clause in case there is no vet360_id
           raw_response = perform(:get, @user.vet360_id)
 
           PersonResponse.new(raw_response.status, raw_response)
@@ -38,10 +37,10 @@ module Vet360
       end
 
       # GET's the status of an address transaction from the Vet360 api
-      # @params transaction [Vet360::Models::Transaction] the transaction to check
+      # @params transaction_id [int] the transaction_id to check
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
-      def get_address_transaction_status(transaction)
-        route = "#{@user.vet360_id}/addresses/status/#{transaction.id}"
+      def get_address_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/addresses/status/#{transaction_id}"
         get_transaction_status(route, AddressTransactionResponse)
       end
 
@@ -60,10 +59,10 @@ module Vet360
       end
 
       # GET's the status of an email transaction from the Vet360 api
-      # @params transaction [Vet360::Models::Transaction] the transaction to check
+      # @params transaction_id [int] the transaction_id to check
       # @returns [Vet360::ContactInformation::EmailTransactionResponse] response wrapper around a transaction object
-      def get_email_transaction_status(transaction)
-        route = "#{@user.vet360_id}/emails/status/#{transaction.id}"
+      def get_email_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/emails/status/#{transaction_id}"
         get_transaction_status(route, EmailTransactionResponse)
       end
 
@@ -82,10 +81,10 @@ module Vet360
       end
 
       # GET's the status of a telephone transaction from the Vet360 api
-      # @params transaction [Vet360::Models::Transaction] the transaction to check
+      # @params transaction_id [int] the transaction_id to check
       # @returns [Vet360::ContactInformation::TelephoneTransactionResponse] response wrapper around a transaction object
-      def get_telephone_transaction_status(transaction)
-        route = "#{@user.vet360_id}/telephones/status/#{transaction.id}"
+      def get_telephone_transaction_status(transaction_id)
+        route = "#{@user.vet360_id}/telephones/status/#{transaction_id}"
         get_transaction_status(route, TelephoneTransactionResponse)
       end
 
@@ -105,6 +104,7 @@ module Vet360
 
         with_monitoring do
           raw = perform(method, path, model.in_json)
+
           response_class.new(raw.status, raw)
         end
       rescue StandardError => e
