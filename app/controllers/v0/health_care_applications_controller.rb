@@ -14,7 +14,7 @@ module V0
 
       result = health_care_application.process!
 
-      clear_saved_form(HealthCareApplication::FORM_ID)
+      clear_saved_form('1010ez')
 
       render(json: result)
     end
