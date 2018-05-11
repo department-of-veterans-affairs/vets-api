@@ -36,7 +36,7 @@ FactoryBot.define do
     home_phone { Faker::PhoneNumber.phone_number }
     icn { Faker::Number.number(17) }
     mhv_ids { Array.new(2) { Faker::Number.number(11) } }
-    active_mhv_ids { Array.new(2) { Faker::Number.number(11) } }
+    active_mhv_ids { mhv_ids }
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
     birls_id { Faker::Number.number(10) }
@@ -54,6 +54,7 @@ FactoryBot.define do
       home_phone '1112223333'
       icn '1000123456V123456'
       mhv_ids ['123456']
+      active_mhv_ids ['123456']
       vha_facility_ids %w[516 553 200HD 200IP 200MHV]
       edipi '1234'
       participant_id '12345678'
@@ -85,7 +86,7 @@ FactoryBot.define do
         icn '12345678901234567'
         sec_id '0001234567'
         mhv_ids %w[12345678901 12345678902]
-        active_mhv_ids %w[99999999999]
+        active_mhv_ids %w[12345678901]
         vha_facility_ids %w[200MH 200MH]
         edipi '1122334455'
         participant_id '12345678'

@@ -47,7 +47,7 @@
                 <id extension="12345678901234567^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/>
                 <id extension="12345678^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="12345678901^PI^200MH^USVHA^A" root="2.16.840.1.113883.4.349"/>
-                <id extension="12345678902^PI^200MH^USVHA^A" root="2.16.840.1.113883.4.349"/>
+                <id extension="12345678902^PI^200MH^USVHA^D" root="2.16.840.1.113883.4.349"/>
                 <id extension="1122334455^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12"/>
                 <id extension="0001234567^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="123412345^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/>
