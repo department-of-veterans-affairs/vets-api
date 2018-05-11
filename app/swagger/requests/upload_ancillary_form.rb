@@ -16,7 +16,7 @@ module Swagger
             key :description, 'Object containing file name'
             key :required, true
 
-            parameter do
+            schema do
               key :name, :file_data
               key :description, 'The file path'
               key :required, true
@@ -32,6 +32,13 @@ module Swagger
               property :guid, type: :string, example: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87'
               property :encrypted_file_data, type: :string, example: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim'
               property :encrypted_file_data_iv, type: :string, example: 'ayqrfIpruCPtLGnA'
+            end
+          end
+
+          response 500 do
+            key :description, 'Bad Gateway: incorrect parameters'
+            schema do
+              key :'$ref', :Errors
             end
           end
         end
