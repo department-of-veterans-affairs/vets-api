@@ -60,30 +60,8 @@ class FormContactInformation
   attribute :email, String
 end
 
-class FormSpecialIssue
-  include Virtus.model
-
-  attribute :code, String
-  attribute :name, String
-end
-
-class FormRatedDisability
-  include Virtus.model
-
-  attribute :name, String
-  attribute :special_issues, Array[FormSpecialIssue]
-  attribute :rated_disability_id, String
-  attribute :rating_decision_id, String
-  attribute :diagnostic_code, Integer
-end
-
-class FormRatedDisabilities
-  include Virtus.model
-
-  attribute :rated_disabilities, Array[FormRatedDisability]
-end
-
 class FormProfile
+  include Virtus.model
   include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
@@ -111,12 +89,10 @@ class FormProfile
   }.freeze
 
   attr_accessor :form_id
-  include Virtus.model
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
   attribute :military_information, FormMilitaryInformation
-  attribute :rated_disabilities_information, FormRatedDisabilities
 
   def self.prefill_enabled_forms
     forms = []
@@ -175,18 +151,6 @@ class FormProfile
   end
 
   private
-
-  def initialize_rated_disabilities_information(user)
-    return {} unless user.authorize :evss, :access?
-
-    service = EVSS::DisabilityCompensationForm::Service.new(user)
-    response = service.get_rated_disabilities
-
-    # Remap response object to schema fields
-    FormRatedDisabilities.new(
-      rated_disabilities: response.rated_disabilities
-    )
-  end
 
   def initialize_military_information(user)
     return {} unless user.authorize :emis, :access?
