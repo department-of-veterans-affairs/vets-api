@@ -1345,11 +1345,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports GETting async transactions by user' do
-        transaction = create(
-          :address_transaction,
-          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
-          user_uuid: user.uuid
-        )
         expect(subject).to validate(
           :get,
           '/v0/profile/status/',
