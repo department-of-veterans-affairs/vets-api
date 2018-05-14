@@ -30,15 +30,16 @@ module Common
           raise NotImplementedError, "Subclass #{self.class.name} of Configuration must implement service_name"
         end
 
-        def service_exception_name
-          "#{service_name}ServiceException"
+        # deconstantize fetches "AA::BB::" from AA::BB::ClassName, and constantize returns that as a constant.
+        def service_exception_module
+          self.class.name.deconstantize.constantize
         end
 
         def service_exception
-          if Object.const_defined?(service_exception_name)
-            service_exception_name.constantize
+          if service_exception_module.const_defined?('ServiceException')
+            service_exception_module.const_get('ServiceException')
           else
-            Object.const_set(service_exception_name, Class.new(Common::Exceptions::BackendServiceException))
+            service_exception_module.const_set('ServiceException', Class.new(Common::Exceptions::BackendServiceException))
           end
         end
 
