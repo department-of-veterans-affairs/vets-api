@@ -46,7 +46,7 @@ module Common
           end
 
           def raise_invalid_error(message)
-            raise Common::Client::Errors::ValidationError, "invalid source data: #{message}"
+            raise Common::Client::Errors::ParsingError, "invalid source data: #{message}"
           end
         end
       end
