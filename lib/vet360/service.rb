@@ -48,7 +48,7 @@ module Vet360
     end
 
     def raise_backend_exception(key, source, error = nil)
-      raise Common::Exceptions::BackendServiceException.new(
+      raise config.service_exception.new(
         key,
         { source: source.to_s },
         error&.status,

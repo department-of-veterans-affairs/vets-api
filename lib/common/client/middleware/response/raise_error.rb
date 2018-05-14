@@ -7,11 +7,12 @@ module Common
         class BackendUnhandledException < StandardError; end
 
         class RaiseError < Faraday::Response::Middleware
-          attr_reader :error_prefix, :body, :status
+          attr_reader :error_prefix, :service_error_class, :body, :status
 
           def initialize(app, options = {})
             # set the error prefix to something like 'RX' or 'SM'
             @error_prefix = options[:error_prefix] || 'VA'
+            @service_error_class = options[:exception_class]
             super(app)
           end
 
@@ -26,7 +27,7 @@ module Common
 
           def raise_error!
             if status&.between?(400, 599)
-              raise Common::Exceptions::BackendServiceException.new(service_i18n_key, response_values, @status, @body)
+              raise service_error_class.new(service_i18n_key, response_values, @status, @body)
             else
               raise BackendUnhandledException, "Unhandled Exception - status: #{@status}, body: #{@body}"
             end

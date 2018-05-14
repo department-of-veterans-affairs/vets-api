@@ -6,7 +6,12 @@ module Common
       module Response
         class MhvXmlHtmlErrors < Faraday::Response::Middleware
           include SentryLogging
-          attr_reader :status
+          attr_reader :service_error_class, :status
+
+          def initialize(app, options = {})
+            @service_error_class = options[:exception_class]
+            super(app)
+          end
 
           def on_complete(env)
             return if env.success?
@@ -16,7 +21,7 @@ module Common
 
             extra_context = { original_status: @status, original_body: @body }
             log_message_to_sentry('Could not parse XML/HTML response from MHV', :warn, extra_context)
-            raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, @body)
+            raise service_error_class.new('VA900', response_values, @status, @body)
           end
 
           private
