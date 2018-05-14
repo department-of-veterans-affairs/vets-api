@@ -9,7 +9,6 @@ require 'rx/client_session'
 
 module BB
   # Core class responsible for api interface operations
-  class ServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
     include Common::Client::StreamingClient
