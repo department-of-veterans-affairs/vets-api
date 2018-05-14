@@ -458,7 +458,9 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Gets the most recent transactions for a user. Response will include transactions that are still in progress, or just updated to COMPLETED during the course of this request.'
+          key :description, 'Gets the most recent transactions for a user.
+            Response will include transactions that are still in progress,
+            or just updated to COMPLETED during the course of this request.'
           key :operationId, 'getTransactionStatusesByUser'
           key :tags, %w[profile vet360]
 
