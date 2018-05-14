@@ -13,21 +13,9 @@ module Common
     class Base
       include SentryLogging
 
-      class << self
-        attr_accessor :service_exception
-
-        def configuration(configuration = nil)
-          @configuration ||= configuration.instance
-        end
-
-        def use_service_exception(exception)
-          unless exception.ancestors.include?(Common::Exceptions::BackendServiceException)
-            raise "[#{exception}] must inherit from BackendServiceException"
-          end
-          @service_exception = exception
-        end
+      def self.configuration(configuration = nil)
+        @configuration ||= configuration.instance
       end
-      delegate :service_exception, to: 'self.class'
 
       private
 
@@ -122,8 +110,10 @@ module Common
 
       def raise_service_exception(e)
         ex = e
-        unless service_exception.nil?
-          ex = service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
+        if Object.const_defined?(config.service_exception_name)
+          ex = config.service_exception_name
+                 .constantize
+                 .new(e.key, e.response_values, e.original_status, e.original_body)
         end
         raise ex
       end
