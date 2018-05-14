@@ -469,7 +469,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :AsyncTransactionVet360
+              key :'$ref', :AsyncTransactionsVet360
             end
           end
         end

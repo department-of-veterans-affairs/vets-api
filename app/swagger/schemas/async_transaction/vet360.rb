@@ -32,6 +32,12 @@ module Swagger
             end
           end
         end
+
+        swagger_schema :AsyncTransactionsVet360 do
+          key :required, [:data]
+          property :data, type: :array
+        end
+
       end
     end
   end
