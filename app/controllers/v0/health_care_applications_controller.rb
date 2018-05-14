@@ -2,6 +2,8 @@
 
 module V0
   class HealthCareApplicationsController < ApplicationController
+    FORM_ID = '1010ez'
+
     skip_before_action(:authenticate)
     before_action(:tag_rainbows)
 
@@ -14,7 +16,7 @@ module V0
 
       result = health_care_application.process!
 
-      clear_saved_form(HealthCareApplication::FORM_ID)
+      clear_saved_form(FORM_ID)
 
       render(json: result)
     end
