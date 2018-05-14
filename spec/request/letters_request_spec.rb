@@ -35,13 +35,6 @@ RSpec.describe 'letters', type: :request do
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('letters_errors', strict: false)
       end
-
-      it 'should log a letters-specific exception to sentry' do
-        expect_any_instance_of(ApplicationController)
-          .to receive(:log_exception_to_sentry)
-          .with(EVSS::Letters::LettersServiceException, anything)
-        get '/v0/letters', nil, auth_header
-      end
     end
 
     context 'with a 403 response' do
