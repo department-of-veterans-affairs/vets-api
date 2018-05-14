@@ -121,7 +121,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              transaction_status: 'RECEIVED',
              status: AsyncTransaction::Vet360::Base::REQUESTED,
              created_at: Time.zone.now - 1)
-      create(:email_transaction,
+      transaction = create(:email_transaction,
              transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED',
@@ -129,7 +129,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
       VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
         transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(user, service)
         expect(transactions.size).to eq(1)
-        expect(transactions.first.transaction_id).to eq('786efe0e-fd20-4da2-9019-0c00540dba4d')
+        expect(transactions.first.transaction_id).to eq(transaction.transaction_id)
       end
     end
   end
