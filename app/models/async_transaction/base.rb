@@ -7,6 +7,8 @@ module AsyncTransaction
     REQUESTED = 'requested'
     COMPLETED = 'completed'
 
+    attr_encrypted :metadata, key: Settings.db_encryption_key
+
     validates :id, uniqueness: true
     validates :user_uuid, :source_id, :source, :status, :transaction_id, presence: true
     validates :transaction_id,
