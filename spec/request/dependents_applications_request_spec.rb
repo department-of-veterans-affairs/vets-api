@@ -21,10 +21,23 @@ RSpec.describe 'Dependents Application Integration', type: %i[request serializer
       )
     end
 
-    context 'with invalid params' do
+    context 'with valid params' do
       let(:params) do
         {
           form: test_form.to_json
+        }
+      end
+
+      it 'should validate successfully' do
+        subject
+        expect(response.code).to eq('200')
+      end
+    end
+
+    context 'with invalid params' do
+      let(:params) do
+        {
+          form: test_form.except('privacyAgreementAccepted').to_json
         }
       end
 
