@@ -10,7 +10,6 @@ require 'common/client/middleware/response/snakecase'
 
 module MHVAC
   # Configuration class used to setup the environment used by client
-  class ServiceException < Common::Exceptions::BackendServiceException; end
   class Configuration < Common::Client::Configuration::REST
     def app_token
       Settings.mhv.rx.app_token

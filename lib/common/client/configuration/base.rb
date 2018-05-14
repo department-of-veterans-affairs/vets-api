@@ -30,10 +30,6 @@ module Common
           raise NotImplementedError, "Subclass #{self.class.name} of Configuration must implement service_name"
         end
 
-        def service_exception_name
-          self.class.to_s.deconstantize + '::ServiceException'
-        end
-
         def request_options
           {
             open_timeout: open_timeout,

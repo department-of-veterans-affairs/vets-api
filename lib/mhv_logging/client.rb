@@ -12,12 +12,13 @@ require 'rx/client_session'
 
 module MHVLogging
   # Core class responsible for api interface operations
-  class ServiceException < Common::Exceptions::BackendServiceException; end
+  class MHVLoggingServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
+    use_service_exception MHVLoggingServiceException
 
     def auditlogin
       body = { isSuccessful: true, activityDetails: 'Signed in Vets.gov' }

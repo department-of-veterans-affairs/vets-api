@@ -6,12 +6,13 @@ require 'sm/client_session'
 require 'sm/configuration'
 
 module SM
-  class ServiceException < Common::Exceptions::BackendServiceException; end
+  class SMServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
 
     configuration SM::Configuration
     client_session SM::ClientSession
+    use_service_exception SMServiceException
 
     MHV_MAXIMUM_PER_PAGE = 250
     CONTENT_DISPOSITION = 'attachment; filename='

@@ -8,12 +8,13 @@ require 'active_support/core_ext/hash/slice'
 
 module Rx
   # Core class responsible for api interface operations
-  class ServiceException < Common::Exceptions::BackendServiceException; end
+  class RxServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
+    use_service_exception RxServiceException
 
     CACHE_TTL = 3600 * 1 # 1 hour cache
 

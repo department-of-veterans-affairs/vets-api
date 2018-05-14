@@ -9,7 +9,7 @@ require 'rx/client_session'
 
 module BB
   # Core class responsible for api interface operations
-  class ServiceException < Common::Exceptions::BackendServiceException; end
+  class BBServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
     include Common::Client::StreamingClient
@@ -17,6 +17,7 @@ module BB
 
     configuration BB::Configuration
     client_session Rx::ClientSession
+    use_service_exception BBServiceException
 
     CACHE_TTL = 3600 * 3 # cache for 3 hours
 
