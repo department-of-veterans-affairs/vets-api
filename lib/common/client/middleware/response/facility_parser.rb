@@ -7,8 +7,6 @@ module Common
     module Middleware
       module Response
         class FacilityParser < Faraday::Response::Middleware
-          include Facilities::FacilityMapping
-
           def on_complete(env)
             env.body = parse_body(env)
           end
@@ -16,7 +14,8 @@ module Common
           private
 
           def parse_body(env)
-            facility_map = PATHMAP[env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]]
+            path_part = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]
+            facility_map = BaseFacility::PATHMAP[path_part]
             env.body['features'].map { |location_data| build_facility_attributes(location_data, facility_map) }
           end
 
@@ -76,7 +75,7 @@ module Common
           end
 
           def clean_benefits(benefits_hash)
-            benefits_hash.keys.select { |key| benefits_hash[key] == YES }
+            benefits_hash.keys.select { |key| benefits_hash[key] == BaseFacility::YES }
           end
 
           def strip(value)
@@ -90,10 +89,10 @@ module Common
           def services_from_gis(service_map, attrs)
             return unless service_map
             services = service_map.each_with_object([]) do |(k, v), l|
-              next unless attrs[k] == YES && APPROVED_SERVICES.include?(k)
+              next unless attrs[k] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(k)
               sl2 = []
               v.each do |sk|
-                sl2 << sk if attrs[sk] == YES && APPROVED_SERVICES.include?(sk)
+                sl2 << sk if attrs[sk] == BaseFacility::YES && BaseFacility::APPROVED_SERVICES.include?(sk)
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end

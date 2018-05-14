@@ -5,8 +5,6 @@ module Common
     module Middleware
       module Response
         class FacilityValidator < Faraday::Response::Middleware
-          include Facilities::FacilityMapping
-
           def on_complete(env)
             env.body = validate_body(env)
           end
@@ -15,8 +13,10 @@ module Common
 
           def validate_body(env)
             json_body = Oj.load(env.body)
-            if Facilities::FacilityMapping.validate_on_load
-              facility_map = PATHMAP[env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]]
+            if BaseFacility.validate_on_load
+              path_part = env.url.path.match(%r(\/([\w]{3}_(Facilities|VetCenters))\/))[1]
+
+              facility_map = BaseFacility::PATHMAP[path_part]
               validate(json_body['features'], facility_map)
             end
             json_body

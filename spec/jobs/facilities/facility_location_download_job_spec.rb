@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
-  before(:each) { Facilities::FacilityMapping.validate_on_load = false }
-  after(:each) { Facilities::FacilityMapping.validate_on_load = true }
+  before(:each) { BaseFacility.validate_on_load = false }
+  after(:each) { BaseFacility.validate_on_load = true }
 
   describe 'NCA Facilities' do
     it 'retrieves and persists facilities data' do
@@ -96,8 +96,8 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   end
 
   context 'with facility validation' do
-    before(:each) { Facilities::FacilityMapping.validate_on_load = true }
-    after(:each) { Facilities::FacilityMapping.validate_on_load = false }
+    before(:each) { BaseFacility.validate_on_load = true }
+    after(:each) { BaseFacility.validate_on_load = false }
     it 'raises an error when trying to retrieve and persist facilities data' do
       VCR.use_cassette('facilities/va/vha_facilities') do
         expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
