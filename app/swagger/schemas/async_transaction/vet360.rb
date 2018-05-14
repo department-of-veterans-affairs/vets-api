@@ -37,7 +37,6 @@ module Swagger
           key :required, [:data]
           property :data, type: :array
         end
-
       end
     end
   end

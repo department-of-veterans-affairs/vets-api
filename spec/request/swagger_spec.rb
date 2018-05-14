@@ -1365,7 +1365,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
-
     end
   end
 
