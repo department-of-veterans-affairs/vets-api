@@ -35,11 +35,9 @@ module Swagger
 
         swagger_schema :AsyncTransactionsVet360 do
           key :required, [:data]
-          property :data, 
-            type: :array do
+          property :data,
+                   type: :array do
             items type: :object do
-
-
               key :required, [:attributes]
               property :attributes, type: :object do
                 property :transaction_status, type: :string, enum:
@@ -60,9 +58,6 @@ module Swagger
                     AsyncTransaction::Vet360::TelephoneTransaction
                   ], example: 'AsyncTransaction::Vet360::EmailTransaction'
               end
-
-
-
             end
           end
         end
