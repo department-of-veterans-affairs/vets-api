@@ -31,7 +31,7 @@ module Common
         end
 
         def service_exception_name
-          'ServiceException'
+          "#{service_name}ServiceException"
         end
 
         def service_exception

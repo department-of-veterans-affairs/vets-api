@@ -49,7 +49,6 @@ module Common
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Common::Exceptions::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
-        # raise_service_exception(e)
         raise config.service_exception.new(
           e.key, e.response_values, e.original_status, e.original_body
         )
@@ -110,14 +109,6 @@ module Common
       def raise_not_authenticated
         raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
       end
-
-      # def raise_service_exception(e)
-      #   ex = e
-      #   unless service_exception.nil?
-      #     ex = service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
-      #   end
-      #   raise ex
-      # end
     end
   end
 end
