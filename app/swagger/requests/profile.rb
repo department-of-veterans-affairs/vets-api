@@ -434,7 +434,7 @@ module Swagger
 
           key :description, 'Gets an updated transaction by ID'
           key :operationId, 'getTransactionStatusById'
-          key :tags, %w[profile]
+          key :tags, %w[profile vet360]
 
           parameter :authorization
           parameter do
@@ -459,8 +459,8 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Gets the most recent transactions for a user. Response will include transactions that are still in progress, or just updated to COMPLETED during the course of this request.'
-          key :operationId, 'getTransactionStatusByUser'
-          key :tags, %w[profile]
+          key :operationId, 'getTransactionStatusesByUser'
+          key :tags, %w[profile vet360]
 
           parameter :authorization
 
@@ -481,6 +481,7 @@ module Swagger
           key :operationId, 'postVet360Telephone'
           key :tags, %w[
             profile
+            vet360
           ]
 
           parameter :authorization
@@ -511,6 +512,7 @@ module Swagger
           key :operationId, 'putVet360Telephone'
           key :tags, %w[
             profile
+            vet360
           ]
 
           parameter :authorization
