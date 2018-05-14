@@ -16,6 +16,6 @@ RSpec.describe AncillaryFormAttachmentUploader do
 
   it 'should throw an error if no guid is given' do
     blank_uploader = described_class.new(nil)
-    expect{ blank_uploader.store_dir }.to raise_error(RuntimeError, 'missing guid')
+    expect { blank_uploader.store_dir }.to raise_error(RuntimeError, 'missing guid')
   end
 end
