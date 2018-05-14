@@ -454,6 +454,25 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/status/' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets the most recent transactions for a user. Response will include transactions that are still in progress, or just updated to COMPLETED during the course of this request.'
+          key :operationId, 'getTransactionStatusByUser'
+          key :tags, %w[profile]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/telephones' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
