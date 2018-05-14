@@ -7,10 +7,8 @@ require 'mhv_ac/upgrade_form'
 
 module MHVAC
   # Core class responsible for api interface operations
-  class MHVACServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     configuration MHVAC::Configuration
-    use_service_exception MHVACServiceException
 
     # Disabled because coverage will be below threshold for these.
     # Create an MHV account

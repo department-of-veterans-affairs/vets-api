@@ -3,6 +3,7 @@
 require 'common/client/configuration/soap'
 
 module EMIS
+  class ServiceException < Common::Exceptions::BackendServiceException;end
   class Configuration < Common::Client::Configuration::SOAP
     # :nocov:
     def self.ssl_cert_path

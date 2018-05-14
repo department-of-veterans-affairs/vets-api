@@ -7,12 +7,10 @@ require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
-    class LettersServiceException < Common::Exceptions::BackendServiceException; end
     class Service < EVSS::Service
       include Common::Client::Monitoring
 
       configuration EVSS::Letters::Configuration
-      use_service_exception LettersServiceException
 
       INVALID_ADDRESS_ERROR = 'letterDestination.addressLine1.invalid'
 

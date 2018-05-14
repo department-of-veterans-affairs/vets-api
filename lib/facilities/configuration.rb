@@ -7,7 +7,7 @@ require 'typhoeus'
 require 'typhoeus/adapters/faraday'
 
 module Facilities
-  # Configuration class used to setup the environment used by client
+  class ServiceException < Common::Exceptions::BackendServiceException;end
   class Configuration < Common::Client::Configuration::REST
     def base_path
       Settings.locators.base_path

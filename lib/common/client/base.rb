@@ -13,21 +13,9 @@ module Common
     class Base
       include SentryLogging
 
-      class << self
-        attr_accessor :service_exception
-
-        def configuration(configuration = nil)
-          @configuration ||= configuration.instance
-        end
-
-        def use_service_exception(exception)
-          unless exception.ancestors.include?(Common::Exceptions::BackendServiceException)
-            raise "[#{exception}] must inherit from BackendServiceException"
-          end
-          @service_exception = exception
-        end
+      def self.configuration(configuration = nil)
+        @configuration ||= configuration.instance
       end
-      delegate :service_exception, to: 'self.class'
 
       private
 
@@ -61,7 +49,9 @@ module Common
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Common::Exceptions::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
-        raise_service_exception(e)
+        # raise_service_exception(e)
+        raise config.service_exception.new(
+          e.key, e.response_values, e.original_status, e.original_body)
       rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
@@ -120,13 +110,13 @@ module Common
         raise Common::Client::Errors::NotAuthenticated, 'Not Authenticated'
       end
 
-      def raise_service_exception(e)
-        ex = e
-        unless service_exception.nil?
-          ex = service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
-        end
-        raise ex
-      end
+      # def raise_service_exception(e)
+      #   ex = e
+      #   unless service_exception.nil?
+      #     ex = service_exception.new(e.key, e.response_values, e.original_status, e.original_body)
+      #   end
+      #   raise ex
+      # end
     end
   end
 end

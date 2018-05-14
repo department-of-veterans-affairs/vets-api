@@ -5,10 +5,8 @@ require 'gi/configuration'
 
 module GI
   # Core class responsible for api interface operations
-  class GIServiceException < Common::Exceptions::BackendServiceException; end
   class Client < Common::Client::Base
     configuration GI::Configuration
-    use_service_exception GIServiceException
 
     def get_autocomplete_suggestions(params = {})
       perform(:get, 'institutions/autocomplete', params, nil).body

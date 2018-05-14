@@ -2,6 +2,7 @@
 
 module EVSS
   module GiBillStatus
+    class ServiceException < Common::Exceptions::BackendServiceException;end
     class Configuration < EVSS::Configuration
       def base_path
         "#{Settings.evss.url}/wss-education-services-web/rest/education/chapter33/v1"
