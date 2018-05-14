@@ -26,6 +26,6 @@ class AncillaryFormAttachmentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     raise 'missing guid' if @guid.blank?
-    "disability_compensation_form/#{@guid}"
+    "disability_compensation_supporting_form/#{@guid}"
   end
 end
