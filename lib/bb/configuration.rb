@@ -11,7 +11,7 @@ require 'bb/middleware/response/bb_parser'
 
 module BB
   # Configuration class used to setup the environment used by client
-  class ServiceException < Common::Exceptions::BackendServiceException;end
+  class ServiceException < Common::Exceptions::BackendServiceException; end
   class Configuration < Common::Client::Configuration::REST
     def app_token
       Settings.mhv.rx.app_token

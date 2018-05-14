@@ -5,7 +5,7 @@ require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 
 module HCA
-  class ServiceException < Common::Exceptions::BackendServiceException;end
+  class ServiceException < Common::Exceptions::BackendServiceException; end
   class Configuration < Common::Client::Configuration::SOAP
     def self.cert_store(paths)
       store = OpenSSL::X509::Store.new

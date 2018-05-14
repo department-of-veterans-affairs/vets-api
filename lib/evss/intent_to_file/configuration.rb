@@ -2,7 +2,7 @@
 
 module EVSS
   module IntentToFile
-    class ServiceException < Common::Exceptions::BackendServiceException;end
+    class ServiceException < Common::Exceptions::BackendServiceException; end
     class Configuration < EVSS::Configuration
       def base_path
         "#{Settings.evss.url}/wss-intenttofile-services-web/rest/intenttofile/v1"
