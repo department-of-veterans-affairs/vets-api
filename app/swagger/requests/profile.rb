@@ -434,7 +434,7 @@ module Swagger
 
           key :description, 'Gets an updated transaction by ID'
           key :operationId, 'getTransactionStatusById'
-          key :tags, %w[profile vet360]
+          key :tags, %w[profile]
 
           parameter :authorization
           parameter do
@@ -462,7 +462,7 @@ module Swagger
             Response will include transactions that are still in progress,
             or just updated to COMPLETED during the course of this request.'
           key :operationId, 'getTransactionStatusesByUser'
-          key :tags, %w[profile vet360]
+          key :tags, %w[profile]
 
           parameter :authorization
 
@@ -483,7 +483,6 @@ module Swagger
           key :operationId, 'postVet360Telephone'
           key :tags, %w[
             profile
-            vet360
           ]
 
           parameter :authorization
@@ -514,7 +513,6 @@ module Swagger
           key :operationId, 'putVet360Telephone'
           key :tags, %w[
             profile
-            vet360
           ]
 
           parameter :authorization
