@@ -90,7 +90,6 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   end
 
   describe '.refresh_transaction_statuses()' do
-
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
@@ -121,7 +120,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED',
              status: AsyncTransaction::Vet360::Base::REQUESTED,
-             created_at: Time.zone.now()-1)
+             created_at: Time.zone.now - 1)
       create(:email_transaction,
              transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
              user_uuid: user.uuid,
