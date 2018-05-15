@@ -969,7 +969,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
-            200
+            200,
+            'name' => terms.name
           )
           expect(subject).to validate(
             :get,
@@ -992,6 +993,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'validates auth errors' do
+          expect(subject).to validate(
+            :get,
+            '/v0/terms_and_conditions/{name}/versions/latest',
+            401,
+            'name' => terms.name
+          )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest/user_data',
