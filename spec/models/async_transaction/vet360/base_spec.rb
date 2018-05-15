@@ -11,6 +11,12 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
+    let(:transaction2) do
+      create(:email_transaction,
+             transaction_id: 'd47b3d96-9ddd-42be-ac57-8e564aa38029',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED')
+    end
     let(:service) { ::Vet360::ContactInformation::Service.new(user) }
 
     before do
@@ -42,6 +48,19 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
           transaction1.transaction_id
         )
         expect(updated_transaction.status).to eq(AsyncTransaction::Vet360::Base::COMPLETED)
+      end
+    end
+
+    it 'persists the messages from vet360', focus: true do
+      # @TODO we need a cassette that doesn't throw an exception but includes messages
+      VCR.use_cassette('vet360/contact_information/email_transaction_status_error') do
+        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
+          user,
+          service,
+          transaction2.transaction_id
+        )
+byebug
+        expect(updated_transaction.metadata.nil?).to eq(false)
       end
     end
 
