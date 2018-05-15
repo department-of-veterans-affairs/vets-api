@@ -1321,7 +1321,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       let(:user) { build(:user, :loa3) }
-      it 'supports GETting async transaction' do
+      it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
           transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
@@ -1340,6 +1340,23 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             '/v0/profile/status/{transaction_id}',
             200,
             auth_options.merge('transaction_id' => transaction.transaction_id)
+          )
+        end
+      end
+
+      it 'supports GETting async transactions by user' do
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/',
+          401
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/',
+            200,
+            auth_options
           )
         end
       end
