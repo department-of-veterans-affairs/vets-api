@@ -95,7 +95,7 @@ RSpec.describe MhvAccountTypeService do
           expect(Raven).to receive(:extra_context).with(extra_context)
           expect(Raven).to receive(:tags_context).with(tags_context)
           expect(Raven).to receive(:capture_message).with(error_message, level: level)
-          expect(subject.mhv_account_type).to eq('Unknown')
+          expect(subject.mhv_account_type).to eq('Error')
         end
       end
     end
