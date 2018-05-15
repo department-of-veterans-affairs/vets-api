@@ -60,6 +60,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
           transaction2.transaction_id
         )
         expect(updated_transaction.metadata.empty?).to eq(false)
+byebug
         expect(updated_transaction.metadata.first.kind_of?(Vet360::Models::Message)).to eq(true)
       end
     end

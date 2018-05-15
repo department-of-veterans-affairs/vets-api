@@ -29,6 +29,8 @@ module Swagger
                   AsyncTransaction::Vet360::EmailTransaction
                   AsyncTransaction::Vet360::TelephoneTransaction
                 ], example: 'AsyncTransaction::Vet360::EmailTransaction'
+              property :metadata, type: :string, example: '[{"code":"CORE103","key":"_CUF_NOT_FOUND",'\
+                '"retryable":null,"severity":"ERROR","text":"The tx for id/criteria XZY could not be found."}]'
             end
           end
         end
@@ -57,6 +59,8 @@ module Swagger
                     AsyncTransaction::Vet360::EmailTransaction
                     AsyncTransaction::Vet360::TelephoneTransaction
                   ], example: 'AsyncTransaction::Vet360::EmailTransaction'
+                property :metadata, type: :string, example: '[{"code":"CORE103","key":"_CUF_NOT_FOUND",'\
+                '"retryable":null,"severity":"ERROR","text":"The tx for id/criteria XZY could not be found."}]'
               end
             end
           end
