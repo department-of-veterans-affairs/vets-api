@@ -964,14 +964,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
-            200,
-            auth_options.merge('name' => terms.name)
+            200
           )
           expect(subject).to validate(
             :get,
@@ -996,17 +994,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'validates auth errors' do
           expect(subject).to validate(
             :get,
-            '/v0/terms_and_conditions',
-            401
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
             '/v0/terms_and_conditions/{name}/versions/latest/user_data',
             401,
             'name' => terms.name
@@ -1025,14 +1012,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             404,
-            auth_options.merge('name' => 'blat')
+            'name' => 'blat'
           )
           expect(subject).to validate(
             :get,
