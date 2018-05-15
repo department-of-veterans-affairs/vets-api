@@ -58,7 +58,7 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :fail_upgrade do
-      transitions from: %i[registered], to: :upgrade_failed
+      transitions from: %i[registered existing], to: :upgrade_failed
     end
   end
   # rubocop:enable Metrics/BlockLength
