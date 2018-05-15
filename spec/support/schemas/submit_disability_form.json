@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "claim_id": {
+              "type": "integer"
+            },
+            "end_product_claim_code": {
+              "type": "string"
+            },
+            "end_product_claim_name": {
+              "type": "string"
+            },
+            "inflight_document_id": {
+              "type": "integer"
+            }
+          },
+          "type": "object",
+          "required": ["claim_id", "end_product_claim_code", "end_product_claim_name", "inflight_document_id"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": ["object", "null"]
+    }
+  },
+  "type": "object"
+}
