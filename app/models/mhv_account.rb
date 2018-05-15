@@ -93,6 +93,7 @@ class MhvAccount < ActiveRecord::Base
     @user ||= User.find(user_uuid)
   end
 
+  # TODO: remove this in future migration
   def mhv_correlation_id
     user.mhv_correlation_id
   end

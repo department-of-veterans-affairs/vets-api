@@ -21,6 +21,8 @@ unless ENV['NOCOVERAGE']
 
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
+    # TODO: remove this filter after removing sentry logging
+    add_filter 'app/controllers/v0/profile'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'
