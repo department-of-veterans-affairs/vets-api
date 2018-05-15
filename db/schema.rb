@@ -11,30 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180503172030) do
+ActiveRecord::Schema.define(version: 20180515195048) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
   enable_extension "pg_trgm"
   enable_extension "btree_gin"
-
-  create_table "async_transactions", force: :cascade do |t|
-    t.string   "type"
-    t.string   "user_uuid"
-    t.string   "source_id"
-    t.string   "source"
-    t.string   "status"
-    t.string   "transaction_id"
-    t.string   "transaction_status"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
-  end
-
-  add_index "async_transactions", ["source_id"], name: "index_async_transactions_on_source_id", using: :btree
-  add_index "async_transactions", ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true, using: :btree
-  add_index "async_transactions", ["transaction_id"], name: "index_async_transactions_on_transaction_id", using: :btree
-  add_index "async_transactions", ["user_uuid"], name: "index_async_transactions_on_user_uuid", using: :btree
 
   create_table "async_transactions", force: :cascade do |t|
     t.string   "type"
@@ -138,14 +121,6 @@ ActiveRecord::Schema.define(version: 20180503172030) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
-  create_table "health_care_applications", force: :cascade do |t|
-    t.datetime "created_at",                                    null: false
-    t.datetime "updated_at",                                    null: false
-    t.string   "state",                     default: "pending", null: false
-    t.string   "form_submission_id_string"
-    t.string   "timestamp"
-  end
-
   create_table "form_attachments", force: :cascade do |t|
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
@@ -169,6 +144,14 @@ ActiveRecord::Schema.define(version: 20180503172030) do
   end
 
   add_index "gibs_not_found_users", ["edipi"], name: "index_gibs_not_found_users_on_edipi", using: :btree
+
+  create_table "health_care_applications", force: :cascade do |t|
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.string   "state",                     default: "pending", null: false
+    t.string   "form_submission_id_string"
+    t.string   "timestamp"
+  end
 
   create_table "id_card_announcement_subscriptions", force: :cascade do |t|
     t.string   "email",      null: false
