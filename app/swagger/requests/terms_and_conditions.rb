@@ -15,8 +15,6 @@ module Swagger
             'terms_and_conditions'
           ]
 
-          parameter :authorization
-
           response 200 do
             key :description, 'get terms and conditions response'
             schema do
@@ -35,8 +33,6 @@ module Swagger
           key :tags, [
             'terms_and_conditions'
           ]
-
-          parameter :authorization
 
           parameter do
             key :name, :name
