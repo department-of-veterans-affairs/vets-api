@@ -7,8 +7,6 @@ module Swagger
 
       swagger_path '/v0/terms_and_conditions' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Get the list of terms and conditions'
           key :operationId, 'getAllTermsAndConditions'
           key :tags, [
@@ -26,8 +24,6 @@ module Swagger
 
       swagger_path '/v0/terms_and_conditions/{name}/versions/latest' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Get the latest version of the named terms and conditions'
           key :operationId, 'getTermsAndConditions'
           key :tags, [
