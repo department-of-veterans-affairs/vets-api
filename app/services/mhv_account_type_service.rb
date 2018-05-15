@@ -27,7 +27,11 @@ class MhvAccountTypeService
     if account_type_known?
       @user.identity.mhv_account_type
     else
-      ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
+      if eligible_data_classes.nil?
+        'Error'
+      else
+        ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
+      end
     end
   rescue KeyError
     log_account_type_heuristic_once(UNEXPECTED_DATA_CLASS_COUNT_MESSAGE)
@@ -50,7 +54,7 @@ class MhvAccountTypeService
     bb_client.get_eligible_data_classes.members.map(&:name)
   rescue StandardError
     log_account_type_heuristic_once(MHV_DOWN_MESSAGE)
-    []
+    nil
   end
 
   def log_account_type_heuristic_once(message)

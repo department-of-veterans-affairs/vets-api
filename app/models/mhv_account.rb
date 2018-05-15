@@ -8,13 +8,13 @@ class MhvAccount < ActiveRecord::Base
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   INELIGIBLE_STATES = %i[
     needs_identity_verification needs_ssn_resolution needs_va_patient
+    has_deactivated_mhv_ids has_multiple_active_mhv_ids
     state_ineligible country_ineligible needs_terms_acceptance
-    has_multiple_active_mhv_ids
   ].freeze
 
   PERSISTED_STATES = %i[register_failed upgrade_failed registered upgraded existing].freeze
   ELIGIBLE_STATES = %i[no_account].freeze
-  ALL_STATES = (INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
+  ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
   after_initialize :setup
 
@@ -28,6 +28,7 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :needs_identity_verification, unless: :identity_proofed?
       transitions from: ALL_STATES, to: :needs_ssn_resolution, if: :ssn_mismatch?
       transitions from: ALL_STATES, to: :needs_va_patient, unless: :va_patient?
+      transitions from: ALL_STATES, to: :has_deactivated_mhv_ids, if: :deactivated_mhv_ids?
       transitions from: ALL_STATES, to: :has_multiple_active_mhv_ids, if: :multiple_active_mhv_ids?
       transitions from: ALL_STATES, to: :state_ineligible, unless: :state_eligible?
       transitions from: ALL_STATES, to: :country_ineligible, unless: :country_eligible?
@@ -45,11 +46,11 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :register do
-      transitions from: %i[no_account register_failed], to: :registered
+      transitions from: %i[no_account], to: :registered
     end
 
     event :upgrade do
-      transitions from: %i[registered upgrade_failed], to: :upgraded
+      transitions from: %i[registered existing], to: :upgraded
     end
 
     event :fail_register do
@@ -63,7 +64,11 @@ class MhvAccount < ActiveRecord::Base
   # rubocop:enable Metrics/BlockLength
 
   def creatable?
-    may_register? || may_upgrade?
+    may_register?
+  end
+
+  def upgradable?
+    may_upgrade? && [nil, 'Basic', 'Advanced'].include?(account_level)
   end
 
   def terms_and_conditions_accepted?
@@ -83,7 +88,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def account_level
-    user.mhv_account_type || 'unknown'
+    user.mhv_account_type
   end
 
   private
@@ -105,8 +110,19 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def multiple_active_mhv_ids?
-    return false if previously_upgraded? || previously_registered?
-    user.va_profile.active_mhv_ids.size > 1
+    if previously_upgraded? || previously_registered?
+      false
+    else
+      user.va_profile.active_mhv_ids.size > 1
+    end
+  end
+
+  def deactivated_mhv_ids?
+    if previously_upgraded? || previously_registered?
+      false
+    else
+      (user.va_profile.mhv_ids - user.va_profile.active_mhv_ids).to_a.any?
+    end
   end
 
   # for now lets not handle this
@@ -128,8 +144,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def setup
-    raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    check_eligibility if may_check_eligibility?
+    check_eligibility
     check_account_state if may_check_account_state?
   end
 end

@@ -13,6 +13,7 @@ RSpec.describe MhvAccount, type: :model do
           birth_date: '1932-02-05',
           ssn: '796126859',
           mhv_ids: mhv_ids,
+          active_mhv_ids: active_mhv_ids,
           vha_facility_ids: vha_facility_ids,
           home_phone: nil,
           address: mvi_profile_address)
@@ -28,7 +29,8 @@ RSpec.describe MhvAccount, type: :model do
   end
 
   let(:user) do
-    create(:user, :loa3,
+    create(:user,
+           loa: user_loa,
            ssn: user_ssn,
            first_name: mvi_profile.given_names.first,
            last_name: mvi_profile.family_name,
@@ -37,9 +39,10 @@ RSpec.describe MhvAccount, type: :model do
            email: 'vets.gov.user+0@gmail.com')
   end
 
+  let(:user_loa) { { current: LOA::THREE, highest: LOA::THREE } }
   let(:user_ssn) { mvi_profile.ssn }
-
   let(:mhv_ids) { [] }
+  let(:active_mhv_ids) { mhv_ids }
   let(:vha_facility_ids) { ['450'] }
 
   before(:each) do
@@ -52,203 +55,176 @@ RSpec.describe MhvAccount, type: :model do
     end
   end
 
-  it 'must have a user_uuid when initialized' do
-    expect { described_class.new }
-      .to raise_error(StandardError, 'You must use find_or_initialize_by(user_uuid: #)')
-  end
-
   describe 'event' do
+    subject { user.mhv_account }
+
     context 'check_eligibility' do
+      context 'user not loa3' do
+        let(:user_loa) { { current: LOA::ONE, highest: LOA::ONE } }
+
+        it 'needs_identity_verification' do
+          expect(subject.account_state).to eq('needs_identity_verification')
+          expect(subject.creatable?).to be_falsey
+        end
+      end
+
+      context 'user ssn mismatch' do
+        let(:user_ssn) { '123456789' }
+
+        it 'needs_ssn_resolution' do
+          expect(subject.account_state).to eq('needs_ssn_resolution')
+          expect(subject.creatable?).to be_falsey
+        end
+      end
+
+      context 'user not a va patient' do
+        let(:vha_facility_ids) { ['999'] }
+
+        it 'needs_va_patient' do
+          expect(subject.account_state).to eq('needs_va_patient')
+          expect(subject.creatable?).to be_falsey
+        end
+      end
+
+      context 'user has previously deactivated mhv ids' do
+        let(:mhv_ids) { %w[14221465 14221466] }
+        let(:active_mhv_ids) { %w[14221466] }
+
+        it 'has_deactivated_mhv_ids' do
+          expect(subject.account_state).to eq('has_deactivated_mhv_ids')
+          expect(subject.creatable?).to be_falsey
+        end
+      end
+
+      context 'user has multiple active mhv ids' do
+        let(:mhv_ids) { %w[14221465 14221466] }
+        let(:active_mhv_ids) { mhv_ids }
+
+        it 'has_multiple_active_mhv_ids' do
+          expect(subject.account_state).to eq('has_multiple_active_mhv_ids')
+          expect(subject.creatable?).to be_falsey
+        end
+      end
+
+      context 'user has not accepted terms and conditions' do
+        let(:mhv_ids) { %w[14221465] }
+
+        it 'needs_terms_acceptance' do
+          expect(subject.account_state).to eq('needs_terms_acceptance')
+          expect(subject.creatable?).to be_falsey
+        end
+      end
+    end
+
+    context 'check_account_state' do
       context 'with terms accepted' do
         let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
         before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
-        let(:base_attributes) { { user_uuid: user.uuid, account_state: 'needs_terms_acceptance' } }
-
-        context 'ssn mismatch' do
-          let(:user_ssn) { '123456789' }
-
-          it 'is needs_ssn_resolution if ssn is mismatched' do
-            subject = described_class.new(base_attributes)
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('needs_ssn_resolution')
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-            expect(subject.creatable?).to be_falsey
+        context 'without an existing account' do
+          context 'nothing has been persisted and no mhv_id' do
+            it 'has no_account' do
+              expect(subject.account_state).to eq('no_account')
+              expect(subject.creatable?).to be_truthy
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
           end
         end
 
-        context 'not a va patient' do
-          let(:vha_facility_ids) { ['999'] }
+        context 'with existing account' do
+          let(:mhv_ids) { %w[14221465] }
 
-          it 'is needs_va_patient if not a va patient' do
-            subject = described_class.new(base_attributes)
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('needs_va_patient')
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-            expect(subject.creatable?).to be_falsey
-          end
-        end
+          context 'nothing has been persisted with current mhv id' do
+            before(:each) do
+              allow_any_instance_of(MhvAccountTypeService)
+                .to receive(:mhv_account_type).and_return(account_type)
+            end
 
-        context 'with mhv id' do
-          let(:mhv_ids) { ['14221465'] }
-          let(:base_attributes) { { user_uuid: user.uuid } }
+            context 'account level basic' do
+              let(:account_type) { 'Basic' }
 
-          it 'a priori registered account stays registered' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, account_state: :registered)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('registered')
-            expect(subject.creatable?).to be_truthy
-          end
+              it 'has existing' do
+                expect(subject.account_state).to eq('existing')
+                expect(subject.creatable?).to be_falsey
+                expect(subject.upgradable?).to be_truthy
+                expect(subject.terms_and_conditions_accepted?).to be_truthy
+              end
+            end
 
-          it 'a priori failed upgrade that has been registered changes to registered' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, account_state: :upgrade_failed)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('registered')
-          end
+            context 'account level advanced' do
+              let(:account_type) { 'Advanced' }
 
-          it 'a priori upgraded account stays upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-          end
+              it 'has existing' do
+                expect(subject.account_state).to eq('existing')
+                expect(subject.creatable?).to be_falsey
+                expect(subject.upgradable?).to be_truthy
+                expect(subject.terms_and_conditions_accepted?).to be_truthy
+              end
+            end
 
-          it 'is able to transition back to upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-            expect(subject.creatable?).to be_falsey
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-          end
-        end
+            context 'account level premium' do
+              let(:account_type) { 'Premium' }
 
-        # TODO: TODO TODO TODO
-        context 'without mhv id' do
-          it 'a priori registered account changes to no_account' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, account_state: :registered)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.creatable?).to be_truthy
-            expect(subject.account_state).to eq('no_account')
-          end
+              it 'has existing' do
+                expect(subject.account_state).to eq('existing')
+                expect(subject.creatable?).to be_falsey
+                expect(subject.upgradable?).to be_falsey
+                expect(subject.terms_and_conditions_accepted?).to be_truthy
+              end
+            end
 
-          it 'a priori upgraded account changes to no_account' do
-            subject = described_class.new(
-              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.creatable?).to be_truthy
-            expect(subject.account_state).to eq('no_account')
+            context 'account level unknown' do
+              let(:account_type) { 'Unknown' }
+
+              it 'has existing' do
+                expect(subject.account_state).to eq('existing')
+                expect(subject.creatable?).to be_falsey
+                expect(subject.upgradable?).to be_falsey
+                expect(subject.terms_and_conditions_accepted?).to be_truthy
+              end
+            end
+
+            context 'account level unknown' do
+              let(:account_type) { 'Error' }
+
+              it 'has existing' do
+                expect(subject.account_state).to eq('existing')
+                expect(subject.creatable?).to be_falsey
+                expect(subject.upgradable?).to be_falsey
+                expect(subject.terms_and_conditions_accepted?).to be_truthy
+              end
+            end
           end
 
-          it 'is able to transition back to upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-            expect(subject.creatable?).to be_truthy
-            expect(subject.account_state).to eq('no_account')
+          context 'previously upgraded' do
+            before(:each) do
+              MhvAccount.skip_callback(:initialize, :after, :setup)
+              create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              MhvAccount.set_callback(:initialize, :after, :setup)
+            end
+
+            it 'has upgraded' do
+              expect(subject.account_state).to eq('upgraded')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
           end
-        end
 
-        it 'is able to transition back to registered' do
-          subject = described_class.new(base_attributes.merge(registered_at: Time.current))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('registered')
-          expect(subject.creatable?).to be_falsey
-          expect(subject.terms_and_conditions_accepted?).to be_truthy
-        end
+          context 'previously registered' do
+            before(:each) do
+              MhvAccount.skip_callback(:initialize, :after, :setup)
+              create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              MhvAccount.set_callback(:initialize, :after, :setup)
+            end
 
-        it 'falls back to unknown' do
-          subject = described_class.new(base_attributes)
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('unknown')
-          expect(subject.creatable?).to be_falsey
-          expect(subject.terms_and_conditions_accepted?).to be_truthy
-        end
-
-        it 'a priori register_failed account changes to unknown' do
-          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :register_failed))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('unknown')
-        end
-
-        it 'a priori upgrade_failed account changes to unknown' do
-          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :upgrade_failed))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('unknown')
-        end
-      end
-
-      context 'with terms not accepted' do
-        context 'ssn mismatch' do
-          let(:user_ssn) { '123456789' }
-
-          it 'is needs_ssn_resolution if ssn is mismatched' do
-            subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('needs_ssn_resolution')
-            expect(subject.creatable?).to be_falsey
-            expect(subject.terms_and_conditions_accepted?).to be_falsey
+            it 'has registered' do
+              expect(subject.account_state).to eq('registered')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
           end
-        end
-
-        context 'not a va patient' do
-          let(:vha_facility_ids) { ['999'] }
-
-          it 'is ineligible if not a va patient' do
-            subject = described_class.new(user_uuid: user.uuid, account_state: 'needs_terms_acceptance')
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('needs_va_patient')
-            expect(subject.creatable?).to be_falsey
-            expect(subject.terms_and_conditions_accepted?).to be_falsey
-          end
-        end
-
-        context 'preexisting account' do
-          let(:mhv_ids) { ['14221465'] }
-          let(:base_attributes) { { user_uuid: user.uuid } }
-
-          it 'does not transition to needs_terms_acceptance' do
-            subject = described_class.new(base_attributes)
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('existing')
-            expect(subject.creatable?).to be_falsey
-            expect(subject.terms_and_conditions_accepted?).to be_falsey
-          end
-        end
-
-        it 'transitions to needs_terms_acceptance' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'upgraded', upgraded_at: Time.current)
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.creatable?).to be_falsey
-          expect(subject.terms_and_conditions_accepted?).to be_falsey
-        end
-
-        it 'is able to transition back to registered' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'registered', registered_at: Time.current)
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.creatable?).to be_falsey
-          expect(subject.terms_and_conditions_accepted?).to be_falsey
-        end
-
-        it 'it falls back to unknown' do
-          subject = described_class.new(user_uuid: user.uuid, account_state: 'unknown')
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.creatable?).to be_falsey
-          expect(subject.terms_and_conditions_accepted?).to be_falsey
         end
       end
     end
