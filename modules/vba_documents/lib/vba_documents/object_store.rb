@@ -30,6 +30,14 @@ module VBADocuments
                         response_target: path)
     end
 
+    def delete(object_version)
+      client.delete_object(
+        bucket: object_version.bucket_name,
+        key: object_version.object_key,
+        version_id: object_version.version_id,
+      )
+    end
+
     private
 
     def client
