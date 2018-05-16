@@ -59,8 +59,9 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
           service,
           transaction2.transaction_id
         )
-        expect(updated_transaction.metadata.empty?).to eq(false)
-        expect(updated_transaction.metadata.first.is_a?(Vet360::Models::Message)).to eq(true)
+        parsed_metadata = JSON.parse(updated_transaction.metadata)
+        expect(parsed_metadata.kind_of?(Array)).to eq(true)
+        expect(updated_transaction.metadata.present?).to eq(true)
       end
     end
 
