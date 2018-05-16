@@ -11,16 +11,16 @@ module VBADocuments
       MAX_REPORT_SIZE = 100
 
       def create
-        statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params['uuids'])
+        statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params['guids'])
         render json: statuses,
                each_serializer: VBADocuments::UploadSerializer
       end
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing, 'uuids' if params['uuids'].nil?
-        raise Common::Exceptions::InvalidFieldValue.new('uuids', params['uuids']) unless params['uuids'].is_a?(Array)
-        raise Common::Exceptions::InvalidFieldValue.new('uuids', params['uuids']) if
-          params['uuids'].size > MAX_REPORT_SIZE
+        raise Common::Exceptions::ParameterMissing, 'guids' if params['guids'].nil?
+        raise Common::Exceptions::InvalidFieldValue.new('guiids', params['guids']) unless params['guids'].is_a?(Array)
+        raise Common::Exceptions::InvalidFieldValue.new('guids', params['guids']) if
+          params['guids'].size > MAX_REPORT_SIZE
       end
     end
   end
