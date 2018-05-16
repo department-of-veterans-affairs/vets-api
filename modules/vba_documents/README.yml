@@ -187,7 +187,7 @@ paths:
       parameters:
         - name: guid
           in: path
-          description: UUID as specified in the metadata of a previous upload
+          description: UUID as returned by a previous create upload request
           required: true
           example: 6d8433c1-cd55-4c24-affd-f592287a7572
           schema:
@@ -207,6 +207,39 @@ paths:
           description: Bad API Token
         '404':
           description: Not Found
+
+  '/uploads/report':
+    post:
+      tags:
+        - document_uploads
+      summary: Get a bulk status report for a list of previous uploads
+      operationId: getBenefitsDocumentUploadStatusReport
+      requestBody:
+        description: List of GUIDs for which to retrieve current status.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUploadStatusGuidList'
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: |
+            Upload status report retrieved successfully. Any invalid or
+            unknown GUIDs will be omitted from the response, so the length
+            of the response list may not match the length of the 
+            requested GUID list.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentUploadStatusReport'
+        '400':
+          description: Bad Request - invalid or missing list of guids
+        '401':
+          description: Unauthorized Request
+        '403':
+          description: Bad API Token
           
 components:
   securitySchemes:
@@ -292,50 +325,85 @@ components:
         document package (unreadable PDF, etc) may cause the status to change to “error”.
 
       required:
+        - id
+        - type
+        - attributes
         - guid
         - status
         - code
         - message
         - detail
       properties:
-        guid:
-          description: The document upload identifier.
+        id:
+          description: JSON API identifier
           type: string
           format: uuid
           example: 6d8433c1-cd55-4c24-affd-f592287a7572
-        status:
-          description: |
-            Document upload status
-        
-            * `pending` - Initial status, indicates no document package has been uplaoded yet
-            * `uploaded` - Indicates document package has been successfully uploaded, but not yet processed or propagated to Central Mail API
-            * `received` - Indicates document package has been successfully propagated to Central Mail API
-            * `processing` - Indicates document package is being processed by ICMHS or a downstream system.
-            * `success` - Indicates document package has been received by DHMS.
-            * `error` - Indicates that there was an error. See the `code` and `message` for further information.
+        type:
+          description: JSON API type specification
           type: string
-          enum:
-            - pending
-            - uploaded
-            - received
-            - processing
-            - success
-            - error
-        code:
-          description: |
-            Unambiguous status code. Only present if status = "error"
+          example: 'document_upload'
+        attributes:
+          type: object
+          properties:
+            guid:
+              description: The document upload identifier.
+              type: string
+              format: uuid
+              example: 6d8433c1-cd55-4c24-affd-f592287a7572
+            status:
+              description: |
+                Document upload status
             
-            * `DOC101` - Invalid multipart payload provided - not a multipart, or missing one or more required parts.
-            * `DOC102` - Invalid metadata - not parseable as JSON, incorrect fields, etc.
-            * `DOC103` - Invalid content - not parseable as PDF. Detail field will indicate which document or attachment part was affected.
-            * `DOC104` - Upload rejected by downstream system. Detail field will indicate nature of rejection.
-            * `DOC201` - Upload server error.
-            * `DOC202` - Error during processing by downstream system. Processing failed and could not be retried. Detail field will provide additional details where available.
-          type: string
-          
-        message:
-          description: Human readable error description. Only present if status = "error"
-          type: string
-        detail:
-          description: Human readable error detail. Only present if status = "error"
-          type: string
+                * `pending` - Initial status, indicates no document package has been uplaoded yet
+                * `uploaded` - Indicates document package has been successfully uploaded, but not yet processed or propagated to Central Mail API
+                * `received` - Indicates document package has been successfully propagated to Central Mail API
+                * `processing` - Indicates document package is being processed by ICMHS or a downstream system.
+                * `success` - Indicates document package has been received by DHMS.
+                * `error` - Indicates that there was an error. See the `code` and `message` for further information.
+              type: string
+              enum:
+                - pending
+                - uploaded
+                - received
+                - processing
+                - success
+                - error
+            code:
+              description: |
+                Unambiguous status code. Only present if status = "error"
+
+                * `DOC101` - Invalid multipart payload provided - not a multipart, or missing one or more required parts.
+                * `DOC102` - Invalid metadata - not parseable as JSON, incorrect fields, etc.
+                * `DOC103` - Invalid content - not parseable as PDF. Detail field will indicate which document or attachment part was affected.
+                * `DOC104` - Upload rejected by downstream system. Detail field will indicate nature of rejection.
+                * `DOC201` - Upload server error.
+                * `DOC202` - Error during processing by downstream system. Processing failed and could not be retried. Detail field will provide additional details where available.
+              type: string
+            message:
+              description: Human readable error description. Only present if status = "error"
+              type: string
+            detail:
+              description: Human readable error detail. Only present if status = "error"
+              type: string
+    DocumentUploadStatusGuidList:
+      required:
+        - guids
+      properties:
+        guids:
+          description: List of GUIDs for previous document upload submissions.
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: 6d8433c1-cd55-4c24-affd-f592287a7572
+          minItems: 1
+          maxItems: 100
+    DocumentUploadStatusReport:
+      required:
+        - data
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentUploadStatus'
