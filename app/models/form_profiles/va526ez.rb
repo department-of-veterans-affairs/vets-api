@@ -101,7 +101,7 @@ class FormProfiles::VA526ez < FormProfile
     contact_info = VA526ez::FormContactInformation.new(
       mailing_address: get_pciu_address(user),
       email_address: pciu_email,
-      primary_phone: get_us_phone(pciu_primary_phone),
+      primary_phone: get_us_phone(pciu_primary_phone)
     )
 
     VA526ez::FormVeteranContactInformation.new(
