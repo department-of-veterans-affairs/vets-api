@@ -227,5 +227,15 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC201')
     end
+
+    it 'does not set error status for retriable timeout error' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      expect(client_stub).to receive(:upload)
+        .and_raise(Faraday::TimeoutError.new)
+      expect { described_class.new.perform(upload.guid) }.to raise_error(Faraday::TimeoutError)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('pending')
+    end
   end
 end
