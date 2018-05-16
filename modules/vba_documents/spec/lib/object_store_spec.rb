@@ -29,16 +29,9 @@ RSpec.describe VBADocuments::ObjectStore do
   end
 
   describe "#delete" do
-    it 'calls deletes the specified version' do
-      v1 = instance_double(Aws::S3::ObjectVersion)
-      expect(v1).to receive(:bucket_name).and_return('my-bucket')
-      expect(v1).to receive(:object_key).and_return('foo')
-      expect(v1).to receive(:version_id).and_return('123456')
-      expect(@client).to receive(:delete_object).with(hash_including(
-                                                        bucket: 'my-bucket',
-                                                        key: 'foo',
-                                                        version_id: '123456',
-                                                      ))
+    it 'deletes the object' do
+      expect(@bucket).to receive(:object).and_return(@object)
+      expect(@object).to receive(:delete)
       described_class.new.delete(v1)
     end
   end
