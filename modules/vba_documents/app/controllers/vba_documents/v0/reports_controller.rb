@@ -16,6 +16,8 @@ module VBADocuments
                each_serializer: VBADocuments::UploadSerializer
       end
 
+      private
+
       def validate_params
         raise Common::Exceptions::ParameterMissing, 'guids' if params['guids'].nil?
         raise Common::Exceptions::InvalidFieldValue.new('guiids', params['guids']) unless params['guids'].is_a?(Array)
