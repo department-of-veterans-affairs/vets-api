@@ -310,14 +310,6 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
       ],
-      'dateOfBirth' => '1809-02-12',
-      'fullName' => {
-        'first' => 'Beyonce',
-        'last' => 'Knowles',
-        'suffix' => 'Jr.'
-      },
-      'gender' => 'F',
-      'socialSecurityNumber' => '796068949',
       'veteran' => {
         'mailingAddress' => {
           'type' => 'DOMESTIC',
