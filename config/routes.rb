@@ -54,6 +54,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :dependents_applications, only: [:create]
+
     if Settings.pension_burial.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
@@ -177,6 +179,7 @@ Rails.application.routes.draw do
       resource :email_addresses, only: %i[create update]
       resource :telephones, only: %i[create update]
       get 'status/:transaction_id', to: 'transactions#status'
+      get 'status', to: 'transactions#statuses'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
