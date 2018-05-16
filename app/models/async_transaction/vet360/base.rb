@@ -75,7 +75,7 @@ module AsyncTransaction
       def self.update_transaction_from_api(transaction_record, api_response)
         transaction_record.status = COMPLETED if FINAL_STATUSES.include? api_response.transaction.status
         transaction_record.transaction_status = api_response.transaction.status
-        transaction_record.metadata = api_response.transaction&.messages.to_json
+        transaction_record.metadata = api_response.transaction&.messages
         transaction_record.save!
         transaction_record
       end
