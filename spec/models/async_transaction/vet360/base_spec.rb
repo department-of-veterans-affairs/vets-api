@@ -61,7 +61,7 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
         )
         expect(updated_transaction.persisted?).to eq(true)
         parsed_metadata = JSON.parse(updated_transaction.metadata)
-        expect(parsed_metadata.kind_of?(Array)).to eq(true)
+        expect(parsed_metadata.is_a?(Array)).to eq(true)
         expect(updated_transaction.metadata.present?).to eq(true)
       end
     end
