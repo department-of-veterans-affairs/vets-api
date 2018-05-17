@@ -40,7 +40,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         received_element[0]['uuid'] = upload_received.guid
         expect(faraday_response).to receive(:body).at_least(:once).and_return([received_element].to_json)
         params = [upload_received.guid]
-        post '/services/vba_documents/v0/uploads/report', guids: params
+        post '/services/vba_documents/v0/uploads/report', ids: params
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -56,7 +56,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         body = [received_element, processing_element].to_json
         expect(faraday_response).to receive(:body).at_least(:once).and_return(body)
         params = [upload_received.guid, upload2_received.guid]
-        post '/services/vba_documents/v0/uploads/report', guids: params
+        post '/services/vba_documents/v0/uploads/report', ids: params
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -72,7 +72,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         processing_element[0]['uuid'] = upload2_received.guid
         expect(faraday_response).to receive(:body).at_least(:once).and_return([received_element, []].to_json)
         params = [upload_received.guid, upload2_received.guid]
-        post '/services/vba_documents/v0/uploads/report', guids: params
+        post '/services/vba_documents/v0/uploads/report', ids: params
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -87,7 +87,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(faraday_response).to receive(:status).and_return(401)
         expect(faraday_response).to receive(:body).at_least(:once).and_return('Unauthorized')
         params = [upload_received.guid, upload2_received.guid]
-        post '/services/vba_documents/v0/uploads/report', guids: params
+        post '/services/vba_documents/v0/uploads/report', ids: params
         expect(response).to have_http_status(:bad_gateway)
       end
     end
@@ -99,7 +99,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
       it 'should not fetch status if no in-flight submissions' do
         params = [upload.guid]
-        post '/services/vba_documents/v0/uploads/report', guids: params
+        post '/services/vba_documents/v0/uploads/report', ids: params
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -109,7 +109,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'should omit results for non-existent submission' do
-        post '/services/vba_documents/v0/uploads/report', guids: ['fake-1234']
+        post '/services/vba_documents/v0/uploads/report', ids: ['fake-1234']
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
@@ -124,13 +124,13 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
       end
 
       it 'should return error if guids parameter not a list' do
-        post '/services/vba_documents/v0/uploads/report', guids: 'bar'
+        post '/services/vba_documents/v0/uploads/report', ids: 'bar'
         expect(response).to have_http_status(:bad_request)
       end
 
       it 'should return error if guids parameter has too many elements' do
         params = Array.new(101, 'abcd-1234')
-        post '/services/vba_documents/v0/uploads/report', guids: params
+        post '/services/vba_documents/v0/uploads/report', ids: params
         expect(response).to have_http_status(:bad_request)
       end
     end

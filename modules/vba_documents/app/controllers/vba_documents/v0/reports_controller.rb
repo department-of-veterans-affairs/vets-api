@@ -9,9 +9,10 @@ module VBADocuments
       before_action :validate_params
 
       MAX_REPORT_SIZE = 100
+      ID_PARAM = 'ids'
 
       def create
-        statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params['guids'])
+        statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params[ID_PARAM])
         render json: statuses,
                each_serializer: VBADocuments::UploadSerializer
       end
@@ -19,10 +20,10 @@ module VBADocuments
       private
 
       def validate_params
-        raise Common::Exceptions::ParameterMissing, 'guids' if params['guids'].nil?
-        raise Common::Exceptions::InvalidFieldValue.new('guiids', params['guids']) unless params['guids'].is_a?(Array)
-        raise Common::Exceptions::InvalidFieldValue.new('guids', params['guids']) if
-          params['guids'].size > MAX_REPORT_SIZE
+        raise Common::Exceptions::ParameterMissing, ID_PARAM if params[ID_PARAM].nil?
+        raise Common::Exceptions::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) unless params[ID_PARAM].is_a?(Array)
+        raise Common::Exceptions::InvalidFieldValue.new(ID_PARAM, params[ID_PARAM]) if
+          params[ID_PARAM].size > MAX_REPORT_SIZE
       end
     end
   end

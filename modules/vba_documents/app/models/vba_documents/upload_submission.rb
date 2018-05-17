@@ -8,10 +8,10 @@ module VBADocuments
     IN_FLIGHT_STATUSES = %w[received processing].freeze
 
     def self.refresh_and_get_statuses!(guids)
-      submissions = guids.map { |guid| find_by(guid: guid) }.select(&:present?)
+      submissions = where(guid: guids)
       in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
       refresh_statuses!(in_flights)
-      submissions
+      submissions.to_a
     end
 
     def self.refresh_statuses!(submissions)
