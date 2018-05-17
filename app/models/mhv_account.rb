@@ -12,9 +12,10 @@ class MhvAccount < ActiveRecord::Base
     state_ineligible country_ineligible needs_terms_acceptance
   ].freeze
 
-  PERSISTED_STATES = %i[register_failed upgrade_failed registered upgraded existing].freeze
+  FAILURE_STATES = %i[register_failed upgrade_failed].freeze
+  PERSISTED_STATES = %i[registered upgraded existing].freeze
   ELIGIBLE_STATES = %i[no_account].freeze
-  ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
+  ALL_STATES = (%i[unknown] + FAILURE_STATES + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
   after_initialize :setup
 
@@ -91,11 +92,11 @@ class MhvAccount < ActiveRecord::Base
     user.mhv_account_type
   end
 
-  private
-
   def user
     @user ||= User.find(user_uuid)
   end
+
+  private
 
   def identity_proofed?
     user.loa3?
