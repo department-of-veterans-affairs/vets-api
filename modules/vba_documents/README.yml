@@ -84,7 +84,11 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DocumentUploadSubmission"
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/DocumentUploadSubmission"
         '401':
           description: Unauthorized Request
         '403':
@@ -178,16 +182,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/DocumentUploadFailure'
                 
-  '/uploads/{guid}':
+  '/uploads/{id}':
     get:
       tags:
         - document_uploads
       summary: Get status for a previous benefits document upload
       operationId: getBenefitsDocumentUploadStatus
       parameters:
-        - name: guid
+        - name: id
           in: path
-          description: UUID as specified in the metadata of a previous upload
+          description: ID as returned by a previous create upload request
           required: true
           example: 6d8433c1-cd55-4c24-affd-f592287a7572
           schema:
@@ -200,13 +204,54 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DocumentUploadStatus'
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DocumentUploadStatus'
         '401':
           description: Unauthorized Request
         '403':
           description: Bad API Token
         '404':
           description: Not Found
+
+  '/uploads/report':
+    post:
+      tags:
+        - document_uploads
+      summary: Get a bulk status report for a list of previous uploads
+      operationId: getBenefitsDocumentUploadStatusReport
+      requestBody:
+        description: List of GUIDs for which to retrieve current status.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentUploadStatusGuidList'
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: |
+            Upload status report retrieved successfully. Any invalid or
+            unknown GUIDs will be omitted from the response, so the length
+            of the response list may not match the length of the 
+            requested GUID list.
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/DocumentUploadStatusReport"
+        '400':
+          description: Bad Request - invalid or missing list of guids
+        '401':
+          description: Unauthorized Request
+        '403':
+          description: Bad API Token
           
 components:
   securitySchemes:
@@ -216,24 +261,28 @@ components:
       in: query
   schemas:
     DocumentUploadSubmission:
-      description: |
-        Contains a submission record with information for use in subsequent requests for status
-        or upload.
+      description: | 
+        Record of a requested document submission. Includes the location
+        to which the document payload is to be uploaded.
+      required:
+        - id
+        - type
+        - attributes
       properties:
-        guid:
+        id:
+          description: JSON API identifier
           type: string
+          format: uuid
           example: 6d8433c1-cd55-4c24-affd-f592287a7572
-          description: Unique identifier for future reference
-        location:
+        type:
+          description: JSON API type specification
           type: string
-          format: URL
-          example: https://dev-api.vets.gov/
-          description: URL to PUT documents in subsequent request
-          
+          example: 'document_upload'
+        attributes:
+          $ref: '#/components/schemas/DocumentUploadSubmissionAttributes'
     DocumentUploadMetadata:
       description: |
-        This section is subject to revision, as we assess the feasibility of API gateway middleware
-        calculating some of the required downstream metadata on behalf of the submitter.
+        Identifying parameters about the document payload being submitted.
       required:
         - veteranFirstName
         - veteranLastName
@@ -285,18 +334,28 @@ components:
           type: string
           description: Identifier for debug purposes
     DocumentUploadStatus:
+      description: Status record for a previously initiated document submission.
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          description: JSON API identifier
+          type: string
+          format: uuid
+          example: 6d8433c1-cd55-4c24-affd-f592287a7572
+        type:
+          description: JSON API type specification
+          type: string
+          example: 'document_upload'
+        attributes:
+          $ref: '#/components/schemas/DocumentUploadStatusAttributes'
+    DocumentUploadStatusAttributes:
       description: |
-        Note that until a document status of “received”, “processing”, or “success” is returned, a client
-        cannot consider the document as received by VA. In particular a status of “uploaded” means
-        that the document package has been transmitted, but possibly not validated. Any errors with the
-        document package (unreadable PDF, etc) may cause the status to change to “error”.
-
       required:
         - guid
         - status
-        - code
-        - message
-        - detail
       properties:
         guid:
           description: The document upload identifier.
@@ -305,7 +364,13 @@ components:
           example: 6d8433c1-cd55-4c24-affd-f592287a7572
         status:
           description: |
-            Document upload status
+            Document upload status. Note that until a document status of 
+            “received”, “processing”, or “success” is returned, a client
+            cannot consider the document as received by VA. In particular a 
+            status of “uploaded” means that the document package has been 
+            transmitted, but possibly not validated. Any errors with the
+            document package (unreadable PDF, etc) may cause the status to 
+            change to “error”.
         
             * `pending` - Initial status, indicates no document package has been uplaoded yet
             * `uploaded` - Indicates document package has been successfully uploaded, but not yet processed or propagated to Central Mail API
@@ -324,7 +389,7 @@ components:
         code:
           description: |
             Unambiguous status code. Only present if status = "error"
-            
+
             * `DOC101` - Invalid multipart payload provided - not a multipart, or missing one or more required parts.
             * `DOC102` - Invalid metadata - not parseable as JSON, incorrect fields, etc.
             * `DOC103` - Invalid content - not parseable as PDF. Detail field will indicate which document or attachment part was affected.
@@ -332,10 +397,38 @@ components:
             * `DOC201` - Upload server error.
             * `DOC202` - Error during processing by downstream system. Processing failed and could not be retried. Detail field will provide additional details where available.
           type: string
-          
         message:
           description: Human readable error description. Only present if status = "error"
           type: string
         detail:
           description: Human readable error detail. Only present if status = "error"
           type: string
+    DocumentUploadSubmissionAttributes:
+      allOf:
+        - $ref: '#/components/schemas/DocumentUploadStatusAttributes'
+        - type: object
+          required:
+            - location
+          properties:
+            location:
+              type: string
+              format: uri
+              example: https://dev-api.vets.gov/services_content/idpath
+              description: Location to which to PUT document payload
+    DocumentUploadStatusGuidList:
+      required:
+        - ids
+      properties:
+        ids:
+          description: List of IDs for previous document upload submissions.
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: 6d8433c1-cd55-4c24-affd-f592287a7572
+          minItems: 1
+          maxItems: 100
+    DocumentUploadStatusReport:
+      type: array
+      items:
+        $ref: '#/components/schemas/DocumentUploadStatus'
