@@ -29,6 +29,8 @@ Rails.application.routes.draw do
       post 'submit'
     end
 
+    resource :upload_ancillary_form, only: :create
+
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
@@ -53,6 +55,8 @@ Rails.application.routes.draw do
         get(:healthcheck)
       end
     end
+
+    resource :dependents_applications, only: [:create]
 
     if Settings.pension_burial.upload.enabled
       resources :pension_claims, only: %i[create show]
@@ -177,6 +181,7 @@ Rails.application.routes.draw do
       resource :email_addresses, only: %i[create update]
       resource :telephones, only: %i[create update]
       get 'status/:transaction_id', to: 'transactions#status'
+      get 'status', to: 'transactions#statuses'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'

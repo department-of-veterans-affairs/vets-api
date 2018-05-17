@@ -46,4 +46,35 @@ RSpec.describe 'profile_status', type: :request do
       end
     end
   end
+
+  describe 'GET /v0/profile/status/' do
+    context 'when transaction(s) exists' do
+      it 'it responds with an array of transaction(s)', :aggregate_failures do
+        create(
+          :address_transaction,
+          user_uuid: user.uuid,
+          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+        )
+        create(
+          :email_transaction,
+          user_uuid: user.uuid,
+          transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
+        )
+        VCR.use_cassette('vet360/contact_information/address_and_email_transaction_status') do
+          get(
+            '/v0/profile/status/',
+            nil,
+            auth_header
+          )
+          expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body['data'].is_a?(Array)).to eq(true)
+          expect(response_body['data'][0]['attributes']['type'])
+            .to eq('AsyncTransaction::Vet360::AddressTransaction')
+          expect(response_body['data'][1]['attributes']['type'])
+            .to eq('AsyncTransaction::Vet360::EmailTransaction')
+        end
+      end
+    end
+  end
 end
