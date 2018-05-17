@@ -38,13 +38,16 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       'content' => valid_doc }
   end
 
+  # rubocop:disable Style/DateTime
   before(:each) do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
     allow(objstore).to receive(:first_version).and_return(version)
     allow(objstore).to receive(:download)
+    allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
   end
+  # rubocop:enable Style/DateTime
 
   describe '#perform' do
     let(:upload) { FactoryBot.create(:upload_submission) }

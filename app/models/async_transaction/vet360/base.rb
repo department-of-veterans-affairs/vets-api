@@ -12,6 +12,9 @@ module AsyncTransaction
       REQUESTED = 'requested'
       COMPLETED = 'completed'
 
+      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
+      scope :last_requested, -> { where(status: Base::REQUESTED).order(created_at: :desc).limit(1) }
+
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
       # @param user [User] The user associated with the transaction
@@ -61,6 +64,10 @@ module AsyncTransaction
         end
       end
 
+      # Finds a transaction by transaction_id for a user
+      # @params user_uuid [String] the user's UUID
+      # @params transaction_id [String] the transaction UUID
+      # @returns [AddressTransaction, EmailTransaction, TelephoneTransaction]
       def self.find_transaction!(user_uuid, transaction_id)
         Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
       end
@@ -72,11 +79,37 @@ module AsyncTransaction
         transaction_record
       end
 
-      # Returns true if a transaction is "over"
-      # @return [Boolean]
+      # Returns true or false if a transaction is "over"
+      # @return [Boolean] true if status is "over"
+      # @note this checks transaction_status status fields, which should be redundant
       def finished?
-        # These SHOULD go hand-in-hand...
         FINAL_STATUSES.include?(transaction_status) || status == COMPLETED
+      end
+
+      # Wrapper for .refresh_transaction_status which finds any outstanding transactions
+      #   for a user and refreshes them
+      # @param user [User] the user whose transactions we're checking
+      # @params service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @return [Array] An array with any outstanding transactions refreshed. Empty if none.
+      def self.refresh_transaction_statuses(user, service)
+        last_ongoing_transactions_for_user(user).each_with_object([]) do |transaction, array|
+          array << refresh_transaction_status(
+            user,
+            service,
+            transaction.transaction_id
+          )
+        end
+      end
+
+      # Find the most recent address, email, or telelphone transactions for a user
+      # @praram user [User] the user whose transactions we're finding
+      # @return [Array] an array of any outstanding transactions
+      def self.last_ongoing_transactions_for_user(user)
+        ongoing_transactions = []
+        ongoing_transactions += AddressTransaction.last_requested.for_user(user)
+        ongoing_transactions += EmailTransaction.last_requested.for_user(user)
+        ongoing_transactions += TelephoneTransaction.last_requested.for_user(user)
+        ongoing_transactions
       end
     end
   end
