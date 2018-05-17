@@ -15,12 +15,10 @@ describe EVSSPolicy do
     end
 
     context 'with a user who does not have the required evss attributes' do
-      let(:user) { build(:unauthorized_evss_user, :loa3) }
+      let(:user) { build(:user, :loa1) }
 
-      it 'denies access by raising a Common::Exceptions::Forbidden error' do
-        expect { subject.new(user, :evss).access? }.to raise_error(
-          Common::Exceptions::Forbidden
-        )
+      it 'denies access' do
+        expect(subject).to_not permit(user, :evss)
       end
     end
   end
