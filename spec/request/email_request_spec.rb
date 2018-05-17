@@ -57,6 +57,19 @@ RSpec.describe 'email', type: :request do
         end
       end
     end
+
+    context 'when authorization requirements are not met' do
+      it 'should match the errors schema' do
+        user = build(:unauthorized_evss_user, :loa3)
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        get '/v0/profile/email', nil, auth_header
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response).to match_response_schema('errors')
+      end
+    end
   end
 
   describe 'POST /v0/profile/email' do
@@ -162,6 +175,25 @@ RSpec.describe 'email', type: :request do
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
         end
+      end
+    end
+
+    context 'when authorization requirements are not met' do
+      it 'should match the errors schema' do
+        user = build(:unauthorized_evss_user, :loa3)
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        post(
+          '/v0/profile/email',
+          email_address.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response).to match_response_schema('errors')
       end
     end
   end
