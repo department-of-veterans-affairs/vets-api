@@ -4,7 +4,7 @@ module V0
   module Profile
     class EmailsController < ApplicationController
       include Vet360::Writeable
-      include Authorizeable
+      include EVSS::Authorizeable
 
       before_action :authorize_evss!
 
