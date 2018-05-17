@@ -25,7 +25,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     end
 
     it 'should set consumer name from X-Consumer-Username header' do
-      post '/services/vba_documents/v0/uploads', nil, { 'X-Consumer-Username': 'test consumer' }
+      post '/services/vba_documents/v0/uploads', nil, 'X-Consumer-Username': 'test consumer'
       upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
       expect(upload.consumer_name).to eq('test consumer')
     end
