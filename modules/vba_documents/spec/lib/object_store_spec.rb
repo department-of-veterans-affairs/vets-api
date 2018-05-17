@@ -28,7 +28,7 @@ RSpec.describe VBADocuments::ObjectStore do
     end
   end
 
-  describe "#delete" do
+  describe '#delete' do
     it 'deletes the object' do
       expect(@bucket).to receive(:object).and_return(@object)
       expect(@object).to receive(:delete)

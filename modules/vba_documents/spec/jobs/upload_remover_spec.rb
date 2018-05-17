@@ -17,7 +17,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
   end
 
   describe '#perform' do
-    describe "when the record is older than 3 days" do
+    describe 'when the record is older than 3 days' do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'received', created_at: Time.zone.now - 4.days) }
 
       it 'should delete the s3 object' do
@@ -37,7 +37,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
       end
     end
 
-    describe "when the record is not 3 days old" do
+    describe 'when the record is not 3 days old' do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'received') }
 
       it 'should do nothing' do
