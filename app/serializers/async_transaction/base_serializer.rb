@@ -10,6 +10,5 @@ module AsyncTransaction
     def id
       nil
     end
-
   end
 end
