@@ -11,5 +11,8 @@ module AsyncTransaction
       nil
     end
 
+    def metadata
+      object.parsed_metadata
+    end
   end
 end

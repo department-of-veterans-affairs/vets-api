@@ -16,7 +16,7 @@
               "type": "string"
             },
             "metadata": {
-              "type": "string"
+              "type": "array"
             }
           },
           "type": "object"

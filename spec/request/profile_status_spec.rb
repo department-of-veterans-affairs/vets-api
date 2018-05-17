@@ -63,8 +63,7 @@ RSpec.describe 'profile_status', type: :request do
           )
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
-          expect(response_body['data']['attributes']['metadata'].is_a?(String)).to eq(true)
-          expect(JSON.parse(response_body['data']['attributes']['metadata']).is_a?(Array)).to eq(true)
+          expect(response_body['data']['attributes']['metadata']).to be_a(Array)
         end
       end
     end
