@@ -68,4 +68,40 @@ namespace :evss do
       )
     end
   end
+
+  desc 'test 526 workflow - do not merge'
+  task workflow: :environment do
+    u = { ssn: '796184750', first: 'Melvin', middle: 'V',     last:	"O'Freeman",  gender:	'M', dob: '1971-11-19' }
+    user = get_user(u)
+
+    EVSS::DisabilityCompensationForm::SubmitForm.start(user.uuid)
+  end
+
+  def get_user(user)
+    uuid = SecureRandom.uuid
+
+    identity = UserIdentity.new(
+      uuid: uuid,
+      first_name: user[:first],
+      middle_name: user[:middle],
+      last_name: user[:last],
+      birth_date: user[:dob],
+      gender: user[:gender],
+      ssn: user[:ssn],
+      email: 'vets.gov.user+216@gmail.com',
+      loa: {
+        current: LOA::THREE,
+        highest: LOA::THREE
+      }
+    )
+
+    identity.save
+
+    user = User.new(
+      uuid: uuid,
+      identity: identity
+    )
+    user.last_signed_in = Time.now.utc
+    user
+  end
 end
