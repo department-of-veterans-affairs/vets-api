@@ -19,7 +19,21 @@ EVSSPolicy = Struct.new(:user, :evss) do
         profile: 'pciu_profile'
       )
 
-      false
+      raise Common::Exceptions::Forbidden.new(detail: "User does not have access to the requested resource due to missing values: #{missing_values}", source: 'EVSS')
     end
+  end
+
+  # Returns a comma-separated string of the user's blank attributes. `participant_id` is AKA `corp_id`.
+  #
+  # @return [String] Comma-separated string of the attribute names
+  #
+  def missing_values
+    missing = []
+
+    missing << 'corp_id' if user.participant_id.blank?
+    missing << 'edipi' if user.edipi.blank?
+    missing << 'ssn' if user.ssn.blank?
+
+    missing.join(', ')
   end
 end
