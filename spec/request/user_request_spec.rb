@@ -14,7 +14,7 @@ RSpec.describe 'Fetching user data', type: :request do
     before do
       Session.create(uuid: mhv_user.uuid, token: token)
       allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MhvAccount', account_state: 'upgraded')
+      mhv_account = double('MhvAccount', may_register?: true, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
