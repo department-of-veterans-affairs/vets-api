@@ -97,8 +97,11 @@ module VBADocuments
       end
     end
 
+    def store
+      @store ||= store = VBADocuments::ObjectStore.new
+    end
+
     def download_raw_file(guid)
-      store = VBADocuments::ObjectStore.new
       tempfile = Tempfile.new(guid)
       version = store.first_version(guid)
       store.download(version, tempfile.path)
@@ -143,10 +146,11 @@ module VBADocuments
     end
 
     def perfect_metadata(parts, upload)
+      version = store.first_version(upload.guid)
       metadata = JSON.parse(parts['metadata'])
       # TODO: This is a fixed value for now, will later concatenate provided source with our identifer
       metadata['source'] = 'Vets.gov'
-      metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
+      metadata['receiveDt'] = version.last_modified.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
       doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
       metadata['hashV'] = doc_info[:hash]

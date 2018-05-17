@@ -40,9 +40,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
   before(:each) do
     objstore = instance_double(VBADocuments::ObjectStore)
-    version = instance_double(Aws::S3::ObjectVersion)
+    @version = instance_double(Aws::S3::ObjectVersion)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
-    allow(objstore).to receive(:first_version).and_return(version)
+    allow(objstore).to receive(:first_version).and_return(@version)
+    allow(@version).to receive(:last_modified).and_return(Time.now)
     allow(objstore).to receive(:download)
   end
 
@@ -87,6 +88,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('document')
       expect(capture_body).to have_key('attachment1')
       metadata = JSON.parse(capture_body['metadata'])
+      expect(metadata['receiveDt']).to eq(@version.last_modified.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S'))
       expect(metadata['uuid']).to eq(upload.guid)
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
