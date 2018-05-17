@@ -21,10 +21,6 @@ module V0
 
     protected
 
-    def authorized?
-      mhv_account.eligible?
-    end
-
     def authorize
       raise_access_denied unless mhv_account.creatable? || mhv_account.upgradable?
     end
