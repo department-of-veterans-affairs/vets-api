@@ -82,7 +82,7 @@ ActiveRecord::Schema.define(version: 20180517173822) do
     t.datetime "updated_at", null: false
   end
 
-  add_index "disability_compensation_submissions", ["user_uuid", "form_id"], name: "index_disability_compensation_submissions_on_uuid_and_form_id", using: :btree
+  add_index "disability_compensation_submissions", ["user_uuid", "form_id"], name: "index_disability_compensation_submissions_on_uuid_and_form_id", unique: true, using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
