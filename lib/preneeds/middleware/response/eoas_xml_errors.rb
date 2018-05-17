@@ -21,7 +21,7 @@ module Preneeds
           # strip percentages from xml because Sentry uses it for interpolation
           extra_context = { original_status: status, original_body: env.body&.delete('%') }
           log_message_to_sentry('Generalized XML error response from EOAS', :warn, extra_context)
-          raise config.service_exception.new('VA900', response_values, @status, env.body)
+          raise Common::Exceptions::BackendServiceException.new('VA900', response_values, @status, env.body)
         end
 
         private

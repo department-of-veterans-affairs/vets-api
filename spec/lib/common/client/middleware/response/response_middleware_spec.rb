@@ -33,9 +33,9 @@ describe 'Response Middleware' do
   subject(:faraday_client) do
     Faraday.new do |conn|
       conn.response :snakecase
-      conn.response :raise_error, exception_class: Common::Exceptions::BackendServiceException, error_prefix: 'RX'
+      conn.response :raise_error, error_prefix: 'RX'
       conn.response :mhv_errors
-      conn.response :mhv_xml_html_errors, exception_class: Common::Exceptions::BackendServiceException
+      conn.response :mhv_xml_html_errors
       conn.response :json_parser
 
       conn.adapter :test do |stub|

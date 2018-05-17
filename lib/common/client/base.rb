@@ -47,6 +47,11 @@ module Common
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+      rescue Common::Exceptions::BackendServiceException => e
+        # convert BackendServiceException into a more meaningful exception title for Sentry
+        raise config.service_exception.new(
+          e.key, e.response_values, e.original_status, e.original_body
+        )
       rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout

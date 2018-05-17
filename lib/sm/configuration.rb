@@ -38,9 +38,9 @@ module SM
         conn.response :betamocks if Settings.mhv.sm.mock
         conn.response :sm_parser
         conn.response :snakecase
-        conn.response :raise_error, error_prefix: service_name, exception_class: service_exception
+        conn.response :raise_error, error_prefix: service_name
         conn.response :mhv_errors
-        conn.response :mhv_xml_html_errors, exception_class: service_exception
+        conn.response :mhv_xml_html_errors
         conn.response :json_parser
 
         conn.adapter Faraday.default_adapter
