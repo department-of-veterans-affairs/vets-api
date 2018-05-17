@@ -25,7 +25,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
   end
 
-  describe 'Serialization', focus: true do
+  describe 'Serialization' do
     let(:transaction) { build(:address_transaction) }
     it 'JSON encodes metadata' do
       transaction.update(metadata: { unserialized: 'data' })
