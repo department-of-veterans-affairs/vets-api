@@ -5,9 +5,11 @@ module AsyncTransaction
     attribute :transaction_id
     attribute :transaction_status
     attribute :type
+    attribute :metadata
 
     def id
       nil
     end
+
   end
 end
