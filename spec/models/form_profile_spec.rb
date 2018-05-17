@@ -310,6 +310,15 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
       ],
+      'servicePeriods' => [
+        {
+          'serviceBranch' => 'Air Force Reserve',
+          'dateRange' => {
+            'from' => '2007-04-01',
+            'to' => '2016-06-01'
+          }
+        }
+      ],
       'veteran' => {
         'mailingAddress' => {
           'type' => 'DOMESTIC',
@@ -424,6 +433,9 @@ RSpec.describe FormProfile, type: :model do
           yes: true
         )
         expect(user).to receive(:can_access_id_card?).and_return(true)
+        expect(military_information).to receive(:service_periods).and_return(
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+        )
       end
 
       context 'with a user that can prefill emis' do
@@ -462,16 +474,19 @@ RSpec.describe FormProfile, type: :model do
         it 'returns the va profile mapped to the healthcare form' do
           expect_prefilled('1010ez')
         end
-      end
-    end
 
-    context 'with a disability compensation form' do
-      let(:user) { build(:disabilities_compensation_user) }
-      it 'returns prefilled 21-526EZ' do
-        VCR.use_cassette('evss/pciu_address/address_domestic') do
-          VCR.use_cassette('evss/ppiu/payment_information') do
-            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              expect_prefilled('21-526EZ')
+        context 'with a user that can prefill evss' do
+          before do
+            expect(user).to receive(:authorize).with(:evss, :access?).exactly(3).times.and_return(true)
+          end
+
+          it 'returns prefilled 21-526EZ' do
+            VCR.use_cassette('evss/pciu_address/address_domestic') do
+              VCR.use_cassette('evss/ppiu/payment_information') do
+                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                  expect_prefilled('21-526EZ')
+                end
+              end
             end
           end
         end
