@@ -4,6 +4,8 @@ module V0
   class TermsAndConditionsController < ApplicationController
     include ActionController::Serialization
 
+    skip_before_action :authenticate, only: %i[index latest]
+
     def index
       resource = TermsAndConditions.all.select(:id, :name, :version, :updated_at, :created_at)
       resource = [] if resource.none?

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe HCA::SubmissionJob, type: :job do
   let(:user) { create(:user) }
   let(:health_care_application) { create(:health_care_application) }
-  let(:form) { { foo: true } }
+  let(:form) { { foo: true, email: 'foo@example.com' } }
   let(:result) do
     {
       formSubmissionId: 123,
@@ -19,13 +19,12 @@ RSpec.describe HCA::SubmissionJob, type: :job do
   describe 'when job has failed' do
     let(:msg) do
       {
-        'args' => [nil, nil, health_care_application.id]
+        'args' => [nil, form, health_care_application.id]
       }
     end
 
     it 'should set the health_care_application state to failed' do
       described_class.new.sidekiq_retries_exhausted_block.call(msg)
-
       expect(health_care_application.reload.state).to eq('failed')
     end
   end
