@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/LineLength
 module Swagger
   module Schemas
     class EVSSAuthError
@@ -22,3 +23,4 @@ module Swagger
     end
   end
 end
+# rubocop:enable Metrics/LineLength
