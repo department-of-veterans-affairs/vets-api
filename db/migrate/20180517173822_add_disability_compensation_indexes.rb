@@ -1,0 +1,8 @@
+class AddDisabilityCompensationIndexes < ActiveRecord::Migration
+  disable_ddl_transaction!
+
+  def change
+    add_index :disability_compensation_submissions, [:user_uuid, :form_id], \
+      name: 'index_disability_compensation_submissions_on_uuid_and_form_id', algorithm: :concurrently
+  end
+end
