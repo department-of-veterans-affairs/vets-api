@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 EVSSPolicy = Struct.new(:user, :evss) do
   include SentryLogging
 
@@ -19,8 +20,12 @@ EVSSPolicy = Struct.new(:user, :evss) do
         profile: 'pciu_profile'
       )
 
-      raise Common::Exceptions::Forbidden.new(detail: "User does not have access to the requested resource due to missing values: #{missing_values}", source: 'EVSS')
+      raise Common::Exceptions::Forbidden.new(detail: error_detail, source: 'EVSS')
     end
+  end
+
+  def error_detail
+    "User does not have access to the requested resource due to missing values: #{missing_values}"
   end
 
   # Returns a comma-separated string of the user's blank attributes. `participant_id` is AKA `corp_id`.
@@ -37,3 +42,4 @@ EVSSPolicy = Struct.new(:user, :evss) do
     missing.join(', ')
   end
 end
+# rubocop:enable Metrics/BlockLength
