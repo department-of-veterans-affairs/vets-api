@@ -1,3 +1,4 @@
 veteran: [veteran_contact_information, veteran]
 directDeposit: [payment_information, payment_account]
 disabilities: [rated_disabilities_information, rated_disabilities]
+servicePeriods: [military_information, service_periods]
