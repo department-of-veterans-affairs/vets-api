@@ -16,7 +16,7 @@ module AsyncTransaction
     end
 
     def parsed_metadata
-      @parsed_metadata ||= JSON.parse(metadata)
+      JSON.parse(metadata)
     end
 
     validates :id, uniqueness: true
