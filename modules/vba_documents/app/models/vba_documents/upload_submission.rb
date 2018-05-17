@@ -7,17 +7,40 @@ module VBADocuments
 
     IN_FLIGHT_STATUSES = %w[received processing].freeze
 
-    # TODO: Persist this? Otherwise it regenerates with new expiry
-    # every time object is serialized
-    def get_location
-      rewrite_url(signed_url(guid))
+    def self.refresh_and_get_statuses!(guids)
+      submissions = where(guid: guids)
+      in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
+      refresh_statuses!(in_flights)
+      submissions.to_a
+    end
+
+    def self.refresh_statuses!(submissions)
+      guids = submissions.map(&:guid)
+      return if guids.empty?
+      response = PensionBurial::Service.new.status(guids)
+      if response.success?
+        statuses = JSON.parse(response.body)
+        updated = statuses.select { |stat| stat.dig(0, 'uuid').present? }.map do |stat|
+          sub = submissions.select { |s| s.guid == stat[0]['uuid'] }.first
+          sub.send(:map_downstream_status, stat[0])
+          sub
+        end
+        ActiveRecord::Base.transaction { updated.each(&:save!) }
+      else
+        submissions.first.log_message_to_sentry('Error getting status from Central Mail API',
+                                                :warning,
+                                                status: response.status,
+                                                body: response.body)
+        raise Common::Exceptions::BadGateway
+      end
     end
 
     def refresh_status!
       if status_in_flight?
         response = PensionBurial::Service.new.status(guid)
         if response.success?
-          map_downstream_status(response.body)
+          response_object = JSON.parse(response.body)[0][0]
+          map_downstream_status(response_object)
           save!
         else
           log_message_to_sentry('Error getting status from Central Mail API',
@@ -27,6 +50,10 @@ module VBADocuments
           raise Common::Exceptions::BadGateway
         end
       end
+    end
+
+    def get_location
+      rewrite_url(signed_url(guid))
     end
 
     private
@@ -49,8 +76,11 @@ module VBADocuments
       IN_FLIGHT_STATUSES.include?(status)
     end
 
-    def map_downstream_status(body)
-      response_object = JSON.parse(body)[0][0]
+    def map_downstream_status(response_object)
+      if response_object.blank?
+        log_message_to_sentry('Empty status response for known UUID from Central Mail API', :warning)
+        return
+      end
       if response_object['status'] == 'Received'
         self.status = 'received'
       elsif response_object['status'] == 'In Process'
