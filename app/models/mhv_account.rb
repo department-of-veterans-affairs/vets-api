@@ -13,8 +13,8 @@ class MhvAccount < ActiveRecord::Base
   ].freeze
 
   FAILURE_STATES = %i[register_failed upgrade_failed].freeze
-  PERSISTED_STATES = %i[registered upgraded existing].freeze
-  ELIGIBLE_STATES = %i[no_account].freeze
+  PERSISTED_STATES = %i[registered upgraded].freeze
+  ELIGIBLE_STATES = %i[existing eligible no_account].freeze
   ALL_STATES = (%i[unknown] + FAILURE_STATES + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
   after_initialize :setup
@@ -31,19 +31,17 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :needs_va_patient, unless: :va_patient?
       transitions from: ALL_STATES, to: :has_deactivated_mhv_ids, if: :deactivated_mhv_ids?
       transitions from: ALL_STATES, to: :has_multiple_active_mhv_ids, if: :multiple_active_mhv_ids?
-      transitions from: ALL_STATES, to: :state_ineligible, unless: :state_eligible?
-      transitions from: ALL_STATES, to: :country_ineligible, unless: :country_eligible?
       transitions from: ALL_STATES, to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
-      transitions from: ALL_STATES, to: :unknown
+      transitions from: ALL_STATES, to: :eligible
     end
 
     event :check_account_state do
-      transitions from: %i[unknown], to: :no_account, unless: :exists?
+      transitions from: %i[eligible], to: :no_account, unless: :exists?
       # The states below this line and the next comment will be removed when reintroducing upgrade.665
-      transitions from: %i[unknown], to: :upgraded, if: :previously_upgraded?
-      transitions from: %i[unknown], to: :registered, if: :previously_registered?
+      transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
+      transitions from: %i[eligible], to: :registered, if: :previously_registered?
       # this could mean that vets.gov created / upgraded before we started tracking mhv_ids
-      transitions from: %i[unknown], to: :existing
+      transitions from: %i[eligible], to: :existing
     end
 
     event :register do
@@ -127,22 +125,12 @@ class MhvAccount < ActiveRecord::Base
     end
   end
 
-  # for now lets not handle this
-  def state_eligible?
-    true
-  end
-
-  # fot now lets not handle this
-  def country_eligible?
-    true
-  end
-
   def previously_upgraded?
-    exists? && unknown? && upgraded_at?
+    exists? && eligible? && upgraded_at?
   end
 
   def previously_registered?
-    exists? && unknown? && registered_at?
+    exists? && eligible? && registered_at?
   end
 
   def setup
