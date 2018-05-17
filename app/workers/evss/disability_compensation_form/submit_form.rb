@@ -5,23 +5,21 @@ module EVSS
     class SubmitForm
       include Sidekiq::Worker
 
-      def self.start(uuid)
+      def self.start(user)
         puts 'SubmitForm#start'
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
           self,
-          'uuid' => uuid,
+          'uuid' => user.uuid,
         )
         batch.jobs do
           perform_async(uuid)
         end
       end
 
-      def perform(uuid)
-        puts 'SubmitForm#perform'
-        # TODO: POST form
-        # TODO: store claim id in db
+      def perform(user)
+        response = EVSS::DisabilityCompensationForm::Service.new(user).submit_form(request.body.string)
       end
 
       def on_success(status, options)

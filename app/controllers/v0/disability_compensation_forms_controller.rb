@@ -11,7 +11,7 @@ module V0
     end
 
     def submit
-      response = service.submit_form(request.body.string)
+
       render json: response,
              serializer: SubmitDisabilityFormSerializer
     end
