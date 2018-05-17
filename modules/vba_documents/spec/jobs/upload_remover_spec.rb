@@ -17,21 +17,36 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
   end
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, status: 'received') }
+    describe "when the record is older than 3 days" do
+      let(:upload) { FactoryBot.create(:upload_submission, status: 'received', created_at: Time.zone.now - 4.days) }
 
-    it 'should delete the s3 object' do
-      with_settings(Settings.vba_documents.s3, 'enabled': true) do
-        expect(@objstore).to receive(:delete).with(upload.guid)
-        described_class.new.perform
+      it 'should delete the s3 object' do
+        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+          expect(@objstore).to receive(:delete).with(upload.guid)
+          described_class.new.perform
+        end
+      end
+
+      it 'should set s3_deleted to true' do
+        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+          allow(@objstore).to receive(:delete).with(upload.guid)
+          described_class.new.perform
+          upload.reload
+          expect(upload.s3_deleted).to be_truthy
+        end
       end
     end
 
-    it 'should set s3_deleted to true' do
-      with_settings(Settings.vba_documents.s3, 'enabled': true) do
-        allow(@objstore).to receive(:delete).with(upload.guid)
-        described_class.new.perform
-        upload.reload
-        expect(upload.s3_deleted).to be_truthy
+    describe "when the record is not 3 days old" do
+      let(:upload) { FactoryBot.create(:upload_submission, status: 'received') }
+
+      it 'should do nothing' do
+        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+          expect(@object).to_not receive(:delete).with(upload.guid)
+          described_class.new.perform
+          upload.reload
+          expect(upload.s3_deleted).to be_falsy
+        end
       end
     end
   end
