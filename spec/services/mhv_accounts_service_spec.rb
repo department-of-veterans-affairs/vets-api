@@ -63,7 +63,7 @@ RSpec.describe MhvAccountsService do
         expect(mhv_account.persisted?).to be_falsey
       end
 
-      it 'successfully creates', focus: true do
+      it 'successfully creates' do
         VCR.use_cassette('mhv_account_creation/creates_an_account') do
           expect { subject.create }.to trigger_statsd_increment('mhv.account.creation.success')
             .and not_trigger_statsd_increment('mhv.account.creation.failure')
@@ -76,41 +76,72 @@ RSpec.describe MhvAccountsService do
     end
 
     context 'account upgrade' do
+      let(:common_collection_namespace) do
+        Redis::Namespace.new('common_collection', redis: Redis.current)
+      end
       let(:mhv_ids) { ['14221465'] }
+      let(:edc_cache_key) { '14221465:geteligibledataclass' }
+
+      before(:each) do
+        # ensure pristine state in cache
+        common_collection_namespace.del(edc_cache_key)
+      end
 
       context 'with an existing basic account' do
-        before(:each) { allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Basic') }
-
-        it 'handles unknown failure to upgrade', focus: true do
-          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
-            expect { subject.upgrade }.to raise_error(Common::Exceptions::BackendServiceException)
-              .and not_trigger_statsd_increment('mhv.account.existed')
-              .and not_trigger_statsd_increment('mhv.account.upgrade.success')
-              .and trigger_statsd_increment('mhv.account.upgrade.failure')
-            expect(mhv_account.account_state).to eq('upgrade_failed')
-            expect(mhv_account.persisted?).to be_falsey
+        it 'handles unknown failure to upgrade' do
+          expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
+          VCR.use_cassette('mhv_account_type_service/basic') do
+            expect(mhv_account.account_level).to eq('Basic')
+            # ensure that the value is cached
+            expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
+            VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
+              expect { subject.upgrade }.to raise_error(Common::Exceptions::BackendServiceException)
+                .and not_trigger_statsd_increment('mhv.account.existed')
+                .and not_trigger_statsd_increment('mhv.account.upgrade.success')
+                .and trigger_statsd_increment('mhv.account.upgrade.failure')
+              expect(mhv_account.account_state).to eq('upgrade_failed')
+              expect(mhv_account.persisted?).to be_falsey
+              # ensure that the cache was not busted since no action was taken
+              expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
+            end
           end
         end
 
         it 'successfully upgrades' do
-          VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-            expect { subject.upgrade }.to trigger_statsd_increment('mhv.account.upgrade.success')
-              .and not_trigger_statsd_increment('mhv.account.creation.failure')
-            expect(mhv_account.account_state).to eq('upgraded')
-            expect(mhv_account.upgraded_at).to be_a(Time)
-            expect(mhv_account.persisted?).to be_truthy
+          expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
+          VCR.use_cassette('mhv_account_type_service/advanced', allow_playback_repeats: true) do
+            expect(mhv_account.account_level).to eq('Advanced')
+            # ensure that the value is cached
+            expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
+            VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+              expect(mhv_account.account_level).to eq('Advanced')
+              expect { subject.upgrade }.to trigger_statsd_increment('mhv.account.upgrade.success')
+                .and not_trigger_statsd_increment('mhv.account.creation.failure')
+              expect(mhv_account.account_state).to eq('upgraded')
+              expect(mhv_account.upgraded_at).to be_a(Time)
+              expect(mhv_account.persisted?).to be_truthy
+              # ensure that upgrade busts the cache
+              expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
+              expect(mhv_account.account_level).to eq('Premium')
+            end
           end
         end
       end
 
       context 'an account that cannot be upgraded' do
-        before(:each) { allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium') }
-
         it 'handles an already upgraded account' do
-          expect { subject.upgrade }.to not_trigger_statsd_increment('mhv.account.upgrade.success')
-            .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
-          expect(mhv_account.account_state).to eq('existing')
-          expect(mhv_account.persisted?).to be_falsey
+          expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
+          VCR.use_cassette('mhv_account_type_service/premium') do
+            expect(mhv_account.account_level).to eq('Premium')
+            # ensure that the value is cached
+            expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
+            expect { subject.upgrade }.to not_trigger_statsd_increment('mhv.account.upgrade.success')
+              .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
+            expect(mhv_account.account_state).to eq('existing')
+            expect(mhv_account.persisted?).to be_falsey
+            # ensure that the cache was not busted since no action was taken
+            expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
+          end
         end
       end
     end

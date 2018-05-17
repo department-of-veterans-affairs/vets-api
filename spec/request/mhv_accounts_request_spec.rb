@@ -63,7 +63,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
 
     context 'with ssn mismatch' do
-      let(:user_ssn) { mvi_profile.ssn }
+      let(:user_ssn) { '999999999' }
 
       it 'responds to GET #show' do
         get v0_mhv_account_path
@@ -100,17 +100,21 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       it 'responds to GET #show' do
         get v0_mhv_account_path
         expect(response).to be_success
-        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('unknown')
+        expect(JSON.parse(response.body)['data']['attributes'])
+          .to eq('account_level' => nil, 'account_state' => 'no_account')
       end
 
       it 'responds to POST #create' do
         VCR.use_cassette('mhv_account_creation/creates_an_account') do
-          VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-            post v0_mhv_account_path
+          VCR.use_cassette('mhv_account_type_service/advanced') do
+            VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+              post v0_mhv_account_path
+            end
           end
         end
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
+        expect(JSON.parse(response.body)['data']['attributes'])
+          .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
       end
 
       it 'handles creation error in POST #create' do
@@ -122,20 +126,23 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       it 'handles upgrade error in POST #create' do
         VCR.use_cassette('mhv_account_creation/creates_an_account') do
-          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
-            post v0_mhv_account_path
+          VCR.use_cassette('mhv_account_type_service/advanced') do
+            VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
+              post v0_mhv_account_path
+            end
           end
         end
         expect(response).to have_http_status(:bad_request)
       end
 
       context 'with ssn mismatch' do
-        let(:user_ssn) { mvi_profile.ssn }
+        let(:user_ssn) { '999999999' }
 
         it 'responds to GET #show' do
           get v0_mhv_account_path
           expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => nil, 'account_state' => 'needs_ssn_resolution')
         end
 
         it 'raises error for POST #create' do
@@ -150,7 +157,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it 'responds to GET #show' do
           get v0_mhv_account_path
           expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => nil, 'account_state' => 'needs_va_patient')
         end
 
         it 'raises error for POST #create' do
@@ -160,62 +168,107 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       end
     end
 
-    context 'with an account' do
+    context 'with account' do
       let(:mhv_ids) { ['14221465'] }
 
-      context 'that is existing' do
-        it 'responds to GET #show' do
-          get v0_mhv_account_path
-          expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('existing')
+      context 'that is' do
+        %w[Basic Advanced].each do |type|
+          context type do
+            around(:each) do |example|
+              VCR.use_cassette("mhv_account_type_service/#{type.downcase}", allow_playback_repeats: true) do
+                example.run
+              end
+            end
+
+            it 'responds to GET #show' do
+              get v0_mhv_account_path
+              expect(response).to be_success
+              expect(JSON.parse(response.body)['data']['attributes'])
+                .to eq('account_level' => type, 'account_state' => 'existing')
+            end
+
+            it 'raises error for POST #create' do
+              VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+                post v0_mhv_account_path
+              end
+              expect(JSON.parse(response.body)['data']['attributes'])
+                .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
+            end
+          end
         end
 
-        it 'raises error for POST #create' do
-          post v0_mhv_account_path
-          expect(response).to have_http_status(:forbidden)
-        end
+        %w[Premium Error Unknown].each do |type|
+          context type do
+            around(:each) do |example|
+              VCR.use_cassette("mhv_account_type_service/#{type.downcase}", allow_playback_repeats: true) do
+                example.run
+              end
+            end
 
-        context 'with ssn mismatch' do
-          let(:user_ssn) { mvi_profile.ssn }
+            it 'responds to GET #show' do
+              get v0_mhv_account_path
+              expect(response).to be_success
+              expect(JSON.parse(response.body)['data']['attributes'])
+                .to eq('account_level' => type, 'account_state' => 'existing')
+            end
 
-          it 'responds to GET #show' do
-            get v0_mhv_account_path
-            expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
-          end
+            it 'raises error for POST #create' do
+              post v0_mhv_account_path
+              expect(response).to have_http_status(:forbidden)
+            end
 
-          it 'raises error for POST #create' do
-            post v0_mhv_account_path
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
+            context 'with ssn mismatch' do
+              let(:user_ssn) { '999999999' }
 
-        context 'with non va patient' do
-          let(:vha_facility_ids) { [] }
+              it 'responds to GET #show' do
+                get v0_mhv_account_path
+                expect(response).to be_success
+                expect(JSON.parse(response.body)['data']['attributes'])
+                  .to eq('account_level' => type, 'account_state' => 'needs_ssn_resolution')
+              end
 
-          it 'responds to GET #show' do
-            get v0_mhv_account_path
-            expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
-          end
+              it 'raises error for POST #create' do
+                post v0_mhv_account_path
+                expect(response).to have_http_status(:forbidden)
+              end
+            end
 
-          it 'raises error for POST #create' do
-            post v0_mhv_account_path
-            expect(response).to have_http_status(:forbidden)
+            context 'with non va patient' do
+              let(:vha_facility_ids) { [] }
+
+              it 'responds to GET #show' do
+                get v0_mhv_account_path
+                expect(response).to be_success
+                expect(JSON.parse(response.body)['data']['attributes'])
+                  .to eq('account_level' => type, 'account_state' => 'needs_va_patient')
+              end
+
+              it 'raises error for POST #create' do
+                post v0_mhv_account_path
+                expect(response).to have_http_status(:forbidden)
+              end
+            end
           end
         end
       end
 
       context 'that is registered' do
         before(:each) do
-          mhv_account = MhvAccount.find_or_initialize_by(user_uuid: user.uuid)
-          mhv_account.update(account_state: 'registered', registered_at: Time.current)
+          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+                            account_state: 'registered', registered_at: Time.current)
+        end
+
+        around(:each) do |example|
+          VCR.use_cassette('mhv_account_type_service/advanced', allow_playback_repeats: true) do
+            example.run
+          end
         end
 
         it 'responds to GET #show' do
           get v0_mhv_account_path
           expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('registered')
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => 'Advanced', 'account_state' => 'registered')
         end
 
         it 'responds to POST #create' do
@@ -223,7 +276,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             post v0_mhv_account_path
           end
           expect(response).to have_http_status(:accepted)
-          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
         end
 
         it 'handles upgrade error in POST #create' do
@@ -234,12 +288,13 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         end
 
         context 'with ssn mismatch' do
-          let(:user_ssn) { mvi_profile.ssn }
+          let(:user_ssn) { '999999999' }
 
           it 'responds to GET #show' do
             get v0_mhv_account_path
             expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+            expect(JSON.parse(response.body)['data']['attributes'])
+              .to eq('account_level' => 'Advanced', 'account_state' => 'needs_ssn_resolution')
           end
 
           it 'raises error for POST #create' do
@@ -254,7 +309,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           it 'responds to GET #show' do
             get v0_mhv_account_path
             expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+            expect(JSON.parse(response.body)['data']['attributes'])
+              .to eq('account_level' => 'Advanced', 'account_state' => 'needs_va_patient')
           end
 
           it 'raises error for POST #create' do
@@ -266,14 +322,21 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       context 'that is upgraded' do
         before(:each) do
-          mhv_account = MhvAccount.find_or_initialize_by(user_uuid: user.uuid)
-          mhv_account.update(account_state: 'upgraded', upgraded_at: Time.current)
+          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+                            account_state: 'upgraded', upgraded_at: Time.current)
+        end
+
+        around(:each) do |example|
+          VCR.use_cassette('mhv_account_type_service/premium') do
+            example.run
+          end
         end
 
         it 'responds to GET #show' do
           get v0_mhv_account_path
           expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('upgraded')
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
         end
 
         it 'raises error for POST #create' do
@@ -282,12 +345,13 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         end
 
         context 'with ssn mismatch' do
-          let(:user_ssn) { mvi_profile.ssn }
+          let(:user_ssn) { '999999999' }
 
           it 'responds to GET #show' do
             get v0_mhv_account_path
             expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
+            expect(JSON.parse(response.body)['data']['attributes'])
+              .to eq('account_level' => 'Premium', 'account_state' => 'needs_ssn_resolution')
           end
 
           it 'raises error for POST #create' do
@@ -302,7 +366,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           it 'responds to GET #show' do
             get v0_mhv_account_path
             expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
+            expect(JSON.parse(response.body)['data']['attributes'])
+              .to eq('account_level' => 'Premium', 'account_state' => 'needs_va_patient')
           end
 
           it 'raises error for POST #create' do

@@ -88,8 +88,9 @@ class MhvAccount < ActiveRecord::Base
     mhv_correlation_id.present?
   end
 
+  # if vets.gov upgraded the account it is premium, if not, we have to check eligible data classes
   def account_level
-    user.mhv_account_type
+    upgraded_at? ? 'Premium' : user.mhv_account_type
   end
 
   def user

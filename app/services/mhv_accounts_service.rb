@@ -47,6 +47,7 @@ class MhvAccountsService
       if client_response[:status] == 'success'
         StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
         mhv_account.upgraded_at = Time.current
+        Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
         mhv_account.upgrade!
       end
     end

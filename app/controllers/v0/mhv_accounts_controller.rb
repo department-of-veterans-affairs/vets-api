@@ -12,8 +12,8 @@ module V0
     end
 
     def create
-      register_mhv_account unless mhv_account.previously_registered?
-      upgrade_mhv_account
+      mhv_accounts_service.create if mhv_account.creatable?
+      mhv_accounts_service.upgrade if mhv_account.upgradable?
       render json: mhv_account,
              serializer: MhvAccountSerializer,
              status: :accepted
@@ -26,31 +26,13 @@ module V0
     end
 
     def authorize
-      raise_access_denied unless creatable_or_upgradable?
-      raise_requires_terms_acceptance if current_user.mhv_account.needs_terms_acceptance?
+      raise_access_denied unless mhv_account.creatable? || mhv_account.upgradable?
     end
 
     private
 
-    def creatable_or_upgradable?
-      current_user.authorize(:mhv_account_creation, :creatable?) ||
-        current_user.authorize(:mhv_account_creation, :upgradable?)
-    end
-
     def raise_access_denied
-      raise Common::Exceptions::Forbidden, detail: 'You do not have access to MHV services'
-    end
-
-    def raise_requires_terms_acceptance
-      raise Common::Exceptions::Forbidden, detail: 'You have not accepted the terms of service'
-    end
-
-    def register_mhv_account
-      mhv_accounts_service.create
-    end
-
-    def upgrade_mhv_account
-      mhv_accounts_service.upgrade
+      raise Common::Exceptions::Forbidden, detail: 'You are not eligible for creating/upgrading an MHV account'
     end
 
     def mhv_account
@@ -58,7 +40,7 @@ module V0
     end
 
     def mhv_accounts_service
-      @mhv_accounts_service ||= MhvAccountsService.new(current_user)
+      @mhv_accounts_service ||= MhvAccountsService.new(mhv_account)
     end
   end
 end
