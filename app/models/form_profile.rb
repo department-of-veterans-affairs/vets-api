@@ -29,6 +29,7 @@ class FormMilitaryInformation
   attribute :va_compensation_type, String
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
+  attribute :service_periods, Array
 end
 
 class FormAddress

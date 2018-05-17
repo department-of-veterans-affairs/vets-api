@@ -79,7 +79,7 @@ class FormProfiles::VA526ez < FormProfile
     @rated_disabilities_information = initialize_rated_disabilities_information(user)
     @payment_information = initialize_payment_information(user)
     @veteran_contact_information = initialize_veteran_contact_information(user)
-    super
+    super(user)
   end
 
   def metadata

@@ -37,6 +37,7 @@ module EMISRedis
       discharge_type
       service_branches
       va_compensation_type
+      service_periods
     ].freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
@@ -90,6 +91,47 @@ module EMISRedis
       military_service_episodes.map do |military_service_episode|
         {
           service_branch: military_service_episode.branch_of_service,
+          date_range: {
+            from: military_service_episode.begin_date.to_s,
+            to: military_service_episode.end_date.to_s
+          }
+        }
+      end
+    end
+
+    # EVSS requires the reserve/national guard category to be a part
+    # of the service branch field.
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def build_service_branch(military_service_episode)
+      branch = case military_service_episode.hca_branch_of_service
+               when 'noaa' || 'usphs'
+                 military_service_episode.hca_branch_of_service.upcase
+               else
+                 military_service_episode.hca_branch_of_service.titleize
+               end
+
+      category = case military_service_episode.personnel_category_type_code
+                 when 'A'
+                   ''
+                 when 'N'
+                   'National Guard'
+                 when 'V' || 'Q'
+                   'Reserve'
+                 else
+                   ''
+                 end
+
+      "#{branch} #{category}".strip
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
+
+    def service_periods
+      military_service_episodes.map do |military_service_episode|
+        # avoid prefilling if service branch is 'other' as this breaks validation
+        return {} if military_service_episode.hca_branch_of_service == 'other'
+
+        {
+          service_branch: build_service_branch(military_service_episode),
           date_range: {
             from: military_service_episode.begin_date.to_s,
             to: military_service_episode.end_date.to_s
