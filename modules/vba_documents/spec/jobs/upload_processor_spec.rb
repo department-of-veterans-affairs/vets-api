@@ -50,7 +50,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   # rubocop:enable Style/DateTime
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { FactoryBot.create(:upload_submission, consumer_name: 'test consumer') }
 
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
@@ -91,6 +91,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('attachment1')
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
+      expect(metadata['source']).to eq('test consumer via Vets.gov')
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
