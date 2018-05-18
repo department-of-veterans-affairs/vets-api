@@ -52,7 +52,6 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     end
 
     it 'persists the messages from vet360' do
-      # @TODO we need a cassette that doesn't throw an exception but includes messages
       VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
         updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
           user,
