@@ -15,6 +15,10 @@ module AsyncTransaction
       self.metadata = metadata.to_json unless metadata.is_a?(String)
     end
 
+    def parsed_metadata
+      JSON.parse(metadata)
+    end
+
     validates :id, uniqueness: true
     validates :user_uuid, :source_id, :source, :status, :transaction_id, presence: true
     validates :transaction_id,
