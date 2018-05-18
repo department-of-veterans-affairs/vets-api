@@ -59,7 +59,7 @@ RSpec.describe 'email', type: :request do
     end
 
     context 'when authorization requirements are not met' do
-      it 'should match the errors schema' do
+      it 'should match the errors schema', :aggregate_failures do
         user = build(:unauthorized_evss_user, :loa3)
         Session.create(uuid: user.uuid, token: token)
         User.create(user)
@@ -68,6 +68,8 @@ RSpec.describe 'email', type: :request do
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
+        expect(detail_for(response)).to include 'corp_id'
+        expect(detail_for(response)).to include 'edipi'
       end
     end
   end
@@ -179,7 +181,7 @@ RSpec.describe 'email', type: :request do
     end
 
     context 'when authorization requirements are not met' do
-      it 'should match the errors schema' do
+      it 'should match the errors schema', :aggregate_failures do
         user = build(:unauthorized_evss_user, :loa3)
         Session.create(uuid: user.uuid, token: token)
         User.create(user)
@@ -194,7 +196,13 @@ RSpec.describe 'email', type: :request do
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
+        expect(detail_for(response)).to include 'corp_id'
+        expect(detail_for(response)).to include 'edipi'
       end
     end
   end
+end
+
+def detail_for(response)
+  JSON.parse(response.body)['errors'].first['detail']
 end
