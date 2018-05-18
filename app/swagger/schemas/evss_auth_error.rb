@@ -14,7 +14,10 @@ module Swagger
           items do
             key :required, %i[title detail code status]
             property :title, type: :string, example: 'Forbidden'
-            property :detail, type: :string, example: 'User does not have access to the requested resource due to missing values: corp_id, edipi'
+            property :detail,
+                     type: :string,
+                     enum: %w[corp_id edipi ssn],
+                     example: 'User does not have access to the requested resource due to missing values: corp_id, edipi'
             property :code, type: :string, example: '403'
             property :status, type: :string, example: '403'
           end
