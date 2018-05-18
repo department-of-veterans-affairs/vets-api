@@ -10,7 +10,7 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_success) { FactoryBot.create(:upload_submission, status: 'success') }
   let(:upload_error) { FactoryBot.create(:upload_submission, status: 'error') }
   let(:client_stub) { instance_double('PensionBurial::Service') }
-  let(:faraday_response) { instance_double('Faraday::Rresponse') }
+  let(:faraday_response) { instance_double('Faraday::Response') }
 
   let(:received_body) do
     [[{ "uuid": 'ignored',
@@ -41,6 +41,9 @@ describe VBADocuments::UploadSubmission, type: :model do
         "status": 'Whowhatnow?',
         "errorMessage": '',
         "lastUpdated": '2018-04-25 00:02:39' }]].to_json
+  end
+  let(:empty_body) do
+    [[]].to_json
   end
 
   before(:each) do
@@ -116,6 +119,15 @@ describe VBADocuments::UploadSubmission, type: :model do
       expect(faraday_response).to receive(:success?).and_return(true)
       expect(faraday_response).to receive(:body).at_least(:once).and_return(nonsense_body)
       expect { upload_received.refresh_status! }.to raise_error(Common::Exceptions::BadGateway)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
+      expect(updated.status).to eq('received')
+    end
+
+    it 'ignores empty status from downstream for known uuid' do
+      expect(client_stub).to receive(:status).and_return(faraday_response)
+      expect(faraday_response).to receive(:success?).and_return(true)
+      expect(faraday_response).to receive(:body).at_least(:once).and_return(empty_body)
+      upload_received.refresh_status!
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('received')
     end
