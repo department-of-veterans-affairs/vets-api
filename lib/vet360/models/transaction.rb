@@ -22,7 +22,6 @@ module Vet360
       # @return [Vet360::Models::Transaction] the model built from the response body
       def self.build_from(body)
         messages = body['tx_messages']&.map { |m| Vet360::Models::Message.build_from(m) }
-
         Vet360::Models::Transaction.new(
           messages: messages || [],
           id: body['tx_audit_id'],

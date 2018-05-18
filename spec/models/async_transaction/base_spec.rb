@@ -25,6 +25,14 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
   end
 
+  describe 'Serialization' do
+    let(:transaction) { build(:address_transaction) }
+    it 'JSON encodes metadata' do
+      transaction.update(metadata: { unserialized: 'data' })
+      expect(transaction.metadata.is_a?(String))
+    end
+  end
+
   describe 'Subclasses' do
     let(:transaction1) { create(:address_transaction, transaction_id: 1) }
     let(:transaction2) { create(:email_transaction, transaction_id: 2) }
