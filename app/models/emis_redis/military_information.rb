@@ -100,12 +100,14 @@ module EMISRedis
     end
 
     # EVSS requires the reserve/national guard category to be a part
-    # of the service branch field.
+    # of the service branch field as well as no acronyms.
     # rubocop:disable Metrics/CyclomaticComplexity
     def build_service_branch(military_service_episode)
       branch = case military_service_episode.hca_branch_of_service
-               when 'noaa' || 'usphs'
-                 military_service_episode.hca_branch_of_service.upcase
+               when 'noaa'
+                 'National Oceanic &amp; Atmospheric Administration'
+               when 'usphs'
+                 'Public Health Service'
                else
                  military_service_episode.hca_branch_of_service.titleize
                end
