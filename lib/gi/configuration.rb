@@ -7,7 +7,6 @@ require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/snakecase'
 
 module GI
-  # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration::REST
     def base_path
       "#{Settings.gids.url}/v0/"

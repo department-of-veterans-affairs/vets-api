@@ -4,8 +4,9 @@ module V0
   module Profile
     class EmailsController < ApplicationController
       include Vet360::Writeable
+      include EVSS::Authorizeable
 
-      before_action { authorize :evss, :access? }
+      before_action :authorize_evss!
 
       def show
         response = service.get_email_address

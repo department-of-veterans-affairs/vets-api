@@ -45,6 +45,28 @@ RSpec.describe 'profile_status', type: :request do
         end
       end
     end
+
+    let(:email) { build(:email, source_id: '1', transaction_status: 'RECEIVED') }
+    context 'when the transaction has messages' do
+      it 'messages are serialiezd in the metadata property', :aggregate_failures do
+        transaction = create(
+          :email_transaction,
+          user_uuid: user.uuid,
+          transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
+        )
+
+        VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
+          get(
+            "/v0/profile/status/#{transaction.transaction_id}",
+            nil,
+            auth_header
+          )
+          expect(response).to have_http_status(:ok)
+          response_body = JSON.parse(response.body)
+          expect(response_body['data']['attributes']['metadata']).to be_a(Array)
+        end
+      end
+    end
   end
 
   describe 'GET /v0/profile/status/' do

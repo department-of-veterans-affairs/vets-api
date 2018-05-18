@@ -4,8 +4,9 @@ module V0
   module Profile
     class AlternatePhonesController < ApplicationController
       include Vet360::Writeable
+      include EVSS::Authorizeable
 
-      before_action { authorize :evss, :access? }
+      before_action :authorize_evss!
 
       def show
         response = service.get_alternate_phone

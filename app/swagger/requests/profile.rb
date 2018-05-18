@@ -130,6 +130,13 @@ module Swagger
               key :'$ref', :PhoneNumber
             end
           end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
+            end
+          end
         end
 
         operation :post do
@@ -162,6 +169,13 @@ module Swagger
               key :'$ref', :PhoneNumber
             end
           end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
+            end
+          end
         end
       end
 
@@ -181,6 +195,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :Email
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -211,6 +232,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :Email
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -356,6 +384,13 @@ module Swagger
               key :'$ref', :PhoneNumber
             end
           end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
+            end
+          end
         end
 
         operation :post do
@@ -386,6 +421,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :PhoneNumber
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
