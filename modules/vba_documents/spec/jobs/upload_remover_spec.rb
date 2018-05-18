@@ -37,6 +37,17 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
       end
     end
 
+    describe 'when record status is error' do
+      let(:upload) { FactoryBot.create(:upload_submission, status: 'error', created_at: Time.zone.now - 4.days) }
+
+      it 'should delete the s3 object' do
+        with_settings(Settings.vba_documents.s3, 'enabled': true) do
+          expect(@objstore).to receive(:delete).with(upload.guid)
+          described_class.new.perform
+        end
+      end
+    end
+
     describe 'when the record is not 3 days old' do
       let(:upload) { FactoryBot.create(:upload_submission, status: 'received') }
 
