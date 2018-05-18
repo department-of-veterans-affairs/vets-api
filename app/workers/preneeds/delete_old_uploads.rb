@@ -4,6 +4,8 @@ module Preneeds
   class DeleteOldUploads
     include Sidekiq::Worker
 
+    sidekiq_options(unique_for: 30.minutes, retry: false)
+
     EXPIRATION_TIME = 2.months
 
     def perform
