@@ -9,7 +9,7 @@ module Preneeds
     EXPIRATION_TIME = 2.months
 
     def perform
-      VIC::TagSentry.tag_sentry
+      Sentry::TagRainbows.tag
 
       Preneeds::PreneedAttachment.where(
         'created_at < ?', EXPIRATION_TIME.ago
@@ -21,9 +21,11 @@ module Preneeds
 
       InProgressForm.where(form_id: '40-10007').find_each do |in_progress_form|
         attachments = in_progress_form.data_and_metadata[:form_data]['preneedAttachments']
-        attachments.each do |attachment|
-          uuids << attachment['confirmationCode']
-        end if attachments.present?
+        if attachments.present?
+          attachments.each do |attachment|
+            uuids << attachment['confirmationCode']
+          end
+        end
       end
 
       uuids
