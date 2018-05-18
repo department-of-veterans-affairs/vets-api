@@ -1350,7 +1350,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     describe 'when EVSS authorization requirements are not met' do
-      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
+      let(:unauthorized_evss_user) { build(:evss_user, :unauthorized) }
 
       before do
         Session.create(uuid: unauthorized_evss_user.uuid, token: token)

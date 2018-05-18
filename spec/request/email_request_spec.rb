@@ -60,7 +60,7 @@ RSpec.describe 'email', type: :request do
 
     context 'when authorization requirements are not met' do
       before do
-        user = build(:unauthorized_evss_user, :loa3)
+        user = build(:evss_user, :unauthorized)
         Session.create(uuid: user.uuid, token: token)
         User.create(user)
       end
@@ -189,7 +189,7 @@ RSpec.describe 'email', type: :request do
 
     context 'when authorization requirements are not met' do
       before do
-        user = build(:unauthorized_evss_user, :loa3)
+        user = build(:evss_user, :unauthorized)
         Session.create(uuid: user.uuid, token: token)
         User.create(user)
       end
