@@ -91,7 +91,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('attachment1')
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
-      expect(metadata['source']).to eq('test consumer via Vets.gov')
+      expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
