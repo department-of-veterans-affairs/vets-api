@@ -59,15 +59,22 @@ RSpec.describe 'email', type: :request do
     end
 
     context 'when authorization requirements are not met' do
-      it 'should match the errors schema', :aggregate_failures do
+      before do
         user = build(:unauthorized_evss_user, :loa3)
         Session.create(uuid: user.uuid, token: token)
         User.create(user)
+      end
 
+      it 'should match the errors schema', :aggregate_failures do
         get '/v0/profile/email', nil, auth_header
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
+      end
+
+      it 'should include the missing values in the response detail', :aggregate_failures do
+        get '/v0/profile/email', nil, auth_header
+
         expect(detail_for(response)).to include 'corp_id'
         expect(detail_for(response)).to include 'edipi'
       end
@@ -181,11 +188,13 @@ RSpec.describe 'email', type: :request do
     end
 
     context 'when authorization requirements are not met' do
-      it 'should match the errors schema', :aggregate_failures do
+      before do
         user = build(:unauthorized_evss_user, :loa3)
         Session.create(uuid: user.uuid, token: token)
         User.create(user)
+      end
 
+      it 'should match the errors schema', :aggregate_failures do
         post(
           '/v0/profile/email',
           email_address.to_json,
@@ -196,6 +205,17 @@ RSpec.describe 'email', type: :request do
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
+      end
+
+      it 'should include the missing values in the response detail', :aggregate_failures do
+        post(
+          '/v0/profile/email',
+          email_address.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
         expect(detail_for(response)).to include 'corp_id'
         expect(detail_for(response)).to include 'edipi'
       end
