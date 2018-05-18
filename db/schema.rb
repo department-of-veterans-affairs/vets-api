@@ -77,7 +77,7 @@ ActiveRecord::Schema.define(version: 20180517173822) do
   create_table "disability_compensation_submissions", force: :cascade do |t|
     t.uuid     "user_uuid",  null: false
     t.string   "form_type",  null: false
-    t.string   "claim_id",   null: false
+    t.integer  "claim_id",   null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
