@@ -14,12 +14,13 @@ module EVSS
           'uuid' => user.uuid,
         )
         batch.jobs do
-          perform_async(uuid)
+          perform_async(user)
         end
       end
 
       def perform(user)
         response = EVSS::DisabilityCompensationForm::Service.new(user).submit_form(request.body.string)
+        puts response
       end
 
       def on_success(status, options)
