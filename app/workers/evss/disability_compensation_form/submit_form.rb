@@ -19,8 +19,11 @@ module EVSS
       end
 
       def perform(uuid)
-        puts 'SubmitForm#perform'
-        # TODO: POST form
+        user = User.find(uuid: uuid)
+        form_type = '21-526EZ'
+        form = InProgressForm.form_for_user(form_type, user)
+        service = DisabilityCompensationForm.new(user)
+        response = service.submit_form(form.form_data)
         # TODO: store claim id in db
       end
 
