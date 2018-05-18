@@ -36,6 +36,7 @@ module EVSS
       end
 
       def handle_error(error)
+        binding.pry
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
           log_message_to_sentry(
             error.message, :error, extra_context: { url: config.base_path, body: error.body }
