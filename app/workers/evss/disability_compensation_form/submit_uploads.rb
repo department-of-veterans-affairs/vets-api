@@ -6,12 +6,11 @@ module EVSS
       include Sidekiq::Worker
 
       def self.start(uuid)
-        puts 'SubmitUploads#start'
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
           self,
-          'uuid' => uuid,
+          'uuid' => uuid
         )
         batch.jobs do
           # TODO: fetch claim id from db
@@ -23,13 +22,10 @@ module EVSS
       end
 
       def perform(image_id, claim_id)
-        puts 'SubmitUploads#perform'
         # TODO: POST upload
       end
 
-      def on_success(status, options)
-        puts 'SubmitUploads#on_success'
-      end
+      def on_success(status, options) end
     end
   end
 end

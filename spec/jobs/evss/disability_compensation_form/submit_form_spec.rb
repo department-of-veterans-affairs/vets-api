@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
-
   before(:each) do
     Sidekiq::Worker.clear_all
   end
@@ -12,16 +11,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:form_json) { { data: "I'm a form" }.to_json }
     let(:response) { instance_double('EVSS::DisabilityCompensationForm::FormSubmitResponse') }
+
     before(:each) do
       allow_any_instance_of(EVSS::DisabilityCompensationForm::Service)
         .to receive(:submit_form).with(form_json).and_return(response)
     end
 
     context 'when the form submission returns a claim_id' do
-      before { allow(response).to receive(:claim_id).and_return(600130094) }
+      before { allow(response).to receive(:claim_id).and_return(600_130_094) }
 
       it 'creates a disability_compensation_submission record' do
-        expect { described_class.new.perform(user, form_json) }.to change(DisabilityCompensationSubmission, :count).by(1)
+        expect { described_class.new.perform(user, form_json) }
+          .to change(DisabilityCompensationSubmission, :count).by(1)
       end
     end
 

@@ -11,9 +11,8 @@ module V0
     end
 
     def submit
-
-      render json: response,
-             serializer: SubmitDisabilityFormSerializer
+      EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, request.body.string)
+      head 200
     end
 
     private

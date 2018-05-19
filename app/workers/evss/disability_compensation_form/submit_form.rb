@@ -9,12 +9,11 @@ module EVSS
       FORM_TYPE = '21-526EZ'
 
       def self.start(user, form_json)
-        puts 'SubmitForm#start'
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
           self,
-          'uuid' => user.uuid,
+          'uuid' => user.uuid
         )
         batch.jobs do
           perform_async(user, form_json)
@@ -27,9 +26,7 @@ module EVSS
         DisabilityCompensationSubmission.create(user_uuid: user.uuid, form_type: FORM_TYPE, claim_id: response.claim_id)
       end
 
-
-      def on_success(status, options)
-        puts 'SubmitForm#on_success'
+      def on_success(_status, options)
         uuid = options['uuid']
         EVSS::DisabilityCompensationForm::SubmitUploads.start(uuid)
       end
