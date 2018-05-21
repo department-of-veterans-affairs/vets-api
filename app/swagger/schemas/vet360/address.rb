@@ -20,8 +20,8 @@ module Swagger
                    type: :string,
                    example: '1493 Martin Luther King Rd',
                    maxLength: 100
-          property :address_line2, type: %i[string null], maxLength: 100
-          property :address_line3, type: %i[string null], maxLength: 100
+          property :address_line2, type: :string, maxLength: 100
+          property :address_line3, type: :string, maxLength: 100
           property :address_pou,
                    type: :string,
                    enum: ::Vet360::Models::Address::ADDRESS_POUS,
