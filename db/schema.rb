@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180515195048) do
+ActiveRecord::Schema.define(version: 20180517171924) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -27,8 +27,10 @@ ActiveRecord::Schema.define(version: 20180515195048) do
     t.string   "status"
     t.string   "transaction_id"
     t.string   "transaction_status"
-    t.datetime "created_at",         null: false
-    t.datetime "updated_at",         null: false
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.string   "encrypted_metadata"
+    t.string   "encrypted_metadata_iv"
   end
 
   add_index "async_transactions", ["source_id"], name: "index_async_transactions_on_source_id", using: :btree
@@ -273,12 +275,14 @@ ActiveRecord::Schema.define(version: 20180515195048) do
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
 
   create_table "vba_documents_upload_submissions", force: :cascade do |t|
-    t.uuid     "guid",                           null: false
-    t.string   "status",     default: "pending", null: false
+    t.uuid     "guid",                              null: false
+    t.string   "status",        default: "pending", null: false
     t.string   "code"
     t.string   "detail"
-    t.datetime "created_at",                     null: false
-    t.datetime "updated_at",                     null: false
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.boolean  "s3_deleted"
+    t.string   "consumer_name"
   end
 
   add_index "vba_documents_upload_submissions", ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
