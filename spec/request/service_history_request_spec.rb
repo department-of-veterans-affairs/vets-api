@@ -38,5 +38,28 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
         end
       end
     end
+
+    context 'when EMIS does not return the expected response' do
+      before do
+        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
+      end
+
+      it 'should match the errors schema', :aggregate_failures do
+        get '/v0/profile/service_history', nil, auth_header
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_response_schema('errors')
+      end
+
+      it 'should include the correct error code' do
+        get '/v0/profile/service_history', nil, auth_header
+
+        expect(detail_for(response)).to eq 'EMIS_HIST502'
+      end
+    end
   end
+end
+
+def detail_for(response)
+  JSON.parse(response.body)['errors'].first['code']
 end

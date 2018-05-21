@@ -25,5 +25,28 @@ RSpec.describe 'personal_information', type: :request do
         end
       end
     end
+
+    context 'when MVI does not return a gender nor birthday', skip_mvi: true do
+      it 'should match the errors schema', :aggregate_failures do
+        VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
+          get '/v0/profile/personal_information', nil, auth_header
+
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+
+      it 'should include the correct error code' do
+        VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
+          get '/v0/profile/personal_information', nil, auth_header
+
+          expect(detail_for(response)).to eq 'MVI_BD502'
+        end
+      end
+    end
   end
+end
+
+def detail_for(response)
+  JSON.parse(response.body)['errors'].first['code']
 end
