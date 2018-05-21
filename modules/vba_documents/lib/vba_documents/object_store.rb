@@ -30,8 +30,9 @@ module VBADocuments
                         response_target: path)
     end
 
-    def delete(object_key)
-      object(object_key).delete
+    # Removes all versions of an object
+    def delete(key)
+      bucket.object_versions(prefix: key).each(&:delete)
     end
 
     private
