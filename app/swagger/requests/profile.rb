@@ -363,6 +363,27 @@ module Swagger
               end
             end
           end
+
+          response 502 do
+            key :description, 'Unexpected response body'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status source]
+                  property :title, type: :string, example: 'Unexpected response body'
+                  property :detail,
+                           type: :string,
+                           example: 'MVI service responded without a birthday or a gender.'
+                  property :code, type: :string, example: 'MVI_BD502'
+                  property :status, type: :string, example: '502'
+                  property :source, type: :string, example: 'V0::Profile::PersonalInformationsController'
+                end
+              end
+            end
+          end
         end
       end
 
@@ -463,6 +484,27 @@ module Swagger
                       property :end_date, type: :string, format: :date, example: '2016-06-01'
                     end
                   end
+                end
+              end
+            end
+          end
+
+          response 502 do
+            key :description, 'Unexpected response body'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status source]
+                  property :title, type: :string, example: 'Unexpected response body'
+                  property :detail,
+                           type: :string,
+                           example: 'EMIS service responded with something other than the expected array of service history hashes.'
+                  property :code, type: :string, example: 'EMIS_HIST502'
+                  property :status, type: :string, example: '502'
+                  property :source, type: :string, example: 'V0::Profile::ServiceHistoriesController'
                 end
               end
             end
