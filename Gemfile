@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'vba_documents', path: 'modules/vba_documents'
+gem 'appeals_api', path: 'modules/appeals_api'
 
 # Anchored versions, do not change
 gem 'puma', '~> 2.16.0'
