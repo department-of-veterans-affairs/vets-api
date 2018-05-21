@@ -1,0 +1,91 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.0
+  title: Appeals 
+  description: |
+    Caseflow Appeals Status
+    
+    ## Background
+    
+    This API is being provided as a proof of concept of a general-purpose VA 
+    API gateway. The use case is to allow authorized third-party developers to
+    request the status of veterans benefit appeals.
+
+    The Appeals API passes data through to Caseflow, a case management system. Caseflow
+    accepts a header with the Veteran's SSN and returns the current status of
+    their appeals.
+
+    ## Design
+    
+    ### Authorization
+    
+    API requests are authorized by means of a symmetric API token, provided in an HTTP header
+    with name "apikey".
+
+    ### Status Request
+    
+    Allows a client to check benefit appeals status
+
+    1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
+        * Provide the Veteran's SSN as the X-VA-SSN header
+    
+    2. Service Response: A JSON API object with the current status of appeals
+          
+      ## Reference
+
+      Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+
+  termsOfService: ''
+  contact:
+    name: Vets.gov
+tags:
+  - name: appeals
+    description: Caseflow appeals status API
+servers: 
+  - url: dev-api.vets.gov/services/vba_benefits/{version}
+    description: Vets.gov API development environment
+    variables:
+      version:
+        default: v0
+
+paths:
+  /appeals:
+    get:
+      tags:
+        - document_uploads
+      summary: 
+      operationId: getAppealStatus
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: Appeals retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/AppealsStatusSchema"
+        '400':
+          description: Missing SSN header
+        '403':
+          description: Bad API Token
+        '404':
+          description: No appeals found for supplied SSN
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: apikey
+      in: query
+  schemas:
+    AppealsStatusSchema:
+      description: |
+        Appeal and supporting information for the supplied Veteran SSN
+
+        
+    
+ 
+          
