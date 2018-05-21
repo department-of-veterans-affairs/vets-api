@@ -11,9 +11,7 @@ module AppealsApi
 
       def user
         ssn = request.headers[VA_SSN_HEADER]
-        unless ssn
-          raise Common::Exceptions::ParameterMissing, VA_SSN_HEADER
-        end
+        raise Common::Exceptions::ParameterMissing, VA_SSN_HEADER unless ssn
 
         veteran = OpenStruct.new
         veteran.ssn = ssn

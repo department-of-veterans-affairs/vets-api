@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 AppealsApi::Engine.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
 
