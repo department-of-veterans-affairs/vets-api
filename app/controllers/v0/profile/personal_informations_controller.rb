@@ -39,7 +39,7 @@ module V0
       def raise_error!
         raise Common::Exceptions::BackendServiceException.new(
           'MVI_BD502',
-          { source: self.class.to_s }
+          source: self.class.to_s
         )
       end
 
