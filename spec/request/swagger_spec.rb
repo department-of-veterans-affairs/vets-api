@@ -964,14 +964,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             200,
-            auth_options.merge('name' => terms.name)
+            'name' => terms.name
           )
           expect(subject).to validate(
             :get,
@@ -996,17 +995,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'validates auth errors' do
           expect(subject).to validate(
             :get,
-            '/v0/terms_and_conditions',
-            401
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
             '/v0/terms_and_conditions/{name}/versions/latest/user_data',
             401,
             'name' => terms.name
@@ -1025,14 +1013,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             404,
-            auth_options.merge('name' => 'blat')
+            'name' => 'blat'
           )
           expect(subject).to validate(
             :get,
@@ -1321,7 +1308,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       let(:user) { build(:user, :loa3) }
-      it 'supports GETting async transaction' do
+      it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
           transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
@@ -1342,6 +1329,41 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             auth_options.merge('transaction_id' => transaction.transaction_id)
           )
         end
+      end
+
+      it 'supports GETting async transactions by user' do
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/',
+          401
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/',
+            200,
+            auth_options
+          )
+        end
+      end
+    end
+
+    describe 'when EVSS authorization requirements are not met' do
+      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
+
+      before do
+        Session.create(uuid: unauthorized_evss_user.uuid, token: token)
+        User.create(unauthorized_evss_user)
+      end
+
+      it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
+        expect(subject).to validate(:get, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 403, auth_options)
       end
     end
   end

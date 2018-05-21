@@ -11,6 +11,12 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
+    let(:transaction2) do
+      create(:email_transaction,
+             transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED')
+    end
     let(:service) { ::Vet360::ContactInformation::Service.new(user) }
 
     before do
@@ -42,6 +48,20 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
           transaction1.transaction_id
         )
         expect(updated_transaction.status).to eq(AsyncTransaction::Vet360::Base::COMPLETED)
+      end
+    end
+
+    it 'persists the messages from vet360' do
+      VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
+        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
+          user,
+          service,
+          transaction2.transaction_id
+        )
+        expect(updated_transaction.persisted?).to eq(true)
+        parsed_metadata = JSON.parse(updated_transaction.metadata)
+        expect(parsed_metadata.is_a?(Array)).to eq(true)
+        expect(updated_transaction.metadata.present?).to eq(true)
       end
     end
 
@@ -82,11 +102,55 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
   end
 
   describe '.fetch_transaction' do
-    let(:service) { ::Vet360::ContactInformation::Service.new(user) }
     it 'raises an error if passed unrecognized transaction' do
       expect do
         AsyncTransaction::Vet360::Base.fetch_transaction(Struct.new('Surprise'), nil)
       end.to raise_exception(RuntimeError)
+    end
+  end
+
+  describe '.refresh_transaction_statuses()' do
+    let(:user) { build(:user, :loa3) }
+    let(:transaction1) do
+      create(:address_transaction,
+             transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+             user_uuid: user.uuid,
+             status: AsyncTransaction::Vet360::Base::COMPLETED)
+    end
+    let(:service) { ::Vet360::ContactInformation::Service.new(user) }
+
+    before do
+      # vet360_id appears in the API request URI so we need it to match the cassette
+      allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+        MVI::Responses::FindProfileResponse.new(
+          status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+          profile: build(:mvi_profile, vet360_id: '1')
+        )
+      )
+    end
+
+    it 'does not return completed transactions (whose status has not changed)' do
+      transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(user, service)
+      expect(transactions).to eq([])
+    end
+
+    it 'returns only the most recent transaction address/telephone/email transaction' do
+      create(:email_transaction,
+             transaction_id: 'foo',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED',
+             status: AsyncTransaction::Vet360::Base::REQUESTED,
+             created_at: Time.zone.now - 1)
+      transaction = create(:email_transaction,
+                           transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+                           user_uuid: user.uuid,
+                           transaction_status: 'RECEIVED',
+                           status: AsyncTransaction::Vet360::Base::REQUESTED)
+      VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
+        transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(user, service)
+        expect(transactions.size).to eq(1)
+        expect(transactions.first.transaction_id).to eq(transaction.transaction_id)
+      end
     end
   end
 end

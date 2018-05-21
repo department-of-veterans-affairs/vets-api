@@ -27,7 +27,7 @@ console:
 
 .PHONY: db
 db:
-	@$(BASH_DEV) "bundle exec rake db:setup db:migrate"
+	@$(BASH_DEV) "bundle exec rake db:create db:migrate"
 
 .PHONY: down
 down:

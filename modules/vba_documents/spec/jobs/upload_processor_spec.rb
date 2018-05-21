@@ -38,16 +38,19 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       'content' => valid_doc }
   end
 
+  # rubocop:disable Style/DateTime
   before(:each) do
     objstore = instance_double(VBADocuments::ObjectStore)
     version = instance_double(Aws::S3::ObjectVersion)
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
     allow(objstore).to receive(:first_version).and_return(version)
     allow(objstore).to receive(:download)
+    allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
   end
+  # rubocop:enable Style/DateTime
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { FactoryBot.create(:upload_submission, consumer_name: 'test consumer') }
 
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
@@ -88,6 +91,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(capture_body).to have_key('attachment1')
       metadata = JSON.parse(capture_body['metadata'])
       expect(metadata['uuid']).to eq(upload.guid)
+      expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
@@ -226,6 +230,16 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC201')
+    end
+
+    it 'does not set error status for retriable timeout error' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      expect(client_stub).to receive(:upload)
+        .and_raise(Faraday::TimeoutError.new)
+      expect { described_class.new.perform(upload.guid) }.to raise_error(Faraday::TimeoutError)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('pending')
     end
   end
 end

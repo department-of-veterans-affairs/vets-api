@@ -1,0 +1,94 @@
+Message Key,Message Code,Message Description
+addressType.Size,ADDR101,size must be between 0 and 35
+addressLine1.Size,ADDR108,size must be between 0 and 100
+addressLine2.Size,ADDR110,size must be between 0 and 100
+addressLine3.Size,ADDR112,size must be between 0 and 100
+badAddressIndicator.Size,ADDR115,size must be between 0 and 35
+cityName.Size,ADDR118,size must be between 0 and 100
+stateCode.Size,ADDR120,size must be between 2 and 2
+stateCode.Pattern,ADDR121,"must match ""^[a-zA-Z]+$"""
+zipCode5.Size,ADDR122,size must be between 0 and 5
+zipCode4.Size,ADDR124,size must be between 0 and 4
+zipCode4.Pattern,ADDR125,"must match ""[0-9]+"""
+provinceName.Size,ADDR126,size must be between 0 and 100
+intPostalCode.Size,ADDR128,size must be between 0 and 100
+countryName.Size,ADDR130,size must be between 0 and 35
+countryName.Pattern,ADDR131,"must match ""^[a-zA-Z ]+$"""
+countryCodeFIPS.Size,ADDR132,size must be between 0 and 3
+countryCodeFIPS.Pattern,ADDR133,"must match ""^[a-zA-Z]+$"""
+countryCodeISO2.Size,ADDR134,size must be between 0 and 3
+countryCodeISO2.Pattern,ADDR135,"must match ""^[a-zA-Z]+$"""
+countryCodeISO3.Size,ADDR136,size must be between 0 and 3
+countryCodeISO3.Pattern,ADDR137,"must match ""^[a-zA-Z]+$"""
+latitude.Size,ADDR138,size must be between 0 and 35
+longitude.Size,ADDR140,size must be between 0 and 35
+geocodePrecision.Size,ADDR142,size must be between 0 and 35
+addressPOU.NotNull,ADDR146,may not be null
+addressId.Null,ADDR200,must be null
+addressId.NotNull,ADDR201,may not be null
+AddressInactive,ADDR300,Cannot modify an existing inactive record.
+AddressPOU,ADDR301,Can not insert a record for an address POU that already exists. Pull the address record and update it using the addressId provided.
+DuplicateAddressPOU,ADDR304,Cannot accept a request with multiple addresses of the same POU.
+_CUF_UNEXPECTED_ERROR,CORE100,"There was an error encountered processing the Request. Please retry. If problem persists, please contact support with a copy of the Response."
+_CUF_ACCESS_DENIED,CORE101,"You do not have access to perform the requested operation. Please correct your request before trying again! If you believe you have received this access denied error incorrect, please contact your system administrator."
+_CUF_DATA_INTEGRITY_VIOLATION,CORE102,The operation could not be fulfilled due to a data integrity violation.
+_CUF_NOT_FOUND,CORE103,The {0} for id/criteria {1} could not be found. Please correct your request and try again!
+_CUF_NO_CHANGES_DETECTED,CORE104,"Your request was received and processed without error, however no differences were detected between current data and the data you sent. This message is informational only, please verify your request if you believe you sent actual changes that should be applied."
+_CUF_REQUEST_MALFORMED,CORE105,The request was malformed and could not be processed. Please correct your request before trying again!
+_CUF_REQUEST_NULL,CORE106,The request cannot be null. Please correct your request and try again.
+_CUF_INVALID_TX_AUDIT_ID_KEY,CORE107,The operation could not be completed due to invalid txAuditId.
+_CUF_INCORRECT_RESULTSET_SIZE,CORE109,Expected {0} of {1} for id/criteria {2} but found > {0}. Please correct your request and try again!
+_CUF_SOURCE_DATE_VERSION_VIOLATION,CORE110,"Source dates are invalid for Type {0} with a ID of {1}. Previous source date was {2} but received new source date of {3}. Source dates may not be null, and new must be greater than the previous. Please correct your request and try again!"
+CheckAddressLine,CORE111,Required data set missing.
+bio.NotNull,CORE300,The submitted person contact bio is invalid/null and can not be.
+pullByExampleBio.NotNull,CORE302,may not be null
+txAuditId.NotNull,CORE303,may not be null
+sourceDate.NotNull,CORE500,may not be null
+originatingSourceSystem.Size,CORE501,size must be between 0 and 255
+sourceSystemUser.Size,CORE502,size must be between 0 and 255
+emailAddressText.NotNull,EMAIL101,may not be null
+emailId.Null,EMAIL200,must be null
+emailId.NotNull,EMAIL201,may not be null
+EmailAddressType,EMAIL301,Can not insert a record for an email address that already exists. Pull the email record and update it using the emailId provided.
+emailAddressText.Size,EMAIL302,size must be between 1 and 255
+CheckEmailLocalPart,EMAIL303,AlphaNumeric LocalPart of email must be <= 64 Characters.
+CheckEmailDomain,EMAIL304,AlphaNumeric ToplevelDomainName must be <= 63 Characters.
+CheckEmailAddress,EMAIL305,"EmailAddressText cannot have 2 @ symbols, must have at least one period '.' after the @ character, and cannot have '.%' or '%.' or '%..%' or "" ( ) , : ; < > @ [ ] or space unless in a quoted string in the local part."
+CheckEmailEndDate,EMAIL306,EffectiveEndDate must be null or in the past for email.
+DuplicateEmailAddress,EMAIL306,Cannot accept a request with multiple emailAddress records.
+CheckEmailEndDate,EMAIL306,EffectiveEndDate must be null or in the past for email.
+DuplicateEmailAddress,EMAIL306,Cannot accept a request with multiple emailAddress records.
+EmailInactive,EMAIL307,Cannot modify an existing inactive record.
+MviIdentifierInvalid,MVI100,Invalid request identifier.
+MviIdentifierMismatch,MVI101,The person was found in MVI but the vet360Id returned did not match the submitted vet360Id.
+MviError,MVI200,The MVI Service returned an error.
+MviNotFound,MVI201,The person with the identifier requested was not found in MVI.
+MviDuplicateCorrelations,MVI202,The MVI Service returned duplicate correlations for the requested identifier.
+MviResponseError,MVI203,The MVI Service returned an error response for the requested identifier.
+MviPersonDeceased,MVI300,The MVI Service returned that the requested veteran is deceased.
+vet360Id.MustMatch,PERS100,The vet360Id in the person contact sub-bio(s) must match the vet360Id in the Person bio.
+vet360Id.NotNull,PERS101,
+DuplicateCreateVeteran,PERS200,The veteran with the id requested has already been created.
+CheckEffectiveStartDate,PERS300,EffectiveStartDate can not be more than 6 months after current date.
+CheckEffectiveEndDate,PERS301,EffectiveEndDate must be after EffectiveStartDate.
+confirmationDate.Past,PERS302,Can not be in the future.
+CheckConfirmationDate,PERS304,ConfirmationDate can not be greater than sourceDate.
+internationalIndicator.NotNull,PHON100,may not be null
+areaCode.Size,PHON104,size must be between 3 and 3
+phoneNumber.NotNull,PHON105,may not be null
+phoneNumber.Pattern,PHON106,"must match ""[^a-zA-Z]+"""
+phoneNumber.Size,PHON107,size must be between 1 and 14
+phoneNumberExt.Pattern,PHON108,"must match ""^[a-zA-Z0-9]+$"""
+phoneType.NotNull,PHON109,may not be null
+phoneNumberExt.Size,PHON110,size must be between 1 and 10
+telephoneId.Null,PHON124,must be null
+telephoneId.NotNull,PHON125,may not be null
+areaCode.Pattern,PHON126,"must match ""[0-9]+"""
+CheckDomesticPhoneNumber,PHON207,"Domestic phone number size must be 7 characters, and can not start with a 0 or 1."
+CheckInternationalPhoneNumber,PHON208,International phone number must have 12 characters or less.
+CheckPhoneNumberDomesticIndicated,PHON209,Domestic numbers must have an area code and country code must be 1.
+CheckPhoneNumberInternationalIndicated,PHON210,"International numbers must have a valid country code that is not 1, and no area code."
+PhoneInactive,PHON300,Cannot modify an existing inactive record.
+TelephoneType,PHON301,Can not insert a record for a phone type that already exists. Pull the phone record and update it using the telphoneId provided.
+CheckPhoneEndDate,PHON303,"EffectiveEndDate cannot be present when adding a non temporary phone, and must be present for a temporary phone."
+DuplicateTelephoneType,PHON304,Cannot accept a request with multiple phones of the same type.

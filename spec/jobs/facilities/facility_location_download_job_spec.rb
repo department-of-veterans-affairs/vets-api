@@ -3,6 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
+  before(:each) { BaseFacility.validate_on_load = false }
+  after(:each) { BaseFacility.validate_on_load = true }
+
   describe 'NCA Facilities' do
     it 'retrieves and persists facilities data' do
       VCR.use_cassette('facilities/va/nca_facilities') do
@@ -88,6 +91,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         expect(Facilities::VHAFacility.count).to eq(1185)
+      end
+    end
+  end
+
+  context 'with facility validation' do
+    before(:each) { BaseFacility.validate_on_load = true }
+    after(:each) { BaseFacility.validate_on_load = false }
+    it 'raises an error when trying to retrieve and persist facilities data' do
+      VCR.use_cassette('facilities/va/vha_facilities') do
+        expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
+          .to raise_error(Common::Client::Errors::ParsingError, 'invalid source data: duplicate ids')
       end
     end
   end

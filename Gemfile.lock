@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8868455b0d1c45f38a4330ca502743ee8bcfba70
+  revision: 6a3304bde72bfae84ea48c26dde689f8b4d2a643
   branch: master
   specs:
-    vets_json_schema (3.38.0)
+    vets_json_schema (3.43.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -35,6 +35,7 @@ PATH
 
 GEM
   remote: https://rubygems.org/
+  remote: https://enterprise.contribsys.com/
   specs:
     Ascii85 (1.0.2)
     aasm (4.12.0)
@@ -974,9 +975,14 @@ GEM
       connection_pool (~> 2.2, >= 2.2.0)
       rack-protection (>= 1.5.0)
       redis (~> 3.2, >= 3.2.1)
+    sidekiq-ent (1.6.1)
+      sidekiq (>= 4.2.9)
+      sidekiq-pro (>= 3.5.0)
     sidekiq-instrument (0.3.0)
       sidekiq (>= 4.2, < 6)
       statsd-instrument (~> 2.0, >= 2.0.4)
+    sidekiq-pro (3.7.1)
+      sidekiq (>= 4.1.5)
     sidekiq-scheduler (2.0.19)
       hashie (~> 3.4)
       redis (~> 3)
@@ -1125,7 +1131,9 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq
+  sidekiq-ent!
   sidekiq-instrument
+  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov

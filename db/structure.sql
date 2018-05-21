@@ -88,7 +88,9 @@ CREATE TABLE public.async_transactions (
     transaction_id character varying,
     transaction_status character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    encrypted_metadata character varying,
+    encrypted_metadata_iv character varying
 );
 
 
@@ -378,6 +380,39 @@ CREATE SEQUENCE public.gibs_not_found_users_id_seq
 --
 
 ALTER SEQUENCE public.gibs_not_found_users_id_seq OWNED BY public.gibs_not_found_users.id;
+
+
+--
+-- Name: health_care_applications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.health_care_applications (
+    id integer NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    state character varying DEFAULT 'pending'::character varying NOT NULL,
+    form_submission_id_string character varying,
+    "timestamp" character varying
+);
+
+
+--
+-- Name: health_care_applications_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.health_care_applications_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: health_care_applications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.health_care_applications_id_seq OWNED BY public.health_care_applications.id;
 
 
 --
@@ -724,7 +759,9 @@ CREATE TABLE public.vba_documents_upload_submissions (
     code character varying,
     detail character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    s3_deleted boolean,
+    consumer_name character varying
 );
 
 
@@ -834,6 +871,13 @@ ALTER TABLE ONLY public.form_attachments ALTER COLUMN id SET DEFAULT nextval('pu
 --
 
 ALTER TABLE ONLY public.gibs_not_found_users ALTER COLUMN id SET DEFAULT nextval('public.gibs_not_found_users_id_seq'::regclass);
+
+
+--
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.health_care_applications ALTER COLUMN id SET DEFAULT nextval('public.health_care_applications_id_seq'::regclass);
 
 
 --
@@ -975,6 +1019,14 @@ ALTER TABLE ONLY public.form_attachments
 
 ALTER TABLE ONLY public.gibs_not_found_users
     ADD CONSTRAINT gibs_not_found_users_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: health_care_applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.health_care_applications
+    ADD CONSTRAINT health_care_applications_pkey PRIMARY KEY (id);
 
 
 --
@@ -1323,5 +1375,15 @@ CREATE UNIQUE INDEX unique_schema_migrations ON public.schema_migrations USING b
 
 SET search_path TO "$user", public;
 
+INSERT INTO schema_migrations (version) VALUES ('20170804012412');
+
 INSERT INTO schema_migrations (version) VALUES ('20180503172030');
+
+INSERT INTO schema_migrations (version) VALUES ('20180515195048');
+
+INSERT INTO schema_migrations (version) VALUES ('20180516184633');
+
+INSERT INTO schema_migrations (version) VALUES ('20180516224125');
+
+INSERT INTO schema_migrations (version) VALUES ('20180517171924');
 
