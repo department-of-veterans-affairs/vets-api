@@ -47,6 +47,16 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_686_c_expected) do
+    {
+      'claimantAddress' => veteran_address['veteranAddress'],
+      'claimantFullName' => veteran_full_name['veteranFullName'],
+      'dayPhone' => us_phone,
+      'claimantSocialSecurityNumber' => user.ssn,
+      'claimantEmail' => user.pciu_email
+    }
+  end
+
   let(:v22_1990_expected) do
     {
       'toursOfDuty' => [
@@ -397,6 +407,10 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns prefilled 22-5495' do
           expect_prefilled('22-5495')
+        end
+
+        it 'returns prefilled 21-686C' do
+          expect_prefilled('21-686C')
         end
 
         it 'returns the va profile mapped to the healthcare form' do

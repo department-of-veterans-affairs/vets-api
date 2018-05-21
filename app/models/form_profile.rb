@@ -81,6 +81,7 @@ class FormProfile
     '22-5490'   => ::FormProfiles::VA5490,
     '22-5495'   => ::FormProfiles::VA5495,
     '21P-530'   => ::FormProfiles::VA21p530,
+    '21-686C'   => ::FormProfiles::VA21686c,
     'VIC'       => ::FormProfiles::VIC,
     '21P-527EZ' => ::FormProfiles::VA21p527ez
   }.freeze
@@ -99,6 +100,7 @@ class FormProfile
     forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
     forms += EDU_FORMS if Settings.edu.prefill
     forms += VIC_FORMS if Settings.vic.prefill
+    forms << '21-686C'
 
     forms
   end
