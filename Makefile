@@ -13,7 +13,7 @@ bash:
 
 .PHONY: ci
 ci:
-	@$(BASH_TEST) "bundle exec rake db:setup db:migrate ci"
+	@$(BASH_TEST) "bundle exec rake db:create db:migrate ci"
 
 .PHONY: clean
 clean:

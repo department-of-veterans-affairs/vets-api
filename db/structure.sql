@@ -2,12 +2,11 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 10.3
--- Dumped by pg_dump version 10.3
+-- Dumped from database version 9.5.13
+-- Dumped by pg_dump version 9.5.13
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -98,7 +97,6 @@ CREATE TABLE public.async_transactions (
 --
 
 CREATE SEQUENCE public.async_transactions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -155,7 +153,6 @@ CREATE TABLE public.beta_registrations (
 --
 
 CREATE SEQUENCE public.beta_registrations_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -186,7 +183,6 @@ CREATE TABLE public.central_mail_submissions (
 --
 
 CREATE SEQUENCE public.central_mail_submissions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -224,7 +220,6 @@ CREATE TABLE public.education_benefits_claims (
 --
 
 CREATE SEQUENCE public.education_benefits_claims_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -266,7 +261,6 @@ CREATE TABLE public.education_benefits_submissions (
 --
 
 CREATE SEQUENCE public.education_benefits_submissions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -302,7 +296,6 @@ CREATE TABLE public.evss_claims (
 --
 
 CREATE SEQUENCE public.evss_claims_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -337,7 +330,6 @@ CREATE TABLE public.form_attachments (
 --
 
 CREATE SEQUENCE public.form_attachments_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -374,7 +366,6 @@ CREATE TABLE public.gibs_not_found_users (
 --
 
 CREATE SEQUENCE public.gibs_not_found_users_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -406,7 +397,6 @@ CREATE TABLE public.id_card_announcement_subscriptions (
 --
 
 CREATE SEQUENCE public.id_card_announcement_subscriptions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -442,7 +432,6 @@ CREATE TABLE public.in_progress_forms (
 --
 
 CREATE SEQUENCE public.in_progress_forms_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -474,7 +463,6 @@ CREATE TABLE public.invalid_letter_address_edipis (
 --
 
 CREATE SEQUENCE public.invalid_letter_address_edipis_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -510,7 +498,6 @@ CREATE TABLE public.maintenance_windows (
 --
 
 CREATE SEQUENCE public.maintenance_windows_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -546,7 +533,6 @@ CREATE TABLE public.mhv_accounts (
 --
 
 CREATE SEQUENCE public.mhv_accounts_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -584,7 +570,6 @@ CREATE TABLE public.persistent_attachments (
 --
 
 CREATE SEQUENCE public.persistent_attachments_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -619,7 +604,6 @@ CREATE TABLE public.preneed_submissions (
 --
 
 CREATE SEQUENCE public.preneed_submissions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -655,7 +639,6 @@ CREATE TABLE public.saved_claims (
 --
 
 CREATE SEQUENCE public.saved_claims_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -716,7 +699,6 @@ CREATE TABLE public.terms_and_conditions_acceptances (
 --
 
 CREATE SEQUENCE public.terms_and_conditions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -751,7 +733,6 @@ CREATE TABLE public.vba_documents_upload_submissions (
 --
 
 CREATE SEQUENCE public.vba_documents_upload_submissions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -785,7 +766,6 @@ CREATE TABLE public.vic_submissions (
 --
 
 CREATE SEQUENCE public.vic_submissions_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -801,140 +781,140 @@ ALTER SEQUENCE public.vic_submissions_id_seq OWNED BY public.vic_submissions.id;
 
 
 --
--- Name: async_transactions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.async_transactions ALTER COLUMN id SET DEFAULT nextval('public.async_transactions_id_seq'::regclass);
 
 
 --
--- Name: beta_registrations id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.beta_registrations ALTER COLUMN id SET DEFAULT nextval('public.beta_registrations_id_seq'::regclass);
 
 
 --
--- Name: central_mail_submissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.central_mail_submissions ALTER COLUMN id SET DEFAULT nextval('public.central_mail_submissions_id_seq'::regclass);
 
 
 --
--- Name: education_benefits_claims id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.education_benefits_claims ALTER COLUMN id SET DEFAULT nextval('public.education_benefits_claims_id_seq'::regclass);
 
 
 --
--- Name: education_benefits_submissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.education_benefits_submissions ALTER COLUMN id SET DEFAULT nextval('public.education_benefits_submissions_id_seq'::regclass);
 
 
 --
--- Name: evss_claims id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.evss_claims ALTER COLUMN id SET DEFAULT nextval('public.evss_claims_id_seq'::regclass);
 
 
 --
--- Name: form_attachments id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.form_attachments ALTER COLUMN id SET DEFAULT nextval('public.form_attachments_id_seq'::regclass);
 
 
 --
--- Name: gibs_not_found_users id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.gibs_not_found_users ALTER COLUMN id SET DEFAULT nextval('public.gibs_not_found_users_id_seq'::regclass);
 
 
 --
--- Name: id_card_announcement_subscriptions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.id_card_announcement_subscriptions ALTER COLUMN id SET DEFAULT nextval('public.id_card_announcement_subscriptions_id_seq'::regclass);
 
 
 --
--- Name: in_progress_forms id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.in_progress_forms ALTER COLUMN id SET DEFAULT nextval('public.in_progress_forms_id_seq'::regclass);
 
 
 --
--- Name: invalid_letter_address_edipis id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.invalid_letter_address_edipis ALTER COLUMN id SET DEFAULT nextval('public.invalid_letter_address_edipis_id_seq'::regclass);
 
 
 --
--- Name: maintenance_windows id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.maintenance_windows ALTER COLUMN id SET DEFAULT nextval('public.maintenance_windows_id_seq'::regclass);
 
 
 --
--- Name: mhv_accounts id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.mhv_accounts ALTER COLUMN id SET DEFAULT nextval('public.mhv_accounts_id_seq'::regclass);
 
 
 --
--- Name: persistent_attachments id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.persistent_attachments ALTER COLUMN id SET DEFAULT nextval('public.persistent_attachments_id_seq'::regclass);
 
 
 --
--- Name: preneed_submissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.preneed_submissions ALTER COLUMN id SET DEFAULT nextval('public.preneed_submissions_id_seq'::regclass);
 
 
 --
--- Name: saved_claims id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.saved_claims ALTER COLUMN id SET DEFAULT nextval('public.saved_claims_id_seq'::regclass);
 
 
 --
--- Name: terms_and_conditions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.terms_and_conditions ALTER COLUMN id SET DEFAULT nextval('public.terms_and_conditions_id_seq'::regclass);
 
 
 --
--- Name: vba_documents_upload_submissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.vba_documents_upload_submissions ALTER COLUMN id SET DEFAULT nextval('public.vba_documents_upload_submissions_id_seq'::regclass);
 
 
 --
--- Name: vic_submissions id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.vic_submissions ALTER COLUMN id SET DEFAULT nextval('public.vic_submissions_id_seq'::regclass);
 
 
 --
--- Name: async_transactions async_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: async_transactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.async_transactions
@@ -942,7 +922,7 @@ ALTER TABLE ONLY public.async_transactions
 
 
 --
--- Name: beta_registrations beta_registrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: beta_registrations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.beta_registrations
@@ -950,7 +930,7 @@ ALTER TABLE ONLY public.beta_registrations
 
 
 --
--- Name: central_mail_submissions central_mail_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: central_mail_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.central_mail_submissions
@@ -958,7 +938,7 @@ ALTER TABLE ONLY public.central_mail_submissions
 
 
 --
--- Name: education_benefits_claims education_benefits_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: education_benefits_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.education_benefits_claims
@@ -966,7 +946,7 @@ ALTER TABLE ONLY public.education_benefits_claims
 
 
 --
--- Name: education_benefits_submissions education_benefits_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: education_benefits_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.education_benefits_submissions
@@ -974,7 +954,7 @@ ALTER TABLE ONLY public.education_benefits_submissions
 
 
 --
--- Name: evss_claims evss_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: evss_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.evss_claims
@@ -982,7 +962,7 @@ ALTER TABLE ONLY public.evss_claims
 
 
 --
--- Name: form_attachments form_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: form_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.form_attachments
@@ -990,7 +970,7 @@ ALTER TABLE ONLY public.form_attachments
 
 
 --
--- Name: gibs_not_found_users gibs_not_found_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: gibs_not_found_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.gibs_not_found_users
@@ -998,7 +978,7 @@ ALTER TABLE ONLY public.gibs_not_found_users
 
 
 --
--- Name: id_card_announcement_subscriptions id_card_announcement_subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: id_card_announcement_subscriptions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.id_card_announcement_subscriptions
@@ -1006,7 +986,7 @@ ALTER TABLE ONLY public.id_card_announcement_subscriptions
 
 
 --
--- Name: in_progress_forms in_progress_forms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: in_progress_forms_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.in_progress_forms
@@ -1014,7 +994,7 @@ ALTER TABLE ONLY public.in_progress_forms
 
 
 --
--- Name: invalid_letter_address_edipis invalid_letter_address_edipis_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: invalid_letter_address_edipis_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.invalid_letter_address_edipis
@@ -1022,7 +1002,7 @@ ALTER TABLE ONLY public.invalid_letter_address_edipis
 
 
 --
--- Name: maintenance_windows maintenance_windows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: maintenance_windows_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.maintenance_windows
@@ -1030,7 +1010,7 @@ ALTER TABLE ONLY public.maintenance_windows
 
 
 --
--- Name: mhv_accounts mhv_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: mhv_accounts_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.mhv_accounts
@@ -1038,7 +1018,7 @@ ALTER TABLE ONLY public.mhv_accounts
 
 
 --
--- Name: persistent_attachments persistent_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: persistent_attachments_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.persistent_attachments
@@ -1046,7 +1026,7 @@ ALTER TABLE ONLY public.persistent_attachments
 
 
 --
--- Name: preneed_submissions preneed_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: preneed_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.preneed_submissions
@@ -1054,7 +1034,7 @@ ALTER TABLE ONLY public.preneed_submissions
 
 
 --
--- Name: saved_claims saved_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: saved_claims_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.saved_claims
@@ -1062,7 +1042,7 @@ ALTER TABLE ONLY public.saved_claims
 
 
 --
--- Name: terms_and_conditions terms_and_conditions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: terms_and_conditions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.terms_and_conditions
@@ -1070,7 +1050,7 @@ ALTER TABLE ONLY public.terms_and_conditions
 
 
 --
--- Name: vba_documents_upload_submissions vba_documents_upload_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: vba_documents_upload_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.vba_documents_upload_submissions
@@ -1078,7 +1058,7 @@ ALTER TABLE ONLY public.vba_documents_upload_submissions
 
 
 --
--- Name: vic_submissions vic_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: vic_submissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.vic_submissions
