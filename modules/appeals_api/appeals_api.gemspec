@@ -6,7 +6,7 @@ require "appeals_api/version"
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |s|
   s.name        = "appeals_api"
-  s.version     = AppealsAPI::VERSION
+  s.version     = AppealsApi::VERSION
   s.authors     = ["Edward Paget"]
   s.email       = ["ed@adhocteam.us}"]
   s.homepage    = 'https://api.vets.gov/services/appeals/docs/v0'

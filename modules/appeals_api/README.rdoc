@@ -1,3 +1,3 @@
-= AppealsAPI
+= AppealsApi
 
 This project rocks and uses MIT-LICENSE.

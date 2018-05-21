@@ -2,7 +2,7 @@
 
 require_dependency 'appeals_api/application_controller'
 
-module AppealsAPI
+module AppealsApi
   module V0
     class AppealsController < ApplicationController
       skip_before_action(:authenticate)

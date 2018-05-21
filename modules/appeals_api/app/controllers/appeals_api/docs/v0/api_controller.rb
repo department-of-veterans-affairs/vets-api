@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module AppealsAPI
+module AppealsApi
   module Docs
     module V0
       class ApiController < ApplicationController

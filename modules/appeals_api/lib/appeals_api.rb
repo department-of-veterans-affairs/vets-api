@@ -1,4 +1,4 @@
 require "appeals_api/engine"
 
-module AppealsAPI
+module AppealsApi
 end

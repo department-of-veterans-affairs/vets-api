@@ -1,5 +1,5 @@
-module AppealsAPI
+module AppealsApi
   class Engine < ::Rails::Engine
-    isolate_namespace AppealsAPI
+    isolate_namespace AppealsApi
   end
 end
