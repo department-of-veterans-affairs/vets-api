@@ -30,9 +30,24 @@ module V0
       def show
         response = EMISRedis::MilitaryInformation.for_user(@current_user).service_history
 
-        log_profile_data_to_sentry(response) if response.try(:first).try(:dig, :branch_of_service).blank?
+        handle_errors!(response)
 
         render json: response, serializer: ServiceHistorySerializer
+      end
+
+      private
+
+      def handle_errors!(response)
+        raise_error! unless response.is_a?(Array)
+
+        log_profile_data_to_sentry(response) if response.try(:first).try(:dig, :branch_of_service).blank?
+      end
+
+      def raise_error!
+        raise Common::Exceptions::BackendServiceException.new(
+          'EMIS_HIST502',
+          { source: self.class.to_s }
+        )
       end
     end
   end
