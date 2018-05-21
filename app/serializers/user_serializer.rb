@@ -32,16 +32,17 @@ class UserSerializer < ActiveModel::Serializer
 
   def vet360_contact_information
     person = object.vet360_contact_info
+    return {} if person.blank?
 
     {
-      email: person.email,
-      residential_address: person.residential_address,
-      mailing_address: person.mailing_address,
-      mobile_phone: person.mobile_phone,
-      home_phone: person.home_phone,
-      work_phone: person.work_phone,
-      temporary_phone: person.temporary_phone,
-      fax_number: person.fax_number
+      email: person&.email,
+      residential_address: person&.residential_address,
+      mailing_address: person&.mailing_address,
+      mobile_phone: person&.mobile_phone,
+      home_phone: person&.home_phone,
+      work_phone: person&.work_phone,
+      temporary_phone: person&.temporary_phone,
+      fax_number: person&.fax_number
     }
   end
 
