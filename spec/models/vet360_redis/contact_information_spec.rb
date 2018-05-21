@@ -218,7 +218,9 @@ describe Vet360Redis::ContactInformation do
 
       before do
         allow(Vet360::Models::Person).to receive(:build_from).and_return(nil)
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:safe_get_person).and_return(empty_response)
+        allow_any_instance_of(
+          Vet360::ContactInformation::Service
+        ).to receive(:safe_get_person).and_return(empty_response)
       end
 
       describe '#email' do
