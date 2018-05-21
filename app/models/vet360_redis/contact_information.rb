@@ -156,7 +156,7 @@ module Vet360Redis
 
     def response_from_redis_or_service
       do_cached_with(key: @user.uuid) do
-        contact_info_service.get_person
+        contact_info_service.safe_get_person
       end
     end
 

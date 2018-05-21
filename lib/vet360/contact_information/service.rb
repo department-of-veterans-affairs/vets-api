@@ -15,9 +15,20 @@ module Vet360
       def get_person
         with_monitoring do
           raw_response = perform(:get, @user.vet360_id)
-
-          PersonResponse.new(raw_response.status, raw_response)
+          PersonResponse.from(raw_response)
         end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
+      def safe_get_person
+        with_monitoring do
+          raw_response = perform(:get, @user.vet360_id)
+          PersonResponse.from(raw_response)
+        end
+      rescue Common::Client::Errors::ClientError => error
+        return PersonResponse.new(404, person: nil) if error.status == 404
+        raise
       rescue StandardError => e
         handle_error(e)
       end
@@ -103,9 +114,9 @@ module Vet360
         temporary_short_circuit!
 
         with_monitoring do
-          raw = perform(method, path, model.in_json)
+          raw_response = perform(method, path, model.in_json)
 
-          response_class.new(raw.status, raw)
+          response_class.from(raw_response)
         end
       rescue StandardError => e
         handle_error(e)
@@ -117,7 +128,7 @@ module Vet360
         with_monitoring do
           raw_response = perform(:get, path)
 
-          response_class.new(raw_response.status, raw_response)
+          response_class.from(raw_response)
         end
       rescue StandardError => e
         handle_error(e)

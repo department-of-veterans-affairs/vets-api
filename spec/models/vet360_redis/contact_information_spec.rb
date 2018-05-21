@@ -22,9 +22,9 @@ describe Vet360Redis::ContactInformation do
   end
 
   let(:person_response) do
-    raw_response = OpenStruct.new(body: { 'bio' => person.to_hash })
+    raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
 
-    Vet360::ContactInformation::PersonResponse.new(200, raw_response)
+    Vet360::ContactInformation::PersonResponse.from(raw_response)
   end
 
   describe '.new' do
@@ -36,10 +36,12 @@ describe Vet360Redis::ContactInformation do
   describe '#response' do
     context 'when the cache is empty' do
       it 'should cache and return the response', :aggregate_failures do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(person_response)
+        allow_any_instance_of(
+          Vet360::ContactInformation::Service
+        ).to receive(:safe_get_person).and_return(person_response)
 
         expect(contact_info.redis_namespace).to receive(:set).once
-        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).once
+        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:safe_get_person).once
         expect(contact_info.status).to eq 200
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
@@ -49,7 +51,7 @@ describe Vet360Redis::ContactInformation do
       it 'returns the cached data', :aggregate_failures do
         contact_info.cache(user.uuid, person_response)
 
-        expect_any_instance_of(Vet360::ContactInformation::Service).to_not receive(:get_person)
+        expect_any_instance_of(Vet360::ContactInformation::Service).to_not receive(:safe_get_person)
         expect(contact_info.response.person).to have_deep_attributes(person)
       end
     end
@@ -59,7 +61,9 @@ describe Vet360Redis::ContactInformation do
     context 'with a successful response' do
       before do
         allow(Vet360::Models::Person).to receive(:build_from).and_return(person)
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(person_response)
+        allow_any_instance_of(
+          Vet360::ContactInformation::Service
+        ).to receive(:safe_get_person).and_return(person_response)
       end
 
       describe '#email' do
@@ -135,7 +139,7 @@ describe Vet360Redis::ContactInformation do
 
     context 'with an error response' do
       before do
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_raise(
+        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:safe_get_person).and_raise(
           Common::Exceptions::BackendServiceException
         )
       end
@@ -207,14 +211,14 @@ describe Vet360Redis::ContactInformation do
 
     context 'with an empty respose body' do
       let(:empty_response) do
-        raw_response = OpenStruct.new(body: nil)
+        raw_response = OpenStruct.new(status: 500, body: nil)
 
-        Vet360::ContactInformation::PersonResponse.new(500, raw_response)
+        Vet360::ContactInformation::PersonResponse.from(raw_response)
       end
 
       before do
         allow(Vet360::Models::Person).to receive(:build_from).and_return(nil)
-        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(empty_response)
+        allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:safe_get_person).and_return(empty_response)
       end
 
       describe '#email' do

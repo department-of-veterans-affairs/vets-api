@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Vet360::ContactInformation::Service do
+describe Vet360::ContactInformation::Service, skip_vet360: true do
   let(:user) { build(:user, :loa3) }
   subject { described_class.new(user) }
 
@@ -29,6 +29,28 @@ describe Vet360::ContactInformation::Service do
             expect(e.status_code).to eq(404)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
+        end
+      end
+    end
+  end
+
+  describe '#safe_get_person' do
+    context 'when successful' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('vet360/contact_information/person_full', VCR::MATCH_EVERYTHING) do
+          response = subject.safe_get_person
+          expect(response).to be_ok
+          expect(response.person).to be_a(Vet360::Models::Person)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      it 'returns a status of 404' do
+        VCR.use_cassette('vet360/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+          response = subject.safe_get_person
+          expect(response).not_to be_ok
+          expect(response.person).to be_nil
         end
       end
     end
