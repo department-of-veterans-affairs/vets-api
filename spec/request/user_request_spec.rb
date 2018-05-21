@@ -49,7 +49,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'gives me the list of available prefill forms' do
-      num_enabled = 0
+      num_enabled = 1
       num_enabled += FormProfile::EDU_FORMS.length if Settings.edu.prefill
       num_enabled += FormProfile::HCA_FORMS.length if Settings.hca.prefill
       num_enabled += FormProfile::PENSION_BURIAL_FORMS.length if Settings.pension_burial.prefill
