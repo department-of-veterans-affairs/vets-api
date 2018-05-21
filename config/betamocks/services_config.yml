@@ -88,7 +88,20 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/message\/(.+)\/history'
-
+    # MHV account create
+    - :method: :post
+      :path: '/mhv-api/patient/v1/account/register'
+      :file_path: 'mhv/account/register'
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+    # MHV account upgrade
+    - :method: :post
+      :path: '/mhv-api/patient/v1/account/upgrade'
+      :file_path: 'mhv/account/upgrade'
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'userId":(\d+)'
 
 # EVSS
 - :name: 'EVSS'

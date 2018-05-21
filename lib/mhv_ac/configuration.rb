@@ -38,6 +38,7 @@ module MHVAC
         conn.response :mhv_errors
         conn.response :mhv_xml_html_errors
         conn.response :json_parser
+        conn.response :betamocks if Settings.mvi.mock
 
         conn.adapter Faraday.default_adapter
       end
