@@ -96,14 +96,17 @@ module Common
               end
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
-            services.concat(emergency_and_urgent_care(attrs['StationNumber'].upcase))
+            services.concat(services_from_wait_time_data(attrs['StationNumber'].upcase))
           end
 
-          def emergency_and_urgent_care(facility_id)
+          def services_from_wait_time_data(facility_id)
             facility_wait_time = FacilityWaitTime.find(facility_id)
+            metric_keys = facility_wait_time&.metrics&.keys || []
             services = []
             services << { 'sl1' => ['EmergencyCare'], 'sl2' => [] } if facility_wait_time&.emergency_care&.any?
             services << { 'sl1' => ['UrgentCare'], 'sl2' => [] } if facility_wait_time&.urgent_care&.any?
+            services << { 'sl1' => ['Audiology'], 'sl2' => [] } if metric_keys.include?('audiology')
+            services << { 'sl1' => ['Optometry'], 'sl2' => [] } if metric_keys.include?('optometry')
             services
           end
         end
