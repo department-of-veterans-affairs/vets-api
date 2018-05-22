@@ -116,6 +116,10 @@ FactoryBot.define do
       { 'sl1' => ['EmergencyCare'],
         'sl2' => [] },
       { 'sl1' => ['UrgentCare'],
+        'sl2' => [] },
+      { 'sl1' => ['Audiology'],
+        'sl2' => [] },
+      { 'sl1' => ['Optometry'],
         'sl2' => [] }
     ],
              'last_updated' => '2018-03-15'
