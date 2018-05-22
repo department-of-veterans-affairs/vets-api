@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/error_details'
 
 RSpec.describe 'email', type: :request do
   include SchemaMatchers
+  include ErrorDetails
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
@@ -75,8 +77,8 @@ RSpec.describe 'email', type: :request do
       it 'should include the missing values in the response detail', :aggregate_failures do
         get '/v0/profile/email', nil, auth_header
 
-        expect(detail_for(response)).to include 'corp_id'
-        expect(detail_for(response)).to include 'edipi'
+        expect(error_details_for(response)).to include 'corp_id'
+        expect(error_details_for(response)).to include 'edipi'
       end
     end
   end
@@ -216,13 +218,9 @@ RSpec.describe 'email', type: :request do
           )
         )
 
-        expect(detail_for(response)).to include 'corp_id'
-        expect(detail_for(response)).to include 'edipi'
+        expect(error_details_for(response)).to include 'corp_id'
+        expect(error_details_for(response)).to include 'edipi'
       end
     end
   end
-end
-
-def detail_for(response)
-  JSON.parse(response.body)['errors'].first['detail']
 end

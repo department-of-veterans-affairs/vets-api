@@ -16,7 +16,7 @@ module HCA
 
       begin
         # TODO:  the following line is temporary, for testing
-        raise HCA::SOAPParser::ValidationError if form['email'] =~ /oddball|adhocteam/
+        raise HCA::SOAPParser::ValidationError if form['email'] =~ /oddball|adhocteam|va\.gov/
         result = HCA::Service.new(user).submit_form(form)
       rescue HCA::SOAPParser::ValidationError
         return health_care_application.update_attributes!(state: 'failed', form: form.to_json)
