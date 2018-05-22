@@ -17,15 +17,6 @@ module Vet360
           raw_response = perform(:get, @user.vet360_id)
           PersonResponse.from(raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
-      end
-
-      def safe_get_person
-        with_monitoring do
-          raw_response = perform(:get, @user.vet360_id)
-          PersonResponse.from(raw_response)
-        end
       rescue Common::Client::Errors::ClientError => error
         return PersonResponse.new(404, person: nil) if error.status == 404
         raise

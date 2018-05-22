@@ -6,10 +6,7 @@ def stub_vet360(person = nil)
                    emails:     [build(:email, id: 456)],
                    telephones: [build(:telephone, :home, id: 789)])
 
-  allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:safe_get_person).and_return(
-    Vet360::ContactInformation::PersonResponse.new(
-      200,
-      person: person
-    )
+  allow_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).and_return(
+    Vet360::ContactInformation::PersonResponse.new(200, person: person)
   )
 end
