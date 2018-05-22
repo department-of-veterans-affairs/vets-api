@@ -71,15 +71,79 @@ describe "vet360 rake tasks" do
     end
   end
 
+  describe "rake vet360:put_telephone" do
 
+    let :run_rake_task do
+      data = '{"area_code":"303","country_code":"1","international_indicator":false,"originating_source_system":"VETSGOV","phone_number":"5551235","phone_number_ext":null,"phone_type":"MOBILE","source_date":"2018-04-09T11:52:03.000-06:00","telephone_id":1299,"tty_ind":true,"vet360_id":"1","voice_mail_acceptable_ind":true}'
+      ENV['VET360_RAKE_DATA'] = data
+      Rake::Task["vet360:put_telephone"].reenable
+      Rake.application.invoke_task "vet360:put_telephone"
+    end
+    it "runs without errors" do
+      VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
+        expect { run_rake_task }.not_to raise_error
+      end
+    end
+  end
 
+  describe "rake vet360:put_address" do
 
+    let :run_rake_task do
+      data = '{"address_id":437,"address_line1":"1494 Martin Luther King Rd","address_line2":null,"address_line3":null,"address_pou":"RESIDENCE/CHOICE","address_type":"domestic","city_name":"Fulton","country_code_ios2":null,"country_code_iso3":null,"country_name":"USA","county":{"county_code":null,"county_name":null},"int_postal_code":null,"province_name":null,"state_code":"MS","zip_code5":"38843","zip_code4":null,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00","vet360_id":"1"}'
+      ENV['VET360_RAKE_DATA'] = data
+      Rake::Task["vet360:put_address"].reenable
+      Rake.application.invoke_task "vet360:put_address"
+    end
+    it "runs without errors" do
+      VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
+        expect { run_rake_task }.not_to raise_error
+      end
+    end
+  end
 
+  describe "rake vet360:post_email" do
 
+    let :run_rake_task do
+      data = '{"email_address_text":"person42@example.com","email_id":null,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00","vet360_id":"1"}'
+      ENV['VET360_RAKE_DATA'] = data
+      Rake::Task["vet360:post_email"].reenable
+      Rake.application.invoke_task "vet360:post_email"
+    end
+    it "runs without errors" do
+      VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
+        expect { run_rake_task }.not_to raise_error
+      end
+    end
+  end
 
+  describe "rake vet360:post_telephone" do
+
+    let :run_rake_task do
+      data = '{"area_code":"303","country_code":"1","international_indicator":false,"originating_source_system":"VETSGOV","phone_number":"5551234","phone_number_ext":null,"phone_type":"MOBILE","source_date":"2018-04-09T11:52:03.000-06:00","telephone_id":null,"tty_ind":true,"vet360_id":"1","voice_mail_acceptable_ind":true}'
+      ENV['VET360_RAKE_DATA'] = data
+      Rake::Task["vet360:post_telephone"].reenable
+      Rake.application.invoke_task "vet360:post_telephone"
+    end
+    it "runs without errors" do
+      VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
+        expect { run_rake_task }.not_to raise_error
+      end
+    end
+  end
+
+  describe "rake vet360:post_address" do
+
+    let :run_rake_task do
+      data = '{"address_id":null,"address_line1":"1493 Martin Luther King Rd","address_line2":null,"address_line3":null,"address_pou":"RESIDENCE/CHOICE","address_type":"domestic","city_name":"Fulton","country_code_iso2":null,"country_code_iso3":null,"country_name":"USA","county":{"county_code":null,"county_name":null},"int_postal_code":null,"province_name":null,"state_code":"MS","zip_code5":"38843","zip_code4":null,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00","vet360_id":"1"}'
+      ENV['VET360_RAKE_DATA'] = data
+      Rake::Task["vet360:post_address"].reenable
+      Rake.application.invoke_task "vet360:post_address"
+    end
+    it "runs without errors" do
+      VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
+        expect { run_rake_task }.not_to raise_error
+      end
+    end
+  end
 
 end
-
-
-
-# bundle exec spring stop && SIMPLECOV=false bundle exec spring rspec --color  --format d spec/
