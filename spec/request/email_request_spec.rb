@@ -77,8 +77,8 @@ RSpec.describe 'email', type: :request do
       it 'should include the missing values in the response detail', :aggregate_failures do
         get '/v0/profile/email', nil, auth_header
 
-        expect(details_for(response)).to include 'corp_id'
-        expect(details_for(response)).to include 'edipi'
+        expect(error_details_for(response)).to include 'corp_id'
+        expect(error_details_for(response)).to include 'edipi'
       end
     end
   end
@@ -218,8 +218,8 @@ RSpec.describe 'email', type: :request do
           )
         )
 
-        expect(details_for(response)).to include 'corp_id'
-        expect(details_for(response)).to include 'edipi'
+        expect(error_details_for(response)).to include 'corp_id'
+        expect(error_details_for(response)).to include 'edipi'
       end
     end
   end
