@@ -5,6 +5,8 @@ namespace :vet360 do
   ## TASKS ##
   ###########
 
+  ENV_VAR_NAME = 'VET360_RAKE_DATA'
+
   ## GETs
 
   desc 'Request Vet360 person contact information'
@@ -35,9 +37,8 @@ namespace :vet360 do
     abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
-    trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(transaction.id)
+    trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -47,39 +48,31 @@ namespace :vet360 do
     abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
-    trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(transaction.id)
+    trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
-  desc 'Update Vet360 email'
-  task :put_email, [:body] => [:environment] do |_, args|
-    # EXPECTED FORMAT OF BODY:
-    # {
-    #   "bio": {
-    #     "confirmationDate": "2018-04-06T17:42:47.655Z",
-    #     "effectiveEndDate": "2018-04-06T17:42:47.655Z",
-    #     "effectiveStartDate": "2018-04-06T17:42:47.655Z",
-    #     "emailAddressText": "string",
-    #     "emailId": 0,
-    #     "emailPermInd": true,
-    #     "emailStatusCode": "NO_KNOWN_PROBLEM",
-    #     "originatingSourceSystem": "string",
-    #     "sourceDate": "2018-04-06T17:42:47.655Z",
-    #     "sourceSystemUser": "string",
-    #     "vet360Id": 0
-    #   }
-    # }
-    abort 'No body provided' if args[:body].blank?
+  ## PUTs
 
-    body = JSON.parse(args[:body])
-    vet360_id = body.dig( 'vet360_id')
+  desc 'Update Vet360 email'
+  task :put_email do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
+    # {
+    #     "email_address_text": "string",
+    #     "email_id": 0,
+    #     "email_perm_ind": true,
+    #     "vet360_id": 0
+    # }
+
+    abort 'No data provided' if ENV[ENV_VAR_NAME].blank?
+
+    data = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = data.dig( 'vet360_id')
     abort 'No vet360_id provided in body' if vet360_id.blank?
 
     user = OpenStruct.new(vet360_id: vet360_id)
-    email = Vet360::Models::Email.build_from(body)
-byebug
+    email = Vet360::Models::Email.build_from(data)
     trx = Vet360::ContactInformation::Service.new(user).put_email(email)
     pp trx.to_h
   end

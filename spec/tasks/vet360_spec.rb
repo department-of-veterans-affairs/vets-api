@@ -56,11 +56,13 @@ describe "vet360 rake tasks" do
     end
   end
 
-  describe "rake vet360:put_email", focus: true do
+  describe "rake vet360:put_email" do
+
     let :run_rake_task do
+      data = '{"email_address_text":"person42@example.com","email_id":42,"originating_source_system":"VETSGOV","source_date":"2018-04-09T11:52:03.000-06:00","vet360_id":"1"}'
+      ENV['VET360_RAKE_DATA'] = data
       Rake::Task["vet360:put_email"].reenable
-      data = '{"email_address_text":"person42@example.com"\,"email_id":42\,"originating_source_system":"VETSGOV"\,"source_date":"2018-04-09T11:52:03.000-06:00"\,"vet360_id":"1"}'
-      Rake.application.invoke_task "vet360:put_email[#{data}]"
+      Rake.application.invoke_task "vet360:put_email"
     end
     it "runs without errors" do
       VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
