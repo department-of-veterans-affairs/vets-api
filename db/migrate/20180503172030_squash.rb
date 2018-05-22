@@ -138,6 +138,14 @@ class Squash < ActiveRecord::Migration
 
     add_index "gibs_not_found_users", ["edipi"], name: "index_gibs_not_found_users_on_edipi", using: :btree
 
+    create_table "health_care_applications", force: :cascade do |t|
+      t.datetime "created_at",                                    null: false
+      t.datetime "updated_at",                                    null: false
+      t.string   "state",                     default: "pending", null: false
+      t.string   "form_submission_id_string"
+      t.string   "timestamp"
+    end
+
     create_table "id_card_announcement_subscriptions", force: :cascade do |t|
       t.string   "email",      null: false
       t.datetime "created_at", null: false
