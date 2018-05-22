@@ -30,19 +30,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
   let(:token) { 'lemmein' }
-  let(:mhv_account) do
-    double('mhv_account', account_state: 'updated',
-                          ineligible?: false,
-                          eligible?: true,
-                          needs_terms_acceptance?: false,
-                          accessible?: true)
-  end
   let(:mhv_user) { build(:user, :mhv) }
 
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
@@ -83,6 +75,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     it 'supports getting an in-progress form' do
       FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      stub_evss_pciu(mhv_user)
       expect(subject).to validate(
         :get,
         '/v0/in_progress_forms/{id}',
@@ -316,6 +309,55 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               :get, '/v0/prescriptions/{prescription_id}/trackings', 404, 'prescription_id' => '1'
             )
           end
+        end
+      end
+    end
+
+    describe 'disability compensation' do
+      it 'supports getting rated disabilities' do
+        expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+          expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 200, auth_options)
+        end
+      end
+
+      it 'supports submitting the form' do
+        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
+        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
+        end
+      end
+    end
+
+    describe 'intent to file' do
+      it 'supports getting all intent to file' do
+        expect(subject).to validate(:get, '/v0/intent_to_file', 401)
+        VCR.use_cassette('evss/intent_to_file/intent_to_file') do
+          expect(subject).to validate(:get, '/v0/intent_to_file', 200, auth_options)
+        end
+      end
+
+      it 'supports getting an active compensation intent to file' do
+        expect(subject).to validate(:get, '/v0/intent_to_file/{type}/active', 401, 'type' => 'compensation')
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          expect(subject).to validate(
+            :get,
+            '/v0/intent_to_file/{type}/active',
+            200,
+            auth_options.update('type' => 'compensation')
+          )
+        end
+      end
+
+      it 'supports creating an active compensation intent to file' do
+        expect(subject).to validate(:post, '/v0/intent_to_file/{type}', 401, 'type' => 'compensation')
+        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+          expect(subject).to validate(
+            :post,
+            '/v0/intent_to_file/{type}',
+            200,
+            auth_options.update('type' => 'compensation')
+          )
         end
       end
     end
@@ -725,9 +767,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
 
           context 'unsuccessful calls' do
-            let(:mhv_account) do
-              double('mhv_account', eligible?: true, needs_terms_acceptance?: false, accessible?: false)
-            end
+            let(:mhv_user) { build(:user, :loa1) } # a user without mhv_correlation_id
 
             it 'raises forbidden when user is not eligible' do
               expect(subject).to validate(:get, '/v0/health_records/refresh', 403)
@@ -924,14 +964,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             200,
-            auth_options.merge('name' => terms.name)
+            'name' => terms.name
           )
           expect(subject).to validate(
             :get,
@@ -956,17 +995,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'validates auth errors' do
           expect(subject).to validate(
             :get,
-            '/v0/terms_and_conditions',
-            401
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
             '/v0/terms_and_conditions/{name}/versions/latest/user_data',
             401,
             'name' => terms.name
@@ -985,14 +1013,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             404,
-            auth_options.merge('name' => 'blat')
+            'name' => 'blat'
           )
           expect(subject).to validate(
             :get,
@@ -1020,9 +1047,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
 
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/vha_648A4') do
-            expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
-          end
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
 
         it '404s on non-existent facility' do
@@ -1034,6 +1060,18 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it '400s on invalid bounding box query' do
           expect(subject).to validate(:get, '/v0/facilities/va', 400,
                                       '_query_string' => 'bbox[]=-122&bbox[]=45&bbox[]=-123')
+        end
+
+        it 'supports getting a list of facilities by name' do
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/suggested', 200,
+                                      '_query_string' => 'type[]=health&name_part=por')
+        end
+
+        it '400s on invalid type' do
+          create :vha_648A4
+          expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
+                                      '_query_string' => 'type[]=foo&name_part=por')
         end
       end
     end
@@ -1101,6 +1139,231 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
           expect(subject).to validate(:get, '/v0/profile/service_history', 200, auth_options)
         end
+      end
+
+      it 'supports getting personal information data' do
+        expect(subject).to validate(:get, '/v0/profile/personal_information', 401)
+        VCR.use_cassette('mvi/find_candidate/valid') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 200, auth_options)
+        end
+      end
+
+      it 'supports posting primary phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_primary_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/primary_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting alternate phone number data' do
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 401)
+
+        VCR.use_cassette('evss/pciu/post_alternate_phone') do
+          phone = build(:phone_number, :nil_effective_date)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/alternate_phone',
+            200,
+            auth_options.merge('_data' => phone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email', 401)
+
+        VCR.use_cassette('evss/pciu/post_email_address') do
+          email_address = build(:email_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports getting full name data' do
+        expect(subject).to validate(:get, '/v0/profile/full_name', 401)
+
+        user = build(:user_with_suffix, :loa3)
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        expect(subject).to validate(:get, '/v0/profile/full_name', 200, auth_options)
+      end
+
+      it 'supports posting vet360 email address data' do
+        expect(subject).to validate(:post, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_email_success') do
+          email_address = build(:email)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 email address data' do
+        expect(subject).to validate(:put, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_email_success') do
+          email_address = build(:email, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
+      it 'supports posting vet360 telephone data' do
+        expect(subject).to validate(:post, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_telephone_success') do
+          telephone = build(:telephone)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 telephone data' do
+        expect(subject).to validate(:put, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_telephone_success') do
+          telephone = build(:telephone, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports posting vet360 address data' do
+        expect(subject).to validate(:post, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/post_address_success') do
+          address = build(:vet360_address)
+
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+
+      it 'supports putting vet360 address data' do
+        expect(subject).to validate(:put, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/put_address_success') do
+          address = build(:vet360_address, id: 42)
+
+          expect(subject).to validate(
+            :put,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+    end
+
+    describe 'profile/status' do
+      before do
+        # vet360_id appears in the API request URI so we need it to match the cassette
+        allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
+          MVI::Responses::FindProfileResponse.new(
+            status: MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok],
+            profile: build(:mvi_profile, vet360_id: '1')
+          )
+        )
+        Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+      end
+
+      let(:user) { build(:user, :loa3) }
+      it 'supports GETting async transaction by ID' do
+        transaction = create(
+          :address_transaction,
+          transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+          user_uuid: user.uuid
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/{transaction_id}',
+          401,
+          'transaction_id' => transaction.transaction_id
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/{transaction_id}',
+            200,
+            auth_options.merge('transaction_id' => transaction.transaction_id)
+          )
+        end
+      end
+
+      it 'supports GETting async transactions by user' do
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/',
+          401
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/',
+            200,
+            auth_options
+          )
+        end
+      end
+    end
+
+    describe 'when EVSS authorization requirements are not met' do
+      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
+
+      before do
+        Session.create(uuid: unauthorized_evss_user.uuid, token: token)
+        User.create(unauthorized_evss_user)
+      end
+
+      it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
+        expect(subject).to validate(:get, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 403, auth_options)
       end
     end
   end

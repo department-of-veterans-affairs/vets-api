@@ -55,7 +55,7 @@ module HCA
         conn.options.open_timeout = 10  # TODO(molson): Make a config/setting
         conn.options.timeout = 15       # TODO(molson): Make a config/setting
         conn.request :soap_headers
-        conn.response :soap_parser
+        conn.use HCA::SOAPParser
         conn.use :breakers
         conn.adapter Faraday.default_adapter
       end

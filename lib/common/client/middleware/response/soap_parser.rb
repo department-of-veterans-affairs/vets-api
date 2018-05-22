@@ -5,29 +5,29 @@ module Common
     module Middleware
       module Response
         class SOAPParser < Faraday::Response::Middleware
-          include SentryLogging
-
           def on_complete(env)
+            Raven.extra_context(
+              url: env.url.to_s,
+              body: env.body
+            )
+
             case env.status
             when 200
-              doc = Ox.parse(ensure_xml_prolog(env.body))
+              doc = parse_doc(env.body)
               if doc_includes_error?(doc)
                 raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500)
               end
               env.body = doc
             else
-              log_message_to_sentry(
-                'SOAP HTTP call failed',
-                :error,
-                url: env.url.to_s,
-                status: env.status,
-                body: env.body
-              )
               raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
             end
           end
 
           private
+
+          def parse_doc(body)
+            Ox.parse(ensure_xml_prolog(body))
+          end
 
           def ensure_xml_prolog(xml)
             xml = xml.dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/

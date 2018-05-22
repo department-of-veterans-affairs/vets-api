@@ -11,9 +11,7 @@ module Swagger
 
           key :description, 'returns list of appeals for a user'
           key :operationId, 'getAppeals'
-          key :tags, %w[
-            appeals
-          ]
+          key :tags, %w[benefits_status]
 
           parameter :authorization
 

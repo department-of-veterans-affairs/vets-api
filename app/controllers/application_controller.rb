@@ -23,6 +23,10 @@ class ApplicationController < ActionController::API
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
+  def tag_rainbows
+    Sentry::TagRainbows.tag
+  end
+
   def cors_preflight
     head(:ok)
   end
@@ -50,7 +54,10 @@ class ApplicationController < ActionController::API
   # rubocop:disable Metrics/BlockLength
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
-    if skip_sentry_exception_types.include?(exception.class) == false
+    if skip_sentry_exception_types.include?(exception.class)
+      Rails.logger.error "#{exception.message}."
+      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+    else
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
@@ -64,9 +71,6 @@ class ApplicationController < ActionController::API
         end
       end
       log_exception_to_sentry(exception, extra)
-    else
-      Rails.logger.error "#{exception.message}."
-      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
     end
 
     va_exception =
@@ -127,11 +131,6 @@ class ApplicationController < ActionController::API
     authenticate_with_http_token do |token, _options|
       @session = Session.find(token)
       return false if @session.nil?
-      # TODO: ensure that this prevents against timing attack vectors
-      ActiveSupport::SecurityUtils.secure_compare(
-        ::Digest::SHA256.hexdigest(token),
-        ::Digest::SHA256.hexdigest(@session.token)
-      )
       @current_user = User.find(@session.uuid)
       SSOService.extend_session!(@session, @current_user)
     end

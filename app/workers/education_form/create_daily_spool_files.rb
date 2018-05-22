@@ -15,6 +15,7 @@ module EducationForm
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
+                    unique_for: 30.minutes,
                     retry: 5
 
     # Setting the default value to the `unprocessed` scope is safe
@@ -30,6 +31,7 @@ module EducationForm
         }
       )
     )
+      Sentry::TagRainbows.tag
       return false if federal_holiday?
       # Group the formatted records into different regions
       if records.count.zero?

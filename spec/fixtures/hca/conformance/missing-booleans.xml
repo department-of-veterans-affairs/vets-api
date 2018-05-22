@@ -22,6 +22,7 @@
             <eeSummary:line1>111 Spouse Lane</eeSummary:line1>
             <eeSummary:line2>Line 2</eeSummary:line2>
             <eeSummary:line3>Line 3</eeSummary:line3>
+            <eeSummary:postalCode>12345</eeSummary:postalCode>
           </eeSummary:address>
           <eeSummary:contactType>10</eeSummary:contactType>
           <eeSummary:relationship>SPOUSE</eeSummary:relationship>
@@ -154,6 +155,7 @@
                   <eeSummary:line1>111 Spouse Lane</eeSummary:line1>
                   <eeSummary:line2>Line 2</eeSummary:line2>
                   <eeSummary:line3>Line 3</eeSummary:line3>
+                  <eeSummary:postalCode>12345</eeSummary:postalCode>
                 </eeSummary:address>
                 <eeSummary:givenName>SPOUSE</eeSummary:givenName>
                 <eeSummary:middleName>MILLED</eeSummary:middleName>

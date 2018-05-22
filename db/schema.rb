@@ -11,11 +11,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180226234916) do
+ActiveRecord::Schema.define(version: 20180517171924) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
+  enable_extension "pg_trgm"
+  enable_extension "btree_gin"
+
+  create_table "async_transactions", force: :cascade do |t|
+    t.string   "type"
+    t.string   "user_uuid"
+    t.string   "source_id"
+    t.string   "source"
+    t.string   "status"
+    t.string   "transaction_id"
+    t.string   "transaction_status"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.string   "encrypted_metadata"
+    t.string   "encrypted_metadata_iv"
+  end
+
+  add_index "async_transactions", ["source_id"], name: "index_async_transactions_on_source_id", using: :btree
+  add_index "async_transactions", ["transaction_id", "source"], name: "index_async_transactions_on_transaction_id_and_source", unique: true, using: :btree
+  add_index "async_transactions", ["transaction_id"], name: "index_async_transactions_on_transaction_id", using: :btree
+  add_index "async_transactions", ["user_uuid"], name: "index_async_transactions_on_user_uuid", using: :btree
 
   create_table "base_facilities", id: false, force: :cascade do |t|
     t.string   "unique_id",      null: false
@@ -46,6 +67,14 @@ ActiveRecord::Schema.define(version: 20180226234916) do
   end
 
   add_index "beta_registrations", ["user_uuid", "feature"], name: "index_beta_registrations_on_user_uuid_and_feature", unique: true, using: :btree
+
+  create_table "central_mail_submissions", force: :cascade do |t|
+    t.string  "state",          default: "pending", null: false
+    t.integer "saved_claim_id",                     null: false
+  end
+
+  add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
+  add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
@@ -118,6 +147,14 @@ ActiveRecord::Schema.define(version: 20180226234916) do
 
   add_index "gibs_not_found_users", ["edipi"], name: "index_gibs_not_found_users_on_edipi", using: :btree
 
+  create_table "health_care_applications", force: :cascade do |t|
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.string   "state",                     default: "pending", null: false
+    t.string   "form_submission_id_string"
+    t.string   "timestamp"
+  end
+
   create_table "id_card_announcement_subscriptions", force: :cascade do |t|
     t.string   "email",      null: false
     t.datetime "created_at", null: false
@@ -161,15 +198,16 @@ ActiveRecord::Schema.define(version: 20180226234916) do
   add_index "maintenance_windows", ["start_time"], name: "index_maintenance_windows_on_start_time", using: :btree
 
   create_table "mhv_accounts", force: :cascade do |t|
-    t.string   "user_uuid",     null: false
-    t.string   "account_state", null: false
+    t.string   "user_uuid",          null: false
+    t.string   "account_state",      null: false
     t.datetime "registered_at"
     t.datetime "upgraded_at"
-    t.datetime "created_at",    null: false
-    t.datetime "updated_at",    null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+    t.string   "mhv_correlation_id"
   end
 
-  add_index "mhv_accounts", ["user_uuid"], name: "index_mhv_accounts_on_user_uuid", using: :btree
+  add_index "mhv_accounts", ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true, using: :btree
 
   create_table "persistent_attachments", force: :cascade do |t|
     t.uuid     "guid"
@@ -182,6 +220,9 @@ ActiveRecord::Schema.define(version: 20180226234916) do
     t.string   "encrypted_file_data",    null: false
     t.string   "encrypted_file_data_iv", null: false
   end
+
+  add_index "persistent_attachments", ["guid"], name: "index_persistent_attachments_on_guid", unique: true, using: :btree
+  add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
@@ -204,6 +245,9 @@ ActiveRecord::Schema.define(version: 20180226234916) do
     t.uuid     "guid",              null: false
     t.string   "type"
   end
+
+  add_index "saved_claims", ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type", using: :btree
+  add_index "saved_claims", ["guid"], name: "index_saved_claims_on_guid", unique: true, using: :btree
 
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"
@@ -229,6 +273,20 @@ ActiveRecord::Schema.define(version: 20180226234916) do
   end
 
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
+
+  create_table "vba_documents_upload_submissions", force: :cascade do |t|
+    t.uuid     "guid",                              null: false
+    t.string   "status",        default: "pending", null: false
+    t.string   "code"
+    t.string   "detail"
+    t.datetime "created_at",                        null: false
+    t.datetime "updated_at",                        null: false
+    t.boolean  "s3_deleted"
+    t.string   "consumer_name"
+  end
+
+  add_index "vba_documents_upload_submissions", ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
+  add_index "vba_documents_upload_submissions", ["status"], name: "index_vba_documents_upload_submissions_on_status", using: :btree
 
   create_table "vic_submissions", force: :cascade do |t|
     t.datetime "created_at",                     null: false
