@@ -9,14 +9,14 @@ info:
     
     This API is being provided as a proof of concept of a general-purpose VA 
     API gateway. The use case is to allow authorized third-party developers to
-    request the status of veterans benefit appeals.
+    request the status of a Veteran's benefit appeals.
 
     The Appeals API passes data through to Caseflow, a case management system. Caseflow
-    accepts a header with the veteran's SSN and returns the current status of
+    accepts a header with the Veteran's SSN and returns the current status of
     their appeals.
 
     Because this application is designed to allow third-parties to request
-    information on behalf of a veteran, we are not using VAAFI headers or SSOe.
+    information on behalf of a Veteran, we are not using VAAFI headers or SSOe.
 
     ## Design
     
@@ -30,7 +30,7 @@ info:
     Allows a client to check benefit appeals status
 
     1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
-        * Provide the veteran's SSN as the X-VA-SSN header
+        * Provide the Veteran's SSN as the X-VA-SSN header
     
     2. Service Response: A JSON API object with the current status of appeals
           
@@ -55,7 +55,7 @@ paths:
     get:
       tags:
         - document_uploads
-      summary: Retrieve appeals status for the veteran with the supplied ssn
+      summary: Retrieve appeals status for the Veteran with the supplied ssn
       operationId: getAppealStatus
       security:
         - api_key: []
@@ -65,7 +65,7 @@ paths:
           required: true
           schema:
             type: string
-          description: SSN of veteran to retrieve appeals statuses for 
+          description: SSN of Veteran to retrieve appeals statuses for 
       responses:
         '200':
           description: Appeals retrieved successfully
@@ -94,7 +94,7 @@ components:
   schemas:
     Appeal:
       description: |
-        Appeal and supporting information for the supplied veteran SSN
+        Appeal and supporting information for the supplied Veteran SSN
       type: object
       properties:
         id:
