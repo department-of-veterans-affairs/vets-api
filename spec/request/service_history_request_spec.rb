@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/error_details'
 
 RSpec.describe 'service_history', type: :request, skip_emis: true do
   include SchemaMatchers
+  include ErrorDetails
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
@@ -54,12 +56,8 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
       it 'should include the correct error code' do
         get '/v0/profile/service_history', nil, auth_header
 
-        expect(detail_for(response)).to eq 'EMIS_HIST502'
+        expect(details_for(response, key: 'code')).to eq 'EMIS_HIST502'
       end
     end
   end
-end
-
-def detail_for(response)
-  JSON.parse(response.body)['errors'].first['code']
 end
