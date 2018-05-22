@@ -11,6 +11,7 @@ module Vet360
       configuration Vet360::ContactInformation::Configuration
 
       # GET's a Person bio from the Vet360 API
+      # If a user is not found in Vet360, an empty PersonResponse with a 404 status will be returned
       # @returns [Vet360::ContactInformation::PersonResponse] response wrapper around an person object
       def get_person
         with_monitoring do
