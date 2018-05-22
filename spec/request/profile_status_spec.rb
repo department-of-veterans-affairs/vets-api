@@ -98,5 +98,35 @@ RSpec.describe 'profile_status', type: :request do
         end
       end
     end
+
+    context 'cache invalidation' do
+      context 'when transactions exist' do
+        it 'invalidates the cache for the vet360-contact-info-response Redis key' do
+          allow(AsyncTransaction::Vet360::Base).to receive(:refresh_transaction_statuses).and_return(['a transaction'])
+
+          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+
+          get(
+            '/v0/profile/status/',
+            nil,
+            auth_header
+          )
+        end
+      end
+
+      context 'when transactions do not exist' do
+        it 'does not invalidate the cache for the vet360-contact-info-response Redis key' do
+          allow(AsyncTransaction::Vet360::Base).to receive(:refresh_transaction_statuses).and_return([])
+
+          expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
+
+          get(
+            '/v0/profile/status/',
+            nil,
+            auth_header
+          )
+        end
+      end
+    end
   end
 end
