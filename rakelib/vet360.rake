@@ -37,7 +37,7 @@ namespace :vet360 do
     user = OpenStruct.new(vet360_id: args[:vet360_id])
     transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
-    trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(transaction)
+    trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(transaction.id)
     pp trx.to_h
   end
 
@@ -47,9 +47,9 @@ namespace :vet360 do
     abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction(id: args[:tx_audit_id])
+    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
 
-    trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(transaction)
+    trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(transaction.id)
     pp trx.to_h
   end
 
@@ -73,12 +73,13 @@ namespace :vet360 do
     # }
     abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
+    body = JSON.parse(args[:body])
+    vet360_id = body.dig( 'vet360_id')
     abort 'No vet360_id provided in body' if vet360_id.blank?
 
     user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(body)
+byebug
     trx = Vet360::ContactInformation::Service.new(user).put_email(email)
     pp trx.to_h
   end

@@ -15,7 +15,7 @@ module Vet360
 
         # @TODO Remove for production...
         # (This is really helpful for setting up cassettes)
-        # faraday.response :logger, ::Logger.new(STDOUT), bodies: true
+        faraday.response :logger, ::Logger.new(STDOUT), bodies: true
 
         faraday.response :betamocks if mock_enabled?
         faraday.response :snakecase, symbolize: false
