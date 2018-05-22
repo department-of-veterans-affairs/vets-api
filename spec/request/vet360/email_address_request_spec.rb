@@ -46,6 +46,20 @@ RSpec.describe 'email_address', type: :request do
           end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
         end
       end
+
+      it 'invalidates the cache for the vet360-contact-info-response Redis key' do
+        VCR.use_cassette('vet360/contact_information/post_email_success') do
+          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+
+          post(
+            '/v0/profile/email_addresses',
+            { email_address: 'test@example.com' }.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+        end
+      end
     end
 
     context 'with a 400 response' do
@@ -128,6 +142,20 @@ RSpec.describe 'email_address', type: :request do
               )
             )
           end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
+        end
+      end
+
+      it 'invalidates the cache for the vet360-contact-info-response Redis key' do
+        VCR.use_cassette('vet360/contact_information/put_email_success') do
+          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+
+          put(
+            '/v0/profile/email_addresses',
+            { id: 42, email_address: 'person42@example.com' }.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
         end
       end
     end
