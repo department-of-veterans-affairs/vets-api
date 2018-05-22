@@ -107,6 +107,7 @@ module Vet360
 
         with_monitoring do
           raw_response = perform(method, path, model.in_json)
+          Vet360Redis::Cache.invalidate(@user)
 
           response_class.from(raw_response)
         end
