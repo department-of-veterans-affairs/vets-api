@@ -29,6 +29,7 @@ class FormMilitaryInformation
   attribute :va_compensation_type, String
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
+  attribute :service_periods, Array
 end
 
 class FormAddress
@@ -61,6 +62,7 @@ class FormContactInformation
 end
 
 class FormProfile
+  include Virtus.model
   include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
@@ -68,12 +70,14 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
+  EVSS_FORMS = ['21-526EZ'].freeze
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
   VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfiles::VA1010ez,
+    '21-526EZ'  => ::FormProfiles::VA526ez,
     '22-1990'   => ::FormProfiles::VA1990,
     '22-1990N'  => ::FormProfiles::VA1990n,
     '22-1990E'  => ::FormProfiles::VA1990e,
@@ -86,7 +90,6 @@ class FormProfile
   }.freeze
 
   attr_accessor :form_id
-  include Virtus.model
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
@@ -99,6 +102,7 @@ class FormProfile
     forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
     forms += EDU_FORMS if Settings.edu.prefill
     forms += VIC_FORMS if Settings.vic.prefill
+    forms += EVSS_FORMS if Settings.evss.prefill
 
     forms
   end
@@ -247,6 +251,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
+    hash.deep_transform_keys! { |k| k.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end
