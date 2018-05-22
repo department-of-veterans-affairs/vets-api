@@ -153,6 +153,7 @@ module V0
       Swagger::Schemas::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
+      Swagger::Schemas::EVSSAuthError,
       Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Gibct::Institutions,
       Swagger::Schemas::Health::Folders,

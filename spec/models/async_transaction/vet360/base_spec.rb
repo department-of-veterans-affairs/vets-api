@@ -11,6 +11,12 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
              user_uuid: user.uuid,
              transaction_status: 'RECEIVED')
     end
+    let(:transaction2) do
+      create(:email_transaction,
+             transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED')
+    end
     let(:service) { ::Vet360::ContactInformation::Service.new(user) }
 
     before do
@@ -42,6 +48,20 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
           transaction1.transaction_id
         )
         expect(updated_transaction.status).to eq(AsyncTransaction::Vet360::Base::COMPLETED)
+      end
+    end
+
+    it 'persists the messages from vet360' do
+      VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
+        updated_transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
+          user,
+          service,
+          transaction2.transaction_id
+        )
+        expect(updated_transaction.persisted?).to eq(true)
+        parsed_metadata = JSON.parse(updated_transaction.metadata)
+        expect(parsed_metadata.is_a?(Array)).to eq(true)
+        expect(updated_transaction.metadata.present?).to eq(true)
       end
     end
 

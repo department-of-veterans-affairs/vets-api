@@ -2,9 +2,8 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/facility_validator'
 require 'common/client/middleware/response/facility_parser'
-require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 
 module Facilities
   class Configuration < Common::Client::Configuration::REST
@@ -27,6 +26,7 @@ module Facilities
 
         conn.response :raise_error, error_prefix: service_name
         conn.response :facility_parser
+        conn.response :facility_validator
 
         conn.adapter Faraday.default_adapter
       end

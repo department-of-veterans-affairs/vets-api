@@ -50,6 +50,18 @@ describe VBADocuments::UploadSubmission, type: :model do
     allow(PensionBurial::Service).to receive(:new) { client_stub }
   end
 
+  describe 'consumer_name' do
+    it 'should return unknown when no name is set' do
+      upload = FactoryBot.create(:upload_submission)
+      expect(upload.consumer_name).to eq('unknown')
+    end
+
+    it 'should return name when set' do
+      upload = FactoryBot.create(:upload_submission, consumer_name: 'test consumer')
+      expect(upload.consumer_name).to eq('test consumer')
+    end
+  end
+
   describe 'refresh_status!' do
     it 'updates received status from downstream' do
       expect(client_stub).to receive(:status).and_return(faraday_response)
