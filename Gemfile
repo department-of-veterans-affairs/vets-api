@@ -74,13 +74,6 @@ gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
 
-unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
-  source 'https://enterprise.contribsys.com/' do
-    gem 'sidekiq-ent'
-    gem 'sidekiq-pro'
-  end
-end
-
 group :development do
   gem 'guard-rubocop'
   gem 'socksify'
@@ -133,4 +126,15 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+end
+
+group :production do
+  # sidekiq enterprise requires a license key to download but is only required in production.
+  # for local dev environments, regular sidekiq works fine
+  unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
+    source 'https://enterprise.contribsys.com/' do
+      gem 'sidekiq-ent'
+      gem 'sidekiq-pro'
+    end
+  end
 end

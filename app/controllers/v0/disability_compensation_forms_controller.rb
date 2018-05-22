@@ -11,7 +11,8 @@ module V0
     end
 
     def submit
-      EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, request.body.string)
+      jid = EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, request.body.string)
+      logger.info('submit form start', user: user.uuid, component: 'EVSS', form: '21-526EZ', jid: jid)
       head 200
     end
 

@@ -69,9 +69,12 @@ RSpec.describe 'Disability compensation form', type: :request do
   describe 'Get /v0/disability_compensation_form/submit' do
     context 'with a valid 200 evss response' do
       let(:valid_form_content) { File.read 'spec/support/disability_compensation_submit_data.json' }
+      let(:jid) { "JID-#{SecureRandom.base64}" }
 
       it 'should match the rated disabilities schema' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          allow(EVSS::DisabilityCompensationForm::SubmitForm).to receive(:start).and_return(jid)
+          expect(EVSS::DisabilityCompensationForm::SubmitForm).to receive(:start).once
           post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
           expect(response).to have_http_status(:ok)
         end
