@@ -759,7 +759,9 @@ CREATE TABLE public.vba_documents_upload_submissions (
     code character varying,
     detail character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    s3_deleted boolean,
+    consumer_name character varying
 );
 
 
@@ -1377,5 +1379,9 @@ INSERT INTO schema_migrations (version) VALUES ('20180503172030');
 
 INSERT INTO schema_migrations (version) VALUES ('20180515195048');
 
+INSERT INTO schema_migrations (version) VALUES ('20180516184633');
+
 INSERT INTO schema_migrations (version) VALUES ('20180516224125');
+
+INSERT INTO schema_migrations (version) VALUES ('20180517171924');
 
