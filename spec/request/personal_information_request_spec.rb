@@ -42,7 +42,7 @@ RSpec.describe 'personal_information', type: :request do
         VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
           get '/v0/profile/personal_information', nil, auth_header
 
-          expect(details_for(response, key: 'code')).to eq 'MVI_BD502'
+          expect(error_details_for(response, key: 'code')).to eq 'MVI_BD502'
         end
       end
     end

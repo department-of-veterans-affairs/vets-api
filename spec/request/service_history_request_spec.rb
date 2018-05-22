@@ -56,7 +56,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
       it 'should include the correct error code' do
         get '/v0/profile/service_history', nil, auth_header
 
-        expect(details_for(response, key: 'code')).to eq 'EMIS_HIST502'
+        expect(error_details_for(response, key: 'code')).to eq 'EMIS_HIST502'
       end
     end
   end
