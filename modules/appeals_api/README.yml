@@ -12,8 +12,11 @@ info:
     request the status of veterans benefit appeals.
 
     The Appeals API passes data through to Caseflow, a case management system. Caseflow
-    accepts a header with the Veteran's SSN and returns the current status of
+    accepts a header with the veteran's SSN and returns the current status of
     their appeals.
+
+    Because this application is designed to allow third-parties to request
+    information on behalf of a veteran, we are not using VAAFI headers or SSOe.
 
     ## Design
     
@@ -27,7 +30,7 @@ info:
     Allows a client to check benefit appeals status
 
     1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
-        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the veteran's SSN as the X-VA-SSN header
     
     2. Service Response: A JSON API object with the current status of appeals
           
@@ -57,6 +60,11 @@ paths:
       operationId: getAppealStatus
       security:
         - api_key: []
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          description: SSN of veteran to retrieve appeals statuses for 
       responses:
         '200':
           description: Appeals retrieved successfully
@@ -83,7 +91,7 @@ components:
   schemas:
     AppealsStatusSchema:
       description: |
-        Appeal and supporting information for the supplied Veteran SSN
+        Appeal and supporting information for the supplied veteran SSN
 
         
     
