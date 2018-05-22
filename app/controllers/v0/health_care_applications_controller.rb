@@ -1,32 +1,23 @@
 # frozen_string_literal: true
 
-require 'hca/service'
-
 module V0
   class HealthCareApplicationsController < ApplicationController
-    FORM_ID = '10-10EZ'
-    # We call authenticate_token because auth is optional on this endpoint.
+    FORM_ID = '1010ez'
+
     skip_before_action(:authenticate)
+    before_action(:tag_rainbows)
 
     def create
       authenticate_token
 
-      form = JSON.parse(params[:form])
-      validate!(form)
+      health_care_application = HealthCareApplication.new(params.permit(:form))
+      health_care_application.async_compatible = params[:async_compatible]
+      health_care_application.user = current_user
 
-      result = begin
-        HCA::Service.new(current_user).submit_form(form)
-      rescue Common::Client::Errors::ClientError => e
-        log_exception_to_sentry(e)
-
-        raise Common::Exceptions::BackendServiceException.new(
-          nil, detail: e.message
-        )
-      end
+      result = health_care_application.process!
 
       clear_saved_form(FORM_ID)
 
-      Rails.logger.info "SubmissionID=#{result[:formSubmissionId]}"
       render(json: result)
     end
 
@@ -36,16 +27,8 @@ module V0
 
     private
 
-    def validate!(form)
-      validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::SCHEMAS[FORM_ID],
-        form, validate_schema: true
-      )
-
-      if validation_errors.present?
-        log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'health_care_application')
-        raise Common::Exceptions::SchemaValidationErrors, validation_errors
-      end
+    def skip_sentry_exception_types
+      super + [Common::Exceptions::GatewayTimeout, Common::Exceptions::BackendServiceException]
     end
   end
 end

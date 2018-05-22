@@ -17,11 +17,9 @@ RSpec.describe 'breakers', type: :request do
       token: Rx::ClientHelpers::TOKEN
     )
   end
-  let(:mhv_account) { double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, accessible?: true) }
   let(:user) { build(:user, :mhv) }
 
   before(:each) do
-    allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(:true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(user)
     allow_any_instance_of(Rx::Client).to receive(:get_session).and_return(session)

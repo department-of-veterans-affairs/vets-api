@@ -25,8 +25,13 @@ class ClaimsBaseController < ApplicationController
     claim.process_attachments!
     StatsD.increment("#{stats_key}.success")
     Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+    authenticate_token
     clear_saved_form(claim.form_id)
     render(json: claim)
+  end
+
+  def show
+    render(json: CentralMailSubmission.joins(:central_mail_claim).where(saved_claims: { guid: params[:id] }).take)
   end
 
   private

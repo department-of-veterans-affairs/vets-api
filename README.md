@@ -2,7 +2,7 @@
 
 This project provides common APIs for applications that live on vets.gov.
 
-### Base Setup
+## Base setup
 
 **See the [native setup instructions](docs/setup/native.md) if you can't use docker**
 
@@ -15,19 +15,56 @@ To start, fetch this code:
    - Create a folder in your vets-api directory:  `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE*: If you don't have access to these keys, running the following
-     commands will provide basic functionality:
-   - `touch config/certs/vetsgov-localhost.crt`
-   - `touch config/certs/vetsgov-localhost.key`
-1. Run the vets-api dependencies and application
-    - `make up`
+   - *NOTE:* using `touch` to create blank cert and key files no longer works. 
+   If you previously added certs in this manner replace them with the team repo certificate and key listed above.
+   
+   [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.crt
+   [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.key
 
-The API will then be available on port 3000 of the docker host.
+## Running the app
 
-[certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.crt
-[key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.key
+A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
+dependencies run the following command from within the repo you cloned in the above steps.
+```
+make up
+```
 
-### Configuration
+You should then be able to navigate to [http://localhost:3000/v0/status](http://localhost:3000/v0/status) in your
+browser and start interacting with the API. Changes to the source in your local
+directory will be reflected automatically via a docker volume mount, just as
+they would be when running rails directly.
+
+The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Makefile) has shortcuts for many common development tasks. You can still run manual [docker-compose commands](https://docs.docker.com/compose/),
+but the following tasks have been aliased to speed developlment:
+
+### Running tests
+- `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`)
+- `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
+
+### Running linters
+
+- `make lint` - Run the full suite of linters on the codebase.
+- `make security` - Run the suite of security scanners on the codebase.
+- `make ci` - Run all build steps performed in CI.
+
+### Running a rails interactive console
+- `make console` - Is an alias for `rails console`, which runs an IRB like REPL in which all of the API's classes and 
+environmental variables have been loaded.
+
+### Running a bash shell
+To emulate a local install's workflow where you can run `rspec`, `rake`, or `rails` commands 
+directly within the vets-api docker instance you can use the `make bash` command.
+
+```bash
+$ make bash
+Creating network "vetsapi_default" with the default driver
+Creating vetsapi_postgres_1 ... done
+Creating vetsapi_redis_1    ... done
+# then run any command as you would locally e.g.
+root@63aa89d76c17:/src/vets-api# rspec spec/requests/user_request_spec.rb:26
+```
+
+## Configuration
 
 Vets API is configured with [Config](https://github.com/railsconfig/config). The
 default configuration is contained in [settings.yml](config/settings.yml). To
@@ -46,7 +83,7 @@ redis:
 This is also where you will place any other customizations, such as API tokens
 or certificate paths.
 
-### Optional Application Configuration
+### Optional application configuration
 
 The following features require additional configuration, click for details.
 - [Authentication with ID.me](/docs/setup/authentication_with_idme.md)
@@ -55,33 +92,11 @@ The following features require additional configuration, click for details.
 - [My HealtheVet (MHV)](/docs/setup/mhv.md)
 - [Education Benefits](/docs/setup/edu_benefits.md)
 - [Master Veteran Index (MVI)](/docs/setup/mvi.md)
-- [Sidekiq Enterprise](/docs/setup/sidekiq_enterprise.md)
 
 To mock one or more of the above services see [Betamocks](/docs/setup/betamocks.md)
 
 Vets API will still run in a limited capacity without configuring any of these
 features, and will run the unit tests successfully.
-
-## Running the App
-
-From within the cloned repo directory, you can run this command to run
-`vets-api`:
-
-```
-make up
-```
-
-You should then be able to navigate to http://localhost:3000/v0/status in your
-browser and start interacting with the API. Changes to the source in your local
-directory will be reflected automatically via a docker volume mount, just as
-they would be when running rails directly.
-
-### Testing Commands
-
-- `make lint` - Run the full suite of linters on the codebase.
-- `make guard` - Run the guard test server that reruns your tests after files are saved. Useful for TDD!
-- `make security` - Run the suite of security scanners on the codebase.
-- `make ci` - Run all build steps performed in CI.
 
 ### Troubleshooting
 
@@ -101,7 +116,7 @@ following command:
 
 - `make rebuild` - Rebuild the `vets_api` image.
 
-## Deployment Instructions
+## Deployment instructions
 
 Jenkins deploys `vets-api` upon each merge to `master`:
 
@@ -111,7 +126,7 @@ Each deploy is available here:
 
 https://dev-api.vets.gov/v0/status
 
-## API Request key formatting
+## API request key formatting
 
 When sending HTTP requests use the `X-Key-Inflection` request header to specify
 which case your client wants to use. Valid cases are `camel`, `dash`, and
@@ -121,7 +136,7 @@ camelCase keys in the response body. If the header is not provided then the
 server will expect snake_case keys in the request body and output snake_case in
 the response.
 
-## How to Contribute
+## How to contribute
 
 There are many ways to contribute to this project:
 

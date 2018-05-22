@@ -73,6 +73,11 @@ describe Mvi, skip_mvi: true do
           expect(mvi.historical_icns).to eq(profile_response.profile.historical_icns)
         end
       end
+      describe '#vet360_id' do
+        it 'should match the response' do
+          expect(mvi.vet360_id).to eq(profile_response.profile.vet360_id)
+        end
+      end
     end
 
     context 'with an error response' do

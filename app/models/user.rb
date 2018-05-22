@@ -40,6 +40,18 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
+  def pciu_email
+    pciu.get_email_address.email
+  end
+
+  def pciu_primary_phone
+    pciu.get_primary_phone.to_s
+  end
+
+  def pciu_alternate_phone
+    pciu.get_alternate_phone.to_s
+  end
+
   def first_name
     identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
@@ -85,6 +97,10 @@ class User < Common::RedisStore
     identity.mhv_correlation_id || mvi.mhv_correlation_id
   end
 
+  def mhv_account_type
+    identity.mhv_account_type || MhvAccountTypeService.new(self).mhv_account_type
+  end
+
   def loa
     identity&.loa || {}
   end
@@ -99,6 +115,7 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
+  delegate :vet360_id, to: :mvi
 
   def va_profile
     mvi.profile
@@ -216,5 +233,14 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  def pciu
+    @pciu ||= EVSS::PCIU::Service.new self
+  end
+
+  def vet360_contact_info
+    return nil unless Settings.vet360.contact_information.enabled
+    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 end

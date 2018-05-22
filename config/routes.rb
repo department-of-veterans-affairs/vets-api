@@ -3,6 +3,7 @@
 require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
+  match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
@@ -23,6 +24,13 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :disability_compensation_form, only: [] do
+      get 'rated_disabilities'
+      post 'submit'
+    end
+
+    resource :upload_ancillary_form, only: :create
+
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
@@ -34,6 +42,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
+    resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -47,15 +56,21 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :dependents_applications, only: [:create]
+
     if Settings.pension_burial.upload.enabled
-      resource :pension_claims, only: [:create]
-      resource :burial_claims, only: [:create]
+      resources :pension_claims, only: %i[create show]
+      resources :burial_claims, only: %i[create show]
     end
 
     resources :evss_claims, only: %i[index show] do
       post :request_decision, on: :member
       resources :documents, only: [:create]
     end
+
+    get 'intent_to_file', to: 'intent_to_files#index'
+    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
+    post 'intent_to_file/:type', to: 'intent_to_files#submit'
 
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
@@ -107,6 +122,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      get 'suggested', to: 'va#suggested'
     end
 
     scope :gi, module: 'gi' do
@@ -142,22 +158,34 @@ Rails.application.routes.draw do
 
     resource :address, only: %i[show update] do
       collection do
-        get 'countries', to: 'addresses#countries'
-        get 'states', to: 'addresses#states'
-        # temporary
-        get 'rds/countries', to: 'addresses#rds_countries'
-        get 'rds/states', to: 'addresses#rds_states'
+        if Settings.evss&.reference_data_service&.enabled
+          get 'countries', to: 'addresses#rds_countries'
+          get 'states', to: 'addresses#rds_states'
+        else
+          get 'countries', to: 'addresses#countries'
+          get 'states', to: 'addresses#states'
+        end
       end
     end
 
     namespace :profile do
-      resource :alternate_phone, only: :show
-      resource :email, only: :show
-      resource :primary_phone, only: :show
+      resource :alternate_phone, only: %i[show create]
+      resource :email, only: %i[show create]
+      resource :full_name, only: :show
+      resource :personal_information, only: :show
+      resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+
+      # Vet360 Routes
+      resource :addresses, only: %i[create update]
+      resource :email_addresses, only: %i[create update]
+      resource :telephones, only: %i[create update]
+      get 'status/:transaction_id', to: 'transactions#status'
+      get 'status', to: 'transactions#statuses'
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
+    put 'profile/mailing_address', to: 'addresses#update'
 
     resources :backend_statuses, param: :service, only: [:show]
 
@@ -179,13 +207,17 @@ Rails.application.routes.draw do
       resource(
         :beta_registrations,
         path: "/beta_registration/#{feature}",
-        only: %i[show create],
+        only: %i[show create destroy],
         defaults: { feature: feature }
       )
     end
   end
 
   root 'v0/example#index', module: 'v0'
+
+  scope '/services' do
+    mount VBADocuments::Engine, at: '/vba_documents'
+  end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

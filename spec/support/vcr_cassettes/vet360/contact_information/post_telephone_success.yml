@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","telephoneId":null,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 25 Apr 2018 18:45:33 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"a50193df-f4d5-4b6a-b53d-36fed2db1a15","status":"RECEIVED"}'
+    http_version:
+  recorded_at: Wed, 25 Apr 2018 18:45:33 GMT
+recorded_with: VCR 3.0.3

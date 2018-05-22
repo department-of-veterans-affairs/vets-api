@@ -13,10 +13,8 @@ module Common
     class Base
       include SentryLogging
 
-      class << self
-        def configuration(configuration = nil)
-          @configuration ||= configuration.instance
-        end
+      def self.configuration(configuration = nil)
+        @configuration ||= configuration.instance
       end
 
       private
@@ -42,25 +40,54 @@ module Common
 
       def perform(method, path, params, headers = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
-
         send(method, path, params || {}, headers || {})
       end
 
       def request(method, path, params = {}, headers = {})
+        sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
-      rescue Timeout::Error, Faraday::TimeoutError
-        log_message_to_sentry(
-          "Timeout while connecting to #{config.service_name} service", :error, extra_context: { url: config.base_path }
+      rescue Common::Exceptions::BackendServiceException => e
+        # convert BackendServiceException into a more meaningful exception title for Sentry
+        raise config.service_exception.new(
+          e.key, e.response_values, e.original_status, e.original_body
         )
+      rescue Timeout::Error, Faraday::TimeoutError
+        Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
       rescue Faraday::ClientError => e
-        client_error = Common::Client::Errors::ClientError.new(
-          e.message,
-          e.response&.dig(:status),
-          e.response&.dig(:body)
-        )
+        error_class = case e
+                      when Faraday::ParsingError
+                        Common::Client::Errors::ParsingError
+                      else
+                        Common::Client::Errors::ClientError
+                      end
+
+        response_hash = e.response&.to_hash
+        client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
         raise client_error
+      end
+
+      def sanitize_headers!(method, path, params, headers)
+        unmodified_headers = headers.dup
+        headers.transform_keys!(&:to_s)
+
+        headers.transform_values! do |value|
+          if value.nil?
+            unless Rails.env.test?
+              log_message_to_sentry(
+                'nil headers bug',
+                :info,
+                unmodified_headers: unmodified_headers, method: method, path: path, params: params, client: inspect,
+                profile: 'pciu_profile'
+              )
+            end
+
+            ''
+          else
+            value
+          end
+        end
       end
 
       def get(path, params, headers = base_headers)
