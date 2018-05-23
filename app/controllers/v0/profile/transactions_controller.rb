@@ -3,7 +3,10 @@
 module V0
   module Profile
     class TransactionsController < ApplicationController
+      include Vet360::Writeable
+
       before_action { authorize :vet360, :access? }
+      after_action :invalidate_cache
 
       def status
         transaction = AsyncTransaction::Vet360::Base.refresh_transaction_status(
@@ -13,15 +16,12 @@ module V0
         )
 
         raise Common::Exceptions::RecordNotFound, transaction unless transaction
-        Vet360Redis::Cache.invalidate(@current_user)
 
         render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
       def statuses
         transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(@current_user, service)
-
-        Vet360Redis::Cache.invalidate(@current_user)
 
         render json: transactions, each_serializer: AsyncTransaction::BaseSerializer
       end
