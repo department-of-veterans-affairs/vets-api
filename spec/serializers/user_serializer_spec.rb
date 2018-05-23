@@ -195,4 +195,44 @@ RSpec.describe UserSerializer, type: :serializer do
       end
     end
   end
+
+  describe '#vet360_contact_information' do
+    context 'with an loa1 user' do
+      let(:user) { create(:user, :loa1) }
+
+      it 'should return nil' do
+        expect(user.vet360_contact_info).to be_nil
+        expect(attributes['vet360_contact_information']).to eq({})
+      end
+    end
+
+    context 'with a valid user' do
+      let(:user) { create(:user, :loa3) }
+      let(:json) { attributes['vet360_contact_information'] }
+
+      it 'should be populated' do
+        expect(user.vet360_contact_info).not_to be_nil
+        expect(json).to include(
+          'email',
+          'residential_address',
+          'mailing_address',
+          'home_phone',
+          'mobile_phone',
+          'work_phone',
+          'fax_number',
+          'temporary_phone'
+        )
+
+        expect(json['email']).not_to be_nil
+        expect(json['residential_address']).not_to be_nil
+        expect(json['home_phone']).not_to be_nil
+
+        expect(json['mobile_phone']).to be_nil
+        expect(json['work_phone']).to be_nil
+        expect(json['mailing_address']).to be_nil
+        expect(json['fax_number']).to be_nil
+        expect(json['temporary_phone']).to be_nil
+      end
+    end
+  end
 end
