@@ -10,9 +10,11 @@ class DeleteAttachmentJob
   def perform
     Sentry::TagRainbows.tag
 
-    self.class::ATTACHMENT_CLASS.where(
-      'created_at < ?', EXPIRATION_TIME.ago
-    ).where.not(guid: uuids_to_keep).find_each(&:destroy!)
+    self.class::ATTACHMENT_CLASSES.each do |klass|
+      klass.where(
+        'created_at < ?', EXPIRATION_TIME.ago
+      ).where.not(guid: uuids_to_keep).find_each(&:destroy!)
+    end
   end
 
   def uuids_to_keep

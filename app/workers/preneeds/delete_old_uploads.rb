@@ -2,7 +2,7 @@
 
 module Preneeds
   class DeleteOldUploads < DeleteAttachmentJob
-    ATTACHMENT_CLASS = Preneeds::PreneedAttachment
+    ATTACHMENT_CLASSES = [Preneeds::PreneedAttachment]
     FORM_ID = '40-10007'
 
     def get_uuids(form_data)
