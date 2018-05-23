@@ -4,6 +4,8 @@ module VIC
   class DeleteOldUploads
     include Sidekiq::Worker
 
+    sidekiq_options(unique_for: 30.minutes, retry: false)
+
     def perform
       VIC::TagSentry.tag_sentry
       delete_docs

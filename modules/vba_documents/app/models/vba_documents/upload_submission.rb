@@ -56,6 +56,10 @@ module VBADocuments
       rewrite_url(signed_url(guid))
     end
 
+    def consumer_name
+      self[:consumer_name] || 'unknown'
+    end
+
     private
 
     def rewrite_url(url)
