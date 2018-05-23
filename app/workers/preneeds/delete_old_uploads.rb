@@ -8,11 +8,8 @@ module Preneeds
     def get_uuids(form_data)
       uuids = []
 
-      attachments = form_data['preneedAttachments']
-      if attachments.present?
-        attachments.each do |attachment|
-          uuids << attachment['confirmationCode']
-        end
+      Array.wrap(form_data['preneedAttachments']).each do |attachment|
+        uuids << attachment['confirmationCode']
       end
 
       uuids
