@@ -3,8 +3,6 @@
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/facility_parser'
-require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 
 module Facilities
   # Configuration class used to setup the environment used by client

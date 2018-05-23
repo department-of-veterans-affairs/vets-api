@@ -15,10 +15,8 @@ To start, fetch this code:
    - Create a folder in your vets-api directory:  `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
-   - *NOTE:* If you don't have access to these keys, running the following
-     commands will provide basic functionality:
-        - `touch config/certs/vetsgov-localhost.crt`
-        - `touch config/certs/vetsgov-localhost.key`
+   - *NOTE:* using `touch` to create blank cert and key files no longer works. 
+   If you previously added certs in this manner replace them with the team repo certificate and key listed above.
    
    [certificate]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.crt
    [key]: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/Files_From_IDme/development-certificates/vetsgov-localhost.key
