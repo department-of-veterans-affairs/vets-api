@@ -59,7 +59,7 @@ server:
 
 .PHONY: spec
 spec:
-	@$(BASH_TEST) "bundle exec rake spec"
+	@$(BASH_TEST) "bundle exec rake spec SPEC=${SPEC}"
 
 .PHONY: up
 up: db
