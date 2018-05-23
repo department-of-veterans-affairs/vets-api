@@ -2,7 +2,6 @@
 
 module Vet360Redis
   class Cache
-
     # Invalidates the cache set in Vet360Redis::ContactInformation through
     # our Common::RedisStore#destroy method.
     #
