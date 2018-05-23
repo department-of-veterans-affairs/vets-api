@@ -21,8 +21,8 @@ namespace :vet360 do
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(args[:vet360_id]))
-      .get_email_transaction_status(args[:tx_audit_id])
+          .new(user_struct(args[:vet360_id]))
+          .get_email_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -31,8 +31,8 @@ namespace :vet360 do
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(args[:vet360_id]))
-      .get_address_transaction_status(args[:tx_audit_id])
+          .new(user_struct(args[:vet360_id]))
+          .get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -41,8 +41,8 @@ namespace :vet360 do
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(args[:vet360_id]))
-      .get_telephone_transaction_status(args[:tx_audit_id])
+          .new(user_struct(args[:vet360_id]))
+          .get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -68,13 +68,13 @@ namespace :vet360 do
 
     email = Vet360::Models::Email.build_from(data)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(vet360_id))
-      .put_email(email)
+          .new(user_struct(vet360_id))
+          .put_email(email)
     pp trx.to_h
   end
 
   desc "Update Vet360 telephone (from #{ENV_VAR_NAME})"
-  task :put_telephone do 
+  task :put_telephone do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
     #     "area_code": "string",
@@ -92,8 +92,8 @@ namespace :vet360 do
 
     telephone = Vet360::Models::Telephone.build_from(body)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(vet360_id))
-      .put_telephone(telephone)
+          .new(user_struct(vet360_id))
+          .put_telephone(telephone)
     pp trx.to_h
   end
 
@@ -118,8 +118,8 @@ namespace :vet360 do
 
     address = Vet360::Models::Address.build_from(body)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(vet360_id))
-      .put_address(address)
+          .new(user_struct(vet360_id))
+          .put_address(address)
     pp trx.to_h
   end
 
@@ -144,8 +144,8 @@ namespace :vet360 do
 
     email = Vet360::Models::Email.build_from(body)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(vet360_id))
-      .post_email(email)
+          .new(user_struct(vet360_id))
+          .post_email(email)
     pp trx.to_h
   end
 
@@ -170,8 +170,8 @@ namespace :vet360 do
 
     telephone = Vet360::Models::Telephone.build_from(body)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(vet360_id))
-      .post_telephone(telephone)
+          .new(user_struct(vet360_id))
+          .post_telephone(telephone)
     pp trx.to_h
   end
 
@@ -194,8 +194,8 @@ namespace :vet360 do
 
     address = Vet360::Models::Address.build_from(body)
     trx = Vet360::ContactInformation::Service
-      .new(user_struct(vet360_id))
-      .post_address(address)
+          .new(user_struct(vet360_id))
+          .post_address(address)
     pp trx.to_h
   end
 
