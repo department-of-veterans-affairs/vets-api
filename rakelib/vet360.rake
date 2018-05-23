@@ -11,7 +11,8 @@ namespace :vet360 do
 
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
-    abort 'No vet360_id argument provided' if args[:vet360_id].blank?
+
+    ensure_arg(:vet360_id, args)
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
 
@@ -21,8 +22,9 @@ namespace :vet360 do
 
   desc 'GET Vet360 email transaction status'
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-    abort 'No vet360_id argument provided' if args[:vet360_id].blank?
-    abort 'No tx_audit_id argument provided' if args[:tx_audit_id].blank?
+
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
 
@@ -32,8 +34,8 @@ namespace :vet360 do
 
   desc 'GET Vet360 address transaction status'
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-    abort 'No vet360_id argument provided' if args[:vet360_id].blank?
-    abort 'No tx_audit_id argument provided' if args[:tx_audit_id].blank?
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
 
@@ -43,8 +45,8 @@ namespace :vet360 do
 
   desc 'GET Vet360 telephone transaction status'
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-    abort 'No vet360_id argument provided' if args[:vet360_id].blank?
-    abort 'No tx_audit_id argument provided' if args[:tx_audit_id].blank?
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
 
     user = OpenStruct.new(vet360_id: args[:vet360_id])
 
@@ -68,7 +70,7 @@ namespace :vet360 do
 
     data = JSON.parse(ENV[ENV_VAR_NAME])
     vet360_id = data.dig('vet360_id')
-    abort 'No vet360_id included' if vet360_id.blank?
+    ensure_var('vet360_id', vet360_id)
 
     user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(data)
@@ -90,7 +92,7 @@ namespace :vet360 do
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
     vet360_id = body.dig('vet360_id')
-    abort 'No vet360_id included' if vet360_id.blank?
+    ensure_var('vet360_id', vet360_id)
 
     user = OpenStruct.new(vet360_id: vet360_id)
     telephone = Vet360::Models::Telephone.build_from(body)
@@ -114,7 +116,7 @@ namespace :vet360 do
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
     vet360_id = body.dig('vet360_id')
-    abort 'No vet360_id included' if vet360_id.blank?
+    ensure_var('vet360_id', vet360_id)
 
     user = OpenStruct.new(vet360_id: vet360_id)
     address = Vet360::Models::Address.build_from(body)
@@ -137,7 +139,7 @@ namespace :vet360 do
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
     vet360_id = body.dig('vet360_id')
-    abort 'No vet360_id included' if vet360_id.blank?
+    ensure_var('vet360_id', vet360_id)
 
     user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(body)
@@ -160,7 +162,7 @@ namespace :vet360 do
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
     vet360_id = body.dig('vet360_id')
-    abort 'No vet360_id included' if vet360_id.blank?
+    ensure_var('vet360_id', vet360_id)
 
     user = OpenStruct.new(vet360_id: vet360_id)
     telephone = Vet360::Models::Telephone.build_from(body)
@@ -182,7 +184,7 @@ namespace :vet360 do
 
     body = JSON.parse(ENV[ENV_VAR_NAME])
     vet360_id = body.dig('vet360_id')
-    abort 'No vet360_id included' if vet360_id.blank?
+    ensure_var('vet360_id', vet360_id)
 
     user = OpenStruct.new(vet360_id: vet360_id)
     address = Vet360::Models::Address.build_from(body)
@@ -192,5 +194,13 @@ namespace :vet360 do
 
   def ensure_data_var
     abort "Env var: #{ENV_VAR_NAME} not set" if ENV[ENV_VAR_NAME].blank?
+  end
+
+  def ensure_arg(arg_symbol, args)
+    abort "No #{arg_symbol} argument provided" if args[arg_symbol].blank?
+  end
+
+  def ensure_var(name, var)
+    abort "No #{name} included" if var.blank?
   end
 end
