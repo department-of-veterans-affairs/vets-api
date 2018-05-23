@@ -28,6 +28,18 @@ RSpec.describe VBADocuments::ObjectStore do
     end
   end
 
+  describe '#delete' do
+    it 'deletes the object' do
+      v1 = instance_double(Aws::S3::ObjectVersion)
+      v2 = instance_double(Aws::S3::ObjectVersion)
+      expect(@resource).to receive(:bucket).and_return(@bucket)
+      expect(@bucket).to receive(:object_versions).and_return([v1, v2])
+      expect(v1).to receive(:delete)
+      expect(v2).to receive(:delete)
+      described_class.new.delete('foo')
+    end
+  end
+
   describe '#first_version' do
     it 'returns the earliest available version' do
       v1 = instance_double(Aws::S3::ObjectVersion)
