@@ -11,14 +11,17 @@ module V0
           service,
           transaction_params[:transaction_id]
         )
+
         raise Common::Exceptions::RecordNotFound, transaction unless transaction
+        Vet360Redis::Cache.invalidate(@current_user)
+
         render json: transaction, serializer: AsyncTransaction::BaseSerializer
       end
 
       def statuses
         transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(@current_user, service)
 
-        Vet360Redis::Cache.invalidate(@current_user) if transactions.present?
+        Vet360Redis::Cache.invalidate(@current_user)
 
         render json: transactions, each_serializer: AsyncTransaction::BaseSerializer
       end
