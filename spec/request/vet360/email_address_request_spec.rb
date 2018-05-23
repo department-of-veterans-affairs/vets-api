@@ -77,6 +77,20 @@ RSpec.describe 'email_address', type: :request do
           expect(response).to match_response_schema('errors')
         end
       end
+
+      it 'should not invalidate the cache' do
+        VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
+          expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
+
+          post(
+            '/v0/profile/email_addresses',
+            { id: 42, email_address: 'person42@example.com' }.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+        end
+      end
     end
 
     context 'with a 403 response' do
