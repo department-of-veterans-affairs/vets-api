@@ -274,6 +274,66 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_526_ez_expected) do
+    {
+      'directDeposit' => {
+        'accountType' => 'CHECKING',
+        'accountNumber' => 'xxxxxxxxx1234',
+        'routingNumber' => 'xxxxx2115',
+        'bankName' => 'Comerica'
+      },
+      'disabilities' => [
+        {
+          'diagnosticCode' => 5238,
+          'name' => 'Diabetes mellitus0',
+          'ratedDisabilityId' => '0',
+          'ratingDecisionId' => '63655',
+          'ratingPercentage' => 100,
+          'specialIssues' => [
+            {
+              'code' => 'TRM',
+              'name' => 'Personal Trauma PTSD'
+            }
+          ]
+        },
+        {
+          'diagnosticCode' => 5238,
+          'name' => 'Diabetes mellitus1',
+          'ratedDisabilityId' => '1',
+          'ratingDecisionId' => '63655',
+          'ratingPercentage' => 100,
+          'specialIssues' => [
+            {
+              'code' => 'TRM',
+              'name' => 'Personal Trauma PTSD'
+            }
+          ]
+        }
+      ],
+      'servicePeriods' => [
+        {
+          'serviceBranch' => 'Air Force Reserve',
+          'dateRange' => {
+            'from' => '2007-04-01',
+            'to' => '2016-06-01'
+          }
+        }
+      ],
+      'veteran' => {
+        'mailingAddress' => {
+          'type' => 'DOMESTIC',
+          'country' => 'USA',
+          'city' => 'Washington',
+          'state' => 'DC',
+          'zipCode' => '20011',
+          'addressLine1' => '140 Rock Creek Church Rd NW'
+        },
+        'primaryPhone' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      }
+    }
+  end
+
   before(:each) do
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -316,6 +376,9 @@ RSpec.describe FormProfile, type: :model do
         form_id
       end.tap do |schema_form_id|
         schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
+
+        filter_526_schema_fields!(schema) if schema_form_id == '21-526EZ'
+
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
@@ -330,6 +393,12 @@ RSpec.describe FormProfile, type: :model do
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
+    end
+
+    def filter_526_schema_fields!(schema)
+      schema['definitions']['disabilities']['items'].except!('required')
+      schema['definitions']['directDeposit']['properties']['routingNumber'].except!('pattern')
+      schema['definitions']['directDeposit']['properties']['accountNumber'].except!('pattern')
     end
 
     context 'when emis is down', skip_emis: true do
@@ -364,6 +433,9 @@ RSpec.describe FormProfile, type: :model do
           yes: true
         )
         expect(user).to receive(:can_access_id_card?).and_return(true)
+        expect(military_information).to receive(:service_periods).and_return(
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+        )
       end
 
       context 'with a user that can prefill emis' do
@@ -401,6 +473,22 @@ RSpec.describe FormProfile, type: :model do
 
         it 'returns the va profile mapped to the healthcare form' do
           expect_prefilled('1010ez')
+        end
+
+        context 'with a user that can prefill evss' do
+          before do
+            expect(user).to receive(:authorize).with(:evss, :access?).exactly(3).times.and_return(true)
+          end
+
+          it 'returns prefilled 21-526EZ' do
+            VCR.use_cassette('evss/pciu_address/address_domestic') do
+              VCR.use_cassette('evss/ppiu/payment_information') do
+                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                  expect_prefilled('21-526EZ')
+                end
+              end
+            end
+          end
         end
       end
     end
