@@ -11,24 +11,18 @@ namespace :vet360 do
 
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
-
     ensure_arg(:vet360_id, args)
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-
-    person = Vet360::ContactInformation::Service.new(user).get_person
+    person = Vet360::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
     pp person.to_h
   end
 
   desc 'GET Vet360 email transaction status'
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-
-    trx = Vet360::ContactInformation::Service.new(user).get_email_transaction_status(args[:tx_audit_id])
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(args[:vet360_id]))
+      .get_email_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -36,10 +30,9 @@ namespace :vet360 do
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-
-    trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(args[:tx_audit_id])
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(args[:vet360_id]))
+      .get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -47,10 +40,9 @@ namespace :vet360 do
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     ensure_arg(:tx_audit_id, args)
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-
-    trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(args[:tx_audit_id])
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(args[:vet360_id]))
+      .get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
@@ -60,10 +52,12 @@ namespace :vet360 do
   task :put_email do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
-    #     "email_address_text": "string",
+    #     "email_address": "string",
     #     "email_id": 0,
     #     "email_perm_ind": true,
     #     "vet360_id": 0
+    #     ...
+    #     [ see lib/vet360/models/email.rb ]
     # }
 
     ensure_data_var
@@ -72,9 +66,10 @@ namespace :vet360 do
     vet360_id = data.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(data)
-    trx = Vet360::ContactInformation::Service.new(user).put_email(email)
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(vet360_id))
+      .put_email(email)
     pp trx.to_h
   end
 
@@ -86,6 +81,7 @@ namespace :vet360 do
     #     "country_code": "string",
     #     "phone_number": "string",
     #     ...
+    #     [ see lib/vet360/models/telephone.rb ]
     # }
 
     ensure_data_var
@@ -94,9 +90,10 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    user = OpenStruct.new(vet360_id: vet360_id)
     telephone = Vet360::Models::Telephone.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).put_telephone(telephone)
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(vet360_id))
+      .put_telephone(telephone)
     pp trx.to_h
   end
 
@@ -110,6 +107,7 @@ namespace :vet360 do
     #     "address_line3": "string",
     #     "address_pou": "RESIDENCE/CHOICE",
     #     ...
+    #     [ see lib/vet360/models/address.rb ]
     # }
 
     ensure_data_var
@@ -118,9 +116,10 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    user = OpenStruct.new(vet360_id: vet360_id)
     address = Vet360::Models::Address.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).put_address(address)
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(vet360_id))
+      .put_address(address)
     pp trx.to_h
   end
 
@@ -133,6 +132,8 @@ namespace :vet360 do
     #     "email_address_text": "string",
     #     "email_perm_ind": true,
     #     "vet360_id": 0
+    #     ...
+    #     [ see lib/vet360/models/email.rb ]
     # }
 
     ensure_data_var
@@ -141,9 +142,10 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    user = OpenStruct.new(vet360_id: vet360_id)
     email = Vet360::Models::Email.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).post_email(email)
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(vet360_id))
+      .post_email(email)
     pp trx.to_h
   end
 
@@ -156,6 +158,8 @@ namespace :vet360 do
     #     "phone_number_ext": "string",
     #     "phone_type": "MOBILE",
     #     "vet360_id": 0,
+    #     ...
+    #     [ see lib/vet360/models/telephone.rb ]
     # }
 
     ensure_data_var
@@ -164,9 +168,10 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    user = OpenStruct.new(vet360_id: vet360_id)
     telephone = Vet360::Models::Telephone.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).post_telephone(telephone)
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(vet360_id))
+      .post_telephone(telephone)
     pp trx.to_h
   end
 
@@ -178,6 +183,7 @@ namespace :vet360 do
     #     "address_line2": "string",
     #     "vet360_id": 0,
     #     ...
+    #     [ see lib/vet360/models/address.rb ]
     # }
 
     ensure_data_var
@@ -186,9 +192,10 @@ namespace :vet360 do
     vet360_id = body.dig('vet360_id')
     ensure_var('vet360_id', vet360_id)
 
-    user = OpenStruct.new(vet360_id: vet360_id)
     address = Vet360::Models::Address.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).post_address(address)
+    trx = Vet360::ContactInformation::Service
+      .new(user_struct(vet360_id))
+      .post_address(address)
     pp trx.to_h
   end
 
@@ -202,5 +209,9 @@ namespace :vet360 do
 
   def ensure_var(name, var)
     abort "No #{name} included" if var.blank?
+  end
+
+  def user_struct(vet360_id)
+    OpenStruct.new(vet360_id: vet360_id)
   end
 end
