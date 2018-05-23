@@ -123,7 +123,7 @@ RSpec.describe 'transactions', type: :request do
       context 'when transactions exist' do
         it 'invalidates the cache for the vet360-contact-info-response Redis key' do
           VCR.use_cassette('vet360/contact_information/address_transaction_status') do
-            transaction = create :address_transaction
+            create :address_transaction
 
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
