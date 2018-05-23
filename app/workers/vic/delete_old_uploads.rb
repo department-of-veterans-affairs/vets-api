@@ -8,13 +8,9 @@ module VIC
     def get_uuids(form_data)
       uuids = []
 
-      attachments = Array.wrap(form_data['photo'])
-      attachments += form_data['dd214'] || []
-
-      if attachments.present?
-        attachments.each do |attachment|
-          uuids << attachment['confirmationCode']
-        end
+      attachments = Array.wrap(form_data['photo']) + Array.wrap(form_data['dd214'])
+      attachments.each do |attachment|
+        uuids << attachment['confirmationCode']
       end
 
       uuids
