@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'profile_status', type: :request do
+RSpec.describe 'transactions', type: :request do
   include SchemaMatchers
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
@@ -70,16 +70,21 @@ RSpec.describe 'profile_status', type: :request do
 
     context 'cache invalidation' do
       it 'invalidates the cache for the vet360-contact-info-response Redis key' do
-        transaction = create :address_transaction
-        allow(AsyncTransaction::Vet360::Base).to receive(:refresh_transaction_status).and_return(transaction)
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          transaction = create(
+            :address_transaction,
+            user_uuid: user.uuid,
+            transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+          )
 
-        expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-        get(
-          "/v0/profile/status/#{transaction.transaction_id}",
-          nil,
-          auth_header
-        )
+          get(
+            "/v0/profile/status/#{transaction.transaction_id}",
+            nil,
+            auth_header
+          )
+        end
       end
     end
   end
@@ -117,11 +122,13 @@ RSpec.describe 'profile_status', type: :request do
     context 'cache invalidation' do
       context 'when transactions exist' do
         it 'invalidates the cache for the vet360-contact-info-response Redis key' do
-          allow(AsyncTransaction::Vet360::Base).to receive(:refresh_transaction_statuses).and_return(['a transaction'])
+          VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+            transaction = create :address_transaction
 
-          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+            expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-          get '/v0/profile/status/', nil, auth_header
+            get '/v0/profile/status/', nil, auth_header
+          end
         end
       end
 
