@@ -41,6 +41,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
+    add_group 'AppealsApi', 'modules/appeals_api/'
     add_filter 'version.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
