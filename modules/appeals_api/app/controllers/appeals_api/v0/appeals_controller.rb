@@ -11,12 +11,19 @@ module AppealsApi
 
       def index
         appeals_response = Appeals::Service.new.get_appeals(user)
+        log_response(appeals_response)
         render(
           json: appeals_response.body
         )
       end
 
       private
+
+      def log_response(appeals_response)
+        consumer = request.headers['X-Consumer-Username']
+        first_appeals_id = appeals_response.body['data'][0]['id']
+        Rails.logger.info("Caseflow request by #{consumer} retrieved #{first_appeals_id}")
+      end
 
       def user
         ssn = request.headers[VA_SSN_HEADER]
