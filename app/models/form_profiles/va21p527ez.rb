@@ -5,7 +5,7 @@ class FormProfiles::VA21p527ez < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/claimant-information'
+      returnUrl: '/applicant/information'
     }
   end
 end
