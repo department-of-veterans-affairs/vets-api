@@ -53,8 +53,9 @@ RSpec.describe FormProfile, type: :model do
       'claimantFullName' => veteran_full_name['veteranFullName'],
       'dayPhone' => us_phone,
       'claimantSocialSecurityNumber' => user.ssn,
+      'veteranSocialSecurityNumber' => user.ssn,
       'claimantEmail' => user.pciu_email
-    }
+    }.merge(veteran_full_name)
   end
 
   let(:v22_1990_expected) do
