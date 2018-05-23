@@ -148,6 +148,7 @@ RSpec.configure do |config|
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
+    stub_vet360 unless example.metadata[:skip_vet360]
     Sidekiq::Worker.clear_all
   end
 
