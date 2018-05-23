@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/error_details'
 
 RSpec.describe 'service_history', type: :request, skip_emis: true do
   include SchemaMatchers
+  include ErrorDetails
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
@@ -36,6 +38,25 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
             expect(response).to match_response_schema('service_history_response')
           end
         end
+      end
+    end
+
+    context 'when EMIS does not return the expected response' do
+      before do
+        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
+      end
+
+      it 'should match the errors schema', :aggregate_failures do
+        get '/v0/profile/service_history', nil, auth_header
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_response_schema('errors')
+      end
+
+      it 'should include the correct error code' do
+        get '/v0/profile/service_history', nil, auth_header
+
+        expect(error_details_for(response, key: 'code')).to eq 'EMIS_HIST502'
       end
     end
   end

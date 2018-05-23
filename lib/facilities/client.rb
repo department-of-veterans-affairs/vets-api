@@ -4,7 +4,7 @@ require 'common/client/base'
 
 module Facilities
   # Core class responsible for api interface operations
-  class SharedClient < Common::Client::Base
+  class Client < Common::Client::Base
     configuration Facilities::Configuration
 
     def get_all_facilities(facility_type, order_field, max_record_count)
