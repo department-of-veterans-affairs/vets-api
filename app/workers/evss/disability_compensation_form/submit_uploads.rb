@@ -5,6 +5,8 @@ module EVSS
     class SubmitUploads
       include Sidekiq::Worker
 
+      FORM_TYPE = '21-526EZ'
+
       def self.start(uuid)
         batch = Sidekiq::Batch.new
         batch.on(
@@ -17,7 +19,7 @@ module EVSS
           uploads = get_uploads(uuid)
 
           logger.info('submit uploads start', user: uuid, component: 'EVSS', \
-                                              form: '21-526EZ', upload_count: uploads.count)
+                                              form: FORM_TYPE, upload_count: uploads.count)
           uploads.each_with_index { |u, i| perform_async(uuid, u.guid, claim_id, i) }
         end
       end
@@ -25,21 +27,21 @@ module EVSS
 
     def perform(uuid, _guid, _claim_id, count, index)
       logger.info('processing upload', user: uuid, component: 'EVSS', \
-                                       form: '21-526EZ', upload_count: count, upload_index: index)
+                                       form: FORM_TYPE, upload_count: count, upload_index: index)
       # TODO: process upload
       logger.info('upload processed', user: uuid, component: 'EVSS', \
-                                      form: '21-526EZ', upload_count: count, upload_index: index)
+                                      form: FORM_TYPE, upload_count: count, upload_index: index)
     rescue StandardError => error
       logger.error(
         'upload processing failed', user: uuid, component: 'EVSS', \
-                                    form: '21-526EZ', upload_count: count, upload_index: index, detail: error.message
+                                    form: FORM_TYPE, upload_count: count, upload_index: index, detail: error.message
       )
       raise error
     end
 
     def on_success(_status, options)
       uuid = options['uuid']
-      logger.info('submit uploads success', user: uuid, component: 'EVSS', form: '21-526EZ')
+      logger.info('submit uploads success', user: uuid, component: 'EVSS', form: FORM_TYPE)
     end
 
     def get_claim_id(_uuid) end
