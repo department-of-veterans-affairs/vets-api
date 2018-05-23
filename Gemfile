@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+gem 'appeals_api', path: 'modules/appeals_api'
 gem 'vba_documents', path: 'modules/vba_documents'
 
 # Anchored versions, do not change

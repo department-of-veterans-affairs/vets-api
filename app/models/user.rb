@@ -229,6 +229,11 @@ class User < Common::RedisStore
     @identity ||= UserIdentity.find(uuid)
   end
 
+  def vet360_contact_info
+    return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+  end
+
   private
 
   def mvi
@@ -237,10 +242,5 @@ class User < Common::RedisStore
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self
-  end
-
-  def vet360_contact_info
-    return nil unless Settings.vet360.contact_information.enabled
-    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 end
