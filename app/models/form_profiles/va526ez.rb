@@ -119,6 +119,8 @@ class FormProfiles::VA526ez < FormProfile
     VA526ez::FormRatedDisabilities.new(
       rated_disabilities: response.rated_disabilities
     )
+  rescue StandardError
+    {}
   end
 
   def initialize_payment_information(user)
@@ -142,6 +144,8 @@ class FormProfiles::VA526ez < FormProfile
     else
       {}
     end
+  rescue StandardError
+    {}
   end
 
   def get_pciu_address(user)
@@ -157,6 +161,8 @@ class FormProfiles::VA526ez < FormProfile
     else
       {}
     end
+  rescue StandardError
+    {}
   end
 
   def prefill_pciu_domestic_address(address)

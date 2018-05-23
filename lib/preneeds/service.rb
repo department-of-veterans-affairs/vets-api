@@ -62,16 +62,7 @@ module Preneeds
       body_and_headers = build_body_and_headers(soap, burial_form)
 
       json = perform(:post, '', body_and_headers[:body], body_and_headers[:headers]).body
-
-      log_message_to_sentry(
-        'preneeds submission',
-        :info,
-        {
-          response: json,
-          files: burial_form.attachments.map { |a| a.file.filename }
-        },
-        backend_service: :preneeds
-      )
+      Raven.extra_context(response: json)
 
       json = json[:data].merge('tracking_number' => tracking_number)
 
