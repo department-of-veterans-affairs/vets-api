@@ -2,7 +2,7 @@
 
 module VIC
   class DeleteOldUploads < DeleteAttachmentJob
-    ATTACHMENT_CLASSES = [VIC::ProfilePhotoAttachment, VIC::SupportingDocumentationAttachment]
+    ATTACHMENT_CLASSES = %w[VIC::ProfilePhotoAttachment VIC::SupportingDocumentationAttachment]
     FORM_ID = 'VIC'
 
     def get_uuids(form_data)
