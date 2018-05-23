@@ -9,6 +9,15 @@ module AppealsApi
 
       VA_SSN_HEADER = 'X-VA-SSN'
 
+      def index
+        appeals_response = Appeals::Service.new.get_appeals(user)
+        render(
+          json: appeals_response.body
+        )
+      end
+
+      private
+
       def user
         ssn = request.headers[VA_SSN_HEADER]
         raise Common::Exceptions::ParameterMissing, VA_SSN_HEADER unless ssn
@@ -16,13 +25,6 @@ module AppealsApi
         veteran = OpenStruct.new
         veteran.ssn = ssn
         veteran
-      end
-
-      def index
-        appeals_response = Appeals::Service.new.get_appeals(user)
-        render(
-          json: appeals_response.body
-        )
       end
     end
   end

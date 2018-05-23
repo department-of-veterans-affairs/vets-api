@@ -1,6 +1,6 @@
 openapi: '3.0.0'
 info:
-  version: 0.0.0
+  version: 0.0.1
   title: Appeals 
   description: |
     Caseflow Appeals Status
