@@ -47,6 +47,11 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v4010007_expected) do
+    {
+    }
+  end
+
   let(:v21_686_c_expected) do
     {
       'claimantAddress' => veteran_address['veteranAddress'],
@@ -454,40 +459,21 @@ RSpec.describe FormProfile, type: :model do
           can_prefill_emis(true)
         end
 
-        it 'returns prefilled VIC' do
-          expect_prefilled('VIC')
-        end
-
-        it 'returns prefilled 22-1990' do
-          expect_prefilled('22-1990')
-        end
-
-        it 'returns prefilled 22-1990N' do
-          expect_prefilled('22-1990N')
-        end
-
-        it 'returns prefilled 22-1990E' do
-          expect_prefilled('22-1990E')
-        end
-
-        it 'returns prefilled 22-1995' do
-          expect_prefilled('22-1995')
-        end
-
-        it 'returns prefilled 22-5490' do
-          expect_prefilled('22-5490')
-        end
-
-        it 'returns prefilled 22-5495' do
-          expect_prefilled('22-5495')
-        end
-
-        it 'returns prefilled 21-686C' do
-          expect_prefilled('21-686C')
-        end
-
-        it 'returns the va profile mapped to the healthcare form' do
-          expect_prefilled('1010ez')
+        %w[
+          VIC
+          22-1990
+          22-1990N
+          22-1990E
+          22-1995
+          22-5490
+          22-5495
+          40-10007
+          21-686C
+          1010ez
+        ].each do |form_id|
+          it "returns prefilled #{form_id}" do
+            expect_prefilled(form_id)
+          end
         end
 
         context 'with a user that can prefill evss' do

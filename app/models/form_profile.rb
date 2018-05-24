@@ -87,6 +87,7 @@ class FormProfile
     '21P-530'   => ::FormProfiles::VA21p530,
     '21-686C'   => ::FormProfiles::VA21686c,
     'VIC'       => ::FormProfiles::VIC,
+    '40-10007'  => ::FormProfiles::VA4010007,
     '21P-527EZ' => ::FormProfiles::VA21p527ez
   }.freeze
 
@@ -104,6 +105,7 @@ class FormProfile
     forms += EDU_FORMS if Settings.edu.prefill
     forms += VIC_FORMS if Settings.vic.prefill
     forms << '21-686C'
+    forms << '40-10007'
     forms += EVSS_FORMS if Settings.evss.prefill
 
     forms
@@ -227,12 +229,18 @@ class FormProfile
     ''
   end
 
-  def generate_prefill(mappings)
-    result = mappings.map do |k, v|
-      method_chain = v.map(&:to_sym)
-      { k.camelize(:lower) => call_methods(method_chain) }
-    end.reduce({}, :merge)
+  def convert_mapping(hash)
+    prefilled = {}
 
+    hash.each do |k, v|
+      prefilled[k.camelize(:lower)] = v.is_a?(Hash) ? convert_mapping(v) : call_methods(v)
+    end
+
+    prefilled
+  end
+
+  def generate_prefill(mappings)
+    result = convert_mapping(mappings)
     clean!(result)
   end
 

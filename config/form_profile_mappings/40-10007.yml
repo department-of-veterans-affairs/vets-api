@@ -1,0 +1,3 @@
+application:
+  applicant:
+    applicantEmail: [contact_information, email]
