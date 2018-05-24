@@ -36,7 +36,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         ]
       end
 
-      it 'queues four upload submit upload jobs' do
+      it 'queues four submit upload jobs' do
         allow(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:get_claim_id).and_return(claim_id)
         allow(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:get_uploads).and_return(uploads)
         expect {
