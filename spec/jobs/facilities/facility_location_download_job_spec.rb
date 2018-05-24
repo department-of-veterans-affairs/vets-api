@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
   before(:each) { BaseFacility.validate_on_load = false }
@@ -102,6 +103,44 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/vha_facilities') do
         expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
           .to raise_error(Common::Client::Errors::ParsingError, 'invalid source data: duplicate ids')
+      end
+    end
+  end
+
+  context 'with wait time data' do
+    let(:satisfaction_data) do
+      fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"
+      File.open(fixture_file_name, 'rb') do |f|
+        JSON.parse(f.read)
+      end
+    end
+
+    let(:wait_time_data) do
+      fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/wait_time_data.json"
+      File.open(fixture_file_name, 'rb') do |f|
+        JSON.parse(f.read)
+      end
+    end
+
+    let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
+    let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
+
+    before(:each) do
+      allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
+      allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
+      allow(sat_client_stub).to receive(:download).and_return(satisfaction_data)
+      allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
+      Facilities::AccessDataDownload.new.perform
+    end
+
+    it 'has the wait time indicated services' do
+      VCR.use_cassette('facilities/va/vha_facilities') do
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        facility = Facilities::VHAFacility.find('603')
+        services = facility.services['health'].map { |service| service['sl1'].first }
+        expected_services = ['Womens Health', 'Audiology', 'Cardiology', 'Dermatology', 'Gastroenterology',
+                             'Gynecology', 'Opthalmology', 'Optometry', 'Orthopedics', 'Urology Clinic']
+        expect(services).to include(*expected_services)
       end
     end
   end
