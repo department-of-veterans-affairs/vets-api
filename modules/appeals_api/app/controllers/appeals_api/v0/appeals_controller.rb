@@ -9,7 +9,10 @@ module AppealsApi
 
       def index
         log_request
-        appeals_response = Appeals::Service.new.get_appeals(user)
+        appeals_response = Appeals::Service.new.get_appeals(
+          user,
+          'X-Consumer-Username' => request.headers['X-Consumer-Username']
+        )
         log_response(appeals_response)
         render(
           json: appeals_response.body
