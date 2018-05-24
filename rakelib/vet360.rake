@@ -49,7 +49,7 @@ namespace :vet360 do
   ## PUTs
 
   desc "Update Vet360 email (from #{ENV_VAR_NAME})"
-  task :put_email do
+  task put_email: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
     #     "email_address": "string",
@@ -74,7 +74,7 @@ namespace :vet360 do
   end
 
   desc "Update Vet360 telephone (from #{ENV_VAR_NAME})"
-  task :put_telephone do
+  task put_telephone: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
     #     "area_code": "string",
@@ -98,7 +98,7 @@ namespace :vet360 do
   end
 
   desc "Update Vet360 address (from #{ENV_VAR_NAME})"
-  task :put_address do
+  task put_address: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
     #     "address_id": 0,
@@ -126,7 +126,7 @@ namespace :vet360 do
   ## POSTs
 
   desc "Create Vet360 email (from #{ENV_VAR_NAME})"
-  task :post_email do
+  task post_email: [:environment] do
     # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
     #     "email_address_text": "string",
@@ -150,7 +150,7 @@ namespace :vet360 do
   end
 
   desc "Create Vet360 telephone (from #{ENV_VAR_NAME})"
-  task :post_telephone do
+  task post_telephone: [:environment] do
     # EXPECTED FORMAT OF BODY:
     # {
     #     "area_code": "string",
@@ -176,7 +176,7 @@ namespace :vet360 do
   end
 
   desc "Create Vet360 address (from #{ENV_VAR_NAME})"
-  task :post_address do
+  task post_address: [:environment] do
     # EXPECTED FORMAT OF BODY:
     # {
     #     "address_line1": "string",
