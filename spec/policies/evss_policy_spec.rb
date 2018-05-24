@@ -15,7 +15,7 @@ describe EVSSPolicy do
     end
 
     context 'with a user who does not have the required evss attributes' do
-      let(:user) { build(:user, :loa1) }
+      let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'denies access' do
         expect(subject).to_not permit(user, :evss)
