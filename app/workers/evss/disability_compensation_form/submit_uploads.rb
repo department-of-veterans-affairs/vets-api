@@ -21,7 +21,7 @@ module EVSS
           claim_id = get_claim_id(uuid)
           uploads = get_uploads(uuid)
           logger.info('submit uploads start', user: uuid, component: 'EVSS', \
-                                              form: FORM_TYPE, upload_count: uploads.count)
+                      form: FORM_TYPE, upload_count: uploads.count)
           uploads.each_with_index do |upload_data, index|
             perform_async(upload_data, form_submission.claim_id, auth_headers, uploads.count, index)
           end
@@ -54,17 +54,18 @@ module EVSS
 
       def on_success(_status, options)
         uuid = options['uuid']
-      logger.info('submit uploads success', user: uuid, component: 'EVSS', form: FORM_TYPE)
-    end
+        logger.info('submit uploads success', user: uuid, component: 'EVSS', form: FORM_TYPE)
+      end
 
-    def get_claim_id(uuid)
-      form_submission = ::DisabilityCompensationSubmission.find_by(user_uuid: uuid, form_type: FORM_TYPE)
-      form_submission.claim_id
-    end
+      def get_claim_id(uuid)
+        form_submission = ::DisabilityCompensationSubmission.find_by(user_uuid: uuid, form_type: FORM_TYPE)
+        form_submission.claim_id
+      end
 
-    def get_uploads(uuid)
-      user = User.find(uuid)
-      InProgressDisabilityCompensationForm.form_for_user(FORM_TYPE, user).uploads
+      def get_uploads(uuid)
+        user = User.find(uuid)
+        InProgressDisabilityCompensationForm.form_for_user(FORM_TYPE, user).uploads
+      end
     end
   end
 end

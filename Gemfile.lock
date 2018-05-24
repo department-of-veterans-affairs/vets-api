@@ -1138,9 +1138,9 @@ DEPENDENCIES
   shrine
   shrine-memory
   sidekiq
-  sidekiq-ent
+  sidekiq-ent!
   sidekiq-instrument
-  sidekiq-pro
+  sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
   sidekiq-unique-jobs
   simplecov

@@ -3,6 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
+  before(:each) do
+    Sidekiq::Worker.clear_all
+  end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
