@@ -7,7 +7,7 @@ module AppealsApi
         skip_before_action(:authenticate)
 
         def index
-          swagger = YAML.safe_load(File.read(VBADocuments::Engine.root.join('README.yml')))
+          swagger = YAML.safe_load(File.read(AppealsApi::Engine.root.join('README.yml')))
           render json: swagger
         end
       end
