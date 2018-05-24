@@ -3,10 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
-  before(:each) do
-    Sidekiq::Worker.clear_all
-  end
-
   describe 'perform' do
     let(:user) { FactoryBot.create(:user, :loa3) }
     let(:form_json) { { data: "I'm a form" }.to_json }
