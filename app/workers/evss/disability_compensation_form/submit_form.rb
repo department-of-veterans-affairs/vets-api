@@ -2,36 +2,39 @@
 
 module EVSS
   module DisabilityCompensationForm
+    class SubmissionError < StandardError; end
     class SubmitForm
       include Sidekiq::Worker
 
-      def self.start(uuid)
+      FORM_TYPE = '21-526EZ'
+
+      def self.start(user, form_json)
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
           self,
-          'uuid' => uuid,
+          'uuid' => user.uuid
         )
         batch.jobs do
-          perform_async(uuid)
+          perform_async(user, form_json)
         end
       end
 
-      def perform(uuid)
-        user = User.find(uuid: uuid) #untested
-        form_type = '21-526EZ'
-        form = InProgressForm.form_for_user(form_type, user) #untested
-        service = DisabilityCompensationForm.new(user) #untested
-        response = service.submit_form(form.form_data) #untested
-        DisabilityCompensationSubmission.create!( #untested
-          user_uuid: uuid,
-          form_type: form_type,
-          claim_id: response.claim_id,
+      def perform(user, form_json)
+        response = EVSS::DisabilityCompensationForm::Service.new(user).submit_form(form_json)
+        raise ArgumentError, 'missing claim_id' unless response.claim_id
+        DisabilityCompensationSubmission.create(user_uuid: user.uuid, form_type: FORM_TYPE, claim_id: response.claim_id)
+      rescue StandardError => error
+        logger.error(
+          'submit form failed', user: user.uuid, component: 'EVSS', form: FORM_TYPE, detail: error.message
         )
+        raise error
       end
 
-      def on_success(status, options)
+      def on_success(_status, options)
         uuid = options['uuid']
+        logger.info('submit form success', user: uuid, component: 'EVSS', form: FORM_TYPE)
+
         EVSS::DisabilityCompensationForm::SubmitUploads.start(uuid)
       end
     end

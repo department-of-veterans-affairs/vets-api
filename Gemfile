@@ -127,8 +127,6 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
-  gem 'sidekiq-ent'
-  gem 'sidekiq-pro'
 end
 
 group :production do
@@ -136,8 +134,8 @@ group :production do
   # for local dev environments, regular sidekiq works fine
   unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'
     source 'https://enterprise.contribsys.com/' do
-      # gem 'sidekiq-ent'
-      # gem 'sidekiq-pro'
+      gem 'sidekiq-ent'
+      gem 'sidekiq-pro'
     end
   end
 end
