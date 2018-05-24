@@ -25,7 +25,7 @@ module AppealsApi
         hashed_ssn = Digest::SHA2.hexdigest ssn
         Rails.logger.info('Caseflow Request',
                           'consumer' => consumer,
-                          'request_identifier' => hashed_ssn)
+                          'lookup_identifier' => hashed_ssn)
       end
 
       def log_response(appeals_response)

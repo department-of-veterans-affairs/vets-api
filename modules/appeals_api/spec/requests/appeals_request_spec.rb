@@ -24,7 +24,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         hash = Digest::SHA2.hexdigest '111223333'
         expect(Rails.logger).to have_received(:info).with('Caseflow Request',
                                                           'consumer' => 'TestConsumer',
-                                                          'request_identifier' => hash)
+                                                          'lookup_identifier' => hash)
         expect(Rails.logger).to have_received(:info).with('Caseflow Response',
                                                           'consumer' => 'TestConsumer',
                                                           'first_appeal_id' => '1196201',
