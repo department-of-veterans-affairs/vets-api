@@ -7,9 +7,8 @@ module AppealsApi
     class AppealsController < ApplicationController
       skip_before_action(:authenticate)
 
-      VA_SSN_HEADER = 'X-VA-SSN'
-
       def index
+        log_request
         appeals_response = Appeals::Service.new.get_appeals(user)
         log_response(appeals_response)
         render(
@@ -19,16 +18,33 @@ module AppealsApi
 
       private
 
+      def log_request
+        hashed_ssn = Digest::SHA2.hexdigest ssn
+        Rails.logger.info('Caseflow Request',
+                          'consumer' => consumer,
+                          'request_identifier' => hashed_ssn)
+      end
+
       def log_response(appeals_response)
-        consumer = request.headers['X-Consumer-Username']
-        first_appeals_id = appeals_response.body['data'][0]['id']
-        Rails.logger.info("Caseflow request by #{consumer} retrieved #{first_appeals_id}")
+        first_appeal_id = appeals_response.body['data'][0]['id']
+        count = appeals_response.body['data'].length
+        Rails.logger.info('Caseflow Response',
+                          'consumer' => consumer,
+                          'first_appeal_id' => first_appeal_id,
+                          'appeal_count' => count)
+      end
+
+      def consumer
+        request.headers['X-Consumer-Username']
+      end
+
+      def ssn
+        ssn = request.headers['X-VA-SSN']
+        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
+        ssn
       end
 
       def user
-        ssn = request.headers[VA_SSN_HEADER]
-        raise Common::Exceptions::ParameterMissing, VA_SSN_HEADER unless ssn
-
         veteran = OpenStruct.new
         veteran.ssn = ssn
         veteran
