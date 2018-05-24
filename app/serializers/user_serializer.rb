@@ -6,9 +6,8 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  # TODO: add the :vet360_contact_information profile to these attributes
   attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
-             :in_progress_forms, :prefills_available
+             :in_progress_forms, :prefills_available, :vet360_contact_information
 
   def id
     nil
@@ -33,6 +32,7 @@ class UserSerializer < ActiveModel::Serializer
 
   def vet360_contact_information
     person = object.vet360_contact_info
+    return {} if person.blank?
 
     {
       email: person.email,

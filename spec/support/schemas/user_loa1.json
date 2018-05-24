@@ -104,6 +104,9 @@
                   }
                 }
               ]
+            },
+            "vet360_contact_information": {
+              "type": ["object", "null"]
             }
           }
         }
