@@ -45,7 +45,6 @@ describe 'vet360 rake tasks' do
     it 'aborts' do
       expect_any_instance_of(Vet360::ContactInformation::Service).not_to receive(:get_email_transaction_status)
     end
-
   end
 
   describe 'rake vet360:get_address_transaction_status' do
