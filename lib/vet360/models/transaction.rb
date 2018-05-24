@@ -25,7 +25,7 @@ module Vet360
         Vet360::Models::Transaction.new(
           messages: messages || [],
           id: body['tx_audit_id'],
-          status: body['status']
+          status: body['tx_status'] || body['status']
         )
       end
     end
