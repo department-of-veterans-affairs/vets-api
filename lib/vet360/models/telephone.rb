@@ -59,11 +59,6 @@ module Vet360
         inclusion: { in: PHONE_TYPES }
       )
 
-      validates(
-        :is_international,
-        presence: true
-      )
-
       # Converts an instance of the Telphone model to a JSON encoded string suitable for
       # use in the body of a request to Vet360
       # @return [String] JSON-encoded string suitable for requests to Vet360
