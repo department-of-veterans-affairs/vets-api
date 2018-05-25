@@ -61,15 +61,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     let(:document_data) { double(:document_data) }
 
     it 'calls the documents service api with file body and document data' do
-      allow(EVSS::DocumentsService).
-        to receive(:new).
-        and_return(client)
-      allow(AncillaryFormAttachment).
-        to receive(:find_by).
-        and_return(attachment)
-      allow(EVSSClaimDocument).
-        to receive(:new).
-        and_return(document_data)
+      allow(EVSS::DocumentsService)
+        .to receive(:new)
+        .and_return(client)
+      allow(AncillaryFormAttachment)
+        .to receive(:find_by)
+        .and_return(attachment)
+      allow(EVSSClaimDocument)
+        .to receive(:new)
+        .and_return(document_data)
 
       expect(client).to receive(:upload).with(attachment.file_data, document_data)
       subject.perform(upload_data, claim_id, auth_headers)
@@ -80,9 +80,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     let(:submission) { double(:submission, claim_id: claim_id) }
 
     it 'returns the claim id of a submission' do
-      allow(::DisabilityCompensationSubmission).
-        to receive(:find_by).
-        and_return(submission)
+      allow(::DisabilityCompensationSubmission)
+        .to receive(:find_by)
+        .and_return(submission)
 
       expect(subject.get_claim_id(user.uuid)).to eq claim_id
     end
@@ -92,9 +92,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     let(:in_progress_form) { double(:in_progress_form, uploads: uploads) }
 
     it 'returns the claim id of a submission' do
-      allow(InProgressDisabilityCompensationForm).
-        to receive(:form_for_user).
-        and_return(in_progress_form)
+      allow(InProgressDisabilityCompensationForm)
+        .to receive(:form_for_user)
+        .and_return(in_progress_form)
 
       expect(subject.get_uploads(user.uuid)).to eq uploads
     end
