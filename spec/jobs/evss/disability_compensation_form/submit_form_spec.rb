@@ -9,7 +9,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
   describe '.start' do
     it 'queues up the submit job and starts the workflow' do
       expect do
-        EVSS::DisabilityCompensationForm::SubmitForm.start(user, form_json)
+        described_class.start(user, form_json)
       end.to change(EVSS::DisabilityCompensationForm::SubmitForm.jobs, :size).by(1)
     end
   end
@@ -43,7 +43,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
   describe '#on_success' do
     it 'calls submit uploads start' do
       expect(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:start).once.with(user.uuid)
-      EVSS::DisabilityCompensationForm::SubmitForm.new.on_success({}, 'uuid' => user.uuid)
+      described_class.new.on_success({}, 'uuid' => user.uuid)
     end
   end
 end
