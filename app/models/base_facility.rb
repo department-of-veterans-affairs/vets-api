@@ -67,7 +67,7 @@ class BaseFacility < ActiveRecord::Base
                  WellnessAndPreventativeCare],
     BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
                    eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
-                   FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance
+                   FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance Pensions
                    InsuranceClaimAssistanceAndFinancialCounseling PreDischargeClaimAssistance
                    IntegratedDisabilityEvaluationSystemAssistance TransitionAssistance
                    VocationalRehabilitationAndEmploymentAssistance UpdatingDirectDepositInformation],
