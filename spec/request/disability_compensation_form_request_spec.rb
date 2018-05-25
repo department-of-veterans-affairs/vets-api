@@ -69,52 +69,16 @@ RSpec.describe 'Disability compensation form', type: :request do
   describe 'Get /v0/disability_compensation_form/submit' do
     context 'with a valid 200 evss response' do
       let(:valid_form_content) { File.read 'spec/support/disability_compensation_submit_data.json' }
+      let(:jid) { "JID-#{SecureRandom.base64}" }
+      let(:logger) { spy('Rails.logger') }
 
-      it 'should match the rated disabilities schema' do
+      it 'calls submit form start' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          allow(EVSS::DisabilityCompensationForm::SubmitForm).to receive(:start).and_return(jid)
+          allow(Rails.logger).to receive(:info)
+          expect(EVSS::DisabilityCompensationForm::SubmitForm).to receive(:start).once
           post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
           expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('submit_disability_form')
-        end
-      end
-    end
-
-    context 'with a 500 response' do
-      it 'should return a bad gateway response' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_500') do
-          post '/v0/disability_compensation_form/submit', nil, auth_header
-          expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('disability_compensation_form_submit_errors', strict: false)
-        end
-      end
-    end
-
-    context 'with a 403 unauthorized response' do
-      it 'should return a not authorized response' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_403') do
-          post '/v0/disability_compensation_form/submit', nil, auth_header
-          expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('disability_compensation_form_submit_errors', strict: false)
-        end
-      end
-    end
-
-    context 'with a generic 400 response' do
-      it 'should return a bad request response' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-          post '/v0/disability_compensation_form/submit', nil, auth_header
-          expect(response).to have_http_status(:bad_request)
-          expect(response).to match_response_schema('disability_compensation_form_submit_errors', strict: false)
-        end
-      end
-    end
-
-    context 'with a 401 response' do
-      it 'should return a bad gateway response' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_401') do
-          post '/v0/disability_compensation_form/submit', nil, auth_header
-          expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('disability_compensation_form_submit_errors', strict: false)
         end
       end
     end
