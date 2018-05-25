@@ -25,16 +25,11 @@ module EVSS
         raise ArgumentError, 'missing claim_id' unless response.claim_id
         DisabilityCompensationSubmission.create(user_uuid: user.uuid, form_type: FORM_TYPE, claim_id: response.claim_id)
       rescue StandardError => error
-        logger.error(
-          'submit form failed', user: user.uuid, component: 'EVSS', form: FORM_TYPE, detail: error.message
-        )
         raise error
       end
 
       def on_success(_status, options)
         uuid = options['uuid']
-        logger.info('submit form success', user: uuid, component: 'EVSS', form: FORM_TYPE)
-
         EVSS::DisabilityCompensationForm::SubmitUploads.start(uuid)
       end
     end
