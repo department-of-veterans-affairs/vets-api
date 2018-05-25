@@ -6,9 +6,6 @@ module EVSS
       include Sidekiq::Worker
 
       FORM_TYPE = '21-526EZ'
-      DOCUMENT_TYPES = {
-        5 => 'L049'
-      }.freeze
 
       def self.start(uuid, auth_headers)
         batch = Sidekiq::Batch.new
@@ -28,17 +25,17 @@ module EVSS
         end
       end
 
-      def perform(upload_data, claim_id, auth_headers)
+      def self.perform(upload_data, claim_id, auth_headers)
         # logger.info('processing upload', user: uuid, component: 'EVSS', \
         #             form: FORM_TYPE, upload_count: count, upload_index: index)
 
         client = EVSS::DocumentsService.new(auth_headers)
-        file_body = AncillaryFormAttachment.find_by(guid: guid).file_data
+        file_body = AncillaryFormAttachment.find_by(guid: upload_data[:guid]).file_data
         document_data = EVSSClaimDocument.new(
           evss_claim_id: claim_id,
           file_name: upload_data[:file_name],
           tracked_item_id: nil,
-          document_type: DOCUMENT_TYPES[upload_data[:enum]]
+          document_type: upload_data[:doctype]
         )
         client.upload(file_body, document_data)
 
