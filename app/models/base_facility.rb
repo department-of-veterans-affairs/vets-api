@@ -75,6 +75,8 @@ class BaseFacility < ActiveRecord::Base
     VET_CENTER => []
   }.freeze
 
+  PENSION_LOCATIONS = %w[310 330 335].freeze
+
   class << self
     attr_writer :validate_on_load
 
