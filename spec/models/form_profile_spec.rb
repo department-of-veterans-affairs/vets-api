@@ -25,25 +25,33 @@ RSpec.describe FormProfile, type: :model do
     )
   end
 
+  let(:full_name) do
+    {
+      'first' => user.first_name&.capitalize,
+      'last' => user.last_name&.capitalize,
+      'suffix' => user.va_profile[:suffix]
+    }
+  end
+
   let(:veteran_full_name) do
     {
-      'veteranFullName' => {
-        'first' => user.first_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.va_profile[:suffix]
-      }
+      'veteranFullName' => full_name
+    }
+  end
+
+  let(:address) do
+    {
+      'street' => user.va_profile[:address][:street],
+      'city' => user.va_profile[:address][:city],
+      'state' => user.va_profile[:address][:state],
+      'country' => user.va_profile[:address][:country],
+      'postal_code' => user.va_profile[:address][:postal_code]
     }
   end
 
   let(:veteran_address) do
     {
-      'veteranAddress' => {
-        'street' => user.va_profile[:address][:street],
-        'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
-      }
+      'veteranAddress' => address
     }
   end
 
@@ -51,7 +59,18 @@ RSpec.describe FormProfile, type: :model do
     {
       'application' => {
         'applicant' => {
-          'applicantEmail' => user.pciu_email
+          'applicantEmail' => user.pciu_email,
+          'applicantPhoneNumber' => us_phone,
+          'mailingAddress' => address,
+          'name' => full_name
+        },
+        'claimant' => {
+          'address' => address,
+          'dateOfBirth' => user.birth_date,
+          'name' => full_name,
+          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'email' => user.pciu_email,
+          'phoneNumber' => us_phone
         }
       }
     }
@@ -59,8 +78,8 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v21_686_c_expected) do
     {
-      'claimantAddress' => veteran_address['veteranAddress'],
-      'claimantFullName' => veteran_full_name['veteranFullName'],
+      'claimantAddress' => address,
+      'claimantFullName' => full_name,
       'dayPhone' => us_phone,
       'claimantSocialSecurityNumber' => user.ssn,
       'veteranSocialSecurityNumber' => user.ssn,
