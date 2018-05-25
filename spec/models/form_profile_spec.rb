@@ -47,8 +47,13 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v4010007_expected) do
+  let(:v40_10007_expected) do
     {
+      'application' => {
+        'applicant' => {
+          'applicantEmail' => user.pciu_email
+        }
+      }
     }
   end
 
@@ -383,6 +388,17 @@ RSpec.describe FormProfile, type: :model do
       expect(user).to receive(:authorize).with(:emis, :access?).and_return(yes)
     end
 
+    def strip_required(schema)
+      new_schema = {}
+
+      schema.each do |k, v|
+        next if k == 'required'
+        new_schema[k] = v.is_a?(Hash) ? strip_required(v) : v
+      end
+
+      new_schema
+    end
+
     def expect_prefilled(form_id)
       prefilled_data = Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']
 
@@ -391,7 +407,7 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
-        schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
+        schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
 
         filter_526_schema_fields!(schema) if schema_form_id == '21-526EZ'
 
@@ -412,7 +428,6 @@ RSpec.describe FormProfile, type: :model do
     end
 
     def filter_526_schema_fields!(schema)
-      schema['definitions']['disabilities']['items'].except!('required')
       schema['definitions']['directDeposit']['properties']['routingNumber'].except!('pattern')
       schema['definitions']['directDeposit']['properties']['accountNumber'].except!('pattern')
     end
