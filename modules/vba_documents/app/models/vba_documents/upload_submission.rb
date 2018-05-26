@@ -22,7 +22,7 @@ module VBADocuments
                                         detail: VBADocuments::UploadError::DOC105,
                                         location: nil)
       def empty_submission.read_attribute_for_serialization(attr)
-        self.send(attr)
+        send(attr)
       end
       empty_submission
     end
