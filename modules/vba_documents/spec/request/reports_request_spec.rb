@@ -108,12 +108,16 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
         expect(ids).to include(upload.guid)
       end
 
-      it 'should omit results for non-existent submission' do
+      it 'should present error result for non-existent submission' do
         post '/services/vba_documents/v0/uploads/report', ids: ['fake-1234']
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json['data']).to be_an(Array)
-        expect(json['data']).to be_empty
+        expect(json['data'].size).to eq(1)
+        status = json['data'][0]
+        expect(status['id']).to eq('fake-1234')
+        expect(status['attributes']['guid']).to eq('fake-1234')
+        expect(status['attributes']['code']).to eq('DOC105')
       end
     end
 
