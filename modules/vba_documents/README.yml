@@ -234,10 +234,7 @@ paths:
       responses:
         '200':
           description: |
-            Upload status report retrieved successfully. Any invalid or
-            unknown GUIDs will be omitted from the response, so the length
-            of the response list may not match the length of the 
-            requested GUID list.
+            Upload status report retrieved successfully.
           content:
             application/json:
               schema:
