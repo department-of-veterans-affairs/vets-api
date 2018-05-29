@@ -13,6 +13,7 @@ module Swagger
 
           parameter do
             key :name, :supporting_evidence_attachment
+            key :in, :body
             key :description, 'Object containing file name'
             key :required, true
 
