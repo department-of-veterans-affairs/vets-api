@@ -7,7 +7,7 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(uuid, auth_headers)
+      def self.start(uuid)
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
@@ -17,18 +17,15 @@ module EVSS
         batch.jobs do
           claim_id = get_claim_id(uuid)
           uploads = get_uploads(uuid)
-          # logger.info('submit uploads start', user: uuid, component: 'EVSS', \
-          #             form: FORM_TYPE, upload_count: uploads.count)
-          uploads.each_with_index do |upload_data, index|
-            perform_async(upload_data, claim_id, auth_headers, uploads.count, index)
+          uploads.each_with_index do |upload_data, _index|
+            perform_async(upload_data, claim_id, uuid)
           end
         end
       end
 
-      def self.perform(upload_data, claim_id, auth_headers)
-        # logger.info('processing upload', user: uuid, component: 'EVSS', \
-        #             form: FORM_TYPE, upload_count: count, upload_index: index)
-
+      def self.perform(upload_data, claim_id, uuid)
+        user = User.find(uuid)
+        auth_headers = EVSS::AuthHeaders.new(user).to_h
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = AncillaryFormAttachment.find_by(guid: upload_data[:guid]).file_data
         document_data = EVSSClaimDocument.new(
@@ -38,19 +35,8 @@ module EVSS
           document_type: upload_data[:doctype]
         )
         client.upload(file_body, document_data)
-
-        # logger.info('upload processed', user: uuid, component: 'EVSS', \
-        #             form: FORM_TYPE, upload_count: count, upload_index: index)
       rescue StandardError => error
-        # logger.error(
-        #   'upload processing failed', user: uuid, component: 'EVSS', \
-        #   form: FORM_TYPE, upload_count: count, upload_index: index, detail: error.message
-        # )
         raise error
-      end
-
-      def on_success(_status, options)
-        # logger.info('submit uploads success', user: uuid, component: 'EVSS', form: FORM_TYPE)
       end
 
       def self.get_claim_id(uuid)
