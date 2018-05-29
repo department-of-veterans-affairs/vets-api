@@ -15,16 +15,16 @@ module EVSS
           'uuid' => uuid
         )
         batch.jobs do
+          user = User.find(uuid)
           claim_id = get_claim_id(uuid)
-          uploads = get_uploads(uuid)
-          uploads.each_with_index do |upload_data, _index|
-            perform_async(upload_data, claim_id, uuid)
+          uploads = get_uploads(user)
+          uploads.each do |upload_data|
+            perform_async(upload_data, claim_id, user)
           end
         end
       end
 
-      def self.perform(upload_data, claim_id, uuid)
-        user = User.find(uuid)
+      def self.perform(upload_data, claim_id, user)
         auth_headers = EVSS::AuthHeaders.new(user).to_h
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = AncillaryFormAttachment.find_by(guid: upload_data[:guid]).file_data
@@ -35,8 +35,6 @@ module EVSS
           document_type: upload_data[:doctype]
         )
         client.upload(file_body, document_data)
-      rescue StandardError => error
-        raise error
       end
 
       def self.get_claim_id(uuid)
@@ -44,8 +42,7 @@ module EVSS
         form_submission.claim_id
       end
 
-      def self.get_uploads(uuid)
-        user = User.find(uuid)
+      def self.get_uploads(user)
         InProgressDisabilityCompensationForm.form_for_user(FORM_TYPE, user).uploads
       end
     end
