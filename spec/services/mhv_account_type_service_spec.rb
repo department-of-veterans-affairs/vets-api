@@ -43,9 +43,10 @@ RSpec.describe MhvAccountTypeService do
     it '#mhv_account_type returns Premium' do
       VCR.use_cassette('mhv_account_type_service/premium') do
         eligible_data_classes = subject.eligible_data_classes
-        expect(Raven).not_to receive(:capture_message)
+        #expect(Raven).not_to receive(:capture_message)
         expect(eligible_data_classes.count).to eq(32)
         expect(subject.mhv_account_type).to eq('Premium')
+        described_class.new(user)
       end
     end
   end

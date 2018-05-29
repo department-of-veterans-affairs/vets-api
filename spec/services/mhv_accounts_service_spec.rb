@@ -60,7 +60,7 @@ RSpec.describe MhvAccountsService do
           .and not_trigger_statsd_increment('mhv.account.creation.success')
           .and trigger_statsd_increment('mhv.account.creation.failure')
         expect(mhv_account.account_state).to eq('register_failed')
-        expect(mhv_account.persisted?).to be_falsey
+        expect(mhv_account.persisted?).to be_truthy
       end
 
       it 'successfully creates' do
@@ -90,7 +90,7 @@ RSpec.describe MhvAccountsService do
       context 'with an existing basic account' do
         it 'handles unknown failure to upgrade' do
           expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
-          VCR.use_cassette('mhv_account_type_service/basic') do
+          VCR.use_cassette('mhv_account_type_service/basic', allow_playback_repeats: true) do
             expect(mhv_account.account_level).to eq('Basic')
             # ensure that the value is cached
             expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
@@ -100,7 +100,7 @@ RSpec.describe MhvAccountsService do
                 .and not_trigger_statsd_increment('mhv.account.upgrade.success')
                 .and trigger_statsd_increment('mhv.account.upgrade.failure')
               expect(mhv_account.account_state).to eq('upgrade_failed')
-              expect(mhv_account.persisted?).to be_falsey
+              expect(mhv_account.persisted?).to be_truthy
               # ensure that the cache was not busted since no action was taken
               expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
             end
@@ -109,7 +109,7 @@ RSpec.describe MhvAccountsService do
 
         it 'successfully upgrades' do
           expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
-          VCR.use_cassette('mhv_account_type_service/advanced', allow_playback_repeats: true) do
+          VCR.use_cassette('mhv_account_type_service/advanced') do
             expect(mhv_account.account_level).to eq('Advanced')
             # ensure that the value is cached
             expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
@@ -118,11 +118,14 @@ RSpec.describe MhvAccountsService do
               expect { subject.upgrade }.to trigger_statsd_increment('mhv.account.upgrade.success')
                 .and not_trigger_statsd_increment('mhv.account.creation.failure')
               expect(mhv_account.account_state).to eq('upgraded')
+
               expect(mhv_account.upgraded_at).to be_a(Time)
               expect(mhv_account.persisted?).to be_truthy
               # ensure that upgrade busts the cache
               expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
-              expect(mhv_account.account_level).to eq('Premium')
+              VCR.use_cassette('mhv_account_type_service/premium') do
+                expect(mhv_account.account_level).to eq('Premium')
+              end
             end
           end
         end
@@ -131,14 +134,14 @@ RSpec.describe MhvAccountsService do
       context 'an account that cannot be upgraded' do
         it 'handles an already upgraded account' do
           expect(common_collection_namespace.exists(edc_cache_key)).to be_falsey
-          VCR.use_cassette('mhv_account_type_service/premium') do
+          VCR.use_cassette('mhv_account_type_service/premium', allow_playback_repeats: true) do
             expect(mhv_account.account_level).to eq('Premium')
             # ensure that the value is cached
             expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
             expect { subject.upgrade }.to not_trigger_statsd_increment('mhv.account.upgrade.success')
               .and not_trigger_statsd_increment('mhv.account.upgrade.failure')
             expect(mhv_account.account_state).to eq('existing')
-            expect(mhv_account.persisted?).to be_falsey
+            expect(mhv_account.persisted?).to be_truthy
             # ensure that the cache was not busted since no action was taken
             expect(common_collection_namespace.exists(edc_cache_key)).to be_truthy
           end

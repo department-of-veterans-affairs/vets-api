@@ -27,17 +27,16 @@ class MhvAccountsService
         mhv_id = client_response[:correlation_id].to_s
         mhv_account.registered_at = Time.current
         mhv_account.mhv_correlation_id = mhv_id
+        mhv_account.register!
         user.va_profile.mhv_ids = [mhv_id] + user.va_profile.mhv_ids
         user.va_profile.active_mhv_ids = [mhv_id] + user.va_profile.active_mhv_ids
         user.recache
-        mhv_account.register!
       end
     end
   rescue => e
     log_warning(type: :create, exception: e, extra: params_for_registration.slice(:icn))
     StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.failure")
-    # we no longer persist failure states
-    mhv_account.fail_register
+    mhv_account.fail_register!
     raise e
   end
 
@@ -50,12 +49,14 @@ class MhvAccountsService
         Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
         mhv_account.upgrade!
       end
+    elsif user.mhv_account_type == 'Premium'
+      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
+      mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
     end
   rescue => e
     log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
     StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
-    # we no longer persist failure states
-    mhv_account.fail_upgrade
+    mhv_account.fail_upgrade!
     raise e
   end
 

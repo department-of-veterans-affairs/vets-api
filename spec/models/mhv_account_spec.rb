@@ -221,7 +221,7 @@ RSpec.describe MhvAccount, type: :model do
             it 'has registered' do
               expect(subject.account_state).to eq('registered')
               expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
+              expect(subject.upgradable?).to be_truthy
               expect(subject.terms_and_conditions_accepted?).to be_truthy
             end
           end

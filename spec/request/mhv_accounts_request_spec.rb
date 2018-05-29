@@ -43,129 +43,119 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:vha_facility_ids) { ['450'] }
 
   let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
-  let(:tc_accepted) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, created_at: Time.current) }
 
   before(:each) do
     stub_mvi(mvi_profile)
     use_authenticated_current_user(current_user: user)
   end
 
-  context 'without accepted terms and conditions' do
-    it 'responds to GET #show' do
+  shared_examples 'a failed POST #create' do |options|
+    it "responds with #{options[:http_status]}" do
+      post v0_mhv_account_path
+      expect(response).to have_http_status(options[:http_status])
+      expect(JSON.parse(response.body)['errors'].first['detail']).to eq(options[:message])
+    end
+  end
+
+  shared_examples 'a successful GET #show' do |options|
+    it "responds with JSON indicating current account state / level" do
       get v0_mhv_account_path
       expect(response).to be_success
-      expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_terms_acceptance')
+      base_response_body = JSON.parse(response.body)['data']['attributes']
+      expect(base_response_body['account_state']).to eq(options[:account_state])
+      expect(base_response_body['account_level']).to eq(options[:account_level])
     end
+  end
 
-    it 'raises error for POST #create' do
-      post v0_mhv_account_path
-      expect(response).to have_http_status(:forbidden)
-    end
+  shared_context 'ssn mismatch' do |options|
+    let(:user_ssn) { '999999999' }
 
-    context 'with ssn mismatch' do
-      let(:user_ssn) { '999999999' }
+    it_behaves_like 'a successful GET #show', account_state: 'needs_ssn_resolution', account_level: options&.dig(:account_level)
+    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+  end
 
-      it 'responds to GET #show' do
-        get v0_mhv_account_path
-        expect(response).to be_success
-        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_ssn_resolution')
-      end
+  shared_context 'non va patient' do |options|
+    let(:vha_facility_ids) { [] }
 
-      it 'raises error for POST #create' do
-        post v0_mhv_account_path
-        expect(response).to have_http_status(:forbidden)
-      end
-    end
+    it_behaves_like 'a successful GET #show', account_state: 'needs_va_patient', account_level: options&.dig(:account_level)
+    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+  end
 
-    context 'with non va patient' do
-      let(:vha_facility_ids) { [] }
-
-      it 'responds to GET #show' do
-        get v0_mhv_account_path
-        expect(response).to be_success
-        expect(JSON.parse(response.body)['data']['attributes']['account_state']).to eq('needs_va_patient')
-      end
-
-      it 'raises error for POST #create' do
-        post v0_mhv_account_path
-        expect(response).to have_http_status(:forbidden)
+  shared_context 'a successful POST #create' do
+    it 'creates and upgrades' do
+      VCR.use_cassette('mhv_account_creation/creates_an_account') do
+        VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+          post v0_mhv_account_path
+          expect(response).to have_http_status(:accepted)
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
+        end
       end
     end
   end
 
-  context 'with accepted terms and conditions' do
-    before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
-
-    context 'without an account' do
-      it 'responds to GET #show' do
-        get v0_mhv_account_path
-        expect(response).to be_success
-        expect(JSON.parse(response.body)['data']['attributes'])
-          .to eq('account_level' => nil, 'account_state' => 'no_account')
-      end
-
-      it 'responds to POST #create' do
-        VCR.use_cassette('mhv_account_creation/creates_an_account') do
-          VCR.use_cassette('mhv_account_type_service/advanced') do
-            VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-              post v0_mhv_account_path
-            end
-          end
+  shared_context 'a semi-successful POST #create' do
+    it 'creates and fails to upgrade' do
+      VCR.use_cassette('mhv_account_creation/creates_an_account') do
+        VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
+          post v0_mhv_account_path
+          expect(response).to have_http_status(:multi_status)
+          expect(JSON.parse(response.body)['data']['attributes'])
+            .to eq('account_level' => 'Advanced', 'account_state' => 'upgrade_failed')
         end
+      end
+    end
+  end
+
+  shared_context 'a completely failed POST #create' do
+    it 'fails to create or upgrade' do
+      VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
+        post v0_mhv_account_path
+        expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Something went wrong. Please try again later.')
+      end
+    end
+  end
+
+  shared_context 'a successful POST #create with existing account' do
+    it 'upgrades' do
+      VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
+        post v0_mhv_account_path
         expect(response).to have_http_status(:accepted)
         expect(JSON.parse(response.body)['data']['attributes'])
           .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
       end
+    end
+  end
 
-      it 'handles creation error in POST #create' do
-        VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
-          post v0_mhv_account_path
-        end
+  shared_context 'an unsuccessful POST #create with existing account' do
+    it 'fails to upgrade' do
+      VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
+        post v0_mhv_account_path
         expect(response).to have_http_status(:bad_request)
+        expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Something went wrong. Please try again later.')
       end
+    end
+  end
 
-      it 'handles upgrade error in POST #create' do
-        VCR.use_cassette('mhv_account_creation/creates_an_account') do
-          VCR.use_cassette('mhv_account_type_service/advanced') do
-            VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
-              post v0_mhv_account_path
-            end
-          end
-        end
-        expect(response).to have_http_status(:bad_request)
-      end
+  context 'without T&C acceptance' do
+    it_behaves_like 'a successful GET #show', account_state: 'needs_terms_acceptance', account_level: nil
+    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+    it_behaves_like 'ssn mismatch'
+    it_behaves_like 'non va patient'
+  end
 
-      context 'with ssn mismatch' do
-        let(:user_ssn) { '999999999' }
+  context 'with T&C acceptance' do
+    before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
 
-        it 'responds to GET #show' do
-          get v0_mhv_account_path
-          expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes'])
-            .to eq('account_level' => nil, 'account_state' => 'needs_ssn_resolution')
-        end
+    it_behaves_like 'ssn mismatch'
+    it_behaves_like 'non va patient'
 
-        it 'raises error for POST #create' do
-          post v0_mhv_account_path
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-
-      context 'with non va patient' do
-        let(:vha_facility_ids) { [] }
-
-        it 'responds to GET #show' do
-          get v0_mhv_account_path
-          expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes'])
-            .to eq('account_level' => nil, 'account_state' => 'needs_va_patient')
-        end
-
-        it 'raises error for POST #create' do
-          post v0_mhv_account_path
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
+    context 'without an account' do
+      it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
+      it_behaves_like 'a successful POST #create'
+      it_behaves_like 'a semi-successful POST #create'
+      it_behaves_like 'a completely failed POST #create'
     end
 
     context 'with account' do
@@ -180,20 +170,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
               end
             end
 
-            it 'responds to GET #show' do
-              get v0_mhv_account_path
-              expect(response).to be_success
-              expect(JSON.parse(response.body)['data']['attributes'])
-                .to eq('account_level' => type, 'account_state' => 'existing')
-            end
-
-            it 'raises error for POST #create' do
-              VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-                post v0_mhv_account_path
-              end
-              expect(JSON.parse(response.body)['data']['attributes'])
-                .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
-            end
+            it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
+            it_behaves_like 'ssn mismatch', account_level: type
+            it_behaves_like 'non va patient', account_level: type
+            it_behaves_like 'a successful POST #create with existing account'
           end
         end
 
@@ -205,49 +185,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
               end
             end
 
-            it 'responds to GET #show' do
-              get v0_mhv_account_path
-              expect(response).to be_success
-              expect(JSON.parse(response.body)['data']['attributes'])
-                .to eq('account_level' => type, 'account_state' => 'existing')
-            end
-
-            it 'raises error for POST #create' do
-              post v0_mhv_account_path
-              expect(response).to have_http_status(:forbidden)
-            end
-
-            context 'with ssn mismatch' do
-              let(:user_ssn) { '999999999' }
-
-              it 'responds to GET #show' do
-                get v0_mhv_account_path
-                expect(response).to be_success
-                expect(JSON.parse(response.body)['data']['attributes'])
-                  .to eq('account_level' => type, 'account_state' => 'needs_ssn_resolution')
-              end
-
-              it 'raises error for POST #create' do
-                post v0_mhv_account_path
-                expect(response).to have_http_status(:forbidden)
-              end
-            end
-
-            context 'with non va patient' do
-              let(:vha_facility_ids) { [] }
-
-              it 'responds to GET #show' do
-                get v0_mhv_account_path
-                expect(response).to be_success
-                expect(JSON.parse(response.body)['data']['attributes'])
-                  .to eq('account_level' => type, 'account_state' => 'needs_va_patient')
-              end
-
-              it 'raises error for POST #create' do
-                post v0_mhv_account_path
-                expect(response).to have_http_status(:forbidden)
-              end
-            end
+            it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
+            it_behaves_like 'ssn mismatch', account_level: type
+            it_behaves_like 'non va patient', account_level: type
+            it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
           end
         end
       end
@@ -264,60 +205,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           end
         end
 
-        it 'responds to GET #show' do
-          get v0_mhv_account_path
-          expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes'])
-            .to eq('account_level' => 'Advanced', 'account_state' => 'registered')
-        end
-
-        it 'responds to POST #create' do
-          VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-            post v0_mhv_account_path
-          end
-          expect(response).to have_http_status(:accepted)
-          expect(JSON.parse(response.body)['data']['attributes'])
-            .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
-        end
-
-        it 'handles upgrade error in POST #create' do
-          VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
-            post v0_mhv_account_path
-          end
-          expect(response).to have_http_status(:bad_request)
-        end
-
-        context 'with ssn mismatch' do
-          let(:user_ssn) { '999999999' }
-
-          it 'responds to GET #show' do
-            get v0_mhv_account_path
-            expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes'])
-              .to eq('account_level' => 'Advanced', 'account_state' => 'needs_ssn_resolution')
-          end
-
-          it 'raises error for POST #create' do
-            post v0_mhv_account_path
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-
-        context 'with non va patient' do
-          let(:vha_facility_ids) { [] }
-
-          it 'responds to GET #show' do
-            get v0_mhv_account_path
-            expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes'])
-              .to eq('account_level' => 'Advanced', 'account_state' => 'needs_va_patient')
-          end
-
-          it 'raises error for POST #create' do
-            post v0_mhv_account_path
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
+        it_behaves_like 'a successful GET #show', account_state: 'registered', account_level: 'Advanced'
+        it_behaves_like 'ssn mismatch', account_level: 'Advanced'
+        it_behaves_like 'non va patient', account_level: 'Advanced'
+        it_behaves_like 'a successful POST #create with existing account'
+        it_behaves_like 'an unsuccessful POST #create with existing account'
       end
 
       context 'that is upgraded' do
@@ -332,49 +224,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
           end
         end
 
-        it 'responds to GET #show' do
-          get v0_mhv_account_path
-          expect(response).to be_success
-          expect(JSON.parse(response.body)['data']['attributes'])
-            .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
-        end
-
-        it 'raises error for POST #create' do
-          post v0_mhv_account_path
-          expect(response).to have_http_status(:forbidden)
-        end
-
-        context 'with ssn mismatch' do
-          let(:user_ssn) { '999999999' }
-
-          it 'responds to GET #show' do
-            get v0_mhv_account_path
-            expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes'])
-              .to eq('account_level' => 'Premium', 'account_state' => 'needs_ssn_resolution')
-          end
-
-          it 'raises error for POST #create' do
-            post v0_mhv_account_path
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-
-        context 'with non va patient' do
-          let(:vha_facility_ids) { [] }
-
-          it 'responds to GET #show' do
-            get v0_mhv_account_path
-            expect(response).to be_success
-            expect(JSON.parse(response.body)['data']['attributes'])
-              .to eq('account_level' => 'Premium', 'account_state' => 'needs_va_patient')
-          end
-
-          it 'raises error for POST #create' do
-            post v0_mhv_account_path
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
+        it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
+        it_behaves_like 'ssn mismatch', account_level: 'Premium'
+        it_behaves_like 'non va patient', account_level: 'Premium'
+        it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
       end
     end
   end

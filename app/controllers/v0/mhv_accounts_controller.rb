@@ -12,11 +12,15 @@ module V0
     end
 
     def create
-      mhv_accounts_service.create if mhv_account.creatable?
+      if mhv_account.creatable?
+        mhv_accounts_service.create
+        @partially_complete = true
+      end
       mhv_accounts_service.upgrade if mhv_account.upgradable?
-      render json: mhv_account,
-             serializer: MhvAccountSerializer,
-             status: :accepted
+      render_for_create
+    rescue => e
+      raise unless @partially_complete
+      render_for_create(status: :multi_status)
     end
 
     protected
@@ -37,6 +41,12 @@ module V0
 
     def mhv_accounts_service
       @mhv_accounts_service ||= MhvAccountsService.new(mhv_account)
+    end
+
+    def render_for_create(status: :accepted)
+      render json: mhv_account,
+             serializer: MhvAccountSerializer,
+             status: status
     end
   end
 end

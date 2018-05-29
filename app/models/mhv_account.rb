@@ -12,10 +12,9 @@ class MhvAccount < ActiveRecord::Base
     state_ineligible country_ineligible needs_terms_acceptance
   ].freeze
 
-  FAILURE_STATES = %i[register_failed upgrade_failed].freeze
-  PERSISTED_STATES = %i[registered upgraded].freeze
+  PERSISTED_STATES = %i[registered upgraded register_failed upgrade_failed].freeze
   ELIGIBLE_STATES = %i[existing eligible no_account].freeze
-  ALL_STATES = (%i[unknown] + FAILURE_STATES + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
+  ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
   after_initialize :setup
 
@@ -45,11 +44,16 @@ class MhvAccount < ActiveRecord::Base
     end
 
     event :register do
-      transitions from: %i[no_account], to: :registered
+      transitions from: %i[register_failed no_account], to: :registered
     end
 
+    # we will upgrade existing account only if it has not been previously upgraded (even if subsequently downgraded)
     event :upgrade do
-      transitions from: %i[registered existing], to: :upgraded
+      transitions from: %i[upgrade_failed existing registered], to: :upgraded, unless: :already_premium?
+    end
+
+    event :existing_premium do
+      transitions from: %i[existing], to: :existing, if: :already_premium?
     end
 
     event :fail_register do
@@ -87,8 +91,13 @@ class MhvAccount < ActiveRecord::Base
   end
 
   # if vets.gov upgraded the account it is premium, if not, we have to check eligible data classes
+  # NOTE: individual services should always check mhv_account_type using eligible data classes since
+  # it is possible for accounts to get downgraded.
   def account_level
-    upgraded_at? ? 'Premium' : user.mhv_account_type
+    return 'Advanced' if registered?
+    return 'Advanced' if upgrade_failed? && registered_at.present?
+    return 'Premium' if upgraded?
+    user.mhv_account_type
   end
 
   def user
@@ -96,6 +105,10 @@ class MhvAccount < ActiveRecord::Base
   end
 
   private
+
+  def already_premium?
+    account_level == 'Premium' && !previously_upgraded?
+  end
 
   def identity_proofed?
     user.loa3?
