@@ -18,7 +18,7 @@ module Swagger
             key :required, true
 
             schema do
-              property :file_data, type: :string, example: "filename.pdf"
+              property :file_data, type: :string, example: 'filename.pdf'
             end
           end
 
