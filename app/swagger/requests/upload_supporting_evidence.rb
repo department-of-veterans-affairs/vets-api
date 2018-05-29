@@ -13,11 +13,12 @@ module Swagger
 
           parameter do
             key :name, :supporting_evidence_attachment
+            key :in, :body
             key :description, 'Object containing file name'
             key :required, true
 
             schema do
-              property :file_data, type: :string, example: "document.pdf"
+              property :file_data, type: :string, example: "filename.pdf"
             end
           end
 
