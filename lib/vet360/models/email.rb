@@ -39,7 +39,7 @@ module Vet360
       end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Email model
-      # @params body [Hash] the decoded response body from Vet360
+      # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Email] the model built from the response body
       def self.build_from(body)
         Vet360::Models::Email.new(

@@ -18,14 +18,14 @@ module Vet360
       attribute :status, String
 
       # Converts a decoded JSON response from Vet360 to an instance of the Transaction model
-      # @params body [Hash] the decoded response body from Vet360
+      # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Transaction] the model built from the response body
       def self.build_from(body)
         messages = body['tx_messages']&.map { |m| Vet360::Models::Message.build_from(m) }
         Vet360::Models::Transaction.new(
           messages: messages || [],
           id: body['tx_audit_id'],
-          status: body['status']
+          status: body['tx_status'] || body['status']
         )
       end
     end
