@@ -5,11 +5,13 @@ EVSSPolicy = Struct.new(:user, :evss) do
 
   def access?
     if user.edipi.present? && user.ssn.present? && user.participant_id.present?
-      log_message_to_sentry('EVSS Pundit success log', :info) if user.loa3?
+      StatsD.increment('api.evss.policy.success') if user.loa3?
 
       true
     else
       if user.loa3?
+        StatsD.increment('api.evss.policy.failure')
+
         log_message_to_sentry(
           'EVSS Pundit failure log',
           :info,
