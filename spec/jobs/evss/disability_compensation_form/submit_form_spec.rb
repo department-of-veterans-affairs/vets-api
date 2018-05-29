@@ -3,13 +3,18 @@
 require 'rails_helper'
 
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
-  before(:each) do
-    Sidekiq::Worker.clear_all
+  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:form_json) { { data: "I'm a form" }.to_json }
+
+  describe '.start' do
+    it 'queues up the submit job and starts the workflow' do
+      expect do
+        described_class.start(user, form_json)
+      end.to change(EVSS::DisabilityCompensationForm::SubmitForm.jobs, :size).by(1)
+    end
   end
 
-  describe 'perform' do
-    let(:user) { FactoryBot.create(:user, :loa3) }
-    let(:form_json) { { data: "I'm a form" }.to_json }
+  describe '#perform' do
     let(:response) { instance_double('EVSS::DisabilityCompensationForm::FormSubmitResponse') }
 
     before(:each) do
@@ -32,6 +37,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm, type: :job do
       it 'raises an argument error (to trigger job retry)' do
         expect { described_class.new.perform(user, form_json) }.to raise_error(ArgumentError)
       end
+    end
+  end
+
+  describe '#on_success' do
+    it 'calls submit uploads start' do
+      expect(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:start).once.with(user.uuid)
+      described_class.new.on_success({}, 'uuid' => user.uuid)
     end
   end
 end
