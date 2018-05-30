@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AncillaryFormAttachmentUploader do
+RSpec.describe SupportingEvidenceAttachmentUploader do
   let(:guid) { '1234' }
   subject { described_class.new(guid) }
 
