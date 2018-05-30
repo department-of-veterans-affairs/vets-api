@@ -45,7 +45,7 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
     end
 
     it 'should return Forbidden for non-veteran user' do
-      expect_any_instance_of(EMISRedis::VeteranStatus)
+      allow_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).and_return('V2')
       get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:forbidden)
