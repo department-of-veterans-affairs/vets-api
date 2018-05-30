@@ -70,7 +70,7 @@ module Vet360
       # @return [String] JSON-encoded string suitable for requests to Vet360
       def in_json
         # Determine international flag if not set
-        # @is_international ||= @country_code.present? && @country_code != '1'
+        @is_international ||= @country_code.present? && @country_code != '1'
 
         {
           bio: {
