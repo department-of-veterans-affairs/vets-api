@@ -6,6 +6,7 @@ require 'vic/id_card_attribute_error'
 module V0
   class IdCardAttributesController < ApplicationController
     before_action :authorize
+    before_action(:tag_rainbows)
 
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
@@ -23,8 +24,14 @@ module V0
       # VeteranStatus method
       raise Common::Exceptions::Forbidden, detail: 'You do not have access to ID card attributes' unless
         current_user.loa3?
-      raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'Unable to verify EDIPI' if
-        current_user.edipi.blank?
+
+      title38_status = begin
+        current_user.veteran_status&.title38_status
+      rescue EMISRedis::VeteranStatus::RecordNotFound
+        nil
+      end
+
+      raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC002', detail: 'No EDIPI or not found in eMIS' if current_user.edipi.blank? || title38_status.blank?
       begin
         unless current_user.can_access_id_card?
           raise ::VIC::IDCardAttributeError, status: 403, code: 'VIC003',
