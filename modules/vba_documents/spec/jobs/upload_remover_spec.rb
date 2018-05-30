@@ -53,7 +53,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
 
       it 'should do nothing' do
         with_settings(Settings.vba_documents.s3, 'enabled': true) do
-          expect(@object).to_not receive(:delete).with(upload.guid)
+          expect(@objstore).to_not receive(:delete).with(upload.guid)
           described_class.new.perform
           upload.reload
           expect(upload.s3_deleted).to be_falsy
