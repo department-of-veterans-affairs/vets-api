@@ -40,21 +40,6 @@ module VA526ez
     attribute :payment_account, FormPaymentAccountInformation
   end
 
-  class FormAddress
-    include Virtus.model
-
-    attribute :type
-    attribute :country
-    attribute :city
-    attribute :state
-    attribute :zip_code
-    attribute :address_line_1
-    attribute :address_line_2
-    attribute :address_line_3
-    attribute :military_post_office_type_code
-    attribute :military_state_code
-  end
-
   class FormContactInformation
     include Virtus.model
 
@@ -99,7 +84,7 @@ class FormProfiles::VA526ez < FormProfile
     pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
 
     contact_info = VA526ez::FormContactInformation.new(
-      mailing_address: get_pciu_address(user),
+      mailing_address: get_common_address(user),
       email_address: pciu_email,
       primary_phone: get_us_phone(pciu_primary_phone)
     )
@@ -148,16 +133,17 @@ class FormProfiles::VA526ez < FormProfile
     {}
   end
 
-  def get_pciu_address(user)
+  # Convert PCIU address to a Common address type
+  def get_common_address(user)
     service = EVSS::PCIUAddress::Service.new(user)
     response = service.get_address
     case response.address
     when EVSS::PCIUAddress::DomesticAddress
-      prefill_pciu_domestic_address(response.address)
+      prefill_domestic_address(response.address)
     when EVSS::PCIUAddress::InternationalAddress
-      prefill_pciu_international_address(response.address)
+      prefill_international_address(response.address)
     when EVSS::PCIUAddress::MilitaryAddress
-      prefill_pciu_military_address(response.address)
+      prefill_military_address(response.address)
     else
       {}
     end
@@ -165,39 +151,33 @@ class FormProfiles::VA526ez < FormProfile
     {}
   end
 
-  def prefill_pciu_domestic_address(address)
+  def prefill_domestic_address(address)
     {
-      type: address&.type,
       country: address&.country_name,
       city: address&.city,
       state: address&.state_code,
-      zip_code: address&.zip_code,
-      address_line_1: address&.address_one,
-      address_line_2: address&.address_two,
-      address_line_3: address&.address_three
+      postal_code: address&.zip_code,
+      street: address&.address_one,
+      street_2: "#{address&.address_two} #{address&.address_three}".strip
     }.compact
   end
 
-  def prefill_pciu_international_address(address)
+  def prefill_international_address(address)
     {
-      type: address&.type,
       country: address&.country_name,
       city: address&.city,
-      address_line_1: address&.address_one,
-      address_line_2: address&.address_two,
-      address_line_3: address&.address_three
+      street: address&.address_one,
+      street_2: "#{address&.address_two} #{address&.address_three}".strip
     }.compact
   end
 
-  def prefill_pciu_military_address(address)
+  def prefill_military_address(address)
     {
-      type: address&.type,
-      military_post_office_type_code: address&.military_post_office_type_code,
-      military_state_code: address&.military_state_code,
-      zip_code: address&.zip_code,
-      address_line_1: address&.address_one,
-      address_line_2: address&.address_two,
-      address_line_3: address&.address_three
+      country: 'USA',
+      city: address&.military_post_office_type_code,
+      state: address&.military_state_code,
+      street: address&.address_one,
+      street_2: "#{address&.address_two} #{address&.address_three}".strip
     }.compact
   end
 end
