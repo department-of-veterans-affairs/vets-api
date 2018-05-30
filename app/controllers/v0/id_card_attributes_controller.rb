@@ -12,9 +12,9 @@ module V0
       id_attributes = IdCardAttributes.for_user(current_user)
       signed_attributes = ::VIC::URLHelper.generate(id_attributes)
       render json: signed_attributes
-    rescue
-      raise ::VIC::IDCardAttributeError, status: 502, code: 'VIC011',
-                                         detail: 'Could not verify military service attributes'
+    rescue StandardError => e
+      log_exception_to_sentry(e)
+      raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC002
     end
 
     private
