@@ -67,13 +67,15 @@ class BaseFacility < ActiveRecord::Base
                  WellnessAndPreventativeCare],
     BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
                    eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
-                   FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance
+                   FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance Pensions
                    InsuranceClaimAssistanceAndFinancialCounseling PreDischargeClaimAssistance
                    IntegratedDisabilityEvaluationSystemAssistance TransitionAssistance
                    VocationalRehabilitationAndEmploymentAssistance UpdatingDirectDepositInformation],
     CEMETERY => [],
     VET_CENTER => []
   }.freeze
+
+  PENSION_LOCATIONS = %w[310 330 335].freeze
 
   class << self
     attr_writer :validate_on_load
