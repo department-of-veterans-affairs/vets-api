@@ -59,11 +59,10 @@ RSpec.describe MhvAccountTypeService do
         expect(described_class.new(user).mhv_account_type).to eq('Premium')
       end
 
-        5.times do
-          expect(namespace.get(cache_key)).not_to be_nil
-          expect(described_class.new(user).mhv_account_type).to eq('Premium')
-        end
-
+      5.times do
+        expect(namespace.get(cache_key)).not_to be_nil
+        expect(described_class.new(user).mhv_account_type).to eq('Premium')
+      end
     end
   end
 
