@@ -141,6 +141,7 @@ module V0
       Swagger::Requests::Profile,
       Swagger::Requests::Sessions,
       Swagger::Requests::TermsAndConditions,
+      Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
       Swagger::Requests::VAFacilities,
       Swagger::Responses::AuthenticationError,
