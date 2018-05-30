@@ -49,6 +49,9 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
         .to receive(:title38_status).and_return('V2')
       get '/v0/id_card/attributes', headers: auth_header
       expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body)['errors'][0]['code']).to eq(
+        'VICV2'
+      )
     end
 
     it 'should return Forbidden when veteran status not retrievable' do
