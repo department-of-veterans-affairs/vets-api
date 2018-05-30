@@ -27,7 +27,7 @@ module Common
             facility.merge!(make_direct_mappings(location, mapping))
             facility.merge!(make_complex_mappings(location, mapping))
             facility.merge!(make_address_mappings(location, mapping))
-            facility.merge!(make_benefits_mappings(location, mapping)) if mapping['benefits']
+            facility.merge!(make_benefits_mappings(location, mapping, facility['unique_id'])) if mapping['benefits']
             facility.merge!(make_service_mappings(location, mapping)) if mapping['services']
             facility
           end
@@ -51,12 +51,13 @@ module Common
             { 'address' => attributes }
           end
 
-          def make_benefits_mappings(location, mapping)
+          def make_benefits_mappings(location, mapping, id)
             attributes = {}
             attributes['benefits'] = {
               'standard' => clean_benefits(complex_mapping(mapping['benefits'], location['attributes'])),
               'other' => location['attributes']['Other_Services']
             }
+            attributes['benefits']['standard'] << 'Pensions' if BaseFacility::PENSION_LOCATIONS.include?(id)
             { 'services' => attributes }
           end
 
