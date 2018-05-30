@@ -19,12 +19,12 @@ describe 'vet360 rake tasks' do
       Rake::Task['vet360:get_person'].reenable
       Rake.application.invoke_task 'vet360:get_person[1]'
     end
-      it 'runs without errors' do
-        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person)
-        VCR.use_cassette('vet360/contact_information/person', VCR::MATCH_EVERYTHING) do
-          expect { silently do run_rake_task end }.not_to raise_error
-        end
+    it 'runs without errors' do
+      expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person)
+      VCR.use_cassette('vet360/contact_information/person', VCR::MATCH_EVERYTHING) do
+        expect { silently { run_rake_task } }.not_to raise_error
       end
+    end
   end
 
   describe 'rake vet360:get_email_transaction_status' do
@@ -35,7 +35,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_email_transaction_status)
       VCR.use_cassette('vet360/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
     let :fail_rake_task do
@@ -55,7 +55,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_address_transaction_status)
       VCR.use_cassette('vet360/contact_information/address_transaction_status', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -68,7 +68,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_telephone_transaction_status)
       VCR.use_cassette('vet360/contact_information/telephone_transaction_status', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -84,7 +84,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_email)
       VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -102,7 +102,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_telephone)
       VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -122,7 +122,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:put_address)
       VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -138,7 +138,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:post_email)
       VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -156,7 +156,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:post_telephone)
       VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -176,7 +176,7 @@ describe 'vet360 rake tasks' do
     it 'runs without errors' do
       expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:post_address)
       VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
-        expect { silently do run_rake_task end }.not_to raise_error
+        expect { silently { run_rake_task } }.not_to raise_error
       end
     end
   end
@@ -197,4 +197,3 @@ def silently
   @original_stderr = nil
   @original_stdout = nil
 end
-
