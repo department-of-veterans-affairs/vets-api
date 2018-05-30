@@ -31,7 +31,7 @@ module V0
       raise ::VIC::IDCardAttributeError, ::VIC::IDCardAttributeError::VIC002 if current_user.edipi.blank?
 
       title38_status = begin
-        current_user.veteran_status&.title38_status
+        current_user.veteran_status.title38_status
       rescue EMISRedis::VeteranStatus::RecordNotFound
         nil
       rescue StandardError => e
