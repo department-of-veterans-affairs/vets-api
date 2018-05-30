@@ -10,6 +10,7 @@ module VBADocuments
     DOC102 = 'Invalid metadata part'
     DOC103 = 'Invalid content part'
     DOC104 = 'Upload rejected by downstream system'
+    DOC105 = 'Invalid or unknown id'
 
     # DOC2xx errors: server errors either local or downstream
     # not unambiguously related to submitted content

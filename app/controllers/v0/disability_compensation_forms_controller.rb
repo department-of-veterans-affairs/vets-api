@@ -11,9 +11,9 @@ module V0
     end
 
     def submit
-      response = service.submit_form(request.body.string)
-      render json: response,
-             serializer: SubmitDisabilityFormSerializer
+      jid = EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, request.body.string)
+      Rails.logger.info('submit form start', user: @current_user.uuid, component: 'EVSS', form: '21-526EZ', jid: jid)
+      head 200
     end
 
     private
