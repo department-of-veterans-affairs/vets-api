@@ -8,7 +8,7 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
 
   MAX_FILE_SIZE = 25.megabytes
 
-  process(convert: 'pdf')
+  process(convert: 'pdf', if: :not_pdf?)
 
   def initialize(guid)
     super
@@ -35,5 +35,11 @@ class PreneedAttachmentUploader < CarrierWave::Uploader::Base
 
   def filename
     super.chomp(File.extname(super)) + '.pdf' if original_filename.present?
+  end
+
+  private
+
+  def not_pdf?(file)
+    file.content_type != 'application/pdf'
   end
 end
