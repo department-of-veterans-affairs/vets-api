@@ -332,12 +332,11 @@ RSpec.describe FormProfile, type: :model do
       ],
       'veteran' => {
         'mailingAddress' => {
-          'type' => 'DOMESTIC',
           'country' => 'USA',
           'city' => 'Washington',
           'state' => 'DC',
-          'zipCode' => '20011',
-          'addressLine1' => '140 Rock Creek Church Rd NW'
+          'postalCode' => '20011',
+          'street' => '140 Rock Creek Church Rd NW'
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
