@@ -22,7 +22,7 @@ module Vet360
       attribute :effective_end_date, Common::ISO8601Time
       attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
-      attribute :is_international, Boolean
+      attribute :is_international, Boolean, default: false
       attribute :is_textable, Boolean
       attribute :is_text_permitted, Boolean
       attribute :is_tty, Boolean
@@ -59,12 +59,18 @@ module Vet360
         inclusion: { in: PHONE_TYPES }
       )
 
+      validates(
+        :is_international,
+        inclusion: { in: [true, false] },
+        exclusion: { in: [nil] }
+      )
+
       # Converts an instance of the Telphone model to a JSON encoded string suitable for
       # use in the body of a request to Vet360
       # @return [String] JSON-encoded string suitable for requests to Vet360
       def in_json
         # Determine international flag if not set
-        @is_international ||= @country_code.present? && @country_code != '1'
+        # @is_international ||= @country_code.present? && @country_code != '1'
 
         {
           bio: {
