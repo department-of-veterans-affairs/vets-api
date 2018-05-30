@@ -12,9 +12,9 @@ module Appeals
 
     STATSD_KEY_PREFIX = 'api.appeals'
 
-    def get_appeals(user)
+    def get_appeals(user, additional_headers = {})
       with_monitoring do
-        response = perform(:get, '', {}, request_headers(user))
+        response = perform(:get, '', {}, request_headers(user, additional_headers))
         Appeals::Responses::Appeals.new(response.body, response.status)
       end
     rescue Common::Client::Errors::ClientError => error
@@ -23,11 +23,11 @@ module Appeals
 
     private
 
-    def request_headers(user)
+    def request_headers(user, additional_headers)
       {
         'ssn' => user.ssn,
         'Authorization' => "Token token=#{Settings.appeals.app_token}"
-      }
+      }.merge(additional_headers)
     end
   end
 end

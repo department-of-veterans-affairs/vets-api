@@ -318,8 +318,8 @@ RSpec.describe FormProfile, type: :model do
     {
       'directDeposit' => {
         'accountType' => 'CHECKING',
-        'accountNumber' => 'xxxxxxxxx1234',
-        'routingNumber' => 'xxxxx2115',
+        'accountNumber' => '9876543211234',
+        'routingNumber' => '042102115',
         'bankName' => 'Comerica'
       },
       'disabilities' => [
