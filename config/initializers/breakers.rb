@@ -52,7 +52,7 @@ services = [
   MVI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
-  Vet360::Configuration.instance.breakers_service
+  Vet360::ContactInformation::Configuration.instance.breakers_service
 ]
 
 services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled
