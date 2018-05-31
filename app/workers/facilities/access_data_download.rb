@@ -31,7 +31,7 @@ module Facilities
       'DERMATOLOGY' => 'dermatology',
       'GASTROENTEROLOGY' => 'gastroenterology',
       'GYNECOLOGY' => 'gynecology',
-      'OPHTHALMOLOGY' => 'opthalmology', # intentional mispelling to match source
+      'OPHTHALMOLOGY' => 'ophthalmology',
       'OPTOMETRY' => 'optometry',
       'ORTHOPEDICS' => 'orthopedics',
       'UROLOGY CLINIC' => 'urology_clinic'

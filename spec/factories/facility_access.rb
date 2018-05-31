@@ -23,7 +23,7 @@ FactoryBot.define do
         mental_health: { 'new' => 17.0, 'established' => 1.0 },
         audiology: { 'new' => 29.0, 'established' => 17.0 },
         womens_health: { 'new' => nil, 'established' => 11.0 },
-        opthalmology: { 'new' => 21.0, 'established' => 8.0 },
+        ophthalmology: { 'new' => 21.0, 'established' => 8.0 },
         urology_clinic: { 'new' => 20.0, 'established' => 7.0 }
       }
     end

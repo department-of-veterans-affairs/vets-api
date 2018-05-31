@@ -194,7 +194,7 @@ module Swagger
         property :gastroenterology do
           key :'$ref', :HealthAccessMetric
         end
-        property :opthalmology do
+        property :ophthalmology do
           key :'$ref', :HealthAccessMetric
         end
         property :optometry do
