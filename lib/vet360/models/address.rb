@@ -140,7 +140,9 @@ module Vet360
             zipCode5: @zip_code_suffix,
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceDate: @source_date,
-            vet360Id: @vet360_id
+            vet360Id: @vet360_id,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
