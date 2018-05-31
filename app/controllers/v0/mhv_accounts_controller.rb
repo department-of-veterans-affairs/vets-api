@@ -18,7 +18,7 @@ module V0
       end
       mhv_accounts_service.upgrade if mhv_account.upgradable?
       render_for_create
-    rescue => e
+    rescue StandardError
       raise unless @partially_complete
       render_for_create(status: :multi_status)
     end

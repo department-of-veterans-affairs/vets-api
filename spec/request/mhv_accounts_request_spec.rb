@@ -43,6 +43,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:vha_facility_ids) { ['450'] }
 
   let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
+  let(:ineligible_error_message) { 'You are not eligible for creating/upgrading an MHV account' }
 
   before(:each) do
     stub_mvi(mvi_profile)
@@ -58,7 +59,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   end
 
   shared_examples 'a successful GET #show' do |options|
-    it "responds with JSON indicating current account state / level" do
+    it 'responds with JSON indicating current account state / level' do
       get v0_mhv_account_path
       expect(response).to be_success
       base_response_body = JSON.parse(response.body)['data']['attributes']
@@ -70,15 +71,17 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   shared_context 'ssn mismatch' do |options|
     let(:user_ssn) { '999999999' }
 
-    it_behaves_like 'a successful GET #show', account_state: 'needs_ssn_resolution', account_level: options&.dig(:account_level)
-    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+    it_behaves_like 'a successful GET #show', account_state: 'needs_ssn_resolution',
+                                              account_level: options&.dig(:account_level)
+    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: ineligible_error_message
   end
 
   shared_context 'non va patient' do |options|
     let(:vha_facility_ids) { [] }
 
-    it_behaves_like 'a successful GET #show', account_state: 'needs_va_patient', account_level: options&.dig(:account_level)
-    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+    it_behaves_like 'a successful GET #show', account_state: 'needs_va_patient',
+                                              account_level: options&.dig(:account_level)
+    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: ineligible_error_message
   end
 
   shared_context 'a successful POST #create' do
@@ -112,7 +115,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
         post v0_mhv_account_path
         expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Something went wrong. Please try again later.')
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('Something went wrong. Please try again later.')
       end
     end
   end
@@ -133,14 +137,15 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       VCR.use_cassette('mhv_account_creation/account_upgrade_unknown_error') do
         post v0_mhv_account_path
         expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['errors'].first['detail']).to eq('Something went wrong. Please try again later.')
+        expect(JSON.parse(response.body)['errors'].first['detail'])
+          .to eq('Something went wrong. Please try again later.')
       end
     end
   end
 
   context 'without T&C acceptance' do
     it_behaves_like 'a successful GET #show', account_state: 'needs_terms_acceptance', account_level: nil
-    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+    it_behaves_like 'a failed POST #create', http_status: :forbidden, message: ineligible_error_message
     it_behaves_like 'ssn mismatch'
     it_behaves_like 'non va patient'
   end
@@ -188,7 +193,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
             it_behaves_like 'ssn mismatch', account_level: type
             it_behaves_like 'non va patient', account_level: type
-            it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+            it_behaves_like 'a failed POST #create', http_status: :forbidden, message: ineligible_error_message
           end
         end
       end
@@ -227,7 +232,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
         it_behaves_like 'ssn mismatch', account_level: 'Premium'
         it_behaves_like 'non va patient', account_level: 'Premium'
-        it_behaves_like 'a failed POST #create', http_status: :forbidden, message: 'You are not eligible for creating/upgrading an MHV account'
+        it_behaves_like 'a failed POST #create', http_status: :forbidden, message: ineligible_error_message
       end
     end
   end
