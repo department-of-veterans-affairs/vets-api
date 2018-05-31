@@ -2,7 +2,7 @@
 :services:
 
 - :name: 'MHV_Rx'
-  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>:443
+  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
     # data classes
     - :method: :get
