@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AncillaryFormAttachmentUploader < CarrierWave::Uploader::Base
+class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
 

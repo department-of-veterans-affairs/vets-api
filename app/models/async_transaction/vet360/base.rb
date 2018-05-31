@@ -35,10 +35,10 @@ module AsyncTransaction
       end
 
       # Updates the status and transaction_status with fresh API data
-      # @params user [User] the user whose tx data is being updated
-      # @params service [Vet360::ContactInformation::Service] an initialized vet360 client
-      # @params tx_id [int] the transaction_id
-      # @returns [AsyncTransaction::Vet360::Base]
+      # @param user [User] the user whose tx data is being updated
+      # @param service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @param tx_id [int] the transaction_id
+      # @return [AsyncTransaction::Vet360::Base]
       def self.refresh_transaction_status(user, service, tx_id = nil)
         transaction_record = find_transaction!(user.uuid, tx_id)
         return transaction_record if transaction_record.finished?
@@ -47,10 +47,10 @@ module AsyncTransaction
       end
 
       # Requests a transaction from vet360 for an app transaction
-      # @params user [User] the user whose tx data is being updated
-      # @params transaction_record [AsyncTransaction::Vet360::Base] the tx record to be checked
-      # @params service [Vet360::ContactInformation::Service] an initialized vet360 client
-      # @returns [Vet360::Models::Transaction]
+      # @param user [User] the user whose tx data is being updated
+      # @param transaction_record [AsyncTransaction::Vet360::Base] the tx record to be checked
+      # @param service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @return [Vet360::Models::Transaction]
       def self.fetch_transaction(transaction_record, service)
         case transaction_record
         when AsyncTransaction::Vet360::AddressTransaction
@@ -66,9 +66,9 @@ module AsyncTransaction
       end
 
       # Finds a transaction by transaction_id for a user
-      # @params user_uuid [String] the user's UUID
-      # @params transaction_id [String] the transaction UUID
-      # @returns [AddressTransaction, EmailTransaction, TelephoneTransaction]
+      # @param user_uuid [String] the user's UUID
+      # @param transaction_id [String] the transaction UUID
+      # @return [AddressTransaction, EmailTransaction, TelephoneTransaction]
       def self.find_transaction!(user_uuid, transaction_id)
         Base.find_by!(user_uuid: user_uuid, transaction_id: transaction_id)
       end
@@ -91,7 +91,7 @@ module AsyncTransaction
       # Wrapper for .refresh_transaction_status which finds any outstanding transactions
       #   for a user and refreshes them
       # @param user [User] the user whose transactions we're checking
-      # @params service [Vet360::ContactInformation::Service] an initialized vet360 client
+      # @param service [Vet360::ContactInformation::Service] an initialized vet360 client
       # @return [Array] An array with any outstanding transactions refreshed. Empty if none.
       def self.refresh_transaction_statuses(user, service)
         last_ongoing_transactions_for_user(user).each_with_object([]) do |transaction, array|

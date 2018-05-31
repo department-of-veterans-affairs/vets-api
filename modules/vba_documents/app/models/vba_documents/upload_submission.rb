@@ -11,7 +11,20 @@ module VBADocuments
       submissions = where(guid: guids)
       in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
       refresh_statuses!(in_flights)
-      submissions.to_a
+      missing = guids - submissions.map(&:guid)
+      submissions.to_a + missing.map { |id| fake_status(id) }
+    end
+
+    def self.fake_status(guid)
+      empty_submission = OpenStruct.new(guid: guid,
+                                        status: 'error',
+                                        code: 'DOC105',
+                                        detail: VBADocuments::UploadError::DOC105,
+                                        location: nil)
+      def empty_submission.read_attribute_for_serialization(attr)
+        send(attr)
+      end
+      empty_submission
     end
 
     def self.refresh_statuses!(submissions)
