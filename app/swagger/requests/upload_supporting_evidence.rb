@@ -2,24 +2,23 @@
 
 module Swagger
   module Requests
-    class UploadAncillaryForm
+    class UploadSupportingEvidence
       include Swagger::Blocks
 
-      swagger_path '/v0/upload_ancillary_form' do
+      swagger_path '/v0/upload_supporting_evidence' do
         operation :post do
-          key :description, 'Upload a pdf or image file containing an ancillary form'
-          key :operationId, 'uploadAncillaryForm'
+          key :description, 'Upload a pdf or image file containing supporting evidence for form 526'
+          key :operationId, 'uploadSupportingEvidence'
           key :tags, %w[form_526]
 
           parameter do
-            key :name, :ancillary_form_attachment
+            key :name, :supporting_evidence_attachment
+            key :in, :body
             key :description, 'Object containing file name'
             key :required, true
 
             schema do
-              key :name, :file_data
-              key :description, 'The file path'
-              key :required, true
+              property :file_data, type: :string, example: 'filename.pdf'
             end
           end
 

@@ -113,7 +113,7 @@ module Vet360
       end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
-      # @params body [Hash] the decoded response body from Vet360
+      # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Address] the model built from the response body
       # rubocop:disable Metrics/MethodLength
       def in_json
@@ -147,7 +147,7 @@ module Vet360
       # rubocop:enable Metrics/MethodLength
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
-      # @params body [Hash] the decoded response body from Vet360
+      # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Address] the model built from the response body
       # rubocop:disable Metrics/MethodLength
       def self.build_from(body)

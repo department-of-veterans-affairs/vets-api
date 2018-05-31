@@ -322,6 +322,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports submitting the form' do
+        allow(EVSS::DisabilityCompensationForm::SubmitForm).to receive(:start).and_return("JID-#{SecureRandom.base64}")
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
@@ -359,6 +360,31 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             auth_options.update('type' => 'compensation')
           )
         end
+      end
+    end
+
+    describe 'supporting evidence upload' do
+      let(:form_attachment) do
+        {
+          id: 272,
+          created_at: Time.now.utc,
+          updated_at: Time.now.utc,
+          guid: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87',
+          ecrypted_file_data: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim',
+          encrypted_file_data: 'ayqrfIpruCPtLGnA'
+        }
+      end
+
+      it 'supports uploading a file' do
+        allow_any_instance_of(FormAttachmentCreate)
+          .to receive(:create)
+          .and_return(form_attachment)
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 200,
+                                    'supporting_evidence_attachment' => { 'file_data' => 'foo.pdf' })
+      end
+
+      it 'returns a 500 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
       end
     end
 
@@ -1346,6 +1372,43 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             auth_options
           )
         end
+      end
+    end
+
+    describe 'when EVSS authorization requirements are not met' do
+      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
+
+      before do
+        Session.create(uuid: unauthorized_evss_user.uuid, token: token)
+        User.create(unauthorized_evss_user)
+      end
+
+      it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
+        expect(subject).to validate(:get, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 403, auth_options)
+      end
+    end
+
+    describe 'when MVI returns an unexpected response body' do
+      it 'supports returning a custom 502 response' do
+        allow_any_instance_of(MVI::Models::MviProfile).to receive(:gender).and_return(nil)
+        allow_any_instance_of(MVI::Models::MviProfile).to receive(:birth_date).and_return(nil)
+
+        VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 502, auth_options)
+        end
+      end
+    end
+
+    describe 'when EMIS returns an unexpected response body' do
+      it 'supports returning a custom 502 response' do
+        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
+
+        expect(subject).to validate(:get, '/v0/profile/service_history', 502, auth_options)
       end
     end
   end

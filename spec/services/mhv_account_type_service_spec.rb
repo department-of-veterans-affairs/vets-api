@@ -51,6 +51,22 @@ RSpec.describe MhvAccountTypeService do
     end
   end
 
+  context 'fetches cached value' do
+    let(:namespace) { Redis::Namespace.new('common_collection', redis: Redis.current) }
+    let(:cache_key) { '12210827:geteligibledataclass' }
+
+    it '#mhv_account_type returns Premium' do
+      VCR.use_cassette('mhv_account_type_service/premium') do
+        expect(described_class.new(user).mhv_account_type).to eq('Premium')
+      end
+
+      5.times do
+        expect(namespace.get(cache_key)).not_to be_nil
+        expect(described_class.new(user).mhv_account_type).to eq('Premium')
+      end
+    end
+  end
+
   context 'advanced user' do
     it '#mhv_account_type returns Advanced' do
       VCR.use_cassette('mhv_account_type_service/advanced') do

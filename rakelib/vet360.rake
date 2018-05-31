@@ -5,290 +5,213 @@ namespace :vet360 do
   ## TASKS ##
   ###########
 
+  ENV_VAR_NAME = 'VET360_RAKE_DATA'
+
   ## GETs
 
   desc 'Request Vet360 person contact information'
   task :get_person, [:vet360_id] => [:environment] do |_, args|
-    abort 'No vet360_id provided' if args[:vet360_id].blank?
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-
-    person = Vet360::ContactInformation::Service.new(user).get_person
+    ensure_arg(:vet360_id, args)
+    person = Vet360::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
     pp person.to_h
   end
 
   desc 'GET Vet360 email transaction status'
   task :get_email_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-    abort 'No vet360_id provided' if args[:vet360_id].blank?
-    abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
-
-    trx = Vet360::ContactInformation::Service.new(user).get_email_transaction_status(transaction)
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(args[:vet360_id]))
+          .get_email_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
   desc 'GET Vet360 address transaction status'
   task :get_address_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-    abort 'No vet360_id provided' if args[:vet360_id].blank?
-    abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction.new(id: args[:tx_audit_id])
-
-    trx = Vet360::ContactInformation::Service.new(user).get_address_transaction_status(transaction)
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(args[:vet360_id]))
+          .get_address_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
   desc 'GET Vet360 telephone transaction status'
   task :get_telephone_transaction_status, %i[vet360_id tx_audit_id] => [:environment] do |_, args|
-    abort 'No vet360_id provided' if args[:vet360_id].blank?
-    abort 'No tx_audit_id provided' if args[:tx_audit_id].blank?
-
-    user = OpenStruct.new(vet360_id: args[:vet360_id])
-    transaction = Vet360::Models::Transaction(id: args[:tx_audit_id])
-
-    trx = Vet360::ContactInformation::Service.new(user).get_telephone_transaction_status(transaction)
+    ensure_arg(:vet360_id, args)
+    ensure_arg(:tx_audit_id, args)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(args[:vet360_id]))
+          .get_telephone_transaction_status(args[:tx_audit_id])
     pp trx.to_h
   end
 
-  desc 'Update Vet360 email'
-  task :put_email, [:body] => [:environment] do |_, args|
-    # EXPECTED FORMAT OF BODY:
+  ## PUTs
+
+  desc "Update Vet360 email (from #{ENV_VAR_NAME})"
+  task put_email: [:environment] do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
-    #   "bio": {
-    #     "confirmationDate": "2018-04-06T17:42:47.655Z",
-    #     "effectiveEndDate": "2018-04-06T17:42:47.655Z",
-    #     "effectiveStartDate": "2018-04-06T17:42:47.655Z",
-    #     "emailAddressText": "string",
-    #     "emailId": 0,
-    #     "emailPermInd": true,
-    #     "emailStatusCode": "NO_KNOWN_PROBLEM",
-    #     "originatingSourceSystem": "string",
-    #     "sourceDate": "2018-04-06T17:42:47.655Z",
-    #     "sourceSystemUser": "string",
-    #     "vet360Id": 0
-    #   }
+    #     "email_address": "string",
+    #     "email_id": 0,
+    #     "email_perm_ind": true,
+    #     "vet360_id": 0
+    #     ...
+    #     [ see lib/vet360/models/email.rb ]
     # }
-    abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
-    abort 'No vet360_id provided in body' if vet360_id.blank?
+    ensure_data_var
 
-    user = OpenStruct.new(vet360_id: vet360_id)
-    email = Vet360::Models::Email.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).put_email(email)
+    data = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = data.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
+    email = Vet360::Models::Email.build_from(data)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .put_email(email)
     pp trx.to_h
   end
 
-  desc 'Update Vet360 telephone'
-  task :put_telephone, [:body] => [:environment] do |_, args|
-    # EXPECTED FORMAT OF BODY:
+  desc "Update Vet360 telephone (from #{ENV_VAR_NAME})"
+  task put_telephone: [:environment] do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
-    #   "bio": {
-    #     "areaCode": "string",
-    #     "confirmationDate": "2018-04-06T17:59:16.371Z",
-    #     "connectionStatusCode": "NO_KNOWN_PROBLEM",
-    #     "countryCode": "string",
-    #     "effectiveEndDate": "2018-04-06T17:59:16.371Z",
-    #     "effectiveStartDate": "2018-04-06T17:59:16.371Z",
-    #     "internationalIndicator": true,
-    #     "originatingSourceSystem": "string",
-    #     "phoneNumber": "string",
-    #     "phoneNumberExt": "string",
-    #     "phoneType": "MOBILE",
-    #     "sourceDate": "2018-04-06T17:59:16.371Z",
-    #     "sourceSystemUser": "string",
-    #     "telephoneId": 0,
-    #     "textMessageCapableInd": true,
-    #     "textMessagePermInd": true,
-    #     "ttyInd": true,
-    #     "vet360Id": 0,
-    #     "voiceMailAcceptableInd": true
-    #   }
+    #     "area_code": "string",
+    #     "country_code": "string",
+    #     "phone_number": "string",
+    #     ...
+    #     [ see lib/vet360/models/telephone.rb ]
     # }
-    abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
-    abort 'No vet360_id provided in body' if vet360_id.blank?
+    ensure_data_var
 
-    user = OpenStruct.new(vet360_id: vet360_id)
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
     telephone = Vet360::Models::Telephone.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).put_telephone(telephone)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .put_telephone(telephone)
     pp trx.to_h
   end
 
-  desc 'Update Vet360 address'
-  task :put_address, [:body] => [:environment] do |_, args|
-    # EXPECTED FORMAT OF BODY:
+  desc "Update Vet360 address (from #{ENV_VAR_NAME})"
+  task put_address: [:environment] do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
-    #   "bio": {
-    #     "addressId": 0,
-    #     "addressLine1": "string",
-    #     "addressLine2": "string",
-    #     "addressLine3": "string",
-    #     "addressPOU": "RESIDENCE/CHOICE",
-    #     "addressType": "string",
-    #     "badAddressIndicator": "string",
-    #     "cityName": "string",
-    #     "confidenceScore": "string",
-    #     "confirmationDate": "2018-04-06T17:57:08.701Z",
-    #     "countryCodeFIPS": "string",
-    #     "countryCodeISO2": "string",
-    #     "countryCodeISO3": "string",
-    #     "countryName": "string",
-    #     "county": {
-    #       "countyCode": "string",
-    #       "countyName": "string"
-    #     },
-    #     "effectiveEndDate": "2018-04-06T17:57:08.701Z",
-    #     "effectiveStartDate": "2018-04-06T17:57:08.701Z",
-    #     "geocodeDate": "2018-04-06T17:57:08.701Z",
-    #     "geocodePrecision": "string",
-    #     "intPostalCode": "string",
-    #     "latitude": "string",
-    #     "longitude": "string",
-    #     "originatingSourceSystem": "string",
-    #     "overrideIndicator": false,
-    #     "provinceName": "string",
-    #     "sourceDate": "2018-04-06T17:57:08.701Z",
-    #     "sourceSystemUser": "string",
-    #     "stateCode": "string",
-    #     "vet360Id": 0,
-    #     "zipCode4": "string",
-    #     "zipCode5": "string"
-    #   }
+    #     "address_id": 0,
+    #     "address_line1": "string",
+    #     "address_line2": "string",
+    #     "address_line3": "string",
+    #     "address_pou": "RESIDENCE/CHOICE",
+    #     ...
+    #     [ see lib/vet360/models/address.rb ]
     # }
-    abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
-    abort 'No vet360_id provided in body' if vet360_id.blank?
+    ensure_data_var
 
-    user = OpenStruct.new(vet360_id: vet360_id)
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
     address = Vet360::Models::Address.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).put_address(address)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .put_address(address)
     pp trx.to_h
   end
 
-  desc 'Create Vet360 email'
-  task :post_email, [:body] => [:environment] do |_, args|
-    # EXPECTED FORMAT OF BODY:
+  ## POSTs
+
+  desc "Create Vet360 email (from #{ENV_VAR_NAME})"
+  task post_email: [:environment] do
+    # EXPECTED FORMAT OF VET360_RAKE_DATA:
     # {
-    #   "bio": {
-    #     "confirmationDate": "2018-04-06T17:42:47.655Z",
-    #     "effectiveEndDate": "2018-04-06T17:42:47.655Z",
-    #     "effectiveStartDate": "2018-04-06T17:42:47.655Z",
-    #     "emailAddressText": "string",
-    #     "emailPermInd": true,
-    #     "emailStatusCode": "NO_KNOWN_PROBLEM",
-    #     "originatingSourceSystem": "string",
-    #     "sourceDate": "2018-04-06T17:42:47.655Z",
-    #     "sourceSystemUser": "string",
-    #     "vet360Id": 0
-    #   }
+    #     "email_address_text": "string",
+    #     "email_perm_ind": true,
+    #     "vet360_id": 0
+    #     ...
+    #     [ see lib/vet360/models/email.rb ]
     # }
-    abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
-    abort 'No vet360_id provided in body' if vet360_id.blank?
+    ensure_data_var
 
-    user = OpenStruct.new(vet360_id: vet360_id)
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
     email = Vet360::Models::Email.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).post_email(email)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .post_email(email)
     pp trx.to_h
   end
 
-  desc 'Create Vet360 telephone'
-  task :post_telephone, [:body] => [:environment] do |_, args|
+  desc "Create Vet360 telephone (from #{ENV_VAR_NAME})"
+  task post_telephone: [:environment] do
     # EXPECTED FORMAT OF BODY:
     # {
-    #   "bio": {
-    #     "areaCode": "string",
-    #     "confirmationDate": "2018-04-06T17:59:16.371Z",
-    #     "connectionStatusCode": "NO_KNOWN_PROBLEM",
-    #     "countryCode": "string",
-    #     "effectiveEndDate": "2018-04-06T17:59:16.371Z",
-    #     "effectiveStartDate": "2018-04-06T17:59:16.371Z",
-    #     "internationalIndicator": true,
-    #     "originatingSourceSystem": "string",
-    #     "phoneNumber": "string",
-    #     "phoneNumberExt": "string",
-    #     "phoneType": "MOBILE",
-    #     "sourceDate": "2018-04-06T17:59:16.371Z",
-    #     "sourceSystemUser": "string",
-    #     "textMessageCapableInd": true,
-    #     "textMessagePermInd": true,
-    #     "ttyInd": true,
-    #     "vet360Id": 0,
-    #     "voiceMailAcceptableInd": true
-    #   }
+    #     "area_code": "string",
+    #     "phone_number": "string",
+    #     "phone_number_ext": "string",
+    #     "phone_type": "MOBILE",
+    #     "vet360_id": 0,
+    #     ...
+    #     [ see lib/vet360/models/telephone.rb ]
     # }
-    abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
-    abort 'No vet360_id provided in body' if vet360_id.blank?
+    ensure_data_var
 
-    user = OpenStruct.new(vet360_id: vet360_id)
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
     telephone = Vet360::Models::Telephone.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).post_telephone(telephone)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .post_telephone(telephone)
     pp trx.to_h
   end
 
-  desc 'Create Vet360 address'
-  task :post_address, [:body] => [:environment] do |_, args|
+  desc "Create Vet360 address (from #{ENV_VAR_NAME})"
+  task post_address: [:environment] do
     # EXPECTED FORMAT OF BODY:
     # {
-    #   "bio": {
-    #     "addressLine1": "string",
-    #     "addressLine2": "string",
-    #     "addressLine3": "string",
-    #     "addressPOU": "RESIDENCE/CHOICE",
-    #     "addressType": "string",
-    #     "badAddressIndicator": "string",
-    #     "cityName": "string",
-    #     "confidenceScore": "string",
-    #     "confirmationDate": "2018-04-06T17:57:08.701Z",
-    #     "countryCodeFIPS": "string",
-    #     "countryCodeISO2": "string",
-    #     "countryCodeISO3": "string",
-    #     "countryName": "string",
-    #     "county": {
-    #       "countyCode": "string",
-    #       "countyName": "string"
-    #     },
-    #     "effectiveEndDate": "2018-04-06T17:57:08.701Z",
-    #     "effectiveStartDate": "2018-04-06T17:57:08.701Z",
-    #     "geocodeDate": "2018-04-06T17:57:08.701Z",
-    #     "geocodePrecision": "string",
-    #     "intPostalCode": "string",
-    #     "latitude": "string",
-    #     "longitude": "string",
-    #     "originatingSourceSystem": "string",
-    #     "overrideIndicator": false,
-    #     "provinceName": "string",
-    #     "sourceDate": "2018-04-06T17:57:08.701Z",
-    #     "sourceSystemUser": "string",
-    #     "stateCode": "string",
-    #     "vet360Id": 0,
-    #     "zipCode4": "string",
-    #     "zipCode5": "string"
-    #   }
+    #     "address_line1": "string",
+    #     "address_line2": "string",
+    #     "vet360_id": 0,
+    #     ...
+    #     [ see lib/vet360/models/address.rb ]
     # }
-    abort 'No body provided' if args[:body].blank?
 
-    body = JSON.parse(body)
-    vet360_id = body.dig('bio', 'vet360_id')
-    abort 'No vet360_id provided in body' if vet360_id.blank?
+    ensure_data_var
 
-    user = OpenStruct.new(vet360_id: vet360_id)
+    body = JSON.parse(ENV[ENV_VAR_NAME])
+    vet360_id = body.dig('vet360_id')
+    ensure_var('vet360_id', vet360_id)
+
     address = Vet360::Models::Address.build_from(body)
-    trx = Vet360::ContactInformation::Service.new(user).post_address(address)
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .post_address(address)
     pp trx.to_h
+  end
+
+  def ensure_data_var
+    abort "Env var: #{ENV_VAR_NAME} not set" if ENV[ENV_VAR_NAME].blank?
+  end
+
+  def ensure_arg(arg_symbol, args)
+    abort "No #{arg_symbol} argument provided" if args[arg_symbol].blank?
+  end
+
+  def ensure_var(name, var)
+    abort "No #{name} included" if var.blank?
+  end
+
+  def user_struct(vet360_id)
+    OpenStruct.new(vet360_id: vet360_id)
   end
 end

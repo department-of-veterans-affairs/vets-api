@@ -26,6 +26,12 @@ GIT
       activesupport (>= 3.0.0)
 
 PATH
+  remote: modules/appeals_api
+  specs:
+    appeals_api (0.0.1)
+      rails (~> 4.2.7.1)
+
+PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
@@ -1052,6 +1058,7 @@ DEPENDENCIES
   aasm
   active_model_serializers (= 0.10.4)
   apivore
+  appeals_api!
   attr_encrypted
   awesome_print (~> 1.8)
   awrence

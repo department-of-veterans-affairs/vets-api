@@ -19,6 +19,14 @@ EducationForm::CreateSpoolSubmissionsReport:
   cron: "15 4 * * MON-FRI America/New_York"
   description: "Send the daily report to the call center about spool file submissions"
 
+Preneeds::DeleteOldUploads:
+  cron: "15 2 * * * America/New_York"
+  description: "Clear out preneeds file uploads older than 2 months"
+
+VIC::DeleteOldUploads:
+  cron: "00 2 * * * America/New_York"
+  description: "Clear out VIC file uploads older than 2 months"
+
 CentralMail::DeleteOldClaims:
   cron: "30 2 * * * America/New_York"
   class: CentralMail::DeleteOldClaims
@@ -86,3 +94,8 @@ VBADocuments::UploadScanner:
   cron: "0,30 * * * * * America/New_York"
   class: VBADocuments::UploadScanner
   description: "Poll upload bucket for unprocessed uploads"
+
+VBADocuments::UploadRemover:
+  cron: "15,45 * * * * * America/New_York"
+  class: VBADocuments::UploadRemover
+  description: "Clean up submitted documents from S3"

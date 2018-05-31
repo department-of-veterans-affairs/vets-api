@@ -29,7 +29,7 @@ Rails.application.routes.draw do
       post 'submit'
     end
 
-    resource :upload_ancillary_form, only: :create
+    resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
@@ -217,6 +217,7 @@ Rails.application.routes.draw do
 
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
+    mount AppealsApi::Engine, at: '/appeals'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

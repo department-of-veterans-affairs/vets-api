@@ -145,9 +145,23 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
+  config.before(:all) do
+    unless defined?(Sidekiq::Batch)
+      Sidekiq::Batch = Class.new do
+        def on(_callback, _klass, _options) end
+
+        def jobs
+          yield
+        end
+      end
+    end
+  end
+
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
+    stub_vet360 unless example.metadata[:skip_vet360]
+
     Sidekiq::Worker.clear_all
   end
 

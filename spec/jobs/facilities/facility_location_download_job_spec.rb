@@ -3,6 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
+  before(:each) { BaseFacility.validate_on_load = false }
+  after(:each) { BaseFacility.validate_on_load = true }
+
   describe 'NCA Facilities' do
     it 'retrieves and persists facilities data' do
       VCR.use_cassette('facilities/va/nca_facilities') do
@@ -70,6 +73,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VBAFacility.count).to eq(487)
       end
     end
+
+    it 'should indicate Pensions for appropriate facilities' do
+      VCR.use_cassette('facilities/va/vba_facilities') do
+        expect(Facilities::VBAFacility.count).to eq(0)
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        expect(Facilities::VBAFacility.find('310').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('330').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('335').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('327').services['benefits']['standard']).not_to include('Pensions')
+      end
+    end
   end
 
   describe 'VC Facilities' do
@@ -88,6 +102,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         expect(Facilities::VHAFacility.count).to eq(1185)
+      end
+    end
+  end
+
+  context 'with facility validation' do
+    before(:each) { BaseFacility.validate_on_load = true }
+    after(:each) { BaseFacility.validate_on_load = false }
+    it 'raises an error when trying to retrieve and persist facilities data' do
+      VCR.use_cassette('facilities/va/vha_facilities') do
+        expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
+          .to raise_error(Common::Client::Errors::ParsingError, 'invalid source data: duplicate ids')
       end
     end
   end

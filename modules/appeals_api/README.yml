@@ -1,0 +1,333 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Appeals 
+  description: |
+    Caseflow Appeals Status
+    
+    ## Background
+    
+    This API is being provided as a proof of concept of a general-purpose VA 
+    API gateway. The use case is to allow authorized third-party developers to
+    request the status of a Veteran's benefit appeals.
+
+    The Appeals API passes data through to Caseflow, a case management system. Caseflow
+    accepts a header with the Veteran's SSN and returns the current status of
+    their appeals.
+
+    Because this application is designed to allow third-parties to request
+    information on behalf of a Veteran, we are not using VAAFI headers or SSOe.
+
+    ## Design
+    
+    ### Authorization
+    
+    API requests are authorized by means of a symmetric API token, provided in an HTTP header
+    with name "apikey".
+
+    ### Status Request
+    
+    Allows a client to check benefit appeals status
+
+    1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
+        * Provide the Veteran's SSN as the X-VA-SSN header
+    
+    2. Service Response: A JSON API object with the current status of appeals
+          
+      ## Reference
+
+      Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+
+  termsOfService: ''
+  contact:
+    name: Vets.gov
+tags:
+  - name: appeals
+    description: Caseflow appeals status API
+servers: 
+  - url: dev-api.vets.gov/services/appeals/{version}
+    description: Vets.gov API development environment
+    variables:
+      version:
+        default: v0
+paths:
+  /appeals:
+    get:
+      tags:
+        - appeals_status 
+      summary: Retrieve appeals status for the Veteran with the supplied ssn
+      operationId: getAppealStatus
+      security:
+        - api_key: []
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve appeals statuses for 
+      responses:
+        '200':
+          description: Appeals retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Appeal"
+        '400':
+          description: Missing SSN header
+        '403':
+          description: Bad API Token
+        '404':
+          description: No appeals found for supplied SSN
+        '422':
+          description: invalid SSN
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: apikey
+      in: query
+  schemas:
+    Appeal:
+      description: |
+        Appeal and supporting information for the supplied Veteran SSN
+      type: object
+      properties:
+        id:
+          type: string
+          description: ID from VACOLS
+          example: '7387389'
+        type:
+          type: string
+          example: appealSeries
+        attributes:
+          type: object
+          properties:
+            appealIds:
+              format: array
+              description: An array of the individual VACOLS IDs that are combined into this appeal
+              items:
+                type: string
+                example: '1234567'
+            updated:
+              format: date-time
+              example: '2018-01-03T09:30:15-05:00'
+              description: The timestamp for the last refresh of the data
+            active:
+              type: boolean
+              description: Indicates whether the appeal is ongoing or closed
+            incompleteHistory:
+              type: boolean
+              example: false
+            aoj:
+              type: string
+              description: Agency of Original Jurisdiction
+              enum:
+              - vba
+              - vha
+              - nca
+              - other
+            programArea:
+              type: string
+              enum: 
+              - compensation
+              - pension
+              - insurance
+              - loan_guaranty
+              - education
+              - vre
+              - medical
+              - burial
+              - bva
+              - other
+              - multiple
+            description:
+              type: string
+              example: Service connection, tinnitus, and 3 others
+            type:
+              type: string
+              description: Indicates the type of Appeal
+              enum:
+              - original
+              - post_remand
+              - post_cavc_remand
+              - reconsideration
+              - cue
+            aod:
+              type: boolean
+              example: false
+            location:
+              type: string
+              description: Indicates who currently has the appeal
+              enum:
+              - aoj
+              - bva
+            status:
+              type: object
+              properties:
+                type:
+                  type: string
+                  enum:
+                  - scheduled_hearing
+                  - pending_hearing_scheduling
+                  - on_docket
+                  - pending_certification_ssoc
+                  - pending_certification
+                  - pending_form9
+                  - pending_soc
+                  - stayed
+                  - at_vso
+                  - bva_development
+                  - decision_in_progress
+                  - bva_decision
+                  - field_grant
+                  - withdrawn
+                  - ftr
+                  - ramp
+                  - death
+                  - reconsideration
+                  - other_close
+                  - remand_ssoc
+                  - remand
+                  - merged
+                details:
+                  type: object
+            docket:
+              type: object
+              properties:
+                month:
+                  type: string
+                  format: date
+                  example: '2016-08-01'
+                docketMonth:
+                  type: string
+                  format: date
+                  example: '2014-06-01'
+                front:
+                  type: boolean
+                  example: false
+                total:
+                  type: number
+                  example: 206900
+                ahead:
+                  type: number
+                  example: 109203
+                ready:
+                  type: number
+                  example: 22109
+                eta:
+                  type: string
+                  format: date
+                  example: '2019-08-31'
+            issues:
+              type: array
+              items:
+                $ref: '#/components/schemas/Issue'
+            alerts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Alert'
+            events:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+            evidence:
+              type: array
+              items:
+                $ref: '#/components/schemas/Evidence'
+    Alert:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - form9_needed
+          - scheduled_hearing
+          - hearing_no_show
+          - held_for_evidence
+          - cavc_option
+          - ramp_eligible
+          - ramp_ineligible
+          - decision_soon
+          - blocked_by_vso
+          - scheduled_dro_hearing
+          - dro_hearing_no_show
+        details:
+          type: object
+    Event:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+          - claim_decision
+          - nod
+          - soc
+          - form9
+          - ssoc
+          - certified
+          - hearing_held
+          - hearing_no_show
+          - bva_decision
+          - field_grant
+          - withdrawn
+          - ftr
+          - ramp
+          - death
+          - merged
+          - record_designation
+          - reconsideration
+          - vacated
+          - other_close
+          - cavc_decision
+          - ramp_notice
+          - transcript
+          - remand_return
+          - dro_hearing_held
+          - dro_hearing_cancelled
+          - dro_hearing_no_show
+        date:
+          type: string
+          format: date
+          example: '2016-05-30'
+        details:
+          type: object
+    Issue:
+      type: object
+      properties:
+        active:
+          type: boolean
+        description:
+          type: string
+          example: Service connection, tinnitus
+        diagnosticCode:
+          type: string
+          example: "6260"
+          description: The CFR diagnostic code for the issue, if applicable
+        lastAction:
+          type: string
+          enum:
+          - field_grant
+          - withdrawn
+          - allowed
+          - denied
+          - remand
+          - cavc_remand
+        date:
+          type: string
+          format: date
+          example: '2016-05-30'
+    Evidence:
+      type: object
+      properties:
+        description:
+          type: string
+          example: Service treatment records
+        date:
+          type: string
+          format: date
+          example: '2017-09-30'
