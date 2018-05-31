@@ -11,6 +11,7 @@ module Vet360
       attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
       attribute :source_date, Common::ISO8601Time
+      attribute :source_system_user, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
@@ -32,6 +33,7 @@ module Vet360
             emailId: @id,
             # emailPermInd: true, # @TODO ??
             originatingSourceSystem: SOURCE_SYSTEM,
+            sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
             vet360Id: @vet360_id
           }
