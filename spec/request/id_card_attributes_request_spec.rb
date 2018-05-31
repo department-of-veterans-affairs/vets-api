@@ -44,6 +44,15 @@ RSpec.describe 'Requesting ID Card Attributes', type: :request do
       expect(response).to have_http_status(:bad_gateway)
     end
 
+    it 'should return VIC002 if title38status is not retrievable' do
+      allow_any_instance_of(EMISRedis::VeteranStatus)
+        .to receive(:title38_status).and_return(nil)
+      get '/v0/id_card/attributes', headers: auth_header
+      expect(JSON.parse(response.body)['errors'][0]['code']).to eq(
+        'VIC002'
+      )
+    end
+
     it 'should return Forbidden for non-veteran user' do
       allow_any_instance_of(EMISRedis::VeteranStatus)
         .to receive(:title38_status).and_return('V2')
