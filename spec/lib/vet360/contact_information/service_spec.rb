@@ -100,7 +100,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
   end
 
-  describe '#put_address', focus: true do
+  describe '#put_address' do
     let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
     context 'when successful' do
       it 'returns a status of 200' do

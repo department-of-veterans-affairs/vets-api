@@ -116,7 +116,7 @@ module Vet360
           updated_at: body['update_date'],
           vet360_id: body['vet360_id'],
           effective_end_date: body['effective_end_date'],
-          effective_start_date: body['effective_start_date'],
+          effective_start_date: body['effective_start_date']
         )
       end
     end
