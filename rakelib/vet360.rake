@@ -199,17 +199,17 @@ namespace :vet360 do
     pp trx.to_h
   end
 
-  desc <<-EOD
-Initializes a vet360_id for the passed in ICNs.
+  desc <<~DESCRIPTION
+    Initializes a vet360_id for the passed in ICNs.
 
-Takes a comma-separated list of ICNs as an argument.  Prints an array of hash results.
+    Takes a comma-separated list of ICNs as an argument.  Prints an array of hash results.
 
-Sample way to call this rake task:
+    Sample way to call this rake task:
 
-rake vet360:init_vet360_id[123456,1312312,134234234,4234234]'
+    rake vet360:init_vet360_id[123456,1312312,134234234,4234234]'
 
-Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
-  EOD
+    Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
+  DESCRIPTION
   task :init_vet360_id, [:icns] => [:environment] do |_, args|
     service = Vet360::Person::Service.new('rake_user')
     icns    = args.extras.prepend(args[:icns])
@@ -223,7 +223,7 @@ Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134
         vet360_id = response&.person&.vet360_id
 
         results << { icn: icn, vet360_id: vet360_id }
-      rescue => e
+      rescue StandardError => e
         results << { icn: icn, vet360_id: e.message }
       end
     end
