@@ -51,7 +51,8 @@ services = [
   MHVAC::Configuration.instance.breakers_service,
   MVI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
-  SM::Configuration.instance.breakers_service
+  SM::Configuration.instance.breakers_service,
+  Vet360::Configuration.instance.breakers_service
 ]
 
 services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled

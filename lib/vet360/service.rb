@@ -67,5 +67,10 @@ module Vet360
         )
       end
     end
+
+    def self.breakers_service
+      Common::Client::Base.breakers_service
+    end
+
   end
 end
