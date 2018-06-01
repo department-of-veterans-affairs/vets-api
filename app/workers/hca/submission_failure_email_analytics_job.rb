@@ -13,7 +13,7 @@ module HCA
           detail: 'It should be configured in settings.yml'
         )
       end
-      if Settings.google_analytics.tracking_id.blank?
+      if Settings.google_analytics_tracking_id.blank?
         raise Common::Exceptions::ParameterMissing.new(
           'Google Analytics tracking ID',
           detail: 'It should be configured in settings.yml'
