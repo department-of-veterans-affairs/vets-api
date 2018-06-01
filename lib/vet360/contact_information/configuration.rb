@@ -10,7 +10,7 @@ module Vet360
       end
 
       def service_name
-        'Vet360'
+        'Vet360/ContactInformation'
       end
 
       def mock_enabled?
