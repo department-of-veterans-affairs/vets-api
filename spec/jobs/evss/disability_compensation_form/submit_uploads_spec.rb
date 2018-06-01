@@ -63,7 +63,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       allow(EVSS::DocumentsService)
         .to receive(:new)
         .and_return(client)
-      allow(AncillaryFormAttachment)
+      allow(SupportingEvidenceAttachment)
         .to receive(:find_by)
         .and_return(attachment)
       allow(EVSSClaimDocument)
