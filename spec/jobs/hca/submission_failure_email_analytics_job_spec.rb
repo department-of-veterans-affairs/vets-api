@@ -14,12 +14,14 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
   end
 
   describe '#perform', run_at: '2018-05-30 18:18:56' do
-    context 'necessary settings are not present' do
+    context 'GovDelivery token is missing from settings' do
       it 'should raise an error' do
         allow(FeatureFlipper).to receive(:send_email?).and_return(false)
         expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
       end
+    end
 
+    context 'Google Analytics tracking ID is missing from settings' do
       it 'should raise an error' do
         Settings.google_analytics.tracking_id = nil
         expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
