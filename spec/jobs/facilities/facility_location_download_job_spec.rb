@@ -73,6 +73,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VBAFacility.count).to eq(487)
       end
     end
+
+    it 'should indicate Pensions for appropriate facilities' do
+      VCR.use_cassette('facilities/va/vba_facilities') do
+        expect(Facilities::VBAFacility.count).to eq(0)
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        expect(Facilities::VBAFacility.find('310').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('330').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('335').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('327').services['benefits']['standard']).not_to include('Pensions')
+      end
+    end
   end
 
   describe 'VC Facilities' do
