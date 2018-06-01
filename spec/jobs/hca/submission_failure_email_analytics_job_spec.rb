@@ -10,7 +10,7 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
   before do
     Settings.reports.token = 'asdf'
     Settings.reports.server = 'stage-tms.govdelivery.com'
-    Settings.google_analytics.tracking_id = 'UA-XXXXXXXXX-1'
+    Settings.google_analytics_tracking_id = 'UA-XXXXXXXXX-1'
   end
 
   describe '#perform', run_at: '2018-05-30 18:18:56' do
@@ -23,7 +23,7 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
 
     context 'Google Analytics tracking ID is missing from settings' do
       it 'should raise an error' do
-        Settings.google_analytics.tracking_id = nil
+        Settings.google_analytics_tracking_id = nil
         expect { subject.perform }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end
