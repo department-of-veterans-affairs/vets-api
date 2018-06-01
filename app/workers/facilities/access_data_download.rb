@@ -34,7 +34,7 @@ module Facilities
       'OPHTHALMOLOGY' => 'ophthalmology',
       'OPTOMETRY' => 'optometry',
       'ORTHOPEDICS' => 'orthopedics',
-      'UROLOGY CLINIC' => 'urology_clinic'
+      'UROLOGY CLINIC' => 'urology'
     }.freeze
 
     WT_REQUIRED_KEYS = %w[facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate].freeze

@@ -172,7 +172,7 @@ FactoryBot.define do
         'established' => 5.0
       },
       'effective_date' => '2018-03-05',
-      'urology_clinic' => {
+      'urology' => {
         'new' => 24.0,
         'established' => 8.0
       },

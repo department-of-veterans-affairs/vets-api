@@ -200,7 +200,7 @@ module Swagger
         property :optometry do
           key :'$ref', :HealthAccessMetric
         end
-        property :urology_clinic do
+        property :urology do
           key :'$ref', :HealthAccessMetric
         end
         property :effective_date, type: :string, format: :date, example: '2017-07-01'

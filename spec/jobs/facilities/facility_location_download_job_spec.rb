@@ -150,7 +150,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         facility = Facilities::VHAFacility.find('603')
         services = facility.services['health'].map { |service| service['sl1'].first }
         expected_services = ['Womens Health', 'Audiology', 'Cardiology', 'Dermatology', 'Gastroenterology',
-                             'Gynecology', 'Ophthalmology', 'Optometry', 'Orthopedics', 'Urology Clinic']
+                             'Gynecology', 'Ophthalmology', 'Optometry', 'Orthopedics', 'Urology']
         expect(services).to include(*expected_services)
       end
     end
