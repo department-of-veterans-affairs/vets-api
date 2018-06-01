@@ -6,6 +6,7 @@ module MVI
       CORRELATION_ROOT_ID = '2.16.840.1.113883.4.349'
       EDIPI_ROOT_ID = '2.16.840.1.113883.3.42.10001.100001.12'
       ICN_REGEX = /^\w+\^NI\^\w+\^\w+\^\w+$/
+      VET360_ASSIGNING_AUTHORITY_ID = '^NI^200M^USVHA^P'
 
       # MVI correlation id source id relationships:
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
