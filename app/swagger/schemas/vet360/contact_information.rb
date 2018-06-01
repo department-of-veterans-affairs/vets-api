@@ -54,7 +54,7 @@ module Swagger
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
                   property :province, type: %i[string null]
-                  property :state_abbr, type: :string, example: 'NY'
+                  property :state_code, type: :string, example: 'NY'
                   property :zip_code, type: :string, example: '97062'
                   property :zip_code_suffix, type: %i[string null], example: '1234'
                   property :created_at,
@@ -98,7 +98,7 @@ module Swagger
                   property :id, type: :integer, example: 123
                   property :international_postal_code, type: %i[string null], example: '54321'
                   property :province, type: %i[string null]
-                  property :state_abbr, type: :string, example: 'NY'
+                  property :state_code, type: :string, example: 'NY'
                   property :zip_code, type: :string, example: '97062'
                   property :zip_code_suffix, type: %i[string null], example: '1234'
                   property :created_at,

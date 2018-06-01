@@ -38,7 +38,7 @@ module V0
           :international_postal_code,
           :province,
           :source_date,
-          :state_abbr,
+          :state_code,
           :transaction_id,
           :vet360_id,
           :zip_code,

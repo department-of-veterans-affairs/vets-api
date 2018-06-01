@@ -35,7 +35,7 @@ module Vet360
       attribute :international_postal_code, String
       attribute :province, String
       attribute :source_date, Common::ISO8601Time
-      attribute :state_abbr, String
+      attribute :state_code, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
@@ -66,7 +66,7 @@ module Vet360
       )
 
       validates(
-        :state_abbr,
+        :state_code,
         length: { maximum: 2, minimum: 2 },
         format: { with: VALID_ALPHA_REGEX },
         allow_blank: true
@@ -92,14 +92,14 @@ module Vet360
       )
 
       with_options if: proc { |a| a.address_type == DOMESTIC } do |address|
-        address.validates :state_abbr, presence: true
+        address.validates :state_code, presence: true
         address.validates :zip_code, presence: true
         address.validates :province, absence: true
       end
 
       with_options if: proc { |a| a.address_type == INTERNATIONAL } do |address|
         address.validates :international_postal_code, presence: true
-        address.validates :state_abbr, absence: true
+        address.validates :state_code, absence: true
         address.validates :zip_code, absence: true
         address.validates :zip_code_suffix, absence: true
         address.validates :county_name, absence: true
@@ -107,7 +107,7 @@ module Vet360
       end
 
       with_options if: proc { |a| a.address_type == MILITARY } do |address|
-        address.validates :state_abbr, presence: true
+        address.validates :state_code, presence: true
         address.validates :zip_code, presence: true
         address.validates :province, absence: true
       end
@@ -135,7 +135,7 @@ module Vet360
             },
             intPostalCode: @international_postal_code,
             provinceName: @province,
-            stateCode: @state_abbr,
+            stateCode: @state_code,
             zipCode4: @zip_code,
             zipCode5: @zip_code_suffix,
             originatingSourceSystem: SOURCE_SYSTEM,
@@ -171,7 +171,7 @@ module Vet360
           id: body['address_id'],
           international_postal_code: body['int_postal_code'],
           source_date: body['source_date'],
-          state_abbr: body['state_code'],
+          state_code: body['state_code'],
           transaction_id: body['tx_audit_id'],
           updated_at: body['update_date'],
           vet360_id: body['vet360_id'],

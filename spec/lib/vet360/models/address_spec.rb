@@ -55,7 +55,7 @@ describe Vet360::Models::Address do
 
       it 'state_code is required', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.state_abbr = ''
+        address.state_code = ''
         expect(address.valid?).to eq(false)
       end
 
@@ -77,7 +77,7 @@ describe Vet360::Models::Address do
 
       it 'state_code is disallowed', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.state_abbr = 'PA'
+        address.state_code = 'PA'
         expect(address.valid?).to eq(false)
       end
 
@@ -123,7 +123,7 @@ describe Vet360::Models::Address do
 
       it 'state_code is required', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.state_abbr = ''
+        address.state_code = ''
         expect(address.valid?).to eq(false)
       end
 

@@ -13,7 +13,7 @@ module Swagger
             address_type
             city
             country
-            state_abbr
+            state_code
             zip_code
           ]
           property :address_line1,
@@ -35,7 +35,7 @@ module Swagger
                    type: :string,
                    example: 'USA',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
@@ -56,7 +56,7 @@ module Swagger
             city
             country
             id
-            state_abbr
+            state_code
             zip_code
           ]
           property :id, type: :integer, example: 1
@@ -79,7 +79,7 @@ module Swagger
                    type: :string,
                    example: 'USA',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
@@ -163,7 +163,7 @@ module Swagger
             address_type
             city
             country
-            state_abbr
+            state_code
             zip_code
           ]
           property :address_line1,
@@ -185,7 +185,7 @@ module Swagger
                    type: :string,
                    example: 'USA',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
@@ -206,7 +206,7 @@ module Swagger
             city
             country
             id
-            state_abbr
+            state_code
             zip_code
           ]
           property :id, type: :integer, example: 1
@@ -229,7 +229,7 @@ module Swagger
                    type: :string,
                    example: 'USA',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
