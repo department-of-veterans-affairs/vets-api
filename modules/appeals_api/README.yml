@@ -45,7 +45,7 @@ tags:
   - name: appeals
     description: Caseflow appeals status API
 servers: 
-  - url: dev-api.vets.gov/services/vba_benefits/{version}
+  - url: dev-api.vets.gov/services/appeals/{version}
     description: Vets.gov API development environment
     variables:
       version:
@@ -54,7 +54,7 @@ paths:
   /appeals:
     get:
       tags:
-        - document_uploads
+        - appeals_status 
       summary: Retrieve appeals status for the Veteran with the supplied ssn
       operationId: getAppealStatus
       security:
