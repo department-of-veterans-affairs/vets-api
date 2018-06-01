@@ -29,7 +29,7 @@ Rails.application.routes.draw do
       post 'submit'
     end
 
-    resource :upload_ancillary_form, only: :create
+    resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection

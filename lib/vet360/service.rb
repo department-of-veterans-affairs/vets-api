@@ -20,6 +20,10 @@ module Vet360
       response
     end
 
+    def self.breakers_service
+      Common::Client::Base.breakers_service
+    end
+
     private
 
     def vet360_id_present!
