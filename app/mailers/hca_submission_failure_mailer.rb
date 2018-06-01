@@ -2,7 +2,6 @@
 
 class HCASubmissionFailureMailer < ApplicationMailer
   def build(email, google_analytics_client_id)
-  
     @google_analytics_client_id = google_analytics_client_id
     @google_analytics_tracking_id = Settings.google_analytics.tracking_id
 

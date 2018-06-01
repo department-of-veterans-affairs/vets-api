@@ -4,6 +4,8 @@ module HCA
   class SubmissionFailureEmailAnalyticsJob
     include Sidekiq::Worker
 
+    EMAIL_SUBJECT = "We didn't receive your application"
+
     def initialize
       unless FeatureFlipper.send_email?
         raise Common::Exceptions::ParameterMissing.new(
@@ -43,7 +45,7 @@ module HCA
     def hca_emails(page)
       @all_emails = govdelivery_client.email_messages.get(page: page)
       @all_emails.collection.select do |email|
-        email.subject == "We didn't receive your application" && Time.zone.parse(email.created_at) > @time_range_start
+        email.subject == EMAIL_SUBJECT && Time.zone.parse(email.created_at) > @time_range_start
       end
     end
 
@@ -57,24 +59,17 @@ module HCA
     def eval_email(email)
       return if Time.zone.parse(email.created_at) > @time_range_end || email.status != 'completed'
       email.failed.get
-      @tracker.event(
-        category: 'API Calls',
-        action: 'GovDelivery - Email HCA Failure',
-        label: 'completed',
+      event_params = {
+        category: 'email',
         non_interactive: true,
-        campaign_name: 'application-failure',
-        campaign_medium: 'email'
-      )
-      if email.failed.collection.count.positive?
-        @tracker.event(
-          category: 'API Calls',
-          action: 'GovDelivery - Email HCA Failure',
-          label: 'failed',
-          non_interactive: true,
-          campaign_name: 'application-failure',
-          campaign_medium: 'email'
-        )
-      end
+        campaign_name: 'hca-failure',
+        campaign_medium: 'email',
+        campaign_source: 'gov-delivery',
+        document_title: EMAIL_SUBJECT,
+        document_path: '/email/health-care/apply/application/introduction'
+      }
+      @tracker.event(event_params.merge(action: 'completed'))
+      @tracker.event(event_params.merge(action: 'failed')) if email.failed.collection.count.positive?
     end
   end
 end

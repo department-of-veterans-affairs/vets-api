@@ -17,7 +17,7 @@ RSpec.describe HCASubmissionFailureMailer, type: [:mailer] do
       expect(subject.body.raw_source).to include(
         "We're sorry. Your application didn't go through because something went wrong on our end."
       )
-      expect(subject.body.raw_source).to include("cid=123456543")
+      expect(subject.body.raw_source).to include('cid=123456543')
     end
   end
 end
