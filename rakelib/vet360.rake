@@ -199,6 +199,23 @@ namespace :vet360 do
     pp trx.to_h
   end
 
+  ## :"DELETES"
+
+  desc "End Vet360 email"
+  task :end_email, [:vet360_id, :email_id] => [:environment] do |_, args|
+
+    ensure_arg(:vet360_id, args)
+
+    email = Vet360::Models::Email.new({id: args[:email_id], effective_end_date: Time.now.iso8601})
+
+    trx = Vet360::ContactInformation::Service
+          .new(user_struct(vet360_id))
+          .put_email(email)
+    pp trx.to_h
+  end
+
+
+
   def ensure_data_var
     abort "Env var: #{ENV_VAR_NAME} not set" if ENV[ENV_VAR_NAME].blank?
   end
