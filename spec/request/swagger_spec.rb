@@ -322,7 +322,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports submitting the form' do
-        allow(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:start).and_return("JID-#{SecureRandom.base64}")
+        allow(EVSS::DisabilityCompensationForm::SubmitUploads)
+          .to receive(:start).and_return("JID-#{SecureRandom.base64}")
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
