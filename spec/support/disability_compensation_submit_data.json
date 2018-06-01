@@ -4,36 +4,23 @@
       "emailAddress": "string",
       "alternateEmailAddress": "string",
       "mailingAddress": {
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
+        "street1": "string",
+        "street2": "string",
         "city": "string",
         "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
-        "country": "string",
-        "militaryStateCode": "AA",
-        "militaryPostOfficeTypeCode": "APO",
-        "type": "DOMESTIC"
+        "postalCode": "11111-1111",
+        "country": "string"
       },
       "forwardingAddress": {
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
+        "street1": "string",
+        "street2": "string",
         "city": "string",
         "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
+        "postalCode": "11111-1111",
         "country": "string",
-        "militaryStateCode": "AA",
-        "militaryPostOfficeTypeCode": "APO",
-        "type": "DOMESTIC",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
-      "primaryPhone": {
-        "areaCode": "202",
-        "phoneNumber": "4561111"
-      },
+      "phone": "2024561111",
       "homelessness": {
         "hasPointOfContact": false
       },
@@ -42,9 +29,7 @@
     "attachments": [],
     "militaryPayments": {
       "payments": [],
-      "receiveCompensationInLieuOfRetired": false,
-      "receivingInactiveDutyTrainingPay": false,
-      "waveBenifitsToRecInactDutyTraiPay": false
+      "receiveCompensationInLieuOfRetired": false
     },
     "directDeposit": {
       "accountType": "CHECKING",
@@ -55,9 +40,11 @@
     "serviceInformation": {
       "servicePeriods": [
         {
-          "serviceBranch": "string",
-          "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
-          "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
+          "serviceBranch": "NOAA",
+          "dateRange": {
+            "from": "2018-03-29T18:50:03.015Z",
+            "to": "2018-03-29T18:50:03.015Z"
+          }
         }
       ],
       "reservesNationalGuardService": {
@@ -65,37 +52,39 @@
           "title10ActivationDate": "2018-03-29T18:50:03.015Z",
           "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
         },
-        "obligationTermOfServiceFromDate": "2018-03-29T18:50:03.015Z",
-        "obligationTermOfServiceToDate": "2018-03-29T18:50:03.015Z",
+        "obligationTermOfServiceDateRange": {
+          "from": "2018-03-29T18:50:03.015Z",
+          "to": "2018-03-29T18:50:03.015Z"
+        },
         "unitName": "string",
-        "unitPhone": {
-          "areaCode": "202",
-          "phoneNumber": "4561111"
-        }
+        "unitPhone": "2024561111",
+        "inactiveDutyTrainingPay": {}
       },
       "servedInCombatZone": true,
       "separationLocationName": "OTHER",
       "separationLocationCode": "SOME VALUE",
       "alternateNames": [
         {
-          "firstName": "string",
-          "middleName": "string",
-          "lastName": "string"
+          "first": "string",
+          "middle": "string",
+          "last": "string"
         }
       ],
       "confinements": [
         {
-          "confinementBeginDate": "2018-03-29T18:50:03.015Z",
-          "confinementEndDate": "2018-03-29T18:50:03.015Z",
+          "confinementDateRange": {
+            "from": "2018-03-29T18:50:03.015Z",
+            "to": "2018-03-29T18:50:03.015Z"
+          },
           "verifiedIndicator": false
         }
       ]
     },
     "disabilities": [
       {
-        "diagnosticText": "Diabetes mellitus",
+        "name": "Diabetes mellitus",
+        "classificationCode": "string",
         "disabilityActionType": "INCREASE",
-        "decisionCode": "SVCCONNCTED",
         "specialIssues": [
           {
             "code": "TRM",
@@ -103,19 +92,35 @@
           }
         ],
         "ratedDisabilityId": "0",
-        "ratingDecisionId": 63_655,
         "diagnosticCode": 5235,
         "secondaryDisabilities": [
           {
-            "decisionCode": "",
+            "name": "Diabetes mellitus",
+            "classificationCode": "",
+            "disabilityActionType": "NONE",
+            "specialIssues": [
+              {
+                "code": "TRM",
+                "name": "Personal Trauma PTSD"
+              }
+            ],
             "ratedDisabilityId": "",
-            "diagnosticText": "string",
-            "disabilityActionType": "NONE"
+            "diagnosticCode": 5235
           }
         ]
       }
     ],
-    "treatments": [],
+    "treatments": [
+      {
+        "treatmentCenterName": "string",
+        "treatmentDateRange": {
+          "from": "2018-03-29T18:50:03.015Z",
+          "to": "2018-03-29T18:50:03.015Z"
+        },
+        "treatmentCenterAddress": "",
+        "treatmentCenterType": "DOD_MTF"
+      }
+    ],
     "specialCircumstances": [
       {
         "name": "string",

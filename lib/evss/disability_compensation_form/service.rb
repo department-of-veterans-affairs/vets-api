@@ -22,7 +22,8 @@ module EVSS
       def submit_form(form_content)
         with_monitoring do
           headers = { 'Content-Type' => 'application/json' }
-          raw_response = perform(:post, 'submit', form_content, headers)
+          converted_form_content = DataTranslation.new(form_content).convert
+          raw_response = perform(:post, 'submit', converted_form_content, headers)
           FormSubmitResponse.new(raw_response.status, raw_response)
         end
       rescue StandardError => e
