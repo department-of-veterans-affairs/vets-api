@@ -68,7 +68,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Get /v0/disability_compensation_form/submit' do
     context 'with a valid 200 evss response' do
-      let(:valid_form_content) { File.read 'spec/support/disability_compensation_submit_data.json' }
+      let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
       let(:jid) { "JID-#{SecureRandom.base64}" }
       let(:logger) { spy('Rails.logger') }
 

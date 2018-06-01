@@ -1,0 +1,145 @@
+"form526": {
+    "veteran": {
+      "emailAddress": "string",
+      "alternateEmailAddress": "string",
+      "mailingAddress": {
+        "city": "string",
+        "state": "IL",
+        "zipFirstFive": "11111",
+        "zipLastFour": "1111",
+        "country": "string",
+        "type": "DOMESTIC",
+        "addressLine1": "string",
+        "addressLine2": "string"
+      },
+      "forwardingAddress": {
+        "city": "string",
+        "country": "string",
+        "militaryStateCode": "AA",
+        "militaryPostOfficeTypeCode": "APO",
+        "type": "MILITARY",
+        "addressLine1": "string",
+        "addressLine2": "string",
+        "effectiveDate": "2018-03-29T18:50:03.014Z"
+      },
+      "primaryPhone": {
+        "areaCode": "202",
+        "phoneNumber": "4561111"
+      },
+      "homelessness": {
+        "hasPointOfContact": true,
+        "pointOfContact": {
+          "pointOfContactName": "Ted",
+          "primaryPhone": {
+            "areaCode": "123",
+            "phoneNumber": "4567890"
+          }
+        }
+      },
+      "serviceNumber": "string"
+    },
+    "attachments": [],
+    "militaryPayments": {
+      "payments": [],
+      "receiveCompensationInLieuOfRetired": false
+    },
+    "directDeposit": {
+      "accountType": "CHECKING",
+      "accountNumber": "1234",
+      "bankName": "string",
+      "routingNumber": "123456789"
+    },
+    "serviceInformation": {
+      "servicePeriods": [
+        {
+          "serviceBranch": "string",
+          "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
+          "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
+        }
+      ],
+      "reservesNationalGuardService": {
+        "title10Activation": {
+          "title10ActivationDate": "2018-03-29T18:50:03.015Z",
+          "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
+        },
+        "obligationTermOfServiceFromDate": "2018-03-29T18:50:03.015Z",
+        "obligationTermOfServiceToDate": "2018-03-29T18:50:03.015Z",
+        "unitName": "string",
+        "unitPhone": {
+          "areaCode": "202",
+          "phoneNumber": "4561111"
+        }
+      },
+      "servedInCombatZone": true,
+      "separationLocationName": "OTHER",
+      "separationLocationCode": "SOME VALUE",
+      "alternateNames": [
+        {
+          "firstName": "string",
+          "middleName": "string",
+          "lastName": "string"
+        }
+      ],
+      "confinements": [
+        {
+          "confinementBeginDate": "2018-03-29T18:50:03.015Z",
+          "confinementEndDate": "2018-03-29T18:50:03.015Z",
+          "verifiedIndicator": false
+        }
+      ]
+    },
+    "disabilities": [
+      {
+        "name": "Diabetes mellitus",
+        "classificationCode": "string",
+        "disabilityActionType": "INCREASE",
+        "specialIssues": [
+          {
+            "code": "TRM",
+            "name": "Personal Trauma PTSD"
+          }
+        ],
+        "ratedDisabilityId": "0",
+        "diagnosticCode": 5235,
+        "secondaryDisabilities": [
+          {
+            "name": "string",
+            "classificationCode": "string",
+            "disabilityActionType": "NONE",
+            "specialIssues": [
+              {
+                "code": "TRM",
+                "name": "Personal Trauma PTSD"
+              }
+            ],
+            "ratedDisabilityId": "0",
+            "diagnosticCode": 5235
+          }
+        ]
+      }
+    ],
+    "treatments": [
+      {
+        "center": {
+          "name": "string",
+          "type": "DOD_MTF",
+          "country": "string",
+          "state": "string",
+          "city": "string"
+        },
+        "startDate": "2018-03-29T18:50:03.015Z",
+        "endDate": "2018-03-29T18:50:03.015Z"
+      }
+    ],
+    "specialCircumstances": [
+      {
+        "name": "string",
+        "code": "string",
+        "needed": false
+      }
+    ],
+    "standardClaim": false,
+    "claimantCertification": true,
+    "applicationExpirationDate": ""
+  }
+}

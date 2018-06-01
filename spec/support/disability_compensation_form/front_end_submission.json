@@ -15,14 +15,15 @@
         "street1": "string",
         "street2": "string",
         "city": "string",
-        "state": "IL",
-        "postalCode": "11111-1111",
+        "state": "AA",
+        "postalCode": "APO",
         "country": "string",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
       "phone": "2024561111",
       "homelessness": {
-        "hasPointOfContact": false
+        "pointOfContactName": "Ted",
+        "primaryPhone": "1234567890"
       },
       "serviceNumber": "string"
     },
@@ -117,7 +118,11 @@
           "from": "2018-03-29T18:50:03.015Z",
           "to": "2018-03-29T18:50:03.015Z"
         },
-        "treatmentCenterAddress": "",
+        "treatmentCenterAddress": {
+          "country": "string",
+          "city": "string",
+          "state": "string"
+        },
         "treatmentCenterType": "DOD_MTF"
       }
     ],
@@ -127,6 +132,7 @@
         "code": "string",
         "needed": false
       }
-    ]
+    ],
+    "standardClaim": false
   }
 }

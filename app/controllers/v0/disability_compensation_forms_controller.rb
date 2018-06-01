@@ -11,7 +11,8 @@ module V0
     end
 
     def submit
-      jid = EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, request.body.string)
+      form_data = JSON.parse(request.body.string)
+      jid = EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, form_data)
       Rails.logger.info('submit form start', user: @current_user.uuid, component: 'EVSS', form: '21-526EZ', jid: jid)
       head 200
     end
