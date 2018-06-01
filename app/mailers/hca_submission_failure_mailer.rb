@@ -9,6 +9,7 @@ class HCASubmissionFailureMailer < ApplicationMailer
     template = File.read('app/mailers/views/hca_submission_failure.html.erb')
 
     mail(
+      from: "#{FeatureFlipper.staging_email? ? 'stage.va-notifications' : 'vets.gov'}@public.govdelivery.com",
       to: email,
       subject: "We didn't receive your application",
       content_type: 'text/html',
