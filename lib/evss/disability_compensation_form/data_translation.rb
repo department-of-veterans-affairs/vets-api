@@ -59,10 +59,10 @@ module EVSS
       end
 
       def rename_date_range(date_range)
-        # Swagger lists this in separate fields as activeDutyBeginDate and activeDutyEndDate. We've renamed it to 'from' and 'to',  and nested it within a dateRange object 
-        # before: dateRange: { from: "", to: "" } 
-        # after: activeDutyBeginDate: "", activeDutyEndDate: ""
-        # see also: obligationTermOfServiceDateRange, confinementDateRange, treatmentDateRange
+        # before: confinementDateRange: { from: "", to: "" } 
+        # after: confinementBeginDate: "", confinementEndDate: ""
+        # see also: obligationTermOfServiceDateRange
+        # treatmentDateRange and servicePeriod.dateRange follow this same pattern but I've taken care of them separately. DRY it up as you please
       end
 
       def convert_mailing_address(mailing_address)
