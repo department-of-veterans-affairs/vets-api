@@ -40,6 +40,11 @@ class BaseFacility < ActiveRecord::Base
     DOD_HEALTH => 'Facilities::DODFacility'
   }.freeze
 
+  SERVICE_STRUCTURE = {
+    BENEFITS => "'benefits'->'standard'",
+    HEALTH => "'health'"
+  }.freeze
+
   TYPE_NAME_MAP = {
     CEMETERY => 'va_cemetery',
     HEALTH => 'va_health_facility',
@@ -164,9 +169,23 @@ class BaseFacility < ActiveRecord::Base
       klass = TYPE_MAP[facility_type].constantize
       return klass.none unless type.blank? || type == facility_type
       facilities = klass.where(conditions)
-      facilities = facilities.where("services->'benefits'->'standard' @> '#{services}'") if services&.any?
+      conditions = []
+      services&.each do |service|
+        conditions << "services->'benefits'->'standard' @> '[\"#{service}\"]'" if type == 'benefits'
+        conditions << "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'" if type == 'health'
+      end
+      facilities = facilities.where(conditions.join(' OR ')) if conditions.any?
       facilities = facilities.where.not(facility_type: 'dod_health')
       facilities
+    end
+
+    def service_condition(type,service)
+      case type
+      when 'benefits'
+        "services->'benefits'->'standard' @> '[\"#{service}\"]'"
+      when 'health'
+        "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
+      end
     end
 
     # Naive distance calculation, but accurate enough for map display sorting.
