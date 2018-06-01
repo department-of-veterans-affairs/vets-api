@@ -58,12 +58,6 @@ RSpec.describe FormProfile, type: :model do
   let(:v40_10007_expected) do
     {
       'application' => {
-        'applicant' => {
-          'applicantEmail' => user.pciu_email,
-          'applicantPhoneNumber' => us_phone,
-          'mailingAddress' => address,
-          'name' => full_name
-        },
         'claimant' => {
           'address' => address,
           'dateOfBirth' => user.birth_date,
