@@ -1,9 +1,4 @@
 application:
-  applicant:
-    applicantEmail: [contact_information, email]
-    applicantPhoneNumber: [contact_information, us_phone]
-    mailingAddress: [contact_information, address]
-    name: [identity_information, full_name]
   claimant:
     address: [contact_information, address]
     dateOfBirth: [identity_information, date_of_birth]
