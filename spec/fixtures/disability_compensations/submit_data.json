@@ -4,30 +4,22 @@
       "emailAddress": "string",
       "alternateEmailAddress": "string",
       "mailingAddress": {
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
-        "city": "string",
-        "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
-        "country": "string",
-        "militaryStateCode": "AA",
-        "militaryPostOfficeTypeCode": "APO",
-        "type": "DOMESTIC"
+        "addressLine1": "1234 Classy Street",
+        "addressLine2": "Apartment 567",
+        "addressLine3": "P.O. Box 890",
+        "city": "Quaint Town",
+        "state": "OR",
+        "zipCode": "859181212",
+        "country": "USA"
       },
       "forwardingAddress": {
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
-        "city": "string",
-        "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
-        "country": "string",
-        "militaryStateCode": "AA",
-        "militaryPostOfficeTypeCode": "APO",
-        "type": "DOMESTIC",
+        "addressLine1": "1234 Classy Street",
+        "addressLine2": "Apartment 567",
+        "addressLine3": "P.O. Box 890",
+        "city": "Quaint Town",
+        "state": "OR",
+        "zipCode": "859181212",
+        "country": "USA",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
       "primaryPhone": {
@@ -103,7 +95,7 @@
           }
         ],
         "ratedDisabilityId": "0",
-        "ratingDecisionId": 63_655,
+        "ratingDecisionId": 63655,
         "diagnosticCode": 5235,
         "secondaryDisabilities": [
           {
