@@ -14,7 +14,7 @@ RSpec.describe 'Disability compensation form', type: :request do
     User.create(user)
   end
 
-  describe 'Get /v0/disability_compensation_form/rated_disabilities' do
+  describe 'GET /v0/disability_compensation_form/rated_disabilities' do
     context 'with a valid 200 evss response' do
       it 'should match the rated disabilities schema' do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -66,11 +66,18 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
   end
 
-  describe 'Get /v0/disability_compensation_form/submit' do
+  describe 'POST /v0/disability_compensation_form/submit' do
     context 'with a valid 200 evss response' do
-      let(:valid_form_content) { File.read 'spec/support/disability_compensation_submit_data.json' }
+      let(:valid_form_content) { File.read 'spec/fixtures/disability_compensations/submit_data.json' }
       let(:jid) { "JID-#{SecureRandom.base64}" }
       let(:logger) { spy('Rails.logger') }
+      let(:auth_header) do
+        {
+          'Authorization' => "Token token=#{token}",
+          'CONTENT_TYPE' => 'application/json',
+          'HTTP_X_KEY_INFLECTION' => 'camel'
+        }
+      end
 
       it 'calls submit form start' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
