@@ -35,6 +35,7 @@ FactoryBot.define do
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
     icn { Faker::Number.number(17) }
+    icn_with_aaid { '12345678901234567^NI^200M^USVHA^P' }
     mhv_ids { Array.new(2) { Faker::Number.number(11) } }
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
