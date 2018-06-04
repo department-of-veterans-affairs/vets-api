@@ -40,11 +40,6 @@ class BaseFacility < ActiveRecord::Base
     DOD_HEALTH => 'Facilities::DODFacility'
   }.freeze
 
-  SERVICE_STRUCTURE = {
-    BENEFITS => "'benefits'->'standard'",
-    HEALTH => "'health'"
-  }.freeze
-
   TYPE_NAME_MAP = {
     CEMETERY => 'va_cemetery',
     HEALTH => 'va_health_facility',
@@ -61,15 +56,8 @@ class BaseFacility < ActiveRecord::Base
   }.freeze
 
   SERVICE_WHITELIST = {
-    HEALTH => %w[Audiology ComplementaryAlternativeMed DentalServices DiagnosticServices ImagingAndRadiology
-                 LabServices EmergencyDept EyeCare MentalHealthCare OutpatientMHCare OutpatientSpecMHCare
-                 VocationalAssistance OutpatientMedicalSpecialty AllergyAndImmunology CardiologyCareServices
-                 DermatologyCareServices Diabetes Dialysis Endocrinology Gastroenterology Hematology
-                 InfectiousDisease InternalMedicine Nephrology Neurology Oncology PulmonaryRespiratoryDisease
-                 Rheumatology SleepMedicine OutpatientSurgicalSpecialty CardiacSurgery ColoRectalSurgery ENT
-                 GeneralSurgery Gynecology Neurosurgery Orthopedics PainManagement PlasticSurgery Podiatry
-                 ThoracicSurgery Urology VascularSurgery PrimaryCare Rehabilitation UrgentCare
-                 WellnessAndPreventativeCare],
+    HEALTH => %w[PrimaryCare MentalHealthCare UrgentCare EmergencyCare Audiology Cardiology Dermatology
+                 Gastroenterology Gynecology Ophthalmology Optometry Orthopedics Urology WomensHealth],
     BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
                    eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
                    FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance Pensions
@@ -169,17 +157,15 @@ class BaseFacility < ActiveRecord::Base
       klass = TYPE_MAP[facility_type].constantize
       return klass.none unless type.blank? || type == facility_type
       facilities = klass.where(conditions)
-      conditions = []
-      services&.each do |service|
-        conditions << "services->'benefits'->'standard' @> '[\"#{service}\"]'" if type == 'benefits'
-        conditions << "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'" if type == 'health'
+      service_conditions = services&.map do |service|
+        service_condition(type, service)
       end
-      facilities = facilities.where(conditions.join(' OR ')) if conditions.any?
+      facilities = facilities.where(service_conditions.join(' OR ')) if service_conditions.any?
       facilities = facilities.where.not(facility_type: 'dod_health')
       facilities
     end
 
-    def service_condition(type,service)
+    def service_condition(type, service)
       case type
       when 'benefits'
         "services->'benefits'->'standard' @> '[\"#{service}\"]'"
