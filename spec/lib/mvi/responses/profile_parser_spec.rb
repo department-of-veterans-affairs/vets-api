@@ -6,6 +6,8 @@ require 'mvi/responses/profile_parser'
 describe MVI::Responses::ProfileParser do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:parser) { MVI::Responses::ProfileParser.new(faraday_response) }
+  let(:icn_with_aaid) { '1000123456V123456^NI^200M^USVHA^P' }
+
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
 
@@ -26,7 +28,8 @@ describe MVI::Responses::ProfileParser do
           :address_austin,
           birls_id: nil,
           sec_id: nil,
-          historical_icns: nil
+          historical_icns: nil,
+          icn_with_aaid: icn_with_aaid
         )
       end
       it 'returns a MviProfile with the parsed attributes' do
@@ -43,7 +46,8 @@ describe MVI::Responses::ProfileParser do
             suffix: nil,
             birls_id: nil,
             sec_id: nil,
-            historical_icns: nil
+            historical_icns: nil,
+            icn_with_aaid: icn_with_aaid
           )
         end
         it 'should set the names to false' do
@@ -61,7 +65,8 @@ describe MVI::Responses::ProfileParser do
             birls_id: nil,
             sec_id: nil,
             historical_icns: nil,
-            vet360_id: nil
+            vet360_id: nil,
+            icn_with_aaid: icn_with_aaid
           )
         end
         it 'should set the address to nil' do
@@ -70,6 +75,8 @@ describe MVI::Responses::ProfileParser do
       end
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
+        let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA^P' }
+
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
         let(:mvi_profile) do
           build(
@@ -78,7 +85,8 @@ describe MVI::Responses::ProfileParser do
             :address_austin,
             sec_id: nil,
             historical_icns: nil,
-            mhv_ids: ['1100792239']
+            mhv_ids: ['1100792239'],
+            icn_with_aaid: icn_with_aaid
           )
         end
         it 'should filter with only first name and retrieve correct MHV id' do
@@ -163,7 +171,8 @@ describe MVI::Responses::ProfileParser do
         :address_austin,
         historical_icns: nil,
         birls_id: nil,
-        sec_id: nil
+        sec_id: nil,
+        icn_with_aaid: icn_with_aaid
       )
     end
 
