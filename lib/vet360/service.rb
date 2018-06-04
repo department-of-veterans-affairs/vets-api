@@ -10,14 +10,18 @@ module Vet360
       @user = user
     end
 
-    def perform(method, path, body = nil, headers = {})
-      vet360_id_present!
+    def perform(method, path, body = nil, headers = {}, skip_vet360_id: false)
+      vet360_id_present! unless skip_vet360_id
 
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
       log_to_sentry(response)
 
       response
+    end
+
+    def self.breakers_service
+      Common::Client::Base.breakers_service
     end
 
     private

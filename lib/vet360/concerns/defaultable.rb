@@ -17,7 +17,8 @@ module Vet360
           record.attributes = {
             effective_start_date: now,
             source_date: now,
-            vet360_id: user.vet360_id
+            vet360_id: user.vet360_id,
+            source_system_user: user.icn
           }
         end
       end
