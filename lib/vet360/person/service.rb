@@ -15,7 +15,7 @@ module Vet360
 
       def init_vet360_id(icn)
         with_monitoring do
-          raw_response = perform(:post, encoded_uri_for(icn), empty_body, skip_vet360_id: true)
+          raw_response = perform(:post, encoded_uri_for(icn), empty_body)
 
           Vet360::ContactInformation::PersonResponse.from(raw_response)
         end
