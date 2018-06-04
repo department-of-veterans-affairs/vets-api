@@ -35,6 +35,7 @@ module Vet360
       attribute :international_postal_code, String
       attribute :province, String
       attribute :source_date, Common::ISO8601Time
+      attribute :source_system_user, String
       attribute :state_abbr, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
@@ -139,8 +140,11 @@ module Vet360
             zipCode4: @zip_code,
             zipCode5: @zip_code_suffix,
             originatingSourceSystem: SOURCE_SYSTEM,
+            sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id
+            vet360Id: @vet360_id,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
