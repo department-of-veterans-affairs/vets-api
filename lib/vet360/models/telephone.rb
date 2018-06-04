@@ -87,7 +87,9 @@ module Vet360
             # textMessagePermInd: @is_text_permitted,
             ttyInd: @is_tty,
             vet360Id: @vet360_id,
-            voiceMailAcceptableInd: @is_voicemailable
+            voiceMailAcceptableInd: @is_voicemailable,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
@@ -112,7 +114,9 @@ module Vet360
           transaction_id: body['tx_audit_id'],
           is_tty: body['tty_ind'],
           updated_at: body['update_date'],
-          vet360_id: body['vet360_id']
+          vet360_id: body['vet360_id'],
+          effective_end_date: body['effective_end_date'],
+          effective_start_date: body['effective_start_date']
         )
       end
     end
