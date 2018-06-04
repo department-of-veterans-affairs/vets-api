@@ -199,6 +199,38 @@ namespace :vet360 do
     pp trx.to_h
   end
 
+  desc <<~DESCRIPTION
+    Initializes a vet360_id for the passed in ICNs.
+
+    Takes a comma-separated list of ICNs as an argument.  Prints an array of hash results.
+
+    Sample way to call this rake task:
+
+    rake vet360:init_vet360_id[123456,1312312,134234234,4234234]'
+
+    Note: There *cannot* be any spaces around the commas (i.e. [123456, 1312312, 134234234, 4234234])
+  DESCRIPTION
+  task :init_vet360_id, [:icns] => [:environment] do |_, args|
+    service = Vet360::Person::Service.new('rake_user')
+    icns    = args.extras.prepend(args[:icns])
+    results = []
+
+    p "#{icns.size} to be initialized"
+
+    icns.each do |icn|
+      begin
+        response  = service.init_vet360_id(icn)
+        vet360_id = response&.person&.vet360_id
+
+        results << { icn: icn, vet360_id: vet360_id }
+      rescue StandardError => e
+        results << { icn: icn, vet360_id: e.message }
+      end
+    end
+
+    puts "Results:\n\n#{results}"
+  end
+
   def ensure_data_var
     abort "Env var: #{ENV_VAR_NAME} not set" if ENV[ENV_VAR_NAME].blank?
   end

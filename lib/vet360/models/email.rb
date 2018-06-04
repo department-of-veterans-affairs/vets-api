@@ -35,7 +35,9 @@ module Vet360
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id
+            vet360Id: @vet360_id,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
