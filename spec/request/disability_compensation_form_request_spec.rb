@@ -90,4 +90,132 @@ RSpec.describe 'Disability compensation form', type: :request do
       end
     end
   end
+
+  describe 'transform address' do
+    context 'when submitting a valid domestic address' do
+      let(:address) do
+        {
+          'addressLine1' => '1234 Classy Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'Quaint Town',
+          'state' => 'OR',
+          'zipCode' => '85918-1212',
+          'country' => 'USA'
+        }
+      end
+      let(:expected_address) do
+        {
+          'addressLine1' => '1234 Classy Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'Quaint Town',
+          'state' => 'OR',
+          'zipFirstFive' => '85918',
+          'zipLastFour' => '1212',
+          'country' => 'USA',
+          'type' => 'DOMESTIC'
+        }
+      end
+
+      it 'transforms the address to pciu' do
+        controller = V0::DisabilityCompensationFormsController.new
+        pciu_address = controller.send(:transform_address, address)
+        expect(expected_address).to eql(pciu_address)
+      end
+    end
+
+    context 'when submitting a valid military address' do
+      let(:address) do
+        {
+          'addressLine1' => '1234 Classy Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'APO',
+          'state' => 'AA',
+          'country' => 'USA'
+        }
+      end
+      let(:expected_address) do
+        {
+          'addressLine1' => '1234 Classy Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'militaryStateCode' => 'AA',
+          'militaryPostOfficeTypeCode' => 'APO',
+          'country' => 'USA',
+          'type' => 'MILITARY'
+        }
+      end
+
+      it 'transforms the address to pciu' do
+        controller = V0::DisabilityCompensationFormsController.new
+        pciu_address = controller.send(:transform_address, address)
+        expect(expected_address).to eql(pciu_address)
+      end
+    end
+
+    context 'when submitting a valid international address' do
+      let(:address) do
+        {
+          'addressLine1' => '1234 De Buen Tono Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'Mexico City',
+          'country' => 'MEX'
+        }
+      end
+      let(:expected_address) do
+        {
+          'addressLine1' => '1234 De Buen Tono Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'Mexico City',
+          'country' => 'MEX',
+          'type' => 'INTERNATIONAL'
+        }
+      end
+
+      it 'transforms the address to pciu' do
+        controller = V0::DisabilityCompensationFormsController.new
+        pciu_address = controller.send(:transform_address, address)
+        expect(expected_address).to eql(pciu_address)
+      end
+    end
+
+    context 'when submitting a valid forwarding address' do
+      let(:address) do
+        {
+          'addressLine1' => '1234 Classy Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'Quaint Town',
+          'state' => 'OR',
+          'zipCode' => '85918-1212',
+          'country' => 'USA',
+          'effectiveDate' => '2018-03-29T18:50:03.014Z'
+        }
+      end
+      let(:expected_address) do
+        {
+          'addressLine1' => '1234 Classy Street',
+          'addressLine2' => 'Apartment 567',
+          'addressLine3' => 'P.O. Box 890',
+          'city' => 'Quaint Town',
+          'state' => 'OR',
+          'zipFirstFive' => '85918',
+          'zipLastFour' => '1212',
+          'country' => 'USA',
+          'type' => 'DOMESTIC',
+          'effectiveDate' => '2018-03-29T18:50:03.014Z'
+        }
+      end
+
+      it 'transforms the address to pciu' do
+        controller = V0::DisabilityCompensationFormsController.new
+        pciu_address = controller.send(:transform_address, address)
+        expect(expected_address).to eql(pciu_address)
+      end
+    end
+  end
 end
