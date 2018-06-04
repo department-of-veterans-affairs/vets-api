@@ -93,7 +93,7 @@ RSpec.describe BaseFacility, type: :model do
             { 'audiology' => { 'new' => 35.0, 'established' => 18.0 },
               'optometry' => { 'new' => 38.0, 'established' => 22.0 },
               'dermatology' => { 'new' => 4.0, 'established' => nil },
-              'opthalmology' => { 'new' => 1.0, 'established' => 4.0 },
+              'ophthalmology' => { 'new' => 1.0, 'established' => 4.0 },
               'primary_care' => { 'new' => 34.0, 'established' => 5.0 },
               'mental_health' => { 'new' => 12.0, 'established' => 3.0 },
               'effective_date' => '2018-02-26' } } }
