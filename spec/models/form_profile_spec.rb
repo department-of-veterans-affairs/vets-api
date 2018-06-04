@@ -335,8 +335,8 @@ RSpec.describe FormProfile, type: :model do
           'country' => 'USA',
           'city' => 'Washington',
           'state' => 'DC',
-          'postalCode' => '20011',
-          'street' => '140 Rock Creek Church Rd NW'
+          'zipCode' => '20011',
+          'addressLine1' => '140 Rock Creek Church Rd NW'
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
