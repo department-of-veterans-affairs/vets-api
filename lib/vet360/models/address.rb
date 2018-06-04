@@ -11,9 +11,9 @@ module Vet360
       RESIDENCE      = 'RESIDENCE/CHOICE'
       CORRESPONDENCE = 'CORRESPONDENCE'
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
-      DOMESTIC       = 'domestic'
-      INTERNATIONAL  = 'international'
-      MILITARY       = 'military overseas'
+      DOMESTIC       = 'DOMESTIC'
+      INTERNATIONAL  = 'INTERNATIONAL'
+      MILITARY       = 'MILITARY OVERSEAS'
       ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
       attribute :address_line1, String
