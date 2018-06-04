@@ -160,7 +160,7 @@ module Vet360
           address_line2: body['address_line2'],
           address_line3: body['address_line3'],
           address_pou: body['address_pou'],
-          address_type: body['address_type'],
+          address_type: body['address_type'].upcase,
           city: body['city_name'],
           country_name: body['country_name'],
           country_code_iso2: body['country_code_iso2'],
