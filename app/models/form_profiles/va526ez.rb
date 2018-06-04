@@ -40,6 +40,18 @@ module VA526ez
     attribute :payment_account, FormPaymentAccountInformation
   end
 
+  class FormAddress
+    include Virtus.model
+
+    attribute :country
+    attribute :city
+    attribute :state
+    attribute :zip_code
+    attribute :address_line_1
+    attribute :address_line_2
+    attribute :address_line_3
+  end
+
   class FormContactInformation
     include Virtus.model
 
@@ -156,9 +168,10 @@ class FormProfiles::VA526ez < FormProfile
       country: address&.country_name,
       city: address&.city,
       state: address&.state_code,
-      postal_code: address&.zip_code,
-      street: address&.address_one,
-      street_2: "#{address&.address_two} #{address&.address_three}".strip
+      zip_code: address&.zip_code,
+      address_line_1: address&.address_one,
+      address_line_2: address&.address_two,
+      address_line_3: address&.address_three
     }.compact
   end
 
@@ -166,8 +179,9 @@ class FormProfiles::VA526ez < FormProfile
     {
       country: address&.country_name,
       city: address&.city,
-      street: address&.address_one,
-      street_2: "#{address&.address_two} #{address&.address_three}".strip
+      address_line_1: address&.address_one,
+      address_line_2: address&.address_two,
+      address_line_3: address&.address_three
     }.compact
   end
 
@@ -176,8 +190,9 @@ class FormProfiles::VA526ez < FormProfile
       country: 'USA',
       city: address&.military_post_office_type_code,
       state: address&.military_state_code,
-      street: address&.address_one,
-      street_2: "#{address&.address_two} #{address&.address_three}".strip
+      address_line_1: address&.address_one,
+      address_line_2: address&.address_two,
+      address_line_3: address&.address_three
     }.compact
   end
 end
