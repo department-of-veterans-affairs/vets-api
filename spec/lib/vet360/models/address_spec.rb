@@ -25,15 +25,15 @@ describe Vet360::Models::Address do
         expect(address.valid?).to eq(false)
       end
 
-      it 'country is requred', :aggregate_failures do
+      it 'country_name is requred', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.country = ''
+        address.country_name = ''
         expect(address.valid?).to eq(false)
       end
 
-      it 'country must be alphabetic', :aggregate_failures do
+      it 'country_name must be alphabetic', :aggregate_failures do
         expect(address.valid?).to eq(true)
-        address.country = '42'
+        address.country_name = '42'
         expect(address.valid?).to eq(false)
       end
 

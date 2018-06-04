@@ -22,7 +22,7 @@ module Vet360
       attribute :address_pou, String # purpose of use
       attribute :address_type, String
       attribute :city, String
-      attribute :country, String
+      attribute :country_name, String
       attribute :country_code_iso2, String
       attribute :country_code_iso3, String
       attribute :country_code_fips, String
@@ -59,7 +59,7 @@ module Vet360
       )
 
       validates(
-        :country,
+        :country_name,
         presence: true,
         length: { maximum: 35 },
         format: { with: VALID_ALPHA_REGEX }
@@ -128,7 +128,7 @@ module Vet360
             cityName: @city,
             countryCodeISO2: @country_code_iso2,
             countryCodeISO3: @country_code_iso3,
-            countryName: @country,
+            countryName: @country_name,
             county: {
               countyCode: @county_code,
               countyName: @county_name
@@ -160,7 +160,7 @@ module Vet360
           address_pou: body['address_pou'],
           address_type: body['address_type'],
           city: body['city_name'],
-          country: body['country_name'],
+          country_name: body['country_name'],
           country_code_iso2: body['country_code_iso2'],
           country_code_iso3: body['country_code_iso3'],
           county_code: body.dig('county', 'county_code'),

@@ -6,7 +6,7 @@ FactoryBot.define do
     address_pou Vet360::Models::Address::RESIDENCE
     address_type Vet360::Models::Address::DOMESTIC
     city 'Fulton'
-    country 'USA'
+    country_name 'USA'
     state_code 'MS'
     zip_code '38843'
     sequence(:transaction_id, 100) { |n| "c2fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
