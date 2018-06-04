@@ -30,6 +30,7 @@ module Vet360
       attribute :phone_number, String
       attribute :phone_type, String
       attribute :source_date, Common::ISO8601Time
+      attribute :source_system_user, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
@@ -82,6 +83,7 @@ module Vet360
             phoneNumberExt: @extension,
             phoneType: @phone_type,
             sourceDate: @source_date,
+            sourceSystemUser: @source_system_user,
             telephoneId: @id,
             # textMessageCapableInd: @is_textable,
             # textMessagePermInd: @is_text_permitted,
