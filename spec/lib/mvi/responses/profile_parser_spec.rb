@@ -6,7 +6,6 @@ require 'mvi/responses/profile_parser'
 describe MVI::Responses::ProfileParser do
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:parser) { MVI::Responses::ProfileParser.new(faraday_response) }
-  let(:icn_with_aaid) { '1000123456V123456^NI^200M^USVHA^P' }
 
   context 'given a valid response' do
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response.xml')) }
@@ -28,8 +27,7 @@ describe MVI::Responses::ProfileParser do
           :address_austin,
           birls_id: nil,
           sec_id: nil,
-          historical_icns: nil,
-          icn_with_aaid: icn_with_aaid
+          historical_icns: nil
         )
       end
       it 'returns a MviProfile with the parsed attributes' do
@@ -46,8 +44,7 @@ describe MVI::Responses::ProfileParser do
             suffix: nil,
             birls_id: nil,
             sec_id: nil,
-            historical_icns: nil,
-            icn_with_aaid: icn_with_aaid
+            historical_icns: nil
           )
         end
         it 'should set the names to false' do
@@ -65,8 +62,7 @@ describe MVI::Responses::ProfileParser do
             birls_id: nil,
             sec_id: nil,
             historical_icns: nil,
-            vet360_id: nil,
-            icn_with_aaid: icn_with_aaid
+            vet360_id: nil
           )
         end
         it 'should set the address to nil' do
@@ -76,7 +72,6 @@ describe MVI::Responses::ProfileParser do
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
         let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA^P' }
-
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
         let(:mvi_profile) do
           build(
@@ -151,8 +146,9 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with multiple MHV IDs' do
+    let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA^P' }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil) }
+    let(:mvi_profile) { build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil, icn_with_aaid: icn_with_aaid) }
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }
@@ -171,8 +167,7 @@ describe MVI::Responses::ProfileParser do
         :address_austin,
         historical_icns: nil,
         birls_id: nil,
-        sec_id: nil,
-        icn_with_aaid: icn_with_aaid
+        sec_id: nil
       )
     end
 
