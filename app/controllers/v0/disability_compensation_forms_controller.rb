@@ -29,25 +29,25 @@ module V0
 
     # Address conversion from a common address type to PCIU address type
     def transform_address(address)
-      pciu_address = {
-        'country' => address['country'],
-        'city' => address['city'],
-        'addressLine1' => address['addressLine1'],
-        'addressLine2' => address['addressLine2'],
-        'addressLine3' => address['addressLine3'],
-        'effectiveDate' => address['effectiveDate']
-      }
+      pciu_address = { 'country' => address['country'],
+                       'addressLine1' => address['addressLine1'],
+                       'addressLine2' => address['addressLine2'],
+                       'addressLine3' => address['addressLine3'],
+                       'effectiveDate' => address['effectiveDate'] }
 
       pciu_address['type'] = get_address_type(address)
 
       case pciu_address['type']
       when 'DOMESTIC'
+        pciu_address['city'] = address['city']
         pciu_address['state'] = address['state']
         pciu_address['zipFirstFive'] = address['zipCode'][0, 5]
         pciu_address['zipLastFour'] = address['zipCode'][-4..-1] if address['zipCode'].length > 5
       when 'MILITARY'
         pciu_address['militaryPostOfficeTypeCode'] = address['city']
         pciu_address['militaryStateCode'] = address['state']
+      when 'INTERNATIONAL'
+        pciu_address['city'] = address['city']
       end
 
       pciu_address.compact
