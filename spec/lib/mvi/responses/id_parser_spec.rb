@@ -8,7 +8,7 @@ describe MVI::Responses::IdParser do
     context 'icn_with_aaid' do
       let(:non_icn_id) { 'TKIP123456^PI^200IP^USVHA^A' }
 
-      it 'finds, parses and returns an ICN with the Assigning Authority ID from a list of correlation ids', :aggregate_failures do
+      it 'parses & returns an ICN w/the Assigning Authority ID from a list of correlation ids', :aggregate_failures do
         expect_valid_icn_with_aaid_from_parsed_xml(
           xml_file: 'find_candidate_response',
           expected_icn_with_aaid: '1000123456V123456^NI^200M^USVHA^P'
@@ -50,7 +50,7 @@ describe MVI::Responses::IdParser do
         expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200HD^USVHA^P')
       end
 
-      it 'only matches when the type is NI', :aggregate_failures  do
+      it 'only matches when the type is NI', :aggregate_failures do
         invalid_icn_with_aaid = '12345678901234567^AA^200M^USVHA^P'
         ids = [correlation_id(non_icn_id), correlation_id(invalid_icn_with_aaid)]
 

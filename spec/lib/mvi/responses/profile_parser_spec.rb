@@ -148,7 +148,9 @@ describe MVI::Responses::ProfileParser do
   context 'with multiple MHV IDs' do
     let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA^P' }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
-    let(:mvi_profile) { build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil, icn_with_aaid: icn_with_aaid) }
+    let(:mvi_profile) do
+      build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil, icn_with_aaid: icn_with_aaid)
+    end
 
     before(:each) do
       allow(faraday_response).to receive(:body) { body }
