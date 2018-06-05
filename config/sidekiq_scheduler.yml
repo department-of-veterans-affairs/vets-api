@@ -100,7 +100,6 @@ VBADocuments::UploadRemover:
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
 
-HCASubmissionFailureEmailAnalytics:
+HCA::SubmissionFailureEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
-  class: HCASubmissionFailureEmailAnalyticsJob
   description: "posts HCA Submission Failure email sends and failures to Google Analytics"

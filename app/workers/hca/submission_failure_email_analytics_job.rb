@@ -44,15 +44,15 @@ module HCA
     end
 
     def hca_emails(page)
-      @all_emails = govdelivery_client.email_messages.get({
+      @all_emails = govdelivery_client.email_messages.get(
         page: page,
         sort_by: 'created_at',
         sort_order: 'DESC',
         page_size: 50
-      })
+      )
       @all_emails.collection.select do |email|
-        [HCASubmissionFailureMailer::SUBJECT].include?(email.subject) && 
-        Time.zone.parse(email.created_at) > @time_range_start
+        [HCASubmissionFailureMailer::SUBJECT].include?(email.subject) &&
+          Time.zone.parse(email.created_at) > @time_range_start
       end
     end
 

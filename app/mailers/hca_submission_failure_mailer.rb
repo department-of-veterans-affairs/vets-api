@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class HCASubmissionFailureMailer < ApplicationMailer
-  
   # Note: if subject changes, `SubmissionFailureEmailAnalyticsJob#hca_emails` will need to include the new and previous
   # subject lines for at least one job execution (currently daily)
   SUBJECT = "We didn't receive your application"
