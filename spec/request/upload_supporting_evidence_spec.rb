@@ -11,7 +11,7 @@ RSpec.describe 'Upload supporting evidence', type: :request do
         post '/v0/upload_supporting_evidence',
              JSON.parse('{"supporting_evidence_attachment": {"file_data": "filename"}}')
         expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('upload_supporting_evidence')
+        expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
       end
     end
 
