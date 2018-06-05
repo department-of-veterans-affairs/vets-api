@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: put
-    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/telephones
+    method: post
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA%5EP"
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551235","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","sourceSystemUser":"1234","telephoneId":1299,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"sourceDate":"2018-04-09T17:52:03Z"}}'
     headers:
       Accept:
       - application/json
@@ -19,11 +19,11 @@ http_interactions:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 200
+      code: 400
       message: ''
     headers:
       Date:
-      - Wed, 25 Apr 2018 21:32:21 GMT
+      - Wed, 25 Apr 2018 17:17:07 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -44,7 +44,18 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"6e1e4e54-e851-4f5e-a2bf-eec0b17738f1","status":"RECEIVED"}'
+      string: '{
+        "messages": [
+          {
+            "code":"PERS101",
+            "key":"vet360Id.NotNull",
+            "severity":"ERROR",
+            "text":"The vet360Id cannot be null."
+          }
+        ],
+        "txAuditId":"3773cd41-0958-4bbe-a035-16ae353cde03",
+        "status":"REJECTED"
+      }'
     http_version:
-  recorded_at: Wed, 25 Apr 2018 21:32:21 GMT
+  recorded_at: Wed, 25 Apr 2018 17:17:06 GMT
 recorded_with: VCR 3.0.3
