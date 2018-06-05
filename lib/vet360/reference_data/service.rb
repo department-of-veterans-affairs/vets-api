@@ -10,12 +10,12 @@ module Vet360
       configuration Vet360::ReferenceData::Configuration
 
       def countries
-        get_reference_data('countries', 'country_list')
+        get_reference_data('countries')
       end
 
-      def get_reference_data(path, key)
+      def get_reference_data(path)
         response = perform(:get, path)
-        ReferenceDataResponse.new(response.status, data: response.body[key])
+        ReferenceDataResponse.from(response)
       rescue StandardError => e
         handle_error(e)
       end

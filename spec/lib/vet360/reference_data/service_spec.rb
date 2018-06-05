@@ -13,10 +13,11 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
     context 'when successful' do
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('vet360/reference_data/countries', VCR::MATCH_EVERYTHING) do
-          result = subject.countries
+          response = subject.countries
 
-          expect(result).to be_ok
-          expect(result.data).to be_a(Hash)
+          expect(response).to be_ok
+          expect(response.reference_data).to be_present
+          expect(response.reference_data['country_list']).to be_an(Array)
         end
       end
     end
