@@ -13,6 +13,13 @@ module Vet360
 
       configuration Vet360::ContactInformation::Configuration
 
+      # Initializes a vet360_id for a user that does not have one. Can be used when a current user
+      # is present, or through a rake task when no user is present (through passing in their ICN).
+      # This is an asynchronous process for Vet360, so it returns Vet360 transaction information.
+      #
+      # @param icn [String] A users ICN. Only required when current user is absent.  Intended to be used in a rake task.
+      # @return [Vet360::ContactInformation::PersonTransactionResponse] response wrapper around a transaction object
+      #
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_uri!(icn), empty_body)
