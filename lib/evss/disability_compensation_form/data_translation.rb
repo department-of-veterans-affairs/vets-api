@@ -8,14 +8,20 @@ module EVSS
       end
 
       def convert
-        @form_content["form526"]["claimantCertification"] = true
+        @form_content['form526']['claimantCertification'] = true
         convert_treatments
-        @form_content["form526"]["applicationExpirationDate"] = application_expiration_date
-        @form_content["form526"]["veteran"]["primaryPhone"] = split_phone_number(@form_content["form526"]["veteran"]["phone"])
-        @form_content["form526"]["serviceInformation"]["reservesNationalGuardService"]["unitPhone"] = split_phone_number(@form_content["form526"]["serviceInformation"]["reservesNationalGuardService"]["unitPhone"])
+        @form_content['form526']['applicationExpirationDate'] = application_expiration_date
+        @form_content['form526']['veteran']['primaryPhone'] = split_phone_number(@form_content['form526']['veteran']['phone'])
+        @form_content['form526']['serviceInformation']['reservesNationalGuardService']['unitPhone'] = split_phone_number(@form_content['form526']['serviceInformation']['reservesNationalGuardService']['unitPhone'])
         convert_service_periods
 
-        if @form_content["form526"]["veteran"]["homelessness"]
+        veteran_info = @form_content['form526']['veteran']
+        @form_content['form526']['veteran']['mailingAddress'] = convert_mailing_address(veteran_info['mailingAddress'])
+        if veteran_info['forwardingAddress']
+          @form_content['form526']['veteran']['forwardingAddress'] = convert_mailing_address(veteran_info['forwardingAddress'])
+        end
+
+        if @form_content['form526']['veteran']['homelessness']
           convert_homelessness
         end
 
@@ -25,22 +31,22 @@ module EVSS
       private
 
       def convert_homelessness
-        if name = @form_content["form526"]["veteran"]["homelessness"]["pointOfContactName"]
-          @form_content["form526"]["veteran"]["homelessness"]["haspointOfContact"] = true
+        if name = @form_content['form526']['veteran']['homelessness']['pointOfContactName']
+          @form_content['form526']['veteran']['homelessness']['haspointOfContact'] = true
 
-          @form_content["form526"]["veteran"]["homelessness"]["pointOfContact"] = {
-            "pointOfContactName" => name,
-            "primaryPhone" => split_phone_number(@form_content["form526"]["veteran"]["homelessness"]["primaryPhone"])
+          @form_content['form526']['veteran']['homelessness']['pointOfContact'] = {
+            'pointOfContactName' => name,
+            'primaryPhone' => split_phone_number(@form_content['form526']['veteran']['homelessness']['primaryPhone'])
           }
         end
       end
 
       def convert_service_periods
-        @form_content["form526"]["serviceInformation"]["servicePeriods"].map! do |sp|
+        @form_content['form526']['serviceInformation']['servicePeriods'].map! do |sp|
         {
-          "serviceBranch" => service_branch(sp["serviceBranch"]),
-          "activeDutyBeginDate" => sp["dateRange"]["from"],
-          "activeDutyEndDate" => sp["dateRange"]["to"]
+          'serviceBranch' => service_branch(sp['serviceBranch']),
+          'activeDutyBeginDate' => sp['dateRange']['from'],
+          'activeDutyEndDate' => sp['dateRange']['to']
         }
         end
       end
@@ -55,32 +61,48 @@ module EVSS
 
       def split_phone_number(phone_number)
         area_code, number = phone_number.match(/(\d{3})(\d{7})/).captures
-        { "areaCode" => area_code, "phoneNumber" => number }
+        { 'areaCode' => area_code, 'phoneNumber' => number }
       end
 
       def rename_date_range(date_range)
-        # before: confinementDateRange: { from: "", to: "" } 
-        # after: confinementBeginDate: "", confinementEndDate: ""
+        # before: confinementDateRange: { from: '', to: '' }
+        # after: confinementBeginDate: '', confinementEndDate: ''
         # see also: obligationTermOfServiceDateRange
         # treatmentDateRange and servicePeriod.dateRange follow this same pattern but I've taken care of them separately. DRY it up as you please
       end
 
-      def convert_mailing_address(mailing_address)
-        # add 'type' to address based on method below
-        # if type==military convert state and postalCode to militaryStateCode and militaryPostOfficeTypeCode
-        # else convert postalCode to zipFirstFive and zipLastFour (method below)
-        # change 'street1' and 'street2' to 'addressLine1' and 'addressLine2'
+      def convert_mailing_address(address)
+        pciu_address = { 'country' => address['country'],
+                         'addressLine1' => address['addressLine1'],
+                         'addressLine2' => address['addressLine2'],
+                         'addressLine3' => address['addressLine3'],
+                         'effectiveDate' => address['effectiveDate'] }
+
+        pciu_address['type'] = get_address_type(address)
+
+        case pciu_address['type']
+        when 'DOMESTIC'
+          zip_code = split_zip_code(address['zipCode'])
+          pciu_address['city'] = address['city']
+          pciu_address['state'] = address['state']
+          pciu_address['zipFirstFive'] = zip_code.first
+          pciu_address['zipLastFour'] = zip_code.last
+        when 'MILITARY'
+          pciu_address['militaryPostOfficeTypeCode'] = address['city']
+          pciu_address['militaryStateCode'] = address['state']
+        when 'INTERNATIONAL'
+          pciu_address['city'] = address['city']
+        end
+
+        pciu_address.compact
       end
 
-      def address_type(country, state_code)
-        if country == "USA"
-          if ["AA", "AE", "AP"].include?(state_code)
-            "MILITARY"
-          else
-            "DOMESTIC"
-          end
+      def get_address_type(address)
+        case address['country']
+        when 'USA'
+          %w[AA AE AP].include?(address['state']) ? 'MILITARY' : 'DOMESTIC'
         else
-          "INTERNATIONAL"
+          'INTERNATIONAL'
         end
       end
 
@@ -89,18 +111,18 @@ module EVSS
       end
 
       def convert_treatments
-        @form_content["form526"]["treatments"].map! do |treatment|
-          treatment["center"] = {
-            "name" => treatment["treatmentCenterName"],
-            "type" => treatment["treatmentCenterType"],
+        @form_content['form526']['treatments'].map! do |treatment|
+          treatment['center'] = {
+            'name' => treatment['treatmentCenterName'],
+            'type' => treatment['treatmentCenterType'],
           }
-          treatment["center"].merge!(treatment["treatmentCenterAddress"])
-          treatment["startDate"] = treatment["treatmentDateRange"]["from"]
-          treatment["endDate"] = treatment["treatmentDateRange"]["to"]
-          treatment.delete("treatmentCenterName")
-          treatment.delete("treatmentDateRange")
-          treatment.delete("treatmentCenterAddress")
-          treatment.delete("treatmentCenterType")
+          treatment['center'].merge!(treatment['treatmentCenterAddress'])
+          treatment['startDate'] = treatment['treatmentDateRange']['from']
+          treatment['endDate'] = treatment['treatmentDateRange']['to']
+          treatment.delete('treatmentCenterName')
+          treatment.delete('treatmentDateRange')
+          treatment.delete('treatmentCenterAddress')
+          treatment.delete('treatmentCenterType')
           treatment
         end
       end
