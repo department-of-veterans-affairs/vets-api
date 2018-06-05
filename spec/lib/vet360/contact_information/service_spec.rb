@@ -8,6 +8,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
+    allow(user).to receive(:icn).and_return('1234')
   end
 
   describe '#get_person' do
@@ -33,7 +34,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_email' do
-    let(:email) { build(:email, vet360_id: user.vet360_id) }
+    let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
@@ -60,7 +61,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_email' do
-    let(:email) { build(:email, vet360_id: user.vet360_id) }
+    let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
@@ -75,7 +76,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_address' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
@@ -101,7 +102,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_address' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
@@ -116,7 +117,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#put_telephone' do
-    let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
@@ -131,7 +132,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
   end
 
   describe '#post_telephone' do
-    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil) }
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do

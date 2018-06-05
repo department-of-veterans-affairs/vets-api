@@ -58,6 +58,11 @@ describe Mvi, skip_mvi: true do
           expect(mvi.icn).to eq(profile_response.profile.icn)
         end
       end
+      describe '#icn_with_aaid' do
+        it 'should match the response' do
+          expect(mvi.icn_with_aaid).to eq(profile_response.profile.icn_with_aaid)
+        end
+      end
       describe '#mhv_correlation_id' do
         it 'should match the response' do
           expect(mvi.mhv_correlation_id).to eq(profile_response.profile.mhv_correlation_id)
@@ -93,6 +98,11 @@ describe Mvi, skip_mvi: true do
       describe '#icn' do
         it 'should be nil' do
           expect(mvi.icn).to be_nil
+        end
+      end
+      describe '#icn_with_aaid' do
+        it 'should be nil' do
+          expect(mvi.icn_with_aaid).to be_nil
         end
       end
       describe '#mhv_correlation_id' do
