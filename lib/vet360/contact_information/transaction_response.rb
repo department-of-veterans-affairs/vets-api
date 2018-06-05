@@ -21,6 +21,7 @@ module Vet360
 
     class AddressTransactionResponse < TransactionResponse; end
     class EmailTransactionResponse < TransactionResponse; end
+    class PersonTransactionResponse < TransactionResponse; end
     class TelephoneTransactionResponse < TransactionResponse; end
   end
 end
