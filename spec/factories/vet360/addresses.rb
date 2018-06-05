@@ -6,8 +6,8 @@ FactoryBot.define do
     address_pou Vet360::Models::Address::RESIDENCE
     address_type Vet360::Models::Address::DOMESTIC
     city 'Fulton'
-    country 'USA'
-    state_abbr 'MS'
+    country_name 'USA'
+    state_code 'MS'
     zip_code '38843'
     sequence(:transaction_id, 100) { |n| "c2fab2b5-6af0-45e1-a9e2-394347af9#{n}" }
     source_date          '2018-04-09T11:52:03-06:00'
@@ -27,7 +27,7 @@ FactoryBot.define do
     trait :international do
       address_type Vet360::Models::Address::INTERNATIONAL
       international_postal_code '100-0001'
-      state_abbr nil
+      state_code nil
       zip_code nil
     end
 
