@@ -7,6 +7,7 @@ module Vet360
   module Person
     class Service < Vet360::Service
       include Common::Client::Monitoring
+      include ERB::Util
 
       AAID = MVI::Responses::IdParser::VET360_ASSIGNING_AUTHORITY_ID
       OID  = MVI::Responses::IdParser::CORRELATION_ROOT_ID
@@ -22,7 +23,7 @@ module Vet360
       #
       def init_vet360_id(icn = nil)
         with_monitoring do
-          raw_response = perform(:post, encode_uri!(icn), empty_body)
+          raw_response = perform(:post, encode_url!(icn), empty_body)
 
           Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
         end
@@ -32,11 +33,13 @@ module Vet360
 
       private
 
-      # rubocop:disable Lint/UriEscapeUnescape
-      def encode_uri!(icn)
-        URI.encode("#{OID}/#{build_icn_with_aaid!(icn)}")
+      # @see https://ruby-doc.org/stdlib-2.3.0/libdoc/erb/rdoc/ERB/Util.html
+      #
+      def encode_url!(icn)
+        encoded_icn_with_aaid = url_encode(build_icn_with_aaid!(icn))
+
+        "#{OID}/#{encoded_icn_with_aaid}"
       end
-      # rubocop:enable Lint/UriEscapeUnescape
 
       def build_icn_with_aaid!(icn)
         if icn.present?
