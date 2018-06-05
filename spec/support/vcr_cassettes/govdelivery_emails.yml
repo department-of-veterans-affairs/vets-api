@@ -55,7 +55,7 @@ http_interactions:
   recorded_at: Wed, 30 May 2018 18:17:56 GMT
 - request:
     method: get
-    uri: https://stage-tms.govdelivery.com/messages/email?page=1
+    uri: https://stage-tms.govdelivery.com/messages/email?page=1&page_size=50&sort_by=created_at&sort_order=DESC
     body:
       encoding: US-ASCII
       string: ''
@@ -161,7 +161,7 @@ http_interactions:
 
 - request:
     method: get
-    uri: https://stage-tms.govdelivery.com/messages/email?page=2
+    uri: https://stage-tms.govdelivery.com/messages/email?page=2&page_size=50&sort_by=created_at&sort_order=DESC
     body:
       encoding: US-ASCII
       string: ''

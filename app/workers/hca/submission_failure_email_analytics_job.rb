@@ -4,9 +4,11 @@ module HCA
   class SubmissionFailureEmailAnalyticsJob
     include Sidekiq::Worker
 
-    EMAIL_SUBJECT = "We didn't receive your application"
+    sidekiq_options(unique_for: 30.minutes, retry: false)
 
     def initialize
+      Sentry::TagRainbows.tag
+
       unless FeatureFlipper.send_email?
         raise Common::Exceptions::ParameterMissing.new(
           'GovDelivery token or server',
@@ -25,7 +27,6 @@ module HCA
     end
 
     def perform
-      Sentry::TagRainbows.tag
       page = 0
       loop do
         page += 1
@@ -43,9 +44,15 @@ module HCA
     end
 
     def hca_emails(page)
-      @all_emails = govdelivery_client.email_messages.get(page: page)
+      @all_emails = govdelivery_client.email_messages.get({
+        page: page,
+        sort_by: 'created_at',
+        sort_order: 'DESC',
+        page_size: 50
+      })
       @all_emails.collection.select do |email|
-        email.subject == EMAIL_SUBJECT && Time.zone.parse(email.created_at) > @time_range_start
+        [HCASubmissionFailureMailer::SUBJECT].include?(email.subject) && 
+        Time.zone.parse(email.created_at) > @time_range_start
       end
     end
 
@@ -65,7 +72,7 @@ module HCA
         campaign_name: 'hca-failure',
         campaign_medium: 'email',
         campaign_source: 'gov-delivery',
-        document_title: EMAIL_SUBJECT,
+        document_title: email.subject,
         document_path: '/email/health-care/apply/application/introduction'
       }
       @tracker.event(event_params.merge(action: 'completed'))
