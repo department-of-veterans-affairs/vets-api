@@ -4,20 +4,19 @@
       "emailAddress": "string",
       "alternateEmailAddress": "string",
       "mailingAddress": {
-        "street1": "string",
-        "street2": "string",
-        "city": "string",
-        "state": "IL",
-        "postalCode": "11111-1111",
-        "country": "string"
+        "addressLine1": "1234 Classy Street",
+        "addressLine2": "Apartment 567",
+        "city": "Quaint Town",
+        "state": "OR",
+        "zipCode": "85918-1212",
+        "country": "USA"
       },
       "forwardingAddress": {
-        "street1": "string",
-        "street2": "string",
-        "city": "string",
+        "addressLine1": "1234 de Buen Tono Calle",
+        "addressLine2": "Apartamento 567",
         "state": "AA",
-        "postalCode": "APO",
-        "country": "string",
+        "city": "APO",
+        "country": "USA",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
       "phone": "2024561111",

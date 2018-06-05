@@ -3,23 +3,22 @@
       "emailAddress": "string",
       "alternateEmailAddress": "string",
       "mailingAddress": {
-        "city": "string",
-        "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
-        "country": "string",
+        "city": "Quaint Town",
+        "state": "OR",
+        "zipFirstFive": "85918",
+        "zipLastFour": "1212",
+        "country": "USA",
         "type": "DOMESTIC",
-        "addressLine1": "string",
-        "addressLine2": "string"
+        "addressLine1": "1234 Classy Street",
+        "addressLine2": "Apartment 567"
       },
       "forwardingAddress": {
-        "city": "string",
-        "country": "string",
+        "country": "USA",
         "militaryStateCode": "AA",
         "militaryPostOfficeTypeCode": "APO",
         "type": "MILITARY",
-        "addressLine1": "string",
-        "addressLine2": "string",
+        "addressLine1": "1234 de Buen Tono Calle",
+        "addressLine2": "Apartamento 567",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
       "primaryPhone": {
