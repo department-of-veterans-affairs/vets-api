@@ -13,21 +13,9 @@ module Vet360
         get_reference_data('countries', 'country_list')
       end
 
-      def states
-        get_reference_data('states', 'state_list')
-      end
-
-      def zipcodes
-        get_reference_data('zipcode5', 'zip_code5_list').map do |zip_data|
-          { 'zip_code' => zip_data['zip_code5'] }
-        end
-      end
-
       def get_reference_data(path, key)
-        with_monitoring do
-          resp = perform(:get, path)
-          resp.body[key]
-        end
+        response = perform(:get, path)
+        ReferenceDataResponse.new(response.status, data: response.body[key])
       rescue StandardError => e
         handle_error(e)
       end
