@@ -3,15 +3,14 @@
 require 'rails_helper'
 
 describe Vet360::Person::Service, skip_vet360: true do
-  let(:user) { 'rake_user' }
-  let(:icn)  { '1012852978V019884' }
-  subject    { described_class.new(user) }
 
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
   after  { Timecop.return }
 
   describe '#init_vet360_id' do
     context 'when successful' do
+    let(:user) { build(:user_with_suffix, :loa3) }
+    subject { described_class.new(user) }
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
           response = subject.init_vet360_id(icn)
