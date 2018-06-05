@@ -11,7 +11,9 @@ module V0
     end
 
     def submit
-      response = service.submit_form(request.body.string)
+      form_data = JSON.parse(request.body.string)
+      converted_form_content = EVSS::DataTranslation.new(form_content).convert
+      response = service.submit_form(converted_form_content)
       EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id)
       render json: response,
              serializer: SubmitDisabilityFormSerializer
