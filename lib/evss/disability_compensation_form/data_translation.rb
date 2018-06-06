@@ -21,24 +21,31 @@ module EVSS
           @form_content['form526']['veteran']['forwardingAddress'] = convert_mailing_address(veteran_info['forwardingAddress'])
         end
 
-        if @form_content['form526']['veteran']['homelessness']
-          convert_homelessness
+        homeless_data = @form_content['form526']['veteran']['homelessness']
+        if homeless_data['isHomeless']
+          @form_content['form526']['veteran']['homelessness'] = convert_homelessness(homeless_data['pointOfContact'])
+        else
+          @form_content['form526']['veteran'].delete('homelessness')
         end
 
-        @form_content.to_json
+        @form_content.compact.to_json
       end
 
       private
 
-      def convert_homelessness
-        if name = @form_content['form526']['veteran']['homelessness']['pointOfContactName']
-          @form_content['form526']['veteran']['homelessness']['haspointOfContact'] = true
-
-          @form_content['form526']['veteran']['homelessness']['pointOfContact'] = {
-            'pointOfContactName' => name,
-            'primaryPhone' => split_phone_number(@form_content['form526']['veteran']['homelessness']['primaryPhone'])
+      def convert_homelessness(point_of_contact)
+        homelessness = {}
+        if point_of_contact
+          homelessness['hasPointOfContact'] = true
+          homelessness['pointOfContact'] = {
+            'pointOfContactName' => point_of_contact['pointOfContactName'],
+            'primaryPhone' => split_phone_number(point_of_contact['primaryPhone'])
           }
+        else
+          homelessness['hasPointOfContact'] = false
         end
+
+        homelessness
       end
 
       def convert_service_periods
