@@ -93,6 +93,16 @@ module Vet360
         get_transaction_status(route, TelephoneTransactionResponse)
       end
 
+      def get_person_transaction_status(transaction_id)
+        with_monitoring do
+          raw_response = perform(:get, "status/#{transaction_id}")
+
+          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
       private
 
       # This method acts as a beta flag, and is temporarily in place until Vet360
