@@ -16,7 +16,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.countries
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_a(Hash)
+          expect(response.reference_data).to be_a(Array)
         end
       end
     end
@@ -29,7 +29,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.states
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_a(Hash)
+          expect(response.reference_data).to be_a(Array)
         end
       end
     end
@@ -42,7 +42,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.zipcodes
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_a(Hash)
+          expect(response.reference_data).to be_a(Array)
         end
       end
     end
