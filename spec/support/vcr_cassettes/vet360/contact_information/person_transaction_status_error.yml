@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Wed, 25 Apr 2018 17:22:19 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "messages": [
+            {
+              "code": "PERS200",
+              "key": "_CUF_NOT_FOUND",
+              "severity": "ERROR",
+              "text": "The veteran with the id requested has already been created."
+            }
+          ],
+          "status": "COMPLETED_FAILURE"
+        }
+    http_version:
+  recorded_at: Wed, 25 Apr 2018 17:22:18 GMT
+recorded_with: VCR 3.0.3
