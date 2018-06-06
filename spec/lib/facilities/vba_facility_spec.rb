@@ -18,13 +18,13 @@ module Facilities
 
     describe 'pull_source_data' do
       it 'should pull data from ArcGIS endpoint' do
-        VCR.use_cassette('facilities/va/vba_facilities') do
+        VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           list = VBAFacility.pull_source_data
-          expect(list.size).to eq(487)
+          expect(list.size).to eq(6)
         end
       end
       it 'should return an array of VBAFacility objects' do
-        VCR.use_cassette('facilities/va/vba_facilities') do
+        VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
           list = VBAFacility.pull_source_data
           expect(list).to be_an(Array)
           expect(list.all? { |item| item.is_a?(VBAFacility) })

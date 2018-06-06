@@ -14,7 +14,7 @@ module Facilities
       it 'should pull data from ArcGIS endpoint' do
         VCR.use_cassette('facilities/va/vc_facilities') do
           list = VCFacility.pull_source_data
-          expect(list.size).to eq(318)
+          expect(list.size).to eq(10)
         end
       end
 
