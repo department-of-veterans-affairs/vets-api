@@ -16,20 +16,33 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.countries
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_present
-          expect(response.reference_data['country_list']).to be_an(Array)
+          expect(response.reference_data).to be_a(Hash)
         end
       end
     end
+  end
 
-    context 'with a 400 response' do
-      xit 'raises an exception' do
-        VCR.use_cassette('vet360/person/init_vet360_id_status_400', VCR::MATCH_EVERYTHING) do
-          expect { subject.init_vet360_id(icn) }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(400)
-            expect(e.errors.first.code).to eq('VET360_PERS101')
-          end
+  describe '#states' do
+    context 'when successful' do
+      it 'returns a status of 200', :aggregate_failures do
+        VCR.use_cassette('vet360/reference_data/states', VCR::MATCH_EVERYTHING) do
+          response = subject.states
+
+          expect(response).to be_ok
+          expect(response.reference_data).to be_a(Hash)
+        end
+      end
+    end
+  end
+
+  describe '#zipcodes' do
+    context 'when successful' do
+      it 'returns a status of 200', :aggregate_failures do
+        VCR.use_cassette('vet360/reference_data/zipcodes', VCR::MATCH_EVERYTHING) do
+          response = subject.zipcodes
+
+          expect(response).to be_ok
+          expect(response.reference_data).to be_a(Hash)
         end
       end
     end

@@ -13,6 +13,14 @@ module Vet360
         get_reference_data('countries')
       end
 
+      def states
+        get_reference_data('states')
+      end
+
+      def zipcodes
+        get_reference_data('zipCode5')
+      end
+
       def get_reference_data(path)
         response = perform(:get, path)
         ReferenceDataResponse.from(response)
