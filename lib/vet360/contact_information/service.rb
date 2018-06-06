@@ -93,6 +93,12 @@ module Vet360
         get_transaction_status(route, TelephoneTransactionResponse)
       end
 
+      # GET's the status of a person transaction from the Vet360 api. Does not validate the presence of
+      # a vet360_id before making the service call, as POSTing a person initializes a vet360_id.
+      #
+      # @param transaction_id [String] the transaction_id to check
+      # @return [Vet360::ContactInformation::PersonTransactionResponse] response wrapper around a transaction object
+      #
       def get_person_transaction_status(transaction_id)
         with_monitoring do
           raw_response = perform(:get, "status/#{transaction_id}")
