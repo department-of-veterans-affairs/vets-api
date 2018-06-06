@@ -38,7 +38,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
     end
 
     subject do
-      described_class.new.perform(user.uuid, form, health_care_application.id)
+      described_class.new.perform(user.uuid, form, health_care_application.id, '123456789')
     end
 
     context 'when submission has an error' do

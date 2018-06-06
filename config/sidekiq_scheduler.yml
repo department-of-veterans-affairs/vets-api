@@ -99,3 +99,7 @@ VBADocuments::UploadRemover:
   cron: "15,45 * * * * * America/New_York"
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
+
+HCA::SubmissionFailureEmailAnalyticsJob:
+  cron: "0 1 * * * America/New_York"
+  description: "posts HCA Submission Failure email sends and failures to Google Analytics"
