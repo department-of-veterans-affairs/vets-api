@@ -21,7 +21,7 @@ class MhvAccount < ActiveRecord::Base
   # rubocop:disable Metrics/BlockLength
   aasm(:account_state) do
     state :unknown, initial: true
-    state(*ALL_STATES)
+    state(*(INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES))
 
     # NOTE: This is eligibility for account creation or upgrade, not for access to services.
     event :check_eligibility do
