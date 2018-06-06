@@ -2,6 +2,7 @@
 
 module V0
   class MhvAccountsController < ApplicationController
+    INELIGIBLE_ERROR = 'You are not eligible for creating/upgrading an MHV account'
     include ActionController::Serialization
 
     before_action :authorize, only: :create
@@ -32,7 +33,7 @@ module V0
     private
 
     def raise_access_denied
-      raise Common::Exceptions::Forbidden, detail: 'You are not eligible for creating/upgrading an MHV account'
+      raise Common::Exceptions::Forbidden, detail: INELIGIBLE_ERROR
     end
 
     def mhv_account
