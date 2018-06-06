@@ -30,6 +30,7 @@ module Vet360
       attribute :phone_number, String
       attribute :phone_type, String
       attribute :source_date, Common::ISO8601Time
+      attribute :source_system_user, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
@@ -82,12 +83,15 @@ module Vet360
             phoneNumberExt: @extension,
             phoneType: @phone_type,
             sourceDate: @source_date,
+            sourceSystemUser: @source_system_user,
             telephoneId: @id,
             # textMessageCapableInd: @is_textable,
             # textMessagePermInd: @is_text_permitted,
             ttyInd: @is_tty,
             vet360Id: @vet360_id,
-            voiceMailAcceptableInd: @is_voicemailable
+            voiceMailAcceptableInd: @is_voicemailable,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
@@ -112,7 +116,9 @@ module Vet360
           transaction_id: body['tx_audit_id'],
           is_tty: body['tty_ind'],
           updated_at: body['update_date'],
-          vet360_id: body['vet360_id']
+          vet360_id: body['vet360_id'],
+          effective_end_date: body['effective_end_date'],
+          effective_start_date: body['effective_start_date']
         )
       end
     end

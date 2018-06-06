@@ -15,7 +15,9 @@ module Vet360
       # @return [Vet360::ContactInformation::PersonResponse] response wrapper around an person object
       def get_person
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(:get, @user.vet360_id)
+
           PersonResponse.from(raw_response)
         end
       rescue Common::Client::Errors::ClientError => error
@@ -102,10 +104,15 @@ module Vet360
         end
       end
 
+      def vet360_id_present!
+        raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
+      end
+
       def post_or_put_data(method, model, path, response_class)
         temporary_short_circuit!
 
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(method, path, model.in_json)
 
           response_class.from(raw_response)
@@ -118,6 +125,7 @@ module Vet360
         temporary_short_circuit!
 
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(:get, path)
 
           response_class.from(raw_response)

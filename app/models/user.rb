@@ -113,6 +113,7 @@ class User < Common::RedisStore
   delegate :birls_id, to: :mvi
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
+  delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
