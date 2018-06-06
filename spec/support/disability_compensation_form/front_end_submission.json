@@ -21,8 +21,11 @@
       },
       "phone": "2024561111",
       "homelessness": {
-        "pointOfContactName": "Ted",
-        "primaryPhone": "1234567890"
+        "isHomeless": true,
+        "pointOfContact": {
+          "pointOfContactName": "Ted",
+          "primaryPhone": "1234567890"
+        }
       },
       "serviceNumber": "string"
     },
