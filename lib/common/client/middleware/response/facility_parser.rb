@@ -107,7 +107,7 @@ module Common
             services << { 'sl1' => ['EmergencyCare'], 'sl2' => [] } if facility_wait_time&.emergency_care&.any?
             services << { 'sl1' => ['UrgentCare'], 'sl2' => [] } if facility_wait_time&.urgent_care&.any?
             (Facilities::AccessDataDownload::WT_KEY_MAP.values - %w[primary_care mental_health]).each do |service|
-              services << { 'sl1' => [service.titleize], 'sl2' => [] } if metric_keys.include?(service)
+              services << { 'sl1' => [service.camelize], 'sl2' => [] } if metric_keys.include?(service)
             end
             services
           end
