@@ -11,11 +11,15 @@ module EVSS
         @form_content['form526']['claimantCertification'] = true
         convert_treatments
         @form_content['form526']['applicationExpirationDate'] = application_expiration_date
-        @form_content['form526']['veteran']['primaryPhone'] = split_phone_number(@form_content['form526']['veteran']['phone'])
-        @form_content['form526']['serviceInformation']['reservesNationalGuardService']['unitPhone'] = split_phone_number(@form_content['form526']['serviceInformation']['reservesNationalGuardService']['unitPhone'])
-        convert_service_periods
+
+        service_info = @form_content['form526']['serviceInformation']
+        @form_content['form526']['serviceInformation']['servicePeriods'] = convert_service_periods(service_info['servicePeriods'])
+        if service_info['reservesNationalGuardService']
+          @form_content['form526']['serviceInformation']['reservesNationalGuardService'] = convert_national_guard_service(service_info['reservesNationalGuardService'])
+        end
 
         veteran_info = @form_content['form526']['veteran']
+        @form_content['form526']['veteran']['primaryPhone'] = split_phone_number(veteran_info['phone'])
         @form_content['form526']['veteran']['mailingAddress'] = convert_mailing_address(veteran_info['mailingAddress'])
         if veteran_info['forwardingAddress']
           @form_content['form526']['veteran']['forwardingAddress'] = convert_mailing_address(veteran_info['forwardingAddress'])
@@ -48,12 +52,25 @@ module EVSS
         homelessness
       end
 
-      def convert_service_periods
-        @form_content['form526']['serviceInformation']['servicePeriods'].map! do |sp|
+      def convert_service_periods(service_periods)
+        service_periods.map do |sp|
         {
           'serviceBranch' => service_branch(sp['serviceBranch']),
           'activeDutyBeginDate' => sp['dateRange']['from'],
           'activeDutyEndDate' => sp['dateRange']['to']
+        }
+        end
+      end
+
+      def convert_national_guard_service(reserves_service_info)
+        reserves_service_info.map do |rp|
+        {
+          'title10Activation' => reserves_service_info['title10Activation'],
+          'obligationTermOfServiceFromDate' => reserves_service_info['obligationTermOfServiceDateRange']['from'],
+          'obligationTermOfServiceToDate' => reserves_service_info['obligationTermOfServiceDateRange']['to'],
+          'unitName' => reserves_service_info['unitName'],
+          'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
+          'inactiveDutyTrainingPay' => reserves_service_info['inactiveDutyTrainingPay']
         }
         end
       end
