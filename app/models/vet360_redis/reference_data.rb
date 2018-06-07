@@ -31,7 +31,7 @@ module Vet360Redis
     private
 
     def response_from_redis_or_service(endpoint)
-      do_cached_with(key: "vet360_reference_data:#{endpoint}") do
+      do_cached_with(key: "vet360_reference_data_#{endpoint}") do
         reference_data_service.public_send(endpoint)
       end
     end
