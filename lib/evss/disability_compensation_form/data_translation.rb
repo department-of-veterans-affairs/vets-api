@@ -9,11 +9,14 @@ module EVSS
 
       def convert
         @form_content['form526']['claimantCertification'] = true
-        convert_treatments
+
         @form_content['form526']['applicationExpirationDate'] = application_expiration_date
+
+        @form_content['form526']['treatments'] = convert_treatments(@form_content['form526']['treatments'])
 
         service_info = @form_content['form526']['serviceInformation']
         @form_content['form526']['serviceInformation']['servicePeriods'] = convert_service_periods(service_info['servicePeriods'])
+        @form_content['form526']['serviceInformation']['confinements'] = convert_confinements(service_info['confinements'])
         if service_info['reservesNationalGuardService']
           @form_content['form526']['serviceInformation']['reservesNationalGuardService'] = convert_national_guard_service(service_info['reservesNationalGuardService'])
         end
@@ -52,18 +55,27 @@ module EVSS
         homelessness
       end
 
-      def convert_service_periods(service_periods)
-        service_periods.map do |sp|
-        {
-          'serviceBranch' => service_branch(sp['serviceBranch']),
-          'activeDutyBeginDate' => sp['dateRange']['from'],
-          'activeDutyEndDate' => sp['dateRange']['to']
-        }
+      def convert_service_periods(service_periods_info)
+        service_periods_info.map! do |si|
+          {
+            'serviceBranch' => service_branch(si['serviceBranch']),
+            'activeDutyBeginDate' => si['dateRange']['from'],
+            'activeDutyEndDate' => si['dateRange']['to']
+          }
+        end
+      end
+
+      def convert_confinements(confinements_info)
+        confinements_info.map! do |ci|
+          {
+            'confinementBeginDate' => ci['confinementDateRange']['from'],
+            'confinementEndDate' => ci['confinementDateRange']['to'],
+            'verifiedIndicator' => ci['verifiedIndicator']
+          }
         end
       end
 
       def convert_national_guard_service(reserves_service_info)
-        reserves_service_info.map do |rp|
         {
           'title10Activation' => reserves_service_info['title10Activation'],
           'obligationTermOfServiceFromDate' => reserves_service_info['obligationTermOfServiceDateRange']['from'],
@@ -72,7 +84,6 @@ module EVSS
           'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
           'inactiveDutyTrainingPay' => reserves_service_info['inactiveDutyTrainingPay']
         }
-        end
       end
 
       def service_branch(service_branch)
@@ -134,8 +145,8 @@ module EVSS
         split_code = zip_code.match(/(^\d{5})(?:([-\s]?)(\d{4})?$)/).captures
       end
 
-      def convert_treatments
-        @form_content['form526']['treatments'].map! do |treatment|
+      def convert_treatments(treatments_info)
+        treatments_info.map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
             'type' => treatment['treatmentCenterType'],
