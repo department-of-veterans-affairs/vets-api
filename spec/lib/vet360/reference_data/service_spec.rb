@@ -17,6 +17,12 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
 
           expect(response).to be_ok
           expect(response.reference_data).to be_a(Array)
+
+          data = response.reference_data.first
+          expect(data).to have_key('country_name')
+          expect(data).to have_key('country_code_iso2')
+          expect(data).to have_key('country_code_iso3')
+          expect(data).to have_key('country_code_fips')
         end
       end
     end
@@ -30,6 +36,10 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
 
           expect(response).to be_ok
           expect(response.reference_data).to be_a(Array)
+
+          data = response.reference_data.first
+          expect(data).to have_key('state_name')
+          expect(data).to have_key('state_code')
         end
       end
     end
@@ -43,6 +53,9 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
 
           expect(response).to be_ok
           expect(response.reference_data).to be_a(Array)
+
+          data = response.reference_data.first
+          expect(data).to have_key('zip_code')
         end
       end
     end
