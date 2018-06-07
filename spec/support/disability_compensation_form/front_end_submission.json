@@ -34,12 +34,6 @@
       "payments": [],
       "receiveCompensationInLieuOfRetired": false
     },
-    "directDeposit": {
-      "accountType": "CHECKING",
-      "accountNumber": "1234",
-      "bankName": "string",
-      "routingNumber": "123456789"
-    },
     "serviceInformation": {
       "servicePeriods": [
         {
