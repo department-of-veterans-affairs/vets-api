@@ -38,6 +38,9 @@ development: &defaults
   vet360_contact_info_response:
     namespace: vet360-contact-info-response
     each_ttl: 60 # TODO: Verify that this is the best TTL
+  vet360_reference_data_response:
+    namespace: vet360-reference-data-response
+    each_ttl: 86400
 
 test:
   <<: *defaults
