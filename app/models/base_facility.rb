@@ -56,15 +56,8 @@ class BaseFacility < ActiveRecord::Base
   }.freeze
 
   SERVICE_WHITELIST = {
-    HEALTH => %w[Audiology ComplementaryAlternativeMed DentalServices DiagnosticServices ImagingAndRadiology
-                 LabServices EmergencyDept EyeCare MentalHealthCare OutpatientMHCare OutpatientSpecMHCare
-                 VocationalAssistance OutpatientMedicalSpecialty AllergyAndImmunology CardiologyCareServices
-                 DermatologyCareServices Diabetes Dialysis Endocrinology Gastroenterology Hematology
-                 InfectiousDisease InternalMedicine Nephrology Neurology Oncology PulmonaryRespiratoryDisease
-                 Rheumatology SleepMedicine OutpatientSurgicalSpecialty CardiacSurgery ColoRectalSurgery ENT
-                 GeneralSurgery Gynecology Neurosurgery Orthopedics PainManagement PlasticSurgery Podiatry
-                 ThoracicSurgery Urology VascularSurgery PrimaryCare Rehabilitation UrgentCare
-                 WellnessAndPreventativeCare],
+    HEALTH => %w[PrimaryCare MentalHealthCare UrgentCare EmergencyCare Audiology Cardiology Dermatology
+                 Gastroenterology Gynecology Ophthalmology Optometry Orthopedics Urology WomensHealth],
     BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
                    eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
                    FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance Pensions
@@ -164,9 +157,21 @@ class BaseFacility < ActiveRecord::Base
       klass = TYPE_MAP[facility_type].constantize
       return klass.none unless type.blank? || type == facility_type
       facilities = klass.where(conditions)
-      facilities = facilities.where("services->'benefits'->'standard' @> '#{services}'") if services&.any?
+      service_conditions = services&.map do |service|
+        service_condition(type, service)
+      end
+      facilities = facilities.where(service_conditions.join(' OR ')) if service_conditions&.any?
       facilities = facilities.where.not(facility_type: 'dod_health')
       facilities
+    end
+
+    def service_condition(type, service)
+      case type
+      when 'benefits'
+        "services->'benefits'->'standard' @> '[\"#{service}\"]'"
+      when 'health'
+        "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
+      end
     end
 
     # Naive distance calculation, but accurate enough for map display sorting.
