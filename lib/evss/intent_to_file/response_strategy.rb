@@ -9,13 +9,7 @@ module EVSS
       redis_config_key :intent_to_file_response
 
       def cache_or_service(user_uuid, type)
-        conditionally_cache_response(
-          key: "#{user_uuid}:#{type}",
-          request: -> { yield },
-          condition: -> (response) do
-            response.ok? && response.intent_to_file.active? && !response.intent_to_file.expires_today?
-          end
-        )
+        do_cached_with(key: "#{user_uuid}:#{type}") { yield }
       end
     end
   end

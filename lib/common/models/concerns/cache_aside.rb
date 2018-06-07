@@ -27,23 +27,12 @@ module Common
     end
 
     def do_cached_with(key:)
-      cached_response(key) and return
-      response = yield
-      raise NoMethodError, 'The response class being cached must implement #ok?' unless response.respond_to?(:ok?)
-      cache(key, response) if response.ok?
-      response
-    end
-
-    def conditionally_cache_response(key:, request:, condition:)
-      cached_response(key) and return
-      response = request.()
-      cache(key, response) if condition.(response)
-      response
-    end
-
-    def cached_response(key)
       cached = self.class.find(key)
-      cached.response if cached
+      return cached.response if cached
+      response = yield
+      raise NoMethodError, 'The response class being cached must implement #cache?' unless response.respond_to?(:cache?)
+      cache(key, response) if response.cache?
+      response
     end
 
     def cache(key, response)

@@ -34,12 +34,10 @@ module EVSS
         super(args)
       end
 
-      def active?
-
-      end
-
-      def expires_today?
-
+      def expires_within_one_day?
+        current = Time.current
+        one_day_from_current = current + 1.day
+        (current..one_day_from_current).cover? expiration_date
       end
     end
   end

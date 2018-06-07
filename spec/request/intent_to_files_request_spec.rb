@@ -83,7 +83,6 @@ RSpec.describe 'Intent to file', type: :request do
       it 'should match the intent to file schema' do
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post '/v0/intent_to_file/compensation', nil, auth_header
-          puts response.inspect
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intent_to_file')
         end

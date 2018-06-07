@@ -13,7 +13,7 @@ module EVSS
       end
 
       def cache?
-        ok? && intent_to_file.active? && !intent_to_file.expires_today?
+        ok? && !intent_to_file.expires_within_one_day?
       end
     end
   end
