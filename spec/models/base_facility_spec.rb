@@ -180,10 +180,43 @@ RSpec.describe BaseFacility, type: :model do
   end
 
   describe '#query' do
+    let(:setup_pdx) do
+      %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348
+         vba_348a vba_348d vba_348e vba_348h dod_001 dod_002].map { |id| create id }
+    end
+
     it 'should find facility in the bbox' do
       create :vha_648A4
       bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
       expect(BaseFacility.query(bbox: bbox).first.id).to eq('648A4')
+    end
+
+    it 'should find facility by type' do
+      setup_pdx
+      bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
+      expect(BaseFacility.query(bbox: bbox).size).to eq(10)
+      expect(BaseFacility.query(bbox: bbox, type: 'health').size).to eq(3)
+      expect(BaseFacility.query(bbox: bbox, type: 'benefits').size).to eq(5)
+      expect(BaseFacility.query(bbox: bbox, type: 'cemetery').size).to eq(1)
+      expect(BaseFacility.query(bbox: bbox, type: 'vet_center').size).to eq(1)
+    end
+
+    it 'should find health facilities by services' do
+      setup_pdx
+      bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
+      type = 'health'
+      services = %w[EmergencyCare MentalHealthCare]
+      expect(BaseFacility.query(bbox: bbox, type: type, services: [services[0]]).size).to eq(1)
+      expect(BaseFacility.query(bbox: bbox, type: type, services: services).size).to eq(3)
+    end
+
+    it 'should find benefit facilities by services' do
+      setup_pdx
+      bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
+      type = 'benefits'
+      services = %w[HomelessAssistance VocationalRehabilitationAndEmploymentAssistance]
+      expect(BaseFacility.query(bbox: bbox, type: type, services: [services[0]]).size).to eq(1)
+      expect(BaseFacility.query(bbox: bbox, type: type, services: services).size).to eq(5)
     end
   end
 
