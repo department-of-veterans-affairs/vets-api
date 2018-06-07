@@ -17,7 +17,6 @@ module V0
 
     def active
       response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
-      binding.pry
       render json: response,
              serializer: IntentToFileSerializer
     end

@@ -33,6 +33,14 @@ module EVSS
         raise ArgumentError, "invalid type: #{args['type']}" unless ITF_TYPE.include? args['type']
         super(args)
       end
+
+      def active?
+
+      end
+
+      def expires_today?
+
+      end
     end
   end
 end

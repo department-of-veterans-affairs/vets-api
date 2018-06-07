@@ -11,6 +11,10 @@ module EVSS
       def initialize(status, response = nil)
         super(status, response.body) if response
       end
+
+      def cache?
+        ok? && intent_to_file.active? && !intent_to_file.expires_today?
+      end
     end
   end
 end
