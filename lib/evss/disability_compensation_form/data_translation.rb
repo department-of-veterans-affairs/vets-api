@@ -3,7 +3,8 @@
 module EVSS
   module DisabilityCompensationForm
     class DataTranslation
-      def initialize(form_content)
+      def initialize(user, form_content)
+        @user = user
         @form_content = form_content
       end
 
@@ -13,6 +14,8 @@ module EVSS
         @form_content['form526']['applicationExpirationDate'] = application_expiration_date
 
         @form_content['form526']['treatments'] = convert_treatments(@form_content['form526']['treatments'])
+
+        @form_content['form526']['directDeposit'] = get_banking_info(@user)
 
         service_info = @form_content['form526']['serviceInformation']
         @form_content['form526']['serviceInformation']['servicePeriods'] = convert_service_periods(service_info['servicePeriods'])
@@ -99,11 +102,17 @@ module EVSS
         { 'areaCode' => area_code, 'phoneNumber' => number }
       end
 
-      def rename_date_range(date_range)
-        # before: confinementDateRange: { from: '', to: '' }
-        # after: confinementBeginDate: '', confinementEndDate: ''
-        # see also: obligationTermOfServiceDateRange
-        # treatmentDateRange and servicePeriod.dateRange follow this same pattern but I've taken care of them separately. DRY it up as you please
+      def get_banking_info(user)
+        service = EVSS::PPIU::Service.new(user)
+        response = service.get_payment_information
+        account = response.responses.first.payment_account
+
+        {
+          'accountType' => account&.account_type&.upcase,
+          'accountNumber' => account&.account_number,
+          'routingNumber' => account&.financial_institution_routing_number,
+          'bankName' => account&.financial_institution_name
+        }
       end
 
       def convert_mailing_address(address)
