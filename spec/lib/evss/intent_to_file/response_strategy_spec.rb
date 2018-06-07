@@ -26,6 +26,8 @@ describe EVSS::IntentToFile::ResponseStrategy do
     end
   end
 
+  after(:each) { Timecop.return }
+
   describe '#cache_or_service' do
     context 'when the cache is empty' do
       before(:each) { allow(service).to receive(:get_active).with(itf_type).and_return(itf_response) }
