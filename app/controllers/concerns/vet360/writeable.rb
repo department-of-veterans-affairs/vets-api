@@ -67,5 +67,9 @@ module Vet360
 
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end
+
+    def request_is_delete?
+      request.request_method == 'DELETE'
+    end
   end
 end

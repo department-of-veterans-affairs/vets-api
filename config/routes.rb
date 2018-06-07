@@ -177,9 +177,9 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
 
       # Vet360 Routes
-      resource :addresses, only: %i[create update]
-      resource :email_addresses, only: %i[create update]
-      resource :telephones, only: %i[create update]
+      resource :addresses, only: %i[create update destroy]
+      resource :email_addresses, only: %i[create update destroy]
+      resource :telephones, only: %i[create update destroy]
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
     end

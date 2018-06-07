@@ -16,14 +16,18 @@ module V0
         write_to_vet360_and_render_transaction!('telephone', telephone_params, http_verb: 'put')
       end
 
+      def destroy
+        write_to_vet360_and_render_transaction!('telephone', telephone_params, http_verb: 'put')
+      end
+
       private
 
       def telephone_params
-        params.permit(
+
+        accepted_fields = [ 
           :area_code,
           :country_code,
           :extension,
-          :effective_end_date,
           :effective_start_date,
           :id,
           :is_international,
@@ -36,6 +40,15 @@ module V0
           :source_date,
           :transaction_id,
           :vet360_id
+        ]
+        
+        if (request_is_delete?)
+          params[:effective_end_date] = Time.now.utc.iso8601
+          accepted_fields << :effective_end_date
+        end
+
+        params.permit(
+          accepted_fields
         )
       end
     end
