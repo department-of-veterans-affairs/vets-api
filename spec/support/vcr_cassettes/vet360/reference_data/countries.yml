@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/referencedata/v1/countries"
+    body:
+      encoding: UTF-8
+      string: ""
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 25 Apr 2018 17:17:07 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"countryList":[{"countryName":"Afghanistan","countryCodeISO2":"AF","countryCodeISO3":"AFG","countryCodeFIPS":"AF"},{"countryName":"Aland Islands (autonomous area of Finland)","countryCodeISO2":"AX","countryCodeISO3":"ALA"},{"countryName":"Albania","countryCodeISO2":"AL","countryCodeISO3":"ALB","countryCodeFIPS":"AL"},{"countryName":"Algeria","countryCodeISO2":"DZ","countryCodeISO3":"DZA","countryCodeFIPS":"AG"},{"countryName":"American Samoa","countryCodeISO2":"AS","countryCodeISO3":"ASM","countryCodeFIPS":"AQ"},{"countryName":"Andorra","countryCodeISO2":"AD","countryCodeISO3":"AND","countryCodeFIPS":"AN"},{"countryName":"Angola","countryCodeISO2":"AO","countryCodeISO3":"AGO","countryCodeFIPS":"AO"},{"countryName":"Anguilla","countryCodeISO2":"AI","countryCodeISO3":"AIA","countryCodeFIPS":"AV"},{"countryName":"Antarctica","countryCodeISO2":"AQ","countryCodeISO3":"ATA","countryCodeFIPS":"AY"}]}'
+    http_version:
+  recorded_at: Wed, 25 Apr 2018 17:17:06 GMT
+recorded_with: VCR 3.0.3
