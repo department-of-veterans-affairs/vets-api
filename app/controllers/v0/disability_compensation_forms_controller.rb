@@ -11,9 +11,11 @@ module V0
     end
 
     def submit
-      jid = EVSS::DisabilityCompensationForm::SubmitForm.start(@current_user, request.body.string)
-      Rails.logger.info('submit form start', user: @current_user.uuid, component: 'EVSS', form: '21-526EZ', jid: jid)
-      head 200
+      response = service.submit_form(request.body.string)
+      EVSS::IntentToFile::ResponseStrategy.delete("#{@current_user.uuid}:compensation")
+      EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id)
+      render json: response,
+             serializer: SubmitDisabilityFormSerializer
     end
 
     private

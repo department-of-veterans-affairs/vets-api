@@ -55,6 +55,10 @@ module MVI
         )
       end
 
+      def cache?
+        ok?
+      end
+
       def ok?
         @status == RESPONSE_STATUS[:ok]
       end

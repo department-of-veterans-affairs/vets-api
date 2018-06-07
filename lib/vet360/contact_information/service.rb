@@ -15,7 +15,9 @@ module Vet360
       # @return [Vet360::ContactInformation::PersonResponse] response wrapper around an person object
       def get_person
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(:get, @user.vet360_id)
+
           PersonResponse.from(raw_response)
         end
       rescue Common::Client::Errors::ClientError => error
@@ -91,6 +93,22 @@ module Vet360
         get_transaction_status(route, TelephoneTransactionResponse)
       end
 
+      # GET's the status of a person transaction from the Vet360 api. Does not validate the presence of
+      # a vet360_id before making the service call, as POSTing a person initializes a vet360_id.
+      #
+      # @param transaction_id [String] the transaction_id to check
+      # @return [Vet360::ContactInformation::PersonTransactionResponse] response wrapper around a transaction object
+      #
+      def get_person_transaction_status(transaction_id)
+        with_monitoring do
+          raw_response = perform(:get, "status/#{transaction_id}")
+
+          Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
+        end
+      rescue StandardError => e
+        handle_error(e)
+      end
+
       private
 
       # This method acts as a beta flag, and is temporarily in place until Vet360
@@ -102,10 +120,15 @@ module Vet360
         end
       end
 
+      def vet360_id_present!
+        raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
+      end
+
       def post_or_put_data(method, model, path, response_class)
         temporary_short_circuit!
 
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(method, path, model.in_json)
 
           response_class.from(raw_response)
@@ -118,6 +141,7 @@ module Vet360
         temporary_short_circuit!
 
         with_monitoring do
+          vet360_id_present!
           raw_response = perform(:get, path)
 
           response_class.from(raw_response)

@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA%5EP"
+    method: get
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
     body:
-      encoding: UTF-8
-      string: '{"bio":{"sourceDate":"2018-04-09T17:52:03Z"}}'
+      encoding: US-ASCII
+      string: ''
     headers:
       Accept:
       - application/json
@@ -23,7 +23,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Wed, 25 Apr 2018 17:17:07 GMT
+      - Wed, 25 Apr 2018 17:22:19 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -44,18 +44,18 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{
-        "messages": [
-          {
-            "code":"PERS101",
-            "key":"vet360Id.NotNull",
-            "severity":"ERROR",
-            "text":"The vet360Id cannot be null."
-          }
-        ],
-        "txAuditId":"3773cd41-0958-4bbe-a035-16ae353cde03",
-        "status":"REJECTED"
-      }'
+      string: |-
+        {
+          "messages": [
+            {
+              "code": "PERS200",
+              "key": "_CUF_NOT_FOUND",
+              "severity": "ERROR",
+              "text": "The veteran with the id requested has already been created."
+            }
+          ],
+          "status": "COMPLETED_FAILURE"
+        }
     http_version:
-  recorded_at: Wed, 25 Apr 2018 17:17:06 GMT
+  recorded_at: Wed, 25 Apr 2018 17:22:18 GMT
 recorded_with: VCR 3.0.3
