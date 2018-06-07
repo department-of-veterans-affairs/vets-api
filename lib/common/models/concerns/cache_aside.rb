@@ -35,6 +35,14 @@ module Common
       response
     end
 
+    def do_cached_if(key:, service_call:, condition:)
+      cached = self.class.find(key)
+      return cached.response if cached
+      response = service_call.()
+      cache(key, response) if condition.(response)
+      response
+    end
+
     def cache(key, response)
       self.attributes = { uuid: key, response: response }
       save

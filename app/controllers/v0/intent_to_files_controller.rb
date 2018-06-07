@@ -16,7 +16,8 @@ module V0
     end
 
     def active
-      response = service.get_active(params[:type])
+      response = strategy.cache_or_service(@current_user.uuid, params[:type]) { service.get_active(params[:type]) }
+      binding.pry
       render json: response,
              serializer: IntentToFileSerializer
     end
@@ -36,6 +37,10 @@ module V0
 
     def service
       EVSS::IntentToFile::Service.new(@current_user)
+    end
+
+    def strategy
+      EVSS::IntentToFile::ResponseStrategy.new
     end
   end
 end
