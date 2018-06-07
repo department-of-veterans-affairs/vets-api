@@ -1,0 +1,50 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/referencedata/v1/zipCode5"
+    body:
+      encoding: UTF-8
+      string: ""
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Wed, 25 Apr 2018 17:17:07 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"zipCode5List":[{"zipCode5":"00501"},{"zipCode5":"00544"},{"zipCode5":"00601"},{"zipCode5":"00602"},{"zipCode5":"00603"},{"zipCode5":"00604"},{"zipCode5":"00605"},{"zipCode5":"00606"},{"zipCode5":"00610"},{"zipCode5":"00611"},{"zipCode5":"00612"},{"zipCode5":"00613"},{"zipCode5":"00614"},{"zipCode5":"00616"},{"zipCode5":"00617"},{"zipCode5":"00622"},{"zipCode5":"00623"},{"zipCode5":"00624"},{"zipCode5":"00627"},{"zipCode5":"00631"},{"zipCode5":"00636"},{"zipCode5":"00637"},{"zipCode5":"00638"},{"zipCode5":"00641"},{"zipCode5":"00646"},{"zipCode5":"00647"},{"zipCode5":"00650"},{"zipCode5":"00652"},{"zipCode5":"00653"},{"zipCode5":"00656"},{"zipCode5":"00659"},{"zipCode5":"00660"},{"zipCode5":"00662"},{"zipCode5":"00664"},{"zipCode5":"00667"},{"zipCode5":"00669"},{"zipCode5":"00670"},{"zipCode5":"00674"},{"zipCode5":"00676"},{"zipCode5":"00677"},{"zipCode5":"00678"},{"zipCode5":"00680"},{"zipCode5":"00681"},{"zipCode5":"00682"},{"zipCode5":"00683"},{"zipCode5":"00685"},{"zipCode5":"00687"},{"zipCode5":"00688"},{"zipCode5":"00690"},{"zipCode5":"00692"}]}'
+    http_version:
+  recorded_at: Wed, 25 Apr 2018 17:17:06 GMT
+recorded_with: VCR 3.0.3
