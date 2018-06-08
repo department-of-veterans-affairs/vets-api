@@ -296,8 +296,9 @@ components:
           description: Veteran last name
         fileNumber:
           type: string
+          pattern: '^\d{8,9}$'
           example: '999887777'
-          description: VA file number or SSN
+          description: VA file number or SSN, 8 or 9 numeric characters, no hyphens, spaces, or other punctuation
         zipCode:
           type: string
           example: '20571'
