@@ -24,14 +24,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   describe '.start' do
     before(:each) do
-      allow(subject).to receive(:get_claim_id).and_return(claim_id)
       allow(subject).to receive(:get_uploads).and_return(uploads)
     end
 
     context 'with four uploads' do
       it 'queues four submit upload jobs' do
         expect do
-          subject.start(user.uuid)
+          subject.start(user, claim_id)
         end.to change(subject.jobs, :size).by(4)
       end
     end
@@ -41,7 +40,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'queues no submit upload jobs' do
         expect do
-          subject.start(user.uuid)
+          subject.start(user, claim_id)
         end.to_not change(subject.jobs, :size)
       end
     end
@@ -72,18 +71,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       expect(client).to receive(:upload).with(attachment.file_data, document_data)
       subject.perform(upload_data, claim_id, user)
-    end
-  end
-
-  describe 'get_claim_id' do
-    let(:submission) { double(:submission, claim_id: claim_id) }
-
-    it 'returns the claim id of a submission' do
-      allow(::DisabilityCompensationSubmission)
-        .to receive(:find_by)
-        .and_return(submission)
-
-      expect(subject.get_claim_id(user.uuid)).to eq claim_id
     end
   end
 

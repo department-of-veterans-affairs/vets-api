@@ -322,7 +322,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports submitting the form' do
-        allow(EVSS::DisabilityCompensationForm::SubmitForm).to receive(:start).and_return("JID-#{SecureRandom.base64}")
+        allow(EVSS::DisabilityCompensationForm::SubmitUploads)
+          .to receive(:start).and_return("JID-#{SecureRandom.base64}")
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
@@ -1315,6 +1316,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             '/v0/profile/addresses',
             200,
             auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+
+      it 'supports posting to initialize a vet360_id' do
+        expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
+
+        VCR.use_cassette('vet360/person/init_vet360_id_success') do
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/initialize_vet360_id',
+            200,
+            auth_options.merge('_data' => {})
           )
         end
       end

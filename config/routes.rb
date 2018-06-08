@@ -180,6 +180,7 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update destroy]
       resource :email_addresses, only: %i[create update destroy]
       resource :telephones, only: %i[create update destroy]
+      post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
     end

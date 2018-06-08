@@ -338,6 +338,27 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/initialize_vet360_id' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Initializes a vet360_id for the current user'
+          key :operationId, 'initializeVet360Id'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/personal_information' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
