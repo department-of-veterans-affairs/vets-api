@@ -30,8 +30,8 @@ module Common
       cached = self.class.find(key)
       return cached.response if cached
       response = yield
-      raise NoMethodError, 'The response class being cached must implement #ok?' unless response.respond_to?(:ok?)
-      cache(key, response) if response.ok?
+      raise NoMethodError, 'The response class being cached must implement #cache?' unless response.respond_to?(:cache?)
+      cache(key, response) if response.cache?
       response
     end
 
