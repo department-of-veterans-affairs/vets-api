@@ -3,6 +3,8 @@
 module V0
   module Profile
     class PersonsController < ApplicationController
+      include Vet360::Transactionable
+
       after_action :invalidate_mvi_cache
 
       def initialize_vet360_id
@@ -10,6 +12,10 @@ module V0
         transaction = AsyncTransaction::Vet360::InitializePersonTransaction.start(@current_user, response)
 
         render json: transaction, serializer: AsyncTransaction::BaseSerializer
+      end
+
+      def status
+        check_transaction_status!
       end
 
       private
