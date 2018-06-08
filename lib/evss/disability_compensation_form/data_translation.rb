@@ -107,12 +107,16 @@ module EVSS
         response = service.get_payment_information
         account = response.responses.first.payment_account
 
-        {
-          'accountType' => account&.account_type&.upcase,
-          'accountNumber' => account&.account_number,
-          'routingNumber' => account&.financial_institution_routing_number,
-          'bankName' => account&.financial_institution_name
-        }
+        if account
+          {
+            'accountType' => account&.account_type&.upcase,
+            'accountNumber' => account&.account_number,
+            'routingNumber' => account&.financial_institution_routing_number,
+            'bankName' => account&.financial_institution_name
+          }
+        else
+          nil
+        end
       end
 
       def convert_mailing_address(address)
