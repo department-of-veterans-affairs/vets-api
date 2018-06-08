@@ -9,7 +9,6 @@ module Vet360Redis
   #
   # When reference data is requested from the serializer, it returns either
   # a cached response from Redis or from the Vet360::ReferenceData::Service.
-  #
   class ReferenceData < Common::RedisStore
     include Common::CacheAside
 
