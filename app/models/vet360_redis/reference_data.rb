@@ -27,14 +27,14 @@ module Vet360Redis
 
     # Vet360 state reference data
     # [{ "state_name": "Ohio", "state_code": "OH" }, ...]
-    # @return [Array[Hash]] response wrapper around array of states
+    # @return [Array[Hash]] List of states Vet360 recognizes as valid
     def states
       response_from_redis_or_service(:states).reference_data
     end
 
     # Vet360 zipcode reference data
     # [{ "zip_code": "12345" }, ...]
-    # @return [Array[Hash]] response wrapper around array of states
+    # @return [Array[Hash]] List of zipcodes Vet360 recognizes as valid
     def zipcodes
       response_from_redis_or_service(:zipcodes).reference_data
     end
