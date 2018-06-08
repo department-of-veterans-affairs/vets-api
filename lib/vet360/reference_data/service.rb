@@ -9,6 +9,10 @@ module Vet360
 
       configuration Vet360::ReferenceData::Configuration
 
+      def initialize
+        super(nil)
+      end
+
       # GETs a the list of valid countries from Vet360
       # List of countries is available under the reference_data property with the structure
       # { "country_name": "Afghanistan",

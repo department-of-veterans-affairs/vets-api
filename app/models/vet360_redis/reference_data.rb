@@ -7,8 +7,8 @@ module Vet360Redis
   # Facade for Vet360::ReferenceData::Service. The user_serializer delegates
   # to this class through the User model.
   #
-  # When a person is requested from the serializer, it returns either a cached
-  # response in Redis or from the Vet360::ContactInformation::Service.
+  # When reference data is requested from the serializer, it returns either
+  # a cached response from Redis or from the Vet360::ReferenceData::Service.
   #
   class ReferenceData < Common::RedisStore
     include Common::CacheAside
@@ -16,14 +16,26 @@ module Vet360Redis
     # Redis settings for ttl and namespacing reside in config/redis.yml
     redis_config_key :vet360_reference_data_response
 
+    # Vet360 country reference data
+    # [{ "country_name": "Afghanistan",
+    #    "country_code_iso2": "AF",
+    #    "country_code_iso3": "AFG",
+    #    "country_code_fips": "AF" }, ...]
+    # @return [Array[Hash]] List of countries Vet360 recognizes as valid
     def countries
       response_from_redis_or_service(:countries).reference_data
     end
 
+    # Vet360 state reference data
+    # [{ "state_name": "Ohio", "state_code": "OH" }, ...]
+    # @return [Array[Hash]] response wrapper around array of states
     def states
       response_from_redis_or_service(:states).reference_data
     end
 
+    # Vet360 zipcode reference data
+    # [{ "zip_code": "12345" }, ...]
+    # @return [Array[Hash]] response wrapper around array of states
     def zipcodes
       response_from_redis_or_service(:zipcodes).reference_data
     end
@@ -37,7 +49,7 @@ module Vet360Redis
     end
 
     def reference_data_service
-      @service ||= Vet360::ReferenceData::Service.new(nil)
+      @service ||= Vet360::ReferenceData::Service.new
     end
   end
 end
