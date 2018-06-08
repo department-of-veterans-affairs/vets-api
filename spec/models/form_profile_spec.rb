@@ -355,7 +355,6 @@ RSpec.describe FormProfile, type: :model do
       ],
       'veteran' => {
         'mailingAddress' => {
-          'type' => 'DOMESTIC',
           'country' => 'USA',
           'city' => 'Washington',
           'state' => 'DC',
