@@ -181,6 +181,7 @@ Rails.application.routes.draw do
       resource :email_addresses, only: %i[create update]
       resource :telephones, only: %i[create update]
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
+      get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
     end
