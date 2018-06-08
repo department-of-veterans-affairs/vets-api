@@ -123,7 +123,7 @@ class ApplicationController < ActionController::API
     headers['X-Git-SHA'] = AppInfo::GIT_REVISION
   end
 
-  def authenticate    
+  def authenticate
     authenticate_token || render_unauthorized
   end
 

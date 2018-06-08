@@ -71,5 +71,10 @@ module Vet360
     def request_is_delete?
       request.request_method == 'DELETE'
     end
+
+    def delete_params(params)
+      params[:effective_end_date] = request_is_delete? ? Time.now.utc.iso8601 : nil
+      params
+    end
   end
 end
