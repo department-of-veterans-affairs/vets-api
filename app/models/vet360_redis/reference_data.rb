@@ -4,8 +4,7 @@ require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
 
 module Vet360Redis
-  # Facade for Vet360::ReferenceData::Service. The user_serializer delegates
-  # to this class through the User model.
+  # Facade for Vet360::ReferenceData::Service.
   #
   # When reference data is requested from the serializer, it returns either
   # a cached response from Redis or from the Vet360::ReferenceData::Service.
