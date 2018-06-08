@@ -41,6 +41,9 @@ development: &defaults
   vet360_reference_data_response:
     namespace: vet360-reference-data-response
     each_ttl: 86400
+  intent_to_file_response:
+    namespace: intent-to-file-response
+    each_ttl: 86400
 
 test:
   <<: *defaults

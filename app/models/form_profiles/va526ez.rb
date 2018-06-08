@@ -25,25 +25,9 @@ module VA526ez
     attribute :rated_disabilities, Array[FormRatedDisability]
   end
 
-  class FormPaymentAccountInformation
-    include Virtus.model
-
-    attribute :account_type, String
-    attribute :account_number, String
-    attribute :routing_number, String
-    attribute :bank_name, String
-  end
-
-  class FormPaymentInformation
-    include Virtus.model
-
-    attribute :payment_account, FormPaymentAccountInformation
-  end
-
   class FormAddress
     include Virtus.model
 
-    attribute :type
     attribute :country
     attribute :city
     attribute :state
@@ -51,8 +35,6 @@ module VA526ez
     attribute :address_line_1
     attribute :address_line_2
     attribute :address_line_3
-    attribute :military_post_office_type_code
-    attribute :military_state_code
   end
 
   class FormContactInformation
@@ -72,12 +54,10 @@ end
 
 class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
-  attribute :payment_information, VA526ez::FormPaymentInformation
   attribute :veteran_contact_information, VA526ez::FormContactInformation
 
   def prefill(user)
     @rated_disabilities_information = initialize_rated_disabilities_information(user)
-    @payment_information = initialize_payment_information(user)
     @veteran_contact_information = initialize_veteran_contact_information(user)
     super(user)
   end
@@ -99,7 +79,7 @@ class FormProfiles::VA526ez < FormProfile
     pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
 
     contact_info = VA526ez::FormContactInformation.new(
-      mailing_address: get_pciu_address(user),
+      mailing_address: get_common_address(user),
       email_address: pciu_email,
       primary_phone: get_us_phone(pciu_primary_phone)
     )
@@ -123,41 +103,17 @@ class FormProfiles::VA526ez < FormProfile
     {}
   end
 
-  def initialize_payment_information(user)
-    return {} unless user.authorize :evss, :access?
-
-    service = EVSS::PPIU::Service.new(user)
-    response = service.get_payment_information
-    raw_account = response.responses.first&.payment_account
-
-    if raw_account
-      account = VA526ez::FormPaymentAccountInformation.new(
-        account_type: raw_account&.account_type&.upcase,
-        account_number: raw_account&.account_number,
-        routing_number: raw_account&.financial_institution_routing_number,
-        bank_name: raw_account&.financial_institution_name
-      )
-
-      VA526ez::FormPaymentInformation.new(
-        payment_account: account
-      )
-    else
-      {}
-    end
-  rescue StandardError
-    {}
-  end
-
-  def get_pciu_address(user)
+  # Convert PCIU address to a Common address type
+  def get_common_address(user)
     service = EVSS::PCIUAddress::Service.new(user)
     response = service.get_address
     case response.address
     when EVSS::PCIUAddress::DomesticAddress
-      prefill_pciu_domestic_address(response.address)
+      prefill_domestic_address(response.address)
     when EVSS::PCIUAddress::InternationalAddress
-      prefill_pciu_international_address(response.address)
+      prefill_international_address(response.address)
     when EVSS::PCIUAddress::MilitaryAddress
-      prefill_pciu_military_address(response.address)
+      prefill_military_address(response.address)
     else
       {}
     end
@@ -165,9 +121,8 @@ class FormProfiles::VA526ez < FormProfile
     {}
   end
 
-  def prefill_pciu_domestic_address(address)
+  def prefill_domestic_address(address)
     {
-      type: address&.type,
       country: address&.country_name,
       city: address&.city,
       state: address&.state_code,
@@ -178,9 +133,8 @@ class FormProfiles::VA526ez < FormProfile
     }.compact
   end
 
-  def prefill_pciu_international_address(address)
+  def prefill_international_address(address)
     {
-      type: address&.type,
       country: address&.country_name,
       city: address&.city,
       address_line_1: address&.address_one,
@@ -189,12 +143,11 @@ class FormProfiles::VA526ez < FormProfile
     }.compact
   end
 
-  def prefill_pciu_military_address(address)
+  def prefill_military_address(address)
     {
-      type: address&.type,
-      military_post_office_type_code: address&.military_post_office_type_code,
-      military_state_code: address&.military_state_code,
-      zip_code: address&.zip_code,
+      country: 'USA',
+      city: address&.military_post_office_type_code,
+      state: address&.military_state_code,
       address_line_1: address&.address_one,
       address_line_2: address&.address_two,
       address_line_3: address&.address_three
