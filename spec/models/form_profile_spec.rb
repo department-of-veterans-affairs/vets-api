@@ -310,12 +310,6 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v21_526_ez_expected) do
     {
-      'directDeposit' => {
-        'accountType' => 'CHECKING',
-        'accountNumber' => '9876543211234',
-        'routingNumber' => '042102115',
-        'bankName' => 'Comerica'
-      },
       'disabilities' => [
         {
           'diagnosticCode' => 5238,
@@ -505,15 +499,13 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with a user that can prefill evss' do
           before do
-            expect(user).to receive(:authorize).with(:evss, :access?).exactly(3).times.and_return(true)
+            expect(user).to receive(:authorize).with(:evss, :access?).exactly(2).times.and_return(true)
           end
 
           it 'returns prefilled 21-526EZ' do
             VCR.use_cassette('evss/pciu_address/address_domestic') do
-              VCR.use_cassette('evss/ppiu/payment_information') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  expect_prefilled('21-526EZ')
-                end
+              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                expect_prefilled('21-526EZ')
               end
             end
           end
