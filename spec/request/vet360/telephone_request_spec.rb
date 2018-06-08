@@ -10,7 +10,7 @@ RSpec.describe 'telephone', type: :request do
   let(:user) { build(:user, :loa3) }
 
   before do
-    Timecop.freeze(Time.local(2018, 6, 6, 15, 35, 55))
+    Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
     Session.create(uuid: user.uuid, token: token)
     User.create(user)
   end
@@ -161,29 +161,21 @@ RSpec.describe 'telephone', type: :request do
       end
     end
 
-
-
-
-
     context 'when effective_end_date is included' do
-
-      let(:telephone) { 
+      let(:telephone) do
         build(:telephone,
-          vet360_id: user.vet360_id, 
-          effective_end_date: Time.now.utc.iso8601,
-          phone_number: '5551234'
-        ) 
-      }
+              vet360_id: user.vet360_id,
+              effective_end_date: Time.now.utc.iso8601,
+              phone_number: '5551234')
+      end
 
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
         telephone.id = 1299
       end
 
-
-      it 'effective_end_date is ignored', {:aggregate_failures => true} do
+      it 'effective_end_date is ignored', aggregate_failures: true do
         VCR.use_cassette('vet360/contact_information/put_telephone_ignore_eed', VCR::MATCH_EVERYTHING) do
-
           put(
             '/v0/profile/telephones',
             telephone.to_json,
@@ -191,23 +183,17 @@ RSpec.describe 'telephone', type: :request do
               'Content-Type' => 'application/json', 'Accept' => 'application/json'
             )
           )
-
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end
       end
     end
-
-
-
-
-
   end
 
   describe 'DELETE /v0/profile/telephones' do
-    let(:telephone) { 
-      build(:telephone, vet360_id: user.vet360_id) 
-    }
+    let(:telephone) do
+      build(:telephone, vet360_id: user.vet360_id)
+    end
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
@@ -215,9 +201,8 @@ RSpec.describe 'telephone', type: :request do
     end
 
     context 'with a 200 response' do
-      it 'should match the telephone schema', :aggregate_failures do
+      it 'should match the transaction response schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/delete_telephone_success', VCR::MATCH_EVERYTHING) do
-
           delete(
             '/v0/profile/telephones',
             telephone.to_json,
@@ -225,7 +210,6 @@ RSpec.describe 'telephone', type: :request do
               'Content-Type' => 'application/json', 'Accept' => 'application/json'
             )
           )
-
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end
@@ -233,5 +217,3 @@ RSpec.describe 'telephone', type: :request do
     end
   end
 end
-
-# delete('/v0/profile/telephones', telephone.to_json, auth_header.update( 'Content-Type' => 'application/json', 'Accept' => 'application/json' ))

@@ -9,26 +9,26 @@ module V0
       after_action :invalidate_cache
 
       def create
-        write_to_vet360_and_render_transaction!('telephone', telephone_params)
+        write_to_vet360_and_render_transaction!('telephone', delete_params(telephone_params))
       end
 
       def update
-        write_to_vet360_and_render_transaction!('telephone', telephone_params, http_verb: 'put')
+        write_to_vet360_and_render_transaction!('telephone', delete_params(telephone_params), http_verb: 'put')
       end
 
       def destroy
-        write_to_vet360_and_render_transaction!('telephone', telephone_params, http_verb: 'put')
+        write_to_vet360_and_render_transaction!('telephone', delete_params(telephone_params), http_verb: 'put')
       end
 
       private
 
       def telephone_params
-
-        accepted_fields = [ 
+        params.permit(
           :area_code,
           :country_code,
           :extension,
           :effective_start_date,
+          :effective_end_date,
           :id,
           :is_international,
           :is_textable,
@@ -40,15 +40,6 @@ module V0
           :source_date,
           :transaction_id,
           :vet360_id
-        ]
-        
-        if (request_is_delete?)
-          params[:effective_end_date] = Time.now.utc.iso8601
-          accepted_fields << :effective_end_date
-        end
-
-        params.permit(
-          accepted_fields
         )
       end
     end
