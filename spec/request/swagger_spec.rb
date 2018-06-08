@@ -1319,6 +1319,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports posting to initialize a vet360_id' do
+        expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
+
+        VCR.use_cassette('vet360/person/init_vet360_id_success') do
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/initialize_vet360_id',
+            200,
+            auth_options.merge('_data' => {})
+          )
+        end
+      end
     end
 
     describe 'profile/status' do
