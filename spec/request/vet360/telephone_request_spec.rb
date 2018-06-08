@@ -178,7 +178,6 @@ RSpec.describe 'telephone', type: :request do
         VCR.use_cassette('vet360/contact_information/put_telephone_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
-
           put(
             '/v0/profile/telephones',
             telephone.to_json,
