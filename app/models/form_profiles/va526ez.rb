@@ -25,21 +25,6 @@ module VA526ez
     attribute :rated_disabilities, Array[FormRatedDisability]
   end
 
-  class FormPaymentAccountInformation
-    include Virtus.model
-
-    attribute :account_type, String
-    attribute :account_number, String
-    attribute :routing_number, String
-    attribute :bank_name, String
-  end
-
-  class FormPaymentInformation
-    include Virtus.model
-
-    attribute :payment_account, FormPaymentAccountInformation
-  end
-
   class FormAddress
     include Virtus.model
 
@@ -69,12 +54,10 @@ end
 
 class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
-  attribute :payment_information, VA526ez::FormPaymentInformation
   attribute :veteran_contact_information, VA526ez::FormContactInformation
 
   def prefill(user)
     @rated_disabilities_information = initialize_rated_disabilities_information(user)
-    @payment_information = initialize_payment_information(user)
     @veteran_contact_information = initialize_veteran_contact_information(user)
     super(user)
   end
@@ -116,31 +99,6 @@ class FormProfiles::VA526ez < FormProfile
     VA526ez::FormRatedDisabilities.new(
       rated_disabilities: response.rated_disabilities
     )
-  rescue StandardError
-    {}
-  end
-
-  def initialize_payment_information(user)
-    return {} unless user.authorize :evss, :access?
-
-    service = EVSS::PPIU::Service.new(user)
-    response = service.get_payment_information
-    raw_account = response.responses.first&.payment_account
-
-    if raw_account
-      account = VA526ez::FormPaymentAccountInformation.new(
-        account_type: raw_account&.account_type&.upcase,
-        account_number: raw_account&.account_number,
-        routing_number: raw_account&.financial_institution_routing_number,
-        bank_name: raw_account&.financial_institution_name
-      )
-
-      VA526ez::FormPaymentInformation.new(
-        payment_account: account
-      )
-    else
-      {}
-    end
   rescue StandardError
     {}
   end
