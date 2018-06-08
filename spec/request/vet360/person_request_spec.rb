@@ -59,6 +59,20 @@ RSpec.describe 'person', type: :request do
           end.to change { AsyncTransaction::Vet360::InitializePersonTransaction.count }.from(0).to(1)
         end
       end
+
+      it 'invalidates the cache for the mvi-profile-response Redis key' do
+        VCR.use_cassette('vet360/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(Common::RedisStore).to receive(:destroy)
+
+          post(
+            '/v0/profile/initialize_vet360_id',
+            empty_body,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+        end
+      end
     end
 
     context 'with an error response' do
