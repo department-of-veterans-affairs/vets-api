@@ -16,7 +16,7 @@ module Swagger
               property :zipcodes do
                 key :type, :array
                 items do
-                  property :zipcode, type: :string, example: '97062'
+                  property :zip_code, type: :string, example: '97062'
                 end
               end
             end
