@@ -46,7 +46,7 @@ module EVSS
     def timeout
       self.class::DEFAULT_TIMEOUT
     end
-
+ 
     private
 
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
@@ -60,7 +60,7 @@ module EVSS
         faraday.response :betamocks if @use_mock
         faraday.response :snakecase, symbolize: false
         faraday.response :json_parser
-        faraday.use :rescue_timeout
+        faraday.use Common::Client::Middleware::Request::RescueTimeout, 'EVSS502'
         faraday.use :remove_cookies
         faraday.adapter :httpclient
       end

@@ -10,6 +10,8 @@ module EVSS
       Sentry::TagRainbows.tag
       client = EVSS::CommonService.new(headers)
       client.create_user_account
+    rescue Common::Exceptions::BackendServiceException
+      raise Sentry::IgnoredError
     end
   end
 end
