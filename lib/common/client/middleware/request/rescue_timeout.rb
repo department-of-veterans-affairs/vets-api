@@ -15,9 +15,9 @@ module Common
 
           def call(env)
             @app.call(env)
-          rescue Faraday::TimeoutError, Faraday::Error::TimeoutError => e
-            log_exception_to_sentry(e, {}, {backend_service: :evss}, :warn)
-            raise Common::Exceptions::BackendServiceException.new(error_code)
+          rescue Faraday::TimeoutError => e
+            log_exception_to_sentry(e, {}, { backend_service: :evss }, :warn)
+            raise Common::Exceptions::BackendServiceException, @error_code
           end
         end
       end

@@ -46,7 +46,7 @@ module EVSS
     def timeout
       self.class::DEFAULT_TIMEOUT
     end
- 
+
     private
 
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
