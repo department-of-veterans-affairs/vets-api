@@ -32,16 +32,16 @@ module Swagger
         ]
         property :address_effective_date, type: :string, example: '2018-06-07T22:47:21.873Z'
         property :address_one, type: :string, example: 'First street address line'
-        property :address_two, type: [:string, :null], example: 'Second street address line'
-        property :address_three, type: [:string, :null], example: 'Third street address line'
-        property :city, type: [:string, :null], example: 'AdHocville'
-        property :state_code, type: [:string, :null], example: 'OR'
-        property :country_name, type: [:string, :null], example: 'USA'
-        property :military_post_office_type_code, type: [:string, :null], example: 'Military PO'
-        property :military_state_code, type: [:string, :null], example: 'AP'
-        property :zip_code, type: [:string, :null], example: '12345'
-        property :zip_suffix, type: [:string, :null], example: '6789'
-        property :type, type: [:string, :null], example: 'Domestic'
+        property :address_two, type: %i[string null], example: 'Second street address line'
+        property :address_three, type: %i[string null], example: 'Third street address line'
+        property :city, type: %i[string null], example: 'AdHocville'
+        property :state_code, type: %i[string null], example: 'OR'
+        property :country_name, type: %i[string null], example: 'USA'
+        property :military_post_office_type_code, type: %i[string null], example: 'Military PO'
+        property :military_state_code, type: %i[string null], example: 'AP'
+        property :zip_code, type: %i[string null], example: '12345'
+        property :zip_suffix, type: %i[string null], example: '6789'
+        property :type, type: %i[string null], example: 'Domestic'
       end
 
       swagger_schema :PPIU do
