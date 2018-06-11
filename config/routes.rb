@@ -76,7 +76,7 @@ Rails.application.routes.draw do
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
-    resources :ppiu, only: :index
+    get 'ppiu/payment_information', to: 'ppiu#index'
 
     resources :maintenance_windows, only: [:index]
 
