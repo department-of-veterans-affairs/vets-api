@@ -207,7 +207,7 @@ RSpec.describe 'email_address', type: :request do
     end
 
     context 'with a 200 response from the service' do
-      it 'should match the transaction response schema', aggregate_failures: true, focus: true do
+      it 'should match the transaction response schema', aggregate_failures: true do
         VCR.use_cassette('vet360/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
