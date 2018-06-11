@@ -652,9 +652,7 @@ module Swagger
 
           key :description, 'GET Vet360 Country reference data'
           key :operationId, 'getVet360ReferenceDataCountries'
-          key :tags, [
-            'user'
-          ]
+          key :tags, ['profile']
 
           parameter :authorization
 
@@ -673,9 +671,7 @@ module Swagger
 
           key :description, 'GET Vet360 State reference data'
           key :operationId, 'getVet360ReferenceDataStates'
-          key :tags, [
-            'user'
-          ]
+          key :tags, ['profile']
 
           parameter :authorization
 
@@ -688,15 +684,13 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/profile/reference_data/countries' do
+      swagger_path '/v0/profile/reference_data/zipcodes' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'GET Vet360 Zipcode reference data'
           key :operationId, 'getVet360ReferenceDataZipcodes'
-          key :tags, [
-            'user'
-          ]
+          key :tags, ['profile']
 
           parameter :authorization
 

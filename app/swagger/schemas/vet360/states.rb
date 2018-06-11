@@ -2,21 +2,23 @@
 
 module Swagger
   module Schemas
-    class States
-      include Swagger::Blocks
+    module Vet360
+      class States
+        include Swagger::Blocks
 
-      swagger_schema :Vet360States do
-        key :required, [:data]
+        swagger_schema :Vet360States do
+          key :required, [:data]
 
-        property :data, type: :object do
-          key :required, [:attributes]
-          property :attributes, type: :object do
-            key :required, [:states]
-            property :states do
-              key :type, :array
-              items do
-                property :state_name, type: :string, example: 'Oregon'
-                property :state_code, type: :string, example: 'OR'
+          property :data, type: :object do
+            key :required, [:attributes]
+            property :attributes, type: :object do
+              key :required, [:states]
+              property :states do
+                key :type, :array
+                items do
+                  property :state_name, type: :string, example: 'Oregon'
+                  property :state_code, type: :string, example: 'OR'
+                end
               end
             end
           end
