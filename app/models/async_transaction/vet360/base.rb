@@ -59,6 +59,8 @@ module AsyncTransaction
           service.get_email_transaction_status(transaction_record.transaction_id)
         when AsyncTransaction::Vet360::TelephoneTransaction
           service.get_telephone_transaction_status(transaction_record.transaction_id)
+        when AsyncTransaction::Vet360::InitializePersonTransaction
+          service.get_person_transaction_status(transaction_record.transaction_id)
         else
           # Unexpected transaction type means something went sideways
           raise

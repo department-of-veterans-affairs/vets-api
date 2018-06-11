@@ -31,6 +31,7 @@ info:
 
     1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the person requesting the appeals status as the X-VA-User header
     
     2. Service Response: A JSON API object with the current status of appeals
           
@@ -65,7 +66,13 @@ paths:
           required: true
           schema:
             type: string
-          description: SSN of Veteran to retrieve appeals statuses for 
+          description: SSN of Veteran to retrieve appeals statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
       responses:
         '200':
           description: Appeals retrieved successfully
