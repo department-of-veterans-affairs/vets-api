@@ -366,9 +366,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     describe 'PPIU' do
       it 'supports getting payment information' do
-        expect(subject).to validate(:get, '/v0/ppiu', 401)
+        expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do
-          expect(subject).to validate(:get, '/v0/ppiu', 200, auth_options)
+          expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, auth_options)
         end
       end
     end

@@ -5,7 +5,7 @@ module Swagger
     class PPIU
       include Swagger::Blocks
 
-      swagger_path '/v0/ppiu' do
+      swagger_path '/v0/ppiu/payment_information' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
