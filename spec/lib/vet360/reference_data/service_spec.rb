@@ -19,9 +19,7 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
 
           data = response.countries.first
           expect(data).to have_key('country_name')
-          expect(data).to have_key('country_code_iso2')
           expect(data).to have_key('country_code_iso3')
-          expect(data).to have_key('country_code_fips')
         end
       end
     end
