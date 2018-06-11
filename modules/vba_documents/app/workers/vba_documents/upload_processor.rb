@@ -13,6 +13,7 @@ module VBADocuments
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
+    FILE_NUMBER_REGEX = /^\d{8,9}$/
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
@@ -138,6 +139,10 @@ module VBADocuments
       if non_string_vals.present?
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: "Non-string values for keys: #{non_string_vals.join(',')}")
+      end
+      if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: 'Non-numeric or invalid-length fileNumber')
       end
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102',
