@@ -20,8 +20,15 @@ module AsyncTransaction
     end
 
     validates :id, uniqueness: true
-    validates :user_uuid, :source_id, :source, :status, :transaction_id, presence: true
+    validates :user_uuid, :source, :status, :transaction_id, presence: true
+    validates :source_id, presence: true, unless: :initialize_person?
     validates :transaction_id,
               uniqueness: { scope: :source, message: 'Transaction ID must be unique within a source.' }
+
+    private
+
+    def initialize_person?
+      type&.constantize == AsyncTransaction::Vet360::InitializePersonTransaction
+    end
   end
 end
