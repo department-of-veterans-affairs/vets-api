@@ -198,7 +198,7 @@ RSpec.describe 'email_address', type: :request do
 
   describe 'DELETE /v0/profile/email_addresses' do
     let(:email) do
-      build(:email, vet360_id: user.vet360_id)
+      build(:email, vet360_id: user.vet360_id, email_address: 'person103@example.com')
     end
 
     before do
