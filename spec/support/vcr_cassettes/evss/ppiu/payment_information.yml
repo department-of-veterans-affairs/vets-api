@@ -81,6 +81,9 @@ http_interactions:
               "financialInstitutionRoutingNumber" : "042102115"
             },
             "paymentAddress" : {
+              "address_effective_date": "2018-06-07T22:47:21.873Z",
+              "address_one": "string",
+              "type": "Domestic"
             },
             "paymentType" : "CNP"
           } ]
