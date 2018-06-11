@@ -1389,6 +1389,37 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'profile/person/status/:transaction_id' do
+      let(:user_without_vet360_id) { build(:user_with_suffix, :loa3) }
+
+      before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
+        Session.create(uuid: user_without_vet360_id.uuid, token: token)
+        User.create(user_without_vet360_id)
+      end
+
+      it 'supports GETting async person transaction by transaction ID' do
+        transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+        transaction = create(
+          :initialize_person_transaction,
+          :init_vet360_id,
+          user_uuid: user_without_vet360_id.uuid,
+          transaction_id: transaction_id
+        )
+
+        expect(subject).to validate(:get, "/v0/profile/person/status/{transaction_id}", 401, 'transaction_id' => transaction.transaction_id)
+
+        VCR.use_cassette('vet360/contact_information/person_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            "/v0/profile/person/status/{transaction_id}",
+            200,
+            auth_options.merge('transaction_id' => transaction.transaction_id)
+          )
+        end
+      end
+    end
+
     describe 'when EVSS authorization requirements are not met' do
       let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
 

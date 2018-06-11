@@ -359,6 +359,32 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/person/status/{transaction_id}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets an updated person transaction by ID'
+          key :operationId, 'getPersonTransactionStatusById'
+          key :tags, %w[profile]
+
+          parameter :authorization
+          parameter do
+            key :name, :transaction_id
+            key :in, :path
+            key :description, 'ID of transaction'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/personal_information' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
