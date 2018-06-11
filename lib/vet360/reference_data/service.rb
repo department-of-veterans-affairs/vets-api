@@ -37,7 +37,7 @@ module Vet360
       # { "zip_code": "12345" }
       # @return [Vet360::ReferenceData::Response] response wrapper around array of states
       def zipcodes
-        get_reference_data('zipCode5', 'zip_code5_list').tap do |resp|
+        get_reference_data('zipcode5', 'zip_code5_list').tap do |resp|
           zipcodes = resp.reference_data.map do |data|
             { 'zip_code' => data['zip_code5'] }
           end
