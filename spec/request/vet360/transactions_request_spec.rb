@@ -22,8 +22,6 @@ RSpec.describe 'transactions', type: :request do
   end
 
   describe 'GET /v0/profile/status/:transaction_id' do
-    let(:address) { build(:vet360_address, source_id: '1', transaction_status: 'RECEIVED') }
-
     context 'when the requested transaction exists' do
       it 'it responds with a serialized transaction', :aggregate_failures do
         transaction = create(
@@ -46,7 +44,6 @@ RSpec.describe 'transactions', type: :request do
       end
     end
 
-    let(:email) { build(:email, source_id: '1', transaction_status: 'RECEIVED') }
     context 'when the transaction has messages' do
       it 'messages are serialiezd in the metadata property', :aggregate_failures do
         transaction = create(
