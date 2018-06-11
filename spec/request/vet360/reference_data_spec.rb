@@ -14,13 +14,14 @@ RSpec.describe 'profile reference data', type: :request do
     User.create(user)
   end
 
-  describe 'GET /v0/profile/reference_data/countries' do
-    it 'should match the schema' do
-      VCR.use_cassette('vet360/reference_data/countries') do
-        get('/v0/profile/reference_data/countries', nil, auth_header)
-        binding.pry
-        expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('vet360/countries')
+  %i[countries states zipcodes].each do |endpoint|
+    describe "GET /v0/profile/reference_data/#{endpoint}" do
+      it 'should match the schema' do
+        VCR.use_cassette("vet360/reference_data/#{endpoint}") do
+          get("/v0/profile/reference_data/#{endpoint}", nil, auth_header)
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema("vet360/#{endpoint}")
+        end
       end
     end
   end
