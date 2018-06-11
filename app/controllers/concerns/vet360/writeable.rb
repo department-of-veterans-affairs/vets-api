@@ -67,5 +67,14 @@ module Vet360
 
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end
+
+    def request_is_delete?
+      request.request_method == 'DELETE'
+    end
+
+    def delete_safety_catch(params)
+      params[:effective_end_date] = request_is_delete? ? Time.now.utc.iso8601 : nil
+      params
+    end
   end
 end
