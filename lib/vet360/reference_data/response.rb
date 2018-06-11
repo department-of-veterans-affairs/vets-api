@@ -8,7 +8,7 @@ module Vet360
       attribute :reference_data, Array[Hash]
 
       def self.from(response, key)
-        new(response&.status, reference_data: response.body[key])
+        new(response.status, reference_data: response.body[key])
       end
     end
   end
