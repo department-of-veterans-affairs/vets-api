@@ -11,7 +11,8 @@ module AppealsApi
         log_request
         appeals_response = Appeals::Service.new.get_appeals(
           user,
-          'X-Consumer-Username' => request.headers['X-Consumer-Username']
+          'Consumer-Username' => consumer
+          'VA-User' => requesting_user
         )
         log_response(appeals_response)
         render(
@@ -25,6 +26,7 @@ module AppealsApi
         hashed_ssn = Digest::SHA2.hexdigest ssn
         Rails.logger.info('Caseflow Request',
                           'consumer' => consumer,
+                          'requested_by' => requesting_user,
                           'lookup_identifier' => hashed_ssn)
       end
 
@@ -33,6 +35,7 @@ module AppealsApi
         count = appeals_response.body['data'].length
         Rails.logger.info('Caseflow Response',
                           'consumer' => consumer,
+                          'requested_by' => requesting_user,
                           'first_appeal_id' => first_appeal_id,
                           'appeal_count' => count)
       end
@@ -45,6 +48,12 @@ module AppealsApi
         ssn = request.headers['X-VA-SSN']
         raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
         ssn
+      end
+
+      def requesting_user
+        user = request.headers['X-VA-User']
+        raise Common::Exceptions::ParameterMissing, 'X-VA-User' unless user
+        user
       end
 
       def user
