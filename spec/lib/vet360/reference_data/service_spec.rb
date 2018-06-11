@@ -15,9 +15,9 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.countries
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_a(Array)
+          expect(response.countries).to be_a(Array)
 
-          data = response.reference_data.first
+          data = response.countries.first
           expect(data).to have_key('country_name')
           expect(data).to have_key('country_code_iso2')
           expect(data).to have_key('country_code_iso3')
@@ -34,9 +34,9 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.states
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_a(Array)
+          expect(response.states).to be_a(Array)
 
-          data = response.reference_data.first
+          data = response.states.first
           expect(data).to have_key('state_name')
           expect(data).to have_key('state_code')
         end
@@ -51,9 +51,9 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
           response = subject.zipcodes
 
           expect(response).to be_ok
-          expect(response.reference_data).to be_a(Array)
+          expect(response.zipcodes).to be_a(Array)
 
-          data = response.reference_data.first
+          data = response.zipcodes.first
           expect(data).to have_key('zip_code')
         end
       end

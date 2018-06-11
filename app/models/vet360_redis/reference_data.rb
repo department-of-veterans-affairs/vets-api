@@ -21,21 +21,21 @@ module Vet360Redis
     #    "country_code_fips": "AF" }, ...]
     # @return [Array[Hash]] List of countries Vet360 recognizes as valid
     def countries
-      response_from_redis_or_service(:countries).reference_data
+      response_from_redis_or_service(:countries)
     end
 
     # Vet360 state reference data
     # [{ "state_name": "Ohio", "state_code": "OH" }, ...]
     # @return [Array[Hash]] List of states Vet360 recognizes as valid
     def states
-      response_from_redis_or_service(:states).reference_data
+      response_from_redis_or_service(:states)
     end
 
     # Vet360 zipcode reference data
     # [{ "zip_code": "12345" }, ...]
     # @return [Array[Hash]] List of zipcodes Vet360 recognizes as valid
     def zipcodes
-      response_from_redis_or_service(:zipcodes).reference_data
+      response_from_redis_or_service(:zipcodes)
     end
 
     private

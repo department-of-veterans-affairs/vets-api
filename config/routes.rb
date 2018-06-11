@@ -183,6 +183,14 @@ Rails.application.routes.draw do
       post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resource :reference_data, only: %i[show] do
+        collection do
+          get 'countries', to: 'reference_data#countries'
+          get 'states', to: 'reference_data#states'
+          get 'zipcodes', to: 'reference_data#zipcodes'
+        end
+      end
     end
 
     get 'profile/mailing_address', to: 'addresses#show'

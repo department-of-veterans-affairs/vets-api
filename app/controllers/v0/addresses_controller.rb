@@ -28,6 +28,7 @@ module V0
 
     def countries
       response = strategy.cache_or_service(:countries) { service.get_countries }
+      binding.pry
       render json: response,
              serializer: CountriesSerializer
     end
