@@ -17,11 +17,10 @@ module Vet360
       private
 
       def past_date?
-        if !effective_end_date.blank?
-            errors.add(:effective_end_date, "must be in the past") if (effective_end_date > Time.zone.now)
+        if effective_end_date.present?
+          errors.add(:effective_end_date, 'must be in the past') if effective_end_date > Time.zone.now
         end
       end
-
     end
   end
 end

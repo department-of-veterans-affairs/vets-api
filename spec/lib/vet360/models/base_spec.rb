@@ -4,7 +4,6 @@ require 'rails_helper'
 
 describe Vet360::Models::Base do
   describe 'validation' do
-
     let(:email) { build(:email) }
 
     it 'ensures effectiveEndDate is in the past', aggregate_failures: true do
