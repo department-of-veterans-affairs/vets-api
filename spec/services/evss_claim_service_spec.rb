@@ -11,7 +11,7 @@ RSpec.describe EVSSClaimService do
   context 'when EVSS client times out' do
     describe '#all' do
       it 'returns all claims for the user' do
-        allow(client_stub).to receive(:all_claims) { raise Faraday::Error::TimeoutError }
+        allow(client_stub).to receive(:all_claims).and_raise(Common::Exceptions::BackendServiceException.new('EVSS502'))
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject.all
@@ -22,7 +22,7 @@ RSpec.describe EVSSClaimService do
 
     describe '#update_from_remote' do
       it 'returns claim' do
-        allow(client_stub).to receive(:find_claim_by_id) { raise Faraday::Error::TimeoutError }
+        allow(client_stub).to receive(:find_claim_by_id).and_raise(Common::Exceptions::BackendServiceException.new('EVSS502'))
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
         updated_claim, synchronized = subject.update_from_remote(claim)
@@ -66,17 +66,6 @@ RSpec.describe EVSSClaimService do
       EVSS::ClaimsService.breakers_service.begin_forced_outage!
     end
 
-    def self.test_log_error
-      it 'logs an error to sentry' do
-        expect_any_instance_of(described_class).to receive(:log_exception_to_sentry).once.with(
-          Breakers::OutageException,
-          {},
-          backend_service: :evss
-        )
-        subject
-      end
-    end
-
     describe '#all' do
       subject do
         service.all
@@ -88,8 +77,6 @@ RSpec.describe EVSSClaimService do
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
       end
-
-      test_log_error
     end
 
     describe '#update_from_remote' do
@@ -103,8 +90,6 @@ RSpec.describe EVSSClaimService do
         expect(updated_claim).to eq(claim)
         expect(synchronized).to eq(false)
       end
-
-      test_log_error
     end
   end
 end

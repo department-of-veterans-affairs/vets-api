@@ -21,8 +21,7 @@ class EVSSClaimService
       end
     end.flatten
     return claims, true
-  rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
-    log_error(e)
+  rescue Breakers::OutageException, Common::Exceptions::BackendServiceException => e
     return claims_scope.all, false
   end
 
@@ -31,8 +30,7 @@ class EVSSClaimService
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
       successful_sync = true
-    rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
-      log_error(e)
+    rescue Breakers::OutageException, Common::Exceptions::BackendServiceException => e
       successful_sync = false
     end
     [claim, successful_sync]
@@ -69,9 +67,5 @@ class EVSSClaimService
     claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
     claim.update_attributes(list_data: raw_claim)
     claim
-  end
-
-  def log_error(exception)
-    log_exception_to_sentry(exception, {}, backend_service: :evss)
   end
 end

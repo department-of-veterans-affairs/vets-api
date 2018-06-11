@@ -33,6 +33,10 @@ module V0
 
     private
 
+    def skip_sentry_exception_types
+      super + [Common::Exceptions::BackendServiceException]
+    end
+
     def service
       EVSSClaimService.new(current_user)
     end
