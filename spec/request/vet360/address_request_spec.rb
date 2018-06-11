@@ -169,7 +169,7 @@ RSpec.describe 'address', type: :request do
         address.id = 42
       end
 
-      it 'effective_end_date is ignored', aggregate_failures: true, focus: true do
+      it 'effective_end_date is ignored', aggregate_failures: true do
         VCR.use_cassette('vet360/contact_information/put_address_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
