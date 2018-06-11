@@ -364,6 +364,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'PPIU' do
+      it 'supports getting payment information' do
+        expect(subject).to validate(:get, '/v0/ppiu', 401)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          expect(subject).to validate(:get, '/v0/ppiu', 200, auth_options)
+        end
+      end
+    end
+
     describe 'supporting evidence upload' do
       let(:form_attachment) do
         {
