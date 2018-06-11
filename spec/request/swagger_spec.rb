@@ -1407,12 +1407,17 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           transaction_id: transaction_id
         )
 
-        expect(subject).to validate(:get, "/v0/profile/person/status/{transaction_id}", 401, 'transaction_id' => transaction.transaction_id)
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/person/status/{transaction_id}',
+          401,
+          'transaction_id' => transaction.transaction_id
+        )
 
         VCR.use_cassette('vet360/contact_information/person_transaction_status') do
           expect(subject).to validate(
             :get,
-            "/v0/profile/person/status/{transaction_id}",
+            '/v0/profile/person/status/{transaction_id}',
             200,
             auth_options.merge('transaction_id' => transaction.transaction_id)
           )

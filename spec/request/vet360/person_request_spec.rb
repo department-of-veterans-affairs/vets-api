@@ -98,11 +98,11 @@ RSpec.describe 'person', type: :request do
   describe 'GET /v0/profile/person/status/:transaction_id' do
     it 'responds with a serialized transaction', :aggregate_failures do
       transaction = create(
-          :initialize_person_transaction,
-          :init_vet360_id,
-          user_uuid: user.uuid,
-          transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
-        )
+        :initialize_person_transaction,
+        :init_vet360_id,
+        user_uuid: user.uuid,
+        transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
+      )
 
       VCR.use_cassette('vet360/contact_information/person_transaction_status') do
         get(
@@ -119,11 +119,11 @@ RSpec.describe 'person', type: :request do
     context 'with an error response' do
       it 'should match the errors response schema', :aggregate_failures do
         transaction = create(
-            :initialize_person_transaction,
-            :init_vet360_id,
-            user_uuid: user.uuid,
-            transaction_id: 'd47b3d96-9ddd-42be-ac57-8e564aa38029'
-          )
+          :initialize_person_transaction,
+          :init_vet360_id,
+          user_uuid: user.uuid,
+          transaction_id: 'd47b3d96-9ddd-42be-ac57-8e564aa38029'
+        )
 
         VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
           get(
