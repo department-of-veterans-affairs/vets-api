@@ -14,26 +14,20 @@ module Vet360Redis
     # Redis settings for ttl and namespacing reside in config/redis.yml
     redis_config_key :vet360_reference_data_response
 
-    # Vet360 country reference data
-    # [{ "country_name": "Afghanistan",
-    #    "country_code_iso2": "AF",
-    #    "country_code_iso3": "AFG",
-    #    "country_code_fips": "AF" }, ...]
-    # @return [Array[Hash]] List of countries Vet360 recognizes as valid
+    # List of valid Vet360 countries
+    # @return [Vet360::ReferenceData::CountriesResponse]
     def countries
       response_from_redis_or_service(:countries)
     end
 
-    # Vet360 state reference data
-    # [{ "state_name": "Ohio", "state_code": "OH" }, ...]
-    # @return [Array[Hash]] List of states Vet360 recognizes as valid
+    # List of valid Vet360 states
+    # @return [Vet360::ReferenceData::StatesResponse]
     def states
       response_from_redis_or_service(:states)
     end
 
-    # Vet360 zipcode reference data
-    # [{ "zip_code": "12345" }, ...]
-    # @return [Array[Hash]] List of zipcodes Vet360 recognizes as valid
+    # List of valid Vet360 zipcodes
+    # @return [Vet360::ReferenceData::ZipcodesResponse]
     def zipcodes
       response_from_redis_or_service(:zipcodes)
     end
