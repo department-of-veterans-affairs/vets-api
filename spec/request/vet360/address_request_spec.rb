@@ -161,12 +161,13 @@ RSpec.describe 'address', type: :request do
       let(:address) do
         build(:vet360_address,
               vet360_id: user.vet360_id,
-              effective_end_date: Time.now.utc.iso8601)
+              effective_end_date: Time.now.utc.iso8601,
+              id: 42
+              )
       end
 
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
-        address.id = 42
       end
 
       it 'effective_end_date is ignored', aggregate_failures: true do
@@ -189,12 +190,11 @@ RSpec.describe 'address', type: :request do
 
   describe 'DELETE /v0/profile/addresses' do
     let(:address) do
-      build(:vet360_address, vet360_id: user.vet360_id)
+      build(:vet360_address, vet360_id: user.vet360_id, id: 42)
     end
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
-      address.id = 42
     end
 
     context 'with a 200 response from the service' do
