@@ -63,4 +63,12 @@ describe MVI::Models::MviProfile do
       end
     end
   end
+
+  describe 'attributes' do
+    subject { build(:mvi_profile) }
+
+    it 'returns a icn_with_aaid' do
+      expect(subject.icn_with_aaid.present?).to eq true
+    end
+  end
 end

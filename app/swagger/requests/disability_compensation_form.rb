@@ -36,6 +36,9 @@ module Swagger
 
           response 200 do
             key :description, 'Response is OK'
+            schema do
+              key :'$ref', :SubmitDisabilityForm
+            end
           end
         end
       end

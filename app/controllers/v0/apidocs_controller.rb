@@ -173,6 +173,7 @@ module V0
       Swagger::Schemas::States,
       Swagger::Schemas::SubmitDisabilityForm,
       Swagger::Schemas::TermsAndConditions,
+      Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::VAFacilities,
       Swagger::Schemas::Vet360::Address,
       Swagger::Schemas::Vet360::Email,

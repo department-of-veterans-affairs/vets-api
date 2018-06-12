@@ -7,16 +7,14 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(uuid)
+      def self.start(user, claim_id)
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
           self,
-          'uuid' => uuid
+          'uuid' => user.uuid
         )
         batch.jobs do
-          user = User.find(uuid)
-          claim_id = get_claim_id(uuid)
           uploads = get_uploads(user)
           uploads.each do |upload_data|
             perform_async(upload_data, claim_id, user)
@@ -35,11 +33,6 @@ module EVSS
           document_type: upload_data[:doctype]
         )
         client.upload(file_body, document_data)
-      end
-
-      def self.get_claim_id(uuid)
-        form_submission = ::DisabilityCompensationSubmission.find_by(user_uuid: uuid, form_type: FORM_TYPE)
-        form_submission.claim_id
       end
 
       def self.get_uploads(user)

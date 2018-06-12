@@ -16,6 +16,7 @@ describe MVI::Service do
   end
 
   let(:user) { build(:user, :loa3, user_hash) }
+  let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA^P' }
 
   let(:mvi_profile) do
     build(
@@ -25,7 +26,8 @@ describe MVI::Service do
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
       sec_id: nil,
-      historical_icns: nil
+      historical_icns: nil,
+      icn_with_aaid: icn_with_aaid
     )
   end
 

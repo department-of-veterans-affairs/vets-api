@@ -113,6 +113,7 @@ class User < Common::RedisStore
   delegate :birls_id, to: :mvi
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
+  delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
@@ -234,11 +235,11 @@ class User < Common::RedisStore
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 
-  private
-
   def mvi
     @mvi ||= Mvi.for_user(self)
   end
+
+  private
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self

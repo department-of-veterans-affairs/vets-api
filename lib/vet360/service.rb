@@ -10,9 +10,7 @@ module Vet360
       @user = user
     end
 
-    def perform(method, path, body = nil, headers = {}, skip_vet360_id: false)
-      vet360_id_present! unless skip_vet360_id
-
+    def perform(method, path, body = nil, headers = {})
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
       log_to_sentry(response)
@@ -26,10 +24,6 @@ module Vet360
 
     private
 
-    def vet360_id_present!
-      raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
-    end
-
     def handle_error(error)
       case error
       when Common::Client::Errors::ParsingError
@@ -38,6 +32,7 @@ module Vet360
       when Common::Client::Errors::ClientError
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
         raise Common::Exceptions::Forbidden if error.status == 403
+        raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
         raise_backend_exception('VET360_502', self.class, error)
@@ -70,6 +65,15 @@ module Vet360
           response: { status: response.status, body: response.body }
         )
       end
+    end
+
+    def raise_invalid_body(error, source)
+      raise Common::Exceptions::BackendServiceException.new(
+        'VET360_502',
+        { source: source.to_s },
+        502,
+        error.body
+      )
     end
   end
 end
