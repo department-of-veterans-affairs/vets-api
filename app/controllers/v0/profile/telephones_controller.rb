@@ -9,15 +9,15 @@ module V0
       after_action :invalidate_cache
 
       def create
-        write_to_vet360_and_render_transaction!('telephone', delete_safety_catch(telephone_params))
+        write_to_vet360_and_render_transaction!('telephone', strip_effective_end_date(telephone_params))
       end
 
       def update
-        write_to_vet360_and_render_transaction!('telephone', delete_safety_catch(telephone_params), http_verb: 'put')
+        write_to_vet360_and_render_transaction!('telephone', strip_effective_end_date(telephone_params), http_verb: 'put')
       end
 
       def destroy
-        write_to_vet360_and_render_transaction!('telephone', delete_safety_catch(telephone_params), http_verb: 'put')
+        write_to_vet360_and_render_transaction!('telephone', add_effective_end_date(telephone_params), http_verb: 'put')
       end
 
       private
