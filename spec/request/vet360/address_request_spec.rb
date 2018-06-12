@@ -161,16 +161,16 @@ RSpec.describe 'address', type: :request do
       let(:address) do
         build(:vet360_address,
               vet360_id: user.vet360_id,
-              effective_end_date: Time.now.utc.iso8601,
-              id: 42
-              )
+              effective_end_date: Time.now.utc.iso8601)
       end
+      let(:id_in_cassette) {42}
 
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
+        address.id = id_in_cassette
       end
 
-      it 'effective_end_date is ignored', aggregate_failures: true do
+      it 'effective_end_date is NOT included in the request body', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_address_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
@@ -190,15 +190,17 @@ RSpec.describe 'address', type: :request do
 
   describe 'DELETE /v0/profile/addresses' do
     let(:address) do
-      build(:vet360_address, vet360_id: user.vet360_id, id: 42)
+      build(:vet360_address, vet360_id: user.vet360_id)
     end
+    let(:id_in_cassette) {42}
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
+      address.id = id_in_cassette
     end
 
-    context 'with a 200 response from the service' do
-      it 'should match the transaction response schema', aggregate_failures: true do
+    context 'when the method is DELETE' do
+      it 'effective_end_date gets appended to the request body', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
