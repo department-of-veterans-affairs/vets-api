@@ -11,7 +11,7 @@ module MHV
                 existing_accounts_upgraded_count: existing_accounts_upgraded.count,
                 created_failed_upgrade_count: created_failed_upgrade.count,
                 created_and_upgraded_count: created_and_upgraded.count }
-      logger.info('mhv_account_statistics', stats)
+      logger.info(mhv_account_statistics: stats)
     end
 
     private
