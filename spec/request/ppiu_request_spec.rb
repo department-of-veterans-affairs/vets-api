@@ -40,7 +40,7 @@ RSpec.describe 'PPIU', type: :request do
         VCR.use_cassette('evss/ppiu/service_error') do
           get '/v0/ppiu/payment_information', nil, auth_header
           expect(response).to have_http_status(:service_unavailable)
-          expect(response).to match_response_schema('payment_information_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
