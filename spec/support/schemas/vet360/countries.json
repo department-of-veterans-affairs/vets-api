@@ -11,7 +11,7 @@
               "items": {
                 "type": "object",
                 "properties": {
-                    "country_name": {},
+                    "country_name": { "type": "string" },
                     "country_code_iso3": { "type": "string" }
                 }
               },
