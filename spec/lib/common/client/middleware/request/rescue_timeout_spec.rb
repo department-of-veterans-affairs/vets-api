@@ -6,7 +6,7 @@ describe Common::Client::Middleware::Request::RescueTimeout do
   describe '#request' do
     subject do
       Faraday.new do |builder|
-        builder.use Common::Client::Middleware::Request::RescueTimeout, 'EVSS502'
+        builder.use Common::Client::Middleware::Request::RescueTimeout, 'EVSS502', backend_service: :evss
         builder.adapter :test do |stub|
           stub.get('/') { |_env| raise Faraday::TimeoutError }
         end

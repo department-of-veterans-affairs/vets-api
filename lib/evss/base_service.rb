@@ -60,7 +60,7 @@ module EVSS
         faraday.response :betamocks if @use_mock
         faraday.response :snakecase, symbolize: false
         faraday.response :json_parser
-        faraday.use Common::Client::Middleware::Request::RescueTimeout, 'EVSS502', { backend_service: :evss }
+        faraday.use Common::Client::Middleware::Request::RescueTimeout, 'EVSS502', backend_service: :evss
         faraday.use :remove_cookies
         faraday.adapter :httpclient
       end

@@ -22,7 +22,9 @@ RSpec.describe EVSSClaimService do
 
     describe '#update_from_remote' do
       it 'returns claim' do
-        allow(client_stub).to receive(:find_claim_by_id).and_raise(Common::Exceptions::BackendServiceException.new('EVSS502'))
+        allow(client_stub).to receive(:find_claim_by_id).and_raise(
+          Common::Exceptions::BackendServiceException.new('EVSS502')
+        )
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
         updated_claim, synchronized = subject.update_from_remote(claim)
