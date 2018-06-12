@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'vet360/reference_data/response'
 
 module Vet360
   module ReferenceData

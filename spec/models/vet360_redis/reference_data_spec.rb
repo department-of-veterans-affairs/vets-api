@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'common/exceptions'
-require 'vet360/reference_data/response'
 
 describe Vet360Redis::ReferenceData do
   subject { Vet360Redis::ReferenceData.new }
