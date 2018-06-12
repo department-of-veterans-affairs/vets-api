@@ -338,6 +338,53 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/initialize_vet360_id' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Initializes a vet360_id for the current user'
+          key :operationId, 'initializeVet360Id'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/person/status/{transaction_id}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets an updated person transaction by ID'
+          key :operationId, 'getPersonTransactionStatusById'
+          key :tags, %w[profile]
+
+          parameter :authorization
+          parameter do
+            key :name, :transaction_id
+            key :in, :path
+            key :description, 'ID of transaction'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/personal_information' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -620,6 +667,63 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/reference_data/countries' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET Vet360 Country reference data'
+          key :operationId, 'getVet360ReferenceDataCountries'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of valid Vet360 countries'
+            schema do
+              key :'$ref', :Vet360Countries
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/reference_data/states' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET Vet360 State reference data'
+          key :operationId, 'getVet360ReferenceDataStates'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of valid Vet360 states'
+            schema do
+              key :'$ref', :Vet360States
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/reference_data/zipcodes' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET Vet360 Zipcode reference data'
+          key :operationId, 'getVet360ReferenceDataZipcodes'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of valid Vet360 zipcodes'
+            schema do
+              key :'$ref', :Vet360Zipcodes
             end
           end
         end

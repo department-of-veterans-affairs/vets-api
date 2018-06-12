@@ -180,8 +180,18 @@ Rails.application.routes.draw do
       resource :addresses, only: %i[create update]
       resource :email_addresses, only: %i[create update]
       resource :telephones, only: %i[create update]
+      post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
+      get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resource :reference_data, only: %i[show] do
+        collection do
+          get 'countries', to: 'reference_data#countries'
+          get 'states', to: 'reference_data#states'
+          get 'zipcodes', to: 'reference_data#zipcodes'
+        end
+      end
     end
 
     get 'profile/mailing_address', to: 'addresses#show'

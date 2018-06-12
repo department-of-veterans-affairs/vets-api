@@ -235,11 +235,11 @@ class User < Common::RedisStore
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 
-  private
-
   def mvi
     @mvi ||= Mvi.for_user(self)
   end
+
+  private
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self
