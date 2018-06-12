@@ -10,8 +10,9 @@ module AppealsApi
       def index
         log_request
         appeals_response = Appeals::Service.new.get_appeals(
-          user,
-          'X-Consumer-Username' => request.headers['X-Consumer-Username']
+          target_veteran,
+          'Consumer' => consumer,
+          'VA-User' => requesting_va_user
         )
         log_response(appeals_response)
         render(
@@ -25,6 +26,7 @@ module AppealsApi
         hashed_ssn = Digest::SHA2.hexdigest ssn
         Rails.logger.info('Caseflow Request',
                           'consumer' => consumer,
+                          'va_user' => requesting_va_user,
                           'lookup_identifier' => hashed_ssn)
       end
 
@@ -33,6 +35,7 @@ module AppealsApi
         count = appeals_response.body['data'].length
         Rails.logger.info('Caseflow Response',
                           'consumer' => consumer,
+                          'va_user' => requesting_va_user,
                           'first_appeal_id' => first_appeal_id,
                           'appeal_count' => count)
       end
@@ -47,7 +50,13 @@ module AppealsApi
         ssn
       end
 
-      def user
+      def requesting_va_user
+        va_user = request.headers['X-VA-User']
+        raise Common::Exceptions::ParameterMissing, 'X-VA-User' unless va_user
+        va_user
+      end
+
+      def target_veteran
         veteran = OpenStruct.new
         veteran.ssn = ssn
         veteran
