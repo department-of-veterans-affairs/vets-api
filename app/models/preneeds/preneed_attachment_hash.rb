@@ -14,7 +14,7 @@ module Preneeds
     end
 
     def to_attachment
-      Attachment.new(
+      Preneeds::Attachment.new(
         attachment_type: AttachmentType.new(
           attachment_type_id: attachment_id
         ),
