@@ -68,10 +68,6 @@ module Vet360
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
     end
 
-    def request_is_delete?
-      request.request_method == 'DELETE'
-    end
-
     def strip_effective_end_date(params)
       params[:effective_end_date] = nil
       params
