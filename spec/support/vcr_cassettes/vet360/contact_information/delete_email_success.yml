@@ -1,11 +1,11 @@
 ---
 http_interactions:
 - request:
-    method: post
-    uri: "https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA"
+    method: put
+    uri: https://int.vet360.va.gov/person-mdm-cuf-person-hub/cuf/person/contact-information/v1/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"sourceDate":"2018-04-09T17:52:03Z"}}'
+      string: '{"bio":{"emailAddressText":"person103@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"64762895576664260","sourceDate":"2018-06-06T15:35:55.000Z","vet360Id":"123456789","effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":"2018-06-06T15:35:55.000Z"}}'
     headers:
       Accept:
       - application/json
@@ -23,7 +23,7 @@ http_interactions:
       message: ''
     headers:
       Date:
-      - Wed, 25 Apr 2018 17:17:07 GMT
+      - Wed, 25 Apr 2018 18:16:06 GMT
       Expires:
       - '0'
       X-Content-Type-Options:
@@ -44,7 +44,7 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"786efe0e-fd20-4da2-9019-0c00540dba4d","status":"RECEIVED"}'
+      string: '{"txAuditId":"0b6344e3-3348-419c-bad9-c1a634e3d621","status":"RECEIVED"}'
     http_version:
-  recorded_at: Wed, 25 Apr 2018 17:17:06 GMT
+  recorded_at: Wed, 25 Apr 2018 18:16:06 GMT
 recorded_with: VCR 3.0.3
