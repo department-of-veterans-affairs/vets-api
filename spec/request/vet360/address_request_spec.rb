@@ -163,7 +163,7 @@ RSpec.describe 'address', type: :request do
               vet360_id: user.vet360_id,
               effective_end_date: Time.now.utc.iso8601)
       end
-      let(:id_in_cassette) {42}
+      let(:id_in_cassette) { 42 }
 
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
@@ -192,7 +192,7 @@ RSpec.describe 'address', type: :request do
     let(:address) do
       build(:vet360_address, vet360_id: user.vet360_id)
     end
-    let(:id_in_cassette) {42}
+    let(:id_in_cassette) { 42 }
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')

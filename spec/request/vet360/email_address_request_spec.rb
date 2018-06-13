@@ -199,7 +199,7 @@ RSpec.describe 'email_address', type: :request do
       let(:email) do
         build(:email, vet360_id: '1', email_address: 'person42@example.com')
       end
-      let(:id_in_cassette) {42}
+      let(:id_in_cassette) { 42 }
 
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
@@ -228,7 +228,7 @@ RSpec.describe 'email_address', type: :request do
     let(:email) do
       build(:email, vet360_id: user.vet360_id, email_address: 'person103@example.com')
     end
-    let(:id_in_cassette) {42}
+    let(:id_in_cassette) { 42 }
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')

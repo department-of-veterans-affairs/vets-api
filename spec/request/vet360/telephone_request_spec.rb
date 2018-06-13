@@ -168,7 +168,7 @@ RSpec.describe 'telephone', type: :request do
               effective_end_date: Time.now.utc.iso8601,
               phone_number: '5551234')
       end
-      let (:id_in_cassette) { 1299 }
+      let(:id_in_cassette) { 1299 }
 
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
@@ -197,7 +197,7 @@ RSpec.describe 'telephone', type: :request do
     let(:telephone) do
       build(:telephone, vet360_id: user.vet360_id)
     end
-    let (:id_in_cassette) {42}
+    let(:id_in_cassette) { 42 }
 
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
