@@ -33,7 +33,7 @@ RSpec.describe 'letters', type: :request do
       it 'should return a bad gateway response' do
         get '/v0/letters', nil, auth_header
         expect(response).to have_http_status(:bad_gateway)
-        expect(response).to match_response_schema('letters_errors', strict: false)
+        expect(response).to match_response_schema('evss_errors', strict: false)
       end
     end
 
@@ -42,7 +42,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/letters_403') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('letters_errors', strict: false)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -52,7 +52,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/letters_500') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:internal_server_error)
-          expect(response).to match_response_schema('letters_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -175,7 +175,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/beneficiary_403') do
           get '/v0/letters/beneficiary', nil, auth_header
           expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('letters_errors', strict: false)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -185,7 +185,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/beneficiary_500') do
           get '/v0/letters/beneficiary', nil, auth_header
           expect(response).to have_http_status(:internal_server_error)
-          expect(response).to match_response_schema('letters_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -200,7 +200,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/letters_letter_generator_service_error') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:service_unavailable)
-          expect(response).to match_response_schema('letters_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -210,7 +210,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/letters_letter_destination_error') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('letters_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -251,7 +251,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/letters_not_eligible_error') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('letters_errors')
+          expect(response).to match_response_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
@@ -281,7 +281,7 @@ RSpec.describe 'letters', type: :request do
         VCR.use_cassette('evss/letters/letters_determine_eligibility_error') do
           get '/v0/letters', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('letters_errors')
+          expect(response).to match_response_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
             'errors' => [
               {
