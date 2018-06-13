@@ -11,7 +11,7 @@ module EVSS
       def convert
         @form_content['form526']['claimantCertification'] = true
 
-        @form_content['form526']['applicationExpirationDate'] = application_expiration_date
+        @form_content['form526']['applicationExpirationDate'] = application_expiration_date(@user)
 
         @form_content['form526']['treatments'] = convert_treatments(@form_content['form526']['treatments'])
 
@@ -114,8 +114,6 @@ module EVSS
             'routingNumber' => account&.financial_institution_routing_number,
             'bankName' => account&.financial_institution_name
           }
-        else
-          nil
         end
       end
 
@@ -155,14 +153,14 @@ module EVSS
       end
 
       def split_zip_code(zip_code)
-        split_code = zip_code.match(/(^\d{5})(?:([-\s]?)(\d{4})?$)/).captures
+        zip_code.match(/(^\d{5})(?:([-\s]?)(\d{4})?$)/).captures
       end
 
       def convert_treatments(treatments_info)
         treatments_info.map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
-            'type' => treatment['treatmentCenterType'],
+            'type' => treatment['treatmentCenterType']
           }
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
@@ -175,10 +173,23 @@ module EVSS
         end
       end
 
-      def application_expiration_date
-        # this is the logic EVSS has given us (RAD stands for Return from Active Duty):
-        # IF (the most recent 'RAD date' exists) AND (most recent 'RAD date' > 'application create date') THEN 'Application Expiration Date' = RAD + 1 + 365 ELSEIF ('application create date' < 'ITF date') or (ITF date is null) or (ITF expiration date is null) THEN 'Application Expiration Date' = 'Application Create Date' + 365 ELSE 'Application Expiration Date' = 'ITF Expiration Date'
-        # see question 1 here: https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Disability%20Compensation/engineering/EVSS/swagger_q%26a.md
+      def application_expiration_date(user)
+        application_create_date = Time.zone.today # TODO: tbd where this comes from
+
+        # retrieve the most recent 'Return from Active Duty' Date
+        rad_date = user.military_information.service_episodes_by_date[0].end_date
+
+        service = EVSS::IntentToFile::Service.new(user)
+        response = service.get_active('compensation') # TODO: `type` should be submitted as a param on submission by FE
+        itf = response.intent_to_file
+
+        if rad_date && rad_date > application_create_date
+          rad_date + 1 + 365
+        elsif itf.creation_date.nil? || itf.expiration_date.nil? || application_create_date < itf.creation_date
+          application_create_date + 365
+        else
+          itf.expiration_date
+        end
       end
     end
   end
