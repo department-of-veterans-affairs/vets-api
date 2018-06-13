@@ -8,55 +8,109 @@ describe MVI::Responses::IdParser do
     context 'icn_with_aaid' do
       let(:non_icn_id) { 'TKIP123456^PI^200IP^USVHA^A' }
 
-      it 'parses & returns an ICN w/the Assigning Authority ID from a list of correlation ids', :aggregate_failures do
-        expect_valid_icn_with_aaid_from_parsed_xml(
-          xml_file: 'find_candidate_response',
-          expected_icn_with_aaid: '1000123456V123456^NI^200M^USVHA^P'
-        )
+      context 'with a valid ID status (anything other than ^H or ^PCE, i.e. ^P or ^A)' do
+        it 'returns an ICN with an Assigning Authority ID & trims off the ID status', :aggregate_failures do
+          expect_valid_icn_with_aaid_from_parsed_xml(
+            xml_file: 'find_candidate_response',
+            expected_icn_with_aaid: '1000123456V123456^NI^200M^USVHA'
+          )
 
-        expect_valid_icn_with_aaid_from_parsed_xml(
-          xml_file: 'find_candidate_multiple_mhv_response',
-          expected_icn_with_aaid: '12345678901234567^NI^200M^USVHA^P'
-        )
+          expect_valid_icn_with_aaid_from_parsed_xml(
+            xml_file: 'find_candidate_multiple_mhv_response',
+            expected_icn_with_aaid: '12345678901234567^NI^200M^USVHA'
+          )
 
-        expect_valid_icn_with_aaid_from_parsed_xml(
-          xml_file: 'find_candidate_valid_response',
-          expected_icn_with_aaid: '1008714701V416111^NI^200M^USVHA^P'
-        )
+          expect_valid_icn_with_aaid_from_parsed_xml(
+            xml_file: 'find_candidate_valid_response',
+            expected_icn_with_aaid: '1008714701V416111^NI^200M^USVHA'
+          )
+        end
+
+        it 'matches correctly on the MVI::Responses::ProfileParser::ICN_REGEX' do
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^P',
+            '12345678901234567^NI^200M^USVHA'
+          )
+        end
+
+        it 'matches correctly on all valid ID statuses (i.e. P and A)', :aggregate_failures do
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^P',
+            '12345678901234567^NI^200M^USVHA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^A',
+            '12345678901234567^NI^200M^USVHA'
+          )
+        end
+
+        it 'matches correctly on all issuers (i.e. USVHA, USVBA, USDVA, USDOD)', :aggregate_failures do
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^P',
+            '12345678901234567^NI^200M^USVHA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVBA^P',
+            '12345678901234567^NI^200M^USVBA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USDVA^P',
+            '12345678901234567^NI^200M^USDVA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USDOD^P',
+            '12345678901234567^NI^200M^USDOD'
+          )
+        end
+
+        it 'matches correctly on all sources (i.e. 200M, 516, 553, 200HD)', :aggregate_failures do
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^P',
+            '12345678901234567^NI^200M^USVHA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^516^USVHA^P',
+            '12345678901234567^NI^516^USVHA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^553^USVHA^P',
+            '12345678901234567^NI^553^USVHA'
+          )
+
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200HD^USVHA^P',
+            '12345678901234567^NI^200HD^USVHA'
+          )
+        end
+
+        it 'only matches when the type is NI', :aggregate_failures do
+          invalid_icn_with_aaid = '12345678901234567^AA^200M^USVHA^P'
+          ids = [correlation_id(non_icn_id), correlation_id(invalid_icn_with_aaid)]
+
+          correlation_ids = MVI::Responses::IdParser.new.parse(ids)
+
+          expect(correlation_ids[:icn_with_aaid]).to eq nil
+        end
       end
 
-      it 'matches correctly on the MVI::Responses::ProfileParser::ICN_REGEX' do
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^P')
-      end
+      context 'with an invalid ID status (meaning ^H or ^PCE)' do
+        it 'sets the icn_with_aaid to nil' do
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^H',
+            nil
+          )
 
-      it 'matches correctly on all ID statuses (i.e. P, A, H, PCE)', :aggregate_failures do
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^A')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^H')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^PCE')
-      end
-
-      it 'matches correctly on all issuers (i.e. USVHA, USVBA, USDVA, USDOD)', :aggregate_failures do
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVBA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USDVA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USDOD^P')
-      end
-
-      it 'matches correctly on all sources (i.e. 200M, 516, 553, 200HD)', :aggregate_failures do
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200M^USVHA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^516^USVHA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^553^USVHA^P')
-        expect_valid_icn_with_aaid_to_be_returned('12345678901234567^NI^200HD^USVHA^P')
-      end
-
-      it 'only matches when the type is NI', :aggregate_failures do
-        invalid_icn_with_aaid = '12345678901234567^AA^200M^USVHA^P'
-        ids = [correlation_id(non_icn_id), correlation_id(invalid_icn_with_aaid)]
-
-        correlation_ids = MVI::Responses::IdParser.new.parse(ids)
-
-        expect(correlation_ids[:icn_with_aaid]).to eq nil
+          expect_valid_icn_with_aaid_to_be_returned(
+            '12345678901234567^NI^200M^USVHA^PCE',
+            nil
+          )
+        end
       end
     end
   end
@@ -81,8 +135,8 @@ def expect_valid_icn_with_aaid_from_parsed_xml(xml_file:, expected_icn_with_aaid
   expect(correlation_ids[:icn_with_aaid]).to eq expected_icn_with_aaid
 end
 
-def expect_valid_icn_with_aaid_to_be_returned(valid_icn_with_aaid)
-  ids = [correlation_id(non_icn_id), correlation_id(valid_icn_with_aaid)]
+def expect_valid_icn_with_aaid_to_be_returned(icn_with_aaid_with_id_status, valid_icn_with_aaid)
+  ids = [correlation_id(non_icn_id), correlation_id(icn_with_aaid_with_id_status)]
   correlation_ids = MVI::Responses::IdParser.new.parse(ids)
 
   expect(correlation_ids[:icn_with_aaid]).to eq valid_icn_with_aaid

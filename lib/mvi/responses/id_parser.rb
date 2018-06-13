@@ -24,7 +24,7 @@ module MVI
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
           birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
           vet360_id: select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^\w+$/, CORRELATION_ROOT_ID))&.first,
-          icn_with_aaid: select_extension(ids, ICN_REGEX, CORRELATION_ROOT_ID)&.first&.dig(:extension)
+          icn_with_aaid: IcnWithAaidParser.new(full_icn_with_aaid(ids)).without_id_status
         }
       end
 
@@ -48,6 +48,10 @@ module MVI
         ids.select do |id|
           id[:extension] =~ pattern && id[:root] == root
         end
+      end
+
+      def full_icn_with_aaid(ids)
+        select_extension(ids, ICN_REGEX, CORRELATION_ROOT_ID)&.first&.dig(:extension)
       end
     end
   end
