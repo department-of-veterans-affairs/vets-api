@@ -5,7 +5,7 @@ module MVI
     # This class takes a valid ICN with an Assigning Authority ID, and
     # an ID status, and parses it to meet Vet360's icn_with_aaid design constraints.
     #
-    class IcnWithAaidParser
+    class ICNWithAAIDParser
       INVALID_ID_STATUSES = %w[H PCE].freeze
 
       attr_reader :extension
