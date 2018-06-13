@@ -471,6 +471,7 @@ RSpec.describe FormProfile, type: :model do
       context 'with a user that can prefill emis' do
         before do
           can_prefill_emis(true)
+          user.va_profile[:address].street = user.va_profile[:address].street.slice(0, 20)
         end
 
         %w[
