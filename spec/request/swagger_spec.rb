@@ -1377,6 +1377,30 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports getting vet360 country reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/countries', 401)
+
+        VCR.use_cassette('vet360/reference_data/countries') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/countries', 200, auth_options)
+        end
+      end
+
+      it 'supports getting vet360 state reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/states', 401)
+
+        VCR.use_cassette('vet360/reference_data/states') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/states', 200, auth_options)
+        end
+      end
+
+      it 'supports getting vet360 zipcode reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/zipcodes', 401)
+
+        VCR.use_cassette('vet360/reference_data/zipcodes') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/zipcodes', 200, auth_options)
+        end
+      end
     end
 
     describe 'profile/status' do

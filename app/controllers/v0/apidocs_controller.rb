@@ -179,6 +179,9 @@ module V0
       Swagger::Schemas::Vet360::Email,
       Swagger::Schemas::Vet360::Telephone,
       Swagger::Schemas::Vet360::ContactInformation,
+      Swagger::Schemas::Vet360::Countries,
+      Swagger::Schemas::Vet360::States,
+      Swagger::Schemas::Vet360::Zipcodes,
       self
     ].freeze
 
