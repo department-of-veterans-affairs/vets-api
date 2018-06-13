@@ -76,6 +76,8 @@ Rails.application.routes.draw do
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
+    get 'ppiu/payment_information', to: 'ppiu#index'
+
     resources :maintenance_windows, only: [:index]
 
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
