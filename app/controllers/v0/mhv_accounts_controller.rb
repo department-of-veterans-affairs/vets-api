@@ -2,39 +2,33 @@
 
 module V0
   class MhvAccountsController < ApplicationController
-    INELIGIBLE_ERROR = 'You are not eligible for creating/upgrading an MHV account'
+    CREATE_ERROR = 'You are not eligible for creating an MHV account'
+    UPGRADE_ERROR = 'You are not eligible for upgrading an MHV account'
     include ActionController::Serialization
 
-    before_action :authorize, only: :create
-
     def show
-      render json: mhv_account,
-             serializer: MhvAccountSerializer
+      render_account
     end
 
     def create
       if mhv_account.creatable?
         mhv_accounts_service.create
-        @partially_complete = true
+        render_account(status: :created)
+      else
+        raise Common::Exceptions::Forbidden, detail: CREATE_ERROR
       end
-      mhv_accounts_service.upgrade if mhv_account.upgradable?
-      render_for_create
-    rescue StandardError
-      raise unless @partially_complete
-      render_for_create(status: :multi_status)
+    end
+
+    def update
+      if mhv_account.upgradable?
+        mhv_accounts_service.upgrade
+        render_account(status: :accepted)
+      else
+        raise Common::Exceptions::Forbidden, detail: UPGRADE_ERROR
+      end
     end
 
     protected
-
-    def authorize
-      raise_access_denied unless mhv_account.creatable? || mhv_account.upgradable?
-    end
-
-    private
-
-    def raise_access_denied
-      raise Common::Exceptions::Forbidden, detail: INELIGIBLE_ERROR
-    end
 
     def mhv_account
       current_user.mhv_account
@@ -44,7 +38,7 @@ module V0
       @mhv_accounts_service ||= MhvAccountsService.new(mhv_account)
     end
 
-    def render_for_create(status: :accepted)
+    def render_account(status: :ok)
       render json: mhv_account,
              serializer: MhvAccountSerializer,
              status: status
