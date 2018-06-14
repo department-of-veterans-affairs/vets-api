@@ -28,7 +28,7 @@ module V0
       end
     end
 
-    protected
+    private
 
     def mhv_account
       current_user.mhv_account
