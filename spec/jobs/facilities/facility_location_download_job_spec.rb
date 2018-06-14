@@ -12,7 +12,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/nca_facilities') do
         expect(Facilities::NCAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
-        expect(Facilities::NCAFacility.count).to eq(173)
+        expect(Facilities::NCAFacility.count).to eq(10)
       end
     end
 
@@ -68,21 +68,21 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
 
   describe 'VBA Facilities' do
     it 'retrieves and persists facilities data' do
-      VCR.use_cassette('facilities/va/vba_facilities') do
+      VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         expect(Facilities::VBAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vba')
-        expect(Facilities::VBAFacility.count).to eq(487)
+        expect(Facilities::VBAFacility.count).to eq(6)
       end
     end
 
     it 'should indicate Pensions for appropriate facilities' do
-      VCR.use_cassette('facilities/va/vba_facilities') do
+      VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         expect(Facilities::VBAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vba')
         expect(Facilities::VBAFacility.find('310').services['benefits']['standard']).to include('Pensions')
         expect(Facilities::VBAFacility.find('330').services['benefits']['standard']).to include('Pensions')
         expect(Facilities::VBAFacility.find('335').services['benefits']['standard']).to include('Pensions')
-        expect(Facilities::VBAFacility.find('327').services['benefits']['standard']).not_to include('Pensions')
+        expect(Facilities::VBAFacility.find('0206V').services['benefits']['standard']).not_to include('Pensions')
       end
     end
   end
@@ -92,17 +92,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/vc_facilities') do
         expect(Facilities::VCFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vc')
-        expect(Facilities::VCFacility.count).to eq(318)
+        expect(Facilities::VCFacility.count).to eq(10)
       end
     end
   end
 
   describe 'VHA Facilities' do
     it 'retrieves and persists facilities data' do
-      VCR.use_cassette('facilities/va/vha_facilities') do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
-        expect(Facilities::VHAFacility.count).to eq(1185)
+        expect(Facilities::VHAFacility.count).to eq(3)
       end
     end
   end
@@ -111,7 +111,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     before(:each) { BaseFacility.validate_on_load = true }
     after(:each) { BaseFacility.validate_on_load = false }
     it 'raises an error when trying to retrieve and persist facilities data' do
-      VCR.use_cassette('facilities/va/vha_facilities') do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
           .to raise_error(Common::Client::Errors::ParsingError, 'invalid source data: duplicate ids')
       end
@@ -145,7 +145,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
     end
 
     it 'has the wait time indicated services' do
-      VCR.use_cassette('facilities/va/vha_facilities') do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         facility = Facilities::VHAFacility.find('603')
         services = facility.services['health'].map { |service| service['sl1'].first }
