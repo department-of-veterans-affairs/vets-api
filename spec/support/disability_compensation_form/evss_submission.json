@@ -1,4 +1,5 @@
-"form526": {
+{
+  "form526": {
     "veteran": {
       "emailAddress": "string",
       "alternateEmailAddress": "string",
@@ -44,14 +45,14 @@
     },
     "directDeposit": {
       "accountType": "CHECKING",
-      "accountNumber": "1234",
-      "bankName": "string",
-      "routingNumber": "123456789"
+      "accountNumber": "9876543211234",
+      "bankName": "Comerica",
+      "routingNumber": "042102115"
     },
     "serviceInformation": {
       "servicePeriods": [
         {
-          "serviceBranch": "string",
+          "serviceBranch": "National Oceanic &amp; Atmospheric Administration",
           "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
           "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
         }
@@ -102,8 +103,8 @@
         "diagnosticCode": 5235,
         "secondaryDisabilities": [
           {
-            "name": "string",
-            "classificationCode": "string",
+            "name": "Diabetes mellitus",
+            "classificationCode": "",
             "disabilityActionType": "NONE",
             "specialIssues": [
               {
@@ -111,7 +112,7 @@
                 "name": "Personal Trauma PTSD"
               }
             ],
-            "ratedDisabilityId": "0",
+            "ratedDisabilityId": "",
             "diagnosticCode": 5235
           }
         ]
@@ -139,6 +140,6 @@
     ],
     "standardClaim": false,
     "claimantCertification": true,
-    "applicationExpirationDate": "2018-06-05T23:59:44.108Z"
+    "applicationExpirationDate": "2015-08-28T19:53:45+00:00"
   }
 }
