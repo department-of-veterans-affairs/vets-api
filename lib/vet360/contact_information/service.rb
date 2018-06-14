@@ -143,6 +143,7 @@ module Vet360
         with_monitoring do
           vet360_id_present!
           raw_response = perform(:get, path)
+          Vet360::Stats.increment_transaction_results(raw_response)
 
           response_class.from(raw_response)
         end
