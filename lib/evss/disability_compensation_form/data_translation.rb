@@ -9,39 +9,58 @@ module EVSS
       end
 
       def convert
-        @form_content['form526']['claimantCertification'] = true
+        form['claimantCertification'] = true
+        form['applicationExpirationDate'] = application_expiration_date
+        form['directDeposit'] = get_banking_info
 
-        @form_content['form526']['applicationExpirationDate'] = application_expiration_date(@user)
-
-        @form_content['form526']['treatments'] = convert_treatments(@form_content['form526']['treatments'])
-
-        @form_content['form526']['directDeposit'] = get_banking_info(@user)
-
-        service_info = @form_content['form526']['serviceInformation']
-        @form_content['form526']['serviceInformation']['servicePeriods'] = convert_service_periods(service_info['servicePeriods'])
-        @form_content['form526']['serviceInformation']['confinements'] = convert_confinements(service_info['confinements'])
-        if service_info['reservesNationalGuardService']
-          @form_content['form526']['serviceInformation']['reservesNationalGuardService'] = convert_national_guard_service(service_info['reservesNationalGuardService'])
-        end
-
-        veteran_info = @form_content['form526']['veteran']
-        @form_content['form526']['veteran']['primaryPhone'] = split_phone_number(veteran_info['phone'])
-        @form_content['form526']['veteran']['mailingAddress'] = convert_mailing_address(veteran_info['mailingAddress'])
-        if veteran_info['forwardingAddress']
-          @form_content['form526']['veteran']['forwardingAddress'] = convert_mailing_address(veteran_info['forwardingAddress'])
-        end
-
-        homeless_data = @form_content['form526']['veteran']['homelessness']
-        if homeless_data['isHomeless']
-          @form_content['form526']['veteran']['homelessness'] = convert_homelessness(homeless_data['pointOfContact'])
-        else
-          @form_content['form526']['veteran'].delete('homelessness')
-        end
+        convert_treatments
+        convert_service_info
+        convert_veteran
 
         @form_content.compact.to_json
       end
 
       private
+
+      def form
+        @form_content['form526']
+      end
+
+      def service_info
+        form['serviceInformation']
+      end
+
+      def veteran
+        form['veteran']
+      end
+
+      def convert_service_info
+        convert_service_periods
+        convert_confinements if service_info['confinements'].present?
+        convert_names if service_info['alternateNames'].present?
+        if service_info['reservesNationalGuardService']
+          service_info['reservesNationalGuardService'] = convert_national_guard_service(
+            service_info['reservesNationalGuardService']
+          )
+        end
+      end
+
+      def convert_veteran
+        veteran['primaryPhone'] = split_phone_number(veteran['phone'])
+        veteran.delete('phone')
+
+        veteran['mailingAddress'] = convert_mailing_address(veteran['mailingAddress'])
+        if veteran['forwardingAddress']
+          veteran['forwardingAddress'] = convert_mailing_address(veteran['forwardingAddress'])
+        end
+
+        homeless_data = veteran['homelessness']
+        if homeless_data['isHomeless']
+          veteran['homelessness'] = convert_homelessness(homeless_data['pointOfContact'])
+        else
+          veteran.delete('homelessness')
+        end
+      end
 
       def convert_homelessness(point_of_contact)
         homelessness = {}
@@ -58,8 +77,8 @@ module EVSS
         homelessness
       end
 
-      def convert_service_periods(service_periods_info)
-        service_periods_info.map! do |si|
+      def convert_service_periods
+        service_info['servicePeriods'].map! do |si|
           {
             'serviceBranch' => service_branch(si['serviceBranch']),
             'activeDutyBeginDate' => si['dateRange']['from'],
@@ -68,12 +87,22 @@ module EVSS
         end
       end
 
-      def convert_confinements(confinements_info)
-        confinements_info.map! do |ci|
+      def convert_confinements
+        service_info['confinements'].map! do |ci|
           {
             'confinementBeginDate' => ci['confinementDateRange']['from'],
             'confinementEndDate' => ci['confinementDateRange']['to'],
             'verifiedIndicator' => ci['verifiedIndicator']
+          }
+        end
+      end
+
+      def convert_names
+        service_info['alternateNames'].map! do |an|
+          {
+            'firstName' => an['first'],
+            'middleName' => an['middle'],
+            'lastName' => an['last']
           }
         end
       end
@@ -86,14 +115,14 @@ module EVSS
           'unitName' => reserves_service_info['unitName'],
           'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
           'inactiveDutyTrainingPay' => reserves_service_info['inactiveDutyTrainingPay']
-        }
+        }.compact
       end
 
       def service_branch(service_branch)
-        if service_branch == 'NOAA'
+        case service_branch
+        when 'NOAA'
           'National Oceanic &amp; Atmospheric Administration'
-        else
-          service_branch
+        else service_branch
         end
       end
 
@@ -102,8 +131,8 @@ module EVSS
         { 'areaCode' => area_code, 'phoneNumber' => number }
       end
 
-      def get_banking_info(user)
-        service = EVSS::PPIU::Service.new(user)
+      def get_banking_info
+        service = EVSS::PPIU::Service.new(@user)
         response = service.get_payment_information
         account = response.responses.first.payment_account
 
@@ -156,8 +185,8 @@ module EVSS
         zip_code.match(/(^\d{5})(?:([-\s]?)(\d{4})?$)/).captures
       end
 
-      def convert_treatments(treatments_info)
-        treatments_info.map! do |treatment|
+      def convert_treatments
+        form['treatments'].map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
             'type' => treatment['treatmentCenterType']
@@ -173,23 +202,34 @@ module EVSS
         end
       end
 
-      def application_expiration_date(user)
-        application_create_date = Time.zone.today # TODO: tbd where this comes from
-
-        # retrieve the most recent 'Return from Active Duty' Date
-        rad_date = user.military_information.service_episodes_by_date[0].end_date
-
-        service = EVSS::IntentToFile::Service.new(user)
-        response = service.get_active('compensation') # TODO: `type` should be submitted as a param on submission by FE
-        itf = response.intent_to_file
-
-        if rad_date && rad_date > application_create_date
-          rad_date + 1 + 365
-        elsif itf.creation_date.nil? || itf.expiration_date.nil? || application_create_date < itf.creation_date
-          application_create_date + 365
+      def application_expiration_date
+        if rad_date.present? && rad_date > application_create_date
+          (rad_date + 1.day + 365.days).iso8601 # expires year after the following day service ends
+        elsif itf.creation_date.nil? || itf.expiration_date.nil? || itf.creation_date > application_create_date
+          (application_create_date + 365.days).iso8601
         else
-          itf.expiration_date
+          itf.expiration_date.iso8601
         end
+      end
+
+      def application_create_date
+        # Application create date is the date the user began their application
+        @acd ||= InProgressForm.where(form_id: VA526ez::FORM_ID, user_uuid: @user.uuid)
+                               .first.created_at
+      end
+
+      def rad_date
+        # retrieve the most recent 'Return from Active Duty' Date
+        @rd ||= Time.zone.parse(@user.military_information.service_episodes_by_date.first&.end_date.to_s)
+      end
+
+      def itf
+        # retrieve the active intent to file for compensation
+        return @itf if @itf
+
+        service = EVSS::IntentToFile::Service.new(@user)
+        response = service.get_active('compensation')
+        @itf = response.intent_to_file
       end
     end
   end
