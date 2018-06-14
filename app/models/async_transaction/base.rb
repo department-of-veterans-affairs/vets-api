@@ -6,6 +6,7 @@ module AsyncTransaction
 
     REQUESTED = 'requested'
     COMPLETED = 'completed'
+    DELETE_COMPLETED_AFTER = 1.month
 
     attr_encrypted :metadata, key: Settings.db_encryption_key
 
@@ -24,6 +25,14 @@ module AsyncTransaction
     validates :source_id, presence: true, unless: :initialize_person?
     validates :transaction_id,
               uniqueness: { scope: :source, message: 'Transaction ID must be unique within a source.' }
+
+    def delete_stale
+      Base.where(
+        'created_at < ?', DELETE_COMPLETED_AFTER.ago
+      ).where(
+        status: Base::COMPLETED
+      ).find_each(&:destroy!)
+    end
 
     private
 
