@@ -13,7 +13,7 @@ module Vet360
     def perform(method, path, body = nil, headers = {})
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
-      log_to_sentry(response)
+      report(response)
 
       response
     end
@@ -53,6 +53,11 @@ module Vet360
         error&.status,
         error&.body
       )
+    end
+
+    def report(response)
+      log_to_sentry(response)
+      Vet360::Stats.increment('total_operations')
     end
 
     def log_to_sentry(response)

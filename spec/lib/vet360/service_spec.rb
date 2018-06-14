@@ -44,6 +44,20 @@ describe Vet360::Service do
       end
     end
   end
+  describe '#perform' do
+    context 'regarding its reporting' do
+      before do
+        allow_any_instance_of(Vet360::Service).to receive_message_chain(:config, :base_request_headers, :merge) { '' }
+        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_return(nil)
+      end
+
+      it 'increments the StatsD Vet360 total_operations counter' do
+        expect { subject.perform(:get, 'some_path') }.to trigger_statsd_increment(
+          "#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations"
+        )
+      end
+    end
+  end
 end
 
 def body_for(row)
