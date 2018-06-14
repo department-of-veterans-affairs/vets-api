@@ -33,6 +33,12 @@ module EVSS
         raise ArgumentError, "invalid type: #{args['type']}" unless ITF_TYPE.include? args['type']
         super(args)
       end
+
+      def expires_within_one_day?
+        current = Time.current
+        one_day_from_current = current + 1.day
+        (current..one_day_from_current).cover? expiration_date
+      end
     end
   end
 end

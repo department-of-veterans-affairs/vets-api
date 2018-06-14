@@ -136,6 +136,7 @@ module V0
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::PensionClaims,
       Swagger::Requests::Post911GiBillStatuses,
+      Swagger::Requests::PPIU,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,
@@ -169,6 +170,7 @@ module V0
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,
       Swagger::Schemas::PhoneNumber,
+      Swagger::Schemas::PPIU,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
       Swagger::Schemas::SubmitDisabilityForm,
@@ -179,6 +181,9 @@ module V0
       Swagger::Schemas::Vet360::Email,
       Swagger::Schemas::Vet360::Telephone,
       Swagger::Schemas::Vet360::ContactInformation,
+      Swagger::Schemas::Vet360::Countries,
+      Swagger::Schemas::Vet360::States,
+      Swagger::Schemas::Vet360::Zipcodes,
       self
     ].freeze
 

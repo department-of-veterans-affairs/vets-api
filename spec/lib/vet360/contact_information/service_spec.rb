@@ -275,4 +275,34 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       end
     end
   end
+
+  describe '#get_person_transaction_status' do
+    context 'when successful' do
+      let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
+
+      it 'returns a status of 200', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_transaction_status(transaction_id)
+
+          expect(response).to be_ok
+          expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
+      it 'returns a status of 400', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PERS200')
+          end
+        end
+      end
+    end
+  end
 end

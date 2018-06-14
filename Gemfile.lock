@@ -737,7 +737,7 @@ GEM
     formatador (0.2.5)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
-    govdelivery-tms (0.9.4)
+    govdelivery-tms (2.8.4)
       activesupport
       faraday
       faraday_middleware
@@ -1016,6 +1016,7 @@ GEM
       actionpack (>= 4.0)
       activesupport (>= 4.0)
       sprockets (>= 3.0.0)
+    staccato (0.5.1)
     statsd-instrument (2.1.2)
     swagger-blocks (2.0.0)
     thor (0.19.4)
@@ -1085,7 +1086,7 @@ DEPENDENCIES
   fastimage
   figaro
   foreman
-  govdelivery-tms
+  govdelivery-tms (= 2.8.4)
   guard-rspec (~> 4.7)
   guard-rubocop
   gyoku
@@ -1147,6 +1148,7 @@ DEPENDENCIES
   socksify
   spring
   spring-commands-rspec
+  staccato
   statsd-instrument
   swagger-blocks
   timecop

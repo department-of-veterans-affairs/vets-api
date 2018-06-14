@@ -149,8 +149,8 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         facility = Facilities::VHAFacility.find('603')
         services = facility.services['health'].map { |service| service['sl1'].first }
-        expected_services = ['Womens Health', 'Audiology', 'Cardiology', 'Dermatology', 'Gastroenterology',
-                             'Gynecology', 'Ophthalmology', 'Optometry', 'Orthopedics', 'Urology']
+        expected_services = %w[WomensHealth Audiology Cardiology Dermatology Gastroenterology
+                               Gynecology Ophthalmology Optometry Orthopedics Urology]
         expect(services).to include(*expected_services)
       end
     end

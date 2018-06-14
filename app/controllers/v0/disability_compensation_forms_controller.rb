@@ -12,6 +12,7 @@ module V0
 
     def submit
       response = service.submit_form(request.body.string)
+      EVSS::IntentToFile::ResponseStrategy.delete("#{@current_user.uuid}:compensation")
       EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id)
       render json: response,
              serializer: SubmitDisabilityFormSerializer

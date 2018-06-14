@@ -126,6 +126,54 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC102')
     end
 
+    it 'sets error status for too-short fileNumber metadata' do
+      md = JSON.parse(valid_metadata)
+      md['fileNumber'] = '123456'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+    end
+
+    it 'sets error status for too-long fileNumber metadata' do
+      md = JSON.parse(valid_metadata)
+      md['fileNumber'] = '1234567890'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+    end
+
+    it 'sets error status for non-numeric fileNumber metadata' do
+      md = JSON.parse(valid_metadata)
+      md['fileNumber'] = 'c12345678'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+    end
+
+    it 'sets error status for dashes in fileNumber metadata' do
+      md = JSON.parse(valid_metadata)
+      md['fileNumber'] = '123-45-6789'
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc }
+      }
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC102')
+    end
+
     it 'sets error status for non-PDF document parts' do
       allow(VBADocuments::MultipartParser).to receive(:parse) {
         { 'metadata' => valid_metadata, 'content' => valid_metadata }
