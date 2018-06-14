@@ -47,7 +47,7 @@ module Vet360
         elsif @user&.icn_with_aaid.present?
           @user.icn_with_aaid
         else
-          raise 'User does not have an ICN with an Assigning Authority ID'
+          raise 'User does not have a valid ICN with an Assigning Authority ID'
         end
       end
 

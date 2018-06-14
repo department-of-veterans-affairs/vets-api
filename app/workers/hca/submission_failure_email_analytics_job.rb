@@ -59,7 +59,8 @@ module HCA
     def govdelivery_client
       @govdelivery_client ||= GovDelivery::TMS::Client.new(
         Settings.reports.token,
-        api_root: "https://#{Settings.reports.server}"
+        api_root: "https://#{Settings.reports.server}",
+        logger: logger
       )
     end
 

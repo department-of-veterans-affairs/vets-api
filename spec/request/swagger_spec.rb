@@ -364,6 +364,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'PPIU' do
+      it 'supports getting payment information' do
+        expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, auth_options)
+        end
+      end
+    end
+
     describe 'supporting evidence upload' do
       let(:form_attachment) do
         {
@@ -1260,6 +1269,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports deleting vet360 email address data' do
+        expect(subject).to validate(:delete, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_email_success') do
+          email_address = build(:email, id: 42)
+
+          expect(subject).to validate(
+            :delete,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
       it 'supports posting vet360 telephone data' do
         expect(subject).to validate(:post, '/v0/profile/telephones', 401)
 
@@ -1283,6 +1307,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           expect(subject).to validate(
             :put,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports deleting vet360 telephone data' do
+        expect(subject).to validate(:delete, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_telephone_success') do
+          telephone = build(:telephone, id: 42)
+
+          expect(subject).to validate(
+            :delete,
             '/v0/profile/telephones',
             200,
             auth_options.merge('_data' => telephone.as_json)
@@ -1317,6 +1356,58 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             200,
             auth_options.merge('_data' => address.as_json)
           )
+        end
+      end
+
+      it 'supports deleting vet360 address data' do
+        expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_address_success') do
+          address = build(:vet360_address, id: 42)
+
+          expect(subject).to validate(
+            :delete,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+
+      it 'supports posting to initialize a vet360_id' do
+        expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
+
+        VCR.use_cassette('vet360/person/init_vet360_id_success') do
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/initialize_vet360_id',
+            200,
+            auth_options.merge('_data' => {})
+          )
+        end
+      end
+
+      it 'supports getting vet360 country reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/countries', 401)
+
+        VCR.use_cassette('vet360/reference_data/countries') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/countries', 200, auth_options)
+        end
+      end
+
+      it 'supports getting vet360 state reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/states', 401)
+
+        VCR.use_cassette('vet360/reference_data/states') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/states', 200, auth_options)
+        end
+      end
+
+      it 'supports getting vet360 zipcode reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/zipcodes', 401)
+
+        VCR.use_cassette('vet360/reference_data/zipcodes') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/zipcodes', 200, auth_options)
         end
       end
     end
@@ -1371,6 +1462,42 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             '/v0/profile/status/',
             200,
             auth_options
+          )
+        end
+      end
+    end
+
+    describe 'profile/person/status/:transaction_id' do
+      let(:user_without_vet360_id) { build(:user_with_suffix, :loa3) }
+
+      before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
+        Session.create(uuid: user_without_vet360_id.uuid, token: token)
+        User.create(user_without_vet360_id)
+      end
+
+      it 'supports GETting async person transaction by transaction ID' do
+        transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+        transaction = create(
+          :initialize_person_transaction,
+          :init_vet360_id,
+          user_uuid: user_without_vet360_id.uuid,
+          transaction_id: transaction_id
+        )
+
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/person/status/{transaction_id}',
+          401,
+          'transaction_id' => transaction.transaction_id
+        )
+
+        VCR.use_cassette('vet360/contact_information/person_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/person/status/{transaction_id}',
+            200,
+            auth_options.merge('transaction_id' => transaction.transaction_id)
           )
         end
       end
