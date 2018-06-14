@@ -1,0 +1,142 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Service History
+  description: |
+    Veteran Verification - Service History
+
+    ## Background
+
+    This API is provide provided as a proof of concept for a general-purpose VA
+    API that allows Veterans to provide authorization to a third-party to access
+    information on their behalf. The use-case of this API is to allow third-parties
+    to access the service history of a Veteran after receiving authorization to
+    do so using an Open ID Connect flow.
+
+    The Service History API passes requests through to eMIS, the Enterprise
+    Military Information Service, and formats the response into consumable data.
+
+    ## Design
+
+    ### Authorization
+
+    API requests are authorized using a Bearer token issued through an OpenID
+    Connect service to allow third-party applications. The token should be
+    submitted as an `Authorization` header in the form `Bearer <toekn>`.
+
+    ### Service History Request
+
+    Allows a third-party application to request service history with the authorization
+    of a Veteran.
+
+    1. Client Request: GET https://api.vets.gov/services/veteran_verification/v0/service_history
+       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+
+    2. Service Response: A JSON API object with the Veteran's complete service history
+
+    ## Reference
+
+    Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+
+  termsOfService: ''
+  contact:
+    name: Vets.gov
+tags:
+  - name: service_history
+    description: Veteran Verification - Service History
+servers:
+  - url: .vets.gov/services/veteran_verification/{version}
+    description: Vets.gov API development environment
+    variables:
+      version:
+        default: v0
+paths:
+  /service_history:
+    get:
+      tags:
+        - service_history
+      summary: Retrieve service history of authorized Veteran
+      operationId: getServiceHistory
+      security:
+        - bearer_token: []
+      resposnes:
+        '200':
+          description: Service History retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ServiceHistoryEpisode'
+        '404':
+          description: No service history found
+components:
+  securitySchemes:
+    bearer_token:
+      type: http
+      scheme: bearer
+  schemas:
+    ServiceHistoryEpisode:
+      description: |
+        Service History for authorized Veteran
+      type: object
+      properties:
+        id:
+          type: string
+          description: Service History Episode ID from eMIS
+          example: "12312AASDf"
+        type:
+          type: string
+          example: service-history-episodes
+        attributes:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+              description: start date of a service history episode (YYYY-mm-dd)
+              example: '1948-04-08'
+            end_date:
+              type: string
+              format: date
+              description: end date of a service history episode (YYYY-mm-dd)
+              example: '1950-05-10'
+            branch:
+              type: string
+              description: Branch of military including National Guard or Reserve status
+              example: "Air Force"
+            discharge_status:
+              type: string
+              description: status level of discharge from service history episode
+              enum:
+                - honorable
+                - general
+                - bad-conduct
+                - dishonorable
+                - other
+              example: honorable
+            deployments:
+              type: array
+              items:
+                $ref: #/components/schemas/Deployment
+    Deployment:
+      description: |
+        Deployment during a service history episode
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+          description: beginning of deployment (YYYY-mm-dd)
+          example: '1948-10-10'
+        end_date:
+          type: string
+          format: date
+          description: end of deployment (YYYY-mm-dd)
+          example: '1949-10-09'
+        location:
+          type: string
+          description: Three letter ISO country code of deployment location
+          example: KOR
