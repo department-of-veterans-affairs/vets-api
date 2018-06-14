@@ -7,7 +7,7 @@ module Authorization
     Pundit.policy!(self, policy).send(method)
   end
 
-  def authorize_messages(policy, method)
-    Pundit.policy!(self, policy).rule_evaluations[method].messages
+  def authorize_errors(policy, method)
+    Pundit.policy!(self, policy).rule_evaluations[method].errors
   end
 end

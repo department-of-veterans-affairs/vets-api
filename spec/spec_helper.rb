@@ -15,6 +15,7 @@ require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
 require 'pundit/rspec'
+require 'rspec/json_expectations'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']

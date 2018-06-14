@@ -948,6 +948,7 @@ GEM
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
+    rspec-json_expectations (2.1.0)
     rspec-mocks (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
@@ -1156,6 +1157,7 @@ DEPENDENCIES
   redis-namespace
   require_all
   restforce
+  rspec-json_expectations
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.52.1)
