@@ -81,7 +81,7 @@ module Swagger
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
-          key :description, 'Evaluates a user against a policy action and reports the reasons they may not be authorized for a service'
+          key :description, 'Evaluates a user against a policy action and reports reasons they may not be authorized'
           key :operationId, 'userAuthorizedForService'
           key :tags, [
             'user'
