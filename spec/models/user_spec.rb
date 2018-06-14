@@ -15,7 +15,8 @@ RSpec.describe User, type: :model do
     end
 
     it 'should return true if user loa3?, and ssns dont match' do
-      expect(user.ssn_mismatch?).to be_truthy
+      # temporary force failing spec
+      expect(user.ssn_mismatch?).to be_falsey
     end
 
     it 'should return false if user is not loa3?' do
