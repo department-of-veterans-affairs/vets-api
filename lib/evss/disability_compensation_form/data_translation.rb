@@ -38,43 +38,11 @@ module EVSS
         convert_service_periods
         convert_confinements if service_info['confinements'].present?
         convert_names if service_info['alternateNames'].present?
-        if service_info['reservesNationalGuardService']
+        if service_info['reservesNationalGuardService'].present?
           service_info['reservesNationalGuardService'] = convert_national_guard_service(
             service_info['reservesNationalGuardService']
           )
         end
-      end
-
-      def convert_veteran
-        veteran['primaryPhone'] = split_phone_number(veteran['phone'])
-        veteran.delete('phone')
-
-        veteran['mailingAddress'] = convert_mailing_address(veteran['mailingAddress'])
-        if veteran['forwardingAddress']
-          veteran['forwardingAddress'] = convert_mailing_address(veteran['forwardingAddress'])
-        end
-
-        homeless_data = veteran['homelessness']
-        if homeless_data['isHomeless']
-          veteran['homelessness'] = convert_homelessness(homeless_data['pointOfContact'])
-        else
-          veteran.delete('homelessness')
-        end
-      end
-
-      def convert_homelessness(point_of_contact)
-        homelessness = {}
-        if point_of_contact
-          homelessness['hasPointOfContact'] = true
-          homelessness['pointOfContact'] = {
-            'pointOfContactName' => point_of_contact['pointOfContactName'],
-            'primaryPhone' => split_phone_number(point_of_contact['primaryPhone'])
-          }
-        else
-          homelessness['hasPointOfContact'] = false
-        end
-
-        homelessness
       end
 
       def convert_service_periods
@@ -103,7 +71,7 @@ module EVSS
             'firstName' => an['first'],
             'middleName' => an['middle'],
             'lastName' => an['last']
-          }
+          }.compact
         end
       end
 
@@ -116,6 +84,38 @@ module EVSS
           'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
           'inactiveDutyTrainingPay' => reserves_service_info['inactiveDutyTrainingPay']
         }.compact
+      end
+
+      def convert_veteran
+        veteran['primaryPhone'] = split_phone_number(veteran['phone'])
+        veteran.delete('phone')
+
+        veteran['mailingAddress'] = convert_mailing_address(veteran['mailingAddress'])
+        if veteran['forwardingAddress'].present?
+          veteran['forwardingAddress'] = convert_mailing_address(veteran['forwardingAddress'])
+        end
+
+        homeless_data = veteran['homelessness']
+        if homeless_data['isHomeless'].present?
+          veteran['homelessness'] = convert_homelessness(homeless_data['pointOfContact'])
+        else
+          veteran.delete('homelessness')
+        end
+      end
+
+      def convert_homelessness(point_of_contact)
+        homelessness = {}
+        if point_of_contact.present?
+          homelessness['hasPointOfContact'] = true
+          homelessness['pointOfContact'] = {
+            'pointOfContactName' => point_of_contact['pointOfContactName'],
+            'primaryPhone' => split_phone_number(point_of_contact['primaryPhone'])
+          }
+        else
+          homelessness['hasPointOfContact'] = false
+        end
+
+        homelessness
       end
 
       def service_branch(service_branch)
