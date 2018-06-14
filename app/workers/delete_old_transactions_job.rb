@@ -6,5 +6,4 @@ class DeleteOldTransactionsJob
   def perform
     AsyncTransaction::Base.delete_stale
   end
-
 end
