@@ -8,7 +8,7 @@ RSpec.describe 'user', type: :request do
 
   let(:token) { 'abracadabra-open-sesame' }
 
-  describe '/users' do
+  describe '/user' do
     context 'when an LOA 3 user is logged in' do
       let(:mhv_user) { build(:user, :mhv) }
 
@@ -92,7 +92,7 @@ RSpec.describe 'user', type: :request do
     end
   end
 
-  describe 'authorized/:service/:action' do
+  describe 'authorized/:policy/:policy_action' do
     let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
     let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
 
