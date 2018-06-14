@@ -30,7 +30,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/intent_to_file_403') do
           get '/v0/intent_to_file', nil, auth_header
           expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('intent_to_file_errors', strict: false)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -40,7 +40,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/intent_to_file_intent_type_invalid') do
           get '/v0/intent_to_file', nil, auth_header
           expect(response).to have_http_status(:bad_request)
-          expect(response).to match_response_schema('intent_to_file_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -62,7 +62,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/active_compensation_403') do
           get '/v0/intent_to_file/compensation/active', nil, auth_header
           expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('intent_to_file_errors', strict: false)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -72,7 +72,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/active_compensation_partner_service_invalid') do
           get '/v0/intent_to_file/compensation/active', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('intent_to_file_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -94,7 +94,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/create_compensation_403') do
           post '/v0/intent_to_file/compensation', nil, auth_header
           expect(response).to have_http_status(:forbidden)
-          expect(response).to match_response_schema('intent_to_file_errors', strict: false)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -104,7 +104,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
           post '/v0/intent_to_file/compensation', nil, auth_header
           expect(response).to have_http_status(:bad_gateway)
-          expect(response).to match_response_schema('intent_to_file_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
@@ -114,7 +114,7 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
           post '/v0/intent_to_file/compensation', nil, auth_header
           expect(response).to have_http_status(:bad_request)
-          expect(response).to match_response_schema('intent_to_file_errors')
+          expect(response).to match_response_schema('evss_errors')
         end
       end
     end
