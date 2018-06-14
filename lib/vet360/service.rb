@@ -47,6 +47,8 @@ module Vet360
     end
 
     def raise_backend_exception(key, source, error = nil)
+      Vet360::Stats.increment('exceptions', key)
+
       raise Common::Exceptions::BackendServiceException.new(
         key,
         { source: source.to_s },
@@ -73,11 +75,13 @@ module Vet360
     end
 
     def raise_invalid_body(error, source)
+      Vet360::Stats.increment('exceptions', 'VET360_502')
+
       raise Common::Exceptions::BackendServiceException.new(
         'VET360_502',
         { source: source.to_s },
         502,
-        error.body
+        error&.body
       )
     end
   end
