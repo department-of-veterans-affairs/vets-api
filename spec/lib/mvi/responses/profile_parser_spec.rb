@@ -71,7 +71,7 @@ describe MVI::Responses::ProfileParser do
       end
 
       context 'with no middle name, missing and alternate correlation ids, multiple other_ids' do
-        let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA^P' }
+        let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_missing_attrs.xml')) }
         let(:mvi_profile) do
           build(
@@ -146,7 +146,7 @@ describe MVI::Responses::ProfileParser do
   end
 
   context 'with multiple MHV IDs' do
-    let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA^P' }
+    let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA' }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
     let(:mvi_profile) do
       build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil, icn_with_aaid: icn_with_aaid)
