@@ -76,6 +76,43 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/user/authorized/{policy}/{policy_action}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Evaluates a user against a policy action and reports the reasons they may not be authorized for a service'
+          key :operationId, 'userAuthorizedForService'
+          key :tags, [
+            'user'
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :policy
+            key :in, :path
+            key :description, 'The policy lookup name for the service'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, :policy_action
+            key :in, :path
+            key :description, 'The action to check within the policy'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'user policy evaluation response'
+            schema do
+              key :'$ref', :ServiceAuthDetail
+            end
+          end
+        end
+      end
     end
   end
 end

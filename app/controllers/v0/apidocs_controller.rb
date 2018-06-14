@@ -172,6 +172,7 @@ module V0
       Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::PPIU,
       Swagger::Schemas::SavedForm,
+      Swagger::Schemas::ServiceAuthDetail,
       Swagger::Schemas::States,
       Swagger::Schemas::SubmitDisabilityForm,
       Swagger::Schemas::TermsAndConditions,
