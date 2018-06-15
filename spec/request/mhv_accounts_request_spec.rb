@@ -83,7 +83,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                              message: V0::MhvAccountsController::CREATE_ERROR
     it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                            message: V0::MhvAccountsController::UPGRADE_ERROR
+                                              message: V0::MhvAccountsController::UPGRADE_ERROR
   end
 
   shared_context 'non va patient' do |options|
@@ -94,7 +94,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                              message: V0::MhvAccountsController::CREATE_ERROR
     it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                            message: V0::MhvAccountsController::UPGRADE_ERROR
+                                              message: V0::MhvAccountsController::UPGRADE_ERROR
   end
 
   shared_context 'a successful POST #create' do
@@ -146,7 +146,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                              message: V0::MhvAccountsController::CREATE_ERROR
     it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                            message: V0::MhvAccountsController::UPGRADE_ERROR
+                                              message: V0::MhvAccountsController::UPGRADE_ERROR
     it_behaves_like 'ssn mismatch'
     it_behaves_like 'non va patient'
   end
@@ -161,7 +161,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
       it_behaves_like 'a successful POST #create'
       it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                              message: V0::MhvAccountsController::UPGRADE_ERROR
+                                                message: V0::MhvAccountsController::UPGRADE_ERROR
     end
 
     context 'with account' do
@@ -199,7 +199,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                                      message: V0::MhvAccountsController::CREATE_ERROR
             it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                    message: V0::MhvAccountsController::UPGRADE_ERROR
+                                                      message: V0::MhvAccountsController::UPGRADE_ERROR
           end
         end
       end
