@@ -73,7 +73,6 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
 
     context 'if an exception happens' do
-
       before do
         allow_any_instance_of(AsyncTransaction::Vet360::AddressTransaction).to receive(:destroy!).and_raise('BOOM!')
       end
