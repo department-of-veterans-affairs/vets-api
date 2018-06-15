@@ -56,7 +56,7 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
   end
 
-  describe '#delete_stale' do
+  describe '#delete_stale!' do
     it 'deletes old transactions but not new ones' do
       create(:address_transaction,
              created_at: (Time.current - 31.days).iso8601,
@@ -65,11 +65,28 @@ RSpec.describe AsyncTransaction::Base, type: :model do
              created_at: (Time.current - 29.days).iso8601,
              status: AsyncTransaction::Base::COMPLETED)
 
-      AsyncTransaction::Base.new.delete_stale
+      AsyncTransaction::Base.new.delete_stale!
 
       transactions = AsyncTransaction::Base.all
       expect(transactions.count).to eq(1)
       expect(transactions.first).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
+    end
+
+    context 'if an exception happens' do
+
+      before do
+        allow_any_instance_of(AsyncTransaction::Vet360::AddressTransaction).to receive(:destroy!).and_raise('BOOM!')
+      end
+
+      it 'rescues and logs the details', :focus do
+        create(:address_transaction,
+               created_at: (Time.current - AsyncTransaction::Base::DELETE_COMPLETED_AFTER - 1.day).iso8601,
+               status: AsyncTransaction::Base::COMPLETED)
+
+        Transactions = AsyncTransaction::Base.new
+        Transactions.should_receive(:log_message_to_sentry).once
+        Transactions.delete_stale!
+      end
     end
   end
 end

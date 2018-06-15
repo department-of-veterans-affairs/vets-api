@@ -2,6 +2,8 @@
 
 module AsyncTransaction
   class Base < ActiveRecord::Base
+    include SentryLogging
+
     self.table_name = 'async_transactions'
 
     REQUESTED = 'requested'
@@ -26,11 +28,25 @@ module AsyncTransaction
     validates :transaction_id,
               uniqueness: { scope: :source, message: 'Transaction ID must be unique within a source.' }
 
-    def delete_stale
+    def delete_stale!
       Base
         .where('created_at < ?', DELETE_COMPLETED_AFTER.ago)
         .where(status: Base::COMPLETED)
-        .find_each(&:destroy)
+        .find_each do |tx|
+          begin
+            tx.destroy!
+          rescue Exception => e
+            log_message_to_sentry(
+              'DeleteOldTransactionsJob raised an exception',
+              :info,
+              {
+                model: self.class.to_s,
+                transaction: tx,
+                exception: e
+              }
+            )
+          end
+        end
     end
 
     private
