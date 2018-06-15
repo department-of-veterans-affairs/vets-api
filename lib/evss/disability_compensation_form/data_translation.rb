@@ -8,14 +8,14 @@ module EVSS
         @form_content = form_content
       end
 
-      def convert
+      def translate
         form['claimantCertification'] = true
         form['applicationExpirationDate'] = application_expiration_date
         form['directDeposit'] = get_banking_info
 
-        convert_treatments
-        convert_service_info
-        convert_veteran
+        translate_service_info
+        translate_veteran
+        translate_treatments
 
         @form_content.compact.to_json
       end
@@ -34,18 +34,18 @@ module EVSS
         form['veteran']
       end
 
-      def convert_service_info
-        convert_service_periods
-        convert_confinements if service_info['confinements'].present?
-        convert_names if service_info['alternateNames'].present?
+      def translate_service_info
+        translate_service_periods
+        translate_confinements if service_info['confinements'].present?
+        translate_names if service_info['alternateNames'].present?
         if service_info['reservesNationalGuardService'].present?
-          service_info['reservesNationalGuardService'] = convert_national_guard_service(
+          service_info['reservesNationalGuardService'] = translate_national_guard_service(
             service_info['reservesNationalGuardService']
           )
         end
       end
 
-      def convert_service_periods
+      def translate_service_periods
         service_info['servicePeriods'].map! do |si|
           {
             'serviceBranch' => service_branch(si['serviceBranch']),
@@ -55,7 +55,7 @@ module EVSS
         end
       end
 
-      def convert_confinements
+      def translate_confinements
         service_info['confinements'].map! do |ci|
           {
             'confinementBeginDate' => ci['confinementDateRange']['from'],
@@ -65,7 +65,7 @@ module EVSS
         end
       end
 
-      def convert_names
+      def translate_names
         service_info['alternateNames'].map! do |an|
           {
             'firstName' => an['first'],
@@ -75,7 +75,7 @@ module EVSS
         end
       end
 
-      def convert_national_guard_service(reserves_service_info)
+      def translate_national_guard_service(reserves_service_info)
         {
           'title10Activation' => reserves_service_info['title10Activation'],
           'obligationTermOfServiceFromDate' => reserves_service_info['obligationTermOfServiceDateRange']['from'],
@@ -86,44 +86,40 @@ module EVSS
         }.compact
       end
 
-      def convert_veteran
+      def translate_veteran
+        translate_veteran_phone
+        translate_veteran_address
+        translate_homelessness
+      end
+
+      def translate_veteran_phone
         veteran['primaryPhone'] = split_phone_number(veteran['phone'])
         veteran.delete('phone')
+      end
 
-        veteran['mailingAddress'] = convert_mailing_address(veteran['mailingAddress'])
+      def translate_veteran_address
+        veteran['mailingAddress'] = translate_mailing_address(veteran['mailingAddress'])
         if veteran['forwardingAddress'].present?
-          veteran['forwardingAddress'] = convert_mailing_address(veteran['forwardingAddress'])
-        end
-
-        homeless_data = veteran['homelessness']
-        if homeless_data['isHomeless'].present?
-          veteran['homelessness'] = convert_homelessness(homeless_data['pointOfContact'])
-        else
-          veteran.delete('homelessness')
+          veteran['forwardingAddress'] = translate_mailing_address(veteran['forwardingAddress'])
         end
       end
 
-      def convert_homelessness(point_of_contact)
-        homelessness = {}
-        if point_of_contact.present?
-          homelessness['hasPointOfContact'] = true
-          homelessness['pointOfContact'] = {
-            'pointOfContactName' => point_of_contact['pointOfContactName'],
-            'primaryPhone' => split_phone_number(point_of_contact['primaryPhone'])
+      def translate_homelessness
+        data = veteran['homelessness']
+        return veteran.delete('homelessness') if data['isHomeless'].blank?
+        return veteran['homelessness'] = { 'hasPointOfContact' => false } if data['pointOfContact'].blank?
+        veteran['homelessness'] = {
+          'hasPointOfContact' => true,
+          'pointOfContact' => {
+            'pointOfContactName' => data.dig('pointOfContact', 'pointOfContactName'),
+            'primaryPhone' => split_phone_number(data.dig('pointOfContact', 'primaryPhone'))
           }
-        else
-          homelessness['hasPointOfContact'] = false
-        end
-
-        homelessness
+        }
       end
 
       def service_branch(service_branch)
-        case service_branch
-        when 'NOAA'
-          'National Oceanic &amp; Atmospheric Administration'
-        else service_branch
-        end
+        return 'National Oceanic &amp; Atmospheric Administration' if service_branch == 'NOAA'
+        service_branch
       end
 
       def split_phone_number(phone_number)
@@ -146,7 +142,7 @@ module EVSS
         end
       end
 
-      def convert_mailing_address(address)
+      def translate_mailing_address(address)
         pciu_address = { 'country' => address['country'],
                          'addressLine1' => address['addressLine1'],
                          'addressLine2' => address['addressLine2'],
@@ -173,19 +169,16 @@ module EVSS
       end
 
       def get_address_type(address)
-        case address['country']
-        when 'USA'
-          %w[AA AE AP].include?(address['state']) ? 'MILITARY' : 'DOMESTIC'
-        else
-          'INTERNATIONAL'
-        end
+        return 'MILITARY' if %w[AA AE AP].include?(address['state'])
+        return 'DOMESTIC' if address['country'] == 'USA'
+        'INTERNATIONAL'
       end
 
       def split_zip_code(zip_code)
         zip_code.match(/(^\d{5})(?:([-\s]?)(\d{4})?$)/).captures
       end
 
-      def convert_treatments
+      def translate_treatments
         form['treatments'].map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
@@ -194,22 +187,22 @@ module EVSS
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
           treatment['endDate'] = treatment['treatmentDateRange']['to']
-          treatment.delete('treatmentCenterName')
-          treatment.delete('treatmentDateRange')
-          treatment.delete('treatmentCenterAddress')
-          treatment.delete('treatmentCenterType')
-          treatment
+          treatment.except('treatmentCenterName', 'treatmentDateRange', 'treatmentCenterAddress', 'treatmentCenterType')
         end
       end
 
       def application_expiration_date
-        if rad_date.present? && rad_date > application_create_date
-          (rad_date + 1.day + 365.days).iso8601 # expires year after the following day service ends
-        elsif itf.creation_date.nil? || itf.expiration_date.nil? || itf.creation_date > application_create_date
-          (application_create_date + 365.days).iso8601
-        else
-          itf.expiration_date.iso8601
-        end
+        return (rad_date + 1.day + 365.days).iso8601 if greater_rad_date?
+        return (application_create_date + 365.days).iso8601 if greater_itf_date?
+        itf.expiration_date.iso8601
+      end
+
+      def greater_rad_date?
+        rad_date.present? && rad_date > application_create_date
+      end
+
+      def greater_itf_date?
+        itf.creation_date.nil? || itf.expiration_date.nil? || itf.creation_date > application_create_date
       end
 
       def application_create_date
@@ -220,7 +213,10 @@ module EVSS
 
       def rad_date
         # retrieve the most recent 'Return from Active Duty' Date
-        @rd ||= Time.zone.parse(@user.military_information.service_episodes_by_date.first&.end_date.to_s)
+        return @rd if @rd
+
+        service_episodes = @user.military_information.service_episodes_by_date
+        @rd = Time.zone.parse(service_episodes.first&.end_date.to_s)
       end
 
       def itf
