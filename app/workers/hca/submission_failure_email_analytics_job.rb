@@ -74,7 +74,8 @@ module HCA
         campaign_medium: 'email',
         campaign_source: 'gov-delivery',
         document_title: email.subject,
-        document_path: '/email/health-care/apply/application/introduction'
+        document_path: '/email/health-care/apply/application/introduction',
+        label: 'hca--submission-failed'
       }
       @tracker.event(event_params.merge(action: 'completed'))
       @tracker.event(event_params.merge(action: 'failed')) if email.failed.collection.count.positive?
