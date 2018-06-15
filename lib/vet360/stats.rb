@@ -6,6 +6,10 @@ module Vet360
     FINAL_FAILURE = %w[REJECTED COMPLETED_FAILURE].freeze
 
     class << self
+      # Parses our exceptions file and returns all of the Vet360 exception keys.
+      #
+      # @return [Array] An array of lowercased, alphabetized, Vet360 exception keys
+      #
       def exception_keys
         exceptions_file
           .dig('en', 'common', 'exceptions')
@@ -15,12 +19,27 @@ module Vet360
           .map(&:downcase)
       end
 
+      # Triggers the associated StatsD.increment method for the Vet360 buckets that are
+      # initialized in the config/initializers/statsd.rb file.
+      #
+      # @param *args [String] A variable number of string arguments. Each one represents
+      #   a bucket in StatsD.  For example passing in ('policy', 'success') would increment
+      #   the 'api.vet360.policy.success' bucket
+      #
       def increment(*args)
         buckets = args.map(&:downcase).join('.')
 
         StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.#{buckets}")
       end
 
+      # If the passed response contains a transaction status that is in one of the final
+      # success or failure states, it increments the associated StatsD bucket.
+      #
+      # @param response [FaradayObject] The raw response from the Faraday HTTP call
+      # @param bucket1 [String] The Vet360 bucket to increment.  This bucket must
+      #   already be initialized in config/initializers/statsd.rb.
+      # @return [Nil] Returns nil only if the passed transaction status is not a final status
+      #
       def increment_transaction_results(response, bucket1 = 'posts_and_puts')
         status = status_in(response)
 
