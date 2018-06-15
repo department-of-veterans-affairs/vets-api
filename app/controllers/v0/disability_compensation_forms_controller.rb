@@ -16,7 +16,7 @@ module V0
       form_content = JSON.parse(request.body.string)
       converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
         @current_user, form_content
-      ).convert
+      ).translate
       response = service.submit_form(converted_form_content)
       EVSS::IntentToFile::ResponseStrategy.delete("#{@current_user.uuid}:compensation")
       EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id)
