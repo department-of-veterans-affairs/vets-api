@@ -27,11 +27,10 @@ module AsyncTransaction
               uniqueness: { scope: :source, message: 'Transaction ID must be unique within a source.' }
 
     def delete_stale
-      Base.where(
-        'created_at < ?', DELETE_COMPLETED_AFTER.ago
-      ).where(
-        status: Base::COMPLETED
-      ).find_each(&:destroy!)
+      Base
+        .where('created_at < ?', DELETE_COMPLETED_AFTER.ago)
+        .where(status: Base::COMPLETED)
+        .find_each(&:destroy!)
     end
 
     private
