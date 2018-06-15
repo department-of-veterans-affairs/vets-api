@@ -10,7 +10,13 @@ class EVSS::DocumentUpload
     uploader = EVSSClaimDocumentUploader.new(user_uuid, document.uploader_ids)
     uploader.retrieve_from_store!(document.file_name)
     file_body = uploader.read_for_upload
-    client.upload(file_body, document)
+
+    begin
+      client.upload(file_body, document)
+    rescue Common::Exceptions::BackendServiceException
+      raise Sentry::IgnoredError
+    end
+
     uploader.remove!
   end
 end
