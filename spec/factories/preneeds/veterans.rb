@@ -10,7 +10,7 @@ FactoryBot.define do
     military_service_number '123456789'
     place_of_birth 'Brooklyn, NY'
     ssn '123-45-6789'
-    va_claim_number 'C23456789'
+    va_claim_number '23456789'
     military_status 'A'
 
     current_name { attributes_for :full_name }
