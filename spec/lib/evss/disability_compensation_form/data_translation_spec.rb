@@ -14,7 +14,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
 
   subject { described_class.new(user, form_content) }
 
-  describe '#convert' do
+  describe '#translate' do
     before do
       create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
       allow_any_instance_of(EMISRedis::MilitaryInformation).to receive(:service_episodes_by_date).and_return([])
@@ -23,7 +23,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     it 'should return correctly formatted json to send to EVSS' do
       VCR.use_cassette('evss/ppiu/payment_information') do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          expect(JSON.parse(subject.convert)).to eq JSON.parse(evss_json)
+          expect(JSON.parse(subject.translate)).to eq JSON.parse(evss_json)
         end
       end
     end
@@ -75,7 +75,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     end
   end
 
-  describe '#convert_mailing_address' do
+  describe '#translate_mailing_address' do
     context 'when the address is DOMESTIC' do
       let(:address) do
         {
@@ -96,7 +96,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'state' => 'OR',
           'zipFirstFive' => '12345'
         }
-        expect(subject.send(:convert_mailing_address, address)).to eq result_hash
+        expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
     end
 
@@ -118,7 +118,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'militaryPostOfficeTypeCode' => 'ASO',
           'militaryStateCode' => 'AA'
         }
-        expect(subject.send(:convert_mailing_address, address)).to eq result_hash
+        expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
     end
 
@@ -138,7 +138,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'addressLine1' => '123 Buena Vista St.',
           'city' => 'Mexico City'
         }
-        expect(subject.send(:convert_mailing_address, address)).to eq result_hash
+        expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
     end
   end
@@ -169,34 +169,68 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     end
   end
 
-  describe '#convert_homelessness' do
-    context 'when point of contact is empty' do
-      it 'should return the correct hash' do
-        result_hash = { 'hasPointOfContact' => false }
-        expect(subject.send(:convert_homelessness, nil)).to eq result_hash
+  describe '#translate_homelessness' do
+    context 'when the veteran is not homeless' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'veteran' => {
+              'homelessness' => {
+                'isHomeless' => false
+              }
+            }
+          }
+        )
+      end
+      it 'should delete the "homelessness" key' do
+        subject.send(:translate_homelessness)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'veteran', 'homelessness')
+        ).to eq nil
       end
     end
 
-    context 'when there is a point of contact' do
-      let(:point_of_contact) do
-        {
-          'pointOfContactName' => 'Steve Stevington',
-          'primaryPhone' => '5551234567'
-        }
+    context 'when the veteran has no homeless point of contact' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'veteran' => {
+              'homelessness' => {
+                'isHomeless' => true
+              }
+            }
+          }
+        )
       end
+      it 'should add update the "homelessness" key correctly' do
+        result_hash = {
+          'hasPointOfContact' => false
+        }
+        subject.send(:translate_homelessness)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'veteran', 'homelessness')
+        ).to eq result_hash
+      end
+    end
 
-      it 'should return the correct hash' do
+    context 'when the veteran has a homeless point of contact' do
+      it 'should add update the "homelessness" key correctly' do
         result_hash = {
           'hasPointOfContact' => true,
           'pointOfContact' => {
-            'pointOfContactName' => 'Steve Stevington',
+            'pointOfContactName' => 'Ted',
             'primaryPhone' => {
-              'phoneNumber' => '1234567',
-              'areaCode' => '555'
+              'phoneNumber' => '4567890',
+              'areaCode' => '123'
             }
           }
         }
-        expect(subject.send(:convert_homelessness, point_of_contact)).to eq result_hash
+        subject.send(:translate_homelessness)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'veteran', 'homelessness')
+        ).to eq result_hash
       end
     end
   end
