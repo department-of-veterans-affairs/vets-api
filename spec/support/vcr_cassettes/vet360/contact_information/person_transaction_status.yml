@@ -52,16 +52,16 @@ http_interactions:
           "txType": "PUSH",
           "txInteractionType": "ATTENDED",
           "txPushInput": {
-            "sourceDate": "2018-04-09T17:52:03Z",
-            "originatingSourceSystem": "VETSGOV"
+            "sourceDate": "2018-04-09T17:52:03Z"
           },
           "txOutput": [
             {
               "vet360Id": 1,
               "txAuditId": "786efe0e-fd20-4da2-9019-0c00540dba4d",
               "sourceSystem": "VETSGOV",
-              "sourceDate": "2018-04-09T17:52:03Z",
-              "originatingSourceSystem": "VETSGOV"
+              "createDate": "2018-04-09T17:52:03Z",
+              "updateDate": "2018-04-09T17:52:03Z",
+              "sourceDate": "2018-04-09T17:52:03Z"
             }
           ]
         }
