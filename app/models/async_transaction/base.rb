@@ -30,7 +30,7 @@ module AsyncTransaction
       Base
         .where('created_at < ?', DELETE_COMPLETED_AFTER.ago)
         .where(status: Base::COMPLETED)
-        .find_each(&:destroy!)
+        .find_each(&:destroy)
     end
 
     private
