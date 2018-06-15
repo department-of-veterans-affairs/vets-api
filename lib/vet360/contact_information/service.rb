@@ -102,6 +102,7 @@ module Vet360
       def get_person_transaction_status(transaction_id)
         with_monitoring do
           raw_response = perform(:get, "status/#{transaction_id}")
+          Vet360::Stats.increment_transaction_results(raw_response, 'init_vet360_id')
 
           Vet360::ContactInformation::PersonTransactionResponse.from(raw_response)
         end
@@ -143,6 +144,7 @@ module Vet360
         with_monitoring do
           vet360_id_present!
           raw_response = perform(:get, path)
+          Vet360::Stats.increment_transaction_results(raw_response)
 
           response_class.from(raw_response)
         end
