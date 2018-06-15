@@ -64,8 +64,12 @@ RSpec.describe AsyncTransaction::Base, type: :model do
       create(:telephone_transaction,
              created_at: (Time.current - 29.days).iso8601,
              status: AsyncTransaction::Base::COMPLETED)
+
       AsyncTransaction::Base.new.delete_stale
-      expect(AsyncTransaction::Base.all.count).to eq(1)
+
+      transactions = AsyncTransaction::Base.all
+      expect(transactions.count).to eq(1)
+      expect(transactions.first).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
     end
   end
 end
