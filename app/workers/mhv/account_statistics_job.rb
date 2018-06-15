@@ -7,29 +7,16 @@ module MHV
     sidekiq_options retry: false
 
     def perform
-      stats = { accounts_created_count: accounts_created.count,
-                existing_accounts_upgraded_count: existing_accounts_upgraded.count,
-                created_failed_upgrade_count: created_failed_upgrade.count,
-                created_and_upgraded_count: created_and_upgraded.count }
+      stats = { accounts_created_count: MhvAccount.accounts_created.count,
+                existing_accounts_upgraded_count: MhvAccount.existing_accounts_upgraded.count,
+                created_failed_upgrade_count: MhvAccount.created_failed_upgrade.count,
+                created_and_upgraded_count: MhvAccount.created_and_upgraded.count,
+                failed_create_count: MhvAccount.failed_create.count,
+                total_mhv_account_count: MhvAccount.count }
+      stats.each do |metric, count|
+        StatsD.gauge(metric.to_s, count)
+      end
       logger.info(mhv_account_statistics: stats)
-    end
-
-    private
-
-    def accounts_created
-      MhvAccount.where.not(registered_at: nil)
-    end
-
-    def existing_accounts_upgraded
-      MhvAccount.where(registered_at: nil).where.not(upgraded_at: nil)
-    end
-
-    def created_failed_upgrade
-      accounts_created.where(account_state: :upgrade_failed)
-    end
-
-    def created_and_upgraded
-      accounts_created.where.not(upgraded_at: nil)
     end
   end
 end
