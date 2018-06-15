@@ -291,8 +291,8 @@
   "nightPhone": "3456789",
   "dayPhone": "3456789",
   "mobilePhone": "3456789",
-  "spouseVaFileNumber": "c22345678",
-  "vaFileNumber": "c12345678",
+  "spouseVaFileNumber": "22345678",
+  "vaFileNumber": "12345678",
   "disabilities": [
     {
       "name": "disability 1",
