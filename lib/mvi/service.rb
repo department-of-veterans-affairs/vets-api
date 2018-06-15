@@ -19,16 +19,18 @@ module MVI
     include Common::Client::Monitoring
 
     # The MVI Service SOAP operations vets.gov has access to
-    OPERATIONS = {
-      add_person: 'PRPA_IN201301UV02',
-      update_person: 'PRPA_IN201302UV02',
-      find_profile: 'PRPA_IN201305UV02'
-    }.freeze
+    unless const_defined?(:OPERATIONS)
+      OPERATIONS = {
+        add_person: 'PRPA_IN201301UV02',
+        update_person: 'PRPA_IN201302UV02',
+        find_profile: 'PRPA_IN201305UV02'
+      }.freeze
+    end
 
     # @return [MVI::Configuration] the configuration for this service
     configuration MVI::Configuration
 
-    STATSD_KEY_PREFIX = 'api.mvi'
+    STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
 
     # Given a user queries MVI and returns their VA profile.
     #
