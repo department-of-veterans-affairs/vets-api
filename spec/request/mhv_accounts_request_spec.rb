@@ -57,9 +57,9 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  shared_examples 'a failed PUT #update' do |options|
+  shared_examples 'a failed POST #upgrade' do |options|
     it "responds with #{options[:http_status]}" do
-      put v0_mhv_account_path
+      post '/v0/mhv_account/upgrade'
       expect(response).to have_http_status(options[:http_status])
       expect(JSON.parse(response.body)['errors'].first['detail']).to eq(options[:message])
     end
@@ -82,7 +82,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
                                               account_level: options&.dig(:account_level)
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                              message: V0::MhvAccountsController::CREATE_ERROR
-    it_behaves_like 'a failed PUT #update', http_status: :forbidden,
+    it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
                                             message: V0::MhvAccountsController::UPGRADE_ERROR
   end
 
@@ -93,7 +93,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
                                               account_level: options&.dig(:account_level)
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                              message: V0::MhvAccountsController::CREATE_ERROR
-    it_behaves_like 'a failed PUT #update', http_status: :forbidden,
+    it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
                                             message: V0::MhvAccountsController::UPGRADE_ERROR
   end
 
@@ -108,10 +108,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  shared_context 'a successful PUT #update' do
+  shared_context 'a successful POST #upgrade' do
     it 'upgrades' do
       VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
-        put v0_mhv_account_path
+        post '/v0/mhv_account/upgrade'
         expect(response).to have_http_status(:accepted)
         expect(JSON.parse(response.body)['data']['attributes'])
           .to eq('account_level' => 'Premium', 'account_state' => 'upgraded')
@@ -130,10 +130,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  shared_context 'an unsuccessful PUT #update' do
+  shared_context 'an unsuccessful POST #upgrade' do
     it 'fails to upgrade' do
       VCR.use_cassette('mhv_account_creation/account_creation_unknown_error') do
-        put v0_mhv_account_path
+        post '/v0/mhv_account/upgrade'
         expect(response).to have_http_status(:bad_request)
         expect(JSON.parse(response.body)['errors'].first['detail'])
           .to eq('Something went wrong. Please try again later.')
@@ -145,7 +145,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'a successful GET #show', account_state: 'needs_terms_acceptance', account_level: nil
     it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                              message: V0::MhvAccountsController::CREATE_ERROR
-    it_behaves_like 'a failed PUT #update', http_status: :forbidden,
+    it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
                                             message: V0::MhvAccountsController::UPGRADE_ERROR
     it_behaves_like 'ssn mismatch'
     it_behaves_like 'non va patient'
@@ -160,7 +160,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     context 'without an account' do
       it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
       it_behaves_like 'a successful POST #create'
-      it_behaves_like 'a failed PUT #update', http_status: :forbidden,
+      it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
                                               message: V0::MhvAccountsController::UPGRADE_ERROR
     end
 
@@ -179,7 +179,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
             it_behaves_like 'ssn mismatch', account_level: type
             it_behaves_like 'non va patient', account_level: type
-            it_behaves_like 'a successful PUT #update'
+            it_behaves_like 'a successful POST #upgrade'
             it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                                      message: V0::MhvAccountsController::CREATE_ERROR
           end
@@ -198,7 +198,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
             it_behaves_like 'non va patient', account_level: type
             it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                                      message: V0::MhvAccountsController::CREATE_ERROR
-            it_behaves_like 'a failed PUT #update', http_status: :forbidden,
+            it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
                                                     message: V0::MhvAccountsController::UPGRADE_ERROR
           end
         end
@@ -219,7 +219,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'a successful GET #show', account_state: 'registered', account_level: 'Advanced'
         it_behaves_like 'ssn mismatch', account_level: 'Advanced'
         it_behaves_like 'non va patient', account_level: 'Advanced'
-        it_behaves_like 'a successful PUT #update'
+        it_behaves_like 'a successful POST #upgrade'
         it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                                  message: V0::MhvAccountsController::CREATE_ERROR
       end

@@ -19,7 +19,7 @@ module V0
       end
     end
 
-    def update
+    def upgrade
       if mhv_account.upgradable?
         mhv_accounts_service.upgrade
         render_account(status: :accepted)
