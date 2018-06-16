@@ -2,14 +2,13 @@
 
 module AsyncTransaction
   class Base < ActiveRecord::Base
-
     self.table_name = 'async_transactions'
 
     REQUESTED = 'requested'
     COMPLETED = 'completed'
     DELETE_COMPLETED_AFTER = 1.month
 
-    scope :stale, -> {
+    scope :stale, lambda {
       where('created_at < ?', DELETE_COMPLETED_AFTER.ago).where(status: COMPLETED)
     }
 

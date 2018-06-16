@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
@@ -17,7 +19,6 @@ describe DeleteOldTransactionsJob do
       job = DeleteOldTransactionsJob.new
       job.should_receive(:log_message_to_sentry).once
       job.perform
-
     end
   end
 end

@@ -59,9 +59,9 @@ RSpec.describe AsyncTransaction::Base, type: :model do
   describe '.stale scope' do
     it 'finds "old" transactions but not new ones' do
       transaction1 = create(:address_transaction,
-             created_at: (Time.current - 31.days).iso8601,
-             status: AsyncTransaction::Base::COMPLETED)
-      transaction2 = create(:telephone_transaction,
+                            created_at: (Time.current - 31.days).iso8601,
+                            status: AsyncTransaction::Base::COMPLETED)
+      create(:telephone_transaction,
              created_at: (Time.current - 29.days).iso8601,
              status: AsyncTransaction::Base::COMPLETED)
 
