@@ -3,17 +3,22 @@
 require 'singleton'
 
 module Vet360
+  # This class parses all of the Vet360 exception keys from config/locales/exceptions.en.yml
+  # and saves them to an instance variable.  For performance reasons, the Singleton Pattern
+  # is used.  This allows the file system to be hit one time, when a server instance is
+  # initialized.  From that point forward, the exception keys are saved to an instance
+  # variable in this class, thereby eliminating the need for the file system to be hit repeatedly.
+  #
   class Exceptions
     include Singleton
 
-    attr_reader :keys
-
-    def initialize
-      @keys = nil
-    end
-
+    # Parses our exceptions file and returns all of the Vet360 exception keys.  Memoizes this
+    # value by setting it equal to the @keys instance variable.
+    #
+    # @return [Array] An array of lowercased, alphabetized, Vet360 exception keys
+    #
     def known_keys
-      @keys = exception_keys
+      @keys ||= exception_keys
     end
 
     # Checks if the passed exception key is present in the exceptions_file
@@ -23,15 +28,11 @@ module Vet360
     # @return [Boolean]
     #
     def known?(exception_key)
-      keys.include? exception_key.downcase
+      known_keys.include? exception_key.downcase
     end
 
     private
 
-    # Parses our exceptions file and returns all of the Vet360 exception keys.
-    #
-    # @return [Array] An array of lowercased, alphabetized, Vet360 exception keys
-    #
     def exception_keys
       exceptions_file
         .dig('en', 'common', 'exceptions')
