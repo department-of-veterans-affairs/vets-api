@@ -107,3 +107,7 @@ HCA::SubmissionFailureEmailAnalyticsJob:
 DeleteOldTransactionsJob:
   cron: "0 3 * * * America/New_york" # Daily @ 3am Eastern
   description: "Deletes old, completed AsyncTransaction records"
+
+MHV::AccountStatisticsJob:
+  cron: "0 */4 * * * America/New_York"
+  description: "Log MHV Account Statistics"
