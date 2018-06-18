@@ -1,45 +1,53 @@
 module VeteranVerification
   class ServiceHistory
-    include Enumerable
-    delegate :service_episodes_by_date, :deployments, to: :emis
-    delegate :each, to: :formated_episodes
+    class ServiceHistoryEpisode
+      include ActiveModel::Serialization
+      include Virtus.model
 
-    def self.from_user(user)
-      self.new EMISRedis::MilitaryInformation.for_user(@current_user)
+      attribute :branch_of_service, String
+      attribute :end_date, Date
+      attribute :deployments, Hash
+      attribute :discharge_status, String
+      attribute :start_date, Date
+    end
+
+    include Enumerable
+    delegate :service_history, :service_episodes_by_date, :deployments, to: :@emis
+    delegate :each, to: :formatted_episodes
+
+    def self.for_user(user)
+      self.new EMISRedis::MilitaryInformation.for_user(user)
     end
 
     def initialize(emis_military_information)
       @emis = emis_military_information
-      handle_errors!
     end
 
-    def formated_episodes
+    def formatted_episodes
+      handle_errors!
+
       @episodes ||= service_episodes_by_date.map do |episode|
-        deps = deployments.filter do |dep|
+        deps = deployments.select do |dep|
           dep.begin_date >= episode.begin_date and dep.end_date <= episode.end_date
         end.map do |dep|
           {
-            start_date: dep.begin_date
-            end_date: dep.end_date
-            location: dep.locations[0].iso_alpha3_country
+            start_date: dep.begin_date,
+            end_date: dep.end_date,
+            location: dep.locations[0].iso_alpha3_country,
           }
         end
-        {
-          branch_of_service: @emis.build_service_branch(episode.branch_of_service)
+
+        ServiceHistoryEpisode.new(
+          branch_of_service: @emis.build_service_branch(episode),
+          end_date: episode.end_date,
+          deployments: deps,
+          discharge_status: discharge_type(episode),
           start_date: episode.begin_date
-          end_date: episode.end_date
-          discharge_status: discharge_type(episode)
-          deployments: deps
+        )
       end
     end
 
-    def deployments_by_date
-      @deployments_by_date ||= lambda do
-        deployments_by_date.sort_by { |ep| ep.end_date || Time.zone.today + 3650 }.reverse
-      end.call
-    end
-
-    def dischage_type(service_episode)
+    def discharge_type(service_episode)
       EMISRedis::MilitaryInformation::DISCHARGE_TYPES[
         service_episode&.discharge_character_of_service_code
       ] || 'other'
