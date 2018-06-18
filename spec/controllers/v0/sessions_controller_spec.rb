@@ -43,7 +43,9 @@ RSpec.describe V0::SessionsController, type: :controller do
                             decrypted_document: response_xml_stub)
   end
   let(:saml_response_too_late) do
-    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+    double('saml_response', is_valid?: false,
+                            status_message: 'Current time is on or after NotOnOrAfter condition',
+                            in_response_to: uuid,
                             is_a?: true,
                             errors: ['Current time is on or after NotOnOrAfter ' \
                               'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
@@ -51,7 +53,29 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
   # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
   let(:saml_response_too_early) do
-    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+    double('saml_response', is_valid?: false,
+                            status_message: 'Current time is earlier than NotBefore condition',
+                            in_response_to: uuid,
+                            is_a?: true,
+                            errors: ['Current time is earlier than NotBefore ' \
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                            decrypted_document: response_xml_stub)
+  end
+
+  let(:saml_response_data_inconsistent) do
+    double('saml_response', is_valid?: false,
+                            status_message: 'MVI has data inconsistency with SAML attributes',
+                            in_response_to: uuid,
+                            is_a?: true,
+                            errors: ['Current time is earlier than NotBefore ' \
+                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                            decrypted_document: response_xml_stub)
+  end
+
+  let(:saml_response_mvi_down) do
+    double('saml_response', is_valid?: false,
+                            status_message: 'MVI appears to be down or unavailable',
+                            in_response_to: uuid,
                             is_a?: true,
                             errors: ['Current time is earlier than NotBefore ' \
                               'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
@@ -68,7 +92,9 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   let(:saml_response_multi_error) do
-    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+    double('saml_response', is_valid?: false,
+                            status_message: 'Subject did not consent to attribute release',
+                            in_response_to: uuid,
                             is_a?: true,
                             errors: [
                               'Subject did not consent to attribute release',
@@ -315,7 +341,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
       end
@@ -325,7 +351,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)
         end
       end
@@ -335,7 +361,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=003')
           expect(response).to have_http_status(:found)
         end
 
@@ -348,6 +374,24 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'when MVI has data inconsistency with SAML attributes' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_data_inconsistent) }
+
+        it 'redirects to an auth failure page' do
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=004')
+          expect(response).to have_http_status(:found)
+        end
+      end
+
+      context 'when MVI appears to be down or unavailable' do
+        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_mvi_down) }
+
+        it 'redirects to an auth failure page' do
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=005')
+          expect(response).to have_http_status(:found)
         end
       end
 
@@ -366,7 +410,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                 ]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=')
           expect(response).to have_http_status(:found)
         end
 
@@ -390,14 +434,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Fail! Other SAML Response Error(s)',
               :error,                 saml_response: {
-                status_message: '',
+                status_message: 'Subject did not consent to attribute release',
                 errors: [
                   'Subject did not consent to attribute release',
                   'Other random error'
                 ]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
 
@@ -435,7 +479,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                 errors: ["Uuid can't be blank"]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=')
           expect(response).to have_http_status(:found)
         end
 
