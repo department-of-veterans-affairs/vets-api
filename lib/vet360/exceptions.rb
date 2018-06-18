@@ -16,6 +16,16 @@ module Vet360
       @keys = exception_keys
     end
 
+    # Checks if the passed exception key is present in the exceptions_file
+    #
+    # @param exception_key [String] A Vet360 exception key from config/locales/exceptions.en.yml
+    #   For example, 'VET360_ADDR133'
+    # @return [Boolean]
+    #
+    def known?(exception_key)
+      keys.include? exception_key.downcase
+    end
+
     private
 
     # Parses our exceptions file and returns all of the Vet360 exception keys.
