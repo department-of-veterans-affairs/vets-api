@@ -103,3 +103,7 @@ VBADocuments::UploadRemover:
 HCA::SubmissionFailureEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts HCA Submission Failure email sends and failures to Google Analytics"
+
+MHV::AccountStatisticsJob:
+  cron: "0 */4 * * * America/New_York"
+  description: "Log MHV Account Statistics"
