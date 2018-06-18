@@ -17,7 +17,7 @@ class DeleteOldTransactionsJob
             :info,
             model: self.class.to_s,
             transaction_id: tx.id,
-            exception: e
+            exception: e.message
           )
         end
       end
