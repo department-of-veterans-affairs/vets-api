@@ -18,6 +18,12 @@ class MhvAccount < ActiveRecord::Base
     upgrade_failed
   ].freeze
 
+  scope :accounts_created, -> { where.not(registered_at: nil) }
+  scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
+  scope :existing_accounts_upgraded, -> { where(registered_at: nil).where.not(upgraded_at: nil) }
+  scope :created_failed_upgrade, -> { accounts_created.where(account_state: :upgrade_failed) }
+  scope :created_and_upgraded, -> { accounts_created.where.not(upgraded_at: nil) }
+
   after_initialize :setup
 
   aasm(:account_state) do
