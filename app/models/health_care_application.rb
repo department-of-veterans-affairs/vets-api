@@ -46,7 +46,7 @@ class HealthCareApplication < ActiveRecord::Base
   def process!
     raise(Common::Exceptions::ValidationErrors, self) unless valid?
 
-    if parsed_form['email'].present? && async_compatible && parsed_form['email'] =~ /oddball|adhocteam|example\.com/
+    if parsed_form['email'].present? && async_compatible && parsed_form['email'] =~ /oddball\.io|adhocteam\.us|example\.com/
       save!
       HCA::SubmissionJob.perform_async(user&.uuid, parsed_form, id, google_analytics_client_id)
 
