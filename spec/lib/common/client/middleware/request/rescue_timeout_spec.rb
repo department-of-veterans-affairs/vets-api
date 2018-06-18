@@ -6,7 +6,7 @@ describe Common::Client::Middleware::Request::RescueTimeout do
   describe '#request' do
     subject do
       Faraday.new do |builder|
-        builder.use Common::Client::Middleware::Request::RescueTimeout, 'EVSS502', backend_service: :evss
+        builder.use Common::Client::Middleware::Request::RescueTimeout, backend_service: :evss
         builder.adapter :test do |stub|
           stub.get('/') { |_env| raise Faraday::TimeoutError }
         end
@@ -19,7 +19,7 @@ describe Common::Client::Middleware::Request::RescueTimeout do
         expect_any_instance_of(Common::Client::Middleware::Request::RescueTimeout).to(
           receive(:log_exception_to_sentry).with(Exception, Hash, Hash, :warn)
         )
-        expect { subject.get }.to raise_error(Common::Exceptions::BackendServiceException)
+        expect { subject.get }.to raise_error(Common::Exceptions::SentryIgnoredGatewayTimeout)
         Settings.sentry.dsn = nil
       end
     end
