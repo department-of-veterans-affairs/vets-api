@@ -7,17 +7,16 @@ module Common
         class RescueTimeout < Faraday::Middleware
           include SentryLogging
 
-          def initialize(app = nil, error_code = 'VA900', error_tags_context = {})
-            @error_code = error_code
+          def initialize(app = nil, error_tags_context = {})
             @error_tags_context = error_tags_context
             super(app)
           end
 
           def call(env)
             @app.call(env)
-          rescue Faraday::TimeoutError => e
+          rescue Faraday::TimeoutError, Net::ReadTimeout, HTTPClient::ReceiveTimeoutError, Net::OpenTimeout => e
             log_exception_to_sentry(e, {}, @error_tags_context, :warn)
-            raise Common::Exceptions::BackendServiceException, @error_code
+            raise Common::Exceptions::SentryIgnoredGatewayTimeout
           end
         end
       end
