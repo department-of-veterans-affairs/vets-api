@@ -22,7 +22,7 @@ pipeline {
     stage('Test Conditional 2') {
       when {
         expression {
-          env.BRANCH_NAME == 'test-slack-notifications'
+          ['test-slack-notifications'].contains(env.BRANCH_NAME)
         }
       }
       echo 'Bill: when conditional 2 fired!'
