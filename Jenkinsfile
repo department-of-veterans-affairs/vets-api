@@ -1,5 +1,3 @@
-def NOTIFY_BRANCH = 'test-slack-notifications'
-
 pipeline {
   environment {
     DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
@@ -120,12 +118,9 @@ pipeline {
     failure {
       script {
         if (env.BRANCH_NAME == 'test-slack-notifications') {
-          echo 'Bill failed at the end!'
+          slackSend message: "Failed vets-api CI on branch: [${env.BRANCH_NAME}]", color: 'danger', failOnError: true
         }
       }
-      //if (env.BRANCH_NAME == NOTIFY_BRANCH) {
-      //  slackSend message: "Failed vets-api CI on branch: [${env.BRANCH_NAME}]", color: 'danger', failOnError: true
-      //}
     }
   }
 }
