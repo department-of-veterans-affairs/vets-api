@@ -9,9 +9,7 @@ class SSOService
   attr_reader :auth_error_code
   AUTH_ERRORS = { 'Subject did not consent to attribute release' => '001',
                   'Current time is on or after NotOnOrAfter condition' => '002',
-                  'Current time is earlier than NotBefore condition' => '003',
-                  'MVI has data inconsistency with SAML attributes' => '004',
-                  'MVI appears to be down or unavailable' => '005' }.freeze
+                  'Current time is earlier than NotBefore condition' => '003' }.freeze
 
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)

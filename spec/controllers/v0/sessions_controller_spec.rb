@@ -62,26 +62,6 @@ RSpec.describe V0::SessionsController, type: :controller do
                             decrypted_document: response_xml_stub)
   end
 
-  let(:saml_response_data_inconsistent) do
-    double('saml_response', is_valid?: false,
-                            status_message: 'MVI has data inconsistency with SAML attributes',
-                            in_response_to: uuid,
-                            is_a?: true,
-                            errors: ['Current time is earlier than NotBefore ' \
-                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
-                            decrypted_document: response_xml_stub)
-  end
-
-  let(:saml_response_mvi_down) do
-    double('saml_response', is_valid?: false,
-                            status_message: 'MVI appears to be down or unavailable',
-                            in_response_to: uuid,
-                            is_a?: true,
-                            errors: ['Current time is earlier than NotBefore ' \
-                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
-                            decrypted_document: response_xml_stub)
-  end
-
   let(:saml_response_unknown_error) do
     double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
                             is_a?: true,
@@ -374,24 +354,6 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-        end
-      end
-
-      context 'when MVI has data inconsistency with SAML attributes' do
-        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_data_inconsistent) }
-
-        it 'redirects to an auth failure page' do
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=004')
-          expect(response).to have_http_status(:found)
-        end
-      end
-
-      context 'when MVI appears to be down or unavailable' do
-        before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_mvi_down) }
-
-        it 'redirects to an auth failure page' do
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=005')
-          expect(response).to have_http_status(:found)
         end
       end
 
