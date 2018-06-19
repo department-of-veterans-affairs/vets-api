@@ -10,6 +10,10 @@ module EVSS
       def service_name
         'EVSS/PPIU'
       end
+
+      def mock_enabled?
+        Settings.evss.mock_ppiu || false
+      end
     end
   end
 end
