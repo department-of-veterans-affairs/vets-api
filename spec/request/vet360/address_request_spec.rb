@@ -70,6 +70,27 @@ RSpec.describe 'address', type: :request do
       end
     end
 
+    context 'with a low confidence error' do
+      it 'returns the low confidence error error code', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/post_address_w_low_confidence_error') do
+          low_confidence_error = 'VET360_ADDR306'
+
+          post(
+            '/v0/profile/addresses',
+            address.to_json,
+            auth_header.update(
+              'Content-Type' => 'application/json', 'Accept' => 'application/json'
+            )
+          )
+
+          body = JSON.parse response.body
+          expect(body['errors'].first['code']).to eq low_confidence_error
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+    end
+
     context 'with a 403 response' do
       it 'should return a forbidden response' do
         VCR.use_cassette('vet360/contact_information/post_address_status_403') do
