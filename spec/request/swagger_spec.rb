@@ -955,9 +955,18 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
-    it 'supports getting the user data' do
-      expect(subject).to validate(:get, '/v0/user', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/user', 401)
+    describe 'user endpoints' do
+      it 'supports getting the user data' do
+        expect(subject).to validate(:get, '/v0/user', 200, auth_options)
+        expect(subject).to validate(:get, '/v0/user', 401)
+      end
+
+      it 'supports user authorized for policy action' do
+        expect(subject).to validate(:get, '/v0/user/authorized/{policy}/{policy_action}', 200,
+                                    auth_options.merge('policy' => 'evss', 'policy_action' => 'access'))
+        expect(subject).to validate(:get, '/v0/user/authorized/{policy}/{policy_action}', 401,
+                                    'policy' => 'evss', 'policy_action' => 'access')
+      end
     end
 
     context '#feedback' do

@@ -5,5 +5,10 @@ module V0
     def show
       render json: @current_user
     end
+
+    def authorized_for_service?
+      render json: ServiceAuthDetail.new(@current_user, params),
+             serializer: ServiceAuthDetailSerializer
+    end
   end
 end

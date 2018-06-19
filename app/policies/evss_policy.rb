@@ -1,10 +1,21 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 EVSSPolicy = Struct.new(:user, :evss) do
   include SentryLogging
 
+  def rule_evaluations
+    {
+      access?: Dry::Validation.Schema do
+        required(:edipi).filled
+        required(:participant_id).filled
+        required(:ssn).filled
+      end.call(edipi: user.edipi, participant_id: user.participant_id, ssn: user.ssn)
+    }
+  end
+
   def access?
-    if user.edipi.present? && user.ssn.present? && user.participant_id.present?
+    if rule_evaluations[:access?].success?
       StatsD.increment('api.evss.policy.success') if user.loa3?
 
       true
@@ -29,3 +40,4 @@ EVSSPolicy = Struct.new(:user, :evss) do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
