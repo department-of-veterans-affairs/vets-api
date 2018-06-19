@@ -486,6 +486,12 @@ en:
         code: 'VET360_ADDR304'
         detail: 'Cannot accept a request with multiple addresses of the same POU.'
         status: 400
+      VET360_ADDR306:
+        <<: *external_defaults
+        title: Low confidence score
+        code: 'VET360_ADDR306'
+        detail: 'Confidence Score less than 80.'
+        status: 400
       VET360_CORE100:
         <<: *external_defaults
         title: Unexpected Error
