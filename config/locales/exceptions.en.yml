@@ -128,6 +128,12 @@ en:
         detail: "Did not receive a timely response from an upstream server"
         code: 504
         status: 504
+      sentry_ignored_gateway_timeout:
+        <<: *defaults
+        title: Gateway timeout
+        detail: "Did not receive a timely response from an upstream server"
+        code: 504
+        status: 504
       id_card_attribute_error:
         <<: *defaults
         title: Request failed
