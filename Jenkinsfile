@@ -118,12 +118,9 @@ pipeline {
       deleteDir() /* clean up our workspace */
     }
     failure {
-      stages {
-        stage('Notify Slack') {
-          when { branch 'test-slack-notifications' }
-          steps {
-            echo 'Bill at the end of the whole thing!!!'
-          }
+      script {
+        if (env.BRANCH_NAME == 'test-slack-notifications') {
+          echo 'Bill failed at the end!'
         }
       }
       //if (env.BRANCH_NAME == NOTIFY_BRANCH) {
