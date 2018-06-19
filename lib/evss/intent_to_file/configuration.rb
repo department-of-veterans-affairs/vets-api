@@ -10,6 +10,10 @@ module EVSS
       def service_name
         'EVSS/IntentToFile'
       end
+
+      def mock_enabled?
+        Settings.evss.mock_itf || false
+      end
     end
   end
 end
