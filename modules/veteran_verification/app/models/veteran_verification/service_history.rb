@@ -6,14 +6,12 @@ module VeteranVerification
 
       attribute :branch_of_service, String
       attribute :end_date, Date
-      attribute :deployments, Hash
+      attribute :deployments, Array
       attribute :discharge_status, String
       attribute :start_date, Date
     end
 
-    include Enumerable
     delegate :service_history, :service_episodes_by_date, :deployments, to: :@emis
-    delegate :each, to: :formatted_episodes
 
     def self.for_user(user)
       self.new EMISRedis::MilitaryInformation.for_user(user)
