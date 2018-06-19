@@ -48,6 +48,9 @@ describe HCA::Service do
       end
     end
   end
+  it 'foo' do
+    binding.pry; fail
+  end
 
   describe '#health_check' do
     context 'with a valid request' do
