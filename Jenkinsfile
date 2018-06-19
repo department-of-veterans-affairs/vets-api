@@ -16,22 +16,28 @@ pipeline {
   stages {
     stage('Test Conditional 1') {
       when { branch 'test-slack-notifications' }
-      echo 'Bill: when conditional 1 fired!'
+      steps {
+        echo 'Bill: when conditional 1 fired!'
+      }
     }
 
-    // stage('Test Conditional 2') {
-    //   when {
-    //     expression {
-    //       ['test-slack-notifications'].contains(env.BRANCH_NAME)
-    //     }
-    //   }
-    //   echo 'Bill: when conditional 2 fired!'
-    // }
+    stage('Test Conditional 2') {
+      when {
+        expression {
+          ['test-slack-notifications'].contains(env.BRANCH_NAME)
+        }
+      }
+      steps {
+        echo 'Bill: when conditional 2 fired!'
+      }
+    }
 
-    // stage('Test Conditional 3') {
-    //   when { branch 'master' }
-    //   echo 'Bill: when conditional 3 fired!'
-    // }
+    stage('Test Conditional 3') {
+      when { branch 'master' }
+      steps {
+        echo 'Bill: when conditional 3 fired!'
+      }
+    }
 
     stage('Checkout Code') {
       steps {
