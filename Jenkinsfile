@@ -93,9 +93,10 @@ pipeline {
       deleteDir() /* clean up our workspace */
     }
     failure {
-      if (env.BRANCH_NAME == NOTIFY_BRANCH) {
-        slackSend message: "Failed vets-api CI on branch: [${env.BRANCH_NAME}]", color: 'danger', failOnError: true
-      }
+      //if (env.BRANCH_NAME == NOTIFY_BRANCH) {
+      //  slackSend message: "Failed vets-api CI on branch: [${env.BRANCH_NAME}]", color: 'danger', failOnError: true
+      //}
+      echo 'bill wuz here'
     }
   }
 }
