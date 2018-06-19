@@ -14,7 +14,7 @@ module IHub
           perform(:get, @user.icn)
         end
       rescue StandardError => error
-        log_message_to_sentry(error.message, :error, extra_context: { service: self.class, url: config.base_path })
+        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
         raise_backend_exception('VA900', self.class, error)
       end
     end
