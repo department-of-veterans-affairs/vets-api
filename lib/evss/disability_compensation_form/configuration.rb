@@ -10,6 +10,10 @@ module EVSS
       def service_name
         'EVSS/DisabilityCompensationForm'
       end
+
+      def mock_enabled?
+        Settings.evss.mock_disabilities_form || false
+      end
     end
   end
 end
