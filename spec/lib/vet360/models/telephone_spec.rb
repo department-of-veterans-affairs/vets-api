@@ -40,7 +40,7 @@ describe Vet360::Models::Telephone do
       end
 
       it 'is not valid when set to anything other than "1"', :aggregate_failures do
-        invalid_country_codes = ['2', '15', 'abc', '01']
+        invalid_country_codes = %w[2 15 abc 01]
 
         invalid_country_codes.each do |invalid_country_code|
           phone = build(:telephone, country_code: invalid_country_code)
