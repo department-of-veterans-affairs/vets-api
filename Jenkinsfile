@@ -14,6 +14,25 @@ pipeline {
   }
 
   stages {
+    stage('Test Conditional 1') {
+      when { branch 'test-slack-notifications' }
+      echo 'Bill: when conditional 1 fired!'
+    }
+
+    stage('Test Conditional 2') {
+      when {
+        expression {
+          env.BRANCH_NAME == 'test-slack-notifications'
+        }
+      }
+      echo 'Bill: when conditional 2 fired!'
+    }
+
+    stage('Test Conditional 3') {
+      when { branch 'master' }
+      echo 'Bill: when conditional 3 fired!'
+    }
+
     stage('Checkout Code') {
       steps {
         checkout scm
