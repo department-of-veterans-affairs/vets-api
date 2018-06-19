@@ -5,7 +5,7 @@ require 'rails_helper'
 describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
   let(:user) { build(:user, :loa3) }
 
-  describe "#formatted_episodes" do
+  describe '#formatted_episodes' do
     it 'should return service history and deployments' do
       VCR.use_cassette('emis/get_deployment/valid') do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
