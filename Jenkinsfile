@@ -1,3 +1,5 @@
+def NOTIFY_BRANCH = 'test-slack-notifications'
+
 pipeline {
   environment {
     DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
@@ -89,6 +91,11 @@ pipeline {
       junit 'log/*.xml'
       sh 'make clean'
       deleteDir() /* clean up our workspace */
+    }
+    failure {
+      if (env.BRANCH_NAME == NOTIFY_BRANCH) {
+        slackSend message: "Failed vets-api CI on branch: [${env.BRANCH_NAME}]", color: 'danger', failOnError: true
+      }
     }
   }
 }
