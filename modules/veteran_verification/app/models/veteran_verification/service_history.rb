@@ -4,6 +4,7 @@ module VeteranVerification
       include ActiveModel::Serialization
       include Virtus.model
 
+      attribute :id, Digest::UUID
       attribute :branch_of_service, String
       attribute :end_date, Date
       attribute :deployments, Array
@@ -14,11 +15,12 @@ module VeteranVerification
     delegate :service_history, :service_episodes_by_date, :deployments, to: :@emis
 
     def self.for_user(user)
-      self.new EMISRedis::MilitaryInformation.for_user(user)
+      self.new EMISRedis::MilitaryInformation.for_user(user), user
     end
 
-    def initialize(emis_military_information)
+    def initialize(emis_military_information, user)
       @emis = emis_military_information
+      @user = user
     end
 
     def formatted_episodes
@@ -35,7 +37,13 @@ module VeteranVerification
           }
         end
 
+        identifier = Digest::UUID.uuid_v5(
+          'gov.vets.service-history-episodes',
+          "#{@user.uuid}-#{episode.begin_date}-#{episode.end_date}"
+        )
+
         ServiceHistoryEpisode.new(
+          id: identifier,
           branch_of_service: @emis.build_service_branch(episode),
           end_date: episode.end_date,
           deployments: deps,
