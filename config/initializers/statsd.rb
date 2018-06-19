@@ -63,7 +63,7 @@ StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
 StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
-Vet360::Stats.exception_keys.each do |key|
+Vet360::Exceptions.instance.known_keys.each do |key|
   StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions.#{key}", 0)
 end
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations", 0)
