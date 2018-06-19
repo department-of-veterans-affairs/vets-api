@@ -6,6 +6,11 @@ module AsyncTransaction
 
     REQUESTED = 'requested'
     COMPLETED = 'completed'
+    DELETE_COMPLETED_AFTER = 1.month
+
+    scope :stale, lambda {
+      where('created_at < ?', DELETE_COMPLETED_AFTER.ago).where(status: COMPLETED)
+    }
 
     attr_encrypted :metadata, key: Settings.db_encryption_key
 

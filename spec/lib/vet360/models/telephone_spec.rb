@@ -3,39 +3,56 @@
 require 'rails_helper'
 
 describe Vet360::Models::Telephone do
-  describe 'is_international' do
-    let(:data) { JSON.parse(telephone.in_json) }
-    let(:is_international) { data['bio']['internationalIndicator'] }
+  describe 'validations' do
+    it 'we have a valid factory in place' do
+      expect(build(:telephone)).to be_valid
+    end
 
-    context 'when explicitly set' do
-      let(:telephone) { build(:telephone, is_international: true) }
+    context 'is_international' do
+      it 'is valid when set to false' do
+        phone = build(:telephone, is_international: false)
 
-      it 'equals the input value' do
-        expect(is_international).to eq(true)
+        expect(phone).to be_valid
+      end
+
+      it 'is not valid when set to true' do
+        phone = build(:telephone, is_international: true)
+
+        expect(phone).to_not be_valid
+      end
+
+      it 'is not valid when nil' do
+        phone = build(:telephone, is_international: nil)
+
+        expect(phone).to_not be_valid
       end
     end
 
-    context 'when nil' do
-      context 'when country_code is nil' do
-        let(:telephone) { build(:telephone, is_international: nil, country_code: nil) }
+    context 'country_code' do
+      it 'is valid when set to "1" or 1', :aggregate_failures do
+        valid_country_codes = ['1', 1]
 
-        it 'defaults to false' do
-          expect(is_international).to eq(false)
+        valid_country_codes.each do |valid_country_code|
+          phone = build(:telephone, country_code: valid_country_code)
+
+          expect(phone).to be_valid
         end
       end
 
-      context 'when country_code is domestic' do
-        let(:telephone) { build(:telephone, is_international: nil, country_code: '1') }
-        it 'is false' do
-          expect(is_international).to eq(false)
+      it 'is not valid when set to anything other than "1"', :aggregate_failures do
+        invalid_country_codes = %w[2 15 abc 01]
+
+        invalid_country_codes.each do |invalid_country_code|
+          phone = build(:telephone, country_code: invalid_country_code)
+
+          expect(phone).to_not be_valid
         end
       end
 
-      context 'when country_code is international' do
-        let(:telephone) { build(:telephone, is_international: nil, country_code: '44') }
-        it 'is true' do
-          expect(is_international).to eq(true)
-        end
+      it 'is not valid when nil' do
+        phone = build(:telephone, country_code: nil)
+
+        expect(phone).to_not be_valid
       end
     end
   end
