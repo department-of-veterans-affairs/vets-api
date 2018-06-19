@@ -93,10 +93,11 @@ pipeline {
       deleteDir() /* clean up our workspace */
     }
     failure {
+      when { branch 'test-slack-notifications' }
       //if (env.BRANCH_NAME == NOTIFY_BRANCH) {
       //  slackSend message: "Failed vets-api CI on branch: [${env.BRANCH_NAME}]", color: 'danger', failOnError: true
       //}
-      echo 'bill wuz here'
+      echo 'Bill at the end of the whole thing!!!'
     }
   }
 }
