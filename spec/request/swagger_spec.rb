@@ -314,6 +314,17 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     describe 'disability compensation' do
+      before do
+        create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
+        allow_any_instance_of(EMISRedis::MilitaryInformation).to receive(:service_episodes_by_date).and_return([])
+      end
+
+      let(:form526) do
+        File.read(
+          Rails.root.join('spec', 'support', 'disability_compensation_form', 'front_end_submission.json')
+        )
+      end
+
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -325,8 +336,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         allow(EVSS::DisabilityCompensationForm::SubmitUploads)
           .to receive(:start).and_return("JID-#{SecureRandom.base64}")
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+              expect(subject).to validate(
+                :post,
+                '/v0/disability_compensation_form/submit',
+                200,
+                auth_options.update(
+                  '_data' => form526
+                )
+              )
+            end
+          end
         end
       end
     end

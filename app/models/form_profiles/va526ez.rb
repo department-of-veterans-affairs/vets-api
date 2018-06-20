@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 module VA526ez
+  FORM_ID = '21-526EZ'
+
   class FormSpecialIssue
     include Virtus.model
 
