@@ -241,7 +241,6 @@ class User < Common::RedisStore
     false
   end
 
-
   def mvi
     @mvi ||= Mvi.for_user(self)
   end

@@ -90,7 +90,7 @@ class UserSerializer < ActiveModel::Serializer
     FormProfile.prefill_enabled_forms
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
   def services
     service_list = [
       BackendServices::FACILITIES,
@@ -112,5 +112,5 @@ class UserSerializer < ActiveModel::Serializer
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
-  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 end
