@@ -12,7 +12,7 @@ module Swagger
             property :type, type: :string
             property :attributes, type: :object do
               property :vet360_contact_information, type: :object do
-                property :email, type: %i[object null] do
+                property :email, type: :object do
                   property :id, type: :integer, example: 323
                   property :email_address, type: :string, example: 'john@example.com'
                   property :created_at,
@@ -37,7 +37,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :residential_address, type: %i[object null] do
+                property :residential_address, type: :object do
                   property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
                   property :address_line2, type: %i[string null]
                   property :address_line3, type: %i[string null]
@@ -79,7 +79,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :mailing_address, type: %i[object null] do
+                property :mailing_address, type: :object do
                   property :address_line1, type: :string, example: '1493 Martin Luther King Rd'
                   property :address_line2, type: %i[string null]
                   property :address_line3, type: %i[string null]
@@ -123,7 +123,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :mobile_phone, type: %i[object null] do
+                property :mobile_phone, type: :object do
                   property :area_code, type: :string, example: '503'
                   property :country_code, type: :string, example: '1'
                   property :extension, type: %i[string null]
@@ -156,7 +156,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :home_phone, type: %i[object null] do
+                property :home_phone, type: :object do
                   property :area_code, type: :string, example: '503'
                   property :country_code, type: :string, example: '1'
                   property :extension, type: %i[string null]
@@ -189,7 +189,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :work_phone, type: %i[object null] do
+                property :work_phone, type: :object do
                   property :area_code, type: :string, example: '503'
                   property :country_code, type: :string, example: '1'
                   property :extension, type: %i[string null]
@@ -222,7 +222,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :temporary_phone, type: %i[object null] do
+                property :temporary_phone, type: :object do
                   property :area_code, type: :string, example: '503'
                   property :country_code, type: :string, example: '1'
                   property :extension, type: %i[string null]
@@ -255,7 +255,7 @@ module Swagger
                            example: '2018-04-21T20:09:50Z'
                 end
 
-                property :fax_number, type: %i[object null] do
+                property :fax_number, type: :object do
                   property :area_code, type: :string, example: '503'
                   property :country_code, type: :string, example: '1'
                   property :extension, type: %i[string null]
