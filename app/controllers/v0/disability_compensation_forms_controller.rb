@@ -11,7 +11,13 @@ module V0
     end
 
     def submit
-      response = service.submit_form(request.body.string)
+      # Once we run this job asynchronosuly, this data translation can be moved into the
+      # async `perform` method
+      form_content = JSON.parse(request.body.string)
+      converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
+        @current_user, form_content
+      ).translate
+      response = service.submit_form(converted_form_content)
       EVSS::IntentToFile::ResponseStrategy.delete("#{@current_user.uuid}:compensation")
       EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id)
       render json: response,
