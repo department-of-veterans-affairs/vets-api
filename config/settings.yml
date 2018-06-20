@@ -84,6 +84,8 @@ evss:
   mock_pciu: true
   mock_pciu_address: false
   mock_ppiu: true
+  mock_itf: true
+  mock_disabilities_form: true
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
     cert_path: ~
