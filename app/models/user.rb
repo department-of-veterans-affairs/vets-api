@@ -237,7 +237,7 @@ class User < Common::RedisStore
 
   def can_access_vet360?
     loa3? && icn.present? && vet360_id.present?
-  rescue StandardError # Default to false for any veteran_status error
+  rescue StandardError # Default to false for any error
     false
   end
 
