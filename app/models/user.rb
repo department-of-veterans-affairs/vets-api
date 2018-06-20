@@ -235,6 +235,12 @@ class User < Common::RedisStore
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 
+  def can_access_vet360?
+    loa3? && icn.present? && vet360_id.present?
+  rescue StandardError # Default to false for any error
+    false
+  end
+
   def mvi
     @mvi ||= Mvi.for_user(self)
   end
