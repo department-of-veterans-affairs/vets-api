@@ -92,7 +92,7 @@ pipeline {
     }
     failure {
       script {
-        if (env.BRANCH_NAME == 'test-slack-notifications') {
+        if (env.BRANCH_NAME == 'master') {
           slackSend message: "Failed vets-api CI on branch: `${env.BRANCH_NAME}`! ${env.RUN_DISPLAY_URL}".stripMargin(),
           color: 'danger',
           failOnError: true
