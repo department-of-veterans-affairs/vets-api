@@ -3,7 +3,7 @@
 module EVSS
   class DisabilityCompensationAuthHeaders
     def self.add_headers(auth_headers, user)
-      auth_headers.merge('gender': gender(user))
+      auth_headers.merge('gender' => gender(user))
     end
 
     def self.gender(user)

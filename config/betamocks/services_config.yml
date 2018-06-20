@@ -171,6 +171,34 @@
     :path: "/wss-ppiu-services-web/rest/ppiuServices/v1/paymentInformation"
     :file_path: "evss/ppiu/payment_information"
 
+  # Intent To File
+  - :method: :get
+    :path: "/wss-intenttofile-services-web/rest/intenttofile/v1"
+    :file_path: "evss/itf/all_itf"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :get
+    :path: "/wss-intenttofile-services-web/rest/intenttofile/v1/compensation/active"
+    :file_path: "evss/itf/active_itf"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-intenttofile-services-web/rest/intenttofile/v1/compensation"
+    :file_path: "evss/itf/post_itf"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+  # Disability Compensation Form
+  - :method: :get
+    :path: "/wss-form526-services-web/rest/form526/v1/ratedDisabilities"
+    :file_path: "evss/disability_form/rated_disabilities"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
   # Letters
   - :method: :get
     :path: "/wss-lettergenerator-services-web/rest/letters/v1"
