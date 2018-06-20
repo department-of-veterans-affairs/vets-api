@@ -122,18 +122,14 @@ en:
         detail: "An outage has been reported on the %{service} since %{since}"
         code: 503
         status: 503
-      gateway_timeout:
+      gateway_timeout: &gateway_timeout
         <<: *defaults
         title: Gateway timeout
         detail: "Did not receive a timely response from an upstream server"
         code: 504
         status: 504
       sentry_ignored_gateway_timeout:
-        <<: *defaults
-        title: Gateway timeout
-        detail: "Did not receive a timely response from an upstream server"
-        code: 504
-        status: 504
+        <<: *gateway_timeout
       id_card_attribute_error:
         <<: *defaults
         title: Request failed
