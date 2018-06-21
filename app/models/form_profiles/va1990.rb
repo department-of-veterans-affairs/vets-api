@@ -3,29 +3,21 @@
 class FormProfiles::VA1990 < FormProfile
   def prefill(user)
     return_val = super
-    form_data = return_val[:form_data]
 
     if Settings.vet360.prefill
+      form_data = return_val[:form_data]
       contact_information = Vet360Redis::ContactInformation.for_user(user)
-
-      {
-        'homePhone' => 'home_phone',
-        'mobilePhone' => 'mobile_phone',
-        'email' => 'email'
-      }.each do |k, method|
-        value = contact_information.public_send(method)
-        form_data[k] = value if value.present?
-      end
+      email = contact_information.email&.email_address
 
       form_data['veteranAddress'] = convert_vets360_address(contact_information.mailing_address) if contact_information.mailing_address.present?
+      %w[home mobile].each do |type|
+        phone = contact_information.public_send("#{type}_phone")&.formatted_phone
+        form_data["#{type}Phone"] = phone if phone.present?
+      end
+      form_data['email'] = email if email.present?
     end
+
     return_val
-  end
-
-  def convert_vets360_phone(phone)
-    phone_number = phone.phone_number
-    return if phone_number.blank?
-
   end
 
   def convert_vets360_address(address)
