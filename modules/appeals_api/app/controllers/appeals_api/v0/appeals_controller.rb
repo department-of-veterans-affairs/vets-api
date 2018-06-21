@@ -5,7 +5,7 @@ require_dependency 'appeals_api/application_controller'
 module AppealsApi
   module V0
     class AppealsController < ApplicationController
-      skip_before_action(:authenticate)
+      # skip_before_action(:authenticate)
 
       def index
         log_request
@@ -43,8 +43,9 @@ module AppealsApi
       end
 
       def ssn
-        ssn = request.headers['X-VA-SSN']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
+        ssn = @current_user.ssn
+        # ssn = request.headers['X-VA-SSN']
+        # raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
         ssn
       end
 
