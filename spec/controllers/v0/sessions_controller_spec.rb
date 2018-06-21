@@ -63,7 +63,9 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   let(:saml_response_unknown_error) do
-    double('saml_response', is_valid?: false, status_message: '', in_response_to: uuid,
+    double('saml_response', is_valid?: false,
+                            status_message: SSOService::DEFAULT_ERROR_MESSAGE,
+                            in_response_to: uuid,
                             is_a?: true,
                             errors: ['The status code of the Response was not Success, ' \
                               'was Requester => NoAuthnContext -> AuthnRequest without ' \
@@ -365,14 +367,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Fail! Other SAML Response Error(s)',
               :error,                 saml_response: {
-                status_message: '',
+                status_message: SSOService::DEFAULT_ERROR_MESSAGE,
                 errors: [
                   'The status code of the Response was not Success, was Requester => NoAuthnContext ' \
                   '-> AuthnRequest without an authentication context.'
                 ]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=007')
           expect(response).to have_http_status(:found)
         end
 
