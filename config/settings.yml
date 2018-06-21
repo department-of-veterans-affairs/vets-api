@@ -283,6 +283,10 @@ saml:
     vagov: http://local.vagov:3001/logout
     preview_vagov: ~
 
+oidc:
+  auth_server_metadata_url: ~
+  issuer: ~
+
 sentry:
   dsn: ~
 
