@@ -14,7 +14,6 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           city: 'Las Vegas',
           country: 'USA',
           postal_code: '91823',
-          street: '1234 Street St.',
           state: 'NV'
         },
         zipCode: '12345',
@@ -72,7 +71,6 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           'city' => 'Portland',
           'country' => 'USA',
           'postalCode' => '19391',
-          'street' => '4321 Street St.',
           'state' => 'OR'
         },
         'json' => '{"gender": "F"}',
