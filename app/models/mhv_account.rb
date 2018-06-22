@@ -12,6 +12,7 @@ class MhvAccount < ActiveRecord::Base
   scope :created_and_upgraded, -> { accounts_created.where.not(upgraded_at: nil) }
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
+  UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
   INELIGIBLE_STATES = %i[
     needs_identity_verification needs_ssn_resolution needs_va_patient
     has_deactivated_mhv_ids has_multiple_active_mhv_ids
@@ -76,7 +77,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def upgradable?
-    may_upgrade? && [nil, 'Basic', 'Advanced'].include?(account_level)
+    may_upgrade? && account_level.in?(UPGRADABLE_ACCOUNT_LEVELS)
   end
 
   def terms_and_conditions_accepted?
