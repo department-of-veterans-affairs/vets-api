@@ -20,29 +20,17 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      Date:
-      - Mon, 11 Jun 2018 16:19:38 GMT
-      Expires:
-      - '0'
-      X-Content-Type-Options:
-      - nosniff
-      X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
       Cache-Control:
-      - no-cache, no-store, max-age=0, must-revalidate
+        - no-cache
       Pragma:
-      - no-cache
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+        - no-cache
       Content-Type:
-      - application/json;charset=UTF-8
-      Transfer-Encoding:
-      - chunked
+        - application/json; charset=utf-8
+      Server:
+        - Microsoft-IIS/7.5
     body:
       encoding: UTF-8
-      string: '{"Data":[{"TypeName":"REGULAR","AppointmentStatusCode":null,"ClinicName":"CHY AUDIO CONSULT KIM","TypeCode":"9","AppointmentStatusName":null,"OtherInformation":"","DateTimeDate":"2003-06-09T16:00:00","DateTime":"200306091600","FacilityName":"CHEYENNE VAMC","StatusCode":"2","ClinicCode":"4","StatusName":"CHECKED OUT","FacilityCode":"442","AssigningFacility":null,"LocalID":"3030609.16"}],"Status":null,"ErrorOccurred":false,"DebugInfo":null,"ErrorMessage":null}'
+      string: '{"ErrorOccurred":false,"ErrorMessage":null,"Status":null,"Data":[{"ClinicCode":"409","ClinicName":"ZZCHY WID BACK","DateTimeDate":"1996-01-12T08:12:00","TypeName":"REGULAR","StatusName":"CHECKED OUT","StatusCode":"2","OtherInformation":"","TypeCode":"9","DateTime":"199601120812","AppointmentStatusCode":null,"LocalID":"2960112.0812","AppointmentStatusName":null,"AssigningFacility":null,"FacilityName":"CHEYENNE VAMC","FacilityCode":"442"},{"StatusCode":"2","StatusName":"CHECKED OUT","TypeName":"REGULAR","DateTimeDate":"1996-10-04T13:15:00","ClinicName":"ZZCHY WID BACK","ClinicCode":"409","FacilityCode":"442","FacilityName":"CHEYENNE VAMC","LocalID":"2961004.1315","AppointmentStatusName":null,"AssigningFacility":null,"DateTime":"199610041315","AppointmentStatusCode":null,"TypeCode":"9","OtherInformation":""},{"StatusCode":"2","StatusName":"CHECKED OUT","TypeName":"REGULAR","DateTimeDate":"1996-10-07T14:30:00","ClinicName":"ZZRECHECK (15MIN)","ClinicCode":"525","FacilityCode":"442","FacilityName":"CHEYENNE VAMC","AssigningFacility":null,"LocalID":"2961007.143","AppointmentStatusName":null,"DateTime":"199610071430","AppointmentStatusCode":null,"TypeCode":"9","OtherInformation":""},{"OtherInformation":"","TypeCode":"9","DateTime":"199610110830","AppointmentStatusCode":null,"AssigningFacility":null,"LocalID":"2961011.083","AppointmentStatusName":null,"FacilityName":"CHEYENNE VAMC","FacilityCode":"442","ClinicCode":"92","ClinicName":"CHY XRAY","DateTimeDate":"1996-10-11T08:30:00","TypeName":"REGULAR","StatusName":"CANCELLED BY PATIENT","StatusCode":"9"},{"StatusName":"CHECKED OUT","StatusCode":"2","TypeName":"REGULAR","DateTimeDate":"1996-10-17T10:15:00","ClinicCode":"525","ClinicName":"ZZRECHECK (15MIN)","FacilityName":"CHEYENNE VAMC","FacilityCode":"442","AppointmentStatusCode":null,"DateTime":"199610171015","AppointmentStatusName":null,"LocalID":"2961017.1015","AssigningFacility":null,"TypeCode":"9","OtherInformation":""},{"FacilityCode":"442","FacilityName":"CHEYENNE VAMC","LocalID":"2970214.14","AssigningFacility":null,"AppointmentStatusName":null,"DateTime":"199702141400","AppointmentStatusCode":null,"TypeCode":"9","OtherInformation":"","StatusCode":"2","StatusName":"CHECKED OUT","TypeName":"REGULAR","DateTimeDate":"1997-02-14T14:00:00","ClinicCode":"458","ClinicName":"CHY PC ENLOW"},{"LocalID":"2970318.08","AppointmentStatusName":null,"AssigningFacility":null,"AppointmentStatusCode":null,"DateTime":"199703180800","FacilityCode":"442","FacilityName":"CHEYENNE VAMC","OtherInformation":"REFERRED BY ANN ENLOW","TypeCode":"9","TypeName":"REGULAR","StatusCode":"12","StatusName":"NON-COUNT/CHECKED OUT","ClinicName":"ZZCOLON CA SCREEN","ClinicCode":"483","DateTimeDate":"1997-03-18T08:00:00"}],"DebugInfo":null}'
     http_version:
   recorded_at: Mon, 09 Apr 2018 17:52:03 GMT
 recorded_with: VCR 3.0.3<Paste>
