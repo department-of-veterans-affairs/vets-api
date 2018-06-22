@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/1234
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Mon, 11 Jun 2018 16:19:38 GMT
+      Expires:
+      - '0'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Frame-Options:
+      - DENY
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json;charset=UTF-8
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{"Data":[{"TypeName":"REGULAR","AppointmentStatusCode":null,"ClinicName":"CHY AUDIO CONSULT KIM","TypeCode":"9","AppointmentStatusName":null,"OtherInformation":"","DateTimeDate":"2003-06-09T16:00:00","DateTime":"200306091600","FacilityName":"CHEYENNE VAMC","StatusCode":"2","ClinicCode":"4","StatusName":"CHECKED OUT","FacilityCode":"442","AssigningFacility":null,"LocalID":"3030609.16"}],"Status":null,"ErrorOccurred":false,"DebugInfo":null,"ErrorMessage":null}'
+    http_version:
+  recorded_at: Mon, 09 Apr 2018 17:52:03 GMT
+recorded_with: VCR 3.0.3<Paste>
