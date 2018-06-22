@@ -20,7 +20,6 @@ class OpenidApplicationController < ApplicationController
   end
 
   def authenticate_token
-    binding.pry
     token = token_from_request
     return false if token.blank?
     @session = Session.find(token)
