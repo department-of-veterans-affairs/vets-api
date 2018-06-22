@@ -475,7 +475,13 @@ RSpec.describe FormProfile, type: :model do
           v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
           v22_1990_expected['homePhone'] = '(303) 555-1234'
           v22_1990_expected['mobilePhone'] = '(303) 555-1234'
-          v22_1990_expected['veteranAddress'] = { 'street' => '1493 Martin Luther King Rd', 'city' => 'Fulton', 'state' => 'MS', 'country' => 'USA', 'postalCode' => '38843' }
+          v22_1990_expected['veteranAddress'] = {
+            'street' => '1493 Martin Luther King Rd',
+            'city' => 'Fulton',
+            'state' => 'MS',
+            'country' => 'USA',
+            'postalCode' => '38843'
+          }
         end
 
         it 'should prefill 1990' do
