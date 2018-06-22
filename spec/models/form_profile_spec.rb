@@ -487,6 +487,10 @@ RSpec.describe FormProfile, type: :model do
         it 'should prefill 1990' do
           expect_prefilled('22-1990')
         end
+
+        after do
+          Settings.vet360.prefill = false
+        end
       end
 
       context 'with a user that can prefill emis' do
