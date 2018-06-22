@@ -6,6 +6,13 @@ require 'sentry_logging'
 class SSOService
   include SentryLogging
   include ActiveModel::Validations
+  attr_reader :auth_error_code
+  DEFAULT_ERROR_MESSAGE = 'Default generic identity provider error'
+  AUTH_ERRORS = { 'Subject did not consent to attribute release' => '001',
+                  'Current time is on or after NotOnOrAfter condition' => '002',
+                  'Current time is earlier than NotBefore condition' => '003',
+                  # 004, 005 and 006 are user persistence errors
+                  DEFAULT_ERROR_MESSAGE => '007' }.freeze
 
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
@@ -91,7 +98,9 @@ class SSOService
   def invalid_saml_response_handler
     return if saml_response.is_valid?
     fail_handler = SAML::AuthFailHandler.new(saml_response)
+    @auth_error_code = AUTH_ERRORS[DEFAULT_ERROR_MESSAGE]
     if fail_handler.errors?
+      @auth_error_code = AUTH_ERRORS[fail_handler.context[:saml_response][:status_message]]
       @failure_instrumentation_tag = "error:#{fail_handler.error}"
       log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
     else
