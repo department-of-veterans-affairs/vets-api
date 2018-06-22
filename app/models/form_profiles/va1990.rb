@@ -28,7 +28,7 @@ class FormProfiles::VA1990 < FormProfile
       'state' => address.state_code || address.province,
       'country' => address.country_code_iso3,
       'postalCode' => address.zip_plus_four || address.international_postal_code
-    }
+    }.compact
   end
 
   def metadata
