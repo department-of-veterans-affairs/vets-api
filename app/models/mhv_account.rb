@@ -30,7 +30,7 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :needs_va_patient, unless: :va_patient?
       transitions from: ALL_STATES, to: :has_deactivated_mhv_ids, if: :deactivated_mhv_ids?
       transitions from: ALL_STATES, to: :has_multiple_active_mhv_ids, if: :multiple_active_mhv_ids?
-      transitions from: ALL_STATES, to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+      transitions from: ALL_STATES, to: :needs_terms_acceptance, if: :requires_terms_acceptance?
       transitions from: ALL_STATES, to: :eligible
     end
 
@@ -104,11 +104,11 @@ class MhvAccount < ActiveRecord::Base
     @user ||= User.find(user_uuid)
   end
 
-  private
-
   def already_premium?
     account_level == 'Premium' && !previously_upgraded?
   end
+
+  private
 
   def identity_proofed?
     user.loa3?
@@ -120,6 +120,11 @@ class MhvAccount < ActiveRecord::Base
 
   def ssn_mismatch?
     user.ssn_mismatch?
+  end
+
+  def requires_terms_acceptance?
+    return false if account_level == 'Premium'
+    !terms_and_conditions_accepted?
   end
 
   def multiple_active_mhv_ids?

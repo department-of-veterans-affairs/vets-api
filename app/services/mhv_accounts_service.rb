@@ -49,7 +49,7 @@ class MhvAccountsService
         Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
         mhv_account.upgrade!
       end
-    elsif user.mhv_account_type == 'Premium'
+    elsif user.mhv_account_type.already_premium?
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
       mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
     end
