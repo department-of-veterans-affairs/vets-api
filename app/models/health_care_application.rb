@@ -27,6 +27,7 @@ class HealthCareApplication < ActiveRecord::Base
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
     rescue HCA::SOAPParser::ValidationError => e
+      log_exception_to_sentry(e)
       raise Common::Exceptions::BackendServiceException.new(
         nil, detail: e.message
       )
