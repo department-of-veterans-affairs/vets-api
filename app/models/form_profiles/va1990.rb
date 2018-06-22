@@ -10,7 +10,9 @@ class FormProfiles::VA1990 < FormProfile
       contact_information = Vet360Redis::ContactInformation.for_user(user)
       email = contact_information.email&.email_address
 
-      form_data['veteranAddress'] = convert_vets360_address(contact_information.mailing_address) if contact_information.mailing_address.present?
+      if contact_information.mailing_address.present?
+        form_data['veteranAddress'] = convert_vets360_address(contact_information.mailing_address)
+      end
       %w[home mobile].each do |type|
         phone = contact_information.public_send("#{type}_phone")&.formatted_phone
         form_data["#{type}Phone"] = phone if phone.present?
