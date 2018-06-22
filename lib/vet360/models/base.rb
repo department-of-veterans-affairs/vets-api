@@ -11,6 +11,16 @@ module Vet360
       include Virtus.model(nullify_blank: true)
 
       SOURCE_SYSTEM = 'VETSGOV'
+
+      validate :past_date?
+
+      private
+
+      def past_date?
+        if effective_end_date.present?
+          errors.add(:effective_end_date, 'must be in the past') if effective_end_date > Time.zone.now
+        end
+      end
     end
   end
 end

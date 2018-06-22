@@ -16,7 +16,7 @@ describe MVI::Service do
   end
 
   let(:user) { build(:user, :loa3, user_hash) }
-  let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA^P' }
+  let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
 
   let(:mvi_profile) do
     build(

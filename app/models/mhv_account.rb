@@ -5,13 +5,18 @@ require 'mhv_ac/client'
 class MhvAccount < ActiveRecord::Base
   include AASM
 
+  scope :accounts_created, -> { where.not(registered_at: nil) }
+  scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
+  scope :existing_accounts_upgraded, -> { where(registered_at: nil).where.not(upgraded_at: nil) }
+  scope :created_failed_upgrade, -> { accounts_created.where(account_state: :upgrade_failed) }
+  scope :created_and_upgraded, -> { accounts_created.where.not(upgraded_at: nil) }
+
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   INELIGIBLE_STATES = %i[
     needs_identity_verification needs_ssn_resolution needs_va_patient
     has_deactivated_mhv_ids has_multiple_active_mhv_ids
     state_ineligible country_ineligible needs_terms_acceptance
   ].freeze
-
   PERSISTED_STATES = %i[registered upgraded register_failed upgrade_failed].freeze
   ELIGIBLE_STATES = %i[existing eligible no_account].freeze
   ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze

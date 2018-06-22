@@ -122,12 +122,14 @@ en:
         detail: "An outage has been reported on the %{service} since %{since}"
         code: 503
         status: 503
-      gateway_timeout:
+      gateway_timeout: &gateway_timeout
         <<: *defaults
         title: Gateway timeout
         detail: "Did not receive a timely response from an upstream server"
         code: 504
         status: 504
+      sentry_ignored_gateway_timeout:
+        <<: *gateway_timeout
       id_card_attribute_error:
         <<: *defaults
         title: Request failed
@@ -485,6 +487,24 @@ en:
         title: Duplicate Address POU
         code: 'VET360_ADDR304'
         detail: 'Cannot accept a request with multiple addresses of the same POU.'
+        status: 400
+      VET360_ADDR305:
+        <<: *external_defaults
+        title: Delivery Point Not Confirmed
+        code: 'VET360_ADDR305'
+        detail: 'Delivery Point is Not Confirmed for Domestic Residence.'
+        status: 400
+      VET360_ADDR306:
+        <<: *external_defaults
+        title: Low confidence score
+        code: 'VET360_ADDR306'
+        detail: 'Confidence Score less than 80.'
+        status: 400
+      VET360_ADDR307:
+        <<: *external_defaults
+        title: Additional Input
+        code: 'VET360_ADDR307'
+        detail: 'Additional input found. Please review.'
         status: 400
       VET360_CORE100:
         <<: *external_defaults

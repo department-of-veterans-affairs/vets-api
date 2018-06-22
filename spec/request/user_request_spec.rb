@@ -43,7 +43,8 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::FORM_PREFILL,
           BackendServices::SAVE_IN_PROGRESS,
           BackendServices::APPEALS_STATUS,
-          BackendServices::IDENTITY_PROOFED
+          BackendServices::IDENTITY_PROOFED,
+          BackendServices::VET360
         ].sort
       )
     end

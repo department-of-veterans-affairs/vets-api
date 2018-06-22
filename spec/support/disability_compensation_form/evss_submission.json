@@ -4,30 +4,22 @@
       "emailAddress": "string",
       "alternateEmailAddress": "string",
       "mailingAddress": {
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
-        "city": "string",
-        "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
-        "country": "string",
-        "militaryStateCode": "AA",
-        "militaryPostOfficeTypeCode": "APO",
-        "type": "DOMESTIC"
+        "city": "Quaint Town",
+        "state": "OR",
+        "zipFirstFive": "85918",
+        "zipLastFour": "1212",
+        "country": "USA",
+        "type": "DOMESTIC",
+        "addressLine1": "1234 Classy Street",
+        "addressLine2": "Apartment 567"
       },
       "forwardingAddress": {
-        "addressLine1": "string",
-        "addressLine2": "string",
-        "addressLine3": "string",
-        "city": "string",
-        "state": "IL",
-        "zipFirstFive": "11111",
-        "zipLastFour": "1111",
-        "country": "string",
+        "country": "USA",
         "militaryStateCode": "AA",
         "militaryPostOfficeTypeCode": "APO",
-        "type": "DOMESTIC",
+        "type": "MILITARY",
+        "addressLine1": "1234 de Buen Tono Calle",
+        "addressLine2": "Apartamento 567",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
       "primaryPhone": {
@@ -35,27 +27,32 @@
         "phoneNumber": "4561111"
       },
       "homelessness": {
-        "hasPointOfContact": false
+        "hasPointOfContact": true,
+        "pointOfContact": {
+          "pointOfContactName": "Ted",
+          "primaryPhone": {
+            "areaCode": "123",
+            "phoneNumber": "4567890"
+          }
+        }
       },
       "serviceNumber": "string"
     },
     "attachments": [],
     "militaryPayments": {
       "payments": [],
-      "receiveCompensationInLieuOfRetired": false,
-      "receivingInactiveDutyTrainingPay": false,
-      "waveBenifitsToRecInactDutyTraiPay": false
+      "receiveCompensationInLieuOfRetired": false
     },
     "directDeposit": {
       "accountType": "CHECKING",
-      "accountNumber": "1234",
-      "bankName": "string",
-      "routingNumber": "123456789"
+      "accountNumber": "9876543211234",
+      "bankName": "Comerica",
+      "routingNumber": "042102115"
     },
     "serviceInformation": {
       "servicePeriods": [
         {
-          "serviceBranch": "string",
+          "serviceBranch": "National Oceanic &amp; Atmospheric Administration",
           "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
           "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
         }
@@ -93,9 +90,9 @@
     },
     "disabilities": [
       {
-        "diagnosticText": "Diabetes mellitus",
+        "name": "Diabetes mellitus",
+        "classificationCode": "string",
         "disabilityActionType": "INCREASE",
-        "decisionCode": "SVCCONNCTED",
         "specialIssues": [
           {
             "code": "TRM",
@@ -103,25 +100,46 @@
           }
         ],
         "ratedDisabilityId": "0",
-        "ratingDecisionId": 63_655,
         "diagnosticCode": 5235,
         "secondaryDisabilities": [
           {
-            "decisionCode": "",
+            "name": "Diabetes mellitus",
+            "classificationCode": "",
+            "disabilityActionType": "NONE",
+            "specialIssues": [
+              {
+                "code": "TRM",
+                "name": "Personal Trauma PTSD"
+              }
+            ],
             "ratedDisabilityId": "",
-            "diagnosticText": "string",
-            "disabilityActionType": "NONE"
+            "diagnosticCode": 5235
           }
         ]
       }
     ],
-    "treatments": [],
+    "treatments": [
+      {
+        "center": {
+          "name": "string",
+          "type": "DOD_MTF",
+          "country": "string",
+          "state": "string",
+          "city": "string"
+        },
+        "startDate": "2018-03-29T18:50:03.015Z",
+        "endDate": "2018-03-29T18:50:03.015Z"
+      }
+    ],
     "specialCircumstances": [
       {
         "name": "string",
         "code": "string",
         "needed": false
       }
-    ]
+    ],
+    "standardClaim": false,
+    "claimantCertification": true,
+    "applicationExpirationDate": "2015-08-28T19:53:45+00:00"
   }
 }

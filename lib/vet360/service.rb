@@ -13,7 +13,7 @@ module Vet360
     def perform(method, path, body = nil, headers = {})
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
-      log_to_sentry(response)
+      report(response)
 
       response
     end
@@ -32,6 +32,7 @@ module Vet360
       when Common::Client::Errors::ClientError
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
         raise Common::Exceptions::Forbidden if error.status == 403
+        raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         message = parse_messages(error)&.first
         raise_backend_exception("VET360_#{message['code']}", self.class, error) if message.present?
         raise_backend_exception('VET360_502', self.class, error)
@@ -46,12 +47,19 @@ module Vet360
     end
 
     def raise_backend_exception(key, source, error = nil)
+      report_stats_on(key)
+
       raise Common::Exceptions::BackendServiceException.new(
         key,
         { source: source.to_s },
         error&.status,
         error&.body
       )
+    end
+
+    def report(response)
+      log_to_sentry(response)
+      Vet360::Stats.increment('total_operations')
     end
 
     def log_to_sentry(response)
@@ -63,6 +71,25 @@ module Vet360
           request: { headers: response.request_headers },
           response: { status: response.status, body: response.body }
         )
+      end
+    end
+
+    def raise_invalid_body(error, source)
+      Vet360::Stats.increment('exceptions', 'VET360_502')
+
+      raise Common::Exceptions::BackendServiceException.new(
+        'VET360_502',
+        { source: source.to_s },
+        502,
+        error&.body
+      )
+    end
+
+    def report_stats_on(exception_key)
+      if Vet360::Exceptions.instance.known?(exception_key)
+        Vet360::Stats.increment('exceptions', exception_key)
+      else
+        log_message_to_sentry('New Vet360 Exceptions Key', :info, key: exception_key)
       end
     end
   end

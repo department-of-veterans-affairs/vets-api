@@ -18,6 +18,10 @@ module Vet360
       status == 200
     end
 
+    def cache?
+      ok?
+    end
+
     def metadata
       { status: response_status }
     end

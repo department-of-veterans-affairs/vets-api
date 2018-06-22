@@ -225,13 +225,12 @@ RSpec.describe UserSerializer, type: :serializer do
 
         expect(json['email']).not_to be_nil
         expect(json['residential_address']).not_to be_nil
+        expect(json['mailing_address']).not_to be_nil
         expect(json['home_phone']).not_to be_nil
-
-        expect(json['mobile_phone']).to be_nil
-        expect(json['work_phone']).to be_nil
-        expect(json['mailing_address']).to be_nil
-        expect(json['fax_number']).to be_nil
-        expect(json['temporary_phone']).to be_nil
+        expect(json['mobile_phone']).not_to be_nil
+        expect(json['work_phone']).not_to be_nil
+        expect(json['fax_number']).not_to be_nil
+        expect(json['temporary_phone']).not_to be_nil
       end
     end
   end
