@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'veteran_verification/application_controller'
+
 module VeteranVerification
   module V0
     class ServiceHistoryController < ApplicationController
