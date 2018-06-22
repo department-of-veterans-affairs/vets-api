@@ -11,11 +11,11 @@ describe Vet360::Service do
   subject       { described_class.new(user) }
 
   describe '#handle_error' do
-    context 'when given a Common::Client::Errors::ClientError from a Vet360 service call' do
-      before do
-        allow_any_instance_of(Common::Client::Base).to receive_message_chain(:config, :base_path) { '' }
-      end
+    before do
+      allow_any_instance_of(Common::Client::Base).to receive_message_chain(:config, :base_path) { '' }
+    end
 
+    context 'when given a Common::Client::Errors::ClientError from a Vet360 service call' do
       it 'maps the Vet360 error code to the appropriate vets-api error message', :aggregate_failures do
         CSV.foreach(file, headers: true) do |row|
           error = Common::Client::Errors::ClientError.new(message, status, body_for(row))
@@ -28,6 +28,60 @@ describe Vet360::Service do
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
           end
         end
+      end
+    end
+
+    context 'when error.body is not a Hash' do
+      it 'raises a VET360_502', :aggregate_failures do
+        invalid_body = '<html>Some response body</html>'
+        error        = Common::Client::Errors::ClientError.new('some message', 502, invalid_body)
+
+        expect { subject.send('handle_error', error) }.to raise_error do |e|
+          expect(e.errors.first.code).to eq('VET360_502')
+          expect(e.original_body).to eq(invalid_body)
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+  end
+
+  describe '#raise_backend_exception' do
+    context 'regarding its reporting' do
+      it 'increments the StatsD error counter', :aggregate_failures do
+        error_key = 'VET360_ADDR133'
+
+        expect(Vet360::Stats).to receive(:increment).with('exceptions', error_key)
+        expect { subject.send('raise_backend_exception', error_key, 'test') }.to raise_error(
+          Common::Exceptions::BackendServiceException
+        )
+      end
+    end
+  end
+
+  describe '#raise_invalid_body' do
+    context 'regarding its reporting' do
+      it 'increments the StatsD error counter', :aggregate_failures do
+        error_key = 'VET360_502'
+
+        expect(Vet360::Stats).to receive(:increment).with('exceptions', error_key)
+        expect { subject.send('raise_invalid_body', nil, 'test') }.to raise_error(
+          Common::Exceptions::BackendServiceException
+        )
+      end
+    end
+  end
+
+  describe '#perform' do
+    context 'regarding its reporting' do
+      before do
+        allow_any_instance_of(Vet360::Service).to receive_message_chain(:config, :base_request_headers, :merge) { '' }
+        allow_any_instance_of(Common::Client::Base).to receive(:perform).and_return(nil)
+      end
+
+      it 'increments the StatsD Vet360 total_operations counter' do
+        expect { subject.perform(:get, 'some_path') }.to trigger_statsd_increment(
+          "#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations"
+        )
       end
     end
   end

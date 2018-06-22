@@ -29,13 +29,19 @@ describe HCA::SOAPParser do
     end
 
     context 'with no validation error' do
-      let(:body) { '<?xml version="1.0" ?><metadata></metadata>' }
+      def self.test_body(body)
+        let(:body) { body }
 
-      it 'should not increment statsd' do
-        expect(StatsD).not_to receive(:increment).with('api.hca.validation_fail')
+        it 'should not increment statsd' do
+          expect(StatsD).not_to receive(:increment).with('api.hca.validation_fail')
 
-        subject
+          subject
+        end
       end
+
+      test_body('<?xml version="1.0" ?><metadata></metadata>')
+
+      test_body(File.read('spec/fixtures/hca/mvi_error.xml'))
     end
   end
 end

@@ -19,6 +19,7 @@ class BackendServices
   USER_PROFILE = 'user-profile'
   ID_CARD = 'id-card'
   IDENTITY_PROOFED = 'identity-proofed'
+  VET360 = 'vet360'
 
   # MHV services
   RX = 'rx'

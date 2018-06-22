@@ -55,4 +55,19 @@ RSpec.describe AsyncTransaction::Base, type: :model do
       expect(record3).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
     end
   end
+
+  describe '.stale scope' do
+    it 'finds "old" transactions but not new ones' do
+      transaction1 = create(:address_transaction,
+                            created_at: (Time.current - 31.days).iso8601,
+                            status: AsyncTransaction::Base::COMPLETED)
+      create(:telephone_transaction,
+             created_at: (Time.current - 29.days).iso8601,
+             status: AsyncTransaction::Base::COMPLETED)
+
+      transactions = AsyncTransaction::Base.stale
+      expect(transactions.count).to eq(1)
+      expect(transactions.first).to eql(transaction1)
+    end
+  end
 end

@@ -310,12 +310,6 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v21_526_ez_expected) do
     {
-      'directDeposit' => {
-        'accountType' => 'CHECKING',
-        'accountNumber' => '9876543211234',
-        'routingNumber' => '042102115',
-        'bankName' => 'Comerica'
-      },
       'disabilities' => [
         {
           'diagnosticCode' => 5238,
@@ -355,7 +349,6 @@ RSpec.describe FormProfile, type: :model do
       ],
       'veteran' => {
         'mailingAddress' => {
-          'type' => 'DOMESTIC',
           'country' => 'USA',
           'city' => 'Washington',
           'state' => 'DC',
@@ -422,8 +415,6 @@ RSpec.describe FormProfile, type: :model do
       end.tap do |schema_form_id|
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
 
-        filter_526_schema_fields!(schema) if schema_form_id == '21-526EZ'
-
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
@@ -438,11 +429,6 @@ RSpec.describe FormProfile, type: :model do
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
-    end
-
-    def filter_526_schema_fields!(schema)
-      schema['definitions']['directDeposit']['properties']['routingNumber'].except!('pattern')
-      schema['definitions']['directDeposit']['properties']['accountNumber'].except!('pattern')
     end
 
     context 'when emis is down', skip_emis: true do
@@ -485,6 +471,7 @@ RSpec.describe FormProfile, type: :model do
       context 'with a user that can prefill emis' do
         before do
           can_prefill_emis(true)
+          user.va_profile[:address].street = user.va_profile[:address].street.slice(0, 20)
         end
 
         %w[
@@ -506,15 +493,13 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with a user that can prefill evss' do
           before do
-            expect(user).to receive(:authorize).with(:evss, :access?).exactly(3).times.and_return(true)
+            expect(user).to receive(:authorize).with(:evss, :access?).exactly(2).times.and_return(true)
           end
 
           it 'returns prefilled 21-526EZ' do
             VCR.use_cassette('evss/pciu_address/address_domestic') do
-              VCR.use_cassette('evss/ppiu/payment_information') do
-                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                  expect_prefilled('21-526EZ')
-                end
+              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                expect_prefilled('21-526EZ')
               end
             end
           end

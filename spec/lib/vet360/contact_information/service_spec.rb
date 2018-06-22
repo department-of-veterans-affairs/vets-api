@@ -275,4 +275,86 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       end
     end
   end
+
+  describe '#get_person_transaction_status' do
+    context 'when successful' do
+      let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
+
+      it 'returns a status of 200', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_transaction_status(transaction_id)
+
+          expect(response).to be_ok
+          expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
+      it 'returns a status of 400', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PERS200')
+          end
+        end
+      end
+    end
+  end
+
+  context 'When reporting StatsD statistics' do
+    context 'when checking transaction status' do
+      context 'for emails' do
+        it 'increments the StatsD Vet360 posts_and_puts counters' do
+          transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+
+          VCR.use_cassette('vet360/contact_information/email_transaction_status') do
+            expect { subject.get_email_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
+            )
+          end
+        end
+      end
+
+      context 'for telephones' do
+        it 'increments the StatsD Vet360 posts_and_puts counters' do
+          transaction_id = 'a50193df-f4d5-4b6a-b53d-36fed2db1a15'
+
+          VCR.use_cassette('vet360/contact_information/telephone_transaction_status') do
+            expect { subject.get_telephone_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
+            )
+          end
+        end
+      end
+
+      context 'for addresses' do
+        it 'increments the StatsD Vet360 posts_and_puts counters' do
+          transaction_id = '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+
+          VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+            expect { subject.get_address_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
+            )
+          end
+        end
+      end
+
+      context 'for initializing a vet360_id' do
+        it 'increments the StatsD Vet360 init_vet360_id counters' do
+          transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+
+          VCR.use_cassette('vet360/contact_information/person_transaction_status') do
+            expect { subject.get_person_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success"
+            )
+          end
+        end
+      end
+    end
+  end
 end

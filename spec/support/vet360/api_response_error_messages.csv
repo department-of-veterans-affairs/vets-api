@@ -29,6 +29,7 @@ addressId.NotNull,ADDR201,may not be null
 AddressInactive,ADDR300,Cannot modify an existing inactive record.
 AddressPOU,ADDR301,Can not insert a record for an address POU that already exists. Pull the address record and update it using the addressId provided.
 DuplicateAddressPOU,ADDR304,Cannot accept a request with multiple addresses of the same POU.
+addressBio.lowConfidenceScore,ADDR306,Confidence Score less than 80.
 _CUF_UNEXPECTED_ERROR,CORE100,"There was an error encountered processing the Request. Please retry. If problem persists, please contact support with a copy of the Response."
 _CUF_ACCESS_DENIED,CORE101,"You do not have access to perform the requested operation. Please correct your request before trying again! If you believe you have received this access denied error incorrect, please contact your system administrator."
 _CUF_DATA_INTEGRITY_VIOLATION,CORE102,The operation could not be fulfilled due to a data integrity violation.

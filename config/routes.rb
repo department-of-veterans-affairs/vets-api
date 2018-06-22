@@ -76,6 +76,8 @@ Rails.application.routes.draw do
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
 
+    get 'ppiu/payment_information', to: 'ppiu#index'
+
     resources :maintenance_windows, only: [:index]
 
     resources :prescriptions, only: %i[index show], defaults: { format: :json } do
@@ -178,11 +180,21 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
 
       # Vet360 Routes
-      resource :addresses, only: %i[create update]
-      resource :email_addresses, only: %i[create update]
-      resource :telephones, only: %i[create update]
+      resource :addresses, only: %i[create update destroy]
+      resource :email_addresses, only: %i[create update destroy]
+      resource :telephones, only: %i[create update destroy]
+      post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
+      get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
       get 'status', to: 'transactions#statuses'
+
+      resource :reference_data, only: %i[show] do
+        collection do
+          get 'countries', to: 'reference_data#countries'
+          get 'states', to: 'reference_data#states'
+          get 'zipcodes', to: 'reference_data#zipcodes'
+        end
+      end
     end
 
     get 'profile/mailing_address', to: 'addresses#show'

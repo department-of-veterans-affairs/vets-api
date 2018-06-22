@@ -90,7 +90,7 @@ class UserSerializer < ActiveModel::Serializer
     FormProfile.prefill_enabled_forms
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
   def services
     service_list = [
       BackendServices::FACILITIES,
@@ -108,8 +108,9 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
+    service_list << BackendServices::VET360 if object.can_access_vet360?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
-  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 end
