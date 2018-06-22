@@ -2,6 +2,7 @@
 
 class FormProfiles::VA1990 < FormProfile
   def prefill(user)
+    # TODO: temporary solution for vets360 testing, move code to `FormContactInformation` in the future
     return_val = super
 
     if Settings.vet360.prefill
