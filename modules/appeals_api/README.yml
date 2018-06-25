@@ -106,17 +106,18 @@ components:
       properties:
         id:
           type: string
-          description: ID from VACOLS
+          description: ID from VACOLS (Veteran Appeals Control and Locator Service)
           example: '7387389'
         type:
           type: string
           example: appealSeries
+          description: Required by JSON API standard
         attributes:
           type: object
           properties:
             appealIds:
               format: array
-              description: An array of the individual VACOLS IDs that are combined into this appeal
+              description: An array of the individual VACOLS (Veteran Appeals Control and Locator Service) IDs that are combined into this appeal
               items:
                 type: string
                 example: '1234567'
@@ -127,12 +128,15 @@ components:
             active:
               type: boolean
               description: Indicates whether the appeal is ongoing or closed
+              example: true
             incompleteHistory:
               type: boolean
               example: false
+              description: Indicates whether this response contains a complete history of this appeal
             aoj:
               type: string
-              description: Agency of Original Jurisdiction
+              description: Agency of Original Jurisdiction, vba is Veterans Benefits Administration, vha is Veterans Health Administration, and nca is National Cemetery Administration.
+              example: vba
               enum:
               - vba
               - vha
@@ -140,6 +144,8 @@ components:
               - other
             programArea:
               type: string
+              description: Type of service or benefit being appealed
+              example: pension
               enum: 
               - compensation
               - pension
@@ -154,10 +160,11 @@ components:
               - multiple
             description:
               type: string
+              description: 
               example: Service connection, tinnitus, and 3 others
             type:
               type: string
-              description: Indicates the type of Appeal
+              description: Indicates the type of Appeal. CAVC is the Court of Appeals for Veterans Claims
               enum:
               - original
               - post_remand
@@ -167,17 +174,21 @@ components:
             aod:
               type: boolean
               example: false
+              description: Advanced on Docket, whether this appeals have been given precedence due to Veteran age or urgency.
             location:
               type: string
-              description: Indicates who currently has the appeal
+              example: bva
+              description: Indicates who currently has the appeal AOJ (Agency of Original Jurisdiction) or BVA (Board of Veterans Appeals)
               enum:
               - aoj
               - bva
             status:
               type: object
+              description: Where in the appeals process this appeal currently is
               properties:
                 type:
                   type: string
+                  description: 
                   enum:
                   - scheduled_hearing
                   - pending_hearing_scheduling
@@ -203,8 +214,10 @@ components:
                   - merged
                 details:
                   type: object
+                  description: Further information about the process step the appeal is in
             docket:
               type: object
+              description: Represents the appeals' position in line for a decision and the expected timing of the decision
               properties:
                 month:
                   type: string
@@ -248,9 +261,12 @@ components:
                 $ref: '#/components/schemas/Evidence'
     Alert:
       type: object
+      description: Notification of a request for more information or of a change in the appeal status that requires action.
       properties:
         type:
           type: string
+          description: Enum of notifications for an appeal. Acronyms used include cavc (Court of Appeals for Veteran Claims), vso (Veteran Service Organization), and dro (Decision Review Officer). 
+          example: form9_needed
           enum:
           - form9_needed
           - scheduled_hearing
@@ -264,12 +280,16 @@ components:
           - scheduled_dro_hearing
           - dro_hearing_no_show
         details:
+          description: Further information about the alert
           type: object
     Event:
       type: object
+      description: Event during the appeals process
       properties:
         type:
           type: string
+          example: soc
+          description: Enum of possible event types. Acronyms used include, nod (Notice of Disagreement), soc (Statement of Case), ssoc (Supplemental Statement of Case), ftr (Failed to Report), bva (Board of Veteran Appeals), cavc (Court of Appeals for Veteran Claims), and dro (Decision Review Officer). 
           enum:
           - claim_decision
           - nod
@@ -300,23 +320,30 @@ components:
         date:
           type: string
           format: date
+          description: Date the event occurred
           example: '2016-05-30'
         details:
+          description: Further information about the event
           type: object
     Issue:
       type: object
+      description: Issues on appeal
       properties:
         active:
           type: boolean
+          example: true
+          description: Whether the issue is presently under contention.
         description:
           type: string
           example: Service connection, tinnitus
+          description: Description of the Issue
         diagnosticCode:
           type: string
           example: "6260"
-          description: The CFR diagnostic code for the issue, if applicable
+          description: The CFR (Code of Federal Regulations) diagnostic code for the issue, if applicable
         lastAction:
           type: string
+          description: Most recent decision made on this issue
           enum:
           - field_grant
           - withdrawn
@@ -327,14 +354,18 @@ components:
         date:
           type: string
           format: date
+          description: "Date issue was submitted"
           example: '2016-05-30'
     Evidence:
       type: object
+      description: Documentation and other evidence that has been submitted in support of the appeal
       properties:
         description:
           type: string
           example: Service treatment records
+          description: Short text describing what the evidence is
         date:
           type: string
           format: date
+          description: Date the evidence was added to the case
           example: '2017-09-30'
