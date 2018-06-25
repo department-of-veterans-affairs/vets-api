@@ -84,7 +84,7 @@ pipeline {
   }
   post {
     always {
-      archive "coverage/**"
+      archiveArtifacts artifacts: "coverage/**", allowEmptyArchive: true
       publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
       junit 'log/*.xml'
       sh 'make clean'
