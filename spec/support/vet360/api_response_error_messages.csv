@@ -1,4 +1,4 @@
- Message Code, Sub Code, Message Key, Type, Status, State, Queue, Message Description
+Message Code,Sub Code,Message Key,Type,Status,State,Queue,Message Description
  CORE100      ,     _CUF_UNEXPECTED_ERROR                   , _CUF_UNEXPECTED_ERROR                                ,FATAL,400, REJECTED          , RECEIVED_ERROR_QUEUE , There was an error encountered processing the Request.
  CORE101      ,                        , _CUF_ACCESS_DENIED                                   , ERROR         ,403, REJECTED          , RECEIVED_ERROR_QUEUE , You do not have access to perform the requested operation.
  CORE102      ,                        , _CUF_DATA_INTEGRITY_VIOLATION                        , ERROR         ,400,COMPLETED_FAILURE        , RECEIVED_ERROR_QUEUE , The operation could not be fulfilled due to a data integrity violation.{0}

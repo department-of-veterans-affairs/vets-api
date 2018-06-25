@@ -16,6 +16,33 @@ module Vet360
         @needs_detail = []
       end
 
+      # Takes the content from Vet360's CSV of current error codes, and
+      # converts them into formatted exceptions. These exceptions temporarily
+      # live in tmp/test.yml, until a developer replaces the old Vet360 exceptions
+      # in config/locales/exceptions.en.yml with these updated ones.
+      #
+      # A sample formatted exception in tmp/test.yml looks like this:
+      #   - VET360_ADDR101:
+      #     :<<: "*external_defaults"
+      #     title: Address Type Size
+      #     code: VET360_ADDR101
+      #     detail: Address type size must be between 0 and 35.
+      #     status: '400'
+      #
+      # It also outputs to the console a breakdown of what was done, and what
+      # action needs to be taken by a developer. For example:
+      #   "Needs a title:"
+      #   ["VET360_CORE108", "VET360_CORE301", "VET360_CORE503", ...]
+      #
+      #   "Needs detail:"
+      #   ["VET360_CORE301"]
+      #
+      #   "Existing Codes: 94"
+      #   "New Codes: 74"
+      #   "Total Created: 168"
+      #   "Needs Title: 74"
+      #   "Needs Detail: 1"
+      #
       def construct_exceptions_from_csv
         build_formatted_exceptions
         write_exceptions_to_yaml
@@ -63,7 +90,8 @@ module Vet360
 
       # Makes the headers callable by stripping the empty spaces out. Depending on the CSV
       # data, there can be CSV Row headers with empty spaces. For example:
-      #   row.headers => ["Message Code", " Sub Code", " Message Key", " Type", " Status", " State", " Queue", " Message Description"]
+      #   row.headers => ["Message Code", " Sub Code", " Message Key", " Type",
+      #                   " Status", " State", " Queue", " Message Description"]
       #
       # This prevents being able to call row['Message Description'], etc.
       #
