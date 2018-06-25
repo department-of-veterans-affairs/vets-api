@@ -112,21 +112,11 @@ module Vet360
 
       private
 
-      def enabled?
-        Settings.vet360.contact_information.enabled
-      end
-
-      def raise_if_disabled!
-        raise 'Vet360 service is disabled in this environment' unless enabled?
-      end
-
       def vet360_id_present!
         raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
       end
 
       def post_or_put_data(method, model, path, response_class)
-        raise_if_disabled!
-
         with_monitoring do
           vet360_id_present!
           raw_response = perform(method, path, model.in_json)
@@ -138,8 +128,6 @@ module Vet360
       end
 
       def get_transaction_status(path, response_class)
-        raise_if_disabled!
-
         with_monitoring do
           vet360_id_present!
           raw_response = perform(:get, path)
