@@ -8,7 +8,7 @@ module VBADocuments
 
     def perform
       return unless Settings.vba_documents.s3.enabled
-      VBADocuments::UploadSubmission.where(status: 'pending').find_each do |upload|
+      VBADocuments::UploadSubmission.where('created_at > ?', 5.minutes.ago).where(status: 'pending').find_each do |upload|
         processed = process(upload)
         expire(upload) unless processed
       end
