@@ -117,7 +117,7 @@ components:
           properties:
             appealIds:
               format: array
-              description: An array of the individual VACOLS (Veteran Appeals Control and Location Service) IDs that are combined into this appeal
+              description: An array of the individual VACOLS (Veteran Appeals Control and Locator Service) IDs that are combined into this appeal
               items:
                 type: string
                 example: '1234567'
