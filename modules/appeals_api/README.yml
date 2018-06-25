@@ -106,7 +106,7 @@ components:
       properties:
         id:
           type: string
-          description: ID from VACOLS (Veteran Appeals Control and Location Service)
+          description: ID from VACOLS (Veteran Appeals Control and Locator Service)
           example: '7387389'
         type:
           type: string
@@ -327,16 +327,16 @@ components:
           type: object
     Issue:
       type: object
-      description: Conditions that would qualify a Veteran for this benefit
+      description: Issues on appeal
       properties:
         active:
           type: boolean
           example: true
-          description: Whether the Veteran making the appeal is currently affected by this issue
+          description: Whether the issue is presently under contention.
         description:
           type: string
           example: Service connection, tinnitus
-          description: Name of the issue and whether it was connected to a Veteran's service
+          description: Description of the Issue
         diagnosticCode:
           type: string
           example: "6260"
