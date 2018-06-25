@@ -113,6 +113,12 @@ module Vet360
         address.validates :province, absence: true
       end
 
+      def zip_plus_four
+        return if zip_code.blank?
+
+        [zip_code, zip_code_suffix].compact.join('-')
+      end
+
       # Converts a decoded JSON response from Vet360 to an instance of the Address model
       # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Address] the model built from the response body
