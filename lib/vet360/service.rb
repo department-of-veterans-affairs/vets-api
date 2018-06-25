@@ -11,8 +11,7 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
-      increment_total
-
+      Vet360::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
 
@@ -75,10 +74,6 @@ module Vet360
       else
         log_message_to_sentry('New Vet360 Exceptions Key', :info, key: exception_key)
       end
-    end
-
-    def increment_total
-      Vet360::Stats.increment('total_operations')
     end
   end
 end
