@@ -304,6 +304,7 @@ ActiveRecord::Schema.define(version: 20180709214011) do
     t.datetime "updated_at",                        null: false
     t.boolean  "s3_deleted"
     t.string   "consumer_name"
+    t.uuid     "consumer_id"
   end
 
   add_index "vba_documents_upload_submissions", ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
