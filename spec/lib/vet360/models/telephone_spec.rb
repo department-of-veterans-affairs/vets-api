@@ -3,6 +3,30 @@
 require 'rails_helper'
 
 describe Vet360::Models::Telephone do
+  describe '#formatted_phone' do
+    let(:telephone) { build(:telephone) }
+
+    context 'with no phone number' do
+      it 'should return nil' do
+        telephone.phone_number = nil
+        expect(telephone.formatted_phone).to eq(nil)
+      end
+    end
+
+    context 'with no extension' do
+      it 'should return the formatted phone number' do
+        expect(telephone.formatted_phone).to eq('(303) 555-1234')
+      end
+    end
+
+    context 'with an extension' do
+      it 'should return number with extension' do
+        telephone.extension = '123'
+        expect(telephone.formatted_phone).to eq('(303) 555-1234 Ext. 123')
+      end
+    end
+  end
+
   describe 'validations' do
     it 'we have a valid factory in place' do
       expect(build(:telephone)).to be_valid
