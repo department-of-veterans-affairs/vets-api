@@ -31,7 +31,6 @@ module Vet360
           bio: {
             emailAddressText: @email_address,
             emailId: @id,
-            # emailPermInd: true, # @TODO ??
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
