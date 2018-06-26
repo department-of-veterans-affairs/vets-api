@@ -71,6 +71,16 @@ module Vet360
         inclusion: { in: ['1'] }
       )
 
+      def formatted_phone
+        return if phone_number.blank?
+        # TODO: support international numbers
+
+        return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
+        return_val += " Ext. #{extension}" if extension.present?
+
+        return_val
+      end
+
       # Converts an instance of the Telphone model to a JSON encoded string suitable for
       # use in the body of a request to Vet360
       #

@@ -134,6 +134,7 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+      resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
     scope :id_card do

@@ -24,5 +24,10 @@ module GI
       facility_code = params[:id]
       perform(:get, "institutions/#{facility_code}", params.except(:id), nil).body
     end
+
+    def get_zipcode_rate(params = {})
+      zipcode = params[:id]
+      perform(:get, "zipcode_rates/#{zipcode}", {}, nil).body
+    end
   end
 end
