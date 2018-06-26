@@ -26,6 +26,12 @@ pipeline {
           }
         }
       }
+      post {
+        success {
+          archiveArtifacts artifacts: "blah/**"
+          publishHTML(target: [reportDir: 'blah', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+        }
+      }
     }
 
     stage('Review') {
@@ -84,8 +90,6 @@ pipeline {
   }
   post {
     always {
-      archiveArtifacts artifacts: "blah/**"
-      publishHTML(target: [reportDir: 'blah', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true, allowMissing: true])
       junit 'log/*.xml'
       sh 'make clean'
       deleteDir() /* clean up our workspace */
