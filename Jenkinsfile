@@ -28,8 +28,8 @@ pipeline {
       }
       post {
         success {
-          archiveArtifacts artifacts: "blah/**"
-          publishHTML(target: [reportDir: 'blah', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+          archiveArtifacts artifacts: "coverage/**"
+          publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
         }
       }
     }
