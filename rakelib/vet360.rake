@@ -262,6 +262,7 @@ namespace :vet360 do
     - Manually reformat each one of these rows to remove the leading : and double quotes
       :<<: "*external_defaults" becomes
       <<: *external_defaults
+    - Change all of the "status" values from strings to integers (i.e. '400' => 400)
     - Remove all of the leading dashes (-) before each VET360_ key.
       For example, - VET360_ADDR101: becomes VET360_ADDR101:
 

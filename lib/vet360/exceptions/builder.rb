@@ -6,7 +6,7 @@ require 'csv'
 module Vet360
   module Exceptions
     class Builder
-      attr_reader :known_exceptions, :stats, :error_codes, :needs_title, :needs_detail, :title, :detail
+      attr_reader :known_exceptions, :stats, :error_codes, :needs_title, :needs_detail, :title, :detail, :status
 
       def initialize
         @known_exceptions = Vet360::Exceptions::Parser.instance.known_exceptions
@@ -68,7 +68,7 @@ module Vet360
 
           next if code.blank?
 
-          set_title_and_detail_for(code, row)
+          set_attributes_for(code, row)
 
           error_codes << {
             code => {
@@ -76,7 +76,7 @@ module Vet360
               'title'  => title,
               'code'   => code,
               'detail' => detail,
-              'status' => row['Status']&.strip || 400
+              'status' => status
             }
           }
 
@@ -110,11 +110,12 @@ module Vet360
         "VET360_#{message_code}"
       end
 
-      def set_title_and_detail_for(code, row)
+      def set_attributes_for(code, row)
         known_exception = known_exceptions.find { |key, _| key == code }&.last
 
         @title  = known_exception&.dig('title')
         @detail = known_exception&.dig('detail').presence || row['Message Description']&.strip
+        @status = known_exception&.dig('status').presence || row['Status']&.strip.presence || 400
       end
 
       def increment_stats_for(code)
