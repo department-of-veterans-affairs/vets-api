@@ -128,7 +128,7 @@ module EMISRedis
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def service_periods
-      military_service_episodes.map do |military_service_episode|
+      service_episodes_by_date.map do |military_service_episode|
         # avoid prefilling if service branch is 'other' as this breaks validation
         return {} if military_service_episode.hca_branch_of_service == 'other'
 
