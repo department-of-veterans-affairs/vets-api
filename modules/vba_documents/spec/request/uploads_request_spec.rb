@@ -29,6 +29,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
       expect(upload.consumer_name).to eq('test consumer')
     end
+
+    it 'should set consumer id from X-Consumer-ID header' do
+      post '/services/vba_documents/v0/uploads', nil, 'X-Consumer-ID': '29090360-72a8-4b77-b5ea-6ea1c69c7d89'
+      upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
+      expect(upload.consumer_name).to eq('29090360-72a8-4b77-b5ea-6ea1c69c7d89')
+    end
   end
 
   describe '#show /v0/uploads/{id}' do
