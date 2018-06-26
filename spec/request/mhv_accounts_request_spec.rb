@@ -102,8 +102,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       VCR.use_cassette('mhv_account_creation/creates_an_account') do
         post v0_mhv_account_path
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']['attributes'])
-          .to eq('account_level' => 'Advanced', 'account_state' => 'registered', 'terms_and_conditions_accepted' => true)
+        expect(JSON.parse(response.body)['data']['attributes']).to eq(
+          'account_level' => 'Advanced',
+          'account_state' => 'registered',
+          'terms_and_conditions_accepted' => true
+        )
       end
     end
   end
@@ -113,8 +116,11 @@ RSpec.describe 'Account creation and upgrade', type: :request do
       VCR.use_cassette('mhv_account_creation/upgrades_an_account') do
         post '/v0/mhv_account/upgrade'
         expect(response).to have_http_status(:accepted)
-        expect(JSON.parse(response.body)['data']['attributes'])
-          .to eq('account_level' => 'Premium', 'account_state' => 'upgraded', 'terms_and_conditions_accepted' => true)
+        expect(JSON.parse(response.body)['data']['attributes']).to eq(
+          'account_level' => 'Premium',
+          'account_state' => 'upgraded',
+          'terms_and_conditions_accepted' => true
+        )
       end
     end
   end
