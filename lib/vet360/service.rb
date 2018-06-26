@@ -11,9 +11,9 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
+      Vet360::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
-      report(response)
 
       response
     end
@@ -26,7 +26,7 @@ module Vet360
 
     def handle_error(error)
       case error
-      when Common::Client::Errors::ParsingError
+      when Common::Client::Errors::ParsingError # Vet360 sent a non-JSON response
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
         raise_backend_exception('VET360_502', self.class)
       when Common::Client::Errors::ClientError
@@ -55,23 +55,6 @@ module Vet360
         error&.status,
         error&.body
       )
-    end
-
-    def report(response)
-      log_to_sentry(response)
-      Vet360::Stats.increment('total_operations')
-    end
-
-    def log_to_sentry(response)
-      # TODO: Disable when we're ready to enable in production
-      if Rails.env.production?
-        log_message_to_sentry(
-          'Vet360 Request',
-          :info,
-          request: { headers: response.request_headers },
-          response: { status: response.status, body: response.body }
-        )
-      end
     end
 
     def raise_invalid_body(error, source)
