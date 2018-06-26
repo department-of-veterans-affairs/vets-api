@@ -45,6 +45,7 @@ module Vet360
       #
       def construct_exceptions_from_csv
         build_formatted_exceptions
+        include_custom_exceptions
         write_exceptions_to_yaml
         output_results_to_console
       end
@@ -67,19 +68,10 @@ module Vet360
           code = set_code_for(row)
 
           next if code.blank?
+          next if duplicate?(code)
 
           set_attributes_for(code, row)
-
-          error_codes << {
-            code => {
-              '<<': '*external_defaults',
-              'title'  => title,
-              'code'   => code,
-              'detail' => detail,
-              'status' => status
-            }
-          }
-
+          insert_formatted_exception_for(code)
           increment_stats_for(code)
         end
       end
@@ -110,12 +102,32 @@ module Vet360
         "VET360_#{message_code}"
       end
 
+      def duplicate?(code)
+        error_keys.include? code
+      end
+
+      def error_keys
+        error_codes.map(&:keys).flatten
+      end
+
       def set_attributes_for(code, row)
         known_exception = known_exceptions.find { |key, _| key == code }&.last
 
         @title  = known_exception&.dig('title')
         @detail = known_exception&.dig('detail').presence || row['Message Description']&.strip
         @status = known_exception&.dig('status').presence || row['Status']&.strip.presence || 400
+      end
+
+      def insert_formatted_exception_for(code, options = {})
+        error_codes << {
+          code => {
+            '<<': '*external_defaults',
+            'title'  => options['title'].presence || title,
+            'code'   => code,
+            'detail' => options['detail'].presence || detail,
+            'status' => options['status'].presence || status
+          }
+        }
       end
 
       def increment_stats_for(code)
@@ -130,6 +142,26 @@ module Vet360
         end
 
         stats[:total_created] += 1
+      end
+
+      def include_custom_exceptions
+        custom_exceptions.each do |custom_exception|
+          code    = custom_exception.first
+          details = custom_exception.last
+
+          insert_formatted_exception_for(code, details)
+          stats[:total_created] += 1
+        end
+      end
+
+      def custom_exceptions
+        new_exceptions = error_keys
+
+        known_exceptions.each_with_object([]) do |known_exception, custom|
+          next if new_exceptions.include?(known_exception.first)
+
+          custom << known_exception
+        end
       end
 
       def write_exceptions_to_yaml
