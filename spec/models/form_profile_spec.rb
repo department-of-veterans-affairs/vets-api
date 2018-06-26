@@ -338,6 +338,7 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
       ],
+      'servedInCombatZone' => true,
       'servicePeriods' => [
         {
           'serviceBranch' => 'Air Force Reserve',
