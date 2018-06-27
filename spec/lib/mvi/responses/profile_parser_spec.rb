@@ -81,7 +81,6 @@ describe MVI::Responses::ProfileParser do
             sec_id: nil,
             historical_icns: nil,
             mhv_ids: ['1100792239'],
-            active_mhv_ids: ['1100792239'],
             icn_with_aaid: icn_with_aaid
           )
         end
