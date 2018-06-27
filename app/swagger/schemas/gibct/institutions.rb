@@ -135,17 +135,6 @@ module Swagger
                 property :transcript_by_ope_id_do_not_sum, type: :integer
                 property :other_by_ope_id_do_not_sum, type: :integer
               end
-              property :yellow_ribbon_programs, type: :array do
-                items do
-                  key :type, :object
-                  key :required, %i[degree_level division_professional_school number_of_students contribution_amount]
-
-                  property :degree_level, type: :string, description: 'Program applies to this degree level', example: 'All (Nursing School)'
-                  property :division_professional_school, type: :string, description: 'Program applies to this division of or school within institution', example: 'College of Medicine'
-                  property :number_of_students, type: :integer, description: 'Number of students who can receive Yellow Ribbon for the given degree level/program combination', example: 2000
-                  property :contribution_amount, type: :number, format: :currency, description: 'Yellow Ribbon amount from school per year', example: 5000.00
-                end
-              end
             end
           end
 
