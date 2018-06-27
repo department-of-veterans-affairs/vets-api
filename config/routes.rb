@@ -209,7 +209,9 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create]
+    resource :mhv_account, only: %i[show create] do
+      post :upgrade
+    end
 
     [
       'profile',
