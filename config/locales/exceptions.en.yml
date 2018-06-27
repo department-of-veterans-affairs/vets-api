@@ -800,6 +800,12 @@ en:
           and new must be greater than the previous. Please correct your request and try
           again!
         status: 400
+      VET360_CORE111:
+        <<: *external_defaults
+        title: Check Address Line
+        code: 'VET360_CORE111'
+        detail: 'Required data set missing.'
+        status: 400
       VET360_CORE300:
         <<: *external_defaults
         title: Bio not null
@@ -1069,6 +1075,12 @@ en:
         title: Effective start date may not be null
         code: VET360_PERS104
         detail: Effective Start Date may not be null
+        status: 400
+      VET360_PERS200:
+        <<: *external_defaults
+        title: Duplicate create veteran
+        code: 'VET360_PERS200'
+        detail: 'The veteran with the id requested has already been created.'
         status: 400
       VET360_PERS300:
         <<: *external_defaults
