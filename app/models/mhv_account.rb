@@ -120,17 +120,18 @@ class MhvAccount < ActiveRecord::Base
   private
 
   def track_state
-    if INELIGIBLE_STATES.include?(aasm(:account_state).to_state)
+    to_state = aasm(:account_state).to_state
+    if INELIGIBLE_STATES.include?(to_state)
       tracker = MHVAccountIneligible.find(user.uuid)
-      return if tracker && tracker.account_state == aasm(:account_state).to_state
+      return if tracker && tracker.account_state == to_state
       if tracker
-        tracker.update(account_state: aasm(:account_state).to_state)
+        tracker.update(account_state: to_state)
       else
-        attrs = { uuid: user.uuid, account_state: aasm(:account_state).to_state,
+        attrs = { uuid: user.uuid, account_state: to_state,
                   mhv_correlation_id: mhv_correlation_id, icn: user.icn }
         MHVAccountIneligible.create(attrs)
       end
-      StatsD.increment("#{STATSD_ACCOUNT_INELIGIBLE_KEY}.#{aasm(:account_state).to_state}")
+      StatsD.increment("#{STATSD_ACCOUNT_INELIGIBLE_KEY}.#{to_state}")
     end
   end
 
