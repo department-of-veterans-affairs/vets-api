@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/attribute_types/date_time_string'
-
 module MVI
   module Models
     class MviProfileAddress
