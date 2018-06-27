@@ -137,7 +137,7 @@ class MhvAccount < ActiveRecord::Base
     if previously_upgraded? || previously_registered?
       false
     else
-      user.va_profile.active_mhv_ids.size > 1
+      user.va_profile.active_mhv_ids.to_a.size > 1
     end
   end
 
@@ -145,7 +145,7 @@ class MhvAccount < ActiveRecord::Base
     if previously_upgraded? || previously_registered?
       false
     else
-      (user.va_profile.mhv_ids - user.va_profile.active_mhv_ids).to_a.any?
+      (user.va_profile.mhv_ids.to_a - user.va_profile.active_mhv_ids.to_a).any?
     end
   end
 
