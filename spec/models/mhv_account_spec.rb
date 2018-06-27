@@ -76,7 +76,7 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.creatable?).to be_falsey
         end
 
-        fcontext '#track_state' do
+        context '#track_state' do
           it 'creates redis entry' do
             subject.creatable?
             expect(MHVAccountIneligible.find(subject.user.uuid)).to be_truthy

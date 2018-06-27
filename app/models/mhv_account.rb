@@ -130,7 +130,7 @@ class MhvAccount < ActiveRecord::Base
                   mhv_correlation_id: mhv_correlation_id, icn: user.icn }
         MHVAccountIneligible.create(attrs)
       end
-      StatsD.increment(STATSD_ACCOUNT_INELIGIBLE_KEY)
+      StatsD.increment("#{STATSD_ACCOUNT_INELIGIBLE_KEY}.#{aasm(:account_state).to_state}")
     end
   end
 
