@@ -11,6 +11,7 @@ class MhvAccount < ActiveRecord::Base
   scope :created_failed_upgrade, -> { accounts_created.where(account_state: :upgrade_failed) }
   scope :created_and_upgraded, -> { accounts_created.where.not(upgraded_at: nil) }
 
+  STATSD_ACCOUNT_INELIGIBLE_KEY = 'mhv.account.ineligible'
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
   INELIGIBLE_STATES = %i[
@@ -28,6 +29,8 @@ class MhvAccount < ActiveRecord::Base
   aasm(:account_state) do
     state :unknown, initial: true
     state(*(INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES))
+
+    after_all_transitions :track_state
 
     # NOTE: This is eligibility for account creation or upgrade, not for access to services.
     event :check_eligibility do
@@ -115,6 +118,21 @@ class MhvAccount < ActiveRecord::Base
   end
 
   private
+
+  def track_state
+    if INELIGIBLE_STATES.include?(aasm(:account_state).to_state)
+      tracker = MHVAccountIneligible.find(user.uuid)
+      return if tracker && tracker.account_state == aasm(:account_state).to_state
+      if tracker
+        tracker.update(account_state: aasm(:account_state).to_state)
+      else
+        attrs = { uuid: user.uuid, account_state: aasm(:account_state).to_state,
+                  mhv_correlation_id: mhv_correlation_id, icn: user.icn }
+        MHVAccountIneligible.create(attrs)
+      end
+      StatsD.increment(STATSD_ACCOUNT_INELIGIBLE_KEY)
+    end
+  end
 
   def identity_proofed?
     user.loa3?

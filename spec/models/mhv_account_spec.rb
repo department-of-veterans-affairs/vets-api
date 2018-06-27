@@ -75,6 +75,29 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('needs_ssn_resolution')
           expect(subject.creatable?).to be_falsey
         end
+
+        fcontext '#track_state' do
+          it 'creates redis entry' do
+            subject.creatable?
+            expect(MHVAccountIneligible.find(subject.user.uuid)).to be_truthy
+          end
+          it 'updates an existing redis entry when the account_state is a mismatch' do
+            subject.creatable?
+            tracker = MHVAccountIneligible.find(subject.user.uuid)
+            tracker.update(account_state: 'fake')
+            subject.send(:setup)
+            updated_tracker = MHVAccountIneligible.find(subject.user.uuid)
+            expect(updated_tracker.account_state).not_to eq(tracker.account_state)
+          end
+          it 'does not update an existing redis entry when the account_state is a match' do
+            subject.creatable?
+            tracker = MHVAccountIneligible.find(subject.user.uuid)
+            tracker.update(icn: 'fake')
+            subject.send(:setup)
+            updated_tracker = MHVAccountIneligible.find(subject.user.uuid)
+            expect(updated_tracker.icn).to eq(tracker.icn)
+          end
+        end
       end
 
       context 'user not a va patient' do
