@@ -14,9 +14,6 @@ module Vet360Redis
     def self.invalidate(user)
       contact_info = user.vet360_contact_info
 
-      # TODO: This is a hack to check whether the uuid for the user will be populated from redis
-      contact_info.email
-      
       instance = new
 
       if contact_info.present?
