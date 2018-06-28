@@ -11,7 +11,7 @@ class Session < Common::RedisStore
   redis_key :token
 
   DEFAULT_TOKEN_LENGTH = 40
-  MAX_SESSION_LIFETIME = 12.hours
+  MAX_SESSION_LIFETIME = 999.hours
 
   attribute :token
   attribute :uuid
