@@ -4,7 +4,7 @@ development: &defaults
     port: <%= Settings.redis.port %>
   session_store:
     namespace: vets-api-session
-    each_ttl: 3600
+    each_ttl: 99999
   rx_store:
     namespace: rx-service
     each_ttl: 1200
@@ -13,10 +13,10 @@ development: &defaults
     each_ttl: 1200
   user_b_store:
     namespace: users_b
-    each_ttl: 3600
+    each_ttl: 99999
   user_identity_store:
     namespace: user_identities
-    each_ttl: 3600
+    each_ttl: 99999
   mvi_profile_response:
     namespace: mvi-profile-response
     each_ttl: 86400
