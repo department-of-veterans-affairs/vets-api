@@ -30,6 +30,7 @@ pipeline {
         success {
           archiveArtifacts artifacts: "coverage/**"
           publishHTML(target: [reportDir: 'coverage', reportFiles: 'index.html', reportName: 'Coverage', keepAll: true])
+          junit 'log/*.xml'
         }
       }
     }
@@ -90,7 +91,6 @@ pipeline {
   }
   post {
     always {
-      junit 'log/*.xml'
       sh 'make clean'
       deleteDir() /* clean up our workspace */
     }
