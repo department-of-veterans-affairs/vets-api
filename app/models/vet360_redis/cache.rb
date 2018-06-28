@@ -14,13 +14,14 @@ module Vet360Redis
     def self.invalidate(user)
       contact_info = user.vet360_contact_info
 
-      log("Vet360: Response cache exists before invalidation: #{redis_key_exists(user)}")
+      instance = new
+      instance.log("Vet360: Response cache exists before invalidation: #{redis_key_exists(user)}")
 
       if contact_info.present?
         contact_info.destroy
-        log("Vet360: Response cache exists after invalidation: #{redis_key_exists(user)}")
+        instance.log("Vet360: Response cache exists after invalidation: #{redis_key_exists(user)}")
       else
-        log('Vet360: Cannot invalidate a nil response cache')
+        instance.log('Vet360: Cannot invalidate a nil response cache')
       end
     end
 
@@ -28,8 +29,8 @@ module Vet360Redis
       Redis.current.exists("vet360-contact-info-response:#{user.uuid}")
     end
 
-    def self.log(message)
-      new.log_message_to_sentry(message, :info)
+    def log(message)
+      log_message_to_sentry(message, :info)
     end
   end
 end
