@@ -25,6 +25,7 @@ module Vet360Redis
     def self.for_user(user)
       contact_info      = new
       contact_info.user = user
+      contact_info.populate_from_redis
 
       contact_info
     end
@@ -134,6 +135,13 @@ module Vet360Redis
     #
     def response
       @response ||= response_from_redis_or_service
+    end
+
+    # This method allows us to populate the local instance of a
+    # Vet360Redis::ContactInformation object with the uuid necessary
+    # to perform subsequent actions on the key such as deletion.
+    def populate_from_redis
+      response_from_redis_or_service
     end
 
     private

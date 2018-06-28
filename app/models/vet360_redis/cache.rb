@@ -15,18 +15,16 @@ module Vet360Redis
       contact_info = user.vet360_contact_info
 
       instance = new
-      instance.log("Vet360: Response cache exists before invalidation: #{redis_key_exists(user)}")
 
       if contact_info.present?
-        contact_info.destroy
-        instance.log("Vet360: Response cache exists after invalidation: #{redis_key_exists(user)}")
+        uuid = contact_info.attributes[:uuid]
+        count = contact_info.destroy
+
+        # TODO: Remove once caching bug has been fixed
+        instance.log("Vet360: Cache invalidation destroyed #{count} keys '#{uuid}'")
       else
         instance.log('Vet360: Cannot invalidate a nil response cache')
       end
-    end
-
-    def self.redis_key_exists(user)
-      Redis.current.exists("vet360-contact-info-response:#{user.uuid}")
     end
 
     def log(message)
