@@ -27,7 +27,7 @@ module EVSS
       end
 
       def service_info
-        form['serviceInformation']
+        form['serviceInformation'] ||= {}
       end
 
       def veteran
@@ -36,54 +36,22 @@ module EVSS
 
       def translate_service_info
         translate_service_periods
-        translate_confinements if service_info['confinements'].present?
-        translate_names if service_info['alternateNames'].present?
-        if service_info['reservesNationalGuardService'].present?
-          service_info['reservesNationalGuardService'] = translate_national_guard_service(
-            service_info['reservesNationalGuardService']
-          )
-        end
+        translate_combat_zone
       end
 
       def translate_service_periods
-        service_info['servicePeriods'].map! do |si|
+        service_periods = @user.military_information.service_periods
+        service_info['servicePeriods'] = service_periods.map do |sp|
           {
-            'serviceBranch' => service_branch(si['serviceBranch']),
-            'activeDutyBeginDate' => si['dateRange']['from'],
-            'activeDutyEndDate' => si['dateRange']['to']
+            'serviceBranch' => service_branch(sp[:service_branch]),
+            'activeDutyBeginDate' => Time.zone.parse(sp[:date_range][:from]).iso8601,
+            'activeDutyEndDate' => Time.zone.parse(sp[:date_range][:to]).iso8601
           }
         end
       end
 
-      def translate_confinements
-        service_info['confinements'].map! do |ci|
-          {
-            'confinementBeginDate' => ci['confinementDateRange']['from'],
-            'confinementEndDate' => ci['confinementDateRange']['to'],
-            'verifiedIndicator' => ci['verifiedIndicator']
-          }
-        end
-      end
-
-      def translate_names
-        service_info['alternateNames'].map! do |an|
-          {
-            'firstName' => an['first'],
-            'middleName' => an['middle'],
-            'lastName' => an['last']
-          }.compact
-        end
-      end
-
-      def translate_national_guard_service(reserves_service_info)
-        {
-          'title10Activation' => reserves_service_info['title10Activation'],
-          'obligationTermOfServiceFromDate' => reserves_service_info['obligationTermOfServiceDateRange']['from'],
-          'obligationTermOfServiceToDate' => reserves_service_info['obligationTermOfServiceDateRange']['to'],
-          'unitName' => reserves_service_info['unitName'],
-          'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
-          'inactiveDutyTrainingPay' => reserves_service_info['inactiveDutyTrainingPay']
-        }.compact
+      def translate_combat_zone
+        service_info['servedInCombatZone'] = @user.military_information.post_nov111998_combat
       end
 
       def translate_veteran
@@ -179,6 +147,7 @@ module EVSS
       end
 
       def translate_treatments
+        return if form['treatments'].blank?
         form['treatments'].map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
@@ -187,7 +156,12 @@ module EVSS
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
           treatment['endDate'] = treatment['treatmentDateRange']['to']
-          treatment.except('treatmentCenterName', 'treatmentDateRange', 'treatmentCenterAddress', 'treatmentCenterType')
+          treatment.except(
+            'treatmentCenterName',
+            'treatmentDateRange',
+            'treatmentCenterAddress',
+            'treatmentCenterType'
+          ).compact
         end
       end
 
