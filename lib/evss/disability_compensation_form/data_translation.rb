@@ -61,8 +61,7 @@ module EVSS
       end
 
       def translate_veteran_phone
-        veteran['primaryPhone'] = split_phone_number(veteran['phone'])
-        veteran.delete('phone')
+        veteran['primaryPhone'] = split_phone_number(veteran['primaryPhone'])
       end
 
       def translate_veteran_address
