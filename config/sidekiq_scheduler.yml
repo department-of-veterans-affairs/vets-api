@@ -105,7 +105,7 @@ HCA::SubmissionFailureEmailAnalyticsJob:
   description: "posts HCA Submission Failure email sends and failures to Google Analytics"
 
 DeleteOldTransactionsJob:
-  cron: "0 3 * * * America/New_york" # Daily @ 3am Eastern
+  cron: "0 3 * * * America/New_York" # Daily @ 3am Eastern
   description: "Deletes old, completed AsyncTransaction records"
 
 MHV::AccountStatisticsJob:
