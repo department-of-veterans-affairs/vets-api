@@ -25,9 +25,7 @@ class MhvAccountTypeService
     return nil unless mhv_account?
 
     if account_type_known?
-      user.identity.mhv_account_type
-    elsif eligible_data_classes.nil?
-      'Error'
+      @user.identity.mhv_account_type
     else
       ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
     end
@@ -37,11 +35,11 @@ class MhvAccountTypeService
   end
 
   def mhv_account?
-    user.mhv_correlation_id.present?
+    @user.mhv_correlation_id.present?
   end
 
   def account_type_known?
-    user.identity.mhv_account_type.present?
+    @user.identity.mhv_account_type.present?
   end
 
   private
@@ -57,7 +55,7 @@ class MhvAccountTypeService
     end
   rescue StandardError
     log_account_type_heuristic_once(MHV_DOWN_MESSAGE)
-    nil
+    []
   end
 
   def cached_eligible_data_class
