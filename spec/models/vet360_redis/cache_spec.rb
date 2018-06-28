@@ -30,7 +30,7 @@ describe Vet360Redis::Cache do
       end
 
       it 'logs to sentry' do
-        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).twice
+        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).once
 
         Vet360Redis::Cache.invalidate(user)
       end
