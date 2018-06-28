@@ -17,13 +17,14 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
   describe '#translate' do
     before do
       create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
-      allow_any_instance_of(EMISRedis::MilitaryInformation).to receive(:service_episodes_by_date).and_return([])
     end
 
     it 'should return correctly formatted json to send to EVSS' do
       VCR.use_cassette('evss/ppiu/payment_information') do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          expect(JSON.parse(subject.translate)).to eq JSON.parse(evss_json)
+          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+            expect(JSON.parse(subject.translate)).to eq JSON.parse(evss_json)
+          end
         end
       end
     end
