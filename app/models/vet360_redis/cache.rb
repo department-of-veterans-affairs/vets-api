@@ -16,6 +16,8 @@ module Vet360Redis
 
       # TODO: This is a hack to check whether the uuid for the user will be populated from redis
       contact_info.email
+      
+      instance = new
 
       if contact_info.present?
         uuid = contact_info.attributes[:uuid]
