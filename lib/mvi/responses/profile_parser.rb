@@ -102,7 +102,6 @@ module MVI
           home_phone: parse_phone(patient),
           icn: correlation_ids[:icn],
           mhv_ids: correlation_ids[:mhv_ids],
-          active_mhv_ids: correlation_ids[:active_mhv_ids],
           edipi: correlation_ids[:edipi],
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
