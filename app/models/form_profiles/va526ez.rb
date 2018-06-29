@@ -101,8 +101,6 @@ class FormProfiles::VA526ez < FormProfile
     VA526ez::FormRatedDisabilities.new(
       rated_disabilities: response.rated_disabilities
     )
-  rescue StandardError
-    {}
   end
 
   # Convert PCIU address to a Common address type
@@ -150,6 +148,7 @@ class FormProfiles::VA526ez < FormProfile
       country: 'USA',
       city: address&.military_post_office_type_code,
       state: address&.military_state_code,
+      zip_code: address&.zip_code,
       address_line_1: address&.address_one,
       address_line_2: address&.address_two,
       address_line_3: address&.address_three
