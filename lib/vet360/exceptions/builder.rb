@@ -168,7 +168,9 @@ module Vet360
         path = Rails.root.join('tmp', 'test.yml')
         file = File.open(path, 'w')
 
+        file.write '# BEGIN SCRIPT-GENERATED VET360 EXCEPTIONS'
         file.write error_codes.sort_by { |error| error&.keys&.first }.to_yaml
+        file.write '# END SCRIPT-GENERATED VET360 EXCEPTIONS'
         file.close
       end
 
