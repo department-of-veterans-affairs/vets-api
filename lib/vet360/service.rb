@@ -69,7 +69,7 @@ module Vet360
     end
 
     def report_stats_on(exception_key)
-      if Vet360::Exceptions.instance.known?(exception_key)
+      if Vet360::Exceptions::Parser.instance.known?(exception_key)
         Vet360::Stats.increment('exceptions', exception_key)
       else
         log_message_to_sentry('New Vet360 Exceptions Key', :info, key: exception_key)
