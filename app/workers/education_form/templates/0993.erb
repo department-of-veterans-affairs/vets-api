@@ -1,0 +1,19 @@
+<%= header %>
+*START*
+VA Form 22-0993
+AUG 2018
+
+  REQUEST TO OPT-OUT OF INFORMATION SHARING WITH EDUCATIONAL INSTITUTIONS
+                    -------------------------------------
+
+                            APPLICANT INFORMATION
+                            ---------------------
+
+SSN: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %> 
+
+Name:   <%= full_name(@applicant.veteranFullName) %>
+
+      Certification and Signature of Applicant
+Signature of Applicant                                               Date
+
+<%= parse_with_template_path('footer') %>

@@ -74,7 +74,7 @@ class FormProfile
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
-  EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
+  EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495', '22-0993'].freeze
   EVSS_FORMS = ['21-526EZ'].freeze
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
@@ -93,7 +93,8 @@ class FormProfile
     '21-686C'   => ::FormProfiles::VA21686c,
     'VIC'       => ::FormProfiles::VIC,
     '40-10007'  => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez
+    '21P-527EZ' => ::FormProfiles::VA21p527ez,
+    '22-0993'   => ::FormProfiles::VA0993,
   }.freeze
 
   attr_accessor :form_id
