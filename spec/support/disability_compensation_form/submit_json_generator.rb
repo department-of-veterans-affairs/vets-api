@@ -30,7 +30,7 @@ def submit_hash
                                "pointOfContactName": N.name,
                                "primaryPhone": P.phone_number
                              }
-end)
+                            end)
         },
         "serviceNumber": (NUM.number(9) if random_bool)
       },
@@ -42,81 +42,80 @@ end)
                         "inflightDocumentId": NUM.number(10)
                       }]
                       end),
-                      "mililtaryPayments": (if random_bool
-                                            {
-                                              "payments": [{
-                                                "payType": pay_type,
-                                                "amount": NUM.number(5)
-                                              }],
-                                              "receiveCompensationInLieuOfRetired": random_bool
-                                            }
-                            end),
-                            "serviceInformation": {
-                              "servicePeriods": [{
-                                "serviceBranch": service_branch,
-                                "dateRange": date_range
+      "mililtaryPayments": (if random_bool
+                            {
+                              "payments": [{
+                                "payType": pay_type,
+                                "amount": NUM.number(5)
                               }],
-                              "reservesNationalGuardService": (if random_bool
-                                                               {
-                                                                 "title10Activation": (if random_bool
-                                                                                       {
-                                                                                         "title10ActivationDate": date,
-                                                                                         "anticipatedSeparationDate": date
-                                                                                       }
-                                                                   end),
-                                                                   "obligationTermsOfServiceDateRange": date_range,
-                                                                   "unitName": L.word,
-                                                                   "unitPhone": P.phone_number,
-                                                                   "inactiveDutyTrainingPay": (if random_bool
-                                                                                               {
-                                                                                                 "waiveVABenefitsToRetainTrainingPay": random_bool
-                                                                                               }
-                                                                    end)
-                                                               }
-                                         end),
-                                         "servedInCombatZone": random_bool,
-                                         "separationLocationName": (L.word if random_bool),
-                                         "separationLocationCode": (L.word if random_bool),
-                                         "alternateNames": ([N.name] if random_bool),
-                                         "confinements": (if random_bool
-                                                          [{
-                                                            "confinementDateRange": date_range,
-                                                            "verifiedIndicator": random_bool
-                                                          }]
-                         end)
-                            },
-                            "disabilities": {
-                              "name": L.word,
-                              "disabilityActionType": disability_action_type,
-                              "specialIssues": (if random_bool
-                                                [{
-                                                  "code": special_issue_code,
-                                                  "name": L.word
-                                                }]
-                          end),
-                          "ratedDisabilityId": (L.word if random_bool),
-                          "ratingDecisionId": (L.word if random_bool),
-                          "diagnosticCode": (NUM.number(5) if random_bool),
-                          "classificationCode": (L.word if random_bool)
-                            },
-                            "treatments": (if random_bool
-                                           [{
-                                             "treatmentCenterName": L.word,
-                                             "treatmentDateRange": (date_range if random_bool),
-                                             "treatmentCenterAddress": (address if random_bool),
-                                             "treatmentCenterType": treatment_center_type
-                                           }]
-                     end),
-                     "specialCircumstances": (if random_bool
-                                              [{
-                                                "name": L.word,
-                                                "code": L.word,
-                                                "needed": random_bool
-                                              }]
-                               end),
-                               "applicationExpirationDate": '',
-                               "standardClaim": random_bool,
-                               "claimantCertification": random_bool
+                              "receiveCompensationInLieuOfRetired": random_bool
+                            }
+                           end),
+      "serviceInformation": {
+        "servicePeriods": [{
+          "serviceBranch": service_branch,
+          "dateRange": date_range
+        }],
+        "reservesNationalGuardService": (if random_bool
+                                         {
+                                           "title10Activation": (if random_bool
+                                                                 {
+                                                                   "title10ActivationDate": date,
+                                                                   "anticipatedSeparationDate": date
+                                                                 }
+                                                                end),
+                                           "obligationTermsOfServiceDateRange": date_range,
+                                           "unitName": L.word,
+                                           "unitPhone": P.phone_number,
+                                           "inactiveDutyTrainingPay": (if random_bool
+                                                                       {
+                                                                         "waiveVABenefitsToRetainTrainingPay": random_bool
+                                                                       }
+                                                                       end)
+                                         }
+                                        end),
+        "servedInCombatZone": random_bool,
+        "separationLocationName": (L.word if random_bool),
+        "separationLocationCode": (L.word if random_bool),
+        "alternateNames": ([N.name] if random_bool),
+        "confinements": (if random_bool
+                         [{
+                           "confinementDateRange": date_range,
+                           "verifiedIndicator": random_bool
+                         }]
+                        end)
+      },
+      "disabilities": {
+        "name": L.word,
+        "disabilityActionType": disability_action_type,
+        "specialIssues": (if random_bool
+                          [{
+                            "code": special_issue_code,
+                            "name": L.word
+                          }]
+                         end),
+        "ratedDisabilityId": (L.word if random_bool),
+        "ratingDecisionId": (L.word if random_bool),
+        "diagnosticCode": (NUM.number(5) if random_bool),
+        "classificationCode": (L.word if random_bool)
+      },
+      "treatments": (if random_bool
+                      [{
+                        "treatmentCenterName": L.word,
+                        "treatmentDateRange": (date_range if random_bool),
+                        "treatmentCenterAddress": (address.slice("country", "city", "state") if random_bool),
+                        "treatmentCenterType": treatment_center_type
+                      }]
+                    end),
+      "specialCircumstances": (if random_bool
+                               [{
+                                 "name": L.word,
+                                 "code": L.word,
+                                 "needed": random_bool
+                               }]
+                              end),
+      "standardClaim": random_bool,
+      "claimantCertification": random_bool
     }
   }
 end
