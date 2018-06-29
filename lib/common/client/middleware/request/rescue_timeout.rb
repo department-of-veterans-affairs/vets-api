@@ -14,7 +14,9 @@ module Common
 
           def call(env)
             @app.call(env)
-          rescue Faraday::TimeoutError, Net::ReadTimeout, HTTPClient::ReceiveTimeoutError, Net::OpenTimeout => e
+          rescue Faraday::TimeoutError, Net::ReadTimeout,
+                 HTTPClient::ReceiveTimeoutError, Net::OpenTimeout,
+                 EVSS::ErrorMiddleware::EVSSBackendServiceError => e
             log_exception_to_sentry(e, {}, @error_tags_context, :warn)
             raise Common::Exceptions::SentryIgnoredGatewayTimeout
           end
