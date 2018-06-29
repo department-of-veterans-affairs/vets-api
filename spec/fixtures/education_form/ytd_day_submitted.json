@@ -202,5 +202,19 @@
     "western": {
       "all": 0
     }
+  },
+  "0993": {
+    "eastern": {
+      "all": 0
+    },
+    "southern": {
+      "all": 0
+    },
+    "central": {
+      "all": 1
+    },
+    "western": {
+      "all": 0
+    }
   }
 }
