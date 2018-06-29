@@ -728,6 +728,12 @@ en:
         code: VET360_ADDR309
         detail: UAM address validation not available
         status: 400
+      VET360_ADDRVAL102:
+        <<: *external_defaults
+        title: Address Not Found
+        code: VET360_ADDRVAL102
+        detail: Address Not Found
+        status: 400
       VET360_CORE100:
         <<: *external_defaults
         title: Unexpected Error
