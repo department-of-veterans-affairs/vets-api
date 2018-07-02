@@ -101,7 +101,7 @@ describe Vet360::Stats do
       tag = 'VET360_ADDR133'
 
       expect { described_class.increment_exception(tag) }.to trigger_statsd_increment(
-        "#{statsd_prefix}"
+        statsd_prefix
       )
     end
   end
