@@ -61,6 +61,12 @@ en:
         detail: "%{params} are invalid"
         code: 107
         status: 400
+      message_authenticity_error:
+        <<: *defaults
+        title: Message Authenticity Error
+        detail: Failed to authenticate message from AWS SNS
+        code: AWS_SNS_400
+        status: 400
       parameter_missing:
         <<: *defaults
         title: Missing parameter
