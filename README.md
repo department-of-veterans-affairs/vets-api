@@ -137,6 +137,8 @@ https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Prod
 
 to install the enterprise license on their systems.
 
+**DO NOT commit Gemfile modifications that result from local builds without sidekiq enterprise if you do not have it enabled on your development system**
+
 ## Deployment instructions
 
 Jenkins deploys `vets-api` upon each merge to `master`:
