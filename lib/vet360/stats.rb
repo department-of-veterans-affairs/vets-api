@@ -35,6 +35,11 @@ module Vet360
         increment(bucket1, bucket_for(status))
       end
 
+      # Increments the associated StatsD bucket with the passed in exception error key.
+      #
+      # @param key [String] A Vet360 exception key from the locales/exceptions file
+      #   For example, 'VET360_ADDR133'.
+      #
       def increment_exception(key)
         StatsD.increment(Vet360::Service::STATSD_KEY_PREFIX, tags: ["exceptions:#{key.downcase}"])
       end
