@@ -73,6 +73,25 @@ FactoryBot.define do
       end
     end
 
+    factory :unauthorized_evss_user, traits: [:loa3] do
+      first_name('WESLEY')
+      last_name('FORD')
+      last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
+      ssn('796043735')
+
+      after(:build) do
+        stub_mvi(
+          build(
+            :mvi_profile,
+            edipi: nil,
+            birls_id: '796043735',
+            participant_id: nil,
+            birth_date: '1986-05-06T00:00:00+00:00'.to_date.to_s
+          )
+        )
+      end
+    end
+
     factory :disabilities_compensation_user, traits: [:loa3] do
       first_name('Beyonce')
       last_name('Knowles')

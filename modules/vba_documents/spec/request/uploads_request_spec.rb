@@ -23,6 +23,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         expect(json['data']['attributes']['location']).to eq('https://api.vets.gov/proxy/guid')
       end
     end
+
+    it 'should set consumer name from X-Consumer-Username header' do
+      post '/services/vba_documents/v0/uploads', nil, 'X-Consumer-Username': 'test consumer'
+      upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
+      expect(upload.consumer_name).to eq('test consumer')
+    end
   end
 
   describe '#show /v0/uploads/{id}' do
@@ -37,9 +43,12 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(json['data']['attributes']['location']).to be_nil
     end
 
-    it 'should return not_found for a non-existent submission' do
+    it 'should return not_found with data for a non-existent submission' do
       get '/services/vba_documents/v0/uploads/non_existent_guid'
       expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json['data']['attributes']['guid']).to eq('non_existent_guid')
+      expect(json['data']['attributes']['status']).to eq('error')
     end
 
     it 'should return not_found for an expired submission' do

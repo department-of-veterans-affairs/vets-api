@@ -13,15 +13,16 @@ module VBADocuments
     DOC_PART_NAME = 'content'
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
+    FILE_NUMBER_REGEX = /^\d{8,9}$/
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
-      tempfile = download_raw_file(guid)
+      tempfile, timestamp = download_raw_file(guid)
       begin
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
-        metadata = perfect_metadata(parts, upload)
+        metadata = perfect_metadata(parts, upload, timestamp)
         response = submit(metadata, parts)
         process_response(response, upload)
         log_submission(metadata)
@@ -41,11 +42,13 @@ module VBADocuments
 
     def log_submission(metadata)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
+      pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
                         'source' => metadata['source'],
                         'docType' => metadata['docType'],
-                        'pageCount' => page_total)
+                        'pageCount' => page_total,
+                        'pdfCount' => pdf_total)
     end
 
     def close_part_files(parts)
@@ -102,7 +105,7 @@ module VBADocuments
       tempfile = Tempfile.new(guid)
       version = store.first_version(guid)
       store.download(version, tempfile.path)
-      tempfile
+      [tempfile, version.last_modified]
     end
 
     def validate_parts(parts)
@@ -137,16 +140,19 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC102',
                                             detail: "Non-string values for keys: #{non_string_vals.join(',')}")
       end
+      if (FILE_NUMBER_REGEX =~ metadata['fileNumber']).nil?
+        raise VBADocuments::UploadError.new(code: 'DOC102',
+                                            detail: 'Non-numeric or invalid-length fileNumber')
+      end
     rescue JSON::ParserError
       raise VBADocuments::UploadError.new(code: 'DOC102',
                                           detail: 'Invalid JSON content')
     end
 
-    def perfect_metadata(parts, upload)
+    def perfect_metadata(parts, upload, timestamp)
       metadata = JSON.parse(parts['metadata'])
-      # TODO: This is a fixed value for now, will later concatenate provided source with our identifer
-      metadata['source'] = 'Vets.gov'
-      metadata['receiveDt'] = upload.updated_at.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
+      metadata['source'] = "#{upload.consumer_name} via VA API"
+      metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
       doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
       metadata['hashV'] = doc_info[:hash]

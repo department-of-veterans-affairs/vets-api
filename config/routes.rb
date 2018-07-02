@@ -29,6 +29,8 @@ Rails.application.routes.draw do
       post 'submit'
     end
 
+    resource :upload_supporting_evidence, only: :create
+
     resource :sessions, only: :destroy do
       get :authn_urls, on: :collection
       get :multifactor, on: :member
@@ -54,6 +56,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :dependents_applications, only: [:create]
+
     if Settings.pension_burial.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
@@ -71,6 +75,8 @@ Rails.application.routes.draw do
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+
+    get 'ppiu/payment_information', to: 'ppiu#index'
 
     resources :maintenance_windows, only: [:index]
 
@@ -128,6 +134,7 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+      resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
     scope :id_card do
@@ -173,10 +180,21 @@ Rails.application.routes.draw do
       resource :service_history, only: :show
 
       # Vet360 Routes
-      resource :addresses, only: %i[create update]
-      resource :email_addresses, only: %i[create update]
-      resource :telephones, only: %i[create update]
+      resource :addresses, only: %i[create update destroy]
+      resource :email_addresses, only: %i[create update destroy]
+      resource :telephones, only: %i[create update destroy]
+      post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
+      get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
       get 'status/:transaction_id', to: 'transactions#status'
+      get 'status', to: 'transactions#statuses'
+
+      resource :reference_data, only: %i[show] do
+        collection do
+          get 'countries', to: 'reference_data#countries'
+          get 'states', to: 'reference_data#states'
+          get 'zipcodes', to: 'reference_data#zipcodes'
+        end
+      end
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
@@ -212,6 +230,7 @@ Rails.application.routes.draw do
 
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
+    mount AppealsApi::Engine, at: '/appeals'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

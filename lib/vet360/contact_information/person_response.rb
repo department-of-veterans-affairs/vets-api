@@ -9,10 +9,13 @@ module Vet360
 
       attr_reader :response_body
 
-      def initialize(status, response = nil)
-        @response_body = response&.body
+      def self.from(raw_response = nil)
+        @response_body = raw_response&.body
 
-        super(status, person: Vet360::Models::Person.build_from(@response_body&.dig('bio')))
+        new(
+          raw_response&.status,
+          person: Vet360::Models::Person.build_from(@response_body&.dig('bio'))
+        )
       end
     end
   end

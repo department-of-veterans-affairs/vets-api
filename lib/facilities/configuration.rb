@@ -2,12 +2,10 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
+require 'common/client/middleware/response/facility_validator'
 require 'common/client/middleware/response/facility_parser'
-require 'typhoeus'
-require 'typhoeus/adapters/faraday'
 
 module Facilities
-  # Configuration class used to setup the environment used by client
   class Configuration < Common::Client::Configuration::REST
     def base_path
       Settings.locators.base_path
@@ -28,6 +26,7 @@ module Facilities
 
         conn.response :raise_error, error_prefix: service_name
         conn.response :facility_parser
+        conn.response :facility_validator
 
         conn.adapter Faraday.default_adapter
       end

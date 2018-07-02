@@ -7,7 +7,7 @@ module Common
     # you must define the minor code in the locales file and call this class from
     # raise_error middleware.
     class BackendServiceException < BaseError
-      attr_reader :response_values, :original_status, :original_body
+      attr_reader :response_values, :original_status, :original_body, :key
 
       def initialize(key = nil, response_values = {}, original_status = nil, original_body = nil)
         @response_values = response_values

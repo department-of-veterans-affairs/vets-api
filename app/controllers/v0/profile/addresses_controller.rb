@@ -6,13 +6,29 @@ module V0
       include Vet360::Writeable
 
       before_action { authorize :vet360, :access? }
+      after_action :invalidate_cache
 
       def create
-        write_to_vet360_and_render_transaction!('address', address_params)
+        write_to_vet360_and_render_transaction!(
+          'address',
+          strip_effective_end_date(address_params)
+        )
       end
 
       def update
-        write_to_vet360_and_render_transaction!('address', address_params, http_verb: 'put')
+        write_to_vet360_and_render_transaction!(
+          'address',
+          strip_effective_end_date(address_params),
+          http_verb: 'put'
+        )
+      end
+
+      def destroy
+        write_to_vet360_and_render_transaction!(
+          'address',
+          add_effective_end_date(address_params),
+          http_verb: 'put'
+        )
       end
 
       private
@@ -26,7 +42,7 @@ module V0
           :address_pou,
           :address_type,
           :city,
-          :country,
+          :country_name,
           :country_code_iso2,
           :country_code_iso3,
           :county_code,
@@ -37,7 +53,7 @@ module V0
           :international_postal_code,
           :province,
           :source_date,
-          :state_abbr,
+          :state_code,
           :transaction_id,
           :vet360_id,
           :zip_code,

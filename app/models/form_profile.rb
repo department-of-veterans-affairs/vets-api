@@ -29,6 +29,7 @@ class FormMilitaryInformation
   attribute :va_compensation_type, String
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
+  attribute :service_periods, Array
 end
 
 class FormAddress
@@ -49,6 +50,11 @@ class FormIdentityInformation
   attribute :date_of_birth, Date
   attribute :gender, String
   attribute :ssn
+
+  def hyphenated_ssn
+    return if ssn.blank?
+    "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+  end
 end
 
 class FormContactInformation
@@ -61,6 +67,7 @@ class FormContactInformation
 end
 
 class FormProfile
+  include Virtus.model
   include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
@@ -68,12 +75,14 @@ class FormProfile
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
   EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
+  EVSS_FORMS = ['21-526EZ'].freeze
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
   VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
     '1010EZ'    => ::FormProfiles::VA1010ez,
+    '21-526EZ'  => ::FormProfiles::VA526ez,
     '22-1990'   => ::FormProfiles::VA1990,
     '22-1990N'  => ::FormProfiles::VA1990n,
     '22-1990E'  => ::FormProfiles::VA1990e,
@@ -81,12 +90,13 @@ class FormProfile
     '22-5490'   => ::FormProfiles::VA5490,
     '22-5495'   => ::FormProfiles::VA5495,
     '21P-530'   => ::FormProfiles::VA21p530,
+    '21-686C'   => ::FormProfiles::VA21686c,
     'VIC'       => ::FormProfiles::VIC,
+    '40-10007'  => ::FormProfiles::VA4010007,
     '21P-527EZ' => ::FormProfiles::VA21p527ez
   }.freeze
 
   attr_accessor :form_id
-  include Virtus.model
 
   attribute :identity_information, FormIdentityInformation
   attribute :contact_information, FormContactInformation
@@ -99,6 +109,9 @@ class FormProfile
     forms += PENSION_BURIAL_FORMS if Settings.pension_burial.prefill
     forms += EDU_FORMS if Settings.edu.prefill
     forms += VIC_FORMS if Settings.vic.prefill
+    forms << '21-686C'
+    forms << '40-10007'
+    forms += EVSS_FORMS if Settings.evss.prefill
 
     forms
   end
@@ -221,12 +234,18 @@ class FormProfile
     ''
   end
 
-  def generate_prefill(mappings)
-    result = mappings.map do |k, v|
-      method_chain = v.map(&:to_sym)
-      { k.camelize(:lower) => call_methods(method_chain) }
-    end.reduce({}, :merge)
+  def convert_mapping(hash)
+    prefilled = {}
 
+    hash.each do |k, v|
+      prefilled[k.camelize(:lower)] = v.is_a?(Hash) ? convert_mapping(v) : call_methods(v)
+    end
+
+    prefilled
+  end
+
+  def generate_prefill(mappings)
+    result = convert_mapping(mappings)
     clean!(result)
   end
 
@@ -247,6 +266,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
+    hash.deep_transform_keys! { |k| k.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end

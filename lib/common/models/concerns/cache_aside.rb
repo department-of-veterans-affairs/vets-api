@@ -28,16 +28,26 @@ module Common
 
     def do_cached_with(key:)
       cached = self.class.find(key)
-      return cached.response if cached
+      if cached
+        set_attributes(key, cached.response)
+        return cached.response
+      end
+
       response = yield
-      raise NoMethodError, 'The response class being cached must implement #ok?' unless response.respond_to?(:ok?)
-      cache(key, response) if response.ok?
+      raise NoMethodError, 'The response class being cached must implement #cache?' unless response.respond_to?(:cache?)
+      cache(key, response) if response.cache?
       response
     end
 
     def cache(key, response)
-      self.attributes = { uuid: key, response: response }
+      set_attributes(key, response)
       save
+    end
+
+    private
+
+    def set_attributes(key, response)
+      self.attributes = { uuid: key, response: response }
     end
   end
 end

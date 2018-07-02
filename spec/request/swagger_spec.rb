@@ -314,6 +314,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     describe 'disability compensation' do
+      before do
+        create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
+      end
+
+      let(:form526) do
+        File.read(
+          Rails.root.join('spec', 'support', 'disability_compensation_form', 'front_end_submission.json')
+        )
+      end
+
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -322,9 +332,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports submitting the form' do
+        allow(EVSS::DisabilityCompensationForm::SubmitUploads)
+          .to receive(:start).and_return("JID-#{SecureRandom.base64}")
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 200, auth_options)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+              VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+                expect(subject).to validate(
+                  :post,
+                  '/v0/disability_compensation_form/submit',
+                  200,
+                  auth_options.update(
+                    '_data' => form526
+                  )
+                )
+              end
+            end
+          end
         end
       end
     end
@@ -359,6 +384,40 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             auth_options.update('type' => 'compensation')
           )
         end
+      end
+    end
+
+    describe 'PPIU' do
+      it 'supports getting payment information' do
+        expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, auth_options)
+        end
+      end
+    end
+
+    describe 'supporting evidence upload' do
+      let(:form_attachment) do
+        {
+          id: 272,
+          created_at: Time.now.utc,
+          updated_at: Time.now.utc,
+          guid: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87',
+          ecrypted_file_data: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim',
+          encrypted_file_data: 'ayqrfIpruCPtLGnA'
+        }
+      end
+
+      it 'supports uploading a file' do
+        allow_any_instance_of(FormAttachmentCreate)
+          .to receive(:create)
+          .and_return(form_attachment)
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 200,
+                                    'supporting_evidence_attachment' => { 'file_data' => 'foo.pdf' })
+      end
+
+      it 'returns a 500 if no attachment data is given' do
+        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 500, '')
       end
     end
 
@@ -964,14 +1023,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             200,
-            auth_options.merge('name' => terms.name)
+            'name' => terms.name
           )
           expect(subject).to validate(
             :get,
@@ -996,17 +1054,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'validates auth errors' do
           expect(subject).to validate(
             :get,
-            '/v0/terms_and_conditions',
-            401
-          )
-          expect(subject).to validate(
-            :get,
-            '/v0/terms_and_conditions/{name}/versions/latest',
-            401,
-            'name' => terms.name
-          )
-          expect(subject).to validate(
-            :get,
             '/v0/terms_and_conditions/{name}/versions/latest/user_data',
             401,
             'name' => terms.name
@@ -1025,14 +1072,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions',
-            200,
-            auth_options
+            200
           )
           expect(subject).to validate(
             :get,
             '/v0/terms_and_conditions/{name}/versions/latest',
             404,
-            auth_options.merge('name' => 'blat')
+            'name' => 'blat'
           )
           expect(subject).to validate(
             :get,
@@ -1246,6 +1292,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports deleting vet360 email address data' do
+        expect(subject).to validate(:delete, '/v0/profile/email_addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_email_success') do
+          email_address = build(:email, id: 42)
+
+          expect(subject).to validate(
+            :delete,
+            '/v0/profile/email_addresses',
+            200,
+            auth_options.merge('_data' => email_address.as_json)
+          )
+        end
+      end
+
       it 'supports posting vet360 telephone data' do
         expect(subject).to validate(:post, '/v0/profile/telephones', 401)
 
@@ -1269,6 +1330,21 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           expect(subject).to validate(
             :put,
+            '/v0/profile/telephones',
+            200,
+            auth_options.merge('_data' => telephone.as_json)
+          )
+        end
+      end
+
+      it 'supports deleting vet360 telephone data' do
+        expect(subject).to validate(:delete, '/v0/profile/telephones', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_telephone_success') do
+          telephone = build(:telephone, id: 42)
+
+          expect(subject).to validate(
+            :delete,
             '/v0/profile/telephones',
             200,
             auth_options.merge('_data' => telephone.as_json)
@@ -1305,6 +1381,58 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           )
         end
       end
+
+      it 'supports deleting vet360 address data' do
+        expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
+
+        VCR.use_cassette('vet360/contact_information/delete_address_success') do
+          address = build(:vet360_address, id: 42)
+
+          expect(subject).to validate(
+            :delete,
+            '/v0/profile/addresses',
+            200,
+            auth_options.merge('_data' => address.as_json)
+          )
+        end
+      end
+
+      it 'supports posting to initialize a vet360_id' do
+        expect(subject).to validate(:post, '/v0/profile/initialize_vet360_id', 401)
+
+        VCR.use_cassette('vet360/person/init_vet360_id_success') do
+          expect(subject).to validate(
+            :post,
+            '/v0/profile/initialize_vet360_id',
+            200,
+            auth_options.merge('_data' => {})
+          )
+        end
+      end
+
+      it 'supports getting vet360 country reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/countries', 401)
+
+        VCR.use_cassette('vet360/reference_data/countries') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/countries', 200, auth_options)
+        end
+      end
+
+      it 'supports getting vet360 state reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/states', 401)
+
+        VCR.use_cassette('vet360/reference_data/states') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/states', 200, auth_options)
+        end
+      end
+
+      it 'supports getting vet360 zipcode reference data' do
+        expect(subject).to validate(:get, '/v0/profile/reference_data/zipcodes', 401)
+
+        VCR.use_cassette('vet360/reference_data/zipcodes') do
+          expect(subject).to validate(:get, '/v0/profile/reference_data/zipcodes', 200, auth_options)
+        end
+      end
     end
 
     describe 'profile/status' do
@@ -1321,7 +1449,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       let(:user) { build(:user, :loa3) }
-      it 'supports GETting async transaction' do
+      it 'supports GETting async transaction by ID' do
         transaction = create(
           :address_transaction,
           transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
@@ -1342,6 +1470,96 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             auth_options.merge('transaction_id' => transaction.transaction_id)
           )
         end
+      end
+
+      it 'supports GETting async transactions by user' do
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/status/',
+          401
+        )
+
+        VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/status/',
+            200,
+            auth_options
+          )
+        end
+      end
+    end
+
+    describe 'profile/person/status/:transaction_id' do
+      let(:user_without_vet360_id) { build(:user_with_suffix, :loa3) }
+
+      before do
+        allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
+        Session.create(uuid: user_without_vet360_id.uuid, token: token)
+        User.create(user_without_vet360_id)
+      end
+
+      it 'supports GETting async person transaction by transaction ID' do
+        transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+        transaction = create(
+          :initialize_person_transaction,
+          :init_vet360_id,
+          user_uuid: user_without_vet360_id.uuid,
+          transaction_id: transaction_id
+        )
+
+        expect(subject).to validate(
+          :get,
+          '/v0/profile/person/status/{transaction_id}',
+          401,
+          'transaction_id' => transaction.transaction_id
+        )
+
+        VCR.use_cassette('vet360/contact_information/person_transaction_status') do
+          expect(subject).to validate(
+            :get,
+            '/v0/profile/person/status/{transaction_id}',
+            200,
+            auth_options.merge('transaction_id' => transaction.transaction_id)
+          )
+        end
+      end
+    end
+
+    describe 'when EVSS authorization requirements are not met' do
+      let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
+
+      before do
+        Session.create(uuid: unauthorized_evss_user.uuid, token: token)
+        User.create(unauthorized_evss_user)
+      end
+
+      it 'supports returning a custom 403 Forbidden response', :aggregate_failures do
+        expect(subject).to validate(:get, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:get, '/v0/profile/alternate_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/email', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/primary_phone', 403, auth_options)
+        expect(subject).to validate(:post, '/v0/profile/alternate_phone', 403, auth_options)
+      end
+    end
+
+    describe 'when MVI returns an unexpected response body' do
+      it 'supports returning a custom 502 response' do
+        allow_any_instance_of(MVI::Models::MviProfile).to receive(:gender).and_return(nil)
+        allow_any_instance_of(MVI::Models::MviProfile).to receive(:birth_date).and_return(nil)
+
+        VCR.use_cassette('mvi/find_candidate/missing_birthday_and_gender') do
+          expect(subject).to validate(:get, '/v0/profile/personal_information', 502, auth_options)
+        end
+      end
+    end
+
+    describe 'when EMIS returns an unexpected response body' do
+      it 'supports returning a custom 502 response' do
+        allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
+
+        expect(subject).to validate(:get, '/v0/profile/service_history', 502, auth_options)
       end
     end
   end

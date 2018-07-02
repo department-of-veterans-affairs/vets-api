@@ -6,9 +6,8 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  # TODO: add the :vet360_contact_information profile to these attributes
   attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
-             :in_progress_forms, :prefills_available
+             :in_progress_forms, :prefills_available, :vet360_contact_information
 
   def id
     nil
@@ -33,6 +32,7 @@ class UserSerializer < ActiveModel::Serializer
 
   def vet360_contact_information
     person = object.vet360_contact_info
+    return {} if person.blank?
 
     {
       email: person.email,
@@ -90,7 +90,7 @@ class UserSerializer < ActiveModel::Serializer
     FormProfile.prefill_enabled_forms
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
   def services
     service_list = [
       BackendServices::FACILITIES,
@@ -108,8 +108,9 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
+    service_list << BackendServices::VET360 if object.can_access_vet360?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
-  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 end

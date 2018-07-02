@@ -43,17 +43,19 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::FORM_PREFILL,
           BackendServices::SAVE_IN_PROGRESS,
           BackendServices::APPEALS_STATUS,
-          BackendServices::IDENTITY_PROOFED
+          BackendServices::IDENTITY_PROOFED,
+          BackendServices::VET360
         ].sort
       )
     end
 
     it 'gives me the list of available prefill forms' do
-      num_enabled = 0
+      num_enabled = 2
       num_enabled += FormProfile::EDU_FORMS.length if Settings.edu.prefill
       num_enabled += FormProfile::HCA_FORMS.length if Settings.hca.prefill
       num_enabled += FormProfile::PENSION_BURIAL_FORMS.length if Settings.pension_burial.prefill
       num_enabled += FormProfile::VIC_FORMS.length if Settings.vic.prefill
+      num_enabled += FormProfile::EVSS_FORMS.length if Settings.evss.prefill
 
       expect(JSON.parse(response.body)['data']['attributes']['prefills_available'].length).to be(num_enabled)
     end

@@ -22,6 +22,25 @@ module Vet360
       render_new_transaction!(type, response)
     end
 
+    # Temporary method for debugging during UAT
+    #
+    def log_profile_data_to_sentry(response)
+      log_message_to_sentry(
+        'Profile controller bug',
+        :info,
+        {
+          controller: self.class.to_s,
+          response: response,
+          params: params
+        },
+        profile: 'pciu_profile'
+      )
+    end
+
+    def invalidate_cache
+      Vet360Redis::Cache.invalidate(@current_user)
+    end
+
     private
 
     def build_record(type, params)
@@ -47,6 +66,16 @@ module Vet360
       transaction = "AsyncTransaction::Vet360::#{type.capitalize}Transaction".constantize.start(@current_user, response)
 
       render json: transaction, serializer: AsyncTransaction::BaseSerializer
+    end
+
+    def strip_effective_end_date(params)
+      params[:effective_end_date] = nil
+      params
+    end
+
+    def add_effective_end_date(params)
+      params[:effective_end_date] = Time.now.utc.iso8601
+      params
     end
   end
 end

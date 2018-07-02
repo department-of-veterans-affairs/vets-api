@@ -2,17 +2,7 @@
 
 module VIC
   class Configuration < Common::Client::Configuration::REST
-    def self.get_sf_instance_url(env)
-      return 'https://va.my.salesforce.com' if env == 'prod'
-
-      suffix = '33'
-      prefix = env.upcase
-      prefix = "VIC#{prefix}" unless env == 'uat'
-
-      "https://va--#{prefix}.cs#{suffix}.my.salesforce.com"
-    end
-
-    SALESFORCE_INSTANCE_URL = get_sf_instance_url(Settings.salesforce.env)
+    SALESFORCE_INSTANCE_URL = Settings.salesforce.url
 
     def base_path
       "#{SALESFORCE_INSTANCE_URL}/services/oauth2/token"

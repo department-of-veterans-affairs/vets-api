@@ -7,12 +7,13 @@ module EMIS
   module Responses
     class GetMilitaryServiceEpisodesResponse < EMIS::Responses::Response
       def item_tag_name
-        'militaryServiceEpisodeData'
+        'militaryServiceEpisode'
       end
 
       # rubocop:disable Metrics/MethodLength
       def item_schema
         {
+          'personnelCategoryTypeCode' => {},
           'serviceEpisodeStartDate' => { rename: 'begin_date' },
           'serviceEpisodeEndDate' => { rename: 'end_date' },
           'serviceEpisodeTerminationReason' => { rename: 'termination_reason' },

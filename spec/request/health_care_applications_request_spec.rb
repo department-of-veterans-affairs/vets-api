@@ -79,6 +79,24 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             'success' => true }
         end
 
+        context 'with async_compatible set' do
+          before do
+            params[:async_compatible] = true
+          end
+
+          it 'should submit async' do
+            subject
+            body = JSON.parse(response.body)
+            expect(body).to eq(
+              'data' =>
+             { 'id' => HealthCareApplication.last.id.to_s,
+               'type' => 'health_care_applications',
+               'attributes' =>
+               { 'state' => 'pending', 'formSubmissionId' => nil, 'timestamp' => nil } }
+            )
+          end
+        end
+
         it 'should render success', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_anon', match_requests_on: [:body]) do
             subject
@@ -102,7 +120,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
         it 'should render success and delete the saved form', run_at: '2017-01-31' do
           VCR.use_cassette('hca/submit_auth', match_requests_on: [:body]) do
-            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('10-10EZ').once
+            expect_any_instance_of(ApplicationController).to receive(:clear_saved_form).with('1010ez').once
             subject
             expect(JSON.parse(response.body)).to eq(body)
           end
@@ -140,30 +158,51 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
       end
 
-      context 'with a SOAP error' do
-        let(:error) { Common::Client::Errors::HTTPError.new('error message') }
-
+      context 'when hca service raises an error' do
         before do
           allow_any_instance_of(HCA::Service).to receive(:post) do
             raise error
           end
-          Settings.sentry.dsn = 'asdf'
-        end
-        after do
-          Settings.sentry.dsn = nil
         end
 
-        it 'should render error message' do
-          expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
+        context 'with a validation error' do
+          let(:error) { HCA::SOAPParser::ValidationError.new('error') }
 
-          subject
+          it 'should render error message' do
+            subject
 
-          expect(response.code).to eq('400')
-          expect(JSON.parse(response.body)).to eq(
-            'errors' => [
-              { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
-            ]
-          )
+            expect(response.code).to eq('400')
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                { 'title' => 'Operation failed', 'detail' => 'error', 'code' => 'VA900', 'status' => '400' }
+              ]
+            )
+          end
+        end
+
+        context 'with a SOAP error' do
+          let(:error) { Common::Client::Errors::HTTPError.new('error message') }
+
+          before do
+            Settings.sentry.dsn = 'asdf'
+          end
+
+          after do
+            Settings.sentry.dsn = nil
+          end
+
+          it 'should render error message' do
+            expect(Raven).to receive(:capture_exception).with(error, level: 'error').once
+
+            subject
+
+            expect(response.code).to eq('400')
+            expect(JSON.parse(response.body)).to eq(
+              'errors' => [
+                { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
+              ]
+            )
+          end
         end
       end
     end

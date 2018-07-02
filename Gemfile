@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+gem 'appeals_api', path: 'modules/appeals_api'
 gem 'vba_documents', path: 'modules/vba_documents'
 
 # Anchored versions, do not change
@@ -28,7 +29,7 @@ gem 'faraday'
 gem 'faraday_middleware'
 gem 'fastimage'
 gem 'figaro'
-gem 'govdelivery-tms', require: 'govdelivery/tms/mail/delivery_method'
+gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'holidays'
 gem 'httpclient'
@@ -66,6 +67,7 @@ gem 'sentry-raven'
 gem 'shrine'
 gem 'sidekiq-instrument'
 gem 'sidekiq-unique-jobs'
+gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
 gem 'typhoeus'

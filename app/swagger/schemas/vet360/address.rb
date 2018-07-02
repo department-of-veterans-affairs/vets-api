@@ -12,8 +12,8 @@ module Swagger
             address_pou
             address_type
             city
-            country
-            state_abbr
+            country_name
+            state_code
             zip_code
           ]
           property :address_line1,
@@ -31,11 +31,11 @@ module Swagger
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::DOMESTIC
           property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country,
+          property :country_name,
                    type: :string,
-                   example: 'USA',
+                   example: 'United States',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
@@ -54,9 +54,9 @@ module Swagger
             address_pou
             address_type
             city
-            country
+            country_name
             id
-            state_abbr
+            state_code
             zip_code
           ]
           property :id, type: :integer, example: 1
@@ -75,11 +75,11 @@ module Swagger
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::DOMESTIC
           property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country,
+          property :country_name,
                    type: :string,
-                   example: 'USA',
+                   example: 'United States',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
@@ -99,7 +99,7 @@ module Swagger
             address_type
             international_postal_code
             city
-            country
+            country_name
           ]
           property :address_line1,
                    type: :string,
@@ -116,7 +116,7 @@ module Swagger
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::INTERNATIONAL
           property :city, type: :string, example: 'Florence', maxLength: 100
-          property :country,
+          property :country_name,
                    type: :string,
                    example: 'Italy',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
@@ -131,7 +131,7 @@ module Swagger
             id
             international_postal_code
             city
-            country
+            country_name
           ]
           property :id, type: :integer, example: 1
           property :address_line1,
@@ -149,7 +149,7 @@ module Swagger
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::INTERNATIONAL
           property :city, type: :string, example: 'Florence', maxLength: 100
-          property :country,
+          property :country_name,
                    type: :string,
                    example: 'Italy',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
@@ -162,8 +162,8 @@ module Swagger
             address_pou
             address_type
             city
-            country
-            state_abbr
+            country_name
+            state_code
             zip_code
           ]
           property :address_line1,
@@ -181,11 +181,11 @@ module Swagger
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::MILITARY
           property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country,
+          property :country_name,
                    type: :string,
-                   example: 'USA',
+                   example: 'United States',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,
@@ -204,9 +204,9 @@ module Swagger
             address_pou
             address_type
             city
-            country
+            country_name
             id
-            state_abbr
+            state_code
             zip_code
           ]
           property :id, type: :integer, example: 1
@@ -225,11 +225,11 @@ module Swagger
                    enum: ::Vet360::Models::Address::ADDRESS_TYPES,
                    example: ::Vet360::Models::Address::MILITARY
           property :city, type: :string, example: 'Fulton', maxLength: 100
-          property :country,
+          property :country_name,
                    type: :string,
-                   example: 'USA',
+                   example: 'United States',
                    pattern: ::Vet360::Models::Address::VALID_ALPHA_REGEX.inspect
-          property :state_abbr,
+          property :state_code,
                    type: :string,
                    example: 'MS',
                    minLength: 2,

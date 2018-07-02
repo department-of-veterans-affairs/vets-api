@@ -157,7 +157,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   end
 
   context 'health services' do
-    it 'includes emergency_care and urgent_care when appropriate' do
+    it 'should include the appropriate services from wait time data' do
       setup_pdx
       get '/v0/facilities/va/vha_648'
       expect(response).to be_success
@@ -165,9 +165,11 @@ RSpec.describe 'VA GIS Integration', type: :request do
       services = JSON.parse(response.body)['data']['attributes']['services']
       expect(services['health']).to include('sl1' => ['EmergencyCare'], 'sl2' => [])
       expect(services['health']).to include('sl1' => ['UrgentCare'], 'sl2' => [])
+      expect(services['health']).to include('sl1' => ['Audiology'], 'sl2' => [])
+      expect(services['health']).to include('sl1' => ['Optometry'], 'sl2' => [])
     end
 
-    it 'does not include emergency_care and urgent_care when appropriate' do
+    it 'should not include services that have no wait_time_data' do
       setup_pdx
       get '/v0/facilities/va/vha_648A4'
       expect(response).to be_success
@@ -175,6 +177,8 @@ RSpec.describe 'VA GIS Integration', type: :request do
       services = JSON.parse(response.body)['data']['attributes']['services']
       expect(services['health']).not_to include('sl1' => ['EmergencyCare'], 'sl2' => [])
       expect(services['health']).not_to include('sl1' => ['UrgentCare'], 'sl2' => [])
+      expect(services['health']).not_to include('sl1' => ['Audiology'], 'sl2' => [])
+      expect(services['health']).not_to include('sl1' => ['Optometry'], 'sl2' => [])
     end
   end
 

@@ -3,15 +3,17 @@
 require 'rails_helper'
 module Facilities
   RSpec.describe VHAFacility do
+    before(:each) { BaseFacility.validate_on_load = false }
+    after(:each) { BaseFacility.validate_on_load = true }
     it 'should be a VHAFacility object' do
       expect(described_class.new).to be_a(VHAFacility)
     end
 
     describe 'pull_source_data' do
       it 'should pull data from ArcGIS endpoint' do
-        VCR.use_cassette('facilities/va/vha_facilities') do
+        VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
           list = VHAFacility.pull_source_data
-          expect(list.size).to eq(1186)
+          expect(list.size).to eq(4)
           expect(list.all? { |item| item.is_a?(VHAFacility) })
         end
       end

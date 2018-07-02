@@ -25,6 +25,14 @@ RSpec.describe AsyncTransaction::Base, type: :model do
     end
   end
 
+  describe 'Serialization' do
+    let(:transaction) { build(:address_transaction) }
+    it 'JSON encodes metadata' do
+      transaction.update(metadata: { unserialized: 'data' })
+      expect(transaction.metadata.is_a?(String))
+    end
+  end
+
   describe 'Subclasses' do
     let(:transaction1) { create(:address_transaction, transaction_id: 1) }
     let(:transaction2) { create(:email_transaction, transaction_id: 2) }
@@ -45,6 +53,21 @@ RSpec.describe AsyncTransaction::Base, type: :model do
                 .where(transaction_id: transaction3.transaction_id, source: transaction3.source).first
       expect(record3.id).to eq(transaction3.id)
       expect(record3).to be_instance_of(AsyncTransaction::Vet360::TelephoneTransaction)
+    end
+  end
+
+  describe '.stale scope' do
+    it 'finds "old" transactions but not new ones' do
+      transaction1 = create(:address_transaction,
+                            created_at: (Time.current - 31.days).iso8601,
+                            status: AsyncTransaction::Base::COMPLETED)
+      create(:telephone_transaction,
+             created_at: (Time.current - 29.days).iso8601,
+             status: AsyncTransaction::Base::COMPLETED)
+
+      transactions = AsyncTransaction::Base.stale
+      expect(transactions.count).to eq(1)
+      expect(transactions.first).to eql(transaction1)
     end
   end
 end

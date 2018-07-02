@@ -2,12 +2,13 @@
 
 require 'rails_helper'
 
-describe Vet360::ContactInformation::Service do
+describe Vet360::ContactInformation::Service, skip_vet360: true do
   let(:user) { build(:user, :loa3) }
   subject { described_class.new(user) }
 
   before do
     allow(user).to receive(:vet360_id).and_return('1')
+    allow(user).to receive(:icn).and_return('1234')
   end
 
   describe '#get_person' do
@@ -24,18 +25,16 @@ describe Vet360::ContactInformation::Service do
     context 'when not successful' do
       it 'returns a status of 404' do
         VCR.use_cassette('vet360/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-          expect { subject.get_person }.to raise_error do |e|
-            expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
-            expect(e.errors.first.code).to eq('VET360_CORE103')
-          end
+          response = subject.get_person
+          expect(response).not_to be_ok
+          expect(response.person).to be_nil
         end
       end
     end
   end
 
   describe '#post_email' do
-    let(:email) { build(:email, vet360_id: user.vet360_id) }
+    let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_email_success', VCR::MATCH_EVERYTHING) do
@@ -62,7 +61,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#put_email' do
-    let(:email) { build(:email, vet360_id: user.vet360_id) }
+    let(:email) { build(:email, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
@@ -77,7 +76,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#post_address' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
@@ -103,7 +102,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#put_address' do
-    let(:address) { build(:vet360_address, vet360_id: user.vet360_id) }
+    let(:address) { build(:vet360_address, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
@@ -118,7 +117,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#put_telephone' do
-    let(:telephone) { build(:telephone, vet360_id: user.vet360_id) }
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/put_telephone_success', VCR::MATCH_EVERYTHING) do
@@ -133,7 +132,7 @@ describe Vet360::ContactInformation::Service do
   end
 
   describe '#post_telephone' do
-    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil) }
+    let(:telephone) { build(:telephone, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn) }
     context 'when successful' do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_telephone_success', VCR::MATCH_EVERYTHING) do
@@ -176,7 +175,7 @@ describe Vet360::ContactInformation::Service do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
@@ -205,7 +204,7 @@ describe Vet360::ContactInformation::Service do
         VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
@@ -232,7 +231,7 @@ describe Vet360::ContactInformation::Service do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
@@ -272,6 +271,88 @@ describe Vet360::ContactInformation::Service do
         expect { subject.get_address_transaction_status('1234') }.to raise_error do |e|
           expect(e).to be_a(RuntimeError)
           expect(e.message).to eq(error_message)
+        end
+      end
+    end
+  end
+
+  describe '#get_person_transaction_status' do
+    context 'when successful' do
+      let(:transaction_id) { '786efe0e-fd20-4da2-9019-0c00540dba4d' }
+
+      it 'returns a status of 200', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status', VCR::MATCH_EVERYTHING) do
+          response = subject.get_person_transaction_status(transaction_id)
+
+          expect(response).to be_ok
+          expect(response.transaction).to be_a(Vet360::Models::Transaction)
+          expect(response.transaction.id).to eq(transaction_id)
+        end
+      end
+    end
+
+    context 'when not successful' do
+      let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
+
+      it 'returns a status of 400', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PERS200')
+          end
+        end
+      end
+    end
+  end
+
+  context 'When reporting StatsD statistics' do
+    context 'when checking transaction status' do
+      context 'for emails' do
+        it 'increments the StatsD Vet360 posts_and_puts counters' do
+          transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+
+          VCR.use_cassette('vet360/contact_information/email_transaction_status') do
+            expect { subject.get_email_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
+            )
+          end
+        end
+      end
+
+      context 'for telephones' do
+        it 'increments the StatsD Vet360 posts_and_puts counters' do
+          transaction_id = 'a50193df-f4d5-4b6a-b53d-36fed2db1a15'
+
+          VCR.use_cassette('vet360/contact_information/telephone_transaction_status') do
+            expect { subject.get_telephone_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
+            )
+          end
+        end
+      end
+
+      context 'for addresses' do
+        it 'increments the StatsD Vet360 posts_and_puts counters' do
+          transaction_id = '0faf342f-5966-4d3f-8b10-5e9f911d07d2'
+
+          VCR.use_cassette('vet360/contact_information/address_transaction_status') do
+            expect { subject.get_address_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success"
+            )
+          end
+        end
+      end
+
+      context 'for initializing a vet360_id' do
+        it 'increments the StatsD Vet360 init_vet360_id counters' do
+          transaction_id = '786efe0e-fd20-4da2-9019-0c00540dba4d'
+
+          VCR.use_cassette('vet360/contact_information/person_transaction_status') do
+            expect { subject.get_person_transaction_status(transaction_id) }.to trigger_statsd_increment(
+              "#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success"
+            )
+          end
         end
       end
     end

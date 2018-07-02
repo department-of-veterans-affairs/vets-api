@@ -13,6 +13,7 @@ require 'support/impl_matchers'
 require 'support/negated_matchers'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
+require 'support/vet360/stub_vet360'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -22,7 +23,7 @@ unless ENV['NOCOVERAGE']
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
     # TODO: remove this filter after removing sentry logging
-    add_filter 'app/controllers/v0/profile/personal_informations_controller.rb'
+    add_filter 'app/controllers/v0/profile'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'
@@ -40,6 +41,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
+    add_group 'AppealsApi', 'modules/appeals_api/'
     add_filter 'version.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop

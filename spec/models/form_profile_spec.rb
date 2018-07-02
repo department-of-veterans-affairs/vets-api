@@ -25,26 +25,60 @@ RSpec.describe FormProfile, type: :model do
     )
   end
 
+  let(:full_name) do
+    {
+      'first' => user.first_name&.capitalize,
+      'last' => user.last_name&.capitalize,
+      'suffix' => user.va_profile[:suffix]
+    }
+  end
+
   let(:veteran_full_name) do
     {
-      'veteranFullName' => {
-        'first' => user.first_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.va_profile[:suffix]
-      }
+      'veteranFullName' => full_name
+    }
+  end
+
+  let(:address) do
+    {
+      'street' => user.va_profile[:address][:street],
+      'city' => user.va_profile[:address][:city],
+      'state' => user.va_profile[:address][:state],
+      'country' => user.va_profile[:address][:country],
+      'postal_code' => user.va_profile[:address][:postal_code]
     }
   end
 
   let(:veteran_address) do
     {
-      'veteranAddress' => {
-        'street' => user.va_profile[:address][:street],
-        'city' => user.va_profile[:address][:city],
-        'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+      'veteranAddress' => address
+    }
+  end
+
+  let(:v40_10007_expected) do
+    {
+      'application' => {
+        'claimant' => {
+          'address' => address,
+          'dateOfBirth' => user.birth_date,
+          'name' => full_name,
+          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'email' => user.pciu_email,
+          'phoneNumber' => us_phone
+        }
       }
     }
+  end
+
+  let(:v21_686_c_expected) do
+    {
+      'claimantAddress' => address,
+      'claimantFullName' => full_name,
+      'dayPhone' => us_phone,
+      'claimantSocialSecurityNumber' => user.ssn,
+      'veteranSocialSecurityNumber' => user.ssn,
+      'claimantEmail' => user.pciu_email
+    }.merge(veteran_full_name)
   end
 
   let(:v22_1990_expected) do
@@ -274,6 +308,60 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v21_526_ez_expected) do
+    {
+      'disabilities' => [
+        {
+          'diagnosticCode' => 5238,
+          'name' => 'Diabetes mellitus0',
+          'ratedDisabilityId' => '0',
+          'ratingDecisionId' => '63655',
+          'ratingPercentage' => 100,
+          'specialIssues' => [
+            {
+              'code' => 'TRM',
+              'name' => 'Personal Trauma PTSD'
+            }
+          ]
+        },
+        {
+          'diagnosticCode' => 5238,
+          'name' => 'Diabetes mellitus1',
+          'ratedDisabilityId' => '1',
+          'ratingDecisionId' => '63655',
+          'ratingPercentage' => 100,
+          'specialIssues' => [
+            {
+              'code' => 'TRM',
+              'name' => 'Personal Trauma PTSD'
+            }
+          ]
+        }
+      ],
+      'servedInCombatZone' => true,
+      'servicePeriods' => [
+        {
+          'serviceBranch' => 'Air Force Reserve',
+          'dateRange' => {
+            'from' => '2007-04-01',
+            'to' => '2016-06-01'
+          }
+        }
+      ],
+      'veteran' => {
+        'mailingAddress' => {
+          'country' => 'USA',
+          'city' => 'Washington',
+          'state' => 'DC',
+          'zipCode' => '20011',
+          'addressLine1' => '140 Rock Creek Church Rd NW'
+        },
+        'primaryPhone' => '4445551212',
+        'emailAddress' => 'test2@test1.net'
+      }
+    }
+  end
+
   before(:each) do
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -307,6 +395,17 @@ RSpec.describe FormProfile, type: :model do
       expect(user).to receive(:authorize).with(:emis, :access?).and_return(yes)
     end
 
+    def strip_required(schema)
+      new_schema = {}
+
+      schema.each do |k, v|
+        next if k == 'required'
+        new_schema[k] = v.is_a?(Hash) ? strip_required(v) : v
+      end
+
+      new_schema
+    end
+
     def expect_prefilled(form_id)
       prefilled_data = Oj.load(described_class.for(form_id).prefill(user).to_json)['form_data']
 
@@ -315,7 +414,8 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
-        schema = VetsJsonSchema::SCHEMAS[schema_form_id].except('required', 'anyOf')
+        schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
+
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
@@ -364,43 +464,71 @@ RSpec.describe FormProfile, type: :model do
           yes: true
         )
         expect(user).to receive(:can_access_id_card?).and_return(true)
+        expect(military_information).to receive(:service_periods).and_return(
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+        )
+      end
+
+      context 'with vets360 prefill on' do
+        before do
+          Settings.vet360.prefill = true
+
+          v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+          v22_1990_expected['homePhone'] = '(303) 555-1234'
+          v22_1990_expected['mobilePhone'] = '(303) 555-1234'
+          v22_1990_expected['veteranAddress'] = {
+            'street' => '1493 Martin Luther King Rd',
+            'city' => 'Fulton',
+            'state' => 'MS',
+            'country' => 'USA',
+            'postalCode' => '38843'
+          }
+        end
+
+        it 'should prefill 1990' do
+          expect_prefilled('22-1990')
+        end
+
+        after do
+          Settings.vet360.prefill = false
+        end
       end
 
       context 'with a user that can prefill emis' do
         before do
           can_prefill_emis(true)
+          user.va_profile[:address].street = user.va_profile[:address].street.slice(0, 20)
         end
 
-        it 'returns prefilled VIC' do
-          expect_prefilled('VIC')
+        %w[
+          VIC
+          22-1990
+          22-1990N
+          22-1990E
+          22-1995
+          22-5490
+          22-5495
+          40-10007
+          21-686C
+          1010ez
+        ].each do |form_id|
+          it "returns prefilled #{form_id}" do
+            expect_prefilled(form_id)
+          end
         end
 
-        it 'returns prefilled 22-1990' do
-          expect_prefilled('22-1990')
-        end
+        context 'with a user that can prefill evss' do
+          before do
+            expect(user).to receive(:authorize).with(:evss, :access?).exactly(2).times.and_return(true)
+          end
 
-        it 'returns prefilled 22-1990N' do
-          expect_prefilled('22-1990N')
-        end
-
-        it 'returns prefilled 22-1990E' do
-          expect_prefilled('22-1990E')
-        end
-
-        it 'returns prefilled 22-1995' do
-          expect_prefilled('22-1995')
-        end
-
-        it 'returns prefilled 22-5490' do
-          expect_prefilled('22-5490')
-        end
-
-        it 'returns prefilled 22-5495' do
-          expect_prefilled('22-5495')
-        end
-
-        it 'returns the va profile mapped to the healthcare form' do
-          expect_prefilled('1010ez')
+          it 'returns prefilled 21-526EZ' do
+            VCR.use_cassette('evss/pciu_address/address_domestic') do
+              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                expect_prefilled('21-526EZ')
+              end
+            end
+          end
         end
       end
     end

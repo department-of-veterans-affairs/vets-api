@@ -113,6 +113,7 @@ class User < Common::RedisStore
   delegate :birls_id, to: :mvi
   delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
+  delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
   delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
@@ -229,18 +230,24 @@ class User < Common::RedisStore
     @identity ||= UserIdentity.find(uuid)
   end
 
-  private
+  def vet360_contact_info
+    return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+  end
+
+  def can_access_vet360?
+    loa3? && icn.present? && vet360_id.present?
+  rescue StandardError # Default to false for any error
+    false
+  end
 
   def mvi
     @mvi ||= Mvi.for_user(self)
   end
 
+  private
+
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self
-  end
-
-  def vet360_contact_info
-    return nil unless Settings.vet360.contact_information.enabled
-    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 end

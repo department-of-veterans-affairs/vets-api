@@ -126,7 +126,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
               'city' => user.va_profile.address.city,
               'state' => user.va_profile.address.state,
               'country' => user.va_profile.address.country,
-              'postal_code' => user.va_profile.address.postal_code
+              'postalCode' => user.va_profile.address.postal_code
             },
             'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }

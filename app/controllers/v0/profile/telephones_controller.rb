@@ -6,13 +6,29 @@ module V0
       include Vet360::Writeable
 
       before_action { authorize :vet360, :access? }
+      after_action :invalidate_cache
 
       def create
-        write_to_vet360_and_render_transaction!('telephone', telephone_params)
+        write_to_vet360_and_render_transaction!(
+          'telephone',
+          strip_effective_end_date(telephone_params)
+        )
       end
 
       def update
-        write_to_vet360_and_render_transaction!('telephone', telephone_params, http_verb: 'put')
+        write_to_vet360_and_render_transaction!(
+          'telephone',
+          strip_effective_end_date(telephone_params),
+          http_verb: 'put'
+        )
+      end
+
+      def destroy
+        write_to_vet360_and_render_transaction!(
+          'telephone',
+          add_effective_end_date(telephone_params),
+          http_verb: 'put'
+        )
       end
 
       private
@@ -22,8 +38,8 @@ module V0
           :area_code,
           :country_code,
           :extension,
-          :effective_end_date,
           :effective_start_date,
+          :effective_end_date,
           :id,
           :is_international,
           :is_textable,

@@ -11,6 +11,7 @@ module Vet360
       attribute :effective_start_date, Common::ISO8601Time
       attribute :id, Integer
       attribute :source_date, Common::ISO8601Time
+      attribute :source_system_user, String
       attribute :transaction_id, String
       attribute :updated_at, Common::ISO8601Time
       attribute :vet360_id, String
@@ -30,16 +31,18 @@ module Vet360
           bio: {
             emailAddressText: @email_address,
             emailId: @id,
-            # emailPermInd: true, # @TODO ??
             originatingSourceSystem: SOURCE_SYSTEM,
+            sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id
+            vet360Id: @vet360_id,
+            effectiveStartDate: @effective_start_date,
+            effectiveEndDate: @effective_end_date
           }
         }.to_json
       end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Email model
-      # @params body [Hash] the decoded response body from Vet360
+      # @param body [Hash] the decoded response body from Vet360
       # @return [Vet360::Models::Email] the model built from the response body
       def self.build_from(body)
         Vet360::Models::Email.new(

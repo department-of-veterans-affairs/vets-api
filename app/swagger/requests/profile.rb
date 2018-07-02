@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/ClassLength
+# rubocop:disable Metrics/LineLength
 module Swagger
   module Requests
     class Profile
@@ -110,6 +111,58 @@ module Swagger
             end
           end
         end
+
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Logically deletes a user\'s existing Vet360 address'
+          key :operationId, 'deleteVet360Address'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :domestic_body
+            key :in, :body
+            key :description, 'Attributes of the domestic address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360DomesticAddress
+            end
+          end
+
+          parameter do
+            key :name, :international_body
+            key :in, :body
+            key :description, 'Attributes of the international address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360InternationalAddress
+            end
+          end
+
+          parameter do
+            key :name, :military_overseas_body
+            key :in, :body
+            key :description, 'Attributes of the military overseas address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360MilitaryOverseasAddress
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/alternate_phone' do
@@ -128,6 +181,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :PhoneNumber
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -162,6 +222,13 @@ module Swagger
               key :'$ref', :PhoneNumber
             end
           end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
+            end
+          end
         end
       end
 
@@ -181,6 +248,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :Email
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -211,6 +285,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :Email
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -276,6 +357,36 @@ module Swagger
             end
           end
         end
+
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Deletes a users existing Vet360 email address'
+          key :operationId, 'deleteVet360EmailAddress'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes of an email address.'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360Email
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
       end
 
       swagger_path '/v0/profile/full_name' do
@@ -309,6 +420,53 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/profile/initialize_vet360_id' do
+        operation :post do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Initializes a vet360_id for the current user'
+          key :operationId, 'initializeVet360Id'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/person/status/{transaction_id}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets an updated person transaction by ID'
+          key :operationId, 'getPersonTransactionStatusById'
+          key :tags, %w[profile]
+
+          parameter :authorization
+          parameter do
+            key :name, :transaction_id
+            key :in, :path
+            key :description, 'ID of transaction'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/profile/personal_information' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -335,6 +493,27 @@ module Swagger
               end
             end
           end
+
+          response 502 do
+            key :description, 'Unexpected response body'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status source]
+                  property :title, type: :string, example: 'Unexpected response body'
+                  property :detail,
+                           type: :string,
+                           example: 'MVI service responded without a birthday or a gender.'
+                  property :code, type: :string, example: 'MVI_BD502'
+                  property :status, type: :string, example: '502'
+                  property :source, type: :string, example: 'V0::Profile::PersonalInformationsController'
+                end
+              end
+            end
+          end
         end
       end
 
@@ -354,6 +533,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :PhoneNumber
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -386,6 +572,13 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :PhoneNumber
+            end
+          end
+
+          response 403 do
+            key :description, 'Forbidden'
+            schema do
+              key :'$ref', :EVSSAuthError
             end
           end
         end
@@ -425,6 +618,27 @@ module Swagger
               end
             end
           end
+
+          response 502 do
+            key :description, 'Unexpected response body'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status source]
+                  property :title, type: :string, example: 'Unexpected response body'
+                  property :detail,
+                           type: :string,
+                           example: 'EMIS service responded with something other than the expected array of service history hashes.'
+                  property :code, type: :string, example: 'EMIS_HIST502'
+                  property :status, type: :string, example: '502'
+                  property :source, type: :string, example: 'V0::Profile::ServiceHistoriesController'
+                end
+              end
+            end
+          end
         end
       end
 
@@ -449,6 +663,30 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/status/' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Gets the most recent transactions for a user.'\
+            ' Response will include an array of transactions that are still in progress,'\
+            ' or that were just updated to COMPLETED during the course of this request.'\
+            ' The array will be empty if no transactions are pending or updated.'\
+            ' Only the most recent transaction for each profile field will be included'\
+            ' so there may be up to 3 (Address, Email, Telephone).'
+          key :operationId, 'getTransactionStatusesByUser'
+          key :tags, %w[profile]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionsVet360
             end
           end
         end
@@ -514,8 +752,96 @@ module Swagger
             end
           end
         end
+
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Deletes an existing telephone'
+          key :operationId, 'deleteVet360Telephone'
+          key :tags, %w[
+            profile
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'Attributes of a telephone'
+            key :required, true
+
+            schema do
+              key :'$ref', :PutVet360Telephone
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :AsyncTransactionVet360
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/reference_data/countries' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET Vet360 Country reference data'
+          key :operationId, 'getVet360ReferenceDataCountries'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of valid Vet360 countries'
+            schema do
+              key :'$ref', :Vet360Countries
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/reference_data/states' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET Vet360 State reference data'
+          key :operationId, 'getVet360ReferenceDataStates'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of valid Vet360 states'
+            schema do
+              key :'$ref', :Vet360States
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/profile/reference_data/zipcodes' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET Vet360 Zipcode reference data'
+          key :operationId, 'getVet360ReferenceDataZipcodes'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of valid Vet360 zipcodes'
+            schema do
+              key :'$ref', :Vet360Zipcodes
+            end
+          end
+        end
       end
     end
   end
 end
 # rubocop:enable Metrics/ClassLength
+# rubocop:enable Metrics/LineLength
