@@ -94,7 +94,7 @@ class FormProfile
     'VIC'       => ::FormProfiles::VIC,
     '40-10007'  => ::FormProfiles::VA4010007,
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '22-0993'   => ::FormProfiles::VA0993,
+    '22-0993'   => ::FormProfiles::VA0993
   }.freeze
 
   attr_accessor :form_id

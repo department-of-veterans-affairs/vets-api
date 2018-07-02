@@ -121,7 +121,7 @@ RSpec.describe FormProfile, type: :model do
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => user.ssn,
+      'veteranSocialSecurityNumber' => user.ssn
     }
   end
 

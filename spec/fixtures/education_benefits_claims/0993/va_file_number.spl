@@ -1,4 +1,12 @@
-<%= header %>
+*INIT*
+MARK
+
+OLSON
+
+
+V0993
+
+
 *START*
 VA Form 22-0993
 AUG 2018
@@ -9,12 +17,15 @@ AUG 2018
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %> 
-VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
+SSN: N/A
+VA File Number: c12345678
 
-Name:   <%= full_name(@applicant.veteranFullName) %>
+Name:   Mark Olson
 
       Certification and Signature of Applicant
 Signature of Applicant                                               Date
 
-<%= parse_with_template_path('footer') %>
+Electronically Received by VA:  2017-01-17
+Confirmation #:  V-EBC-1
+
+*END*

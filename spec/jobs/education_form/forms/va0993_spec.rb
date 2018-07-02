@@ -7,7 +7,9 @@ RSpec.describe EducationForm::Forms::VA0993 do
 
   subject { described_class.new(education_benefits_claim) }
 
-  test_spool_file('0993', 'simple')
+  %w[ssn va_file_number].each do |form|
+    test_spool_file('0993', form)
+  end
 
   context '#direct_deposit_type' do
     let(:education_benefits_claim) { create(:va0993).education_benefits_claim }
