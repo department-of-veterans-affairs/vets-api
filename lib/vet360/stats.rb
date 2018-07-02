@@ -35,6 +35,10 @@ module Vet360
         increment(bucket1, bucket_for(status))
       end
 
+      def increment_exception(key)
+        StatsD.increment(Vet360::Service::STATSD_KEY_PREFIX, tags: ["exceptions:#{key.downcase}"])
+      end
+
       private
 
       def status_in(response)
