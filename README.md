@@ -129,7 +129,7 @@ make: *** [db] Error 1
 Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
 developers can bypass the installation of Sidekiq Enterprise with
 
-- `EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
+- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
 
 Vets.gov Team Engineers should follow instructions here: 
 
