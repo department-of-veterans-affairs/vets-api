@@ -12,10 +12,10 @@ class SupportingEvidenceAttachmentUploader < CarrierWave::Uploader::Base
 
     if Rails.env.production?
       set_aws_config(
-        Settings.disability_compensation_form.s3.aws_access_key_id,
-        Settings.disability_compensation_form.s3.aws_secret_access_key,
-        Settings.disability_compensation_form.s3.region,
-        Settings.disability_compensation_form.s3.bucket
+        Settings.evss.s3.aws_access_key_id,
+        Settings.evss.s3.aws_secret_access_key,
+        Settings.evss.s3.region,
+        Settings.evss.s3.bucket
       )
     end
   end
