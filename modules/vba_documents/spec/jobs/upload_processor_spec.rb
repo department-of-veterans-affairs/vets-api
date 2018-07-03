@@ -99,7 +99,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error for file part size exceeding 100MB' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
-      allow(File).to receive(:size).and_return(100000001)
+      allow(File).to receive(:size).and_return(100_000_001)
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')

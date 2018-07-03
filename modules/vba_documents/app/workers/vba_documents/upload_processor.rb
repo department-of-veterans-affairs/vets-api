@@ -14,7 +14,7 @@ module VBADocuments
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/
-    MAX_PART_SIZE = 100000000 # 100MB
+    MAX_PART_SIZE = 100_000_000 # 100MB
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
