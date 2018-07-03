@@ -97,11 +97,11 @@ describe Vet360::Stats do
   end
 
   describe '.increment_exception' do
-    it 'increments the StatsD Vet360 counter' do
+    it 'increments the StatsD Vet360 exceptions counter' do
       tag = 'VET360_ADDR133'
 
       expect { described_class.increment_exception(tag) }.to trigger_statsd_increment(
-        statsd_prefix
+        "#{statsd_prefix}.exceptions"
       )
     end
   end

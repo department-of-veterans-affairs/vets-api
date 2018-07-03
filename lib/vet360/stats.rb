@@ -41,7 +41,7 @@ module Vet360
       #   For example, 'VET360_ADDR133'.
       #
       def increment_exception(key)
-        StatsD.increment(Vet360::Service::STATSD_KEY_PREFIX, tags: ["exceptions:#{key.downcase}"])
+        StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", tags: ["exception:#{key.downcase}"])
       end
 
       private
