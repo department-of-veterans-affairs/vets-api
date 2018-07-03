@@ -2,10 +2,7 @@
 
 module V0
   class ServiceInformationsController < ApplicationController
-    before_action do
-      authorize :emis, :access?
-      authorize :evss, :access?
-    end
+    before_action { authorize :evss, :access? }
 
     def show
       response = {
