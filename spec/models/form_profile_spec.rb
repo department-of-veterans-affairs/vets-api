@@ -338,16 +338,6 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
       ],
-      'servedInCombatZone' => true,
-      'servicePeriods' => [
-        {
-          'serviceBranch' => 'Air Force Reserve',
-          'dateRange' => {
-            'from' => '2007-04-01',
-            'to' => '2016-06-01'
-          }
-        }
-      ],
       'veteran' => {
         'mailingAddress' => {
           'country' => 'USA',
