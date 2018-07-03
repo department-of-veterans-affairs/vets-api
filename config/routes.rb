@@ -68,6 +68,8 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    resource :service_information, only: [:show]
+
     get 'intent_to_file', to: 'intent_to_files#index'
     get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
