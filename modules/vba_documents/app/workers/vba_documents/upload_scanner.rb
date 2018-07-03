@@ -18,7 +18,8 @@ module VBADocuments
 
     def process(upload)
       Rails.logger.info('VBADocuments: Processing: ' + upload.inspect)
-      return false unless bucket.object(upload.guid).exists?
+      object = bucket.object(upload.guid)
+      return false unless object.exists? && (object.last_modified < 5.minutes.ago)
       VBADocuments::UploadProcessor.perform_async(upload.guid)
       upload.update(status: 'uploaded')
       true
