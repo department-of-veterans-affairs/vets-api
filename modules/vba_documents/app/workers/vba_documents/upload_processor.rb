@@ -14,6 +14,7 @@ module VBADocuments
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/
+    MAX_PART_SIZE = 100000000 # 100MB
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
@@ -154,6 +155,7 @@ module VBADocuments
       metadata['source'] = "#{upload.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
+      check_size(parts[DOC_PART_NAME])
       doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
@@ -161,10 +163,18 @@ module VBADocuments
       metadata['numberAttachments'] = attachment_names.size
       attachment_names.each_with_index do |att, i|
         att_info = get_hash_and_pages(parts[att])
+        check_size(parts[att])
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
       metadata
+    end
+
+    def check_size(file_path)
+      if File.size(file_path) > MAX_PART_SIZE
+        raise VBADocuments::UploadError.new(code: 'DOC106',
+                                            detail: 'Max part size exceeded. Limit is 100MB.')
+      end
     end
 
     def get_hash_and_pages(file_path)
