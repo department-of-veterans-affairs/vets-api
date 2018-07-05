@@ -734,11 +734,83 @@ en:
         code: VET360_ADDR309
         detail: UAM address validation not available
         status: 400
+      VET360_ADDRVAL101:
+        <<: *external_defaults
+        title: Address Service Error
+        code: VET360_ADDRVAL101
+        detail: The address service returned an error
+        status: 400
       VET360_ADDRVAL102:
         <<: *external_defaults
         title: Address Not Found
         code: VET360_ADDRVAL102
         detail: Address Not Found
+        status: 400
+      VET360_ADDRVAL103:
+        <<: *external_defaults
+        title: Country Lookup Service Error
+        code: VET360_ADDRVAL103
+        detail: The country lookup service returned an error
+        status: 400
+      VET360_ADDRVAL104:
+        <<: *external_defaults
+        title: Address Validation Service Error
+        code: VET360_ADDRVAL104
+        detail: The address validation service returned an error
+        status: 400
+      VET360_ADDRVAL105:
+        <<: *external_defaults
+        title: Invalid Request Error
+        code: VET360_ADDRVAL105
+        detail: The request was invalid
+        status: 400
+      VET360_ADDRVAL106:
+        <<: *external_defaults
+        title: Country Length Error
+        code: VET360_ADDRVAL106
+        detail: Country length must be between 0 and 255
+        status: 400
+      VET360_ADDRVAL107:
+        <<: *external_defaults
+        title: Province Length Error
+        code: VET360_ADDRVAL107
+        detail: Province length must be between 0 and 255
+        status: 400
+      VET360_ADDRVAL201:
+        <<: *external_defaults
+        title: Invalid Request Country
+        code: VET360_ADDRVAL201
+        detail: Either country name or country code is required
+        status: 400
+      VET360_ADDRVAL202:
+        <<: *external_defaults
+        title: Invalid Request State
+        code: VET360_ADDRVAL202
+        detail: Either state name or state code is required
+        status: 400
+      VET360_ADDRVAL203:
+        <<: *external_defaults
+        title: Invalid Request Street Address
+        code: VET360_ADDRVAL203
+        detail: One address line must be provided
+        status: 400
+      VET360_ADDRVAL204:
+        <<: *external_defaults
+        title: Invalid Request Non-Street Address
+        code: VET360_ADDRVAL204
+        detail: The request needs at least one address line and one non-address line field populated in order to process the request
+        status: 400
+      VET360_ADDRVAL205:
+        <<: *external_defaults
+        title: Invalid Request Postal Code
+        code: VET360_ADDRVAL205
+        detail: Either zip code or international postal code is required
+        status: 400
+      VET360_ADDRVAL206:
+        <<: *external_defaults
+        title: Multiple Address Error
+        code: VET360_ADDRVAL206
+        detail: Multiple matches found for this address
         status: 400
       VET360_CORE100:
         <<: *external_defaults
