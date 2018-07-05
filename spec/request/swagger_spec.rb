@@ -354,6 +354,17 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'service information' do
+      it 'supports getting service information' do
+        expect(subject).to validate(:get, '/v0/service_information', 401)
+        VCR.use_cassette('emis/get_deployment/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes/valid') do
+            expect(subject).to validate(:get, '/v0/service_information', 200, auth_options)
+          end
+        end
+      end
+    end
+
     describe 'intent to file' do
       it 'supports getting all intent to file' do
         expect(subject).to validate(:get, '/v0/intent_to_file', 401)
