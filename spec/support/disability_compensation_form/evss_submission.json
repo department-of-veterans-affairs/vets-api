@@ -52,12 +52,39 @@
     "serviceInformation": {
       "servicePeriods": [
         {
-          "serviceBranch": "Air Force Reserve",
-          "activeDutyBeginDate": "2007-04-01T00:00:00Z",
-          "activeDutyEndDate": "2016-06-01T00:00:00Z"
+          "serviceBranch": "National Oceanic &amp; Atmospheric Administration",
+          "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
+          "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
         }
       ],
-      "servedInCombatZone": false
+      "reservesNationalGuardService": {
+        "title10Activation": {
+          "title10ActivationDate": "2018-03-29T18:50:03.015Z",
+          "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
+        },
+        "obligationTermOfServiceFromDate": "2018-03-29T18:50:03.015Z",
+        "obligationTermOfServiceToDate": "2018-03-29T18:50:03.015Z",
+        "unitName": "string",
+        "unitPhone": {
+          "areaCode": "202",
+          "phoneNumber": "4561111"
+        }
+      },
+      "servedInCombatZone": true,
+      "alternateNames": [
+        {
+          "firstName": "string",
+          "middleName": "string",
+          "lastName": "string"
+        }
+      ],
+      "confinements": [
+        {
+          "confinementBeginDate": "2018-03-29T18:50:03.015Z",
+          "confinementEndDate": "2018-03-29T18:50:03.015Z",
+          "verifiedIndicator": false
+        }
+      ]
     },
     "disabilities": [
       {
