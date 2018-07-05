@@ -53,7 +53,7 @@ describe Vet360::Service do
       it 'increments the StatsD error counter', :aggregate_failures do
         error_key = 'VET360_ADDR133'
 
-        expect(Vet360::Stats).to receive(:increment).with('exceptions', error_key)
+        expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_backend_exception', error_key, 'test') }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
@@ -66,7 +66,7 @@ describe Vet360::Service do
       it 'increments the StatsD error counter', :aggregate_failures do
         error_key = 'VET360_502'
 
-        expect(Vet360::Stats).to receive(:increment).with('exceptions', error_key)
+        expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_invalid_body', nil, 'test') }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
