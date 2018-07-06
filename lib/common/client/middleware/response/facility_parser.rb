@@ -65,6 +65,7 @@ module Common
             attributes = {}
             attributes['last_updated'] = services_date(location['attributes'])
             attributes['health'] = services_from_gis(mapping['services'], location['attributes'])
+            attributes['other'] = other_services(location['attributes'])
             { 'services' => attributes }
           end
 
@@ -98,6 +99,10 @@ module Common
               l << { 'sl1' => [k], 'sl2' => sl2 }
             end
             services.concat(services_from_wait_time_data(attrs['StationNumber'].upcase))
+          end
+
+          def other_services(attrs)
+            ['Online Scheduling'] if attrs['DirectPatientSchedulingFlag'] == BaseFacility::YES
           end
 
           def services_from_wait_time_data(facility_id)

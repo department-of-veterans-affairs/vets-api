@@ -315,7 +315,8 @@ class BaseFacility < ActiveRecord::Base
       'PrimaryCare' => [],
       'Rehabilitation' => [],
       'UrgentCare' => [],
-      'WellnessAndPreventativeCare' => []
+      'WellnessAndPreventativeCare' => [],
+      'DirectPatientSchedulingFlag' => []
     },
     'mapped_fields' => %w[StationNumber StationName CocClassification FacilityDataDate Website_URL Latitude Longitude
                           Street Building Suite City State Zip Zip4 MainPhone MainFax AfterHoursPhone
