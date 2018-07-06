@@ -62,9 +62,8 @@ module Facilities
     def parse_address(part1, part2, part3)
       return nil if part1.blank?
       if part2.blank?
-        return part1 =~ /, / ? city_state_zip(part1) : { 'address_1' => part1 }
-      end
-      if part3.blank?
+        part1 =~ /, / ? city_state_zip(part1) : { 'address_1' => part1 }
+      elsif part3.blank?
         { 'address_1' => part1 }.merge(city_state_zip(part2))
       else
         { 'address_1' => part1, 'address_2' => part2 }.merge(city_state_zip(part3))
