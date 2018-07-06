@@ -49,6 +49,7 @@ pension_burial:
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
+    cache_enabled: false
     enabled: true
     timeout: 30
     mock: false
@@ -213,6 +214,8 @@ vba_documents:
     aws_secret_access_key: 'aws_secret_access_key'
     region: 'region'
     bucket: 'bucket'
+  sns:
+    topic_arn: ~
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?

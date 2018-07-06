@@ -31,8 +31,8 @@ describe 'GIDS Response Middleware' do
     expect { gi_client.get('not-found') }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.errors.first[:title]).to eq('Institution not found')
-        expect(error.errors.first[:detail]).to eq('Institution with the specified code was not found')
+        expect(error.errors.first[:title]).to eq('Record not found')
+        expect(error.errors.first[:detail]).to eq('Record with the specified code was not found')
         expect(error.errors.first[:code]).to eq('GI404')
       end
   end

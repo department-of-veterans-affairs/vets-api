@@ -215,7 +215,8 @@ Rails.application.routes.draw do
       'profile',
       'dashboard',
       'veteran_id_card',
-      FormProfile::EMIS_PREFILL_KEY
+      FormProfile::EMIS_PREFILL_KEY,
+      FormProfile::V360_PREFILL_KEY
     ].each do |feature|
       resource(
         :beta_registrations,
