@@ -3,6 +3,7 @@
 module HCA
   class SubmissionJob
     include Sidekiq::Worker
+    VALIDATION_ERROR = HCA::SOAPParser::ValidationError
 
     sidekiq_retries_exhausted do |msg, _e|
       health_care_application = HealthCareApplication.find(msg['args'][2])
@@ -21,7 +22,14 @@ module HCA
 
       begin
         result = HCA::Service.new(user).submit_form(form)
-      rescue HCA::SOAPParser::ValidationError
+      rescue VALIDATION_ERROR
+        PersonalInformationLog.create!(
+          data: {
+            form: form
+          },
+          error_class: VALIDATION_ERROR.to_s
+        )
+
         return health_care_application.update_attributes!(
           state: 'failed',
           form: form.to_json,
