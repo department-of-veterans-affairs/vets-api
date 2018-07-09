@@ -4,7 +4,6 @@ require 'rails_helper'
 
 RSpec.describe 'VBA Document SNS upload complete notification', type: :request do
   context 'with a subscriptionconfirmation message type' do
-    # rubocop:disable LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'SubscriptionConfirmation',
@@ -40,12 +39,15 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'verified message' do
       it 'should confirm the subscription' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                      'region' => 'us-gov-west-1') do
           client = double(Aws::SNS::Client)
           expect(client).to receive(:confirm_subscription).with(
-            topic_arn: 'arn:aws:sns:us-west-2:123456789012:MyTopic',
-            token: token,
             authenticate_on_unsubscribe: 'authenticateOnUnsubscribe'
+            region: 'us-gov-west-1',
+            token: token,
+            topic_arn: 'arn:aws:sns:us-west-2:123456789012:MyTopic',
           )
           allow(Aws::SNS::Client).to receive(:new).and_return(client)
           verifier = double(Aws::SNS::MessageVerifier)
@@ -84,8 +86,6 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
   context 'with a notification message type' do
     let(:upload) { FactoryBot.create(:upload_submission) }
-
-    # rubocop:disable LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'Notification',
@@ -203,7 +203,6 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
   end
 
   context 'with any other message type' do
-    # rubocop:disable LineLength
     let(:headers) do
       {
         'x-amz-sns-message-type' => 'OtherMessageType',
