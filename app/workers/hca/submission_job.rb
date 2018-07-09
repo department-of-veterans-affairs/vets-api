@@ -23,12 +23,7 @@ module HCA
       begin
         result = HCA::Service.new(user).submit_form(form)
       rescue VALIDATION_ERROR
-        PersonalInformationLog.create!(
-          data: {
-            form: form
-          },
-          error_class: VALIDATION_ERROR.to_s
-        )
+        PersonalInformationLog.create!(data: { form: form }, error_class: VALIDATION_ERROR.to_s)
 
         return health_care_application.update_attributes!(
           state: 'failed',
