@@ -433,7 +433,6 @@ RSpec.describe FormProfile, type: :model do
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
-      byebug
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
