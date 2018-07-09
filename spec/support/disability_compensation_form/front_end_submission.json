@@ -19,7 +19,7 @@
         "country": "USA",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
-      "phone": "2024561111",
+      "primaryPhone": "2024561111",
       "homelessness": {
         "isHomeless": true,
         "pointOfContact": {
@@ -33,6 +33,46 @@
     "militaryPayments": {
       "payments": [],
       "receiveCompensationInLieuOfRetired": false
+    },
+    "serviceInformation": {
+      "servicePeriods": [
+        {
+          "serviceBranch": "NOAA",
+          "dateRange": {
+            "from": "2018-03-29T18:50:03.015Z",
+            "to": "2018-03-29T18:50:03.015Z"
+          }
+        }
+      ],
+      "reservesNationalGuardService": {
+        "title10Activation": {
+          "title10ActivationDate": "2018-03-29T18:50:03.015Z",
+          "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
+        },
+        "obligationTermOfServiceDateRange": {
+          "from": "2018-03-29T18:50:03.015Z",
+          "to": "2018-03-29T18:50:03.015Z"
+        },
+        "unitName": "string",
+        "unitPhone": "2024561111"
+      },
+      "servedInCombatZone": true,
+      "alternateNames": [
+        {
+          "first": "string",
+          "middle": "string",
+          "last": "string"
+        }
+      ],
+      "confinements": [
+        {
+          "confinementDateRange": {
+            "from": "2018-03-29T18:50:03.015Z",
+            "to": "2018-03-29T18:50:03.015Z"
+          },
+          "verifiedIndicator": false
+        }
+      ]
     },
     "disabilities": [
       {
