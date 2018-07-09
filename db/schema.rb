@@ -236,10 +236,13 @@ ActiveRecord::Schema.define(version: 20180709214011) do
   add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
 
   create_table "personal_information_logs", force: :cascade do |t|
-    t.jsonb  "data",        null: false
-    t.string "error_class", null: false
+    t.jsonb    "data",        null: false
+    t.string   "error_class", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
   end
 
+  add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
   add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
