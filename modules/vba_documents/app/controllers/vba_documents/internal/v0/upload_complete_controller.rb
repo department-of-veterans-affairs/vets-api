@@ -21,10 +21,10 @@ module VBADocuments
           when 'SubscriptionConfirmation'
             client = Aws::SNS::Client.new
             client.confirm_subscription(
-              authenticate_on_unsubscribe: 'authenticateOnUnsubscribe'
+              authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
               region: Settings.vba_documents.sns.region,
               token: json_params['Token'],
-              topic_arn: json_params['TopicArn'],
+              topic_arn: json_params['TopicArn']
             )
           else
             raise Common::Exceptions::ParameterMissing, 'x-amz-sns-message-type'
