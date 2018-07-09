@@ -40,12 +40,15 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'verified message' do
       it 'should confirm the subscription' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                      'region' => 'us-gov-west-1') do
           client = double(Aws::SNS::Client)
           expect(client).to receive(:confirm_subscription).with(
-            topic_arn: 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+            authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
             token: token,
-            authenticate_on_unsubscribe: 'authenticateOnUnsubscribe'
+            topic_arn: 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+            region: 'us-gov-west-1'
           )
           allow(Aws::SNS::Client).to receive(:new).and_return(client)
           verifier = double(Aws::SNS::MessageVerifier)
