@@ -20,16 +20,14 @@ end
 
 def post_itf(user_token,env)
 
-  conn = Faraday.new(
-    "https://#{env}-api.vets.gov/v0/intent_to_file", ssl: { verify: false }
-  ) do |faraday|
-      faraday.adapter :httpclient
+  conn = Faraday.new(:url => "https://staging-api.vets.gov") do |faraday|
+    faraday.response :json, content_type: /\bjson$/
+    faraday.adapter Faraday.default_adapter
   end
 
-  conn.authorization :Token, :token => user_token
-
   response = conn.post do |req|
-    req.url 'compensation'
+    req.url '/v0/intent_to_file/compensation'
+    req.headers['Authorization'] = "Token token=#{user_token}"
   end
 
   puts response.status
