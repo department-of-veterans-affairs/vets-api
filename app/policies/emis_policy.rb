@@ -2,6 +2,12 @@
 
 EMISPolicy = Struct.new(:user, :emis) do
   def access?
-    user.edipi.present?
+    if user.edipi.present?
+      StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi.success")
+      true
+    else
+      StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi.failure")
+      false
+    end
   end
 end
