@@ -102,7 +102,9 @@ module Common
           end
 
           def other_services(attrs)
-            ['Online Scheduling'] if attrs['DirectPatientSchedulingFlag'] == BaseFacility::YES
+            services = []
+            services << 'Online Scheduling' if attrs['DirectPatientSchedulingFlag'] == BaseFacility::YES
+            services
           end
 
           def services_from_wait_time_data(facility_id)
