@@ -61,4 +61,44 @@ describe EMISRedis::VeteranStatus, skip_emis: true do
       end
     end
   end
+
+  describe 'pre_911_combat_deployment?' do
+    context 'with a response of "N"' do
+      it 'returns false' do
+        VCR.use_cassette('emis/get_veteran_status/valid') do
+          expect(subject.pre_911_combat_deployment?).to eq false
+        end
+      end
+    end
+
+    context 'with an empty response' do
+      before do
+        allow(subject).to receive_message_chain(:validated_response, :pre911_deployment_indicator) { nil }
+      end
+
+      it 'returns nil' do
+        expect(subject.pre_911_combat_deployment?).to be_nil
+      end
+    end
+
+    context 'with an unexpected response' do
+      before do
+        allow(subject).to receive_message_chain(:validated_response, :pre911_deployment_indicator) { 'random' }
+      end
+
+      it 'returns nil' do
+        expect(subject.pre_911_combat_deployment?).to be_nil
+      end
+    end
+  end
+
+  describe 'post_911_combat_deployment?' do
+    context 'with a response of "Y"' do
+      it 'returns true' do
+        VCR.use_cassette('emis/get_veteran_status/valid') do
+          expect(subject.post_911_combat_deployment?).to eq true
+        end
+      end
+    end
+  end
 end
