@@ -87,45 +87,38 @@ class SetupTest
     hash.delete_if(&p)
   end
 
-  def special_circumstances
+  def veteran
+    {
+      "emailAddress" => I.email,
+      "alternateEmailAddress" => (I.email if random_bool),
+      "mailingAddress" => address,
+      "forwardingAddress" => (address.merge("effectiveDate" => date) if random_bool),
+      "primaryPhone" => NUM.number(10),
+      "homelessness" => homelessness(random_bool),
+      "serviceNumber" => (NUM.number(9) if random_bool)
+    }
+  end
+
+  def attachments
     if random_bool
       [{
-        "name" => L.word,
-        "code" => L.word,
-        "needed" => random_bool
+        "documentName" => L.word,
+        "dateUploaded" => date,
+        "attachmentType" => L.word,
+        "inflightDocumentId" => NUM.number(10)
       }]
     end
   end
 
-  def treatments
+  def military_payments
     if random_bool
-      [{
-        "treatmentCenterName" => L.word,
-        "treatmentDateRange" => date_range,
-        "treatmentCenterAddress" => address.slice("country", "city", "state"),
-        "treatmentCenterType" => treatment_center_type
-      }]
-    end
-  end
-
-  def disabilities
-    [{
-      "name" => L.word,
-      "disabilityActionType" => disability_action_type,
-      "specialIssues" => special_issues,
-      "ratedDisabilityId" => (L.word if random_bool),
-      "ratingDecisionId" => (L.word if random_bool),
-      "diagnosticCode" => (NUM.number(5) if random_bool),
-      "classificationCode" => (L.word if random_bool)
-    }]
-  end
-
-  def special_issues
-    if random_bool
-      [{
-        "code" => special_issue_code,
-        "name" => L.word
-      }]
+      {
+        "payments" => [{
+          "payType" => pay_type,
+          "amount" => NUM.number(5)
+        }],
+        "receiveCompensationInLieuOfRetired" => random_bool
+      }
     end
   end
 
@@ -150,6 +143,48 @@ class SetupTest
     }
   end
 
+  def disabilities
+    [{
+      "name" => L.word,
+      "disabilityActionType" => disability_action_type,
+      "specialIssues" => special_issues,
+      "ratedDisabilityId" => (L.word if random_bool),
+      "ratingDecisionId" => (L.word if random_bool),
+      "diagnosticCode" => (NUM.number(5) if random_bool),
+      "classificationCode" => (L.word if random_bool)
+    }]
+  end
+
+  def treatments
+    if random_bool
+      [{
+        "treatmentCenterName" => L.word,
+        "treatmentDateRange" => date_range,
+        "treatmentCenterAddress" => address.slice("country", "city", "state"),
+        "treatmentCenterType" => treatment_center_type
+      }]
+    end
+  end
+
+  def special_circumstances
+    if random_bool
+      [{
+        "name" => L.word,
+        "code" => L.word,
+        "needed" => random_bool
+      }]
+    end
+  end
+
+  def special_issues
+    if random_bool
+      [{
+        "code" => special_issue_code,
+        "name" => L.word
+      }]
+    end
+  end
+
   def reserves_national_guard_service
     if random_bool
       {
@@ -171,41 +206,6 @@ class SetupTest
         end)
       }
     end
-  end
-
-  def military_payments
-    if random_bool
-      {
-        "payments" => [{
-          "payType" => pay_type,
-          "amount" => NUM.number(5)
-        }],
-        "receiveCompensationInLieuOfRetired" => random_bool
-      }
-    end
-  end
-
-  def attachments
-    if random_bool
-      [{
-        "documentName" => L.word,
-        "dateUploaded" => date,
-        "attachmentType" => L.word,
-        "inflightDocumentId" => NUM.number(10)
-      }]
-    end
-  end
-
-  def veteran
-    {
-      "emailAddress" => I.email,
-      "alternateEmailAddress" => (I.email if random_bool),
-      "mailingAddress" => address,
-      "forwardingAddress" => (address.merge("effectiveDate" => date) if random_bool),
-      "primaryPhone" => NUM.number(10),
-      "homelessness" => homelessness(random_bool),
-      "serviceNumber" => (NUM.number(9) if random_bool)
-    }
   end
 
   def homelessness(homeless)
