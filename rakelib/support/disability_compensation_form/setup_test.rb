@@ -23,7 +23,7 @@ class SetupTest
     end
   end
 
-  def has_active_itf?
+  def active_itf?
     response = @conn.get do |req|
       req.url '/v0/intent_to_file/compensation/active'
       req.headers['Authorization'] = "Token token=#{@user_token}"
@@ -58,21 +58,18 @@ class SetupTest
 
   private
 
-  # rubocop:disable all
   def submit_hash
     compact(
-      {
-        "form526" => {
-          "veteran" => veteran,
-          "attachments" => attachments,
-          "mililtaryPayments" => military_payments,
-          "serviceInformation" => service_information,
-          "disabilities" => disabilities,
-          "treatments" => treatments,
-          "specialCircumstances" => special_circumstances,
-          "standardClaim" => random_bool,
-          "claimantCertification" => random_bool
-        }
+      'form526' => {
+        'veteran' => veteran,
+        'attachments' => attachments,
+        'mililtaryPayments' => military_payments,
+        'serviceInformation' => service_information,
+        'disabilities' => disabilities,
+        'treatments' => treatments,
+        'specialCircumstances' => special_circumstances,
+        'standardClaim' => random_bool,
+        'claimantCertification' => random_bool
       }
     )
   end
@@ -89,23 +86,23 @@ class SetupTest
 
   def veteran
     {
-      "emailAddress" => I.email,
-      "alternateEmailAddress" => (I.email if random_bool),
-      "mailingAddress" => address,
-      "forwardingAddress" => (address.merge("effectiveDate" => date) if random_bool),
-      "primaryPhone" => NUM.number(10),
-      "homelessness" => homelessness(random_bool),
-      "serviceNumber" => (NUM.number(9) if random_bool)
+      'emailAddress' => I.email,
+      'alternateEmailAddress' => (I.email if random_bool),
+      'mailingAddress' => address,
+      'forwardingAddress' => (address.merge('effectiveDate' => date) if random_bool),
+      'primaryPhone' => NUM.number(10),
+      'homelessness' => homelessness(random_bool),
+      'serviceNumber' => (NUM.number(9) if random_bool)
     }
   end
 
   def attachments
     if random_bool
       [{
-        "documentName" => L.word,
-        "dateUploaded" => date,
-        "attachmentType" => L.word,
-        "inflightDocumentId" => NUM.number(10)
+        'documentName' => L.word,
+        'dateUploaded' => date,
+        'attachmentType' => L.word,
+        'inflightDocumentId' => NUM.number(10)
       }]
     end
   end
@@ -113,31 +110,31 @@ class SetupTest
   def military_payments
     if random_bool
       {
-        "payments" => [{
-          "payType" => pay_type,
-          "amount" => NUM.number(5)
+        'payments' => [{
+          'payType' => pay_type,
+          'amount' => NUM.number(5)
         }],
-        "receiveCompensationInLieuOfRetired" => random_bool
+        'receiveCompensationInLieuOfRetired' => random_bool
       }
     end
   end
 
   def service_information
     {
-      "servicePeriods" => [{
-        "serviceBranch" => service_branch,
-        "dateRange" => date_range
+      'servicePeriods' => [{
+        'serviceBranch' => service_branch,
+        'dateRange' => date_range
       }],
-      "reservesNationalGuardService" => reserves_national_guard_service,
-      "servedInCombatZone" => random_bool,
-      "separationLocationName" => (L.word if random_bool),
-      "separationLocationCode" => (L.word if random_bool),
-      "alternateNames" => ([N.name] if random_bool),
-      "confinements" => (
+      'reservesNationalGuardService' => reserves_national_guard_service,
+      'servedInCombatZone' => random_bool,
+      'separationLocationName' => (L.word if random_bool),
+      'separationLocationCode' => (L.word if random_bool),
+      'alternateNames' => ([N.name] if random_bool),
+      'confinements' => (
       if random_bool
         [{
-          "confinementDateRange" => date_range,
-          "verifiedIndicator" => random_bool
+          'confinementDateRange' => date_range,
+          'verifiedIndicator' => random_bool
         }]
       end)
     }
@@ -145,23 +142,23 @@ class SetupTest
 
   def disabilities
     [{
-      "name" => L.word,
-      "disabilityActionType" => disability_action_type,
-      "specialIssues" => special_issues,
-      "ratedDisabilityId" => (L.word if random_bool),
-      "ratingDecisionId" => (L.word if random_bool),
-      "diagnosticCode" => (NUM.number(5) if random_bool),
-      "classificationCode" => (L.word if random_bool)
+      'name' => L.word,
+      'disabilityActionType' => disability_action_type,
+      'specialIssues' => special_issues,
+      'ratedDisabilityId' => (L.word if random_bool),
+      'ratingDecisionId' => (L.word if random_bool),
+      'diagnosticCode' => (NUM.number(5) if random_bool),
+      'classificationCode' => (L.word if random_bool)
     }]
   end
 
   def treatments
     if random_bool
       [{
-        "treatmentCenterName" => L.word,
-        "treatmentDateRange" => date_range,
-        "treatmentCenterAddress" => address.slice("country", "city", "state"),
-        "treatmentCenterType" => treatment_center_type
+        'treatmentCenterName' => L.word,
+        'treatmentDateRange' => date_range,
+        'treatmentCenterAddress' => address.slice('country', 'city', 'state'),
+        'treatmentCenterType' => treatment_center_type
       }]
     end
   end
@@ -169,9 +166,9 @@ class SetupTest
   def special_circumstances
     if random_bool
       [{
-        "name" => L.word,
-        "code" => L.word,
-        "needed" => random_bool
+        'name' => L.word,
+        'code' => L.word,
+        'needed' => random_bool
       }]
     end
   end
@@ -179,8 +176,8 @@ class SetupTest
   def special_issues
     if random_bool
       [{
-        "code" => special_issue_code,
-        "name" => L.word
+        'code' => special_issue_code,
+        'name' => L.word
       }]
     end
   end
@@ -188,20 +185,20 @@ class SetupTest
   def reserves_national_guard_service
     if random_bool
       {
-        "title10Activation" => (
+        'title10Activation' => (
         if random_bool
           {
-            "title10ActivationDate" => date,
-            "anticipatedSeparationDate" => date
+            'title10ActivationDate' => date,
+            'anticipatedSeparationDate' => date
           }
         end),
-        "obligationTermOfServiceDateRange" => date_range,
-        "unitName" => L.word,
-        "unitPhone" => NUM.number(10),
-        "inactiveDutyTrainingPay" => (
+        'obligationTermOfServiceDateRange' => date_range,
+        'unitName' => L.word,
+        'unitPhone' => NUM.number(10),
+        'inactiveDutyTrainingPay' => (
         if random_bool
           {
-            "waiveVABenefitsToRetainTrainingPay" => random_bool
+            'waiveVABenefitsToRetainTrainingPay' => random_bool
           }
         end)
       }
@@ -210,18 +207,16 @@ class SetupTest
 
   def homelessness(homeless)
     {
-      "isHomeless" => homeless,
-      "pointOfContact" => (
+      'isHomeless' => homeless,
+      'pointOfContact' => (
       if homeless
         {
-          "pointOfContactName" => N.name,
-          "primaryPhone" => NUM.number(10)
+          'pointOfContactName' => N.name,
+          'primaryPhone' => NUM.number(10)
         }
       end)
     }
   end
-
-  # rubocop:enable all
 
   def random_bool
     [true, false].sample
@@ -229,12 +224,12 @@ class SetupTest
 
   def address
     {
-      "addressLine1" => A.street_address,
-      "addressLine2" => (A.secondary_address if random_bool),
-      "city" => A.city,
-      "state" => (A.state_abbr if random_bool),
-      "zipCode" => (A.zip if random_bool),
-      "country" => A.country
+      'addressLine1' => A.street_address,
+      'addressLine2' => (A.secondary_address if random_bool),
+      'city' => A.city,
+      'state' => (A.state_abbr if random_bool),
+      'zipCode' => (A.zip if random_bool),
+      'country' => A.country
     }
   end
 
@@ -246,13 +241,12 @@ class SetupTest
   def from_date
     DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - 365).to_s)
   end
-
   # rubocop:enable all
 
   def date_range
     {
-      "from" => from_date,
-      "to" => date
+      'from' => from_date,
+      'to' => date
     }
   end
 

@@ -11,7 +11,7 @@ namespace :test_526 do
 
     st = SetupTest.new(args[:env], args[:user_token], args[:times_to_run].to_i)
 
-    st.create_itf unless st.has_active_itf?
+    st.create_itf unless st.active_itf?
     st.submit
   end
 end
