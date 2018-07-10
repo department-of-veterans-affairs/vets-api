@@ -9,7 +9,7 @@ describe EVSS::DisabilityCompensationAuthHeaders do
 
   it 'includes gender in the headers' do
     user = build(:user)
-    expect(subject.add_headers(auth_headers, user)).to eq('foo' => 'bar', 'gender' => 'MALE')
+    expect(subject.add_headers(auth_headers, user)).to eq('foo' => 'bar', 'va_eauth_gender' => 'MALE')
   end
 
   it 'raises an error if gender is not included' do
