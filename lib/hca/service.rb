@@ -15,7 +15,7 @@ module HCA
       formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @current_user)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
-      response = post('', submission)
+      response = perform(:post, '', submission.body)
       root = response.body.locate('S:Envelope/S:Body/submitFormResponse').first
       {
         success: true,
