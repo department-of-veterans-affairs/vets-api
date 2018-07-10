@@ -9,12 +9,11 @@ require 'date'
 
 class SetupTest
 
-	I = Faker::Internet
 	A = Faker::Address
-	N = Faker::Name
-	P = Faker::PhoneNumber
-	NUM = Faker::Number
+	I = Faker::Internet
 	L = Faker::Lorem
+	N = Faker::Name
+	NUM = Faker::Number
 
   def initialize(env, user_token, times_to_run)
     @user_token = user_token
@@ -70,13 +69,13 @@ class SetupTest
 					"alternateEmailAddress": (I.email if random_bool),
 					"mailingAddress": address,
 					"forwardingAddress": (address.merge("effectiveDate": date) if random_bool),
-					"primaryPhone": P.phone_number,
+          "primaryPhone": NUM.number(10),
 					"homelessness": {
 						"isHomeless": homeless,
 						"pointOfContact": (if homeless
 															 {
 																 "pointOfContactName": N.name,
-																 "primaryPhone": P.phone_number
+                                 "primaryPhone": NUM.number(10)
 															 }
 															end)
 					}.reject{ |k,v| v.nil? },
@@ -112,9 +111,9 @@ class SetupTest
 																																		 "anticipatedSeparationDate": date
 																																	 }
 																																	end),
-																						 "obligationTermsOfServiceDateRange": date_range,
+																						 "obligationTermOfServiceDateRange": date_range,
 																						 "unitName": L.word,
-																						 "unitPhone": P.phone_number,
+                                             "unitPhone": NUM.number(10),
 																						 "inactiveDutyTrainingPay": (if random_bool
 																																				 {
 																																					 "waiveVABenefitsToRetainTrainingPay": random_bool
@@ -133,7 +132,7 @@ class SetupTest
 													 }]
 													end)
 				}.reject{ |k,v| v.nil? },
-				"disabilities": {
+				"disabilities": [{
 					"name": L.word,
 					"disabilityActionType": disability_action_type,
 					"specialIssues": (if random_bool
@@ -146,7 +145,7 @@ class SetupTest
 					"ratingDecisionId": (L.word if random_bool),
 					"diagnosticCode": (NUM.number(5) if random_bool),
 					"classificationCode": (L.word if random_bool)
-				}.reject{ |k,v| v.nil? },
+				}.reject{ |k,v| v.nil? }],
 				"treatments": (if random_bool
 												[{
 													"treatmentCenterName": L.word,
@@ -185,14 +184,18 @@ class SetupTest
 	end
 
 	# rubocop:disable all
-	def date(years_ago = 2)
-		DateTime.parse(Faker::Date.between(Date.today - (years_ago * 365), Date.today).to_s)
+	def date
+		DateTime.parse(Faker::Date.between(Date.today - 365, Date.today).to_s)
+	end
+
+	def from_date
+		DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - 365).to_s)
 	end
 	# rubocop:enable all
 
 	def date_range
 		{
-			"from": date(3),
+			"from": from_date,
 			"to": date
 		}
 	end
