@@ -27,7 +27,7 @@ module HCA
     def health_check
       submission = soap.build_request(:get_form_submission_status, message:
         { formSubmissionId: HCA::Configuration::HEALTH_CHECK_ID })
-      response = post_submission(submission)
+      response = perform(:post, '', submission.body)
       root = response.body.locate('S:Envelope/S:Body/retrieveFormSubmissionStatusResponse').first
       {
         formSubmissionId: root.locate('formSubmissionId').first.text.to_i,
