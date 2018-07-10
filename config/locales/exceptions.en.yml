@@ -752,12 +752,6 @@ en:
         code: VET360_ADDRVAL103
         detail: The country lookup service returned an error
         status: 400
-      VET360_ADDRVAL104:
-        <<: *external_defaults
-        title: Address Validation Service Error
-        code: VET360_ADDRVAL104
-        detail: The address validation service returned an error
-        status: 400
       VET360_ADDRVAL105:
         <<: *external_defaults
         title: Invalid Request Error
