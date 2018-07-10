@@ -14,21 +14,11 @@ module Vet360Redis
     def self.invalidate(user)
       contact_info = user.vet360_contact_info
 
-      instance = new
-
       if contact_info.present?
-        uuid = contact_info.attributes[:uuid]
-        count = contact_info.destroy
-
-        # TODO: Remove once caching bug has been fixed
-        instance.log("Vet360: Cache invalidation destroyed #{count} keys '#{uuid}'")
+        contact_info.destroy
       else
-        instance.log('Vet360: Cannot invalidate a nil response cache')
+        new.log_message_to_sentry('Vet360: Cannot invalidate a nil response cache', :info)
       end
-    end
-
-    def log(message)
-      log_message_to_sentry(message, :info)
     end
   end
 end

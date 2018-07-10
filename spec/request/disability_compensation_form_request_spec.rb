@@ -68,7 +68,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Get /v0/disability_compensation_form/submit' do
     before(:each) do
-      VCR.insert_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true)
+      VCR.insert_cassette('emis/get_military_service_episodes/valid')
       VCR.insert_cassette('evss/ppiu/payment_information')
       VCR.insert_cassette('evss/intent_to_file/active_compensation')
     end
