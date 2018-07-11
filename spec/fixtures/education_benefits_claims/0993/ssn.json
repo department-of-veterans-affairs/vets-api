@@ -1,8 +1,8 @@
 {
-  "veteranFullName": {
+  "claimantFullName": {
     "first": "Mark",
     "last": "Olson"
   },
-  "veteranSocialSecurityNumber": "111223333",
+  "claimantSocialSecurityNumber": "111223333",
   "privacyAgreementAccepted": true
 }

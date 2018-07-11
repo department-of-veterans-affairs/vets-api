@@ -1,2 +1,2 @@
-veteran_full_name: [identity_information, full_name]
-veteranSocialSecurityNumber: [identity_information, ssn]
+claimant_full_name: [identity_information, full_name]
+claimant_social_security_number: [identity_information, ssn]

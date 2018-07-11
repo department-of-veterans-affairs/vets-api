@@ -116,12 +116,12 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_0993_expected) do
     {
-      'veteranFullName' => {
+      'claimantFullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'veteranSocialSecurityNumber' => user.ssn
+      'claimantSocialSecurityNumber' => user.ssn
     }
   end
 

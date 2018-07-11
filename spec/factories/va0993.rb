@@ -4,11 +4,11 @@ FactoryBot.define do
   factory :va0993, class: SavedClaim::EducationBenefits::VA0993, parent: :education_benefits do
     form do
       {
-        veteranFullName: {
+        claimantFullName: {
           first: 'Mark',
           last: 'Olson'
         },
-        veteranSocialSecurityNumber: '111223333',
+        claimantSocialSecurityNumber: '111223333',
         privacyAgreementAccepted: true
       }.to_json
     end
