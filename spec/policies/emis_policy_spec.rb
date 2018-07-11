@@ -12,6 +12,10 @@ describe EMISPolicy do
       it 'grants access' do
         expect(subject).to permit(user, :emis)
       end
+
+      it 'increments the StatsD success counter' do
+        expect { EMISPolicy.new(user, :emis).access? }.to trigger_statsd_increment('api.emis.edipi')
+      end
     end
 
     context 'with a user who does not have the required emis attributes' do
@@ -19,6 +23,10 @@ describe EMISPolicy do
 
       it 'denies access' do
         expect(subject).to_not permit(user, :emis)
+      end
+
+      it 'increments the StatsD failure counter' do
+        expect { EMISPolicy.new(user, :emis).access? }.to trigger_statsd_increment('api.emis.edipi')
       end
     end
   end
