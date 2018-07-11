@@ -100,6 +100,9 @@
                 {
                   "properties": {
                     "is_veteran": { "type": "boolean" },
+                    "post_911_combat_deployment": { "type": "boolean" },
+                    "pre_911_combat_deployment": { "type": "boolean" },
+                    "served_in_military": { "type": "boolean" },
                     "status": { "type": "string"  }
                   }
                 }
