@@ -73,5 +73,5 @@ StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success",
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
 
 # init eMIS
-StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: %w[success failure])
-StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.has_service_history", 0, tags: %w[true false])
+StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: ['present:true', 'present:false'])
+StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", 0, tags: ['present:true', 'present:false'])
