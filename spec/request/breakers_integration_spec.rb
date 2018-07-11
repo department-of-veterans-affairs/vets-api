@@ -57,7 +57,7 @@ RSpec.describe 'breakers', type: :request do
 
       expect do
         get '/v0/prescriptions'
-      end.to trigger_statsd_increment('api.external_http_request.Rx.skipped', times: 1, value: 1)
+      end.to trigger_statsd_increment('api.external_http_request', times: 1, value: 1)
 
       response = get '/v0/prescriptions'
       expect(response).to eq(503)
@@ -75,20 +75,21 @@ RSpec.describe 'breakers', type: :request do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 200)
       expect do
         get '/v0/prescriptions'
-      end.to trigger_statsd_increment('api.external_http_request.Rx.success', times: 1, value: 1)
+      end.to trigger_statsd_increment('api.external_http_request', times: 1, value: 1)
     end
 
     it 'increments errors' do
       stub_varx_request(:get, 'mhv-api/patient/v1/prescription/gethistoryrx', history_rxs, status_code: 500)
       expect do
         get '/v0/prescriptions'
-      end.to trigger_statsd_increment('api.external_http_request.Rx.failed', times: 1, value: 1)
+      end.to trigger_statsd_increment('api.external_http_request', times: 1, value: 1)
     end
 
     it 'measures request times' do
       path = 'mhv-api/patient/v1/prescription/gethistoryrx'
+      metric = 'api.external_http_request.duration_seconds'
       stub_varx_request(:get, path, history_rxs, status_code: 200, tags: ['endpoint:/' + path])
-      expect { get '/v0/prescriptions' }.to trigger_statsd_measure('api.external_http_request.Rx.time', times: 1)
+      expect { get '/v0/prescriptions' }.to trigger_statsd_measure(metric, times: 1)
     end
   end
 end

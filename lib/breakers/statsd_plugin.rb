@@ -2,8 +2,8 @@
 
 module Breakers
   class StatsdPlugin
-    def get_tags(request)
-      tags = []
+    def get_tags(request, status, service_name)
+      tags = ["status:#{status}", "service:#{service_name}"]
       if request
         if request.url&.path
           # replace identifiers with 'xxx'
@@ -34,11 +34,11 @@ module Breakers
     end
 
     def send_metric(status, service, request_env, response_env)
-      tags = get_tags(request_env)
-      metric_base = "api.external_http_request.#{service.name}."
-      StatsD.increment(metric_base + status, 1, tags: tags)
+      tags = get_tags(request_env, status, service.name)
+      metric_name = 'api.external_http_request'
+      StatsD.increment(metric_name, 1, tags: tags)
       if response_env && response_env[:duration]
-        StatsD.measure(metric_base + 'time', response_env[:duration], tags: tags)
+        StatsD.measure(metric_name + '.duration_seconds', response_env[:duration], tags: tags)
       end
     end
   end
