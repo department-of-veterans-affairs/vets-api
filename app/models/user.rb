@@ -245,6 +245,16 @@ class User < Common::RedisStore
     @mvi ||= Mvi.for_user(self)
   end
 
+  # A user can have served in the military without being a veteran.  For example,
+  # someone can be ex-military by having a discharge status higher than
+  # 'Other Than Honorable'.
+  #
+  # @return [Boolean]
+  #
+  def served_in_military?
+    edipi.present? && veteran? || military_person?
+  end
+
   private
 
   def pciu
