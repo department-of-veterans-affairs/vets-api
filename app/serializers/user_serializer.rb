@@ -61,7 +61,10 @@ class UserSerializer < ActiveModel::Serializer
   def veteran_status
     {
       status: RESPONSE_STATUS[:ok],
-      is_veteran: object.veteran?
+      is_veteran: object.veteran?,
+      post_911_combat_deployment: object.post_911_combat_deployment?,
+      pre_911_combat_deployment: object.pre_911_combat_deployment?,
+      served_in_military: object.served_in_military?
     }
   rescue EMISRedis::VeteranStatus::NotAuthorized
     { status: RESPONSE_STATUS[:not_authorized] }
