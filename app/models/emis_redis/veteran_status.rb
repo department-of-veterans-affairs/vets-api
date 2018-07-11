@@ -78,8 +78,6 @@ module EMISRedis
         true
       when 'N'
         false
-      else
-        nil
       end
     end
   end
