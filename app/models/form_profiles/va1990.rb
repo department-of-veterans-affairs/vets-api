@@ -7,7 +7,7 @@ class FormProfiles::VA1990 < FormProfile
     # TODO: temporary solution for vets360 testing, move code to `FormContactInformation` in the future
     return_val = super
 
-    if Settings.vet360.prefill && beta_enabled?(user.uuid, FormProfile::V360_PREFILL_KEY)
+    if Settings.vet360.prefill
       form_data = return_val[:form_data]
       contact_information = Vet360Redis::ContactInformation.for_user(user)
       email = contact_information.email&.email_address
