@@ -115,8 +115,13 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
+
+  # emis attributes
+  delegate :military_person?, to: :veteran_status
+  delegate :post_911_combat_deployment?, to: :veteran_status
+  delegate :pre_911_combat_deployment?, to: :veteran_status
+  delegate :veteran?, to: :veteran_status
 
   def va_profile
     mvi.profile
