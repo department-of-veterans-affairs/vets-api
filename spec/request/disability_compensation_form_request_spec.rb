@@ -145,7 +145,7 @@ RSpec.describe 'Disability compensation form', type: :request do
           ]
         end
 
-        it 'should return a bad request response' do
+        it 'should return a unprocessable_entity response' do
           VCR.use_cassette('evss/disability_compensation_form/submit_400') do
             post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
             expect(response).to have_http_status(:unprocessable_entity)
