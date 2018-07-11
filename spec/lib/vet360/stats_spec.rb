@@ -95,6 +95,16 @@ describe Vet360::Stats do
       end
     end
   end
+
+  describe '.increment_exception' do
+    it 'increments the StatsD Vet360 exceptions counter' do
+      tag = 'VET360_ADDR133'
+
+      expect { described_class.increment_exception(tag) }.to trigger_statsd_increment(
+        "#{statsd_prefix}.exceptions"
+      )
+    end
+  end
 end
 
 def raw_vet360_transaction_response(tx_status)
