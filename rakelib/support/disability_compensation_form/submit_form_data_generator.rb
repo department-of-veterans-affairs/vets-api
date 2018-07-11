@@ -84,7 +84,7 @@ class SubmitFormDataGenerator
     {
       'servicePeriods' => [{
         'serviceBranch' => service_branch,
-        'dateRange' => date_range("service")
+        'dateRange' => date_range('service')
       }],
       'reservesNationalGuardService' => reserves_national_guard_service,
       'servedInCombatZone' => random_bool,
@@ -171,7 +171,7 @@ class SubmitFormDataGenerator
       'pointOfContact' => (
       if homeless
         {
-          'pointOfContactName' => N.name,
+          'pointOfContactName' => "#{N.first_name} #{N.last_name}",
           'primaryPhone' => NUM.number(10)
         }
       end)
@@ -184,8 +184,8 @@ class SubmitFormDataGenerator
 
   def address
     {
-      'addressLine1' => A.street_address,
-      'addressLine2' => (A.secondary_address if random_bool),
+      'addressLine1' => A.street_address.truncate(19),
+      'addressLine2' => (A.secondary_address.truncate(19) if random_bool),
       'city' => A.city,
       'state' => (A.state_abbr if random_bool),
       'zipCode' => (A.zip if random_bool),
@@ -212,7 +212,7 @@ class SubmitFormDataGenerator
   # rubocop:enable all
 
   def date_range(type = nil)
-    if type == "service"
+    if type == 'service'
       {
         'from' => service_from_date,
         'to' => service_to_date
@@ -252,7 +252,26 @@ class SubmitFormDataGenerator
     %w[NONE NEW SECONDARY INCREASE REOPEN].sample
   end
 
+  # rubocop:disable all
   def special_issue_code
+    # [
+    #   'ALS',
+    #   'AOIV',
+    #   'AOOV',
+    #   'ASB',
+    #   'EHCL',
+    #   'GW',
+    #   'HEPC',
+    #   'MG',
+    #   'POW',
+    #   'RDN',
+    #   'SHAD',
+    #   'TRM',
+    #   '38USC1151',
+    #   'PTSD/1',
+    #   'PTSD/2',
+    #   'PTSD/4)'
+    # ].sample
     [
       'ALS',
       'AOIV',
@@ -266,12 +285,10 @@ class SubmitFormDataGenerator
       'RDN',
       'SHAD',
       'TRM',
-      '38USC1151',
-      'PTSD/1',
-      'PTSD/2',
-      'PTSD/4)'
+      '38USC1151'
     ].sample
   end
+  # rubocop:enable all
 
   def treatment_center_type
     %w[VA_MEDICAL_CENTER DOD_MTF].sample
