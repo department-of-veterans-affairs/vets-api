@@ -25,24 +25,6 @@ module EMISRedis
       validated_response&.title38_status_code
     end
 
-    # Returns boolean for user having/not having pre-911 combat deployment.
-    #
-    # @return [Boolean] If 'Y' or 'N' is returned from eMIS, returns associated boolean
-    # @return [NilClass] If anything other than 'Y' or 'N' is returned from eMIS, returns nil
-    #
-    def pre_911_combat_deployment?
-      coerce(validated_response&.pre911_deployment_indicator)
-    end
-
-    # Returns boolean for user having/not having ppost-911 combat deployment.
-    #
-    # @return [Boolean] If 'Y' or 'N' is returned from eMIS, returns associated boolean
-    # @return [NilClass] If anything other than 'Y' or 'N' is returned from eMIS, returns nil
-    #
-    def post_911_combat_deployment?
-      coerce(validated_response&.post911_deployment_indicator)
-    end
-
     # Returns boolean for user being/not being considered a military person, by eMIS,
     # based on their Title 38 Status Code.
     #
@@ -66,19 +48,6 @@ module EMISRedis
 
       raise VeteranStatus::RecordNotFound if response.empty?
       response.items.first
-    end
-
-    def coerce(y_or_n)
-      value = y_or_n&.upcase
-
-      return value if value.nil?
-
-      case value
-      when 'Y'
-        true
-      when 'N'
-        false
-      end
     end
   end
 end

@@ -70,8 +70,6 @@ module Swagger
                   key :required, [:status]
                   property :is_veteran, type: :boolean, example: true
                   property :status, type: :string, enum: %w[OK NOT_AUTHORIZED NOT_FOUND SERVER_ERROR], example: 'OK'
-                  property :post_911_combat_deployment, type: :boolean, enum: [true, false, 'nil'], example: true
-                  property :pre_911_combat_deployment, type: :boolean, enum: [true, false, 'nil'], example: false
                   property :served_in_military, type: :boolean, example: true
                 end
               end

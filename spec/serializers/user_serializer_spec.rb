@@ -122,14 +122,6 @@ RSpec.describe UserSerializer, type: :serializer do
         expect(veteran_status['status']).to eq('OK')
       end
 
-      it 'should include post_911_combat_deployment' do
-        expect(veteran_status['post_911_combat_deployment']).to eq(user.post_911_combat_deployment?)
-      end
-
-      it 'should include pre_911_combat_deployment' do
-        expect(veteran_status['pre_911_combat_deployment']).to eq(user.pre_911_combat_deployment?)
-      end
-
       it 'should include served_in_military' do
         expect(veteran_status['served_in_military']).to eq(user.served_in_military?)
       end

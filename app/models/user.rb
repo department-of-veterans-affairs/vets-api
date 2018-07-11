@@ -119,8 +119,6 @@ class User < Common::RedisStore
 
   # emis attributes
   delegate :military_person?, to: :veteran_status
-  delegate :post_911_combat_deployment?, to: :veteran_status
-  delegate :pre_911_combat_deployment?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
 
   def va_profile
