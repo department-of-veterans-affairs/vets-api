@@ -485,7 +485,6 @@ RSpec.describe FormProfile, type: :model do
       context 'with vets360 prefill on' do
         before do
           Settings.vet360.prefill = true
-          BetaRegistration.create!(user_uuid: user.uuid, feature: FormProfile::V360_PREFILL_KEY)
 
           v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
           v22_1990_expected['homePhone'] = '(303) 555-1234'
