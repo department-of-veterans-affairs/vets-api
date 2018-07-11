@@ -267,9 +267,9 @@ module EMISRedis
     end
 
     def guard_reserve_service_by_date
-      @guard_reserve_service_by_date ||= lambda do
+      @guard_reserve_service_by_date ||= begin
         guard_reserve_service_periods.sort_by { |per| per.end_date || Time.zone.today + 3650 }.reverse
-      end.call
+      end
     end
 
     def guard_reserve_service_history
