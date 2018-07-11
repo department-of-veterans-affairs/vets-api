@@ -2,6 +2,7 @@
 
 module EVSS
   class DisabilityCompensationAuthHeaders
+    # :nocov:
     def self.add_headers(auth_headers, user)
       headers = auth_headers.merge('va_eauth_gender' => gender(user))
       log_message_to_sentry('disability_headers', :info, headers)
@@ -32,5 +33,6 @@ module EVSS
         Raven.capture_message(message, level: level)
       end
     end
+    # :nocov:
   end
 end
