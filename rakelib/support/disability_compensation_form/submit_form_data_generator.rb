@@ -90,13 +90,6 @@ class SubmitFormDataGenerator
       'servedInCombatZone' => random_bool,
       'separationLocationName' => (L.word if random_bool),
       'separationLocationCode' => (L.word if random_bool),
-      'alternateNames' => (
-      if random_bool
-        [{
-          'firstName': N.first_name,
-          'lastName': N.last_name
-        }]
-      end),
       'confinements' => (
       if random_bool
         [{
