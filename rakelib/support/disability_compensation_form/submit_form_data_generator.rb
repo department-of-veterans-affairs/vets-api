@@ -84,13 +84,19 @@ class SubmitFormDataGenerator
     {
       'servicePeriods' => [{
         'serviceBranch' => service_branch,
-        'dateRange' => date_range
+        'dateRange' => date_range("service")
       }],
       'reservesNationalGuardService' => reserves_national_guard_service,
       'servedInCombatZone' => random_bool,
       'separationLocationName' => (L.word if random_bool),
       'separationLocationCode' => (L.word if random_bool),
-      'alternateNames' => ([N.name] if random_bool),
+      'alternateNames' => (
+      if random_bool
+        [{
+          'firstName': N.first_name,
+          'lastName': N.last_name
+        }]
+      end),
       'confinements' => (
       if random_bool
         [{
@@ -196,20 +202,34 @@ class SubmitFormDataGenerator
 
   # rubocop:disable all
   def date
-    DateTime.parse(Faker::Date.between(Date.today - 365, Date.today).to_s)
+    DateTime.parse(Faker::Date.between(Date.today - 365, Date.today - 182).to_s)
   end
 
   def from_date
-    DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - 365).to_s)
+    DateTime.parse(Faker::Date.between(Date.today - (2 * 365), Date.today - 365).to_s)
   end
 
+  def service_from_date
+    DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - (2 * 365)).to_s)
+  end
+
+  def service_to_date
+    DateTime.parse(Faker::Date.between(Date.today - 182, Date.today).to_s)
+  end
   # rubocop:enable all
 
-  def date_range
-    {
-      'from' => from_date,
-      'to' => date
-    }
+  def date_range(type = nil)
+    if type == "service"
+      {
+        'from' => service_from_date,
+        'to' => service_to_date
+      }
+    else
+      {
+        'from' => from_date,
+        'to' => date
+      }
+    end
   end
 
   def pay_type
