@@ -14,7 +14,7 @@ describe EMISPolicy do
       end
 
       it 'increments the StatsD success counter' do
-        expect { EMISPolicy.new(user, :emis).access? }.to trigger_statsd_increment('api.emis.edipi.success')
+        expect { EMISPolicy.new(user, :emis).access? }.to trigger_statsd_increment('api.emis.edipi')
       end
     end
 
@@ -26,7 +26,7 @@ describe EMISPolicy do
       end
 
       it 'increments the StatsD failure counter' do
-        expect { EMISPolicy.new(user, :emis).access? }.to trigger_statsd_increment('api.emis.edipi.failure')
+        expect { EMISPolicy.new(user, :emis).access? }.to trigger_statsd_increment('api.emis.edipi')
       end
     end
   end

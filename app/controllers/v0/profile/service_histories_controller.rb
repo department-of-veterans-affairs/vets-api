@@ -53,9 +53,9 @@ module V0
 
       def report_results(response)
         if response.present?
-          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history.present")
+          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.has_service_history", tags: ['true'])
         else
-          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history.empty")
+          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.has_service_history", tags: ['false'])
         end
       end
     end

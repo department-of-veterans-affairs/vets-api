@@ -32,7 +32,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
             expect do
               get '/v0/profile/service_history', nil, auth_header
-            end.to trigger_statsd_increment('api.emis.service_history.present')
+            end.to trigger_statsd_increment('api.emis.has_service_history')
           end
         end
       end
@@ -76,7 +76,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
       it 'increments the StatsD empty counter' do
         expect do
           get '/v0/profile/service_history', nil, auth_header
-        end.to trigger_statsd_increment('api.emis.service_history.empty')
+        end.to trigger_statsd_increment('api.emis.has_service_history')
       end
     end
   end
