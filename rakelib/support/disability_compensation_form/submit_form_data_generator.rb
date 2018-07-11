@@ -1,65 +1,16 @@
 # frozen_string_literal: true
 
-require 'faraday'
-require 'faraday_middleware'
-require 'pp'
 require 'faker'
-require 'json'
-require 'date'
 
-class SetupTest
+class SubmitFormDataGenerator
   A = Faker::Address
   I = Faker::Internet
   L = Faker::Lorem
   N = Faker::Name
   NUM = Faker::Number
 
-  def initialize(env, user_token, times_to_run)
-    @user_token = user_token
-    @times_to_run = times_to_run
-    @conn = Faraday.new(url: "https://#{env}-api.vets.gov") do |faraday|
-      faraday.response :json, content_type: /\bjson$/
-      faraday.adapter Faraday.default_adapter
-    end
-  end
-
-  def active_itf?
-    response = @conn.get do |req|
-      req.url '/v0/intent_to_file/compensation/active'
-      req.headers['Authorization'] = "Token token=#{@user_token}"
-    end
-    puts response.status
-    puts response.body
-
-    response.body.dig('data', 'attributes', 'intent_to_file', 'status') == 'active'
-  end
-
-  def create_itf
-    response = @conn.post do |req|
-      req.url '/v0/intent_to_file/compensation'
-      req.headers['Authorization'] = "Token token=#{@user_token}"
-    end
-    puts response.status
-    puts response.body
-  end
-
-  def submit
-    @times_to_run.times do
-      response = @conn.post do |req|
-        req.url '/v0/disability_compensation_form/submit'
-        req.headers['Authorization'] = "Token token=#{@user_token}"
-        pp submit_hash
-        req.body = submit_hash.to_json
-      end
-      puts response.status
-      puts response.body
-    end
-  end
-
-  private
-
-  def submit_hash
-    compact(
+  def initialize
+    @form_data = compact(
       'form526' => {
         'veteran' => veteran,
         'attachments' => attachments,
@@ -73,6 +24,16 @@ class SetupTest
       }
     )
   end
+
+  def to_hash
+    @form_data
+  end
+
+  def to_json
+    @form_data.to_json
+  end
+
+  private
 
   def compact(hash)
     p = proc do |*args|
@@ -241,6 +202,7 @@ class SetupTest
   def from_date
     DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - 365).to_s)
   end
+
   # rubocop:enable all
 
   def date_range
