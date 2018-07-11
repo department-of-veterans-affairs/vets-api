@@ -3,6 +3,17 @@
 require 'emis/veteran_status_service'
 
 module EMISRedis
+  # Much of this class depends on the Title 38 Status codes, which are:
+  #
+  # V1 = Title 38 Veteran
+  # V2 = VA Beneficiary
+  # V3 = Military Person, not Title 38 Veteran, NOT DoD-Affiliated
+  # V4 = Non-military person
+  # V5 = EDI PI Not Found in VADIR (service response only not stored in table)
+  # V6 = Military Person, not Title 38 Veteran, DoD-Affiliated
+  #
+  # @see https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SiP-Prefill/Prefill/eMIS_Integration/eMIS_Documents/MIS%20Service%20Description%20Document.docx
+  #
   class VeteranStatus < Model
     CLASS_NAME = 'VeteranStatusService'
 
@@ -30,6 +41,15 @@ module EMISRedis
     #
     def post_911_combat_deployment?
       coerce(validated_response&.post911_deployment_indicator)
+    end
+
+    # Returns boolean for user being/not being considered a military person, by eMIS,
+    # based on their Title 38 Status Code.
+    #
+    # @return [Boolean]
+    #
+    def military_person?
+      title38_status == 'V3' || title38_status == 'V6'
     end
 
     class NotAuthorized < StandardError
