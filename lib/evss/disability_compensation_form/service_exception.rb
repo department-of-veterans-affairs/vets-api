@@ -28,6 +28,20 @@ module EVSS
         treatments: 'common.exceptions.validation_errors',
         veteran: 'common.exceptions.validation_errors'
       }.freeze
+
+      def errors
+        Array(
+          Common::Exceptions::SerializableError.new(
+            i18n_data.merge(source: 'EVSS::DisabilityCompensationForm::Service', meta: { messages: @messages })
+          )
+        )
+      end
+
+      private
+
+      def i18n_key
+        @key
+      end
     end
   end
 end
