@@ -101,13 +101,13 @@ class SubmitFormDataGenerator
   end
 
   def disabilities
+    # NB: this is hard-coded specifically for the user Mark Webb
     [{
-      'name' => L.word,
+      'name' => 'Hearing Loss',
       'disabilityActionType' => 'INCREASE',
-      'ratedDisabilityId' => (L.word if random_bool),
-      'ratingDecisionId' => (L.word if random_bool),
-      'diagnosticCode' => NUM.number(5),
-      'classificationCode' => (L.word if random_bool)
+      'ratedDisabilityId' => '1046371',
+      'ratingDecisionId' => '64446',
+      'diagnosticCode' => 6100,
     }]
   end
 

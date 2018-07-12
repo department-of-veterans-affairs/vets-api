@@ -47,4 +47,15 @@ class TestRunner
     puts 'BODY:'
     puts response.body
   end
+
+  def rated_disabilities
+    response = @conn.get do |req|
+      req.url '/v0/disability_compensation_form/rated_disabilities'
+      req.headers['Authorization'] = "Token token=#{@user_token}"
+    end
+    puts "\n\n--- SUBMIT RESPONSE ---\n\n"
+    puts "RESPONSE: #{response.status}"
+    puts 'BODY:'
+    puts response.body
+  end
 end
