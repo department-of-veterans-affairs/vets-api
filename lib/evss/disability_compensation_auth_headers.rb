@@ -2,15 +2,38 @@
 
 module EVSS
   class DisabilityCompensationAuthHeaders
-    def self.add_headers(auth_headers, user)
-      disability_headers = auth_headers.merge('va_eauth_gender' => gender(user))
-      Rails.logger.info disability_headers: disability_headers
-      disability_headers
+    # :nocov:
+
+    def initialize(user)
+      @user = user
     end
 
-    def self.gender(user)
-      Rails.logger.info disability_gender: user.gender
-      case user.gender
+    def add_headers(auth_headers)
+      headers = auth_headers.merge('va_eauth_authorization' => eauth_json)
+      Raven.capture_message('disability_headers', level: :info, extra: headers)
+      headers
+    end
+
+    private
+
+    def eauth_json
+      {
+        authorizationResponse: {
+          status: 'VETERAN',
+          idType: 'SSN',
+          id: @user.ssn,
+          edi: @user.edipi,
+          firstName: @user.first_name,
+          lastName: @user.last_name,
+          birthDate: iso8601_birth_date,
+          gender: gender
+        }
+      }.to_json
+    end
+
+    def gender
+      Raven.capture_message('disability_gender', level: :info, extra: { gender: @user.gender })
+      case @user.gender
       when 'F'
         'FEMALE'
       when 'M'
@@ -21,5 +44,13 @@ module EVSS
               source: self.class, event_id: Raven.last_event_id
       end
     end
+
+    # rubocop:disable all
+    def iso8601_birth_date
+      return nil unless @user&.va_profile&.birth_date
+      DateTime.parse(@user.va_profile.birth_date).iso8601
+    end
+    # rubocop:enable all
+    # :nocov:
   end
 end
