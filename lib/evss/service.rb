@@ -2,7 +2,6 @@
 
 require 'common/client/base'
 require 'evss/auth_headers'
-require_relative '../../lib/sentry_logging'
 
 module EVSS
   class Service < Common::Client::Base
