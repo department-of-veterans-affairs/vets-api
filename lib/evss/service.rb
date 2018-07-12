@@ -13,7 +13,7 @@ module EVSS
 
     def perform(method, path, body = nil, headers = {})
       headers = headers_for_user(@user).merge(headers)
-      Rails.logger.info evss_headers: headers
+      Raven.capture_message('evss_headers', level: :info, extra: { evss_headers: headers })
       super(method, path, body, headers)
     end
 

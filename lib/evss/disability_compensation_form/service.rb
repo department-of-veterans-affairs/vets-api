@@ -33,7 +33,7 @@ module EVSS
       private
 
       def headers_for_user(user)
-        EVSS::DisabilityCompensationAuthHeaders.add_headers(EVSS::AuthHeaders.new(user).to_h, user)
+        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
       end
 
       def handle_error(error)
