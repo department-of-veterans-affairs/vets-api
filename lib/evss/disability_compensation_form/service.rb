@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require_relative '../disability_compensation_auth_headers.rb'
 
 module EVSS
   module DisabilityCompensationForm
