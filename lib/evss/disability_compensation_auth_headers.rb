@@ -3,10 +3,13 @@
 module EVSS
   class DisabilityCompensationAuthHeaders
     def self.add_headers(auth_headers, user)
-      auth_headers.merge('gender' => gender(user))
+      disability_headers = auth_headers.merge('va_eauth_gender' => gender(user))
+      Rails.logger.info disability_headers: disability_headers
+      disability_headers
     end
 
     def self.gender(user)
+      Rails.logger.info disability_gender: user.gender
       case user.gender
       when 'F'
         'FEMALE'
