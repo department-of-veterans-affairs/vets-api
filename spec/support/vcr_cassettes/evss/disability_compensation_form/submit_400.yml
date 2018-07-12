@@ -66,6 +66,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
-    http_version: 
+        {
+          "messages": [
+            {
+              "key": "form526.serviceInformation.ConfinementPastActiveDutyDate",
+              "severity": "ERROR",
+              "text": "The confinement start date is too far in the past"
+            },
+            {
+              "key": "form526.serviceInformation.ConfinementWithInServicePeriod",
+              "severity": "ERROR",
+              "text": "Your period of confinement must be within a single period of service"
+            },
+            {
+              "key": "form526.veteran.homelessness.pointOfContact.pointOfContactName.Pattern",
+              "severity": "ERROR",
+              "text": "must match \"([a-zA-Z0-9-/]+( ?))*$\""
+            }
+          ]
+        }
+    http_version:
   recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
 recorded_with: VCR 3.0.3
