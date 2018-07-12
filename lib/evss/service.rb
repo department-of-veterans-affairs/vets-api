@@ -2,7 +2,6 @@
 
 require 'common/client/base'
 require 'evss/auth_headers'
-require_relative '../../lib/sentry_logging'
 
 module EVSS
   class Service < Common::Client::Base
@@ -14,7 +13,7 @@ module EVSS
 
     def perform(method, path, body = nil, headers = {})
       headers = headers_for_user(@user).merge(headers)
-      log_message_to_sentry('evss_headers', :info, headers)
+      Rails.logger.info evss_headers: headers
       super(method, path, body, headers)
     end
 
