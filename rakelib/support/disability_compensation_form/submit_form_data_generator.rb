@@ -103,7 +103,7 @@ class SubmitFormDataGenerator
   def disabilities
     [{
       'name' => L.word,
-      'disabilityActionType' => disability_action_type,
+      'disabilityActionType' => INCREASE,
       'specialIssues' => special_issues,
       'ratedDisabilityId' => (L.word if random_bool),
       'ratingDecisionId' => (L.word if random_bool),
@@ -246,10 +246,6 @@ class SubmitFormDataGenerator
       'Navy Reserve',
       'Public Health Service'
     ].sample
-  end
-
-  def disability_action_type
-    %w[NONE NEW SECONDARY INCREASE REOPEN].sample
   end
 
   # rubocop:disable all
