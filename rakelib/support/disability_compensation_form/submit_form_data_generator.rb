@@ -222,18 +222,18 @@ class SubmitFormDataGenerator
   def service_branch
     [
       'Air Force',
-      'Air Force Reserve',
+      'Air Force Reserves',
       'Air National Guard',
       'Army',
       'Army National Guard',
-      'Army Reserve',
+      'Army Reserves',
       'Coast Guard',
-      'Coast Guard Reserve',
+      'Coast Guard Reserves',
       'Marine Corps',
-      'Marine Corps Reserve',
+      'Marine Corps Reserves',
       'NOAA',
       'Navy',
-      'Navy Reserve',
+      'Navy Reserves',
       'Public Health Service'
     ].sample
   end
