@@ -42,6 +42,20 @@ module EMISRedis
 
     private
 
+    # The emis_response call in this method returns an instance of the
+    # EMIS::Responses::GetVeteranStatusResponse class. This response's `items`
+    # is an array of one hash.  For example:
+    #   [
+    #     {
+    #       :title38_status_code          => "V1",
+    #       :post911_deployment_indicator => "Y",
+    #       :post911_combat_indicator     => "N",
+    #       :pre911_deployment_indicator  => "N"
+    #     }
+    #   ]
+    #
+    # @return [Hash] A hash of veteran status properties
+    #
     def validated_response
       raise VeteranStatus::NotAuthorized unless @user.loa3?
       response = emis_response('get_veteran_status')
