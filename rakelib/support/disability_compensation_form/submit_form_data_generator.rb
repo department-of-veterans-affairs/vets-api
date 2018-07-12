@@ -20,7 +20,7 @@ class SubmitFormDataGenerator
         'treatments' => treatments,
         'specialCircumstances' => special_circumstances,
         'standardClaim' => random_bool,
-        'claimantCertification' => random_bool
+        'claimantCertification' => true
       }
     )
   end
@@ -104,10 +104,9 @@ class SubmitFormDataGenerator
     [{
       'name' => L.word,
       'disabilityActionType' => 'INCREASE',
-      'specialIssues' => special_issues,
       'ratedDisabilityId' => (L.word if random_bool),
       'ratingDecisionId' => (L.word if random_bool),
-      'diagnosticCode' => (NUM.number(5) if random_bool),
+      'diagnosticCode' => NUM.number(5),
       'classificationCode' => (L.word if random_bool)
     }]
   end
@@ -129,15 +128,6 @@ class SubmitFormDataGenerator
         'name' => L.word,
         'code' => L.word,
         'needed' => random_bool
-      }]
-    end
-  end
-
-  def special_issues
-    if random_bool
-      [{
-        'code' => special_issue_code,
-        'name' => L.word
       }]
     end
   end
@@ -247,44 +237,6 @@ class SubmitFormDataGenerator
       'Public Health Service'
     ].sample
   end
-
-  # rubocop:disable all
-  def special_issue_code
-    # [
-    #   'ALS',
-    #   'AOIV',
-    #   'AOOV',
-    #   'ASB',
-    #   'EHCL',
-    #   'GW',
-    #   'HEPC',
-    #   'MG',
-    #   'POW',
-    #   'RDN',
-    #   'SHAD',
-    #   'TRM',
-    #   '38USC1151',
-    #   'PTSD/1',
-    #   'PTSD/2',
-    #   'PTSD/4)'
-    # ].sample
-    [
-      'ALS',
-      'AOIV',
-      'AOOV',
-      'ASB',
-      'EHCL',
-      'GW',
-      'HEPC',
-      'MG',
-      'POW',
-      'RDN',
-      'SHAD',
-      'TRM',
-      '38USC1151'
-    ].sample
-  end
-  # rubocop:enable all
 
   def treatment_center_type
     %w[VA_MEDICAL_CENTER DOD_MTF].sample
