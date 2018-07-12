@@ -103,7 +103,7 @@ class SubmitFormDataGenerator
   def disabilities
     [{
       'name' => L.word,
-      'disabilityActionType' => INCREASE,
+      'disabilityActionType' => 'INCREASE',
       'specialIssues' => special_issues,
       'ratedDisabilityId' => (L.word if random_bool),
       'ratingDecisionId' => (L.word if random_bool),
