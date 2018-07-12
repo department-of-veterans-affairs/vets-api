@@ -40,7 +40,9 @@ module Facilities
     end
 
     def fetch_existing_data
-      @fetch_existing_data ||= klass.where.not(classification: 'State Cemetery').pluck(:fingerprint, :unique_id)
+      @fetch_existing_data ||= klass
+                               .where("classification != 'State Cemetery' OR classification is NULL")
+                               .pluck(:fingerprint, :unique_id)
     end
 
     def fresh_by_fingerprint
