@@ -51,17 +51,6 @@ module EVSS
       DateTime.parse(@user.va_profile.birth_date).iso8601
     end
     # rubocop:enable all
-
-    def log_message_to_sentry(message, level, extra_context = {}, tags_context = {})
-      level = level.to_s
-      formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
-      Rails.logger.send(level, formatted_message)
-      if Settings.sentry.dsn.present?
-        Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
-        Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
-        Raven.capture_message(message, level: level)
-      end
-    end
     # :nocov:
   end
 end

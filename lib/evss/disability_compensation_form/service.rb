@@ -38,8 +38,8 @@ module EVSS
 
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
-          Raven.capture_message(
-            error.message, level: :error, extra: { url: config.base_path, body: error.body }
+          log_message_to_sentry(
+            error.message, :error, extra_context: { url: config.base_path, body: error.body }
           )
           raise EVSS::DisabilityCompensationForm::ServiceException, error.body
         else
