@@ -120,7 +120,7 @@ module EMISRedis
                  when 'N'
                    'National Guard'
                  when 'V' || 'Q'
-                   'Reserve'
+                   'Reserves'
                  else
                    ''
                  end
