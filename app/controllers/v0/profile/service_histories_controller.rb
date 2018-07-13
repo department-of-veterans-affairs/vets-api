@@ -31,6 +31,7 @@ module V0
         response = EMISRedis::MilitaryInformation.for_user(@current_user).service_history
 
         handle_errors!(response)
+        report_results(response)
 
         render json: response, serializer: ServiceHistorySerializer
       end
@@ -48,6 +49,14 @@ module V0
           'EMIS_HIST502',
           source: self.class.to_s
         )
+      end
+
+      def report_results(response)
+        if response.present?
+          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", tags: ['present:true'])
+        else
+          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", tags: ['present:false'])
+        end
       end
     end
   end
