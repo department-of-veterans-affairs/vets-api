@@ -19,7 +19,7 @@
         "country": "USA",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
-      "phone": "2024561111",
+      "primaryPhone": "2024561111",
       "homelessness": {
         "isHomeless": true,
         "pointOfContact": {
@@ -57,8 +57,6 @@
         "unitPhone": "2024561111"
       },
       "servedInCombatZone": true,
-      "separationLocationName": "OTHER",
-      "separationLocationCode": "SOME VALUE",
       "alternateNames": [
         {
           "first": "string",

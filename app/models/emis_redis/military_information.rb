@@ -38,6 +38,8 @@ module EMISRedis
       service_branches
       va_compensation_type
       service_periods
+      guard_reserve_service_history
+      latest_guard_reserve_service_period
     ].freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
@@ -118,7 +120,7 @@ module EMISRedis
                  when 'N'
                    'National Guard'
                  when 'V' || 'Q'
-                   'Reserve'
+                   'Reserves'
                  else
                    ''
                  end
@@ -128,7 +130,7 @@ module EMISRedis
     # rubocop:enable Metrics/CyclomaticComplexity
 
     def service_periods
-      military_service_episodes.map do |military_service_episode|
+      service_episodes_by_date.map do |military_service_episode|
         # avoid prefilling if service branch is 'other' as this breaks validation
         return {} if military_service_episode.hca_branch_of_service == 'other'
 
@@ -258,6 +260,29 @@ module EMISRedis
           end_date: episode.end_date
         }
       end
+    end
+
+    def guard_reserve_service_periods
+      @guard_reserve_service_periods ||= items_from_response('get_guard_reserve_service_periods')
+    end
+
+    def guard_reserve_service_by_date
+      @guard_reserve_service_by_date ||= begin
+        guard_reserve_service_periods.sort_by { |per| per.end_date || Time.zone.today + 3650 }.reverse
+      end
+    end
+
+    def guard_reserve_service_history
+      guard_reserve_service_by_date.map do |period|
+        {
+          from: period.begin_date,
+          to: period.end_date
+        }
+      end
+    end
+
+    def latest_guard_reserve_service_period
+      guard_reserve_service_history.try(:[], 0)
     end
   end
 end

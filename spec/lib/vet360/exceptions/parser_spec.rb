@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Vet360::Exceptions do
+describe Vet360::Exceptions::Parser do
   describe '#known_keys' do
     subject { described_class.instance.known_keys }
 

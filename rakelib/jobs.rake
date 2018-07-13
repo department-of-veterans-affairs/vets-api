@@ -36,6 +36,11 @@ namespace :jobs do
     Facilities::FacilityLocationDownloadJob.perform_async('vha')
   end
 
+  desc 'Populate/reload NCA state cemetery data to db cache'
+  task reload_nca_state_data: :environment do
+    Facilities::StateCemeteryReloadJob.perform_async
+  end
+
   desc 'Populate/refresh All facility location types to db cache'
   task pull_all_facility_location_data: %i[pull_nca_data pull_vba_data pull_vc_data pull_vha_data] do
     # run all dependencies

@@ -10,6 +10,13 @@ class FormFullName
   attribute :suffix, String
 end
 
+class FormDate
+  include Virtus.model
+
+  attribute :from, Date
+  attribute :to, Date
+end
+
 class FormMilitaryInformation
   include Virtus.model
 
@@ -30,6 +37,8 @@ class FormMilitaryInformation
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
+  attribute :guard_reserve_service_history, Array[FormDate]
+  attribute :latest_guard_reserve_service_period, FormDate
 end
 
 class FormAddress

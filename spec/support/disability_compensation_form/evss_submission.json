@@ -71,8 +71,6 @@
         }
       },
       "servedInCombatZone": true,
-      "separationLocationName": "OTHER",
-      "separationLocationCode": "SOME VALUE",
       "alternateNames": [
         {
           "firstName": "string",

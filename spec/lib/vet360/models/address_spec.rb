@@ -3,6 +3,30 @@
 require 'rails_helper'
 
 describe Vet360::Models::Address do
+  describe '#zip_plus_four' do
+    let(:address) { build(:vet360_address) }
+
+    context 'with no zipcode' do
+      it 'returns nil' do
+        address.zip_code = nil
+        expect(address.zip_plus_four).to eq(nil)
+      end
+    end
+
+    context 'with just zipcode' do
+      it 'returns just zipcode' do
+        expect(address.zip_plus_four).to eq(address.zip_code)
+      end
+    end
+
+    context 'with zip code suffix' do
+      it 'return zip plus four' do
+        address.zip_code_suffix = '1234'
+        expect(address.zip_plus_four).to eq('38843-1234')
+      end
+    end
+  end
+
   describe 'validation' do
     context 'for any type of address' do
       let(:address) { build(:vet360_address) }

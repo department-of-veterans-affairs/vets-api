@@ -349,6 +349,7 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
       ],
+      'servedInCombatZone' => true,
       'servicePeriods' => [
         {
           'serviceBranch' => 'Air Force Reserve',
@@ -358,6 +359,12 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
+      'reservesNationalGuardService' => {
+        'obligationTermOfServiceDateRange' => {
+          'from' => '2007-04-01',
+          'to' => '2016-06-01'
+        }
+      },
       'veteran' => {
         'mailingAddress' => {
           'country' => 'USA',
@@ -477,6 +484,38 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:service_periods).and_return(
           [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
+        expect(military_information).to receive(:guard_reserve_service_history).and_return(
+          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+        )
+        expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+          from: '2007-04-01',
+          to: '2016-06-01'
+        )
+      end
+
+      context 'with vets360 prefill on' do
+        before do
+          Settings.vet360.prefill = true
+
+          v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+          v22_1990_expected['homePhone'] = '(303) 555-1234'
+          v22_1990_expected['mobilePhone'] = '(303) 555-1234'
+          v22_1990_expected['veteranAddress'] = {
+            'street' => '1493 Martin Luther King Rd',
+            'city' => 'Fulton',
+            'state' => 'MS',
+            'country' => 'USA',
+            'postalCode' => '38843'
+          }
+        end
+
+        it 'should prefill 1990' do
+          expect_prefilled('22-1990')
+        end
+
+        after do
+          Settings.vet360.prefill = false
+        end
       end
 
       context 'with a user that can prefill emis' do

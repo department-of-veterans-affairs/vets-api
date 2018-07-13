@@ -93,8 +93,7 @@ module EVSS
       end
 
       def translate_veteran_phone
-        veteran['primaryPhone'] = split_phone_number(veteran['phone'])
-        veteran.delete('phone')
+        veteran['primaryPhone'] = split_phone_number(veteran['primaryPhone'])
       end
 
       def translate_veteran_address
@@ -179,15 +178,21 @@ module EVSS
       end
 
       def translate_treatments
+        return if form['treatments'].blank?
         form['treatments'].map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
             'type' => treatment['treatmentCenterType']
-          }
+          }.compact
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
           treatment['endDate'] = treatment['treatmentDateRange']['to']
-          treatment.except('treatmentCenterName', 'treatmentDateRange', 'treatmentCenterAddress', 'treatmentCenterType')
+          treatment.except(
+            'treatmentCenterName',
+            'treatmentDateRange',
+            'treatmentCenterAddress',
+            'treatmentCenterType'
+          ).compact
         end
       end
 
