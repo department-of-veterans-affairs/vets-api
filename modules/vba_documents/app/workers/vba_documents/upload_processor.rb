@@ -173,7 +173,7 @@ module VBADocuments
     def check_size(file_path)
       if File.size(file_path) > MAX_PART_SIZE
         raise VBADocuments::UploadError.new(code: 'DOC106',
-                                            detail: 'Max part size exceeded. Limit is 100MB.')
+                                            detail: 'Maximum document size exceeded. Limit is 100MB per document')
       end
     end
 
