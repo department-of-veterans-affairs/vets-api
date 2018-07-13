@@ -85,6 +85,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VBAFacility.find('0206V').services['benefits']['standard']).not_to include('Pensions')
       end
     end
+
+    it 'adds data that does not exist in the db' do
+      VCR.use_cassette('facilities/va/vba_facilities_limit_results', allow_playback_repeats: true) do
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        count = Facilities::VBAFacility.count
+        Facilities::VBAFacility.all.sample(5).map(&:destroy)
+        expect(Facilities::VBAFacility.count).to eq(count - 5)
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        expect(Facilities::VBAFacility.count).to eq(count)
+      end
+    end
   end
 
   describe 'VC Facilities' do
@@ -95,6 +106,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VCFacility.count).to eq(10)
       end
     end
+
+    it 'adds data that does not exist in the db' do
+      VCR.use_cassette('facilities/va/vc_facilities', allow_playback_repeats: true) do
+        Facilities::FacilityLocationDownloadJob.new.perform('vc')
+        count = Facilities::VCFacility.count
+        Facilities::VCFacility.all.sample(5).map(&:destroy)
+        expect(Facilities::VCFacility.count).to eq(count - 5)
+        Facilities::FacilityLocationDownloadJob.new.perform('vc')
+        expect(Facilities::VCFacility.count).to eq(count)
+      end
+    end
   end
 
   describe 'VHA Facilities' do
@@ -103,6 +125,17 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
         expect(Facilities::VHAFacility.count).to eq(3)
+      end
+    end
+
+    it 'adds data that does not exist in the db' do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results', allow_playback_repeats: true) do
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        count = Facilities::VHAFacility.count
+        Facilities::VHAFacility.all.sample(2).map(&:destroy)
+        expect(Facilities::VHAFacility.count).to eq(count - 2)
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        expect(Facilities::VHAFacility.count).to eq(count)
       end
     end
   end

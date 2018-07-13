@@ -10,6 +10,13 @@ class FormFullName
   attribute :suffix, String
 end
 
+class FormDate
+  include Virtus.model
+
+  attribute :from, Date
+  attribute :to, Date
+end
+
 class FormMilitaryInformation
   include Virtus.model
 
@@ -30,6 +37,8 @@ class FormMilitaryInformation
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
+  attribute :guard_reserve_service_history, Array[FormDate]
+  attribute :latest_guard_reserve_service_period, FormDate
 end
 
 class FormAddress
@@ -71,7 +80,6 @@ class FormProfile
   include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
-  V360_PREFILL_KEY = 'vets360_prefill'
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 

@@ -68,7 +68,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Get /v0/disability_compensation_form/submit' do
     before(:each) do
-      VCR.insert_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true)
+      VCR.insert_cassette('emis/get_military_service_episodes/valid')
       VCR.insert_cassette('evss/ppiu/payment_information')
       VCR.insert_cassette('evss/intent_to_file/active_compensation')
     end
@@ -124,12 +124,34 @@ RSpec.describe 'Disability compensation form', type: :request do
         end
       end
 
-      context 'with a generic 400 response' do
-        it 'should return a bad request response' do
+      context 'with a 400 response' do
+        let(:validation_array) do
+          [
+            {
+              'key' => 'form526.serviceInformation.ConfinementPastActiveDutyDate',
+              'severity' => 'ERROR',
+              'text' => 'The confinement start date is too far in the past'
+            },
+            {
+              'key' => 'form526.serviceInformation.ConfinementWithInServicePeriod',
+              'severity' => 'ERROR',
+              'text' => 'Your period of confinement must be within a single period of service'
+            },
+            {
+              'key' => 'form526.veteran.homelessness.pointOfContact.pointOfContactName.Pattern',
+              'severity' => 'ERROR',
+              'text' => 'must match "([a-zA-Z0-9-/]+( ?))*$"'
+            }
+          ]
+        end
+
+        it 'should return a unprocessable_entity response' do
           VCR.use_cassette('evss/disability_compensation_form/submit_400') do
             post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-            expect(response).to have_http_status(:bad_request)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(response).to match_response_schema('evss_errors', strict: false)
+            meta = JSON.parse(response.body).dig('errors').first.dig('meta', 'messages')
+            expect(meta).to match_array(validation_array)
           end
         end
       end
