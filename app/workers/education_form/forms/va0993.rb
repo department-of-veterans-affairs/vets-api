@@ -2,6 +2,10 @@
 
 module EducationForm::Forms
   class VA0993 < Base
+    def header_form_type
+      'OPTOUT'
+    end
+    
     def applicant_name
       @applicant.claimantFullName
     end
