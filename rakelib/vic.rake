@@ -6,9 +6,7 @@ namespace :vic do
   task test_connection: :environment do
     client = VIC::Service.new.get_client
 
-    if client.user_info.class == Restforce::Mash
-      puts 'connection works'
-    end
+    puts 'connection works' if client.user_info.class == Restforce::Mash
   end
 
   N = 10
