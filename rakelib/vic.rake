@@ -7,7 +7,7 @@ namespace :vic do
     client = VIC::Service.new.get_client
 
     if client.user_info.class == Restforce::Mash
-      put 'connection works'
+      puts 'connection works'
     end
   end
 
