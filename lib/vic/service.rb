@@ -10,7 +10,7 @@ module VIC
       'dev' => 'vetsgov-devops@listserv.gsa.gov.vicdev'
     }.freeze
 
-    SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
+    SALESFORCE_USERNAME = 'vetsgov-devops@listserv.gsa.gov.rdtcddev'
     SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
@@ -41,7 +41,7 @@ module VIC
 
     def claim_set
       {
-        iss: Settings.salesforce.consumer_key,
+        iss: '3MVG99fZdHp1UitRS4.Motyxh.XGN5gfQXvy0Plv8cdSIMyhhXssQWtz385wI4aprtscxR.51Dg.H61An0kFd',
         sub: SALESFORCE_USERNAME,
         aud: SALESFORCE_HOST,
         exp: Time.now.utc.to_i.to_s

@@ -2,7 +2,7 @@
 
 module VIC
   class Configuration < Common::Client::Configuration::REST
-    SALESFORCE_INSTANCE_URL = Settings.salesforce.url
+    SALESFORCE_INSTANCE_URL = 'https://va--rdtcddev.cs33.my.salesforce.com'
 
     def base_path
       "#{SALESFORCE_INSTANCE_URL}/services/oauth2/token"
