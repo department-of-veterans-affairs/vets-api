@@ -286,6 +286,8 @@ saml:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  profile_api_url: ~
+  profile_api_token: ~
 
 sentry:
   dsn: ~

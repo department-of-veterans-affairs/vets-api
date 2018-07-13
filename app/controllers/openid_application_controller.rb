@@ -63,13 +63,40 @@ class OpenidApplicationController < ApplicationController
       payload, header = JWT.decode token, pubkey, true, { algorithm: 'RS256' }
       ttl = Time.current.utc.to_i - payload["iat"]
       # add validation options - issuer, audience, cid
-      user_identity = user_identity_from_claims(payload, ttl)
+      user_identity = user_identity_from_profile(payload, ttl)
       @current_user = user_from_identity(user_identity, ttl)
       @session = session_from_claims(token, payload, ttl)
       @session.save && @current_user.save && user_identity.save
     rescue StandardError => e
      Rails.logger.warn(e)
     end
+  end
+
+  def user_identity_from_profile(payload,ttl)
+    uid = payload['uid']
+    conn = Faraday.new(Settings.oidc.profile_api_url)
+    profile_response = conn.get do |req|
+      req.url uid
+      req.headers['Content-Type'] = 'application/json'
+      req.headers['Accept'] = 'application/json'
+      req.headers['Authorization'] = "SSWS #{Settings.oidc.profile_api_token}"
+    end
+    # TODO handle failure
+    profile = JSON.parse(profile_response.body)['profile']
+    attributes = {
+      uuid: payload["uid"],
+      email: profile["email"],
+      first_name: profile["firstName"],
+      middle_name: profile["middleName"],
+      last_name: profile["lastName"],
+      gender: profile["gender"],
+      birth_date: profile["dob"],
+      ssn: profile["ssn"],
+      loa: {current: profile["loa"], highest: profile["loa"] }
+    }
+    user_identity = UserIdentity.new(attributes)
+    user_identity.expire(ttl)
+    user_identity
   end
 
   def user_identity_from_claims(payload, ttl)
