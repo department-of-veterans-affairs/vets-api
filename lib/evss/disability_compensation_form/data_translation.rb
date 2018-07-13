@@ -183,7 +183,7 @@ module EVSS
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
             'type' => treatment['treatmentCenterType']
-          }
+          }.compact
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
           treatment['endDate'] = treatment['treatmentDateRange']['to']
