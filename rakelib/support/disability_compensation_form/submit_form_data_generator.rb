@@ -81,15 +81,13 @@ class SubmitFormDataGenerator
   end
 
   def service_information
-    {
+    si = {
       'servicePeriods' => [{
         'serviceBranch' => service_branch,
         'dateRange' => date_range('service')
       }],
       'reservesNationalGuardService' => reserves_national_guard_service,
       'servedInCombatZone' => random_bool,
-      'separationLocationName' => (L.word if random_bool),
-      'separationLocationCode' => (L.word if random_bool),
       'confinements' => (
       if random_bool
         [{
@@ -97,6 +95,19 @@ class SubmitFormDataGenerator
           'verifiedIndicator' => random_bool
         }]
       end)
+    }
+
+    if random_bool
+      si.merge(separation_location)
+    else
+      si
+    end
+  end
+
+  def separation_location
+    {
+      'separationLocationName' => 'Langley Air Force Base',
+      'separationLocationCode' => '98283'
     }
   end
 
@@ -177,9 +188,9 @@ class SubmitFormDataGenerator
       'addressLine1' => A.street_address.truncate(19),
       'addressLine2' => (A.secondary_address.truncate(19) if random_bool),
       'city' => A.city,
-      'state' => (A.state_abbr if random_bool),
-      'zipCode' => (A.zip if random_bool),
-      'country' => A.country
+      'state' => A.state_abbr,
+      'zipCode' => A.zip,
+      'country' => 'USA'
     }
   end
 
