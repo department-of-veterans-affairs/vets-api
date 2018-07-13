@@ -3,6 +3,14 @@
 require './rakelib/support/vic_load_test'
 
 namespace :vic do
+  task test_connection: :environment do
+    client = VIC::Service.new.get_client
+
+    if client.user_info.class == Restforce::Mash
+      put 'connection works'
+    end
+  end
+
   N = 10
 
   desc 'Load test document uploads using faraday'
