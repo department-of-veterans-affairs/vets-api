@@ -54,6 +54,7 @@ module VIC
 
     def get_oauth_token
       body = request(:post, '', oauth_params).body
+      puts body
       Raven.extra_context(oauth_response_body: body)
 
       body['access_token']
