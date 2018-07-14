@@ -23,7 +23,7 @@ RSpec.describe SAML::SettingsService do
       end
       it 'overrides name-id to be "unspecified"' do
         expect(SAML::SettingsService.merged_saml_settings(true).name_identifier_format)
-          .to eq('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified')
+          .to eq('urn:oasis:names:tc:SAML:2.0:nameid-format:persistent')
       end
     end
     context 'with metadata 500 responses' do

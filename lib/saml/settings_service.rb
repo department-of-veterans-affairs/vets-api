@@ -102,7 +102,7 @@ module SAML
         settings.assertion_consumer_service_url = Settings.saml.callback_url
         settings.certificate_new = Settings.saml.certificate_new
 
-        settings.name_identifier_format = 'urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'
+        settings.name_identifier_format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true
