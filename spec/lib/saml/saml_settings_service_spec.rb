@@ -21,7 +21,7 @@ RSpec.describe SAML::SettingsService do
       it 'returns a settings instance' do
         expect(SAML::SettingsService.merged_saml_settings(true)).to be_an_instance_of(OneLogin::RubySaml::Settings)
       end
-      it 'overrides name-id to be "unspecified"' do
+      it 'overrides name-id to be "persistent"' do
         expect(SAML::SettingsService.merged_saml_settings(true).name_identifier_format)
           .to eq('urn:oasis:names:tc:SAML:2.0:nameid-format:persistent')
       end
