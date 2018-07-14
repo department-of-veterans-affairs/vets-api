@@ -11,8 +11,6 @@ default: ci
 bash:
 	@$(COMPOSE_DEV) $(BASH)
 
-docker-compose -f docker-compose.test.yml run --rm --service-ports vets-api bash --login -c
-
 .PHONY: ci
 ci:
 	@$(BASH_TEST) "bundle exec rake db:setup db:migrate ci"
