@@ -30,6 +30,7 @@ module VBADocuments
         upload.update(status: 'error', code: e.code, detail: e.detail)
         Rails.logger.info('VBADocuments: Submission failure',
                           'uuid' => guid,
+                          'source' => "#{upload.consumer_name} via VA API",
                           'code' => e.code,
                           'detail' => e.detail)
       ensure
