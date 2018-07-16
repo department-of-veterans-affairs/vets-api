@@ -3,6 +3,8 @@
 module EVSS
   module DisabilityCompensationForm
     class Configuration < EVSS::Configuration
+      self.read_timeout = Settings.evss.disability_compensation_form.timeout || 55
+
       def base_path
         "#{Settings.evss.url}/wss-form526-services-web/rest/form526/v1"
       end
