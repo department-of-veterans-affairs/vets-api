@@ -122,7 +122,7 @@ module EVSS
           'Army Reserve' => 'Army Reserves',
           'Coast Guard Reserve' => 'Coast Guard Reserves',
           'Marine Corps Reserve' => 'Marine Corps Reserves',
-          'NOAA' => 'National Oceanic &amp; Atmospheric Administration'
+          'NOAA' => 'National Oceanic & Atmospheric Administration'
         }
         return branch_map[service_branch] if branch_map.key? service_branch
         service_branch
