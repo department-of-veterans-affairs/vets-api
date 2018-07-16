@@ -67,7 +67,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     it 'should get the service period' do
       VCR.use_cassette('emis/get_military_service_episodes/valid') do
         expect(subject.service_periods).to eq(
-          [{ service_branch: 'Air Force Reserves', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
       end
     end
@@ -75,8 +75,8 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     it 'should get the all service periods' do
       VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
         expect(subject.service_periods).to eq(
-          [{ service_branch: 'Air Force Reserves', date_range: { from: '2007-04-01', to: '2016-06-01' } },
-           { service_branch: 'Air Force Reserves', date_range: { from: '2000-02-01', to: '2004-06-14' } }]
+          [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } },
+           { service_branch: 'Air Force Reserve', date_range: { from: '2000-02-01', to: '2004-06-14' } }]
         )
       end
     end
