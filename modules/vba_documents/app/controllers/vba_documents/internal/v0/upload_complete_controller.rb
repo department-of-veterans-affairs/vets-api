@@ -19,10 +19,9 @@ module VBADocuments
               process_upload(upload_id)
             end
           when 'SubscriptionConfirmation'
-            client = Aws::SNS::Client.new
+            client = Aws::SNS::Client.new(region: Settings.vba_documents.sns.region)
             client.confirm_subscription(
               authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
-              region: Settings.vba_documents.sns.region,
               token: json_params['Token'],
               topic_arn: json_params['TopicArn']
             )

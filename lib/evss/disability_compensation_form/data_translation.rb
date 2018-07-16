@@ -117,7 +117,14 @@ module EVSS
       end
 
       def service_branch(service_branch)
-        return 'National Oceanic &amp; Atmospheric Administration' if service_branch == 'NOAA'
+        branch_map = {
+          'Air Force Reserve' => 'Air Force Reserves',
+          'Army Reserve' => 'Army Reserves',
+          'Coast Guard Reserve' => 'Coast Guard Reserves',
+          'Marine Corps Reserve' => 'Marine Corps Reserves',
+          'NOAA' => 'National Oceanic &amp; Atmospheric Administration'
+        }
+        return branch_map[service_branch] if branch_map.key? service_branch
         service_branch
       end
 
@@ -183,7 +190,7 @@ module EVSS
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
             'type' => treatment['treatmentCenterType']
-          }
+          }.compact
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
           treatment['endDate'] = treatment['treatmentDateRange']['to']

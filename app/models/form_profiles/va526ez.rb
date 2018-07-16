@@ -19,6 +19,10 @@ module VA526ez
     attribute :rating_decision_id, String
     attribute :diagnostic_code, Integer
     attribute :rating_percentage, Integer
+
+    def name=(value)
+      super value.gsub(/[()]/, '').tr('/', ' ').truncate(250)
+    end
   end
 
   class FormRatedDisabilities
