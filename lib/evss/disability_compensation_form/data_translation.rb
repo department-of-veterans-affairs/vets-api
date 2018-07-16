@@ -185,7 +185,11 @@ module EVSS
       end
 
       def translate_treatments
-        return if form['treatments'].blank?
+        if form['treatments'].blank?
+          form.delete('treatments')
+          return
+        end
+
         form['treatments'].map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
