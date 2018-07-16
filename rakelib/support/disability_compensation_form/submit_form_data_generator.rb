@@ -112,13 +112,13 @@ class SubmitFormDataGenerator
   end
 
   def disabilities
-    # NB: this is hard-coded specifically for the user Mark Webb
+    # NB: this is hard-coded specifically for the user vets.gov.user+14@gmail.com
     [{
-      'name' => 'Hearing Loss',
+      'name' => 'Post Traumatic Stress Disorder',
       'disabilityActionType' => 'INCREASE',
-      'ratedDisabilityId' => '1046371',
-      'ratingDecisionId' => '64446',
-      'diagnosticCode' => 6100,
+      'ratedDisabilityId' => '1065375',
+      'ratingDecisionId' => '83674',
+      'diagnosticCode' => 9411,
     }]
   end
 
