@@ -31,7 +31,7 @@ http_interactions:
       - Tue, 31 Jan 2017 00:01:47 GMT
     body:
       encoding: UTF-8
-      string: '{"dataClasses":["seiactivityjournal","seiallergies","seidemographics","familyhealthhistory","seifoodjournal","healthcareproviders","healthinsurance","seiimmunizations","labsandtests","medicalevents","medications","militaryhealthhistory","seimygoalscurrent","seimygoalscompleted","treatmentfacilities","vitalsandreadings","prescriptions","medications","vaallergies","vaadmissionsanddischarges","futureappointments","pastappointments","vademographics","vaekg","vaimmunizations","vachemlabs","vaprogressnotes","vapathology","vaproblemlist","varadiology","vahth","wellness","dodmilitaryservice"]}'
+      string: '{"dataClasses":["seiactivityjournal","seiallergies","seidemographics","familyhealthhistory","seifoodjournal","healthcareproviders","healthinsurance","seiimmunizations","labsandtests","medicalevents","militaryhealthhistory","seimygoalscurrent","seimygoalscompleted","treatmentfacilities","vitalsandreadings","prescriptions","medications","vaallergies","vaadmissionsanddischarges","futureappointments","pastappointments","vademographics","vaekg","vaimmunizations","vachemlabs","vaprogressnotes","vapathology","vaproblemlist","varadiology","vahth","wellness","dodmilitaryservice"]}'
     http_version: 
   recorded_at: Tue, 31 Jan 2017 00:01:48 GMT
 - request:
