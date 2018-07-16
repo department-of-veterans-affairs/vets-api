@@ -170,6 +170,25 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     end
   end
 
+  describe '#translate_treatments' do
+    context 'when the veteran gives no treatment centers' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'treatments' => []
+          }
+        )
+      end
+      it 'should delete the "treatments" key' do
+        subject.send(:translate_treatments)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'treatments')
+        ).to eq nil
+      end
+    end
+  end
+
   describe '#translate_homelessness' do
     context 'when the veteran is not homeless' do
       before do
