@@ -11,19 +11,19 @@ RSpec.describe SAML::SettingsService do
   end
 
   describe '.saml_settings' do
-    context 'with a 200 response' do
+    context 'with a 200 response', vcr: { cassette_name: 'saml/idp_metadata' } do
       it 'should only ever make 1 external web call' do
-        VCR.use_cassette('saml/idp_metadata') do
-          SAML::SettingsService.merged_saml_settings(true)
-          SAML::SettingsService.saml_settings
-          SAML::SettingsService.saml_settings
-          expect(a_request(:get, Settings.saml.metadata_url)).to have_been_made.at_most_once
-        end
+        SAML::SettingsService.merged_saml_settings(true)
+        SAML::SettingsService.saml_settings
+        SAML::SettingsService.saml_settings
+        expect(a_request(:get, Settings.saml.metadata_url)).to have_been_made.at_most_once
       end
       it 'returns a settings instance' do
-        VCR.use_cassette('saml/idp_metadata') do
-          expect(SAML::SettingsService.merged_saml_settings(true)).to be_an_instance_of(OneLogin::RubySaml::Settings)
-        end
+        expect(SAML::SettingsService.merged_saml_settings(true)).to be_an_instance_of(OneLogin::RubySaml::Settings)
+      end
+      it 'overrides name-id to be "persistent"' do
+        expect(SAML::SettingsService.merged_saml_settings(true).name_identifier_format)
+          .to eq('urn:oasis:names:tc:SAML:2.0:nameid-format:persistent')
       end
     end
     context 'with metadata 500 responses' do
