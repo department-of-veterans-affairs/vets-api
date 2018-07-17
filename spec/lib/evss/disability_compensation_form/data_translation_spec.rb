@@ -159,7 +159,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
   describe '#service_branch' do
     context 'when the service branch is NOAA' do
       it 'should transform it to the correct string' do
-        expect(subject.send(:service_branch, 'NOAA')).to eq 'National Oceanic &amp; Atmospheric Administration'
+        expect(subject.send(:service_branch, 'NOAA')).to eq 'National Oceanic & Atmospheric Administration'
       end
     end
 
