@@ -211,10 +211,10 @@
       "all": 0
     },
     "central": {
-      "all": 1
+      "all": 0
     },
     "western": {
-      "all": 0
+      "all": 1
     }
   }
 }
