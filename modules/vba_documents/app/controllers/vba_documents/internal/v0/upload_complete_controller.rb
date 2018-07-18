@@ -19,11 +19,11 @@ module VBADocuments
               process_upload(upload_id)
             end
           when 'SubscriptionConfirmation'
-            client = Aws::SNS::Client.new
+            client = Aws::SNS::Client.new(region: Settings.vba_documents.sns.region)
             client.confirm_subscription(
-              topic_arn: json_params['TopicArn'],
+              authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
               token: json_params['Token'],
-              authenticate_on_unsubscribe: 'authenticateOnUnsubscribe'
+              topic_arn: json_params['TopicArn']
             )
           else
             raise Common::Exceptions::ParameterMissing, 'x-amz-sns-message-type'

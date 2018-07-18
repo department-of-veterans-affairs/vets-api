@@ -19,8 +19,9 @@ module Facilities
       end
 
       context 'with single facility' do
-        let(:facility) { VHAFacility.pull_source_data.first }
-        let(:facility_2) { VHAFacility.pull_source_data.second }
+        let(:facilities) { VHAFacility.pull_source_data }
+        let(:facility) { facilities.first }
+        let(:facility_2) { facilities.second }
         it 'should parse hours correctly' do
           VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
             expect(facility.hours.values).to match_array(
@@ -59,19 +60,20 @@ module Facilities
         context 'services' do
           it 'should parse services' do
             VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-              expect(facility.services.keys).to match(%w[last_updated health])
+              expect(facility.services.keys).to match(%w[last_updated health other])
               expect(facility.services['last_updated']).to eq('2018-02-09')
               expect(facility.services['health'].size).to eq(2)
               expect(facility.services['health'].first.keys).to eq(%w[sl1 sl2])
               expect(facility.services['health'].first.values).to eq([['MentalHealthCare'], []])
               expect(facility.services['health'].second.keys).to eq(%w[sl1 sl2])
               expect(facility.services['health'].second.values).to eq([['PrimaryCare'], []])
+              expect(facility.services['other']).to be_empty
             end
           end
 
           it 'should parse services 2' do
             VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
-              expect(facility_2.services.keys).to match(%w[last_updated health])
+              expect(facility_2.services.keys).to match(%w[last_updated health other])
               expect(facility_2.services['last_updated']).to eq('2018-02-09')
               expect(facility_2.services['health'].size).to eq(3)
               expect(facility_2.services['health'].first.keys).to eq(%w[sl1 sl2])
@@ -80,6 +82,7 @@ module Facilities
               expect(facility_2.services['health'].second.values).to eq([['MentalHealthCare'], []])
               expect(facility_2.services['health'].third.keys).to eq(%w[sl1 sl2])
               expect(facility_2.services['health'].third.values).to eq([['PrimaryCare'], []])
+              expect(facility_2.services['other']).to eq(['Online Scheduling'])
             end
           end
         end

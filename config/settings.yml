@@ -72,6 +72,8 @@ evss:
     aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
     bucket: evss_s3_bucket
     region: evss_s3_region
+  disability_compensation_form:
+    timeout: 55
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55

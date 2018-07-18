@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180517173822) do
+ActiveRecord::Schema.define(version: 20180709214011) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -234,6 +234,16 @@ ActiveRecord::Schema.define(version: 20180517173822) do
 
   add_index "persistent_attachments", ["guid"], name: "index_persistent_attachments_on_guid", unique: true, using: :btree
   add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
+
+  create_table "personal_information_logs", force: :cascade do |t|
+    t.jsonb    "data",        null: false
+    t.string   "error_class", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
+  add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false

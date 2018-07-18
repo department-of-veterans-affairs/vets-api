@@ -9,6 +9,8 @@ require 'common/client/middleware/response/soap_parser'
 
 module EMIS
   class Service < Common::Client::Base
+    STATSD_KEY_PREFIX = 'api.emis'
+
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
         operation = nil
