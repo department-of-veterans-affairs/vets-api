@@ -5,7 +5,7 @@ module EducationForm::Forms
     def header_form_type
       'OPTOUT'
     end
-    
+
     def applicant_name
       @applicant.claimantFullName
     end
