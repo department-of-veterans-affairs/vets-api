@@ -30,7 +30,7 @@ module VBADocuments
     def self.refresh_statuses!(submissions)
       guids = submissions.map(&:guid)
       return if guids.empty?
-      response = PensionBurial::Service.new.status(guids)
+      response = CentralMail::Service.new.status(guids)
       if response.success?
         statuses = JSON.parse(response.body)
         updated = statuses.select { |stat| stat.dig(0, 'uuid').present? }.map do |stat|
@@ -50,7 +50,7 @@ module VBADocuments
 
     def refresh_status!
       if status_in_flight?
-        response = PensionBurial::Service.new.status(guid)
+        response = CentralMail::Service.new.status(guid)
         if response.success?
           response_object = JSON.parse(response.body)[0][0]
           map_downstream_status(response_object)

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PensionBurial::DatestampPdf do
+RSpec.describe CentralMail::DatestampPdf do
   describe '#run' do
     before do
       @file_path = Common::FileHelpers.random_file_path
