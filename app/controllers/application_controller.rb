@@ -8,6 +8,7 @@ require 'sentry_logging'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+  include ActionController::Cookies
   include SentryLogging
   include Pundit
 
@@ -134,7 +135,22 @@ class ApplicationController < ActionController::API
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
       SSOService.extend_session!(@session, @current_user)
+      set_sso_cookie
     end
+  end
+
+  def set_sso_cookie
+    contents = [expiryunix, @current_user.loa, @current_user.mvi.icn,
+                @current_user.mhv_correlation_id, @current_user.edipi]
+    cookies[:vamhv_session] = encrypt(contents.join('|'), Settings.sso_cookie_key)
+  end
+
+  def expiryunix
+    (Time.now + 2.hours).to_i
+  end
+
+  def encrypt(message,key)
+    ActiveSupport::MessageEncryptor.new(key).encrypt_and_sign(message)
   end
 
   attr_reader :current_user, :session
