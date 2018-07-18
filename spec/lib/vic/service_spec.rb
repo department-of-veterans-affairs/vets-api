@@ -192,6 +192,9 @@ describe VIC::Service, type: :model do
   end
 
   it 'f' do
+    VCR.config do |c|
+      c.allow_http_connections_when_no_cassette = true
+    end
     client = VIC::Service.new.get_client
     form = {
       "on_behalf_of": "Myself",
