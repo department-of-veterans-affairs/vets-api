@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Common::ConvertToPdf, uploader_helpers: true do
+describe PensionBurial::ConvertToPdf, uploader_helpers: true do
   stub_virus_scan
 
   let(:file) { create(:pension_burial).file }

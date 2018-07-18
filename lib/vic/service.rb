@@ -149,7 +149,7 @@ module VIC
       return if attachment_records.blank?
 
       converted_files = attachment_records.map do |attachment|
-        Common::ConvertToPdf.new(attachment.get_file).run
+        PensionBurial::ConvertToPdf.new(attachment.get_file).run
       end
 
       return converted_files[0] if converted_files.size == 1

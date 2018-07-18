@@ -44,11 +44,6 @@ pension_burial:
     host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
-central_mail:
-  upload:
-    enabled: true
-    host: 'icmhsgc-test.csrarad.com'
-    token: '<PENSIONS_TOKEN>'
 
 # Settings for Vet360
 vet360:
