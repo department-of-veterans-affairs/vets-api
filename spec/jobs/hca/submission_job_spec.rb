@@ -58,6 +58,14 @@ RSpec.describe HCA::SubmissionJob, type: :job do
 
           expect(health_care_application.state).to eq('failed')
         end
+
+        it 'should create a pii log' do
+          subject
+
+          log = PersonalInformationLog.last
+          expect(log.data['form']).to eq(form.stringify_keys)
+          expect(log.error_class).to eq('HCA::SOAPParser::ValidationError')
+        end
       end
 
       it 'should set the health_care_application state to error' do
