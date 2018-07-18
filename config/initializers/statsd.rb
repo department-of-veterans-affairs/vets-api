@@ -79,4 +79,3 @@ StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", 0, tags:
 # init CentralMail
 StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.total", 0)
 StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.fail", 0)
-
