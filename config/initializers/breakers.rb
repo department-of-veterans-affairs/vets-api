@@ -55,7 +55,7 @@ services = [
   Vet360::ContactInformation::Configuration.instance.breakers_service
 ]
 
-services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled
+services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
 
 plugin = Breakers::StatsdPlugin.new
 

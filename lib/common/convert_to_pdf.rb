@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module PensionBurial
+module Common
   class ConvertToPdf
     def initialize(file)
       @file = file
