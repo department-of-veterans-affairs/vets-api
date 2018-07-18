@@ -9,7 +9,7 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_processing) { FactoryBot.create(:upload_submission, status: 'processing') }
   let(:upload_success) { FactoryBot.create(:upload_submission, status: 'success') }
   let(:upload_error) { FactoryBot.create(:upload_submission, status: 'error') }
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double('PensionBurial::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
 
   let(:received_body) do
@@ -47,7 +47,7 @@ describe VBADocuments::UploadSubmission, type: :model do
   end
 
   before(:each) do
-    allow(CentralMail::Service).to receive(:new) { client_stub }
+    allow(PensionBurial::Service).to receive(:new) { client_stub }
   end
 
   describe 'consumer_name' do

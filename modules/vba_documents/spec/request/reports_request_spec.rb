@@ -7,7 +7,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:upload_received) { FactoryBot.create(:upload_submission, status: 'received') }
     let(:upload2_received) { FactoryBot.create(:upload_submission, guid: SecureRandom.uuid, status: 'received') }
-    let(:client_stub) { instance_double('CentralMail::Service') }
+    let(:client_stub) { instance_double('PensionBurial::Service') }
     let(:faraday_response) { instance_double('Faraday::Response') }
 
     let(:received_element) do
@@ -31,7 +31,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
     context 'with in-flight submissions' do
       before(:each) do
-        expect(CentralMail::Service).to receive(:new) { client_stub }
+        expect(PensionBurial::Service).to receive(:new) { client_stub }
         expect(client_stub).to receive(:status).and_return(faraday_response)
       end
 
@@ -94,7 +94,7 @@ RSpec.describe 'VBA Document Uploads Report Endpoint', type: :request do
 
     context 'without in-flight submissions' do
       before(:each) do
-        expect(CentralMail::Service).not_to receive(:new) { client_stub }
+        expect(PensionBurial::Service).not_to receive(:new) { client_stub }
       end
 
       it 'should not fetch status if no in-flight submissions' do
