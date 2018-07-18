@@ -10,7 +10,7 @@ module IHub
       configuration IHub::Appointments::Configuration
 
       def appointments
-        return nil if @user.icn.blank?
+        raise 'User has no ICN' if @user.icn.blank?
 
         with_monitoring do
           response = perform(:get, @user.icn, nil)
