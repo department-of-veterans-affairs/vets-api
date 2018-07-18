@@ -191,6 +191,74 @@ describe VIC::Service, type: :model do
     end
   end
 
+  it 'f' do
+    client = VIC::Service.new.get_client
+    form = {
+      "on_behalf_of": "Myself",
+      "service_branch": "Army",
+      "service_affiliation": "Spouse or Family Member",
+      "entered_duty":"2000-01-01",
+      "release_from_duty":"2000-01-01",
+      "dob":"2000-01-01",
+      "full_name": {
+        "prefix": "Mr.",
+        "first": "Test",
+        "middle": "middle",
+        "last": "User",
+        "suffix": "Jr."
+      },
+      "address": {
+        "street": "123 Main St",
+        "street2": "apt 1",
+        "city": "Milwaukee",
+        "postal_code": "53130",
+        "state": "WI",
+        "country": "US"
+      },
+      "profile_data": {
+        "active_ICN":"1234567890",
+        "historical_ICN": [
+          "7598562344",
+          "999999999"
+        ],
+        "sec_ID":"dn49hd743hnf07423hr",
+        "SSN":"123-45-6789"
+      },
+      "education_details": {
+        "school": {
+          "name":"Test University",
+          "address": {
+            "street": "123 Maple St",
+            "street2": "apt 1",
+            "city": "Milwaukee",
+            "postal_code": "53130",
+            "state": "WI",
+            "country": "US"
+          }
+        },
+        "programs": [
+          "Post-9/11 GI Bill (Ch. 33)",
+          "Survivors & Dependents Assitance (DEA) (Ch. 35)"
+        ],
+        "assistance": [
+          "Federal Tuition Assistance (TA)",
+          "Federal Financial Aid"
+        ]
+      },
+      "issue": [
+        "student_loans",
+        "credit_transfer",
+        "financial_issues"
+      ],
+      "issue_description": "Test issue description",
+      "issue_resolution": "Test issue resolution",
+      "phone": "5555555555",
+      "email":"foo@foo.com"
+    }
+    binding.pry; fail
+    client.post('/services/apexrest/educationcomplaint', form)
+  end
+
   describe '#submit' do
     before do
       expect(service).to receive(:convert_form).with(parsed_form).and_return({})
