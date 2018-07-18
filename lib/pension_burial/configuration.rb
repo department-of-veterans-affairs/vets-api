@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-module CentralMail
+module PensionBurial
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      "https://#{Settings.central_mail.upload.host}/VADocument"
+      "https://#{Settings.pension_burial.upload.host}/VADocument"
     end
 
     def service_name
-      'CentralMail'
+      'PensionBurial'
     end
 
     def connection

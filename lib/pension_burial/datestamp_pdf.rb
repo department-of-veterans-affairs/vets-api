@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CentralMail
+module PensionBurial
   class DatestampPdf
     def initialize(file_path, append_to_stamp: nil)
       @file_path = file_path

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module CentralMail
+module PensionBurial
   class Service < Common::Client::Base
-    STATSD_KEY_PREFIX = 'api.central_mail'
+    STATSD_KEY_PREFIX = 'api.pension_burial'
     include Common::Client::Monitoring
 
-    configuration CentralMail::Configuration
+    configuration PensionBurial::Configuration
 
     # rubocop:disable Metrics/MethodLength
     def upload(body)
@@ -14,7 +14,7 @@ module CentralMail
           metadata: body['metadata']
         }
       )
-      body['token'] = Settings.central_mail.upload.token
+      body['token'] = Settings.pension_burial.upload.token
 
       response = with_monitoring do
         request(
@@ -39,7 +39,7 @@ module CentralMail
 
     def status(uuid_or_list)
       body = {
-        'token': Settings.central_mail.upload.token,
+        'token': Settings.pension_burial.upload.token,
         'uuid': [*uuid_or_list].to_json
       }
 
@@ -51,7 +51,7 @@ module CentralMail
 
       if Rails.env.production?
         log_message_to_sentry(
-          'central mail api status',
+          'pension burial api status',
           :info,
           response: {
             status: response.status,
