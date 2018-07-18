@@ -114,6 +114,17 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_0993_expected) do
+    {
+      'claimantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'claimantSocialSecurityNumber' => user.ssn
+    }
+  end
+
   let(:v22_1990_n_expected) do
     {
       'toursOfDuty' => [
@@ -360,7 +371,7 @@ RSpec.describe FormProfile, type: :model do
           'city' => 'Washington',
           'state' => 'DC',
           'zipCode' => '20011',
-          'addressLine1' => '140 Rock Creek Church Rd NW'
+          'addressLine1' => '140 Rock Creek Rd'
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
@@ -524,6 +535,7 @@ RSpec.describe FormProfile, type: :model do
           40-10007
           21-686C
           1010ez
+          22-0993
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
