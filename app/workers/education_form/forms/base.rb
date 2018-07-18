@@ -42,7 +42,7 @@ module EducationForm::Forms
     end
 
     def header_form_type
-      @record.form_type
+      "V#{@record.form_type}"
     end
 
     def school
