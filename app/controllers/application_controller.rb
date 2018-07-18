@@ -146,10 +146,10 @@ class ApplicationController < ActionController::API
   end
 
   def expiryunix
-    (Time.now + 2.hours).to_i
+    (Time.zone.now + 2.hours).to_i
   end
 
-  def encrypt(message,key)
+  def encrypt(message, key)
     ActiveSupport::MessageEncryptor.new(key).encrypt_and_sign(message)
   end
 
