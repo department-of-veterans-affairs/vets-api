@@ -36,6 +36,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/vic/configuration.rb'
     # TODO: Remove once Vet360 is ready to merge into master
     add_filter 'lib/vet360'
+    # TODO: Remove once IHub is ready to merge into master
+    add_filter 'lib/ihub'
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/pension_burial/service.rb'
     add_filter 'spec'

@@ -6,6 +6,7 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'EMIS'
   inflect.acronym 'EVSS'
   inflect.acronym 'GI'
+  inflect.acronym 'IHub'
   inflect.acronym 'PPIU'
   inflect.acronym 'VBA'
   inflect.acronym 'VIC'
