@@ -14,7 +14,7 @@ module VBADocuments
         def create
           case request.headers['x-amz-sns-message-type']
           when 'Notification'
-            json_params['Message']['Records'].each do |record|
+            json_message['Records'].each do |record|
               upload_id = record['s3']['object']['key']
               process_upload(upload_id)
             end
@@ -54,6 +54,10 @@ module VBADocuments
 
         def json_params
           @json_body ||= JSON.parse(read_body)
+        end
+
+        def json_message
+          @json_message ||= JSON.parse(json_params['Message'])
         end
 
         def read_body
