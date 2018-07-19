@@ -112,45 +112,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'MessageId' => 'da41e39f-ea4d-435a-b922-c6aae3915ebe',
         'TopicArn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
         'Subject' => 'test',
-        'Message' => {
-          'Records' => [
-            {
-              'eventVersion' => '2.0',
-              'eventSource' => 'aws:s3',
-              'awsRegion' => 'us-east-1',
-              'eventTime' => '1970-01-01T00:00:00.000Z',
-              'eventName' => 'ObjectCreated:Put',
-              'userIdentity' => {
-                'principalId' => 'AIDAJDPLRKLG7UEXAMPLE'
-              },
-              'requestParameters' => {
-                'sourceIPAddress' => '127.0.0.1'
-              },
-              'responseElements' => {
-                'x-amz-request-id' => 'C3D13FE58DE4C810',
-                'x-amz-id-2' => 'FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpD'
-              },
-              's3' => {
-                's3SchemaVersion' => '1.0',
-                'configurationId' => 'testConfigRule',
-                'bucket' => {
-                  'name' => 'mybucket',
-                  'ownerIdentity' => {
-                    'principalId' => 'A3NL1KOZZKExample'
-                  },
-                  'arn' => 'arn:aws:s3:::mybucket'
-                },
-                'object' => {
-                  'key' => upload.guid,
-                  'size' => 1024,
-                  'eTag' => 'd41d8cd98f00b204e9800998ecf8427e',
-                  'versionId' => '096fKKXTRTtl3on89fVO.nfljtsv6qko',
-                  'sequencer' => '0055AED6DCD90281E5'
-                }
-              }
-            }
-          ]
-        },
+        'Message' => "{\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:s3\",\"awsRegion\":\"us-east-1\",\"eventTime\":\"1970-01-01T00:00:00.000Z\",\"eventName\":\"ObjectCreated:Put\",\"userIdentity\":{\"principalId\":\"AIDAJDPLRKLG7UEXAMPLE\"},\"requestParameters\":{\"sourceIPAddress\":\"127.0.0.1\"},\"responseElements\":{\"x-amz-request-id\":\"C3D13FE58DE4C810\",\"x-amz-id-2\":\"FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpD\"},\"s3\":{\"s3SchemaVersion\":\"1.0\",\"configurationId\":\"testConfigRule\",\"bucket\":{\"name\":\"mybucket\",\"ownerIdentity\":{\"principalId\":\"A3NL1KOZZKExample\"},\"arn\":\"arn:aws:s3:::mybucket\"},\"object\":{\"key\":\"#{upload.guid}\",\"size\":1024,\"eTag\":\"d41d8cd98f00b204e9800998ecf8427e\",\"versionId\":\"096fKKXTRTtl3on89fVO.nfljtsv6qko\",\"sequencer\":\"0055AED6DCD90281E5\"}}}]}",
         'Timestamp' => '2012-04-25T21:49:25.719Z',
         'SignatureVersion' => '1',
         'Signature' => 'EXAMPLElDMXvB8r9R83tGoNn0ecwd5UjllzsvSvbItzfaMpN2nk5HVSw7XnOn/49IkxDKz8YrlH2qJXj2iZB0Zo2O71c4qQk1fMUDi3LGpij7RCW7AW9vYYsSqIKRnFS94ilu7NFhUzLiieYr4BKHpdTmdD6c0esKEYBpabxDSc=',
@@ -176,7 +138,6 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-
           post '/services/vba_documents/internal/v0/upload_complete', body, headers
           expect(response).to have_http_status(:no_content)
           upload.reload
