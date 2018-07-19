@@ -55,6 +55,14 @@ vet360:
     mock: false
 
 
+# Settings for IHub
+ihub:
+  url: "https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV"
+  appointments:
+    timeout: 30
+    mock: false
+
+
 # Settings for EVSS
 evss:
   prefill: true
