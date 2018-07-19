@@ -52,7 +52,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
   describe 'consumer_name' do
     it 'should return unknown when no name is set' do
-      upload = FactoryBot.create(:upload_submission)
+      upload = FactoryBot.create(:upload_submission, consumer_name: nil)
       expect(upload.consumer_name).to eq('unknown')
     end
 

@@ -37,7 +37,7 @@ module VBADocuments
 
     private
 
-    def log_error(_error, upload)
+    def log_error(e, upload)
       Rails.logger.info('VBADocuments: Submission failure',
                         'consumer_id' => upload.consumer_id,
                         'consumer_username' => upload.consumer_name,
