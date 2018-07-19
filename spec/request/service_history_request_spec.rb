@@ -28,11 +28,19 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
           end
         end
 
-        it 'increments the StatsD presence counter' do
+        it 'increments the StatsD service_history presence counter' do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
             expect do
               get '/v0/profile/service_history', nil, auth_header
             end.to trigger_statsd_increment('api.emis.service_history')
+          end
+        end
+
+        it 'increments the StatsD EDIPI presence counter' do
+          VCR.use_cassette('emis/get_military_service_episodes/valid') do
+            expect do
+              get '/v0/profile/service_history', nil, auth_header
+            end.to trigger_statsd_increment('api.emis.edipi')
           end
         end
       end
@@ -73,10 +81,22 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
         allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { [] }
       end
 
-      it 'increments the StatsD empty counter' do
+      it 'increments the StatsD service_history empty counter' do
         expect do
           get '/v0/profile/service_history', nil, auth_header
         end.to trigger_statsd_increment('api.emis.service_history')
+      end
+    end
+
+    context 'when user does not have an EDIPI present' do
+      before do
+        allow_any_instance_of(User).to receive(:edipi).and_return(nil)
+      end
+
+      it 'increments the StatsD EDIPI empty counter' do
+        expect do
+          get '/v0/profile/service_history', nil, auth_header
+        end.to trigger_statsd_increment('api.emis.edipi')
       end
     end
   end
