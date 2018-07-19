@@ -91,12 +91,6 @@
         "name": "Diabetes mellitus",
         "classificationCode": "string",
         "disabilityActionType": "INCREASE",
-        "specialIssues": [
-          {
-            "code": "TRM",
-            "name": "Personal Trauma PTSD"
-          }
-        ],
         "ratedDisabilityId": "0",
         "diagnosticCode": 5235,
         "secondaryDisabilities": [
