@@ -58,7 +58,7 @@ vet360:
 
 # Settings for IHub
 ihub:
-  url: "https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV"
+  url: "https://qacrmdac.np.crm.vrm.vba.va.gov"
   appointments:
     timeout: 30
     mock: false
