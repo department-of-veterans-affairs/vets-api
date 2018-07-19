@@ -39,10 +39,6 @@ pension_burial:
   prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
-  upload:
-    enabled: true
-    host: 'icmhsgc-test.csrarad.com'
-    token: '<PENSIONS_TOKEN>'
 
 central_mail:
   upload:

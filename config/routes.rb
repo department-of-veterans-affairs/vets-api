@@ -58,7 +58,7 @@ Rails.application.routes.draw do
 
     resource :dependents_applications, only: [:create]
 
-    if Settings.pension_burial.upload.enabled
+    if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
