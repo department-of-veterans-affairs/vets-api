@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/1234
+    uri: https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/1234?noFilter=true
     body:
       encoding: US-ASCII
       string: ''

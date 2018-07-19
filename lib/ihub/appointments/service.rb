@@ -13,7 +13,8 @@ module IHub
         raise 'User has no ICN' if @user.icn.blank?
 
         with_monitoring do
-          response = perform(:get, @user.icn, nil)
+          service_url = "#{@user.icn}?noFilter=true"
+          response    = perform(:get, service_url, nil)
 
           IHub::Appointments::Response.from(response)
         end
