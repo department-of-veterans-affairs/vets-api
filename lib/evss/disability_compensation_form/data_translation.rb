@@ -16,6 +16,7 @@ module EVSS
         translate_service_info
         translate_veteran
         translate_treatments
+        translate_disabilities
 
         @form_content.compact.to_json
       end
@@ -32,6 +33,10 @@ module EVSS
 
       def veteran
         form['veteran']
+      end
+
+      def disabilities
+        form['disabilities']
       end
 
       def translate_service_info
@@ -205,6 +210,12 @@ module EVSS
             'treatmentCenterType'
           ).compact
         end
+      end
+
+      def translate_disabilities
+        # The EVSS API does not support `specialIssues` currently. Including it in
+        # the submission will trigger an error response.
+        disabilities.each { |d| d.delete('specialIssues') }
       end
 
       def application_expiration_date
