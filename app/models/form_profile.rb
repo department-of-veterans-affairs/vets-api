@@ -72,6 +72,7 @@ class FormContactInformation
   attribute :address, FormAddress
   attribute :home_phone, String
   attribute :us_phone, String
+  attribute :mobile_phone, String
   attribute :email, String
 end
 
@@ -205,28 +206,52 @@ class FormProfile
     )
   end
 
+  def convert_vets360_address(address)
+    {
+      'street' => address.address_line1,
+      'street2' => address.address_line2,
+      'city' => address.city,
+      'state' => address.state_code || address.province,
+      'country' => address.country_code_iso3,
+      'postal_code' => address.zip_plus_four || address.international_postal_code
+    }.compact
+  end
+
   def initialize_contact_information(user)
-    address = {}
-    if user.va_profile&.address
-      address.merge!(
+    opt = {}
+
+    if Settings.vet360.prefill && user.vet360_id.present?
+      contact_information = Vet360Redis::ContactInformation.for_user(user)
+      opt[:email] = contact_information.email&.email_address
+
+      if contact_information.mailing_address.present?
+        opt[:address] = convert_vets360_address(contact_information.mailing_address)
+      end
+      phone = contact_information.home_phone&.formatted_phone
+      opt[:us_phone] = phone
+      opt[:home_phone] = phone
+      opt[:mobile_phone] = contact_information.mobile_phone&.formatted_phone
+    end
+
+    if opt[:address].nil? && user.va_profile&.address
+      opt[:address] = {
         street: user.va_profile.address.street,
         street2: nil,
         city: user.va_profile.address.city,
         state: user.va_profile.address.state,
         country: user.va_profile.address.country,
         postal_code: user.va_profile.address.postal_code
-      )
+      }
     end
 
-    pciu_email = extract_pciu_data(user, :pciu_email)
-    pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+    opt[:email] ||= extract_pciu_data(user, :pciu_email)
+    if opt[:home_phone].nil?
+      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+      opt[:home_phone] = pciu_primary_phone
+      opt[:us_phone] = get_us_phone(pciu_primary_phone)
+    end
 
-    FormContactInformation.new(
-      address: address,
-      email: pciu_email,
-      us_phone: get_us_phone(pciu_primary_phone),
-      home_phone: pciu_primary_phone
-    )
+    FormContactInformation.new(opt)
   end
 
   def extract_pciu_data(user, method)
