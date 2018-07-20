@@ -69,7 +69,7 @@ module VBADocuments
         parts[att].rewind
         body["attachment#{i + 1}"] = to_faraday_upload(parts[att], "attachment#{i + 1}.pdf")
       end
-      PensionBurial::Service.new.upload(body)
+      CentralMail::Service.new.upload(body)
     end
 
     def to_faraday_upload(file_io, filename)
