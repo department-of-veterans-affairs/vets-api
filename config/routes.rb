@@ -39,7 +39,9 @@ Rails.application.routes.draw do
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
 
-    resource :user, only: [:show]
+    resource :user, only: [:show] do
+      get :read_sso_cookie, on: :collection
+    end
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
     resource :vso_appointments, only: [:create]
