@@ -101,6 +101,7 @@ module V0
       end
       # in the future the FE shouldnt count on ?success=true
     ensure
+      set_sso_cookie(0)
       destroy_user_session!(user, session, logout_request)
       redirect_to Settings.saml.logout_relay + '?success=true'
     end
@@ -113,6 +114,10 @@ module V0
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
         async_create_evss_account(current_user)
+
+        # This will initially set the sso cookie but is redundant if we keep the set/extend call in 
+        #   application_controller#authenticate_token as it will set/extend for any authenticated call to the backend
+        set_sso_cookie
         redirect_to saml_callback_success_url
 
         log_persisted_session_and_warnings
