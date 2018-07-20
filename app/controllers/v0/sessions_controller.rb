@@ -106,6 +106,7 @@ module V0
       redirect_to Settings.saml.logout_relay + '?success=true'
     end
 
+    # rubocop:disable Metrics/MethodLength
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
@@ -115,7 +116,7 @@ module V0
         @session = @sso_service.new_session
         async_create_evss_account(current_user)
 
-        # This will initially set the sso cookie but is redundant if we keep the set/extend call in 
+        # This will initially set the sso cookie but is redundant if we keep the set/extend call in
         #   application_controller#authenticate_token as it will set/extend for any authenticated call to the backend
         set_sso_cookie
         redirect_to saml_callback_success_url
@@ -134,6 +135,7 @@ module V0
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
