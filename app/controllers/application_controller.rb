@@ -140,7 +140,8 @@ class ApplicationController < ActionController::API
   end
 
   def set_sso_cookie(ttl = 30.minutes)
-    contents = [expiryunix(ttl), @current_user.mvi_icn, @current_user.mhv_correlation_id]
+    return unless @current_user&.mvi
+    contents = [expiryunix(ttl), @current_user.mvi.icn, @current_user.mhv_correlation_id]
     cookies[:vamhv_session] = encrypt(contents.join('|'), Settings.sso_cookie_key)
   end
 
