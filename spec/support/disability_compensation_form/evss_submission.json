@@ -18,6 +18,8 @@
         "militaryStateCode": "AA",
         "militaryPostOfficeTypeCode": "APO",
         "type": "MILITARY",
+        "zipFirstFive": "12345",
+        "zipLastFour": "6789",
         "addressLine1": "1234 de Buen Tono Calle",
         "addressLine2": "Apartamento 567",
         "effectiveDate": "2018-03-29T18:50:03.014Z"

@@ -13,11 +13,21 @@ describe IHub::Appointments::Service do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
       end
 
-      it 'returns a status of 200', :aggregate_failures do
+      it 'returns a status of 200' do
         VCR.use_cassette('ihub/appointments/success', VCR::MATCH_EVERYTHING) do
           response = subject.appointments
 
           expect(response).to be_ok
+        end
+      end
+
+      it 'returns an array of appointment data' do
+        VCR.use_cassette('ihub/appointments/success', VCR::MATCH_EVERYTHING) do
+          response    = subject.appointments
+          appointment = response.response_data&.dig('data')&.first
+          facility    = appointment&.dig('facility_name')
+
+          expect(facility).to be_present
         end
       end
     end
