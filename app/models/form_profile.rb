@@ -218,19 +218,19 @@ class FormProfile
   end
 
   def initialize_vets360_contact_info(user)
-    opt = {}
+    return_val = {}
     contact_information = Vet360Redis::ContactInformation.for_user(user)
-    opt[:email] = contact_information.email&.email_address
+    return_val[:email] = contact_information.email&.email_address
 
     if contact_information.mailing_address.present?
-      opt[:address] = convert_vets360_address(contact_information.mailing_address)
+      return_val[:address] = convert_vets360_address(contact_information.mailing_address)
     end
     phone = contact_information.home_phone&.formatted_phone
-    opt[:us_phone] = phone
-    opt[:home_phone] = phone
-    opt[:mobile_phone] = contact_information.mobile_phone&.formatted_phone
+    return_val[:us_phone] = phone
+    return_val[:home_phone] = phone
+    return_val[:mobile_phone] = contact_information.mobile_phone&.formatted_phone
 
-    opt
+    return_val
   end
 
   def initialize_contact_information(user)
