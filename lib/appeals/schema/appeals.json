@@ -17,6 +17,9 @@
           "attributes": {
             "type": "object",
             "properties": {
+              "appealIds": {
+                "type": "array"
+              },
               "updated": {
                 "type": "string"
               },
