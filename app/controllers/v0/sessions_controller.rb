@@ -56,6 +56,7 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user)
             when 'slo'
               authenticate
+              set_sso_cookie(0)
               SAML::SettingsService.slo_url(session)
             end
       render json: { url: url }
@@ -101,7 +102,6 @@ module V0
       end
       # in the future the FE shouldnt count on ?success=true
     ensure
-      set_sso_cookie(0)
       destroy_user_session!(user, session, logout_request)
       redirect_to Settings.saml.logout_relay + '?success=true'
     end
