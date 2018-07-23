@@ -39,11 +39,12 @@ pension_burial:
   prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
+
+central_mail:
   upload:
     enabled: true
     host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
-
 
 # Settings for Vet360
 vet360:
@@ -57,7 +58,7 @@ vet360:
 
 # Settings for IHub
 ihub:
-  url: "https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV"
+  url: "https://qacrmdac.np.crm.vrm.vba.va.gov"
   appointments:
     timeout: 30
     mock: false

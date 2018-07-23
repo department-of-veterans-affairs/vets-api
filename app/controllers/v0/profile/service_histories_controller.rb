@@ -5,7 +5,7 @@ module V0
     class ServiceHistoriesController < ApplicationController
       include Vet360::Writeable
 
-      before_action { authorize :emis, :access? }
+      before_action :check_authorization
 
       # Fetches the service history for the current user.
       # This is an array of select military service episode data.
@@ -38,6 +38,20 @@ module V0
       end
 
       private
+
+      def check_authorization
+        report_edipi_presence
+
+        authorize :emis, :access?
+      end
+
+      def report_edipi_presence
+        if @current_user.edipi.present?
+          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", tags: ['present:true'])
+        else
+          StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", tags: ['present:false'])
+        end
+      end
 
       def handle_errors!(response)
         raise_error! unless response.is_a?(Array)
