@@ -6,19 +6,11 @@ info:
     Veterans Benefits Administration (VBA) document uploads.
     
     ## Background
-    
-    This API is being provided as a proof of concept of a general-purpose VA 
-    API gateway. The use case is to allow authorized third-party developers to 
-    submit VBA documents and have a high degree of assurance that those documents 
-    will be processed and stored in the appropriate VA data system.
-    
-    The Document Upload API passes data through to ICMHS aka “Central Mail API”.
-    Central Mail API accepts a payload consisting of a document in PDF format, zero or more
-    optional attachments in PDF format, and some JSON metadata. The metadata describes the
-    document, attachments, and identifies the person that the document relates to. This payload is
-    encoded as multipart/form-data. A unique identifier supplied with the payload can be used to
-    subsequently request the processing status of the uploaded document package.
-    
+
+    This API is provided as a proof of concept for a general-purpose VA API gateway and use-case allowing authorized third-party developers to submit VBA documents and receive notification that those documents were processed and stored in the appropriate VA data system.
+
+    The Document Upload API passes data through to ICMHS aka ‘Central Mail API’. Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document, attachments, and identifies the person that the document relates to. This payload is encoded as multipart/form-data. A unique identifier supplied with the payload can be used to subsequently request the processing status of the uploaded document package.
+
     ## Design
     
     ### Authorization
@@ -34,7 +26,7 @@ info:
         * No request body or parameters required
     
     2. Service Response: A JSON API object with the following attributes:
-        * `guid`: An identifier that can be used for subsequent status requests
+        * `guid`: An identifier used for subsequent status requests
         * `location`: A URL to which the actual document package payload can be submitted
           in the next step. The URL is specific to this upload request and should not be
           re-used for subsequent uploads. The URL is valid for 900 seconds (15 minutes)
@@ -48,13 +40,13 @@ info:
           embedded in the signed location URL.
           
     4. Service Response: The HTTP status indicates whether the upload was successful.
-      Additionally the response includes an ETag header containing an MD5 hash of the
-      submitted payload. This can be compared to the submitted payload to ensure data
-      integrity of the upload
+        Additionally, the response includes an ETag header containing an MD5 hash of the
+        submitted payload. This can be compared to the submitted payload to ensure data
+        integrity of the upload
 
-      ## Reference
+    ## Reference
 
-      Raw Open API Spec: http://dev-api.vets.gov/services/vba_documents/docs/v0/api
+    Raw Open API Spec: http://dev-api.vets.gov/services/vba_documents/docs/v0/api
 
   termsOfService: ''
   contact:
