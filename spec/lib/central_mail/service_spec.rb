@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe PensionBurial::Service do
+RSpec.describe CentralMail::Service do
   let(:service) { described_class.new }
 
   describe '#status' do
     context 'with one uuid' do
       it 'should retrieve the status' do
         VCR.use_cassette(
-          'pension_burial/status_one_uuid',
+          'central_mail/status_one_uuid',
           match_requests_on: %i[body method uri]
         ) do
           response = described_class.new.status('34656d73-7c31-456d-9c49-2024fff1cd47')
@@ -22,7 +22,7 @@ RSpec.describe PensionBurial::Service do
     context 'with multiple uuids' do
       it 'should retrieve the statuses' do
         VCR.use_cassette(
-          'pension_burial/status_multiple_uuids',
+          'central_mail/status_multiple_uuids',
           match_requests_on: %i[body method uri]
         ) do
           response = described_class.new.status(
@@ -49,7 +49,7 @@ RSpec.describe PensionBurial::Service do
         )
 
         expect { service.upload('metadata' => nil) }.to trigger_statsd_increment(
-          'api.pension_burial.upload.fail'
+          'api.central_mail.upload.fail'
         )
       end
     end
@@ -61,7 +61,7 @@ RSpec.describe PensionBurial::Service do
       end
 
       VCR.use_cassette(
-        'pension_burial/upload',
+        'central_mail/upload',
         match_requests_on: [header_matcher, :body, :method, :uri]
       ) do
         response = described_class.new.upload(
