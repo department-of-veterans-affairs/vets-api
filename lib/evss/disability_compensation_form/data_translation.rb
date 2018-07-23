@@ -16,6 +16,7 @@ module EVSS
         translate_service_info
         translate_veteran
         translate_treatments
+        translate_disabilities
 
         @form_content.compact.to_json
       end
@@ -32,6 +33,10 @@ module EVSS
 
       def veteran
         form['veteran']
+      end
+
+      def disabilities
+        form['disabilities']
       end
 
       def translate_service_info
@@ -149,17 +154,16 @@ module EVSS
       end
 
       def translate_mailing_address(address)
-        pciu_address = { 'country' => address['country'],
-                         'addressLine1' => address['addressLine1'],
-                         'addressLine2' => address['addressLine2'],
-                         'addressLine3' => address['addressLine3'],
-                         'effectiveDate' => address['effectiveDate'] }
+        pciu_address = { 'effectiveDate' => address['effectiveDate'], 'country' => address['country'],
+                         'addressLine1' => address['addressLine1'], 'addressLine2' => address['addressLine2'],
+                         'addressLine3' => address['addressLine3'] }
 
         pciu_address['type'] = get_address_type(address)
 
+        zip_code = split_zip_code(address['zipCode']) if address['zipCode']
+
         case pciu_address['type']
         when 'DOMESTIC'
-          zip_code = split_zip_code(address['zipCode'])
           pciu_address['city'] = address['city']
           pciu_address['state'] = address['state']
           pciu_address['zipFirstFive'] = zip_code.first
@@ -167,6 +171,8 @@ module EVSS
         when 'MILITARY'
           pciu_address['militaryPostOfficeTypeCode'] = address['city']
           pciu_address['militaryStateCode'] = address['state']
+          pciu_address['zipFirstFive'] = zip_code.first
+          pciu_address['zipLastFour'] = zip_code.last
         when 'INTERNATIONAL'
           pciu_address['city'] = address['city']
         end
@@ -205,6 +211,12 @@ module EVSS
             'treatmentCenterType'
           ).compact
         end
+      end
+
+      def translate_disabilities
+        # The EVSS API does not support `specialIssues` currently. Including it in
+        # the submission will trigger an error response.
+        disabilities.each { |d| d.delete('specialIssues') }
       end
 
       def application_expiration_date

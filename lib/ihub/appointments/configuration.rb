@@ -6,7 +6,7 @@ module IHub
       self.read_timeout = Settings.ihub.appointments.timeout || 30
 
       def base_path
-        "#{Settings.ihub.url}/api/Appointments/1.0/json/ftpCRM/"
+        "#{Settings.ihub.url}/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/"
       end
 
       def service_name
