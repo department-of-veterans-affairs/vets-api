@@ -15,6 +15,12 @@ module VBADocuments
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/
     MAX_PART_SIZE = 100_000_000 # 100MB
+    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
+    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/
+    INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
+      'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
+    MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
+      'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
@@ -91,8 +97,14 @@ module VBADocuments
 
     def map_downstream_error(status, body)
       if status.between?(400, 499)
-        raise VBADocuments::UploadError.new(code: 'DOC104',
-                                            detail: "Downstream status: #{status} - #{body}")
+        detail = if body =~ INVALID_ZIP_CODE_ERROR_REGEX
+                   INVALID_ZIP_CODE_ERROR_MSG
+                 elsif body =~ MISSING_ZIP_CODE_ERROR_REGEX
+                   MISSING_ZIP_CODE_ERROR_MSG
+                 else
+                   body
+                 end
+        raise VBADocuments::UploadError.new(code: 'DOC104', detail: "Downstream status: #{status} - #{detail}")
       # Defined values: 500
       elsif status.between?(500, 599)
         raise VBADocuments::UploadError.new(code: 'DOC201',
@@ -119,7 +131,7 @@ module VBADocuments
       end
       unless parts.key?(DOC_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC103',
-                                            detail: 'No document part present')
+                                            detail: 'Submission did not include a document.')
       end
       if parts[DOC_PART_NAME].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC103',
