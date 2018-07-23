@@ -3,7 +3,12 @@
 
 ## Definition of Done
 
+#### Unique to this PR
+
 - [ ] _Replace this line with individual tasks unique to your PR_
+
+#### Applies to all PRs
+
 - [ ] Appropriate test coverage & logging
 - [ ] Swagger docs have been updated, if applicable
 - [ ] Provide link to originating GitHub issue, or connected to it via ZenHub
