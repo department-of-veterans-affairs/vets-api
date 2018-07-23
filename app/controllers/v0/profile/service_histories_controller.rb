@@ -20,7 +20,8 @@ module V0
       #           {
       #             "branch_of_service" => "Air Force",
       #             "begin_date"        => "2007-04-01",
-      #             "end_date"          => "2016-06-01"
+      #             "end_date"          => "2016-06-01",
+      #             "personnel_category_type_code" => "V"
       #           }
       #         ]
       #       }

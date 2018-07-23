@@ -120,7 +120,7 @@ module EMISRedis
                  when 'N'
                    'National Guard'
                  when 'V' || 'Q'
-                   'Reserves'
+                   'Reserve'
                  else
                    ''
                  end
@@ -257,7 +257,8 @@ module EMISRedis
         {
           branch_of_service: episode.branch_of_service,
           begin_date: episode.begin_date,
-          end_date: episode.end_date
+          end_date: episode.end_date,
+          personnel_category_type_code: episode.personnel_category_type_code
         }
       end
     end

@@ -75,3 +75,7 @@ StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure",
 # init eMIS
 StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: ['present:true', 'present:false'])
 StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", 0, tags: ['present:true', 'present:false'])
+
+# init CentralMail
+StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.total", 0)
+StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.fail", 0)

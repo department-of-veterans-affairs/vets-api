@@ -62,7 +62,7 @@ http_interactions:
         {
           "cnpMailingAddress" : {
             "addressEffectiveDate" : "2012-04-03T04:00:00.000+0000",
-            "addressOne" : "140 Rock Creek Church Rd NW",
+            "addressOne" : "140 Rock Creek Rd",
             "addressThree" : "",
             "addressTwo" : "",
             "city" : "Washington",

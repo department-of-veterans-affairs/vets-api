@@ -26,13 +26,12 @@ module VBADocuments
         metadata = perfect_metadata(parts, upload, timestamp)
         response = submit(metadata, parts)
         process_response(response, upload)
-        log_submission(metadata)
+        log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
         Rails.logger.info('VBADocuments: Submission failure',
-                          'uuid' => guid,
-                          'code' => e.code,
-                          'detail' => e.detail)
+                          'uuid' => guid, 'source' => upload.consumer_name,
+                          'code' => e.code, 'detail' => e.detail)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
@@ -41,12 +40,12 @@ module VBADocuments
 
     private
 
-    def log_submission(metadata)
+    def log_submission(metadata, upload)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
-                        'source' => metadata['source'],
+                        'source' => upload.consumer_name,
                         'docType' => metadata['docType'],
                         'pageCount' => page_total,
                         'pdfCount' => pdf_total)
@@ -71,7 +70,7 @@ module VBADocuments
         parts[att].rewind
         body["attachment#{i + 1}"] = to_faraday_upload(parts[att], "attachment#{i + 1}.pdf")
       end
-      PensionBurial::Service.new.upload(body)
+      CentralMail::Service.new.upload(body)
     end
 
     def to_faraday_upload(file_io, filename)
