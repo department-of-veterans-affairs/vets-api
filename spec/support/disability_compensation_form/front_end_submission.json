@@ -17,6 +17,7 @@
         "state": "AA",
         "city": "APO",
         "country": "USA",
+        "zipCode": "12345-6789",
         "effectiveDate": "2018-03-29T18:50:03.014Z"
       },
       "primaryPhone": "2024561111",

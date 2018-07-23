@@ -138,8 +138,6 @@ bundle exec overcommit --install --sign
 
 rake db:create db:setup db:seed
 
-cp config/mvi_schema/mock_mvi_responses.yml.example config/mvi_schema/mock_mvi_responses.yml
-
 # Run a test to make sure things are working after setup
 
 rake

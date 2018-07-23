@@ -107,7 +107,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'state' => 'AA',
-          'city' => 'ASO'
+          'city' => 'ASO',
+          'zipCode' => '12345-6789'
         }
       end
 
@@ -117,7 +118,9 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'militaryPostOfficeTypeCode' => 'ASO',
-          'militaryStateCode' => 'AA'
+          'militaryStateCode' => 'AA',
+          'zipFirstFive' => '12345',
+          'zipLastFour' => '6789'
         }
         expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
@@ -184,6 +187,29 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         subject.send(:translate_treatments)
         expect(
           subject.instance_variable_get(:@form_content).dig('form526', 'treatments')
+        ).to eq nil
+      end
+    end
+  end
+
+  describe '#translate_disabilities' do
+    context 'there are special issues' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'disabilities' => [
+              {
+                'specialIssues' => [{ 'code' => 'TRM' }]
+              }
+            ]
+          }
+        )
+      end
+      it 'should delete the "specialIssues" key' do
+        subject.send(:translate_disabilities)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'disabilities', 0, 'specialIssues')
         ).to eq nil
       end
     end
