@@ -86,16 +86,5 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
     end
-
-    context 'with an invalid JSON body in the response' do
-      it 'returns a 502 and logs an error level message' do
-        VCR.use_cassette('appeals/invalid_body') do
-          expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
-            .with('Appeals::Service handled an unexpected 500', :error, anything)
-          get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
-          expect(response).to have_http_status(:bad_gateway)
-        end
-      end
-    end
   end
 end
