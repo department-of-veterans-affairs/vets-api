@@ -11,7 +11,7 @@ module V0
     end
 
     def submit
-      # Once we run this job asynchronosuly, this data translation can be moved into the
+      # Once we run this job asynchronously, this data translation can be moved into the
       # async `perform` method
       form_content = JSON.parse(request.body.string)
       uploads = form_content['form526'].delete('attachments')
