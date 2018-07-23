@@ -135,13 +135,14 @@ class ApplicationController < ActionController::API
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
       SSOService.extend_session!(@session, @current_user)
-      set_sso_cookie
+      # TODO: update cookie for all authenticated requests
+      # set_sso_cookie
     end
   end
 
   def set_sso_cookie(ttl = 30.minutes)
     return unless @current_user&.mvi
-    contents = [expiryunix(ttl), @current_user.mvi.icn, @current_user.mhv_correlation_id]
+    contents = [expiryunix(ttl), @current_user.mhv_icn, @current_user.mhv_correlation_id]
     cookies[:vamhv_session] = { value: encrypt(contents.join('|'), Settings.sso_cookie_key), httponly: true }
   end
 
