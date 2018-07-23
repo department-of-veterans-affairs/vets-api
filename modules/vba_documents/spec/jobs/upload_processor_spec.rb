@@ -249,7 +249,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(412)
-      allow(faraday_response).to receive(:body).and_return("Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] ")
+      allow(faraday_response).to receive(:body).and_return(
+        "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] "
+      )
       allow(faraday_response).to receive(:success?).and_return(false)
       capture_body = nil
       expect(client_stub).to receive(:upload) { |arg|
@@ -265,7 +267,9 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('error')
       expect(updated.code).to eq('DOC104')
-      expect(updated.detail).to eq('Downstream status: 412 - Missing ZIP Code. ZIP Code must be 5 digits, or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.')
+      expect(updated.detail).to eq('Downstream status: 412 - Missing ZIP Code. ' \
+                                   'ZIP Code must be 5 digits, or 9 digits in XXXXX-XXXX format. ' \
+                                   'Specify \'00000\' for non-US addresses.')
     end
 
     it 'sets error status for downstream server error' do
