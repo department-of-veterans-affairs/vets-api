@@ -88,12 +88,60 @@
                     "type": "object"
                   },
                   "type": {
-                    "type": "string"
+                    "type": {
+                      "enum": [
+                        "scheduled_hearing",
+                        "pending_hearing_scheduling",
+                        "on_docket",
+                        "pending_certification_ssoc",
+                        "pending_certification",
+                        "pending_form9",
+                        "pending_soc",
+                        "stayed",
+                        "at_vso",
+                        "bva_development",
+                        "decision_in_progress",
+                        "bva_decision",
+                        "field_grant",
+                        "withdrawn",
+                        "ftr",
+                        "ramp",
+                        "death",
+                        "reconsideration",
+                        "other_close",
+                        "remand_ssoc",
+                        "remand",
+                        "merged"
+                      ]
+                    }
                   }
                 }
               },
               "docket": {
-                "type": ["object", "null"]
+                "type": ["object", "null" ],
+                "properties": {
+                  "month": {
+                    "type": "string"
+                  },
+                  "docketMonth": {
+                    "type": "string"
+                  },
+                  "front": {
+                    "type": "boolean"
+                  },
+                  "total": {
+                    "type": "integer"
+                  },
+                  "ahead": {
+                    "type": "integer"
+                  },
+                  "ready": {
+                    "type": "integer"
+                  },
+                  "eta": {
+                    "type": "string"
+                  }
+                }
               },
               "issues": {
                 "type": "array",
@@ -127,5 +175,5 @@
   },
   "required": [
     "data"
-  ]
+    ]
 }
