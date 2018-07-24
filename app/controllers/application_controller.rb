@@ -134,8 +134,8 @@ class ApplicationController < ActionController::API
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      SSOService.extend_session!(@session, @current_user)
       set_sso_cookie
+      SSOService.extend_session!(@session, @current_user)
     end
   end
 
