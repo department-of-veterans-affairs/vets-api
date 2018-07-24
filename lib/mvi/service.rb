@@ -37,15 +37,17 @@ module MVI
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
-      with_monitoring do
-        raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
-        MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+      Rails.logger.measure_info do
+        with_monitoring do
+          raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+          MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+        end
       end
     rescue Faraday::ConnectionFailed => e
-      log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      log_info_and_errors("MVI find_profile connection failed: #{e.message}", user, :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_message_to_sentry("MVI find_profile error: #{e.message}", :error)
+      log_info_and_errors("MVI find_profile error: #{e.message}", user, :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue MVI::Errors::Base => e
       mvi_error_handler(user, e)
@@ -62,20 +64,27 @@ module MVI
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
-        log_message_to_sentry('MVI Duplicate Record', :warn)
+        log_info_and_errors('MVI Duplicate Record', user, :warn)
       when MVI::Errors::RecordNotFound
-        # Not going to log RecordNotFound
+        # Not going to log RecordNotFound to sentry, cloudwatch only.
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
-        # log_message_to_sentry('MVI Record Not Found', :warn)
+        log_info_and_errors('MVI Record Not Found', user)
         nil
       when MVI::Errors::InvalidRequestError
         if user.mhv_icn.present?
-          log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
+          log_info_and_errors('MVI Invalid Request (Possible RecordNotFound)', user, :error)
         else
-          log_message_to_sentry('MVI Invalid Request', :error)
+          log_info_and_errors('MVI Invalid Request', user, :error)
         end
       when MVI::Errors::FailedRequestError
-        log_message_to_sentry('MVI Failed Request', :error)
+        log_info_and_errors('MVI Failed Request', user, :error)
+      end
+    end
+
+    def log_info_and_errors(message, user, sentry_classification: nil)
+      logger.info(message, uuid: user.uuid, authn_context: user.authn_context, loa_current: user.loa_current)
+      if sentry_classification.present?
+        log_message_to_sentry(message, sentry_classification)
       end
     end
 
