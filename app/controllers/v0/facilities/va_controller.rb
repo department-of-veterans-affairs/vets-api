@@ -32,7 +32,10 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   def ppms
-    render text: "test auth error"
+    command = params.delete 'Command';
+    ppms = Facilities::PPMSClient.new.test_routes(command,params)
+    render text: ppms
+
   end
 
   private
