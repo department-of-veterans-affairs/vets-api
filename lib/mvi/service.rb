@@ -38,7 +38,7 @@ module MVI
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
       with_monitoring do
-        Rails.logger.measure_info("Performed MVI Query", uuid: user.uuid, authn_context: user.authn_context, loa: user.loa) do
+        Rails.logger.measure_info("Performed MVI Query", payload: { uuid: user.uuid, authn_context: user.authn_context, loa: user.loa }) do
           raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
