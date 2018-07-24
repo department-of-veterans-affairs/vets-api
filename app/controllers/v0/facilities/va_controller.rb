@@ -31,6 +31,10 @@ class V0::Facilities::VaController < FacilitiesController
            each_serializer: VASuggestedFacilitySerializer
   end
 
+  def ppms
+    render text: "test auth error"
+  end
+
   private
 
   def validate_types_name_part
