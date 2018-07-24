@@ -10,7 +10,7 @@ module VIC
       'dev' => 'vetsgov-devops@listserv.gsa.gov.vicdev'
     }.freeze
 
-    SALESFORCE_USERNAME = 'vetsgov-devops-cl-feeedback@listserv.gsa.gov'
+    SALESFORCE_USERNAME = 'vetsgov-devops-cl-feedback@listserv.gsa.gov'
     SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
