@@ -2,8 +2,6 @@
 
 module Salesforce
   class Service < Common::Client::Base
-    configuration Salesforce::Configuration
-
     SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
 
     def oauth_params
@@ -27,7 +25,7 @@ module Salesforce
     end
 
     def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.salesforce.signing_key_path))
+      OpenSSL::PKey::RSA.new(File.read(self.class::SIGNING_KEY_PATH))
     end
 
     def get_oauth_token
