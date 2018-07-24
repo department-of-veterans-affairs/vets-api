@@ -237,9 +237,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         end
 
         it 'returns the deleted form id' do
-          expect { subject }.to change {
-            InProgressForm.count
-          }.from(1).to(0)
+          expect { subject }.to change { InProgressForm.count }.by(-1)
           expect(response).to have_http_status(:ok)
         end
       end
