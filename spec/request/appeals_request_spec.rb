@@ -93,7 +93,6 @@ RSpec.describe 'Appeals Status', type: :request do
           expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
           expect(response).to have_http_status(:bad_gateway)
-
         end
       end
     end
