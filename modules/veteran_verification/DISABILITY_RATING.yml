@@ -82,8 +82,7 @@ components:
         id:
           description: JSON API identifier
           type: string
-          format: uuid
-          example: 6d8433c1-cd55-4c24-affd-f592287a7572
+          example: 12303
         type:
           description: JSON API type specification
           type: string
