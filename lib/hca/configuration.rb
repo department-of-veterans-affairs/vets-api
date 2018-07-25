@@ -58,6 +58,7 @@ module HCA
         conn.request :soap_headers
         conn.use HCA::SOAPParser
         conn.use :breakers
+        conn.use Common::Client::Middleware::Response::RescueTimeout, { backend_service: :hca }, 'api.hca.timeout'
         conn.adapter Faraday.default_adapter
       end
     end
