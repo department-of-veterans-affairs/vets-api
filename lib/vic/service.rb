@@ -49,7 +49,7 @@ module VIC
     end
 
     def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.salesforce.signing_key_path))
+      OpenSSL::PKey::RSA.new(File.read(Settings['salesforce-gibft'].signing_key_path))
     end
 
     def get_oauth_token
