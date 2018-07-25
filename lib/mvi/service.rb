@@ -60,17 +60,15 @@ module MVI
 
     private
 
-    # TODO: Possibly consider adding Grafana Instrumentation here too
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
         log_info_and_errors('MVI Duplicate Record', :warn)
       when MVI::Errors::RecordNotFound
         # Not going to log RecordNotFound to sentry, cloudwatch only.
-        # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         log_info_and_errors('MVI Record Not Found')
-        nil
       when MVI::Errors::InvalidRequestError
+        # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user.mhv_icn.present?
           log_info_and_errors('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
