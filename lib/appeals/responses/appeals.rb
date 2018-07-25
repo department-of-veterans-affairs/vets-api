@@ -10,7 +10,7 @@ module Appeals
         self.body = body if json_format_is_valid?(body)
         self.status = status
       rescue JSON::Schema::ValidationError => error
-        raise Common::Client::Errors::ClientError.new(error.message, 500)
+        raise Common::Client::Errors::ParsingError.new(error.message, 502)
       end
 
       private
