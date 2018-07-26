@@ -35,10 +35,9 @@ class V0::Facilities::VaController < FacilitiesController
     params.delete 'action'
     params.delete 'controller'
     params.delete 'format'
-    command = params.delete 'Command';
-    ppms = Facilities::PPMSClient.new.test_routes(command,params)
+    command = params.delete 'Command'
+    ppms = Facilities::PPMSClient.new.test_routes(command, params)
     render text: ppms
-
   end
 
   private
