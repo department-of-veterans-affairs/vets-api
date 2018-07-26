@@ -1,6 +1,7 @@
 class GiBillFeedback < Common::RedisStore
   include SetGuid
   include TempFormValidation
+  include AsyncRequest
 
   attr_accessor(:user)
 
@@ -12,11 +13,4 @@ class GiBillFeedback < Common::RedisStore
   attribute(:state)
   attribute(:guid)
   attribute(:response)
-
-  validates(:state, presence: true, inclusion: %w[success failed pending])
-  validates(:response, presence: true, if: :success?)
-
-  def success?
-    state == 'success'
-  end
 end
