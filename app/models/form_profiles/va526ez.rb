@@ -18,6 +18,8 @@ module VA526ez
     attribute :rated_disability_id, String
     attribute :rating_decision_id, String
     attribute :diagnostic_code, Integer
+    attribute :decision_code, String
+    attribute :decision_text, String
     attribute :rating_percentage, Integer
   end
 
