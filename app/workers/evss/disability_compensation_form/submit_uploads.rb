@@ -7,7 +7,7 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(user, claim_id)
+      def self.start(user, claim_id, uploads)
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
@@ -15,7 +15,6 @@ module EVSS
           'uuid' => user.uuid
         )
         batch.jobs do
-          uploads = get_uploads(user)
           uploads.each do |upload_data|
             perform_async(upload_data, claim_id, user)
           end
@@ -28,15 +27,11 @@ module EVSS
         file_body = SupportingEvidenceAttachment.find_by(guid: upload_data[:guid]).file_data
         document_data = EVSSClaimDocument.new(
           evss_claim_id: claim_id,
-          file_name: upload_data[:file_name],
+          file_name: upload_data[:fileName],
           tracked_item_id: nil,
-          document_type: upload_data[:doctype]
+          document_type: upload_data[:docType]
         )
         client.upload(file_body, document_data)
-      end
-
-      def self.get_uploads(user)
-        InProgressDisabilityCompensationForm.form_for_user(FORM_TYPE, user).uploads
       end
     end
   end

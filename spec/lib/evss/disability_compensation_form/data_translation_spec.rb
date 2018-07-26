@@ -107,7 +107,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'state' => 'AA',
-          'city' => 'ASO'
+          'city' => 'ASO',
+          'zipCode' => '12345-6789'
         }
       end
 
@@ -117,7 +118,9 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'militaryPostOfficeTypeCode' => 'ASO',
-          'militaryStateCode' => 'AA'
+          'militaryStateCode' => 'AA',
+          'zipFirstFive' => '12345',
+          'zipLastFour' => '6789'
         }
         expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end

@@ -11,7 +11,7 @@ RSpec.describe InProgressFormCleaner do
 
   describe '#perform' do
     it 'deletes old records' do
-      expect { subject.perform }.to change { InProgressForm.count }.from(3).to(2)
+      expect { subject.perform }.to change { InProgressForm.count }.by(-1)
       expect { @form_old.reload }.to raise_exception(ActiveRecord::RecordNotFound)
     end
   end

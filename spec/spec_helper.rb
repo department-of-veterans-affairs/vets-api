@@ -39,7 +39,7 @@ unless ENV['NOCOVERAGE']
     # TODO: Remove once IHub is ready to merge into master
     add_filter 'lib/ihub'
     # TODO: remove this filter after removing sentry logging
-    add_filter 'lib/pension_burial/service.rb'
+    add_filter 'lib/central_mail/service.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'

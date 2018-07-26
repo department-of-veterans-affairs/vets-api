@@ -30,7 +30,13 @@
       },
       "serviceNumber": "string"
     },
-    "attachments": [],
+    "attachments": [
+      {
+        "guid": "foo",
+        "file_name": "bar.pdf",
+        "doctype": "L023"
+      }
+    ],
     "militaryPayments": {
       "payments": [],
       "receiveCompensationInLieuOfRetired": false
