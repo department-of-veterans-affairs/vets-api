@@ -14,5 +14,4 @@ class GiBillFeedback < Common::RedisStore
   attr_accessor(:state)
   attr_accessor(:guid)
   attr_accessor(:response)
-  define_attribute_methods(:state, :guid, :response)
 end

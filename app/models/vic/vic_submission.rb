@@ -18,12 +18,21 @@ module VIC
     validate(:no_forbidden_fields, on: :create)
 
     after_create(:create_submission_job)
+    before_validation(:update_state_to_completed)
 
     def process_as_anonymous?
       parsed_form['processAsAnonymous']
     end
 
     private
+
+    def update_state_to_completed
+      response_changes = changes['response']
+
+      self.state = 'success' if response_changed? && response_changes[0].blank? && response_changes[1].present?
+
+      true
+    end
 
     def no_forbidden_fields
       if user.present? && user.loa3?

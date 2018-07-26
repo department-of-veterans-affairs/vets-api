@@ -78,6 +78,7 @@ module Common
 
     def save
       return false unless valid?
+      binding.pry; fail
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
       expire(redis_namespace_ttl) if defined? redis_namespace_ttl
       @persisted = true
