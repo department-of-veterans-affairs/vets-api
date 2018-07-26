@@ -44,10 +44,10 @@ module MVI
         end
       end
     rescue Faraday::ConnectionFailed => e
-      log_info_and_errors("MVI find_profile connection failed: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_info_and_errors("MVI find_profile error: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue MVI::Errors::Base => e
       mvi_error_handler(user, e)
@@ -63,24 +63,24 @@ module MVI
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
-        log_info_and_errors('MVI Duplicate Record', :warn)
+        log_console_and_sentry('MVI Duplicate Record', :warn)
       when MVI::Errors::RecordNotFound
         # Not going to log RecordNotFound to sentry, cloudwatch only.
-        log_info_and_errors('MVI Record Not Found')
+        log_console_and_sentry('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user.mhv_icn.present?
-          log_info_and_errors('MVI Invalid Request (Possible RecordNotFound)', :error)
+          log_console_and_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
-          log_info_and_errors('MVI Invalid Request', :error)
+          log_console_and_sentry('MVI Invalid Request', :error)
         end
       when MVI::Errors::FailedRequestError
-        log_info_and_errors('MVI Failed Request', :error)
+        log_console_and_sentry('MVI Failed Request', :error)
       end
     end
 
-    def log_info_and_errors(message, sentry_classification = nil)
-      Rails.logger.debug(message)
+    def log_console_and_sentry(message, sentry_classification = nil)
+      Rails.logger.info(message)
       log_message_to_sentry(message, sentry_classification) if sentry_classification.present?
     end
 
