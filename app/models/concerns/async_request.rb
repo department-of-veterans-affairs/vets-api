@@ -1,5 +1,7 @@
 module AsyncRequest
   extend ActiveSupport::Concern
+  include ActiveModel::Dirty
+  include ActiveModel::Validations::Callbacks
 
   included do
     validates(:state, presence: true, inclusion: %w[success failed pending])

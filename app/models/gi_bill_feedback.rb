@@ -7,7 +7,8 @@ class GiBillFeedback < Common::RedisStore
 
   FORM_ID = 'complaint-tool'
 
-  redis_config_key(:gi_bill_feedback)
+  redis_store REDIS_CONFIG['gi_bill_feedback']['namespace']
+  redis_ttl REDIS_CONFIG['gi_bill_feedback']['each_ttl']
   redis_key(:guid)
 
   attribute(:state)
