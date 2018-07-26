@@ -4,6 +4,7 @@ module VIC
   class VICSubmission < ActiveRecord::Base
     include SetGuid
     include TempFormValidation
+    include AsyncRequest
 
     FORM_ID = 'VIC'
 
@@ -14,16 +15,9 @@ module VIC
 
     attr_accessor(:user)
 
-    validates(:state, presence: true, inclusion: %w[success failed pending])
-    validates(:response, presence: true, if: :success?)
     validate(:no_forbidden_fields, on: :create)
 
     after_create(:create_submission_job)
-    before_validation(:update_state_to_completed)
-
-    def success?
-      state == 'success'
-    end
 
     def process_as_anonymous?
       parsed_form['processAsAnonymous']
@@ -37,14 +31,6 @@ module VIC
 
         errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user" if bad_fields.present?
       end
-    end
-
-    def update_state_to_completed
-      response_changes = changes['response']
-
-      self.state = 'success' if response_changed? && response_changes[0].blank? && response_changes[1].present?
-
-      true
     end
 
     def create_submission_job
