@@ -1,4 +1,4 @@
-class GiBillFeedback < Common::RedisStore
+class GIBillFeedback < Common::RedisStore
   include SetGuid
   include TempFormValidation
   include AsyncRequest
@@ -11,7 +11,7 @@ class GiBillFeedback < Common::RedisStore
   redis_ttl REDIS_CONFIG['gi_bill_feedback']['each_ttl']
   redis_key(:guid)
 
-  attr_accessor(:state)
-  attr_accessor(:guid)
-  attr_accessor(:response)
+  attribute(:state)
+  attribute(:guid)
+  attribute(:response)
 end
