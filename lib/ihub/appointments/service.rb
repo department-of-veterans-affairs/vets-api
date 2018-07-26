@@ -11,7 +11,8 @@ module IHub
 
       # Fetches a collection of veteran appointment data from iHub.
       #
-      # Per iHub docs, requires a service parameter of noFilter=true.
+      # Per iHub docs, requires a service parameter of noFilter=true,
+      # in non-production environments.
       #
       # @return [IHub::Appointments::Response] Sample response:
       #   {
@@ -47,8 +48,7 @@ module IHub
         raise 'User has no ICN' if @user.icn.blank?
 
         with_monitoring do
-          service_url = "#{@user.icn}?noFilter=true"
-          response    = perform(:get, service_url, nil)
+          response = perform(:get, appointments_url, nil)
 
           IHub::Appointments::Response.from(response)
         end
@@ -61,6 +61,14 @@ module IHub
         )
 
         raise error
+      end
+
+      def appointments_url
+        if Settings.ihub.in_production
+          @user.icn
+        else
+          "#{@user.icn}?noFilter=true"
+        end
       end
     end
   end
