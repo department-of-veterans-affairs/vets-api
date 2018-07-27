@@ -180,16 +180,16 @@ RSpec.describe V0::SessionsController, type: :controller do
       let(:decrypter) { ActiveSupport::MessageEncryptor.new(Settings.sso_cookie_key) }
       it 'does not produces a response cookie for SSO when disabled via Settings' do
         request.env['HTTP_AUTHORIZATION'] = auth_header
-        Settings.set_sso_cookie = false
         get(:new, type: :slo)
-        Settings.set_sso_cookie = true
         expect(response).to have_http_status(:ok)
         expect(response.cookies['vamhv_session']).to be_nil
       end
 
       it 'produces a response cookie for SSO on logout request' do
         request.env['HTTP_AUTHORIZATION'] = auth_header
+        Settings.set_sso_cookie = true
         get(:new, type: :slo)
+        Settings.set_sso_cookie = false
         expect(response).to have_http_status(:ok)
         expect(response.cookies['vamhv_session']).not_to be_nil
         cookie = CGI.unescape(response.cookies['vamhv_session'])
@@ -199,7 +199,9 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       it 'produces a response cookie for SSO on an authenticated request' do
         request.env['HTTP_AUTHORIZATION'] = auth_header
+        Settings.set_sso_cookie = true
         get(:new, type: :verify)
+        Settings.set_sso_cookie = false
         expect(response).to have_http_status(:ok)
         expect(response.cookies['vamhv_session']).not_to be_nil
         cookie = CGI.unescape(response.cookies['vamhv_session'])
