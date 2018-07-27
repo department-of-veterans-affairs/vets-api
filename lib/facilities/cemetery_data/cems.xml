@@ -1,6 +1,4 @@
-<cems>
-
-<cem
+<cems><cem
 fac_id="1001"
 state="ALABAMA"
 statecode="AL"
@@ -22,8 +20,6 @@ lat="30.7346233"
 long="-87.8985442"
 stationid="400"
 />
-
-
 <cem
 fac_id="1002"
 state="ARIZONA"
@@ -46,8 +42,6 @@ lat="35.236695369857"
 long="-111.845053851604"
 stationid="412"
 />
-
-
 <cem
 fac_id="1003"
 state="ARIZONA"
@@ -70,8 +64,6 @@ lat="32.4948489724764"
 long="-111.270155549049"
 stationid="413"
 />
-
-
 <cem
 fac_id="1004"
 state="ARIZONA"
@@ -94,8 +86,6 @@ lat="32.1146166113783"
 long="-111.074513844006"
 stationid=""
 />
-
-
 <cem
 fac_id="1005"
 state="ARIZONA"
@@ -118,14 +108,12 @@ lat="33.29260215"
 long="-110.425465583801"
 stationid=""
 />
-
-
 <cem
 fac_id="1006"
 state="ARIZONA"
 statecode="AZ"
 cem_name="Southern Arizona Veterans' Memorial Cemetery"
-cem_url="https://dvs.az.gov/southern-memorial-cemetery" 
+cem_url="https://dvs.az.gov/southern-memorial-cemetery"
 funded="YES"
 address_line1="1300 Buffalo Soldier Trail"
 address_line2="Sierra Vista, AZ 85635"
@@ -142,8 +130,6 @@ lat="31.5401754937107"
 long="-110.300438404083"
 stationid="098"
 />
-
-
 <cem
 fac_id="1007"
 state="ARKANSAS"
@@ -166,8 +152,6 @@ lat="34.8409378351933"
 long="-92.2554266452789"
 stationid="091"
 />
-
-
 <cem
 fac_id="1008"
 state="ARKANSAS"
@@ -190,8 +174,6 @@ lat="35.3930898289455"
 long="-90.680497765541"
 stationid="396"
 />
-
-
 <cem
 fac_id="1009"
 state="CALIFORNIA"
@@ -214,8 +196,6 @@ lat="37.081576"
 long="-119.463667"
 stationid=""
 />
-
-
 <cem
 fac_id="1010"
 state="CALIFORNIA"
@@ -238,8 +218,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1011"
 state="CALIFORNIA"
@@ -262,8 +240,6 @@ lat="36.6373148121028"
 long="-121.796334550767"
 stationid="414"
 />
-
-
 <cem
 fac_id="1012"
 state="CALIFORNIA"
@@ -286,8 +262,6 @@ lat="40.4785289345407"
 long="-122.544497251511"
 stationid=""
 />
-
-
 <cem
 fac_id="1013"
 state="CALIFORNIA"
@@ -310,8 +284,6 @@ lat="38.3910020832163"
 long="-122.369942322196"
 stationid=""
 />
-
-
 <cem
 fac_id="1014"
 state="CALIFORNIA"
@@ -330,12 +302,10 @@ contact2=""
 phone="707-944-4600"
 fax=""
 email=""
-lat=""
-long=""
+lat="38.390938"
+long="-122.370221"
 stationid=""
 />
-
-
 <cem
 fac_id="1015"
 state="CALIFORNIA"
@@ -358,8 +328,6 @@ lat="41.1995368697075"
 long="-123.784863266645"
 stationid=""
 />
-
-
 <cem
 fac_id="1016"
 state="COLORADO"
@@ -382,8 +350,6 @@ lat="39.0629404316147"
 long="-108.526232242584"
 stationid="097"
 />
-
-
 <cem
 fac_id="1017"
 state="COLORADO"
@@ -406,8 +372,6 @@ lat="37.574561477265"
 long="-106.095665302902"
 stationid=""
 />
-
-
 <cem
 fac_id="1018"
 state="CONNECTICUT"
@@ -430,8 +394,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1019"
 state="CONNECTICUT"
@@ -454,8 +416,6 @@ lat="41.6532874520033"
 long="-72.6513330701142"
 stationid="010"
 />
-
-
 <cem
 fac_id="1020"
 state="CONNECTICUT"
@@ -478,8 +438,6 @@ lat="41.0690050088685"
 long="-73.4793445753937"
 stationid="009"
 />
-
-
 <cem
 fac_id="1021"
 state="CONNECTICUT"
@@ -502,8 +460,6 @@ lat="41.5489634569331"
 long="-72.6231533288955"
 stationid="030"
 />
-
-
 <cem
 fac_id="1022"
 state="DELAWARE"
@@ -526,8 +482,6 @@ lat="39.548203023351"
 long="-75.7455825805664"
 stationid="036"
 />
-
-
 <cem
 fac_id="1023"
 state="DELAWARE"
@@ -550,8 +504,6 @@ lat="38.6142214395382"
 long="-75.316697359085"
 stationid="093"
 />
-
-
 <cem
 fac_id="1024"
 state="GEORGIA"
@@ -574,8 +526,6 @@ lat="33.749798"
 long="-84.386064"
 stationid=""
 />
-
-
 <cem
 fac_id="1025"
 state="GEORGIA"
@@ -598,8 +548,6 @@ lat="33.01024697"
 long="-83.19614768"
 stationid="096"
 />
-
-
 <cem
 fac_id="1026"
 state="GEORGIA"
@@ -622,8 +570,6 @@ lat="31.9591897266189"
 long="-81.9229996204376"
 stationid="303"
 />
-
-  
 <cem
 fac_id="1143"
 state="GEORGIA"
@@ -646,8 +592,6 @@ lat="33.049694"
 long="-83.214620"
 stationid=""
 />
-
-
 <cem
 fac_id="1027"
 state="HAWAII"
@@ -670,8 +614,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1028"
 state="HAWAII"
@@ -694,8 +636,6 @@ lat="21.3892221921269"
 long="-157.794432807549"
 stationid="043"
 />
-
-
 <cem
 fac_id="1029"
 state="HAWAII"
@@ -718,8 +658,6 @@ lat="19.7202319294169"
 long="-155.088908672332"
 stationid=""
 />
-
-
 <cem
 fac_id="1030"
 state="HAWAII"
@@ -742,8 +680,6 @@ lat="19.7182321950363"
 long="-155.09202003479"
 stationid=""
 />
-
-
 <cem
 fac_id="1031"
 state="HAWAII"
@@ -766,8 +702,6 @@ lat="21.9032933163344"
 long="-159.597712755203"
 stationid=""
 />
-
-
 <cem
 fac_id="1032"
 state="HAWAII"
@@ -790,8 +724,6 @@ lat="20.8612179337239"
 long="-156.313712596893"
 stationid=""
 />
-
-
 <cem
 fac_id="1033"
 state="HAWAII"
@@ -814,8 +746,6 @@ lat="21.1771088048027"
 long="-157.058798074722"
 stationid=""
 />
-
-
 <cem
 fac_id="1034"
 state="HAWAII"
@@ -838,8 +768,6 @@ lat="19.7935382299199"
 long="-156.00474357605"
 stationid=""
 />
-
-
 <cem
 fac_id="1035"
 state="HAWAII"
@@ -862,8 +790,6 @@ lat="20.847775192007"
 long="-156.921732378345"
 stationid=""
 />
-
-
 <cem
 fac_id="1036"
 state="IDAHO"
@@ -886,8 +812,6 @@ lat="43.6953000854684"
 long="-116.306557010012"
 stationid="107"
 />
-
-
 <cem
 fac_id="1037"
 state="ILLINOIS"
@@ -910,8 +834,6 @@ lat="39.9622950929162"
 long="-91.40589594841"
 stationid=""
 />
-
-
 <cem
 fac_id="1038"
 state="INDIANA"
@@ -934,8 +856,6 @@ lat="40.4732200712416"
 long="-86.8844962120056"
 stationid=""
 />
-
-
 <cem
 fac_id="1039"
 state="INDIANA"
@@ -958,8 +878,6 @@ lat="38.7520794052535"
 long="-85.4033482074738"
 stationid="006"
 />
-
-
 <cem
 fac_id="1040"
 state="IOWA"
@@ -982,8 +900,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1041"
 state="IOWA"
@@ -1006,8 +922,6 @@ lat="41.5442400222422"
 long="-93.9519882202148"
 stationid="301"
 />
-
-
 <cem
 fac_id="1042"
 state="IOWA"
@@ -1030,8 +944,6 @@ lat="42.0527501791111"
 long="-92.9346907138824"
 stationid=""
 />
-
-
 <cem
 fac_id="1043"
 state="KANSAS"
@@ -1054,8 +966,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1044"
 state="KANSAS"
@@ -1078,8 +988,6 @@ lat="37.7315654731549"
 long="-99.9315011501312"
 stationid="094"
 />
-
-
 <cem
 fac_id="1045"
 state="KANSAS"
@@ -1102,8 +1010,6 @@ lat="39.1360105950609"
 long="-96.6820049285888"
 stationid="277"
 />
-
-
 <cem
 fac_id="1046"
 state="KANSAS"
@@ -1126,8 +1032,6 @@ lat="39.0172247946906"
 long="-99.8714303970337"
 stationid="110"
 />
-
-
 <cem
 fac_id="1047"
 state="KANSAS"
@@ -1150,8 +1054,6 @@ lat="37.2604428878924"
 long="-96.9785392284393"
 stationid="128"
 />
-
-
 <cem
 fac_id="1048"
 state="KENTUCKY"
@@ -1174,8 +1076,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1049"
 state="KENTUCKY"
@@ -1198,8 +1098,6 @@ lat="37.8682304586587"
 long="-85.9591770172119"
 stationid="134"
 />
-
-
 <cem
 fac_id="1050"
 state="KENTUCKY"
@@ -1222,8 +1120,6 @@ lat="38.6090404698633"
 long="-84.5787727832794"
 stationid="135"
 />
-
-
 <cem
 fac_id="1051"
 state="KENTUCKY"
@@ -1246,8 +1142,6 @@ lat="38.38271848"
 long="-82.8175037324886"
 stationid="114"
 />
-
-
 <cem
 fac_id="1052"
 state="KENTUCKY"
@@ -1270,8 +1164,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1053"
 state="KENTUCKY"
@@ -1294,8 +1186,6 @@ lat="36.7969314668181"
 long="-87.4730694293976"
 stationid="105"
 />
-
-
 <cem
 fac_id="1054"
 state="LOUISIANA"
@@ -1318,8 +1208,6 @@ lat="32.2650718002424"
 long="-93.9324617385864"
 stationid="131"
 />
-
-
 <cem
 fac_id="1055"
 state="LOUISIANA"
@@ -1342,8 +1230,6 @@ lat="31.0893257956852"
 long="-93.2312672133761"
 stationid="397"
 />
-
-
 <cem
 fac_id="1056"
 state="LOUISIANA"
@@ -1366,8 +1252,6 @@ lat="32.423356322327"
 long="-91.7625583410263"
 stationid="392"
 />
-
-
 <cem
 fac_id="1057"
 state="LOUISIANA"
@@ -1390,8 +1274,6 @@ lat="30.3104579983519"
 long="-89.8129255921082"
 stationid="404"
 />
-
-
 <cem
 fac_id="1058"
 state="MAINE"
@@ -1410,36 +1292,10 @@ contact2=""
 phone="207-532-4273 x202"
 fax="207-532-6883"
 email=""
-lat=""
-long=""
+lat="46.190539"
+long="-67.80816"
 stationid=""
 />
-
-
-<cem
-fac_id="1059"
-state="MAINE"
-statecode="ME"
-cem_name="Bureau of Veterans' Services"
-cem_url="http://www11.maine.gov/veterans/memorial-cemetery-system/index.html"
-funded="N/A"
-address_line1="117 State House Station"
-address_line2="Augusta, ME 04333-0117"
-address_line3=""
-mailing_line1=""
-mailing_line2=""
-mailing_line3=""
-contact1="Scott Brown, Superintendent, Maine Veterans' Memorial Cemetery System"
-contact2="Candice Wright, Office Manager"
-phone="207-287-3481"
-fax="207-287-3473"
-email=""
-lat="44.3525088006879"
-long="-69.8148858547211"
-stationid="012"
-/>
-
-
 <cem
 fac_id="1060"
 state="MAINE"
@@ -1462,8 +1318,6 @@ lat="44.3500998437714"
 long="-69.7966039180755"
 stationid=""
 />
-
-
 <cem
 fac_id="1061"
 state="MAINE"
@@ -1486,8 +1340,6 @@ lat="44.3525088006879"
 long="-69.8148858547211"
 stationid="095"
 />
-
-
 <cem
 fac_id="1062"
 state="MAINE"
@@ -1510,8 +1362,6 @@ lat="46.8512548128894"
 long="-68.0431365966796"
 stationid="099"
 />
-
-
 <cem
 fac_id="1063"
 state="MAINE"
@@ -1534,8 +1384,6 @@ lat="43.4809505229678"
 long="-70.8087590193155"
 stationid="389"
 />
-
-
 <cem
 fac_id="1064"
 state="MARYLAND"
@@ -1558,8 +1406,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1065"
 state="MARYLAND"
@@ -1582,8 +1428,6 @@ lat="38.7325272118031"
 long="-76.8296456336975"
 stationid="001"
 />
-
-
 <cem
 fac_id="1066"
 state="MARYLAND"
@@ -1606,8 +1450,6 @@ lat="39.063765141301"
 long="-76.5917873382568"
 stationid="002"
 />
-
-
 <cem
 fac_id="1067"
 state="MARYLAND"
@@ -1630,8 +1472,6 @@ lat="38.6747389488239"
 long="-75.8995628356934"
 stationid="004"
 />
-
-
 <cem
 fac_id="1068"
 state="MARYLAND"
@@ -1654,8 +1494,6 @@ lat="39.4406757046603"
 long="-76.7681908607482"
 stationid="003"
 />
-
-
 <cem
 fac_id="1069"
 state="MARYLAND"
@@ -1678,8 +1516,6 @@ lat="39.7196901851887"
 long="-78.6354267597199"
 stationid="005"
 />
-
-
 <cem
 fac_id="1070"
 state="MASSACHUSETTS"
@@ -1702,8 +1538,6 @@ lat="42.0461974226993"
 long="-72.6163190603256"
 stationid="034"
 />
-
-
 <cem
 fac_id="1071"
 state="MASSACHUSETTS"
@@ -1726,8 +1560,6 @@ lat="42.6852470532314"
 long="-72.0185887813568"
 stationid="108"
 />
-
-
 <cem
 fac_id="1072"
 state="MICHIGAN"
@@ -1750,8 +1582,6 @@ lat="43.019954689536"
 long="-85.6606042385101"
 stationid=""
 />
-
-
 <cem
 fac_id="1073"
 state="MINNESOTA"
@@ -1773,9 +1603,7 @@ email=""
 lat=""
 long=""
 stationid=""
-/>
-
-<cem
+/><cem
 fac_id="1141"
 state="MINNESOTA"
 statecode="MN"
@@ -1796,9 +1624,7 @@ email=""
 lat=""
 long=""
 stationid=""
-/>
-
-<cem
+/><cem
 fac_id="1074"
 state="MINNESOTA"
 statecode="MN"
@@ -1820,8 +1646,6 @@ lat="46.421563"
 long="-94.401204"
 stationid="053"
 />
-
-
 <cem
 fac_id="1075"
 state="MINNESOTA"
@@ -1844,8 +1668,6 @@ lat="43.6730587668763"
 long="-92.0666175592162"
 stationid="415"
 />
-
-
 <cem
 fac_id="1076"
 state="MISSISSIPPI"
@@ -1868,8 +1690,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1077"
 state="MISSISSIPPI"
@@ -1892,8 +1712,6 @@ lat="32.3380284442059"
 long="-89.0835723226127"
 stationid="278"
 />
-
-
 <cem
 fac_id="1142"
 state="MISSISSIPPI"
@@ -1916,8 +1734,6 @@ lat="33.447506"
 long="-89.559196"
 stationid="035"
 />
-
-
 <cem
 fac_id="1078"
 state="MISSOURI"
@@ -1940,8 +1756,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1079"
 state="MISSOURI"
@@ -1964,8 +1778,6 @@ lat="39.095255175883"
 long="-93.7343215942383"
 stationid="057"
 />
-
-
 <cem
 fac_id="1080"
 state="MISSOURI"
@@ -1988,8 +1800,6 @@ lat="37.1176169752767"
 long="-93.2357633113861"
 stationid="056"
 />
-
-
 <cem
 fac_id="1081"
 state="MISSOURI"
@@ -2012,8 +1822,6 @@ lat="36.8641972364858"
 long="-89.9314641952514"
 stationid="103"
 />
-
-
 <cem
 fac_id="1082"
 state="MISSOURI"
@@ -2036,8 +1844,6 @@ lat="37.7920050569622"
 long="-92.2077564387477"
 stationid=""
 />
-
-
 <cem
 fac_id="1083"
 state="MISSOURI"
@@ -2060,8 +1866,6 @@ lat="39.5815719672176"
 long="-92.4808716773986"
 stationid="104"
 />
-
-
 <cem
 fac_id="1084"
 state="MISSOURI"
@@ -2084,8 +1888,6 @@ lat="38.0036448673309"
 long="-91.6182839870453"
 stationid=""
 />
-
-
 <cem
 fac_id="1085"
 state="MONTANA"
@@ -2108,8 +1910,6 @@ lat="46.6158048515937"
 long="-112.09923505783"
 stationid="040"
 />
-
-
 <cem
 fac_id="1086"
 state="MONTANA"
@@ -2132,8 +1932,6 @@ lat="46.3791786648907"
 long="-105.82502245903"
 stationid="090"
 />
-
-
 <cem
 fac_id="1087"
 state="MONTANA"
@@ -2156,8 +1954,6 @@ lat="48.3633350407914"
 long="-114.215819835663"
 stationid=""
 />
-
-
 <cem
 fac_id="1088"
 state="MONTANA"
@@ -2180,8 +1976,6 @@ lat="46.8531184787201"
 long="-114.060702323914"
 stationid="388"
 />
-
-
 <cem
 fac_id="1089"
 state="NEBRASKA"
@@ -2204,8 +1998,6 @@ lat="42.07333205"
 long="-102.818212152115"
 stationid="267"
 />
-
-
 <cem
 fac_id="1090"
 state="NEBRASKA"
@@ -2228,8 +2020,6 @@ lat="40.9460167433703"
 long="-98.3670973777771"
 stationid=""
 />
-
-
 <cem
 fac_id="1091"
 state="NEVADA"
@@ -2252,8 +2042,6 @@ lat="39.61664806829"
 long="-119.229125976563"
 stationid="046"
 />
-
-
 <cem
 fac_id="1092"
 state="NEVADA"
@@ -2276,8 +2064,6 @@ lat="35.946479048271"
 long="-114.845446944236"
 stationid="045"
 />
-
-
 <cem
 fac_id="1093"
 state="NEW HAMPSHIRE"
@@ -2300,8 +2086,6 @@ lat="43.33266994"
 long="-71.6356122493743"
 stationid="087"
 />
-
-
 <cem
 fac_id="1094"
 state="NEW JERSEY"
@@ -2324,8 +2108,6 @@ lat="40.0940068778745"
 long="-74.5619761740126"
 stationid="025"
 />
-
-
 <cem
 fac_id="1095"
 state="NEW JERSEY"
@@ -2348,8 +2130,6 @@ lat="39.4946485071664"
 long="-75.0256615877151"
 stationid="037"
 />
-
-
 <cem
 fac_id="1096"
 state="NEW MEXICO"
@@ -2368,12 +2148,10 @@ contact2=""
 phone="505-827-6309"
 fax=""
 email=""
-lat=""
-long=""
+lat="33.489687"
+long="-105.516418"
 stationid=""
 />
-
-
 <cem
 fac_id="1097"
 state="NORTH CAROLINA"
@@ -2396,8 +2174,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1098"
 state="NORTH CAROLINA"
@@ -2420,8 +2196,6 @@ lat="34.74723705"
 long="-77.4152362346649"
 stationid="052"
 />
-
-
 <cem
 fac_id="1099"
 state="NORTH CAROLINA"
@@ -2444,8 +2218,6 @@ lat="35.3457628280122"
 long="-77.9080632328987"
 stationid="416"
 />
-
-
 <cem
 fac_id="1100"
 state="NORTH CAROLINA"
@@ -2468,8 +2240,6 @@ lat="35.158056160043"
 long="-78.9680743217468"
 stationid=""
 />
-
-
 <cem
 fac_id="1101"
 state="NORTH CAROLINA"
@@ -2492,8 +2262,6 @@ lat="35.609763703379"
 long="-82.355328798294"
 stationid="051"
 />
-
-
 <cem
 fac_id="1102"
 state="NORTH DAKOTA"
@@ -2516,8 +2284,6 @@ lat="46.7488520781461"
 long="-100.848119258881"
 stationid="049"
 />
-
-
 <cem
 fac_id="1103"
 state="OKLAHOMA"
@@ -2540,8 +2306,6 @@ lat="35.1884484945939"
 long="-96.6974933871992"
 stationid=""
 />
-
-
 <cem
 fac_id="1104"
 state="OKLAHOMA"
@@ -2564,8 +2328,6 @@ lat="35.5068848469136"
 long="-97.4750965833663"
 stationid=""
 />
-
-
 <cem
 fac_id="1105"
 state="OHIO"
@@ -2588,8 +2350,6 @@ lat="41.419418975914"
 long="-82.689950466156"
 stationid="092"
 />
-
-
 <cem
 fac_id="1106"
 state="PENNSYLVANIA"
@@ -2612,8 +2372,6 @@ lat="42.137210183018"
 long="-80.0740349292755"
 stationid=""
 />
-
-
 <cem
 fac_id="1107"
 state="PUERTO RICO"
@@ -2636,8 +2394,6 @@ lat="18.5006053130466"
 long="-67.0984332644105"
 stationid="406"
 />
-
-
 <cem
 fac_id="1108"
 state="RHODE ISLAND"
@@ -2660,8 +2416,6 @@ lat="41.54513535341"
 long="-71.5347450971604"
 stationid="013"
 />
-
-
 <cem
 fac_id="1109"
 state="SOUTH CAROLINA"
@@ -2684,8 +2438,6 @@ lat="34.48032502"
 long="-82.5777912139892"
 stationid="302"
 />
-
-
 <cem
 fac_id="1110"
 state="SOUTH DAKOTA"
@@ -2708,8 +2460,6 @@ lat="43.4371607284769"
 long="-103.490899801254"
 stationid=""
 />
-
-
 <cem
 fac_id="1111"
 state="SOUTH DAKOTA"
@@ -2732,9 +2482,7 @@ lat="43.429782"
 long="-100.7400005"
 stationid="401"
 />
-
-
-<cem 
+<cem
 fac_id="1112"
 state="SOUTH DAKOTA"
 statecode="SD"
@@ -2756,8 +2504,6 @@ lat="43.4513937360452"
 long="-102.025493860245"
 stationid="403"
 />
-
-
 <cem
 fac_id="1113"
 state="TENNESSEE"
@@ -2780,8 +2526,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1114"
 state="TENNESSEE"
@@ -2804,8 +2548,6 @@ lat="35.9251831916316"
 long="-83.9933404326439"
 stationid="394"
 />
-
-
 <cem
 fac_id="1115"
 state="TENNESSEE"
@@ -2828,8 +2570,6 @@ lat="35.9514462321503"
 long="-83.8071790337562"
 stationid=""
 />
-
-
 <cem
 fac_id="1116"
 state="TENNESSEE"
@@ -2852,8 +2592,6 @@ lat="36.0850201374784"
 long="-87.0258110761643"
 stationid="050"
 />
-
-
 <cem
 fac_id="1117"
 state="TENNESSEE"
@@ -2876,8 +2614,6 @@ lat="35.0374899077474"
 long="-89.7595936059951"
 stationid="048"
 />
-
-
 <cem
 fac_id="1118"
 state="TEXAS"
@@ -2900,8 +2636,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1119"
 state="TEXAS"
@@ -2924,8 +2658,6 @@ lat="31.0268363122689"
 long="-97.7564013004303"
 stationid="127"
 />
-
-
 <cem
 fac_id="1120"
 state="TEXAS"
@@ -2948,8 +2680,6 @@ lat="26.1857836557735"
 long="-98.3556389808655"
 stationid="133"
 />
-
-
 <cem
 fac_id="1121"
 state="TEXAS"
@@ -2972,8 +2702,6 @@ lat="32.5507743123953"
 long="-99.7191131114959"
 stationid="273"
 />
-
-
 <cem
 fac_id="1122"
 state="TEXAS"
@@ -2996,8 +2724,6 @@ lat="27.841008336261"
 long="-97.5580948591232"
 stationid="395"
 />
-
-
 <cem
 fac_id="1123"
 state="UTAH"
@@ -3020,8 +2746,6 @@ lat="40.4424481487106"
 long="-111.933249235153"
 stationid="038"
 />
-
-
 <cem
 fac_id="1124"
 state="VERMONT"
@@ -3044,8 +2768,6 @@ lat="42.8858227590388"
 long="-73.1984066963196"
 stationid="027"
 />
-
-
 <cem
 fac_id="1125"
 state="VERMONT"
@@ -3068,8 +2790,6 @@ lat="43.9432403146283"
 long="-72.5974309444427"
 stationid="399"
 />
-
-
 <cem
 fac_id="1126"
 state="VIRGINIA"
@@ -3092,8 +2812,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1127"
 state="VIRGINIA"
@@ -3116,8 +2834,6 @@ lat="36.8226708502793"
 long="-76.638650894165"
 stationid="109"
 />
-
-
 <cem
 fac_id="1128"
 state="VIRGINIA"
@@ -3140,8 +2856,6 @@ lat="37.1041196177657"
 long="-80.6737795472145"
 stationid="186"
 />
-
-
 <cem
 fac_id="1129"
 state="VIRGINIA"
@@ -3164,8 +2878,6 @@ lat="37.3605897993611"
 long="-77.9963099956512"
 stationid="084"
 />
-
-
 <cem
 fac_id="1130"
 state="WASHINGTON"
@@ -3188,8 +2900,6 @@ lat="47.5862341059396"
 long="-117.713961630042"
 stationid="390"
 />
-
-
 <cem
 fac_id="1131"
 state="WASHINGTON"
@@ -3212,8 +2922,6 @@ lat="47.0810708978739"
 long="-122.214199304581"
 stationid=""
 />
-
-
 <cem
 fac_id="1132"
 state="WASHINGTON"
@@ -3236,8 +2944,6 @@ lat="47.539824831357"
 long="-122.611906528473"
 stationid=""
 />
-
-
 <cem
 fac_id="1133"
 state="WEST VIRGINIA"
@@ -3260,8 +2966,6 @@ lat="38.3814790148003"
 long="-81.7575971782207"
 stationid="398"
 />
-
-
 <cem
 fac_id="1134"
 state="WISCONSIN"
@@ -3284,8 +2988,6 @@ lat=""
 long=""
 stationid=""
 />
-
-
 <cem
 fac_id="1135"
 state="WISCONSIN"
@@ -3308,8 +3010,6 @@ lat="44.3353447406122"
 long="-89.1436672210694"
 stationid="015"
 />
-
-
 <cem
 fac_id="1136"
 state="WISCONSIN"
@@ -3332,8 +3032,6 @@ lat="45.783521734414"
 long="-91.8260908126831"
 stationid="102"
 />
-
-
 <cem
 fac_id="1137"
 state="WISCONSIN"
@@ -3356,8 +3054,6 @@ lat="42.6985701217808"
 long="-88.0863511562348"
 stationid="060"
 />
-
-
 <cem
 fac_id="1138"
 state="WYOMING"
@@ -3380,8 +3076,6 @@ lat="42.8722686657287"
 long="-106.259529590606"
 stationid="016"
 />
-
-
 <cem
 fac_id="1139"
 state="GUAM"
@@ -3404,8 +3098,6 @@ lat="13.4579839832273"
 long="144.691046476364"
 stationid=""
 />
-
-
 <cem
 fac_id="1140"
 state="SAIPAN"
@@ -3427,6 +3119,4 @@ email=""
 lat="15.2860893875671"
 long="145.810772180557"
 stationid="132"
-/>
-
-</cems>
+/></cems>

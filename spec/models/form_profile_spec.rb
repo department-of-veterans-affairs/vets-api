@@ -324,6 +324,8 @@ RSpec.describe FormProfile, type: :model do
       'disabilities' => [
         {
           'diagnosticCode' => 5238,
+          'decisionCode' => 'SVCCONNCTED',
+          'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus0',
           'ratedDisabilityId' => '0',
           'ratingDecisionId' => '63655',
@@ -337,6 +339,8 @@ RSpec.describe FormProfile, type: :model do
         },
         {
           'diagnosticCode' => 5238,
+          'decisionCode' => 'SVCCONNCTED',
+          'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus1',
           'ratedDisabilityId' => '1',
           'ratingDecisionId' => '63655',
@@ -349,7 +353,6 @@ RSpec.describe FormProfile, type: :model do
           ]
         }
       ],
-      'servedInCombatZone' => true,
       'servicePeriods' => [
         {
           'serviceBranch' => 'Air Force Reserve',
