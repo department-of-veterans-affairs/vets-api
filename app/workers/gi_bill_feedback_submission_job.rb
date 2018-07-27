@@ -5,11 +5,15 @@ module GIBillFeedbackSubmissionJob
 
   sidekiq_options retry: false
 
-  def perform(feedback_id, form, user_uuid)
+  def perform(feedback_id, form)
     Sentry::TagRainbows.tag
     @feedback_id = feedback_id
+    gi_bill_feedback.response = Gibft::Service.new.submit(form, User.find(user_uuid))
+    gi_bill_feedback.state = 'success'
+    gi_bill_feedback.save!
   rescue StandardError
-    submission.update_attributes!(state: 'failed')
+    gi_bill_feedback.state = 'failed'
+    gi_bill_feedback.save!
     raise
   end
 
