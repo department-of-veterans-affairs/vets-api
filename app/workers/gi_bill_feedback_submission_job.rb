@@ -7,31 +7,13 @@ module GIBillFeedbackSubmissionJob
 
   def perform(feedback_id, form, user_uuid)
     Sentry::TagRainbows.tag
-    @vic_submission_id = vic_submission_id
-    start_time ||= Time.zone.now.to_s
-
-    @vic_service = Service.new
-    parsed_form = JSON.parse(form)
-    Raven.extra_context(parsed_form: parsed_form)
-
-    unless @vic_service.wait_for_processed(parsed_form, start_time)
-      return self.class.perform_async(vic_submission_id, form, user_uuid, start_time)
-    end
-
-    user = user_uuid.present? ? User.find(user_uuid) : nil
-    response = @vic_service.submit(parsed_form, user)
-
-    submission.update_attributes!(
-      response: response
-    )
-
-    AttachmentUploadJob.perform_async(response[:case_id], form)
+    @feedback_id = feedback_id
   rescue StandardError
     submission.update_attributes!(state: 'failed')
     raise
   end
 
-  def submission
-    @submission ||= VICSubmission.find(@vic_submission_id)
+  def gi_bill_feedback
+    @gi_bill_feedback ||= GIBillFeedback.find(@feedback_id)
   end
 end

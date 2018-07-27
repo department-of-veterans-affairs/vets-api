@@ -195,14 +195,6 @@ module VIC
       false
     end
 
-    def get_client
-      Restforce.new(
-        oauth_token: get_oauth_token,
-        instance_url: Configuration::SALESFORCE_INSTANCE_URL,
-        api_version: '41.0'
-      )
-    end
-
     def submit(form, user)
       converted_form = convert_form(form)
       add_user_data!(converted_form, user) if user.present?
