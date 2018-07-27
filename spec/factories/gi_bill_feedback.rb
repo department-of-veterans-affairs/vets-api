@@ -3,6 +3,23 @@ FactoryBot.define do
     state('pending')
     form(
       {
+        address: {
+          street: 'street',
+          street2: 'street2',
+          city: 'city',
+          state: 'VA',
+          postalCode: '12345',
+          country: 'US'
+        },
+        serviceBranch: 'NOAA/PHS',
+        serviceAffiliation: 'Veteran',
+        fullName: {
+          prefix: 'Mr.',
+          first: 'Test',
+          middle: 'middle',
+          last: 'last',
+          suffix: 'Jr.'
+        },
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
