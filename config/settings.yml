@@ -65,6 +65,7 @@ ihub:
   appointments:
     timeout: 30
     mock: false
+  in_production: false
 
 
 # Settings for EVSS
