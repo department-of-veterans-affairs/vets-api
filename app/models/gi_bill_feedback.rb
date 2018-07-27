@@ -11,9 +11,9 @@ class GIBillFeedback < Common::RedisStore
   redis_ttl REDIS_CONFIG['gi_bill_feedback']['each_ttl']
   redis_key(:guid)
 
-  attribute(:state)
-  attribute(:guid)
-  attribute(:response)
+  attribute(:state, String, default: 'pending')
+  attribute(:guid, String)
+  attribute(:response, String)
 
   validate(:form_matches_schema, unless: :persisted?)
   validates(:form, presence: true, unless: :persisted?)

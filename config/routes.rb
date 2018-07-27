@@ -159,6 +159,8 @@ Rails.application.routes.draw do
       resources :vic_submissions, only: %i[create show]
     end
 
+    resources :gi_bill_feedbacks, only: %i[create show]
+
     resource :address, only: %i[show update] do
       collection do
         if Settings.evss&.reference_data_service&.enabled
