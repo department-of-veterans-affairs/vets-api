@@ -86,8 +86,9 @@ module EVSS
           'obligationTermOfServiceFromDate' => reserves_service_info['obligationTermOfServiceDateRange']['from'],
           'obligationTermOfServiceToDate' => reserves_service_info['obligationTermOfServiceDateRange']['to'],
           'unitName' => reserves_service_info['unitName'],
-          'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
-          'inactiveDutyTrainingPay' => reserves_service_info['inactiveDutyTrainingPay']
+          'inactiveDutyTrainingPay' => {
+            'waiveVABenefitsToRetainTrainingPay' => reserves_service_info['waiveVABenefitsToRetainTrainingPay']
+          }
         }.compact
       end
 
