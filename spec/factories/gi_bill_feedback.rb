@@ -29,13 +29,10 @@ FactoryBot.define do
           facilityCode: '123',
           programs: {
             'MGIB-AD Ch 30': true
+          },
+          assistance: {
+            TA: true
           }
-        },
-        programs: {
-          'MGIB-AD Ch 30': true
-        },
-        assistance: {
-          TA: true
         },
         issue: {
           'Student Loans': true
