@@ -20,14 +20,22 @@ FactoryBot.define do
           last: 'last',
           suffix: 'Jr.'
         },
+        email: 'foo@foo.com',
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
             name: 'school'
           },
+          facilityCode: '123',
           programs: {
             'MGIB-AD Ch 30': true
           }
+        },
+        programs: {
+          'MGIB-AD Ch 30': true
+        },
+        assistance: {
+          TA: true
         },
         issue: {
           'Student Loans': true
