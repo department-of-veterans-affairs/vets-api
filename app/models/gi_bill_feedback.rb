@@ -15,6 +15,8 @@ class GIBillFeedback < Common::RedisStore
   attribute(:guid, String)
   attribute(:response, String)
 
+  alias_method(:id, :guid)
+
   validate(:form_matches_schema, unless: :persisted?)
   validates(:form, presence: true, unless: :persisted?)
 
