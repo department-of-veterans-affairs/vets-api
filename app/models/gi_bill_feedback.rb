@@ -24,6 +24,11 @@ class GIBillFeedback < Common::RedisStore
     @parsed_form ||= JSON.parse(form)
   end
 
+  def parsed_response
+    return if response.blank?
+    @parsed_response ||= JSON.parse(response)
+  end
+
   def transform_form
   end
 

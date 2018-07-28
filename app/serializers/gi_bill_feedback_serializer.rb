@@ -3,5 +3,5 @@
 class GIBillFeedbackSerializer < ActiveModel::Serializer
   attribute(:guid)
   attribute(:state)
-  attribute(:response)
+  attribute(:parsed_response)
 end

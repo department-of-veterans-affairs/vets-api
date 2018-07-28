@@ -42,7 +42,7 @@ RSpec.describe V0::GIBillFeedbacksController, type: :controller do
       gi_bill_feedback = create(:gi_bill_feedback)
       get(:show, id: gi_bill_feedback.guid)
       expect(parsed_body['data']['id']).to eq(gi_bill_feedback.id)
-      expect(parsed_body['data']['attributes'].keys).to eq(%w[guid state response])
+      expect(parsed_body['data']['attributes'].keys).to eq(%w[guid state parsed_response])
     end
   end
 end
