@@ -24,7 +24,7 @@ describe IHub::Appointments::Service do
       it 'returns an array of appointment data' do
         VCR.use_cassette('ihub/appointments/success', VCR::MATCH_EVERYTHING) do
           response    = subject.appointments
-          appointment = response.response_data&.dig('data')&.first
+          appointment = response.appointments&.first
           facility    = appointment&.dig('facility_name')
 
           expect(facility).to be_present

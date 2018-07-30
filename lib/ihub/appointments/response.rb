@@ -9,7 +9,7 @@ module IHub
       include Common::Client::ServiceStatus
 
       attribute :status, Integer
-      attribute :response_data, Hash
+      attribute :appointments, Array
 
       def initialize(attributes = nil)
         super(attributes) if attributes
@@ -17,7 +17,7 @@ module IHub
       end
 
       def self.from(response)
-        new(status: response.status, response_data: response.body)
+        new(status: response.status, appointments: response.body&.fetch('data', []))
       end
 
       def ok?
