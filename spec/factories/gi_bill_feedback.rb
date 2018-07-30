@@ -20,7 +20,7 @@ FactoryBot.define do
           last: 'last',
           suffix: 'Jr.'
         },
-        email: 'foo@foo.com',
+        anonymousEmail: 'foo@foo.com',
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
