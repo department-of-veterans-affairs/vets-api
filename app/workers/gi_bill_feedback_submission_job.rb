@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module GIBillFeedbackSubmissionJob
+class GIBillFeedbackSubmissionJob
   include Sidekiq::Worker
 
   sidekiq_options retry: false
@@ -8,7 +8,7 @@ module GIBillFeedbackSubmissionJob
   def perform(feedback_id, form)
     Sentry::TagRainbows.tag
     @feedback_id = feedback_id
-    gi_bill_feedback.response = Gibft::Service.new.submit(form, User.find(user_uuid)).to_json
+    gi_bill_feedback.response = Gibft::Service.new.submit(form).to_json
     gi_bill_feedback.state = 'success'
     gi_bill_feedback.save!
   rescue StandardError
