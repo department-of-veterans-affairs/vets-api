@@ -4,9 +4,9 @@ module Gibft
   class Service < Salesforce::Service
     configuration Gibft::Configuration
 
-    CONSUMER_KEY = Settings.salesforce.consumer_key
-    SIGNING_KEY_PATH = Settings.salesforce.signing_key_path
-    SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
+    CONSUMER_KEY = Settings['salesforce-gibft'].consumer_key
+    SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
+    SALESFORCE_USERNAME = 'vetsgov-devops-cl-feeedback@listserv.gsa.gov'
 
     def submit(form)
       client = get_client
