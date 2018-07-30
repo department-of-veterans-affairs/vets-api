@@ -8,7 +8,6 @@ module Gibft
     SIGNING_KEY_PATH = Settings.salesforce.signing_key_path
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
 
-
     def submit(form)
       client = get_client
       response_body = client.post('/services/apexrest/educationcomplaint', form).body
