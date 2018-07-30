@@ -26,20 +26,20 @@ module VIC
 
     private
 
-    def update_state_to_completed
-      response_changes = changes['response']
-
-      self.state = 'success' if response_changed? && response_changes[0].blank? && response_changes[1].present?
-
-      true
-    end
-
     def no_forbidden_fields
       if user.present? && user.loa3?
         bad_fields = parsed_form.keys & LOA3_LOCKED_FIELDS
 
         errors[:form] << "#{bad_fields.to_sentence} fields not allowed for loa3 user" if bad_fields.present?
       end
+    end
+
+    def update_state_to_completed
+      response_changes = changes['response']
+
+      self.state = 'success' if response_changed? && response_changes[0].blank? && response_changes[1].present?
+
+      true
     end
 
     def create_submission_job
