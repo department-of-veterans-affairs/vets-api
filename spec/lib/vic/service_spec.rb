@@ -249,7 +249,7 @@ describe VIC::Service, type: :model do
         ]
       },
       "issue": [
-        "student_loansdfdsfsdfs",
+        "student_loans",
         "credit_transfer",
         "financial_issues"
       ],
