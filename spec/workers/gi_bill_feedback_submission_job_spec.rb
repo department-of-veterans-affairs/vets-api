@@ -7,13 +7,10 @@ RSpec.describe GIBillFeedbackSubmissionJob do
 
   describe '#perform' do
     context 'with a valid submission' do
-      before do
+      it 'should update the gi bill feedback model' do
         expect_any_instance_of(Gibft::Service).to receive(:submit).with(
           {}
         ).and_return(case_id: 'case_id')
-      end
-
-      it 'should update the gi bill feedback model' do
         described_class.new.perform(gi_bill_feedback.guid, {})
 
         updated_feedback = GIBillFeedback.find(gi_bill_feedback.guid)
@@ -24,15 +21,13 @@ RSpec.describe GIBillFeedbackSubmissionJob do
 
     context 'when the service has an error' do
       it 'should set the submission to failed' do
-        vic_submission = create(:vic_submission)
-        ProcessFileJob.drain
-        expect_any_instance_of(VIC::Service).to receive(:submit).and_raise('foo')
+        expect_any_instance_of(Gibft::Service).to receive(:submit).and_raise('foo')
         expect do
-          described_class.drain
+          described_class.new.perform(gi_bill_feedback.guid, {})
         end.to raise_error('foo')
-        vic_submission.reload
+        updated_feedback = GIBillFeedback.find(gi_bill_feedback.guid)
 
-        expect(vic_submission.state).to eq('failed')
+        expect(updated_feedback.state).to eq('failed')
       end
     end
   end
