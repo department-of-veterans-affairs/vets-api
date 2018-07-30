@@ -30,6 +30,7 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def transform_form
+    parsed_form
   end
 
   def save
