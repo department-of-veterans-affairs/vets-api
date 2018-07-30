@@ -6,6 +6,7 @@ module Gibft
 
     CONSUMER_KEY = Settings['salesforce-gibft'].consumer_key
     SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
+    # TODO: staging and prod username
     SALESFORCE_USERNAME = 'vetsgov-devops-cl-feeedback@listserv.gsa.gov'
 
     def submit(form)
