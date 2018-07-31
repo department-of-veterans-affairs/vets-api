@@ -30,15 +30,27 @@ module Swagger
                   property :assigning_facility, type: :string
                   property :clinic_code, type: :string, example: '409'
                   property :clinic_name, type: :string, example: 'ZZCHY WID BACK'
-                  property :date_time_date, type: :string, example: '1996-01-12T08:12:00', description: 'This time is in the same timezone of the associated facility_name'
+                  property :date_time_date,
+                           type: :string,
+                           example: '1996-01-12T08:12:00',
+                           description: 'This time is in the same timezone of the associated facility_name'
                   property :facility_name, type: :string, example: 'CHEYENNE VAMC'
                   property :facility_code, type: :string, example: '442'
-                  property :local_id, type: :string, example: '2960112.0812', description: 'The LocalID element is an internal ID from the VistA/Source system'
+                  property :local_id,
+                           type: :string,
+                           example: '2960112.0812',
+                           description: 'The LocalID element is an internal ID from the VistA/Source system'
                   property :other_information, type: :string
                   property :status_code, type: :string, example: '2'
-                  property :status_name, type: :string, example: 'CHECKED OUT', enum: IHub::Models::Appointment::STATUS_NAMES
+                  property :status_name,
+                           type: :string,
+                           example: 'CHECKED OUT',
+                           enum: IHub::Models::Appointment::STATUS_NAMES
                   property :type_code, type: :string, example: '9'
-                  property :type_name, type: :string, example: 'REGULAR', enum: IHub::Models::Appointment::TYPE_NAMES
+                  property :type_name,
+                           type: :string,
+                           example: 'REGULAR',
+                           enum: IHub::Models::Appointment::TYPE_NAMES
                 end
               end
             end
