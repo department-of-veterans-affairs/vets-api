@@ -202,7 +202,7 @@ describe VIC::Service, type: :model do
       "affiliation": "Spouse or Family Member",
       "entered_duty":"2000-01-01",
       "release_from_duty":"2000-01-01",
-      "dob":"2000-24-24",
+      "dob":"2000-01-01",
       "full_name": {
         "prefix": "Mr.",
         "first": "Test",
