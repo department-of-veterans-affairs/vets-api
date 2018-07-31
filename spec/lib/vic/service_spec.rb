@@ -251,6 +251,7 @@ describe VIC::Service, type: :model do
       "issue": [
         "student_loans",
         "credit_transfer",
+        "other",
         "financial_issues"
       ],
       "issue_description": "Test issue description",
