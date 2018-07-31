@@ -27,7 +27,6 @@ module IHub
       #         "status_code"             => "2",
       #         "other_information"       => "",
       #         "type_code"               => "9",
-      #         "date_time"               => "199601120812",
       #         "appointment_status_code" => nil,
       #         "local_id"                => "2960112.0812",
       #         "appointment_status_name" => nil,

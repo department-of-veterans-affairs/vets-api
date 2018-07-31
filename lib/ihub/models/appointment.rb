@@ -3,7 +3,6 @@
 module IHub
   module Models
     class Appointment < Base
-      attribute :date_time, String
       attribute :date_time_date, String
       attribute :assigning_facility, String
       attribute :clinic_code, String
@@ -21,7 +20,6 @@ module IHub
 
       def self.build(appointment)
         IHub::Models::Appointment.new(
-          date_time: appointment['date_time'],
           date_time_date: appointment['date_time_date'],
           assigning_facility: appointment['assigning_facility'],
           clinic_code: appointment['clinic_code'],
