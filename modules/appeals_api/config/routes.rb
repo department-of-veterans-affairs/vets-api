@@ -5,11 +5,13 @@ AppealsApi::Engine.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appeals, only: [:index]
+    resources :claims, only: %i[index show]
   end
 
   namespace :docs do
     namespace :v0 do
-      resources :api, only: [:index]
+      get 'appeals', to: 'api#appeals'
+      get 'claims', to: 'api#claims'
     end
   end
 end
