@@ -25,7 +25,7 @@ describe IHub::Appointments::Service do
         VCR.use_cassette('ihub/appointments/success', VCR::MATCH_EVERYTHING) do
           response    = subject.appointments
           appointment = response.appointments&.first
-          facility    = appointment&.dig('facility_name')
+          facility    = appointment.facility_name
 
           expect(facility).to be_present
         end

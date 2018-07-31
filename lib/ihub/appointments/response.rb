@@ -17,7 +17,12 @@ module IHub
       end
 
       def self.from(response)
-        new(status: response.status, appointments: response.body&.fetch('data', []))
+        all_appointments = response.body&.fetch('data', [])
+
+        new(
+          status: response.status,
+          appointments: IHub::Models::Appointment.convert(all_appointments)
+        )
       end
 
       def ok?
