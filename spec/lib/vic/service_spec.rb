@@ -240,7 +240,7 @@ describe VIC::Service, type: :model do
           }
         },
         "programs": [
-          "Post-9/11 GI Bill (Ch. 33)",
+          "MGIB-AD Ch 30",
           "Survivors & Dependents Assitance (DEA) (Ch. 35)"
         ],
         "assistance": [
