@@ -219,12 +219,12 @@ describe VIC::Service, type: :model do
         "country": "US"
       },
       "profile_data": {
-        "active_ICN":"1234567890",
+        "active_ICN":"12345678905",
         "historical_ICN": [
-          "7598562344",
-          "999999999"
+          "75985623445",
+          "9999999995"
         ],
-        "sec_ID":"dn49hd743hnf07423hr",
+        "sec_ID":"dn49hd743hnf07423hrd",
         "SSN":"123-45-6789"
       },
       "education_details": {
