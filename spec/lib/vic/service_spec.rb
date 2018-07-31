@@ -244,8 +244,8 @@ describe VIC::Service, type: :model do
           "Survivors & Dependents Assitance (DEA) (Ch. 35)"
         ],
         "assistance": [
-          "Federal Tuition Assistance (TA)",
-          "Federal Financial Aid"
+          "TA-AGR",
+          "MyCAA"
         ]
       },
       "issue": [
