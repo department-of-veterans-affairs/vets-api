@@ -154,7 +154,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             else
               expect(cookies[:va_session]).not_to be_nil
               expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-                .to eq({ 'icn' => nil, 'mhv_correlation_id' => nil})
+                .to eq('icn' => nil, 'mhv_correlation_id' => nil)
             end
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body).keys).to eq %w[url]
@@ -262,7 +262,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
         expect(cookies[:va_session]).not_to be_nil
         expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-          .to eq({ 'icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id})
+          .to eq('icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id)
       end
 
       it 'does not log to sentry when SSN matches' do
@@ -276,7 +276,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.va_profile.ssn).to eq('796111863')
         expect(cookies[:va_session]).not_to be_nil
         expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-          .to eq({ 'icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id})
+          .to eq('icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id)
       end
 
       context 'changing multifactor' do
@@ -301,7 +301,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           post :saml_callback
           expect(cookies[:va_session]).not_to be_nil
           expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-            .to eq({ 'icn' => nil, 'mhv_correlation_id' => nil})
+            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
         end
       end
 
@@ -317,7 +317,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           post :saml_callback
           expect(cookies[:va_session]).not_to be_nil
           expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-            .to eq({ 'icn' => nil, 'mhv_correlation_id' => nil})
+            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
         end
       end
 
@@ -337,7 +337,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(response.location).to start_with(Settings.saml.relay + '?token=')
           expect(cookies[:va_session]).not_to be_nil
           expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-            .to eq({ 'icn' => nil, 'mhv_correlation_id' => nil})
+            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
         end
       end
 

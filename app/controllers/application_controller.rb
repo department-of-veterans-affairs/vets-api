@@ -140,9 +140,10 @@ class ApplicationController < ActionController::API
   end
 
   # FIXME: methods starting here through encrypt, really ought to live in SSOService, but its complicated,
-  # Those methods should probably not be abstracted to class otherwise we'll be stuck doing controller.send(:cookies) etc.
-  # In a future refactor consider moving some of these methods into a module for some pseudo abstraction since classes and
-  # service objects don't play so nice with controller methods.
+  # Those methods should probably not be abstracted to class otherwise we'll be stuck doing:
+  # controller.send(:cookies) etc.
+  # In a future refactor consider moving some of these methods into a module for some pseudo abstraction
+  #  since classes and service objects don't play so nice with controller methods.
   def set_sso_cookie!
     return unless Settings.set_sso_cookie && Settings.sso_cookie_key
     contents = ActiveSupport::JSON.encode(cookie_value)
