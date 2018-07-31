@@ -28,6 +28,7 @@ module Facilities
       xlen = (lats.max - lats.min) * 69 / 2
       ylen = (longs.max - longs.min) * 69 / 2
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
+      Rails.logger.info(radius)
       { Address: '22033', Radius: radius, SpecialtyCode: '0',
         Network: 0, Gender: 0, PrimaryCare: true, AcceptingNewPatients: true }
     end

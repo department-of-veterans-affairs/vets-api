@@ -136,6 +136,8 @@ locators:
   vha_access_waittime: https://www.accesstopwt.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
 
+ppms:
+  url: http://dummyhost
 # Settings for MyHealthEVet
 mhv:
   facility_range: [[358,718],[720,758]]
