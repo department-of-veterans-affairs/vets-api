@@ -5,9 +5,15 @@ module AppealsApi
     module V0
       class ApiController < ApplicationController
         skip_before_action(:authenticate)
+        skip_before_action(:log_request)
 
-        def index
-          swagger = YAML.safe_load(File.read(AppealsApi::Engine.root.join('README.yml')))
+        def appeals
+          swagger = YAML.safe_load(File.read(AppealsApi::Engine.root.join('APPEALS.yml')))
+          render json: swagger
+        end
+
+        def claims
+          swagger = YAML.safe_load(File.read(AppealsApi::Engine.root.join('EVSS_CLAIMS.yml')))
           render json: swagger
         end
       end

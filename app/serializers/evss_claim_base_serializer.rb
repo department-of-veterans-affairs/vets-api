@@ -31,8 +31,12 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
   attributes :id, :evss_id, :date_filed, :min_est_date, :max_est_date,
              :phase_change_date, :open, :waiver_submitted, :documents_needed,
              :development_letter_sent, :decision_letter_sent,
-             :updated_at, :phase, :ever_phase_back, :current_phase_back,
+             :phase, :ever_phase_back, :current_phase_back,
              :requested_decision, :claim_type
+
+  attribute :updated_at, unless: :updated_at_nil?
+
+  type :evss_claims
 
   # Our IDs are not stable due to 24 hour expiration, use EVSS IDs for consistency
   # This can be removed if our IDs become stable
@@ -48,6 +52,12 @@ class EVSSClaimBaseSerializer < ActiveModel::Serializer
   yes_no_attr 'development_letter_sent'
   yes_no_attr 'decision_notification_sent', override_name: 'decision_letter_sent'
   yes_no_attr 'attention_needed', override_name: 'documents_needed'
+
+  # Hide updated_at if we're bypassing the database like the services endpoint
+
+  def updated_at_nil?
+    object.updated_at.nil?
+  end
 
   def ever_phase_back
     object_data.dig 'claim_phase_dates', 'ever_phase_back'
