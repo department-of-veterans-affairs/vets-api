@@ -199,7 +199,7 @@ describe VIC::Service, type: :model do
     form = {
       "on_behalf_of": "Myself",
       "service_branch": "Army",
-      "service_affiliation": "Spouse or Family Member",
+      "affiliation": "Spouse or Family Member",
       "entered_duty":"2000-01-01",
       "release_from_duty":"2000-01-01",
       "dob":"2000-01-01",
