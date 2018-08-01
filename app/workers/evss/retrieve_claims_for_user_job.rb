@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/common_service'
-require 'common/models/redis_store'
-require 'common/models/concerns/cache_aside'
 
 module EVSS
   class RetrieveClaimsForUserJob
@@ -11,16 +9,16 @@ module EVSS
 
     sidekiq_retries_exhausted do |msg, _e|
       Sentry::TagRainbows.tag
-      cacher = EVSSClaimsRedisHelper.new(user_uuid: msg['args'][0])
-      cacher.cache_collection(status: 'FAILED')
+      tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: msg['args'][0])
+      tracker.set_collection_status('FAILED')
     end
 
     def perform(user_uuid)
       Sentry::TagRainbows.tag
       @user = User.find user_uuid
-      cacher = EVSSClaimsRedisHelper.new(user_uuid: user_uuid)
+      tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: user_uuid)
       unless @user
-        cacher.cache_collection(status: 'FAILED_NO_USER')
+        tracker.set_collection_status('FAILED_NO_USER')
         return false
       end
       auth_headers = EVSS::AuthHeaders.new(@user).to_h
@@ -32,7 +30,7 @@ module EVSS
           create_or_update_claim(raw_claim)
         end
       end
-      cacher.cache_collection(status: 'SUCCESS')
+      tracker.set_collection_status('SUCCESS')
     end
 
     def create_or_update_claim(raw_claim)

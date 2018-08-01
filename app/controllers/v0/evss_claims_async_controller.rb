@@ -12,7 +12,7 @@ module V0
       render json: claims,
              serializer: ActiveModel::Serializer::CollectionSerializer,
              each_serializer: EVSSClaimListSerializer,
-             meta: { sync_status: synchronized }
+             meta: { sync_status: translated_sync(synchronized) }
     end
 
     def show

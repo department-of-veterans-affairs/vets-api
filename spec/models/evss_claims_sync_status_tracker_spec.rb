@@ -2,14 +2,14 @@
 
 require 'rails_helper'
 
-describe EVSSClaimsRedisHelper do
+describe EVSSClaimsSyncStatusTracker do
   let(:user) { build(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
 
   context 'with valid arguments' do
     subject { described_class.new(user_uuid: user.uuid, claim_id: claim.id) }
 
-    %i[find_collection find_one].each do |method|
+    %i[get_collection_status get_single_status].each do |method|
       describe "##{method}" do
         it 'retrieves from redis' do
           expect(subject.redis_namespace).to receive(:get).once
@@ -18,11 +18,11 @@ describe EVSSClaimsRedisHelper do
       end
     end
 
-    %i[cache_collection cache_one].each do |method|
+    %i[set_collection_status set_single_status].each do |method|
       describe "##{method}" do
         it 'writes to redis' do
           expect(subject.redis_namespace).to receive(:set).once
-          subject.send(method.to_sym, {})
+          subject.send(method.to_sym, 'RANDOM_STATUS')
         end
       end
     end
@@ -30,11 +30,15 @@ describe EVSSClaimsRedisHelper do
 
   context 'without valid arguments' do
     it 'raises exception upon initialization without user uuid' do
-      expect { described_class.new({}).find_collection }.to raise_error(Common::Exceptions::InternalServerError)
+      expect { described_class.new({}).get_collection_status }.to(
+        raise_error(Common::Exceptions::InternalServerError)
+      )
     end
 
     it 'raises exception when attempting single record methods without a claim_id' do
-      expect { described_class.new(user_uuid: 111).find_one }.to raise_error(Common::Exceptions::InternalServerError)
+      expect { described_class.new(user_uuid: 111).get_single_status }.to(
+        raise_error(Common::Exceptions::InternalServerError)
+      )
     end
   end
 end
