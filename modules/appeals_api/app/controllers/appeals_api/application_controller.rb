@@ -15,11 +15,12 @@ module AppealsApi
                         'lookup_identifier' => hashed_ssn)
     end
 
-    def log_response(additional_fields={})
-      Rails.logger.info('Caseflow Response',
-                        'consumer' => consumer,
-                        'va_user' => requesting_va_user,
-                        **additional_fields)
+    def log_response(additional_fields = {})
+      logged_info = {
+        'consumer' => consumer,
+        'va_user' => requesting_va_user
+      }.merge(additional_fields)
+      Rails.logger.info('Caseflow Response', logged_info)
     end
 
     def consumer
