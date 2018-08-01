@@ -65,5 +65,6 @@ module VetsAPI
     config.middleware.use 'OliveBranch::Middleware'
     config.middleware.use 'StatsdMiddleware'
     config.middleware.use 'Rack::Attack'
+    config.middleware.use ActionDispatch::Cookies
   end
 end

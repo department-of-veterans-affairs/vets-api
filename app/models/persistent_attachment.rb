@@ -13,7 +13,7 @@ class PersistentAttachment < ActiveRecord::Base
   delegate :original_filename, :size, to: :file
 
   def to_pdf
-    PensionBurial::ConvertToPdf.new(file).run
+    Common::ConvertToPdf.new(file).run
   end
 
   private

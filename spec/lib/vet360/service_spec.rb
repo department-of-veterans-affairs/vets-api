@@ -18,8 +18,11 @@ describe Vet360::Service do
     context 'when given a Common::Client::Errors::ClientError from a Vet360 service call' do
       it 'maps the Vet360 error code to the appropriate vets-api error message', :aggregate_failures do
         CSV.foreach(file, headers: true) do |row|
+          row   = strip_row_headers(row)
           error = Common::Client::Errors::ClientError.new(message, status, body_for(row))
-          code  = row['Message Code']
+          code  = row['Message Code']&.strip
+
+          next if code.blank?
 
           expect { subject.send('handle_error', error) }.to raise_error do |e|
             p "Failing code: #{code}" if e.errors.first.code != "VET360_#{code}"
@@ -50,7 +53,7 @@ describe Vet360::Service do
       it 'increments the StatsD error counter', :aggregate_failures do
         error_key = 'VET360_ADDR133'
 
-        expect(Vet360::Stats).to receive(:increment).with('exceptions', error_key)
+        expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_backend_exception', error_key, 'test') }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
@@ -63,7 +66,7 @@ describe Vet360::Service do
       it 'increments the StatsD error counter', :aggregate_failures do
         error_key = 'VET360_502'
 
-        expect(Vet360::Stats).to receive(:increment).with('exceptions', error_key)
+        expect(Vet360::Stats).to receive(:increment_exception).with(error_key)
         expect { subject.send('raise_invalid_body', nil, 'test') }.to raise_error(
           Common::Exceptions::BackendServiceException
         )
@@ -91,13 +94,17 @@ def body_for(row)
   {
     'messages' => [
       {
-        'code'     => row['Message Code'].to_s,
-        'key'      => row['Message Key'].to_s,
+        'code'     => row['Message Code']&.to_s&.strip,
+        'key'      => row['Message Key']&.to_s&.strip,
         'severity' => 'ERROR',
-        'text'     => row['Message Description'].to_s
+        'text'     => row['Message Description']&.to_s&.strip
       }
     ],
     'tx_audit_id' => '3773cd41-0958-4bbe-a035-16ae353cde03',
     'status'      => 'REJECTED'
   }
+end
+
+def strip_row_headers(row)
+  row.to_hash.transform_keys(&:strip)
 end

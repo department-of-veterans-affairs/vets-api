@@ -231,6 +231,54 @@ namespace :vet360 do
     puts "Results:\n\n#{results}"
   end
 
+  desc <<~DESCRIPTION
+    Prep Vet360 error codes for locales.exceptions.en.yml file.
+
+    This rake task is idempotent.  It takes all of the current error code
+    csv data that you import, and converts it into the proper error code
+    format for the config/locales/exceptions.en.yml file.
+
+    This requires a developer to follow some manual steps.  Here are the
+    instructions:
+
+    1.  The full set of error codes are located at:  https://github.com/department-of-veterans-affairs/mdm-cuf-person/blob/development/mdm-cuf-person-server/src/inttest/resources/mdm/cuf/person/testData/error_codes.csv
+
+    2. Copy and paste this full set of raw error code csv data into
+    spec/support/vet360/api_response_error_messages.csv (not just the diff,
+    as this rake task is idempotent.)
+
+    3. Make sure these header columns are present in the csv (no spaces after commas):
+    Message Code,Sub Code,Message Key,Type,Status,State,Queue,Message Description
+
+    Here is an example that matches up the headers with one row of matching data:
+
+    Message Code,Sub Code,Message Key,Type,Status,State,Queue,Message Description
+    EMAIL200,emailId,emailId.Null,ERROR,400,REJECTED,RECEIVED_ERROR_QUEUE,Email ID in email bio must be null for inserts/adds
+
+    4. Run this rake task.
+
+    5. test.yml will now contain all of the formatted error codes.  You will need to make the
+    following adjustments
+    - Manually reformat each one of these rows to remove the leading : and double quotes
+      :<<: "*external_defaults" becomes
+      <<: *external_defaults
+    - Change all of the "status" values from strings to integers (i.e. '400' => 400)
+    - Remove all of the leading dashes (-) before each VET360_ key.
+      For example, - VET360_ADDR101: becomes VET360_ADDR101:
+
+    6. The rake task will output any "titles" or "details" that are missing.  If any are
+    missing, you will need to come up with them, and type them in.
+
+    7. Delete all of the VET360_ error codes from exceptions.en.yml
+
+    8. Paste in all of the updated VET360_ error codes from test.yml, into exceptions.en.yml
+
+    9. Delete test.yml
+  DESCRIPTION
+  task prep_error_codes: :environment do
+    Vet360::Exceptions::Builder.new.construct_exceptions_from_csv
+  end
+
   def ensure_data_var
     abort "Env var: #{ENV_VAR_NAME} not set" if ENV[ENV_VAR_NAME].blank?
   end

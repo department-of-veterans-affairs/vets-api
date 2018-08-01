@@ -17,13 +17,14 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
   describe '#translate' do
     before do
       create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
-      allow_any_instance_of(EMISRedis::MilitaryInformation).to receive(:service_episodes_by_date).and_return([])
     end
 
     it 'should return correctly formatted json to send to EVSS' do
       VCR.use_cassette('evss/ppiu/payment_information') do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          expect(JSON.parse(subject.translate)).to eq JSON.parse(evss_json)
+          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+            expect(JSON.parse(subject.translate)).to eq JSON.parse(evss_json)
+          end
         end
       end
     end
@@ -106,7 +107,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'state' => 'AA',
-          'city' => 'ASO'
+          'city' => 'ASO',
+          'zipCode' => '12345-6789'
         }
       end
 
@@ -116,7 +118,9 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'militaryPostOfficeTypeCode' => 'ASO',
-          'militaryStateCode' => 'AA'
+          'militaryStateCode' => 'AA',
+          'zipFirstFive' => '12345',
+          'zipLastFour' => '6789'
         }
         expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
@@ -158,13 +162,91 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
   describe '#service_branch' do
     context 'when the service branch is NOAA' do
       it 'should transform it to the correct string' do
-        expect(subject.send(:service_branch, 'NOAA')).to eq 'National Oceanic &amp; Atmospheric Administration'
+        expect(subject.send(:service_branch, 'NOAA')).to eq 'National Oceanic & Atmospheric Administration'
       end
     end
 
     context 'when the service branch is not NOAA' do
       it 'should keep the service branch as is' do
         expect(subject.send(:service_branch, 'Navy')).to eq 'Navy'
+      end
+    end
+  end
+
+  describe '#translate_treatments' do
+    context 'when the veteran gives no treatment centers' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'treatments' => []
+          }
+        )
+      end
+      it 'should delete the "treatments" key' do
+        subject.send(:translate_treatments)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'treatments')
+        ).to eq nil
+      end
+    end
+  end
+
+  describe '#translate_disabilities' do
+    context 'there are special issues' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'disabilities' => [
+              {
+                'specialIssues' => [{ 'code' => 'TRM' }]
+              }
+            ]
+          }
+        )
+      end
+      it 'should delete the "specialIssues" key' do
+        subject.send(:translate_disabilities)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'disabilities', 0, 'specialIssues')
+        ).to eq nil
+      end
+    end
+  end
+
+  describe '#translate_national_guard_service' do
+    context 'when the veteran has a reserve/guard service' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'serviceInformation' => {
+              'reservesNationalGuardService' => {
+                'obligationTermOfServiceDateRange' => {
+                  'from' => '2018-03-29T18:50:03.015Z',
+                  'to' => '2018-03-29T18:50:03.015Z'
+                },
+                'waiveVABenefitsToRetainTrainingPay' => false
+              }
+            }
+          }
+        )
+      end
+      it 'should translate the fields correctly' do
+        result_hash = {
+          'obligationTermOfServiceFromDate' => '2018-03-29T18:50:03.015Z',
+          'obligationTermOfServiceToDate' => '2018-03-29T18:50:03.015Z',
+          'inactiveDutyTrainingPay' => {
+            'waiveVABenefitsToRetainTrainingPay' => false
+          }
+        }
+        result = subject.send(
+          :translate_national_guard_service, subject.instance_variable_get(
+            :@form_content
+          ).dig('form526', 'serviceInformation', 'reservesNationalGuardService')
+        )
+        expect(result).to eq result_hash
       end
     end
   end
