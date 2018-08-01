@@ -44,7 +44,7 @@ module Swagger
                       property :start_time,
                                type: :string,
                                example: '1996-01-12T08:12:00',
-                               description: 'Start time. Time is in the same timezone of the associated facility_name'
+                               description: 'Time is in the same timezone that the associated facility_name is in.'
                       property :status_code, type: :string, example: '2'
                       property :status_name,
                                type: :string,
