@@ -17,6 +17,8 @@ Rails.application.routes.draw do
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
 
+    resource :form526_opt_in, only: :create
+
     resources :letters, only: [:index] do
       collection do
         get 'beneficiary', to: 'letters#beneficiary'
@@ -58,7 +60,7 @@ Rails.application.routes.draw do
 
     resource :dependents_applications, only: [:create]
 
-    if Settings.pension_burial.upload.enabled
+    if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end

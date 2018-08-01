@@ -121,6 +121,10 @@ RSpec.describe UserSerializer, type: :serializer do
       it 'should include status' do
         expect(veteran_status['status']).to eq('OK')
       end
+
+      it 'should include served_in_military' do
+        expect(veteran_status['served_in_military']).to eq(user.served_in_military?)
+      end
     end
 
     context 'when a veteran status is not found' do

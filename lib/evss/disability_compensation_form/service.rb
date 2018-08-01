@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
+require_relative '../disability_compensation_auth_headers.rb'
 
 module EVSS
   module DisabilityCompensationForm
@@ -32,7 +33,7 @@ module EVSS
       private
 
       def headers_for_user(user)
-        EVSS::DisabilityCompensationAuthHeaders.add_headers(EVSS::AuthHeaders.new(user).to_h, user)
+        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
       end
 
       def handle_error(error)

@@ -99,6 +99,7 @@
                 {
                   "properties": {
                     "is_veteran": { "type": "boolean" },
+                    "served_in_military": { "type": "boolean" },
                     "status": { "type": "string"  }
                   }
                 }
