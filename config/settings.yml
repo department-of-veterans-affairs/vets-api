@@ -137,7 +137,7 @@ locators:
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
 
 ppms:
-  url: http://dummyhost
+  url: https://np.dws.ppms.va.gov/
 # Settings for MyHealthEVet
 mhv:
   facility_range: [[358,718],[720,758]]
