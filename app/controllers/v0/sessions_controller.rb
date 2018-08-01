@@ -56,7 +56,7 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user)
             when 'slo'
               authenticate
-              set_sso_cookie(0)
+              destroy_sso_cookie!
               SAML::SettingsService.slo_url(session)
             end
       render json: { url: url }
@@ -114,7 +114,7 @@ module V0
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
         async_create_evss_account(current_user)
-        set_sso_cookie
+        set_sso_cookie!
         redirect_to saml_callback_success_url
 
         log_persisted_session_and_warnings
