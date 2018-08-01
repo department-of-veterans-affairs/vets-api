@@ -34,10 +34,6 @@ module Swagger
                       property :assigning_facility, type: :string
                       property :clinic_code, type: :string, example: '409'
                       property :clinic_name, type: :string, example: 'ZZCHY WID BACK'
-                      property :date_time_date,
-                               type: :string,
-                               example: '1996-01-12T08:12:00',
-                               description: 'Start time. Time is in the same timezone of the associated facility_name'
                       property :facility_name, type: :string, example: 'CHEYENNE VAMC'
                       property :facility_code, type: :string, example: '442'
                       property :local_id,
@@ -45,6 +41,10 @@ module Swagger
                                example: '2960112.0812',
                                description: 'The LocalID element is an internal ID from the VistA/Source system'
                       property :other_information, type: :string
+                      property :start_time,
+                               type: :string,
+                               example: '1996-01-12T08:12:00',
+                               description: 'Start time. Time is in the same timezone of the associated facility_name'
                       property :status_code, type: :string, example: '2'
                       property :status_name,
                                type: :string,

@@ -11,7 +11,7 @@
               "items": {
                 "type": "object",
                 "properties": {
-                  "date_time_date":          { "type": ["string", null] },
+                  "start_time":              { "type": ["string", null] },
                   "assigning_facility":      { "type": ["string", null] },
                   "clinic_code":             { "type": ["string", null] },
                   "clinic_name":             { "type": ["string", null] },

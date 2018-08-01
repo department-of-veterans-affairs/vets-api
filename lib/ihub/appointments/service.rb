@@ -21,7 +21,7 @@ module IHub
       #       {
       #         "clinic_code"             => "409",
       #         "clinic_name"             => "ZZCHY WID BACK",
-      #         "date_time_date"          => "1996-01-12T08:12:00",
+      #         "start_time"              => "1996-01-12T08:12:00",
       #         "type_name"               => "REGULAR",
       #         "status_name"             => "CHECKED OUT",
       #         "status_code"             => "2",

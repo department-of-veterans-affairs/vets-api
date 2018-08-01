@@ -39,12 +39,14 @@ module IHub
       TYPE_NAMES   = [COMPENSATION, CLASS_II, ORGAN, EMPLOYEE, PRIMA, RESEARCH, COLLATERAL,
                       SHARING, REGULAR, COMPUTER, SERVICE].freeze
 
+      # start_time is remapped from iHubs 'date_time_date' attribute
+      #
+      attribute :start_time, String
       attribute :appointment_status_code, String
       attribute :appointment_status_name, String
       attribute :assigning_facility, String
       attribute :clinic_code, String
       attribute :clinic_name, String
-      attribute :date_time_date, String
       attribute :facility_code, String
       attribute :facility_name, String
       attribute :local_id, String
@@ -54,6 +56,15 @@ module IHub
       attribute :type_code, String
       attribute :type_name, String
 
+      # Converts an appointment hash from iHub into an instance of the
+      # Appointment model class.
+      #
+      # Important to note that iHub's 'date_time_date' attribute is being
+      # remapped to start_time.
+      #
+      # @param appointment [Hash] A hash of data for one appointment
+      # @return [IHub::Models:Appointment] An instance of this class
+      #
       def self.build(appointment)
         IHub::Models::Appointment.new(
           appointment_status_code: appointment['appointment_status_code'],
@@ -61,11 +72,11 @@ module IHub
           assigning_facility: appointment['assigning_facility'],
           clinic_code: appointment['clinic_code'],
           clinic_name: appointment['clinic_name'],
-          date_time_date: appointment['date_time_date'],
           facility_code: appointment['facility_code'],
           facility_name: appointment['facility_name'],
           local_id: appointment['local_id'],
           other_information: appointment['other_information'],
+          start_time: appointment['date_time_date'],
           status_code: appointment['status_code'],
           status_name: appointment['status_name'],
           type_code: appointment['type_code'],
