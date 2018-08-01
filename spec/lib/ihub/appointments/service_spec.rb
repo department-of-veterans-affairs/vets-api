@@ -23,11 +23,12 @@ describe IHub::Appointments::Service do
 
       it 'returns an array of appointment data' do
         VCR.use_cassette('ihub/appointments/success', VCR::MATCH_EVERYTHING) do
-          response    = subject.appointments
-          appointment = response.appointments&.first
-          facility    = appointment.facility_name
+          response       = subject.appointments
+          appointment    = response.appointments&.first
+          facility       = appointment.facility_name
+          valid_facility = 'CHEYENNE VAMC'
 
-          expect(facility).to be_present
+          expect(facility).to eq valid_facility
         end
       end
     end

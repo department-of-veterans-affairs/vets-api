@@ -73,7 +73,7 @@ module IHub
         )
       end
 
-      def self.convert(appointments)
+      def self.build_all(appointments)
         appointments.map { |appointment| build(appointment) }
       end
     end

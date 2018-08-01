@@ -1178,7 +1178,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       context 'when successful' do
         it 'supports getting appointments data' do
-          VCR.use_cassette('ihub/appointments/success') do
+          VCR.use_cassette('ihub/appointments/simple_success') do
             expect(subject).to validate(:get, '/v0/appointments', 200, auth_options)
           end
         end

@@ -21,7 +21,7 @@ module IHub
 
         new(
           status: response.status,
-          appointments: IHub::Models::Appointment.convert(all_appointments)
+          appointments: IHub::Models::Appointment.build_all(all_appointments)
         )
       end
 
