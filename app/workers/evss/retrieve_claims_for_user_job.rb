@@ -7,6 +7,7 @@ require 'common/models/concerns/cache_aside'
 module EVSS
   class RetrieveClaimsForUserJob
     include Sidekiq::Worker
+    sidekiq_options unique_for: 1.hour, retry: 8
 
     sidekiq_retries_exhausted do |msg, _e|
       Sentry::TagRainbows.tag
