@@ -24,12 +24,12 @@ module EVSS
       def self.perform(upload_data, claim_id, user)
         auth_headers = EVSS::AuthHeaders.new(user).to_h
         client = EVSS::DocumentsService.new(auth_headers)
-        file_body = SupportingEvidenceAttachment.find_by(guid: upload_data[:guid]).file_data
+        file_body = SupportingEvidenceAttachment.find_by(guid: upload_data[:confirmationCode]).file_data
         document_data = EVSSClaimDocument.new(
           evss_claim_id: claim_id,
-          file_name: upload_data[:fileName],
+          file_name: upload_data[:name],
           tracked_item_id: nil,
-          document_type: upload_data[:docType]
+          document_type: upload_data[:attachmentId]
         )
         client.upload(file_body, document_data)
       end
