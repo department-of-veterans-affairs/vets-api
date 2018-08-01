@@ -39,6 +39,8 @@ class V0::Facilities::VaController < FacilitiesController
     ppms = Facilities::PPMSClient.new.test_routes(command, params)
     Rails.logger.info(ppms)
     render text: ppms
+  rescue StandardError => e
+    render text: "message: #{e&.message} \nbody: #{e&.body} \nppms: #{Settings.ppms} \nppm.url: #{Settings.ppms&.url}"
   end
 
   private
