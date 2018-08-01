@@ -14,8 +14,8 @@ module AppealsApi
           'VA-User' => requesting_va_user
         )
         log_response(
-          first_appeal_id: appeals_response.body['data'][0]['id'],
-          count: appeals_response.body['data'].length
+          'first_appeal_id' => appeals_response.body['data'][0]['id'],
+          'appeal_count' => appeals_response.body['data'].length
         )
         render(
           json: appeals_response.body
