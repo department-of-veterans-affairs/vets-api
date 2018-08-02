@@ -20,7 +20,7 @@ module V0
       ).translate
       response = service.submit_form(converted_form_content)
       EVSS::IntentToFile::ResponseStrategy.delete("#{@current_user.uuid}:compensation")
-      unless uploads.empty?
+      if uploads.present?
         EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id, uploads)
       end
       render json: response,

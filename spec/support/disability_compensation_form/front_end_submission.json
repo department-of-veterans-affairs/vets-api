@@ -55,7 +55,7 @@
           "to": "2018-03-29T18:50:03.015Z"
         },
         "unitName": "string",
-        "unitPhone": "2024561111"
+        "waiveVABenefitsToRetainTrainingPay": false
       },
       "servedInCombatZone": true,
       "alternateNames": [
