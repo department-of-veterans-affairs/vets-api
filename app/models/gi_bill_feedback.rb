@@ -64,8 +64,7 @@ class GIBillFeedback < Common::RedisStore
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
 
     binding.pry; fail
-
-    parsed_form
+    transformed
   end
 
   def save

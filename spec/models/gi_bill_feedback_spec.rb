@@ -16,6 +16,7 @@ RSpec.describe GIBillFeedback, type: :model do
 
   describe '#transform_form' do
     it 'should transform the form to the right format' do
+      gi_bill_feedback.user = create(:user)
       gi_bill_feedback.transform_form
     end
   end
