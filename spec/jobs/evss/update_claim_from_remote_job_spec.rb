@@ -11,7 +11,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
     before do
       tracker.set_single_status('REQUESTED')
       expect(Sentry::TagRainbows).to receive(:tag)
-      expect(tracker.get_single_status.response[:status]).to eq('REQUESTED')
+      expect(tracker.get_single_status).to eq('REQUESTED')
     end
 
     subject do
@@ -25,7 +25,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
           receive(:set_single_status).with(String).and_call_original
         )
         subject.perform(user.uuid, claim.id)
-        expect(tracker.get_single_status.response[:status]).to eq('SUCCESS')
+        expect(tracker.get_single_status).to eq('SUCCESS')
       end
     end
 
@@ -35,7 +35,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
           receive(:set_single_status).with('FAILED').and_call_original
         )
         subject.sidekiq_retries_exhausted_block.call('args' => [user.uuid, claim.id])
-        expect(tracker.get_single_status.response[:status]).to eq('FAILED')
+        expect(tracker.get_single_status).to eq('FAILED')
       end
     end
   end

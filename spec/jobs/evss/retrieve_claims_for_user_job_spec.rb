@@ -10,7 +10,7 @@ RSpec.describe EVSS::RetrieveClaimsForUserJob, type: :job do
     before do
       tracker.set_collection_status('REQUESTED')
       expect(Sentry::TagRainbows).to receive(:tag)
-      expect(tracker.get_collection_status.response[:status]).to eq('REQUESTED')
+      expect(tracker.get_collection_status).to eq('REQUESTED')
     end
 
     subject do
@@ -22,7 +22,7 @@ RSpec.describe EVSS::RetrieveClaimsForUserJob, type: :job do
         expect(User).to receive(:find).with(user.uuid).once.and_return(user)
         expect_any_instance_of(EVSSClaimsSyncStatusTracker).to receive(:set_collection_status).and_call_original
         subject.perform(user.uuid)
-        expect(tracker.get_collection_status.response[:status]).to eq('SUCCESS')
+        expect(tracker.get_collection_status).to eq('SUCCESS')
       end
     end
 
@@ -32,7 +32,7 @@ RSpec.describe EVSS::RetrieveClaimsForUserJob, type: :job do
           receive(:set_collection_status).with('FAILED').and_call_original
         )
         subject.sidekiq_retries_exhausted_block.call('args' => [user.uuid])
-        expect(tracker.get_collection_status.response[:status]).to eq('FAILED')
+        expect(tracker.get_collection_status).to eq('FAILED')
       end
     end
   end

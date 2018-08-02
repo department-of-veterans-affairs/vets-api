@@ -5,15 +5,13 @@ class EVSSClaimServiceAsync
 
   def initialize(user)
     @user = user
-    @cacher = EVSSClaimsRedisHelper.new(user_uuid: user.uuid)
+    @tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid)
   end
 
   def all
-    cached_res = @cacher.find_collection
-    if cached_res
-      status = cached_res[:response][:status]
-    else
-      @cacher.cache_collection(data: [], status: 'REQUESTED')
+    status = @tracker.get_collection_status
+    unless status
+      @tracker.set_collection_status('REQUESTED')
       EVSS::RetrieveClaimsForUserJob.perform_async(@user.uuid)
       status = 'REQUESTED'
     end
@@ -21,13 +19,11 @@ class EVSSClaimServiceAsync
   end
 
   def update_from_remote(claim)
-    @cacher.claim_id = claim.id
-    cached_res = @cacher.find_one
-    if cached_res
-      status = cached_res[:response][:status]
-    else
+    @tracker.claim_id = claim.id
+    status = @tracker.get_single_status
+    unless status
       status = 'REQUESTED'
-      @cacher.cache_one(status: 'REQUESTED')
+      @tracker.set_single_status('REQUESTED')
       EVSS::UpdateClaimFromRemoteJob.perform_async(@user.uuid, claim.id)
     end
     [claim, status]

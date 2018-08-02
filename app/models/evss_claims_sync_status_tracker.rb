@@ -18,11 +18,11 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
   end
 
   def get_collection_status
-    self.class.find(collection_key)
+    self.class.find(collection_key)&.response&.dig(:status)
   end
 
   def get_single_status
-    self.class.find(single_record_key)
+    self.class.find(single_record_key)&.response&.dig(:status)
   end
 
   def set_collection_status(status)

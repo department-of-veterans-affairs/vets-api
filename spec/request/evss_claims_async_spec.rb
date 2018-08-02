@@ -53,11 +53,11 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     context 'after async processing has finished' do
       before do
-        EVSSClaimsRedisHelper.new(user_uuid: user.uuid).cache_collection(status: 'SUCCESS')
+        EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid).set_collection_status('SUCCESS')
         claim
       end
       after do
-        EVSSClaimsRedisHelper.new(user_uuid: user.uuid).cache_collection(status: 'REQUESTED')
+        EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid).set_collection_status('REQUESTED')
       end
       it 'returns after async processing has finished' do
         get '/v0/evss_claims_async', nil, 'Authorization' => "Token token=#{evss_session.token}"
