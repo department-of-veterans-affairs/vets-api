@@ -30,6 +30,39 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def transform_form
+    transformed = parsed_form.deep_transform_keys{ |k| k.underscore }
+    transformed['affiliation'] = transformed.delete('service_affiliation')
+    transformed.delete('service_date_range').tap do |service_date_range|
+      next if service_date_range.blank?
+      transformed['entered_duty'] = service_date_range['from']
+      transformed['release_from_duty'] = service_date_range['to']
+    end
+
+    user&.va_profile.tap do |va_profile|
+      next if va_profile.blank?
+    end
+
+    if user.present?
+      va_profile = user.va_profile
+      transformed['profile_data'] = {
+        'active_ICN' => user.icn,
+        'historical_ICN' => va_profile&.historical_icns,
+        'sec_ID' => va_profile&.sec_id,
+        'SSN' => user.ssn
+      }
+    end
+
+    transformed['education_details'].tap do |education_details|
+      next if education_details.blank?
+      # TODO set school address from facility code
+      %w[programs assistance].each do |key|
+        education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
+      end
+    end
+
+
+    binding.pry; fail
+
     parsed_form
   end
 
@@ -45,6 +78,17 @@ class GIBillFeedback < Common::RedisStore
   end
 
   private
+
+  def transform_keys_into_array(hash)
+    array = []
+    return array if hash.blank?
+
+    hash.each do |k, v|
+      array << k if v
+    end
+
+    array
+  end
 
   def form_matches_schema
     if form.present?

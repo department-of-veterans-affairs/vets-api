@@ -20,19 +20,15 @@ FactoryBot.define do
           last: 'last',
           suffix: 'Jr.'
         },
+        serviceDateRange: {
+          from: "2000-01-01",
+          to: "2000-01-02"
+        },
         anonymousEmail: 'foo@foo.com',
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
-            name: 'school',
-            address: {
-              street: 'street',
-              street2: 'street2',
-              city: 'city',
-              state: 'VA',
-              postalCode: '12345',
-              country: 'US'
-            }
+            name: 'school'
           },
           facilityCode: '123',
           programs: {

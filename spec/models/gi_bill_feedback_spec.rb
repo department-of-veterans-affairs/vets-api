@@ -13,4 +13,10 @@ RSpec.describe GIBillFeedback, type: :model do
       expect(described_class.find(guid).guid).to eq(guid)
     end
   end
+
+  describe '#transform_form' do
+    it 'should transform the form to the right format' do
+      gi_bill_feedback.transform_form
+    end
+  end
 end
