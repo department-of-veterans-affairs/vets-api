@@ -11,26 +11,27 @@ class MhvAccountsService
   STATSD_ACCOUNT_UPGRADE_KEY = 'mhv.account.upgrade'
 
   ADDRESS_ATTRS = %w[street city state postal_code country].freeze
+  UNKNOWN_ADDRESS = {
+    address1: 'Unknown Address',
+    city: 'Washington',
+    state: 'DC',
+    zip: '20571',
+    country: 'USA'
+  }.freeze
 
-  def initialize(mhv_account)
-    @mhv_account = mhv_account
-    @user = mhv_account.user
+  def initialize(user)
+    @user = user
   end
 
-  attr_accessor :mhv_account, :user
-
   def create
-    if mhv_account.creatable?
+    if mhv_account.may_register?
       client_response = mhv_ac_client.post_register(params_for_registration)
       if client_response[:api_completion_status] == 'Successful'
         StatsD.increment("#{STATSD_ACCOUNT_CREATION_KEY}.success")
-        mhv_id = client_response[:correlation_id].to_s
+        @user.va_profile.mhv_ids = [client_response[:correlation_id].to_s]
+        @user.recache
         mhv_account.registered_at = Time.current
-        mhv_account.mhv_correlation_id = mhv_id
         mhv_account.register!
-        user.va_profile.mhv_ids = [mhv_id] + user.va_profile.mhv_ids
-        user.va_profile.active_mhv_ids = [mhv_id] + user.va_profile.active_mhv_ids
-        user.recache
       end
     end
   rescue => e
@@ -41,49 +42,60 @@ class MhvAccountsService
   end
 
   def upgrade
-    if mhv_account.upgradable?
+    if mhv_account.may_upgrade?
       client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
       if client_response[:status] == 'success'
         StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
         mhv_account.upgraded_at = Time.current
-        Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
         mhv_account.upgrade!
       end
-    elsif mhv_account.already_premium?
-      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
-      mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
     end
   rescue => e
-    log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
-    StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
-    mhv_account.fail_upgrade!
-    raise e
+    if e.is_a?(Common::Exceptions::BackendServiceException) && e.original_body['code'] == 155
+      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
+      mhv_account.upgrade! # without updating the timestamp since account was not created at vets.gov
+    else
+      log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
+      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.failure")
+      mhv_account.fail_upgrade!
+      raise e
+    end
   end
 
   private
 
+  def mhv_account
+    @user.mhv_account
+  end
+
+  def veteran?
+    @user.veteran?
+  rescue
+    false
+  end
+
   def address_params
-    if user.va_profile&.address.present?
-      {
-        address1: user.va_profile.address.street,
-        city: user.va_profile.address.city,
-        state: user.va_profile.address.state,
-        zip: user.va_profile.address.postal_code,
-        country: user.va_profile.address.country
+    if @user.va_profile&.address.present? &&
+       ADDRESS_ATTRS.all? { |attr| @user.va_profile.address[attr].present? }
+      return {
+        address1: @user.va_profile.address.street,
+        city: @user.va_profile.address.city,
+        state: @user.va_profile.address.state,
+        zip: @user.va_profile.address.postal_code,
+        country: @user.va_profile.address.country
       }
-    else
-      {}
     end
+    UNKNOWN_ADDRESS
   end
 
   def params_for_registration
     {
-      icn: user.icn,
-      is_patient: user.va_patient?,
-      is_veteran: user.veteran?,
+      icn: @user.icn,
+      is_patient: @user.va_patient?,
+      is_veteran: veteran?,
       province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
-      email: user.email,
-      home_phone: user.va_profile&.home_phone,
+      email: @user.email,
+      home_phone: @user.va_profile&.home_phone,
       sign_in_partners: 'VETS.GOV',
       terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version,
       terms_accepted_date: mhv_account.terms_and_conditions_accepted.created_at
@@ -92,7 +104,7 @@ class MhvAccountsService
 
   def params_for_upgrade
     {
-      user_id: user.mhv_correlation_id,
+      user_id: @user.mhv_correlation_id,
       form_signed_date_time: mhv_account.terms_and_conditions_accepted.created_at,
       terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version
     }
@@ -110,5 +122,9 @@ class MhvAccountsService
 
   def mhv_ac_client
     @mhv_ac_client ||= MHVAC::Client.new
+  end
+
+  def current_account_type
+    @current_account_type ||= MhvAccountTypeService.new(user).probable_account_type
   end
 end
