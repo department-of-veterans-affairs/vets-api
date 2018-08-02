@@ -39,7 +39,7 @@ FactoryBot.define do
           }
         },
         issue: {
-          'Student Loans': true
+          studentLoans: true
         },
         issueDescription: 'issueDescription',
         issueResolution: 'issueResolution'
