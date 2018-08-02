@@ -92,7 +92,14 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:succesful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
-  let(:decrypter) { ActiveSupport::MessageEncryptor.new(Settings.sso_cookie_key) }
+
+  let(:decrypter) { ActiveSupport::MessageEncryptor.new(Settings.sso.shared_cookie_key) }
+
+  around(:all) do |examples|
+    Settings.sso.enabled = true
+    examples.run
+    Settings.sso.enabled = false
+  end
 
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -134,7 +141,6 @@ RSpec.describe V0::SessionsController, type: :controller do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
-      Settings.set_sso_cookie = true
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
     end
@@ -223,7 +229,6 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe 'POST saml_callback' do
       before(:each) do
-        Settings.set_sso_cookie = true
         allow(controller).to receive(:async_create_evss_account)
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
