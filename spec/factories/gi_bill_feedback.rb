@@ -24,7 +24,15 @@ FactoryBot.define do
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
-            name: 'school'
+            name: 'school',
+            address: {
+              street: 'street',
+              street2: 'street2',
+              city: 'city',
+              state: 'VA',
+              postalCode: '12345',
+              country: 'US'
+            }
           },
           facilityCode: '123',
           programs: {
