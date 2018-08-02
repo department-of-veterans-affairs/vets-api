@@ -117,6 +117,7 @@ module V0
     SWAGGERED_CLASSES = [
       Swagger::Requests::Address,
       Swagger::Requests::Appeals,
+      Swagger::Requests::Appointments,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
