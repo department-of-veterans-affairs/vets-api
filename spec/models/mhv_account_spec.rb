@@ -61,137 +61,6 @@ RSpec.describe MhvAccount, type: :model do
     context 'check_eligibility' do
       context 'user not loa3' do
         let(:user_loa) { { current: LOA::ONE, highest: LOA::ONE } }
-          it 'is ineligible if not a va patient' do
-            subject = described_class.new(base_attributes)
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('ineligible')
-            expect(subject.eligible?).to be_falsey
-            expect(subject.accessible?).to be_falsey
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-          end
-        end
-
-        context 'with mhv id' do
-          let(:mhv_ids) { ['14221465'] }
-          let(:base_attributes) { { user_uuid: user.uuid } }
-
-          it 'a priori registered account stays registered' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, account_state: :registered)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('registered')
-            expect(subject.accessible?).to be_falsey
-          end
-
-          it 'a priori failed upgrade that has been registered changes to registered' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, account_state: :upgrade_failed)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('registered')
-            expect(subject.accessible?).to be_falsey
-          end
-
-          it 'a priori upgraded account stays upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-            expect(subject.accessible?).to be_truthy
-          end
-
-          it 'is able to transition back to upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-            expect(subject.eligible?).to be_truthy
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-            expect(subject.accessible?).to be_truthy
-          end
-        end
-
-        context '#track_state' do
-          it 'creates redis entry' do
-            subject.creatable?
-            expect(MHVAccountIneligible.find(subject.user.uuid)).to be_truthy
-          end
-          it 'updates an existing redis entry when the account_state is a mismatch' do
-            subject.creatable?
-            tracker = MHVAccountIneligible.find(subject.user.uuid)
-            tracker.update(account_state: 'fake')
-            subject.send(:setup)
-            updated_tracker = MHVAccountIneligible.find(subject.user.uuid)
-            expect(updated_tracker.account_state).not_to eq(tracker.account_state)
-          end
-          it 'does not update an existing redis entry when the account_state is a match' do
-            subject.creatable?
-            tracker = MHVAccountIneligible.find(subject.user.uuid)
-            tracker.update(icn: 'fake')
-            subject.send(:setup)
-            updated_tracker = MHVAccountIneligible.find(subject.user.uuid)
-            expect(updated_tracker.icn).to eq(tracker.icn)
-          end
-        end
-
-        context 'without mhv id' do
-          it 'a priori registered account changes to registered' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, account_state: :registered)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('registered')
-            expect(subject.accessible?).to be_falsey
-          end
-
-          it 'a priori upgraded account changes to upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(upgraded_at: Time.current, account_state: :upgraded)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-            expect(subject.accessible?).to be_falsey
-          end
-
-          it 'is able to transition back to upgraded' do
-            subject = described_class.new(
-              base_attributes.merge(registered_at: Time.current, upgraded_at: Time.current)
-            )
-            subject.send(:setup) # This gets called when object is first loaded
-            expect(subject.account_state).to eq('upgraded')
-            expect(subject.eligible?).to be_truthy
-            expect(subject.terms_and_conditions_accepted?).to be_truthy
-            expect(subject.accessible?).to be_falsey
-          end
-        end
-
-        it 'is able to transition back to registered' do
-          subject = described_class.new(base_attributes.merge(registered_at: Time.current))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('registered')
-          expect(subject.eligible?).to be_truthy
-          expect(subject.terms_and_conditions_accepted?).to be_truthy
-          expect(subject.accessible?).to be_falsey
-        end
-
-        it 'falls back to unknown' do
-          subject = described_class.new(base_attributes)
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('unknown')
-          expect(subject.eligible?).to be_truthy
-          expect(subject.terms_and_conditions_accepted?).to be_truthy
-          expect(subject.accessible?).to be_falsey
-        end
-
-        it 'a priori register_failed account changes to unknown' do
-          subject = described_class.new(base_attributes.merge(upgraded_at: nil, account_state: :register_failed))
-          subject.send(:setup) # This gets called when object is first loaded
-          expect(subject.account_state).to eq('unknown')
-          expect(subject.accessible?).to be_falsey
-        end
 
         it 'needs_identity_verification' do
           expect(subject.account_state).to eq('needs_identity_verification')
@@ -244,6 +113,29 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.account_state).to eq('needs_terms_acceptance')
           expect(subject.creatable?).to be_falsey
         end
+      end
+    end
+
+    context '#track_state' do
+      it 'creates redis entry' do
+        subject.creatable?
+        expect(MHVAccountIneligible.find(subject.user.uuid)).to be_truthy
+      end
+      it 'updates an existing redis entry when the account_state is a mismatch' do
+        subject.creatable?
+        tracker = MHVAccountIneligible.find(subject.user.uuid)
+        tracker.update(account_state: 'fake')
+        subject.send(:setup)
+        updated_tracker = MHVAccountIneligible.find(subject.user.uuid)
+        expect(updated_tracker.account_state).not_to eq(tracker.account_state)
+      end
+      it 'does not update an existing redis entry when the account_state is a match' do
+        subject.creatable?
+        tracker = MHVAccountIneligible.find(subject.user.uuid)
+        tracker.update(icn: 'fake')
+        subject.send(:setup)
+        updated_tracker = MHVAccountIneligible.find(subject.user.uuid)
+        expect(updated_tracker.icn).to eq(tracker.icn)
       end
     end
 

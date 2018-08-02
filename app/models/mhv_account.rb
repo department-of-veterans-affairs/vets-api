@@ -4,7 +4,7 @@ require 'mhv_ac/client'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-  
+
   STATSD_ACCOUNT_INELIGIBLE_KEY = 'mhv.account.ineligible'
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
