@@ -5,7 +5,7 @@ require 'evss/common_service'
 module EVSS
   class RetrieveClaimsFromRemoteJob
     include Sidekiq::Worker
-    sidekiq_options unique_for: 1.hour, retry: 8
+    sidekiq_options unique_for: 1.5.hours, retry: 8
 
     sidekiq_retries_exhausted do |msg, _e|
       Sentry::TagRainbows.tag
