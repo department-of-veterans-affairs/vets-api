@@ -15,7 +15,8 @@ class EVSSClaimServiceAsync
       EVSS::RetrieveClaimsFromRemoteJob.perform_async(@user.uuid)
       status = 'REQUESTED'
     end
-    [claims_scope.all, status]
+    claims = status == 'REQUESTED' ? [] : claims_scope.all
+    [claims, status]
   end
 
   def update_from_remote(claim)

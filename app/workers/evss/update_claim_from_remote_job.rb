@@ -5,7 +5,7 @@ require 'evss/common_service'
 module EVSS
   class UpdateClaimFromRemoteJob
     include Sidekiq::Worker
-    sidekiq_options unique_for: 1.5.hours, retry: 8
+    sidekiq_options retry: false
 
     sidekiq_retries_exhausted do |msg, _e|
       Sentry::TagRainbows.tag
@@ -18,10 +18,6 @@ module EVSS
       user = User.find user_uuid
       claim = EVSSClaim.find claim_id
       tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: user_uuid, claim_id: claim_id)
-      unless user
-        tracker.set_single_status('FAILED_NO_USER')
-        return false
-      end
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       raw_claim = EVSS::ClaimsService.new(auth_headers).find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
