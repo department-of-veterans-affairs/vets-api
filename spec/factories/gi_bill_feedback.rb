@@ -41,6 +41,7 @@ FactoryBot.define do
         issue: {
           studentLoans: true
         },
+        phone: '5551110000',
         issueDescription: 'issueDescription',
         issueResolution: 'issueResolution'
       }.to_json
