@@ -13,6 +13,7 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
+    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
@@ -213,7 +214,9 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create]
+    resource :mhv_account, only: %i[show create] do
+      post :upgrade
+    end
 
     [
       'profile',
