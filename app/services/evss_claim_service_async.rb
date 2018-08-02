@@ -12,7 +12,7 @@ class EVSSClaimServiceAsync
     status = @tracker.get_collection_status
     unless status
       @tracker.set_collection_status('REQUESTED')
-      EVSS::RetrieveClaimsForUserJob.perform_async(@user.uuid)
+      EVSS::RetrieveClaimsFromRemoteJob.perform_async(@user.uuid)
       status = 'REQUESTED'
     end
     [claims_scope.all, status]

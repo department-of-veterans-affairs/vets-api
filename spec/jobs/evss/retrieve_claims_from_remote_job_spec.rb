@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EVSS::RetrieveClaimsForUserJob, type: :job do
+RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
   let(:user) { create(:user, :loa3) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid) }
 

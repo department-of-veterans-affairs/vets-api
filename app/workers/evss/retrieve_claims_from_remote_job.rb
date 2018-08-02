@@ -3,7 +3,7 @@
 require 'evss/common_service'
 
 module EVSS
-  class RetrieveClaimsForUserJob
+  class RetrieveClaimsFromRemoteJob
     include Sidekiq::Worker
     sidekiq_options unique_for: 1.hour, retry: 8
 
@@ -32,6 +32,8 @@ module EVSS
       end
       tracker.set_collection_status('SUCCESS')
     end
+
+    private
 
     def create_or_update_claim(raw_claim)
       claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})

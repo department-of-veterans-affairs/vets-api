@@ -12,7 +12,7 @@ module V0
       render json: claims,
              serializer: ActiveModel::Serializer::CollectionSerializer,
              each_serializer: EVSSClaimListSerializer,
-             meta: { sync_status: translated_sync(synchronized) }
+             meta: { sync_status: translated_status(synchronized) }
     end
 
     def show
@@ -20,12 +20,12 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:id] unless claim
       claim, synchronized = service.update_from_remote(claim)
       render json: claim, serializer: EVSSClaimDetailSerializer,
-             meta: { sync_status: translated_sync(synchronized) }
+             meta: { sync_status: translated_status(synchronized) }
     end
 
     private
 
-    def translated_sync(synchronized)
+    def translated_status(synchronized)
       synchronized.gsub('_NO_USER', '')
     end
 
