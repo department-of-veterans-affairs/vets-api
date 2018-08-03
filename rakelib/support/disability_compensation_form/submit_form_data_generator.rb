@@ -86,7 +86,6 @@ class SubmitFormDataGenerator
         'serviceBranch' => service_branch,
         'dateRange' => date_range('service')
       }],
-      'reservesNationalGuardService' => reserves_national_guard_service,
       'servedInCombatZone' => random_bool,
       'confinements' => (
       if random_bool
