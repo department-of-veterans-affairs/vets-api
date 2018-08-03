@@ -24,24 +24,48 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
   end
 
-  it 'returns empty response' do
-    get '/v0/evss_claims_async', nil, 'Authorization' => "Token token=#{evss_session.token}"
-    expect(response).to match_response_schema('evss_claims_async')
-    expect(JSON.parse(response.body)['data']).to eq([])
-    expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'REQUESTED'
+  context '#index (all user claims) is polled' do
+    it 'returns empty result, kicks off job, retuns full result when job is completed' do
+      # initial request
+      get '/v0/evss_claims_async', nil, 'Authorization' => "Token token=#{evss_session.token}"
+      expect(response).to match_response_schema('evss_claims_async')
+      expect(JSON.parse(response.body)['data']).to eq([])
+      expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'REQUESTED'
+      # run job
+      VCR.use_cassette('evss/claims/claims') do
+        EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
+      end
+      # subsequent request
+      get '/v0/evss_claims_async', nil, 'Authorization' => "Token token=#{evss_session.token}"
+      expect(response).to match_response_schema('evss_claims_async')
+      expect(JSON.parse(response.body)['data']).not_to be_empty
+      expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
+    end
   end
 
-  context 'for a single claim' do
+  context '#show (single claim) is polled' do
     let!(:claim) do
       FactoryBot.create(:evss_claim, id: 1, evss_id: 600_118_851,
                                      user_uuid: user.uuid)
     end
 
-    it 'shows a single Claim' do
+    it 'it returns claim from DB, kicks off job, returns updated claim when job is completed' do
+      # initial request
       get '/v0/evss_claims_async/600118851', nil, 'Authorization' => "Token token=#{evss_session.token}"
       expect(response).to match_response_schema('evss_claim_async')
       expect(JSON.parse(response.body)['data']['type']).to eq 'evss_claims'
+      expect(JSON.parse(response.body)['data']['attributes']['phase_change_date']).to eq '2012-08-10'
       expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'REQUESTED'
+      # run job
+      VCR.use_cassette('evss/claims/claim') do
+        EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim.id)
+      end
+      # subsequent request
+      get '/v0/evss_claims_async/600118851', nil, 'Authorization' => "Token token=#{evss_session.token}"
+      expect(response).to match_response_schema('evss_claim_async')
+      expect(JSON.parse(response.body)['data']['attributes']['phase_change_date']).to eq '2017-12-08'
+      expect(JSON.parse(response.body)['data']['type']).to eq 'evss_claims'
+      expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
     end
 
     it 'user cannot access claim of another user' do
@@ -49,23 +73,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
                                      user_uuid: 'xyz')
       get '/v0/evss_claims_async/2', nil, 'Authorization' => "Token token=#{session.token}"
       expect(response).to have_http_status(:not_found)
-    end
-
-    context 'after async processing has finished' do
-      before do
-        EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid).set_collection_status('SUCCESS')
-        claim
-      end
-      after do
-        EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid).set_collection_status('REQUESTED')
-      end
-      it 'returns after async processing has finished' do
-        get '/v0/evss_claims_async', nil, 'Authorization' => "Token token=#{evss_session.token}"
-        expect(response).to match_response_schema('evss_claims_async')
-        expect(JSON.parse(response.body)['data'].count).to eq(1)
-        expect(JSON.parse(response.body)['data'][0]['type']).to eq('evss_claims')
-        expect(JSON.parse(response.body)['meta']['sync_status']).to eq 'SUCCESS'
-      end
     end
   end
 end
