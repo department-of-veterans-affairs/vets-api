@@ -21,7 +21,9 @@ module V0
       private
 
       def invalidate_mvi_cache
-        @current_user.mvi&.destroy
+        mvi_cache = @current_user.mvi
+        mvi_cache.mvi_response
+        mvi_cache.destroy
       end
     end
   end

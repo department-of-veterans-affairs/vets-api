@@ -40,8 +40,8 @@ describe Vet360Redis::ContactInformation do
           Vet360::ContactInformation::Service
         ).to receive(:get_person).and_return(person_response)
 
-        expect(contact_info.redis_namespace).to receive(:set).once
-        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).once
+        expect(contact_info.redis_namespace).to receive(:set).once if Settings.vet360.contact_information.cache_enabled
+        expect_any_instance_of(Vet360::ContactInformation::Service).to receive(:get_person).twice
         expect(contact_info.status).to eq 200
         expect(contact_info.response.person).to have_deep_attributes(person)
       end

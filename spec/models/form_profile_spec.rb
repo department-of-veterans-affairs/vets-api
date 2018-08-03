@@ -114,6 +114,17 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_0993_expected) do
+    {
+      'claimantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'claimantSocialSecurityNumber' => user.ssn
+    }
+  end
+
   let(:v22_1990_n_expected) do
     {
       'toursOfDuty' => [
@@ -313,6 +324,8 @@ RSpec.describe FormProfile, type: :model do
       'disabilities' => [
         {
           'diagnosticCode' => 5238,
+          'decisionCode' => 'SVCCONNCTED',
+          'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus0',
           'ratedDisabilityId' => '0',
           'ratingDecisionId' => '63655',
@@ -326,6 +339,8 @@ RSpec.describe FormProfile, type: :model do
         },
         {
           'diagnosticCode' => 5238,
+          'decisionCode' => 'SVCCONNCTED',
+          'decisionText' => 'Service Connected',
           'name' => 'Diabetes mellitus1',
           'ratedDisabilityId' => '1',
           'ratingDecisionId' => '63655',
@@ -347,13 +362,19 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
+      'reservesNationalGuardService' => {
+        'obligationTermOfServiceDateRange' => {
+          'from' => '2007-04-01',
+          'to' => '2016-06-01'
+        }
+      },
       'veteran' => {
         'mailingAddress' => {
           'country' => 'USA',
           'city' => 'Washington',
           'state' => 'DC',
           'zipCode' => '20011',
-          'addressLine1' => '140 Rock Creek Church Rd NW'
+          'addressLine1' => '140 Rock Creek Rd'
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
@@ -466,6 +487,13 @@ RSpec.describe FormProfile, type: :model do
         expect(military_information).to receive(:service_periods).and_return(
           [{ service_branch: 'Air Force Reserve', date_range: { from: '2007-04-01', to: '2016-06-01' } }]
         )
+        expect(military_information).to receive(:guard_reserve_service_history).and_return(
+          [{ from: '2007-04-01', to: '2016-06-01' }, { from: '2002-02-14', to: '2007-01-01' }]
+        )
+        expect(military_information).to receive(:latest_guard_reserve_service_period).and_return(
+          from: '2007-04-01',
+          to: '2016-06-01'
+        )
       end
 
       context 'with vets360 prefill on' do
@@ -510,6 +538,7 @@ RSpec.describe FormProfile, type: :model do
           40-10007
           21-686C
           1010ez
+          22-0993
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
