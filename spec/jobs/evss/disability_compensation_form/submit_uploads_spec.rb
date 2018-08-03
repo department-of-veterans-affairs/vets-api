@@ -13,10 +13,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   let(:claim_id) { 123_456_789 }
   let(:uploads) do
     [
-      { guid: SecureRandom.uuid },
-      { guid: SecureRandom.uuid },
-      { guid: SecureRandom.uuid },
-      { guid: SecureRandom.uuid }
+      { confirmationCode: SecureRandom.uuid },
+      { confirmationCode: SecureRandom.uuid },
+      { confirmationCode: SecureRandom.uuid },
+      { confirmationCode: SecureRandom.uuid }
     ]
   end
 
@@ -45,9 +45,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   describe 'perform' do
     let(:upload_data) do
       {
-        guid: 'foo',
-        file_name: 'bar',
-        doctype: 'foobar'
+        confirmationCode: 'foo',
+        name: 'bar',
+        attachmentId: 'foobar'
       }
     end
     let(:client) { double(:client) }
