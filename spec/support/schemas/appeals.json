@@ -139,7 +139,7 @@
                     "type": "integer"
                   },
                   "eta": {
-                    "type": "string"
+                    "type": ["string", "null"]
                   }
                 }
               },
