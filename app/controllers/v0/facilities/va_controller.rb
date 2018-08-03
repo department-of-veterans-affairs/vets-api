@@ -39,7 +39,7 @@ class V0::Facilities::VaController < FacilitiesController
     ppms = Facilities::PPMSClient.new.test_routes(command, params)
     render text: ppms
   rescue StandardError => e
-    render text: "message: #{e&.message} \nbody: #{e&.body} \nppms object: #{Settings.ppms} \nppms.url: #{Settings.ppms&.url}"
+    render text: "message: #{e&.message} \nbody: #{e&.body} \nppms.url: #{Settings.ppms&.url}"
   end
 
   private
