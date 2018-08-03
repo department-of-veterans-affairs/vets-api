@@ -155,13 +155,7 @@ class SubmitFormDataGenerator
         end),
         'obligationTermOfServiceDateRange' => date_range,
         'unitName' => L.word,
-        'unitPhone' => NUM.number(10),
-        'inactiveDutyTrainingPay' => (
-        if random_bool
-          {
-            'waiveVABenefitsToRetainTrainingPay' => random_bool
-          }
-        end)
+        'waiveVABenefitsToRetainTrainingPay' => random_bool
       }
     end
   end
