@@ -77,11 +77,11 @@ ActiveRecord::Schema.define(version: 20180727213418) do
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",  null: false
-    t.string   "form_type",  null: false
-    t.integer  "claim_id",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.uuid     "user_uuid",                        null: false
+    t.string   "form_type",                        null: false
+    t.integer  "claim_id",                         null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
   end
 
   add_index "disability_compensation_submissions", ["claim_id"], name: "index_disability_compensation_submissions_on_claim_id", unique: true, using: :btree
