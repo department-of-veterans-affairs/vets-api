@@ -19,7 +19,12 @@
       }
     },
     "details": {
-      "type": "string"
+      "type": "object",
+      "properties": {
+        "dueDate": {
+          "type": "string"
+        }
+      }
     }
   },
   "type": "object"
