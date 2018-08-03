@@ -63,7 +63,6 @@ class GIBillFeedback < Common::RedisStore
     transformed['issue'] = transform_keys_into_array(transformed['issue'])
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
 
-    binding.pry; fail
     transformed
   end
 
