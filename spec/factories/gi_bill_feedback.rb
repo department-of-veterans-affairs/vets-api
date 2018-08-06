@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :gi_bill_feedback do
     state('pending')
@@ -21,8 +23,8 @@ FactoryBot.define do
           suffix: 'Jr.'
         },
         serviceDateRange: {
-          from: "2000-01-01",
-          to: "2000-01-02"
+          from: '2000-01-01',
+          to: '2000-01-02'
         },
         anonymousEmail: 'foo@foo.com',
         onBehalfOf: 'Myself',

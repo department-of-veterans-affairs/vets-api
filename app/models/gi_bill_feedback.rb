@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class GIBillFeedback < Common::RedisStore
   include SetGuid
   include AsyncRequest
@@ -15,7 +17,7 @@ class GIBillFeedback < Common::RedisStore
   attribute(:guid, String)
   attribute(:response, String)
 
-  alias_method(:id, :guid)
+  alias id guid
 
   validate(:form_matches_schema, unless: :persisted?)
   validates(:form, presence: true, unless: :persisted?)
@@ -48,7 +50,7 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def transform_form
-    transformed = parsed_form.deep_transform_keys{ |k| k.underscore }
+    transformed = parsed_form.deep_transform_keys(&:underscore)
     transformed['affiliation'] = transformed.delete('service_affiliation')
     transformed.delete('service_date_range').tap do |service_date_range|
       next if service_date_range.blank?
@@ -89,9 +91,7 @@ class GIBillFeedback < Common::RedisStore
     originally_persisted = @persisted
     saved = super
 
-    if saved && !originally_persisted
-      create_submission_job
-    end
+    create_submission_job if saved && !originally_persisted
 
     saved
   end

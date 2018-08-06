@@ -19,7 +19,7 @@ RSpec.describe GIBillFeedbackSubmissionJob do
 
         updated_feedback = GIBillFeedback.find(gi_bill_feedback.guid)
         expect(updated_feedback.state).to eq('success')
-        expect(updated_feedback.parsed_response).to eq({"case_id"=>"case_id"})
+        expect(updated_feedback.parsed_response).to eq('case_id' => 'case_id')
       end
     end
 
