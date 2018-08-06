@@ -20,10 +20,8 @@
     },
     "details": {
       "type": "object",
+      "additionalProperties": true,
       "properties": {
-        "dueDate": {
-          "type": "string"
-        }
       }
     }
   },
