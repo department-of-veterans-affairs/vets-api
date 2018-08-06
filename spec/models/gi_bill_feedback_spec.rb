@@ -17,7 +17,9 @@ RSpec.describe GIBillFeedback, type: :model do
   describe '#transform_form' do
     it 'should transform the form to the right format' do
       gi_bill_feedback.user = create(:user)
-      gi_bill_feedback.transform_form
+      VCR.use_cassette('gi_client/gets_the_institution_details') do
+        expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
+      end
     end
   end
 end

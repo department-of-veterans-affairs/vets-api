@@ -30,7 +30,7 @@ FactoryBot.define do
           school: {
             name: 'school'
           },
-          facilityCode: '123',
+          facilityCode: '20606313',
           programs: {
             'MGIB-AD Ch 30': true
           },

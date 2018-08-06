@@ -29,6 +29,24 @@ class GIBillFeedback < Common::RedisStore
     @parsed_response ||= JSON.parse(response)
   end
 
+  def get_school_details(facility_code)
+    attributes = GI::Client.new.get_institution_details(id: facility_code)[:data][:attributes]
+
+    {
+      'name' => attributes[:name],
+      'address' => {
+        'street' => [attributes[:address_1], attributes[:address_2]].compact.join(' '),
+        'street2' => attributes[:address_3],
+        'city' => attributes[:city],
+        'postal_code' => attributes[:zip],
+        'state' => attributes[:state],
+        'country' => lambda do
+          IsoCountryCodes.find(attributes[:country]).alpha2 if attributes[:country].present?
+        end.call
+      }
+    }
+  end
+
   def transform_form
     transformed = parsed_form.deep_transform_keys{ |k| k.underscore }
     transformed['affiliation'] = transformed.delete('service_affiliation')
@@ -54,7 +72,8 @@ class GIBillFeedback < Common::RedisStore
 
     transformed['education_details'].tap do |education_details|
       next if education_details.blank?
-      # TODO set school address from facility code
+      facility_code = education_details.delete('facility_code')
+      education_details['school'] = get_school_details(facility_code) if facility_code.present?
       %w[programs assistance].each do |key|
         education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
       end
