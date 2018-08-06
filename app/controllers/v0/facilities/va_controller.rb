@@ -36,7 +36,10 @@ class V0::Facilities::VaController < FacilitiesController
     params.delete 'controller'
     params.delete 'format'
     command = params.delete 'Command'
+    start = Time.now.utc
     ppms = Facilities::PPMSClient.new.test_routes(command, params)
+    finish = Time.now.utc
+    ppms = "Latency: #{finish - start}\n" + ppms
     render text: ppms
   rescue StandardError => e
     render text: "message: #{e&.message} \nbody: #{e&.body} \nppms.url: #{Settings.ppms&.url}"
