@@ -7,12 +7,6 @@ module EVSS
     include Sidekiq::Worker
     sidekiq_options retry: false
 
-    sidekiq_retries_exhausted do |msg, _e|
-      Sentry::TagRainbows.tag
-      tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: msg['args'][0])
-      tracker.set_collection_status('FAILED')
-    end
-
     def perform(user_uuid)
       Sentry::TagRainbows.tag
       @user = User.find user_uuid
@@ -27,6 +21,8 @@ module EVSS
         end
       end
       tracker.set_collection_status('SUCCESS')
+    rescue StandardError
+      tracker.set_collection_status('FAILED')
     end
 
     private

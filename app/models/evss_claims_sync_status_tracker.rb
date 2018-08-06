@@ -33,6 +33,14 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
     cache(single_record_key, status: status)
   end
 
+  def delete_collection_status
+    self.class.delete(collection_key)
+  end
+
+  def delete_single_status
+    self.class.delete(single_record_key)
+  end
+
   private
 
   def collection_key

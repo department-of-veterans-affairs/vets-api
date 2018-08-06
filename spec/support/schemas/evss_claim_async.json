@@ -62,7 +62,7 @@
       "type": "object",
       "required": ["sync_status"],
       "properties": {
-        "sync_status": { "enum": ["REQUESTED", "SUCCESS", "FAILED", "FAILED_NO_USER"] }
+        "sync_status": { "enum": ["REQUESTED", "SUCCESS", "FAILED"] }
       }
     }
   }

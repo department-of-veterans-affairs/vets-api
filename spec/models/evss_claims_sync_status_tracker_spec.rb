@@ -26,6 +26,15 @@ describe EVSSClaimsSyncStatusTracker do
         end
       end
     end
+
+    %i[delete_collection_status delete_single_status].each do |method|
+      describe "##{method}" do
+        it 'deletes from redis' do
+          expect(subject.redis_namespace).to receive(:del).once
+          subject.send(method.to_sym)
+        end
+      end
+    end
   end
 
   context 'without valid arguments' do

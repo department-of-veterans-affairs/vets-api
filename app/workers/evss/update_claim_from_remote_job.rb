@@ -7,12 +7,6 @@ module EVSS
     include Sidekiq::Worker
     sidekiq_options retry: false
 
-    sidekiq_retries_exhausted do |msg, _e|
-      Sentry::TagRainbows.tag
-      tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: msg['args'][0], claim_id: msg['args'][1])
-      tracker.set_single_status('FAILED')
-    end
-
     def perform(user_uuid, claim_id)
       Sentry::TagRainbows.tag
       user = User.find user_uuid
@@ -22,6 +16,8 @@ module EVSS
       raw_claim = EVSS::ClaimsService.new(auth_headers).find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
       tracker.set_single_status('SUCCESS')
+    rescue StandardError
+      tracker.set_single_status('FAILED')
     end
   end
 end
