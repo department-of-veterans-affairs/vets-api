@@ -67,9 +67,8 @@
         "obligationTermOfServiceFromDate": "2018-03-29T18:50:03.015Z",
         "obligationTermOfServiceToDate": "2018-03-29T18:50:03.015Z",
         "unitName": "string",
-        "unitPhone": {
-          "areaCode": "202",
-          "phoneNumber": "4561111"
+        "inactiveDutyTrainingPay": {
+          "waiveVABenefitsToRetainTrainingPay": false
         }
       },
       "servedInCombatZone": true,

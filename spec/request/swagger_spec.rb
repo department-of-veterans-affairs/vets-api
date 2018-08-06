@@ -1171,6 +1171,44 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'appointments' do
+      before do
+        allow_any_instance_of(User).to receive(:icn).and_return('1234')
+      end
+
+      context 'when successful' do
+        it 'supports getting appointments data' do
+          VCR.use_cassette('ihub/appointments/simple_success') do
+            expect(subject).to validate(:get, '/v0/appointments', 200, auth_options)
+          end
+        end
+      end
+
+      context 'when not signed in' do
+        it 'returns a 401 with error details' do
+          expect(subject).to validate(:get, '/v0/appointments', 401)
+        end
+      end
+
+      context 'when iHub experiences an error' do
+        it 'returns a 400 with error details' do
+          VCR.use_cassette('ihub/appointments/error_occurred') do
+            expect(subject).to validate(:get, '/v0/appointments', 400, auth_options)
+          end
+        end
+      end
+
+      context 'the user does not have an ICN' do
+        before do
+          allow_any_instance_of(User).to receive(:icn).and_return(nil)
+        end
+
+        it 'returns a 502 with error details' do
+          expect(subject).to validate(:get, '/v0/appointments', 502, auth_options)
+        end
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
