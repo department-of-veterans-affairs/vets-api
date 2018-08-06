@@ -39,7 +39,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
         expect_any_instance_of(EVSSClaimsSyncStatusTracker).to(
           receive(:set_single_status).with('FAILED').and_call_original
         )
-        subject.perform(user.uuid, claim.id)
+        expect { subject.perform(user.uuid, claim.id) }.to raise_error
         expect(tracker.get_single_status).to eq('FAILED')
       end
     end

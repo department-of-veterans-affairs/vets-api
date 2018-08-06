@@ -18,6 +18,7 @@ module EVSS
       tracker.set_single_status('SUCCESS')
     rescue StandardError
       tracker.set_single_status('FAILED')
+      raise
     end
   end
 end

@@ -23,6 +23,7 @@ module EVSS
       tracker.set_collection_status('SUCCESS')
     rescue StandardError
       tracker.set_collection_status('FAILED')
+      raise
     end
 
     private
