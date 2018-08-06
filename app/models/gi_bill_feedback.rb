@@ -49,6 +49,20 @@ class GIBillFeedback < Common::RedisStore
     }
   end
 
+  def get_user_details
+    return {} if user.blank?
+    va_profile = user.va_profile
+
+    {
+      'profile_data' => {
+        'active_ICN' => user.icn,
+        'historical_ICN' => va_profile&.historical_icns,
+        'sec_ID' => va_profile&.sec_id,
+        'SSN' => user.ssn
+      }
+    }
+  end
+
   def transform_form
     transformed = parsed_form.deep_transform_keys(&:underscore)
     transformed['affiliation'] = transformed.delete('service_affiliation')
@@ -58,19 +72,7 @@ class GIBillFeedback < Common::RedisStore
       transformed['release_from_duty'] = service_date_range['to']
     end
 
-    user&.va_profile.tap do |va_profile|
-      next if va_profile.blank?
-    end
-
-    if user.present?
-      va_profile = user.va_profile
-      transformed['profile_data'] = {
-        'active_ICN' => user.icn,
-        'historical_ICN' => va_profile&.historical_icns,
-        'sec_ID' => va_profile&.sec_id,
-        'SSN' => user.ssn
-      }
-    end
+    transformed.merge!(get_user_details)
 
     transformed['education_details'].tap do |education_details|
       next if education_details.blank?
