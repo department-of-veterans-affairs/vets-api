@@ -116,8 +116,6 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def create_submission_job
-    puts 'soubmission job'
-    # binding.pry; fail
-    # SubmissionJob.perform_async(id, form, user&.uuid)
+    GIBillFeedbackSubmissionJob.perform_async(id, form, user&.uuid)
   end
 end
