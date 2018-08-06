@@ -107,5 +107,16 @@ RSpec.describe 'Appeals Status', type: :request do
         end
       end
     end
+
+    context 'with no alert details due_date' do
+      it 'returns a successful response' do
+        VCR.use_cassette('appeals/appeals_no_alert_details_due_date') do
+          get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('appeals')
+        end
+      end
+    end
   end
 end
