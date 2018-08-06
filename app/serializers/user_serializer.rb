@@ -113,10 +113,5 @@ class UserSerializer < ActiveModel::Serializer
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
-
-  def errors_check(service_name)
-    EVSS_CLAIMS
-  end
-
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 end
