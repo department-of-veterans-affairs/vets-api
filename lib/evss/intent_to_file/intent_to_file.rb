@@ -14,12 +14,6 @@ module EVSS
         incomplete
       ].freeze
 
-      ITF_TYPE = %w[
-        compensation
-        pension
-        survivor
-      ].freeze
-
       attribute :id, String
       attribute :creation_date, DateTime
       attribute :expiration_date, DateTime
@@ -30,7 +24,6 @@ module EVSS
 
       def initialize(args)
         raise ArgumentError, "invalid status type: #{args['status']}" unless STATUS_TYPES.include? args['status']
-        raise ArgumentError, "invalid type: #{args['type']}" unless ITF_TYPE.include? args['type']
         super(args)
       end
 

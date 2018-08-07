@@ -8,7 +8,7 @@ module EVSS
 
     API_VERSION = Settings.evss.versions.claims
     BASE_URL = "#{Settings.evss.url}/wss-claims-services-web-#{API_VERSION}/rest"
-    DEFAULT_TIMEOUT = 120 # in seconds
+    DEFAULT_TIMEOUT = 55 # in seconds
 
     def initialize(*args)
       super
@@ -22,7 +22,9 @@ module EVSS
     end
 
     def find_claim_by_id(claim_id)
-      post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
+      rescue_evss_errors(%w[EVSS_10021]) do
+        post 'vbaClaimStatusService/getClaimDetailById', { id: claim_id }.to_json
+      end
     end
 
     def request_decision(claim_id)

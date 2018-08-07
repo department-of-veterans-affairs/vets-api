@@ -38,6 +38,8 @@ module EMISRedis
       service_branches
       va_compensation_type
       service_periods
+      guard_reserve_service_history
+      latest_guard_reserve_service_period
     ].freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
@@ -255,9 +257,33 @@ module EMISRedis
         {
           branch_of_service: episode.branch_of_service,
           begin_date: episode.begin_date,
-          end_date: episode.end_date
+          end_date: episode.end_date,
+          personnel_category_type_code: episode.personnel_category_type_code
         }
       end
+    end
+
+    def guard_reserve_service_periods
+      @guard_reserve_service_periods ||= items_from_response('get_guard_reserve_service_periods')
+    end
+
+    def guard_reserve_service_by_date
+      @guard_reserve_service_by_date ||= begin
+        guard_reserve_service_periods.sort_by { |per| per.end_date || Time.zone.today + 3650 }.reverse
+      end
+    end
+
+    def guard_reserve_service_history
+      guard_reserve_service_by_date.map do |period|
+        {
+          from: period.begin_date,
+          to: period.end_date
+        }
+      end
+    end
+
+    def latest_guard_reserve_service_period
+      guard_reserve_service_history.try(:[], 0)
     end
   end
 end

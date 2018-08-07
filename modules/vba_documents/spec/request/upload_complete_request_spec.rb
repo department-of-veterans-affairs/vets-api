@@ -40,14 +40,16 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'verified message' do
       it 'should confirm the subscription' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                      'region' => 'us-gov-west-1') do
           client = double(Aws::SNS::Client)
           expect(client).to receive(:confirm_subscription).with(
-            topic_arn: 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+            authenticate_on_unsubscribe: 'authenticateOnUnsubscribe',
             token: token,
-            authenticate_on_unsubscribe: 'authenticateOnUnsubscribe'
+            topic_arn: 'arn:aws:sns:us-west-2:123456789012:MyTopic'
           )
-          allow(Aws::SNS::Client).to receive(:new).and_return(client)
+          expect(Aws::SNS::Client).to receive(:new).with(region: 'us-gov-west-1').and_return(client)
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
@@ -59,7 +61,9 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'non-verified-message' do
       it 'should respond with a message verification error' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                      'region' => 'us-gov-west-1') do
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(false)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
@@ -71,7 +75,9 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'with incorrect arn' do
       it 'should respond with a parameter missing error' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic2') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic2',
+                      'region' => 'us-gov-west-1') do
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
@@ -106,45 +112,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'MessageId' => 'da41e39f-ea4d-435a-b922-c6aae3915ebe',
         'TopicArn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
         'Subject' => 'test',
-        'Message' => {
-          'Records' => [
-            {
-              'eventVersion' => '2.0',
-              'eventSource' => 'aws:s3',
-              'awsRegion' => 'us-east-1',
-              'eventTime' => '1970-01-01T00:00:00.000Z',
-              'eventName' => 'ObjectCreated:Put',
-              'userIdentity' => {
-                'principalId' => 'AIDAJDPLRKLG7UEXAMPLE'
-              },
-              'requestParameters' => {
-                'sourceIPAddress' => '127.0.0.1'
-              },
-              'responseElements' => {
-                'x-amz-request-id' => 'C3D13FE58DE4C810',
-                'x-amz-id-2' => 'FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpD'
-              },
-              's3' => {
-                's3SchemaVersion' => '1.0',
-                'configurationId' => 'testConfigRule',
-                'bucket' => {
-                  'name' => 'mybucket',
-                  'ownerIdentity' => {
-                    'principalId' => 'A3NL1KOZZKExample'
-                  },
-                  'arn' => 'arn:aws:s3:::mybucket'
-                },
-                'object' => {
-                  'key' => upload.guid,
-                  'size' => 1024,
-                  'eTag' => 'd41d8cd98f00b204e9800998ecf8427e',
-                  'versionId' => '096fKKXTRTtl3on89fVO.nfljtsv6qko',
-                  'sequencer' => '0055AED6DCD90281E5'
-                }
-              }
-            }
-          ]
-        },
+        'Message' => "{\"Records\":[{\"eventVersion\":\"2.0\",\"eventSource\":\"aws:s3\",\"awsRegion\":\"us-east-1\",\"eventTime\":\"1970-01-01T00:00:00.000Z\",\"eventName\":\"ObjectCreated:Put\",\"userIdentity\":{\"principalId\":\"AIDAJDPLRKLG7UEXAMPLE\"},\"requestParameters\":{\"sourceIPAddress\":\"127.0.0.1\"},\"responseElements\":{\"x-amz-request-id\":\"C3D13FE58DE4C810\",\"x-amz-id-2\":\"FMyUVURIY8/IgAtTv8xRjskZQpcIZ9KG4V5Wp6S7S/JRWeUWerMUE5JgHvANOjpD\"},\"s3\":{\"s3SchemaVersion\":\"1.0\",\"configurationId\":\"testConfigRule\",\"bucket\":{\"name\":\"mybucket\",\"ownerIdentity\":{\"principalId\":\"A3NL1KOZZKExample\"},\"arn\":\"arn:aws:s3:::mybucket\"},\"object\":{\"key\":\"#{upload.guid}\",\"size\":1024,\"eTag\":\"d41d8cd98f00b204e9800998ecf8427e\",\"versionId\":\"096fKKXTRTtl3on89fVO.nfljtsv6qko\",\"sequencer\":\"0055AED6DCD90281E5\"}}}]}",
         'Timestamp' => '2012-04-25T21:49:25.719Z',
         'SignatureVersion' => '1',
         'Signature' => 'EXAMPLElDMXvB8r9R83tGoNn0ecwd5UjllzsvSvbItzfaMpN2nk5HVSw7XnOn/49IkxDKz8YrlH2qJXj2iZB0Zo2O71c4qQk1fMUDi3LGpij7RCW7AW9vYYsSqIKRnFS94ilu7NFhUzLiieYr4BKHpdTmdD6c0esKEYBpabxDSc=',
@@ -156,7 +124,9 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'verified message' do
       it 'should queue a processor working on the uploaded object-key' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                      'region' => 'us-gov-west-1') do
           s3_client = instance_double(Aws::S3::Resource)
           allow(Aws::S3::Resource).to receive(:new).and_return(s3_client)
           s3_bucket = instance_double(Aws::S3::Bucket)
@@ -168,7 +138,6 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-
           post '/services/vba_documents/internal/v0/upload_complete', body, headers
           expect(response).to have_http_status(:no_content)
           upload.reload
@@ -179,7 +148,9 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'non-verified-message' do
       it 'should respond with a message verification error' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                      'region' => 'us-gov-west-1') do
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(false)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
@@ -191,7 +162,9 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
 
     context 'with incorrect arn' do
       it 'should respond with a parameter missing error' do
-        with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic2') do
+        with_settings(Settings.vba_documents.sns,
+                      'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic2',
+                      'region' => 'us-gov-west-1') do
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
@@ -234,7 +207,9 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
     # rubocop:enable LineLength
 
     it 'should respond with a parameter missing error' do
-      with_settings(Settings.vba_documents.sns, 'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic') do
+      with_settings(Settings.vba_documents.sns,
+                    'topic_arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
+                    'region' => 'us-gov-west-1') do
         verifier = double(Aws::SNS::MessageVerifier)
         allow(verifier).to receive(:authentic?).and_return(true)
         allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)

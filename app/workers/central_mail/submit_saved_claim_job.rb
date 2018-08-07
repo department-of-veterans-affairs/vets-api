@@ -20,7 +20,7 @@ module CentralMail
         process_record(record)
       end
 
-      response = PensionBurial::Service.new.upload(create_request_body)
+      response = CentralMail::Service.new.upload(create_request_body)
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
@@ -61,8 +61,8 @@ module CentralMail
 
     def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = PensionBurial::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
-      PensionBurial::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
+      CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - Vets.gov Submission',
         x: 429,
         y: 770,

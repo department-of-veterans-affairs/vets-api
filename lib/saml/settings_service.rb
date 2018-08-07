@@ -51,7 +51,9 @@ module SAML
         metadata = get_metadata
         return nil if metadata.nil?
         begin
-          OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
+          merged_settings = OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
+          merged_settings.name_identifier_format = 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent'
+          merged_settings
         rescue => e
           log_message_to_sentry("SAML::SettingService failed to parse SAML metadata: #{e.message}", :error)
           raise e

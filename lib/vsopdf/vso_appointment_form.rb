@@ -74,14 +74,14 @@ class VsoAppointmentForm
   def send_pdf
     path = generate_pdf
 
-    conn = Faraday.new("https://#{Settings.pension_burial.upload.host}") do |fd|
+    conn = Faraday.new("https://#{Settings.central_mail.upload.host}") do |fd|
       fd.request :multipart
       fd.request :url_encoded
       fd.adapter Faraday.default_adapter
     end
 
     body = {
-      "token": Settings.pension_burial.upload.token,
+      "token": Settings.central_mail.upload.token,
       "document": Faraday::UploadIO.new(path, Mime[:pdf].to_s),
       "metadata": get_metadata(path).to_json
     }

@@ -13,9 +13,12 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
+    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+
+    resource :form526_opt_in, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -58,7 +61,7 @@ Rails.application.routes.draw do
 
     resource :dependents_applications, only: [:create]
 
-    if Settings.pension_burial.upload.enabled
+    if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
@@ -215,8 +218,7 @@ Rails.application.routes.draw do
       'profile',
       'dashboard',
       'veteran_id_card',
-      FormProfile::EMIS_PREFILL_KEY,
-      FormProfile::V360_PREFILL_KEY
+      FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
         :beta_registrations,

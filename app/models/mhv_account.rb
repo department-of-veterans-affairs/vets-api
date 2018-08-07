@@ -18,11 +18,15 @@ class MhvAccount < ActiveRecord::Base
     upgrade_failed
   ].freeze
 
-  scope :accounts_created, -> { where.not(registered_at: nil) }
+  # http://grafana.vetsgov-internal/dashboard/db/mhv-account-creation
+  # the following scopes are used for dashboard metrics in grafana and are collected
+  # by the job in app/workers/mhv/account_statistics_job.rb
+  scope :created, -> { where.not(registered_at: nil) }
+  scope :existing_premium, -> { where(registered_at: nil, account_state: :upgraded, upgraded_at: nil) }
+  scope :existing_upgraded, -> { where(registered_at: nil).where.not(upgraded_at: nil) }
+  scope :created_failed_upgrade, -> { created.where(account_state: :upgrade_failed) }
+  scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
   scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
-  scope :existing_accounts_upgraded, -> { where(registered_at: nil).where.not(upgraded_at: nil) }
-  scope :created_failed_upgrade, -> { accounts_created.where(account_state: :upgrade_failed) }
-  scope :created_and_upgraded, -> { accounts_created.where.not(upgraded_at: nil) }
 
   after_initialize :setup
 

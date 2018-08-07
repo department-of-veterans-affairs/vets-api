@@ -16,6 +16,7 @@ module EVSS
         translate_service_info
         translate_veteran
         translate_treatments
+        translate_disabilities
 
         @form_content.compact.to_json
       end
@@ -27,31 +28,68 @@ module EVSS
       end
 
       def service_info
-        form['serviceInformation'] ||= {}
+        form['serviceInformation']
       end
 
       def veteran
         form['veteran']
       end
 
+      def disabilities
+        form['disabilities']
+      end
+
       def translate_service_info
         translate_service_periods
-        translate_combat_zone
+        translate_confinements if service_info['confinements'].present?
+        translate_names if service_info['alternateNames'].present?
+        if service_info['reservesNationalGuardService'].present?
+          service_info['reservesNationalGuardService'] = translate_national_guard_service(
+            service_info['reservesNationalGuardService']
+          )
+        end
       end
 
       def translate_service_periods
-        service_periods = @user.military_information.service_periods
-        service_info['servicePeriods'] = service_periods.map do |sp|
+        service_info['servicePeriods'].map! do |si|
           {
-            'serviceBranch' => service_branch(sp[:service_branch]),
-            'activeDutyBeginDate' => Time.zone.parse(sp[:date_range][:from]).iso8601,
-            'activeDutyEndDate' => Time.zone.parse(sp[:date_range][:to]).iso8601
+            'serviceBranch' => service_branch(si['serviceBranch']),
+            'activeDutyBeginDate' => si['dateRange']['from'],
+            'activeDutyEndDate' => si['dateRange']['to']
           }
         end
       end
 
-      def translate_combat_zone
-        service_info['servedInCombatZone'] = @user.military_information.post_nov111998_combat
+      def translate_confinements
+        service_info['confinements'].map! do |ci|
+          {
+            'confinementBeginDate' => ci['confinementDateRange']['from'],
+            'confinementEndDate' => ci['confinementDateRange']['to'],
+            'verifiedIndicator' => ci['verifiedIndicator']
+          }
+        end
+      end
+
+      def translate_names
+        service_info['alternateNames'].map! do |an|
+          {
+            'firstName' => an['first'],
+            'middleName' => an['middle'],
+            'lastName' => an['last']
+          }.compact
+        end
+      end
+
+      def translate_national_guard_service(reserves_service_info)
+        {
+          'title10Activation' => reserves_service_info['title10Activation'],
+          'obligationTermOfServiceFromDate' => reserves_service_info['obligationTermOfServiceDateRange']['from'],
+          'obligationTermOfServiceToDate' => reserves_service_info['obligationTermOfServiceDateRange']['to'],
+          'unitName' => reserves_service_info['unitName'],
+          'inactiveDutyTrainingPay' => {
+            'waiveVABenefitsToRetainTrainingPay' => reserves_service_info['waiveVABenefitsToRetainTrainingPay']
+          }
+        }.compact
       end
 
       def translate_veteran
@@ -61,8 +99,7 @@ module EVSS
       end
 
       def translate_veteran_phone
-        veteran['primaryPhone'] = split_phone_number(veteran['phone'])
-        veteran.delete('phone')
+        veteran['primaryPhone'] = split_phone_number(veteran['primaryPhone'])
       end
 
       def translate_veteran_address
@@ -86,7 +123,14 @@ module EVSS
       end
 
       def service_branch(service_branch)
-        return 'National Oceanic &amp; Atmospheric Administration' if service_branch == 'NOAA'
+        branch_map = {
+          'Air Force Reserve' => 'Air Force Reserves',
+          'Army Reserve' => 'Army Reserves',
+          'Coast Guard Reserve' => 'Coast Guard Reserves',
+          'Marine Corps Reserve' => 'Marine Corps Reserves',
+          'NOAA' => 'National Oceanic & Atmospheric Administration'
+        }
+        return branch_map[service_branch] if branch_map.key? service_branch
         service_branch
       end
 
@@ -111,17 +155,16 @@ module EVSS
       end
 
       def translate_mailing_address(address)
-        pciu_address = { 'country' => address['country'],
-                         'addressLine1' => address['addressLine1'],
-                         'addressLine2' => address['addressLine2'],
-                         'addressLine3' => address['addressLine3'],
-                         'effectiveDate' => address['effectiveDate'] }
+        pciu_address = { 'effectiveDate' => address['effectiveDate'], 'country' => address['country'],
+                         'addressLine1' => address['addressLine1'], 'addressLine2' => address['addressLine2'],
+                         'addressLine3' => address['addressLine3'] }
 
         pciu_address['type'] = get_address_type(address)
 
+        zip_code = split_zip_code(address['zipCode']) if address['zipCode']
+
         case pciu_address['type']
         when 'DOMESTIC'
-          zip_code = split_zip_code(address['zipCode'])
           pciu_address['city'] = address['city']
           pciu_address['state'] = address['state']
           pciu_address['zipFirstFive'] = zip_code.first
@@ -129,6 +172,8 @@ module EVSS
         when 'MILITARY'
           pciu_address['militaryPostOfficeTypeCode'] = address['city']
           pciu_address['militaryStateCode'] = address['state']
+          pciu_address['zipFirstFive'] = zip_code.first
+          pciu_address['zipLastFour'] = zip_code.last
         when 'INTERNATIONAL'
           pciu_address['city'] = address['city']
         end
@@ -147,12 +192,16 @@ module EVSS
       end
 
       def translate_treatments
-        return if form['treatments'].blank?
+        if form['treatments'].blank?
+          form.delete('treatments')
+          return
+        end
+
         form['treatments'].map! do |treatment|
           treatment['center'] = {
             'name' => treatment['treatmentCenterName'],
             'type' => treatment['treatmentCenterType']
-          }
+          }.compact
           treatment['center'].merge!(treatment['treatmentCenterAddress'])
           treatment['startDate'] = treatment['treatmentDateRange']['from']
           treatment['endDate'] = treatment['treatmentDateRange']['to']
@@ -163,6 +212,12 @@ module EVSS
             'treatmentCenterType'
           ).compact
         end
+      end
+
+      def translate_disabilities
+        # The EVSS API does not support `specialIssues` currently. Including it in
+        # the submission will trigger an error response.
+        disabilities.each { |d| d.delete('specialIssues') }
       end
 
       def application_expiration_date
