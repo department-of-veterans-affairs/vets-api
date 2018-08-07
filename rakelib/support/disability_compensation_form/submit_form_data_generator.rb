@@ -13,7 +13,6 @@ class SubmitFormDataGenerator
     @form_data = compact(
       'form526' => {
         'veteran' => veteran,
-        'attachments' => attachments,
         'mililtaryPayments' => military_payments,
         'serviceInformation' => service_information,
         'disabilities' => disabilities,
@@ -55,17 +54,6 @@ class SubmitFormDataGenerator
       'homelessness' => homelessness(random_bool),
       'serviceNumber' => (NUM.number(9) if random_bool)
     }
-  end
-
-  def attachments
-    if random_bool
-      [{
-        'documentName' => L.word,
-        'dateUploaded' => date,
-        'attachmentType' => L.word,
-        'inflightDocumentId' => NUM.number(10)
-      }]
-    end
   end
 
   def military_payments
