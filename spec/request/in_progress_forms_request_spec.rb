@@ -108,6 +108,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       context 'when a form is not found' do
+        let(:street_check) { build(:street_check) }
         it 'returns pre-fill data' do
           _, phone_response = stub_evss_pciu(user)
 
@@ -122,7 +123,8 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'veteranDateOfBirth' => user.birth_date,
             'veteranSocialSecurityNumber' => user.ssn.to_s,
             'veteranAddress' => {
-              'street' => user.va_profile.address.street,
+              'street' => street_check[:street],
+              'street2' => street_check[:street2],
               'city' => user.va_profile.address.city,
               'state' => user.va_profile.address.state,
               'country' => user.va_profile.address.country,

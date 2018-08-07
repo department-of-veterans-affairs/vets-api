@@ -19,7 +19,10 @@
       }
     },
     "details": {
-      "type": "string"
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+      }
     }
   },
   "type": "object"
