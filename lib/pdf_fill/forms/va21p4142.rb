@@ -99,40 +99,67 @@ module PdfFill
             'phoneNumber' => {
                 key: 'F[0].Page_1[0].EMAIL[1]'
             },
-            'patientIdentification' => {
-                'patientFirstName' => {
-                    key: 'F[0].Page_1[0].VeteranFirstName[1]',
-                    limit: 12,
-                    question_num: 9,
-                    question_suffix: 'A',
-                    question_text: "PATIENT'S FIRST NAME"
+            # Patient other than veteran not currently in scope.
+            # 'patientIdentification' => {
+            #     'patientFirstName' => {
+            #         key: 'F[0].Page_1[0].VeteranFirstName[1]',
+            #         limit: 12,
+            #         question_num: 9,
+            #         question_suffix: 'A',
+            #         question_text: "PATIENT'S FIRST NAME"
+            #     },
+            #     'patientMiddleInitial' => {
+            #         key: 'F[0].Page_1[0].VeteranMiddleInitial1[1]'
+            #     },
+            #     'patientLastName' => {
+            #         key: 'F[0].Page_1[0].VeteranLastName[1]',
+            #         limit: 18,
+            #         question_num: 9,
+            #         question_suffix: 'B',
+            #         question_text: "PATIENT'S LAST NAME"
+            #     }
+            #     'veteranSocialSecurityNumber1' => {
+            #         'first' => {
+            #             key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_FirstThreeNumbers[1]'
+            #         },
+            #         'second' => {
+            #             key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]'
+            #         },
+            #         'third' => {
+            #             key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_LastFourNumbers[1]'
+            #         }
+            #     },
+            #     'vaFileNumber1' => {
+            #         key: 'F[0].Page_1[0].VAFileNumber[1]'
+            #     }
+            # },
+            'veteranSocialSecurityNumber2' => {
+                'first' => {
+                    key: 'F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
                 },
-                'patientMiddleInitial' => {
-                    key: 'F[0].Page_1[0].VeteranMiddleInitial1[1]'
+                'second' => {
+                    key: 'F[0].#subform[1].VeteransSocialSecurityNumber_SecondTwoNumbers[0]'
                 },
-                'patientLastName' => {
-                    key: 'F[0].Page_1[0].VeteranLastName[1]',
-                    limit: 18,
-                    question_num: 9,
-                    question_suffix: 'B',
-                    question_text: "PATIENT'S LAST NAME"
+                'third' => {
+                    key: 'F[0].#subform[1].VeteransSocialSecurityNumber_LastFourNumbers[0]'
                 }
-                'patientSSN' => {
-                    'patientSsnFirst' => {
-                        key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_FirstThreeNumbers[1]'
-                    },
-                    'patientSSNSecond' => {
-                        key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]'
-                    },
-                    'patientSsnThird' => {
-                        key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_LastFourNumbers[1]'
-                    }
-                },
-                'patientVaFileNumber' => {
-                    key: 'F[0].Page_1[0].VAFileNumber[1]'
-                }
+            },
+            'limitedConsent' => {
+                key: 'F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]'
+            },
+            'signature' => {
+                key: 'F[0].#subform[1].CLAIMANT_SIGNATURE[0]'
+            },
+            'signatureDate' => {
+                key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]'
+            },
+            'signature1' => {
+                key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
+            }, 
+            'relationshipToVeteran_Claimant' => {
+                key: 'F[0].#subform[1].RelationshipToVeteran_Claimant[0]'
             }
-            
+
         }
 
         def split_ssn
@@ -144,7 +171,7 @@ module PdfFill
               'third' => ssn[5..8]
             }
     
-            ['', '2'].each do |suffix|
+            ['','1','2'].each do |suffix|
               @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn
             end
     
@@ -158,15 +185,18 @@ module PdfFill
             return va_file_number if va_file_number.blank? || va_file_number.length < 10
 
             va_file_number.sub(/^[Cc]/, '')
+
         end
 
 
         def merge_fields
-            # your class must include this method, it can be used to make changes to the form
-            # before final processing
+            # make changes to the form before final processing
             split_ssn
 
-            @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
+            ['','1'].each do |suffix|
+            @form_data["vaFileNumber#{suffix}"] = extract_va_file_number(@form_data["vaFileNumber#{suffix}"])
+
+            expand_signature(@form_data['veteranFullName'])
 
             @form_data
         end
