@@ -12,4 +12,5 @@ class DisabilityCompensationSubmission < ActiveRecord::Base
   validates :user_uuid, presence: true, uniqueness: { scope: :form_type }
   validates :form_type, presence: true, uniqueness: { scope: :user_uuid }
   validates :status, presence: true
+  validates :job_id, presence: true
 end
