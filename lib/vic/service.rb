@@ -41,7 +41,7 @@ module VIC
 
     def claim_set
       {
-        iss: '3MVG9Zdl7Yn6QDKNg919aL4h_dDL4wvZil_yd1mPt3F.fHe3Ih1zIs84RqCoZ6eqZGJ8OZLnVPn8qKo4asJ2s',
+        iss: '3MVG9ic.6IFhNpPpLX.VlS2KtKBXVN8uJ93dnzyoQswomTDMtdTkhn6Pbo8FreIEvzOMA7tql349nwtFBNM5C',
         sub: SALESFORCE_USERNAME,
         aud: SALESFORCE_HOST,
         exp: Time.now.utc.to_i.to_s
