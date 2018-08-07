@@ -10,7 +10,7 @@ module EVSS
       end
 
       def clean_form(form)
-        perform(:post, 'inflightform/cleanForm', form.to_json)
+        perform(:post, 'inflightform/cleanForm', form.to_json, headers)
       end
     end
   end
