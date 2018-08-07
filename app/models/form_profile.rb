@@ -107,7 +107,7 @@ class FormProfile
     '22-0993'   => ::FormProfiles::VA0993
   }.freeze
 
-  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).{2,})/i
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
 
   attr_accessor :form_id
 
@@ -265,7 +265,7 @@ class FormProfile
   def format_for_schema_compatibility(opt)
     if opt[:address][:street2].blank? && (apt = opt[:address][:street].match(APT_REGEX))
       opt[:address][:street2] = apt[1]
-      opt[:address][:street] = opt[:address][:street].gsub(apt[1], '').strip
+      opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
 
     %i[home_phone us_phone mobile_phone].each do |phone|
