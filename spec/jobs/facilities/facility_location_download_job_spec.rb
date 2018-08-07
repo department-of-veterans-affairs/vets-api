@@ -64,6 +64,19 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::NCAFacility.count).to eq(count)
       end
     end
+
+    context 'source data returns empty' do
+      it 'does not delete cached data' do
+        VCR.use_cassette('facilities/va/nca_facilities', allow_playback_repeats: true) do
+          Facilities::FacilityLocationDownloadJob.new.perform('nca')
+          count = Facilities::NCAFacility.count
+          expect(count).not_to eq(0)
+          allow(BaseFacility).to receive(:pull_source_data).and_return([])
+          Facilities::FacilityLocationDownloadJob.new.perform('nca')
+          expect(Facilities::NCAFacility.count).to eq(count)
+        end
+      end
+    end
   end
 
   describe 'VBA Facilities' do

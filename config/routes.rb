@@ -71,6 +71,8 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    resources :evss_claims_async, only: %i[index show]
+
     get 'intent_to_file', to: 'intent_to_files#index'
     get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
@@ -212,7 +214,9 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create]
+    resource :mhv_account, only: %i[show create] do
+      post :upgrade
+    end
 
     [
       'profile',
