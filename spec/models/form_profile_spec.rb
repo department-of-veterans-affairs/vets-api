@@ -43,7 +43,8 @@ RSpec.describe FormProfile, type: :model do
 
   let(:address) do
     {
-      'street' => user.va_profile[:address][:street],
+      'street' => street_check[:street],
+      'street2' => street_check[:street2],
       'city' => user.va_profile[:address][:city],
       'state' => user.va_profile[:address][:state],
       'country' => user.va_profile[:address][:country],
@@ -97,7 +98,8 @@ RSpec.describe FormProfile, type: :model do
         'yes' => true
       },
       'veteranAddress' => {
-        'street' => user.va_profile[:address][:street],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
@@ -141,7 +143,8 @@ RSpec.describe FormProfile, type: :model do
         'yes' => true
       },
       'veteranAddress' => {
-        'street' => user.va_profile[:address][:street],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
@@ -163,7 +166,8 @@ RSpec.describe FormProfile, type: :model do
   let(:v22_1990_e_expected) do
     {
       'relativeAddress' => {
-        'street' => user.va_profile[:address][:street],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
@@ -181,7 +185,8 @@ RSpec.describe FormProfile, type: :model do
   let(:v22_1995_expected) do
     {
       'veteranAddress' => {
-        'street' => user.va_profile[:address][:street],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
@@ -250,7 +255,8 @@ RSpec.describe FormProfile, type: :model do
       'veteranDateOfBirth' => user.birth_date,
       'email' => user.pciu_email,
       'veteranAddress' => {
-        'street' => user.va_profile[:address][:street],
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
@@ -528,7 +534,6 @@ RSpec.describe FormProfile, type: :model do
       context 'with a user that can prefill emis' do
         before do
           can_prefill_emis(true)
-          user.va_profile[:address].street = user.va_profile[:address].street.slice(0, 20)
         end
 
         %w[
