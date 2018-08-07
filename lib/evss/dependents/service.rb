@@ -8,6 +8,10 @@ module EVSS
       def retrieve
         perform(:get, 'load/retrieve')
       end
+
+      def clean_form(form)
+        perform(:post, 'inflightform/cleanForm', form.to_json)
+      end
     end
   end
 end
