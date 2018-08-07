@@ -193,8 +193,11 @@ module PdfFill
             # make changes to the form before final processing
             split_ssn
 
-            ['','1'].each do |suffix|
-            @form_data["vaFileNumber#{suffix}"] = extract_va_file_number(@form_data["vaFileNumber#{suffix}"])
+            # if we include patient information, this will be necessary.  commenting for now
+            # ['','1'].each do |suffix|
+            # @form_data["vaFileNumber#{suffix}"] = extract_va_file_number(@form_data["vaFileNumber#{suffix}"])
+
+            @form_data["vaFileNumber"] = extract_va_file_number(@form_data["vaFileNumber"])
 
             expand_signature(@form_data['veteranFullName'])
 
