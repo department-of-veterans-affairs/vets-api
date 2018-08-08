@@ -158,10 +158,10 @@ module Swagger
         key :type, :object
         key :description, 'Patient satisfaction scores for health facilities'
 
-        property :primary_care_routine, type: :string, format: :float, example: 95.2
-        property :primary_care_urgent, type: :string, format: :float, example: 89.1
-        property :specialty_care_routine, type: :string, format: :float, example: 78
-        property :specialty_care_urgent, type: :string, format: :float, example: 75.3
+        property :primary_care_routine, type: :number, format: :float, example: 95.2
+        property :primary_care_urgent, type: :number, format: :float, example: 89.1
+        property :specialty_care_routine, type: :number, format: :float, example: 78
+        property :specialty_care_urgent, type: :number, format: :float, example: 75.3
         property :effective_date, type: :string, format: :date, example: '2017-07-01'
       end
 
