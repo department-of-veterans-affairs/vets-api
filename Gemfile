@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'vba_documents', path: 'modules/vba_documents'
+gem 'va_facilities', path: 'modules/va_facilities'
 
 # Anchored versions, do not change
 gem 'puma', '~> 2.16.0'

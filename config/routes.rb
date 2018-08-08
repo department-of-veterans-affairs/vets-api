@@ -234,6 +234,7 @@ Rails.application.routes.draw do
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
+    mount VaFacilities::Engine, at: '/va_facilities'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
