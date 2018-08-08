@@ -28,57 +28,77 @@ class MhvAccount < ActiveRecord::Base
   scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
   scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
 
+  TERMS_AND_CONDITIONS_NAME = 'mhvac'
+  UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
+  INELIGIBLE_STATES = %i[
+    needs_identity_verification needs_ssn_resolution needs_va_patient
+    has_deactivated_mhv_ids has_multiple_active_mhv_ids
+    state_ineligible country_ineligible needs_terms_acceptance
+  ].freeze
+  PERSISTED_STATES = %i[registered upgraded register_failed upgrade_failed].freeze
+  ELIGIBLE_STATES = %i[existing eligible no_account].freeze
+  ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
+
   after_initialize :setup
 
+  # rubocop:disable Metrics/BlockLength
   aasm(:account_state) do
     state :unknown, initial: true
-    state :needs_terms_acceptance, :existing, :ineligible, :registered, :upgraded, :register_failed, :upgrade_failed
+    state(*(INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES))
 
+    # NOTE: This is eligibility for account creation or upgrade, not for access to services.
     event :check_eligibility do
-      transitions from: ALL_STATES, to: :existing, if: :preexisting_account?
-      transitions from: ALL_STATES, to: :ineligible, unless: :eligible?
-      transitions from: ALL_STATES, to: :upgraded, if: :previously_upgraded?
-      transitions from: ALL_STATES, to: :registered, if: :previously_registered?
-      transitions from: ALL_STATES, to: :unknown
+      transitions from: ALL_STATES, to: :needs_identity_verification, unless: :identity_proofed?
+      transitions from: ALL_STATES, to: :needs_ssn_resolution, if: :ssn_mismatch?
+      transitions from: ALL_STATES, to: :needs_va_patient, unless: :va_patient?
+      transitions from: ALL_STATES, to: :has_deactivated_mhv_ids, if: :deactivated_mhv_ids?
+      transitions from: ALL_STATES, to: :has_multiple_active_mhv_ids, if: :multiple_active_mhv_ids?
+      transitions from: ALL_STATES, to: :needs_terms_acceptance, if: :requires_terms_acceptance?
+      transitions from: ALL_STATES, to: :eligible
     end
 
-    event :check_terms_acceptance do
-      transitions from: ALL_STATES - %i[existing ineligible],
-                  to: :needs_terms_acceptance, unless: :terms_and_conditions_accepted?
+    event :check_account_state do
+      transitions from: %i[eligible], to: :no_account, unless: :exists?
+      # The states below this line and the next comment will be removed when reintroducing upgrade.665
+      transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
+      transitions from: %i[eligible], to: :registered, if: :previously_registered?
+      # this could mean that vets.gov created / upgraded before we started tracking mhv_ids
+      transitions from: %i[eligible], to: :existing
     end
 
     event :register do
-      transitions from: %i[unknown register_failed], to: :registered
+      transitions from: %i[register_failed no_account], to: :registered
     end
 
+    # we will upgrade existing account only if it has not been previously upgraded (even if subsequently downgraded)
     event :upgrade do
-      transitions from: %i[unknown registered upgrade_failed], to: :upgraded
+      transitions from: %i[upgrade_failed existing registered], to: :upgraded, unless: :already_premium?
+    end
+
+    event :existing_premium do
+      transitions from: %i[existing], to: :existing, if: :already_premium?
     end
 
     event :fail_register do
-      transitions from: [:unknown], to: :register_failed
+      transitions from: [:no_account], to: :register_failed
     end
 
     event :fail_upgrade do
-      transitions from: %i[unknown registered], to: :upgrade_failed
+      transitions from: %i[registered existing], to: :upgrade_failed
     end
   end
+  # rubocop:enable Metrics/BlockLength
 
-  def eligible?
-    user.authorize :mhv_account_creation, :access?
+  def creatable?
+    may_register?
   end
 
-  def accessible?
-    return false if mhv_correlation_id.blank?
-    (user.loa3? || user.authn_context.include?('myhealthevet')) && (upgraded? || existing?)
+  def upgradable?
+    may_upgrade? && account_level.in?(UPGRADABLE_ACCOUNT_LEVELS)
   end
 
   def terms_and_conditions_accepted?
     terms_and_conditions_accepted.present?
-  end
-
-  def preexisting_account?
-    mhv_correlation_id.present? && !previously_registered?
   end
 
   def terms_and_conditions_accepted
@@ -89,28 +109,73 @@ class MhvAccount < ActiveRecord::Base
                                   .where(user_uuid: user_uuid).limit(1).first
   end
 
-  def previously_upgraded?
-    eligible? && upgraded_at?
+  def exists?
+    mhv_correlation_id.present?
   end
 
-  def previously_registered?
-    eligible? && registered_at?
+  # if vets.gov upgraded the account it is premium, if not, we have to check eligible data classes
+  # NOTE: individual services should always check mhv_account_type using eligible data classes since
+  # it is possible for accounts to get downgraded.
+  def account_level
+    return 'Advanced' if registered?
+    return 'Advanced' if upgrade_failed? && registered_at.present?
+    return 'Premium' if upgraded?
+    user.mhv_account_type
   end
-
-  private
 
   def user
     @user ||= User.find(user_uuid)
   end
 
-  # TODO: remove this in future migration
-  def mhv_correlation_id
-    user.mhv_correlation_id
+  def already_premium?
+    account_level == 'Premium' && !previously_upgraded?
+  end
+
+  private
+
+  def identity_proofed?
+    user.loa3?
+  end
+
+  def va_patient?
+    user.va_patient?
+  end
+
+  def ssn_mismatch?
+    user.ssn_mismatch?
+  end
+
+  def requires_terms_acceptance?
+    return false if account_level == 'Premium'
+    !terms_and_conditions_accepted?
+  end
+
+  def multiple_active_mhv_ids?
+    if previously_upgraded? || previously_registered?
+      false
+    else
+      user.va_profile.active_mhv_ids.size > 1
+    end
+  end
+
+  def deactivated_mhv_ids?
+    if previously_upgraded? || previously_registered?
+      false
+    else
+      (user.va_profile.mhv_ids.to_a - user.va_profile.active_mhv_ids.to_a).any?
+    end
+  end
+
+  def previously_upgraded?
+    exists? && eligible? && upgraded_at?
+  end
+
+  def previously_registered?
+    exists? && eligible? && registered_at?
   end
 
   def setup
-    raise StandardError, 'You must use find_or_initialize_by(user_uuid: #)' if user_uuid.nil?
-    check_eligibility unless accessible?
-    check_terms_acceptance if may_check_terms_acceptance?
+    check_eligibility
+    check_account_state if may_check_account_state?
   end
 end
