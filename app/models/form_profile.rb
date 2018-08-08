@@ -45,7 +45,7 @@ class FormAddress
   include Virtus.model
 
   attribute :street
-  attribute :street_2
+  attribute :street2
   attribute :city
   attribute :state
   attribute :country
@@ -106,6 +106,8 @@ class FormProfile
     '21P-527EZ' => ::FormProfiles::VA21p527ez,
     '22-0993'   => ::FormProfiles::VA0993
   }.freeze
+
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
 
   attr_accessor :form_id
 
@@ -208,12 +210,12 @@ class FormProfile
 
   def convert_vets360_address(address)
     {
-      'street' => address.address_line1,
-      'street2' => address.address_line2,
-      'city' => address.city,
-      'state' => address.state_code || address.province,
-      'country' => address.country_code_iso3,
-      'postal_code' => address.zip_plus_four || address.international_postal_code
+      street:  address.address_line1,
+      street2:  address.address_line2,
+      city:  address.city,
+      state:  address.state_code || address.province,
+      country: address.country_code_iso3,
+      postal_code:  address.zip_plus_four || address.international_postal_code
     }.compact
   end
 
@@ -235,7 +237,6 @@ class FormProfile
 
   def initialize_contact_information(user)
     opt = {}
-
     opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
 
     if opt[:address].nil? && user.va_profile&.address
@@ -256,7 +257,22 @@ class FormProfile
       opt[:us_phone] = get_us_phone(pciu_primary_phone)
     end
 
+    format_for_schema_compatibility(opt)
+
     FormContactInformation.new(opt)
+  end
+
+  def format_for_schema_compatibility(opt)
+    if opt[:address] && opt[:address][:street2].blank? && (apt = opt[:address][:street].match(APT_REGEX))
+      opt[:address][:street2] = apt[1]
+      opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
+    end
+
+    %i[home_phone us_phone mobile_phone].each do |phone|
+      opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
+    end
+
+    opt[:postal_code] = opt[:postal_code][0..4] if opt[:postal_code]
   end
 
   def extract_pciu_data(user, method)
