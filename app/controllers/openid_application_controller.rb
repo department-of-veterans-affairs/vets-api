@@ -66,7 +66,7 @@ class OpenidApplicationController < ApplicationController
       user_identity = user_identity_from_profile(payload, ttl)
       @current_user = user_from_identity(user_identity, ttl)
       @session = session_from_claims(token, payload, ttl)
-      @session.save && @current_user.save && user_identity.save
+      @session.save && user_identity.save && @current_user.save
     rescue StandardError => e
      Rails.logger.warn(e)
     end
