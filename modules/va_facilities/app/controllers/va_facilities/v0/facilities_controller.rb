@@ -4,6 +4,7 @@ require 'will_paginate/array'
 
 require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/geo_serializer'
+require_dependency 'va_facilities/csv_serializer'
 
 module VaFacilities
   module V0
@@ -15,6 +16,18 @@ module VaFacilities
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
 
+      def all
+        resource = BaseFacility.all
+        respond_to do |format|
+          format.geojson do
+            render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
+          end
+          format.csv do
+            render csv: VaFacilities::CsvSerializer.to_csv(resource), filename: 'va_facilities'
+          end
+        end
+      end 
+
       def index
         resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
         respond_to do |format|
@@ -25,8 +38,6 @@ module VaFacilities
           end
           format.geojson do
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
-              #adapter: :geojson,
-              #each_serializer: VaFacilities::GeoSerializer
           end
         end
       end
@@ -43,8 +54,6 @@ module VaFacilities
           end
           format.geojson do
             render geojson: VaFacilities::GeoSerializer.to_geojson(results)
-              #adapter: :geojson,
-              #serializer: VaFacilities::GeoSerializer
           end
         end
       end
