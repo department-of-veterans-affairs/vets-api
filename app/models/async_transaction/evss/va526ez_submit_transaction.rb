@@ -15,6 +15,13 @@ module AsyncTransaction
       scope :for_user, ->(user) { where(user_uuid: user.uuid) }
       scope :job_id, ->(job_id) { where(transaction_id: job_id).limit(1) }
 
+      # Creates an initial AsyncTransaction record for ongoing tracking and
+      # set its transaction_status to submitted
+      #
+      # @param user [User] The user associated with the transaction
+      # @param job_id [String] A sidekiq job id (uuid)
+      # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
+      #
       def self.start(user, job_id)
         create!(
           user_uuid: user.uuid,
@@ -26,17 +33,34 @@ module AsyncTransaction
         )
       end
 
-      def self.find_transaction(user, job_id)
-        VA526ezSubmitTransaction.for_user(user).job_id(job_id).first
+      # Finds a single transaction by job_id
+      #
+      # @param job_id [String] A sidekiq job id (uuid)
+      # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
+      #
+      def self.find_transaction(job_id)
+        VA526ezSubmitTransaction.job_id(job_id).first
       end
 
+      # Finds a single transaction by job_id
+      #
+      # @param user [User] The user associated with the transaction
+      # @return [Array AsyncTransaction::EVSS::VA526ezSubmitTransaction] the user's transactions
+      #
       def self.find_transactions(user)
         VA526ezSubmitTransaction.for_user(user)
       end
 
-      def self.update_transaction(user, job_id, status, response_body)
+      # Updates a transaction
+      #
+      # @param user [User] The user associated with the transaction
+      # @param status [Symbol] a valid VA526ezSubmitTransaction::JOB_STATUS key
+      # @param response_body [Hash|String] the response body of the last request
+      # @return [Boolean] did the update succeed
+      #
+      def self.update_transaction(job_id, status, response_body)
         raise ArgumentError, "#{status} is not a valid status" unless JOB_STATUS.keys.include?(status)
-        transaction = VA526ezSubmitTransaction.find_transaction(user, job_id)
+        transaction = VA526ezSubmitTransaction.find_transaction(job_id)
         transaction.update(
           status: COMPLETED,
           transaction_status: JOB_STATUS[status],
