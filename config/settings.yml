@@ -23,6 +23,9 @@ review_instance_slug: ~
 
 sidekiq_admin_panel: false
 
+salesforce-gibft:
+  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
+
 salesforce:
   env: dev
   signing_key_path: 'spec/fixtures/vic/private.key'
