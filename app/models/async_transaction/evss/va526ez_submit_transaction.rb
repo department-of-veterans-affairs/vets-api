@@ -62,7 +62,7 @@ module AsyncTransaction
         raise ArgumentError, "#{status} is not a valid status" unless JOB_STATUS.keys.include?(status)
         transaction = VA526ezSubmitTransaction.find_transaction(job_id)
         transaction.update(
-          status: COMPLETED,
+          status: (status == :retrying ? REQUESTED : COMPLETED),
           transaction_status: JOB_STATUS[status],
           metadata: response_body
         )

@@ -81,7 +81,7 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
              transaction_id: update_job_id)
     end
 
-    context 'with a valid status' do
+    context 'with a valid status of retrying' do
       it 'updates a transaction' do
         AsyncTransaction::EVSS::VA526ezSubmitTransaction.update_transaction(
           update_job_id,
@@ -91,6 +91,25 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
         expect(
           AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(update_job_id).transaction_status
         ).to eq('retrying')
+        expect(
+          AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(update_job_id).status
+        ).to eq('requested')
+      end
+    end
+
+    context 'with a valid status of received' do
+      it 'updates a transaction' do
+        AsyncTransaction::EVSS::VA526ezSubmitTransaction.update_transaction(
+          update_job_id,
+          :received,
+          response_body
+        )
+        expect(
+          AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(update_job_id).transaction_status
+        ).to eq('received')
+        expect(
+          AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(update_job_id).status
+        ).to eq('completed')
       end
     end
 
