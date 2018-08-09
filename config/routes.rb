@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       post 'submit'
+      get 'submission_status/:form_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
     end
 
     resource :upload_supporting_evidence, only: :create

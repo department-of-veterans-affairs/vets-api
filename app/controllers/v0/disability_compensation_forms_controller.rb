@@ -27,6 +27,13 @@ module V0
              serializer: SubmitDisabilityFormSerializer
     end
 
+    def submission_status
+      # pseudocode:
+      # submission = DisabilityCompensationSubmission.submission_for_user(params[:form_id], @current_user)
+      # if submission
+      #   return submission status and response body
+    end
+
     private
 
     def service

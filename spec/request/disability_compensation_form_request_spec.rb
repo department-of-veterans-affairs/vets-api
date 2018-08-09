@@ -66,7 +66,7 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
   end
 
-  describe 'Get /v0/disability_compensation_form/submit' do
+  describe 'Post /v0/disability_compensation_form/submit' do
     before(:each) do
       VCR.insert_cassette('emis/get_military_service_episodes/valid')
       VCR.insert_cassette('evss/ppiu/payment_information')
@@ -165,6 +165,19 @@ RSpec.describe 'Disability compensation form', type: :request do
           end
         end
       end
+    end
+  end
+
+  describe 'Get /v0/disability_compensation_form/submission_status' do
+    let(:form_id) { '21-526EZ' }
+    it 'should return no response body if the submission status is "submitted"'
+    it 'should return a response with a claim id if the status is "received"'
+    it 'should return the last error if the status is "retrying"'
+    it 'should return the last error if the status is "non_retryable_error"'
+    it 'should return the last error if the status is "exhausted"'
+
+    context 'with an invalid form id' do
+      it 'should return a 500'
     end
   end
 end
