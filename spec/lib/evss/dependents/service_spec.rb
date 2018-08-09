@@ -322,6 +322,9 @@ describe EVSS::Dependents::Service do
      "unique_identifier"=>"1194913109",
      "va_file_number"=>"796-04-3735"}}}
 
+    VCR.configure do |c|
+      c.allow_http_connections_when_no_cassette = true
+    end
     binding.pry; fail
     VCR.use_cassette('foo', record: :once) do
       subject.clean_form(form)
