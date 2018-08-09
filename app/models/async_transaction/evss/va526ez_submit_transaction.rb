@@ -42,7 +42,7 @@ module AsyncTransaction
         VA526ezSubmitTransaction.job_id(job_id).first
       end
 
-      # Finds a single transaction by job_id
+      # Finds all of a users submit transactions
       #
       # @param user [User] The user associated with the transaction
       # @return [Array AsyncTransaction::EVSS::VA526ezSubmitTransaction] the user's transactions
