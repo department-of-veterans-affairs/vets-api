@@ -1,18 +1,19 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: Appeals 
+  title: VA Facilities 
   description: |
-    Caseflow Appeals Status
     
     ## Background
 
-    This API is being provided as a proof of concept for a general-purpose VA API gateway. The use case allows authorized third-party developers to request the status of a Veteran’s benefit appeals.
+    This API provides information about physical VA facilities. Information available includes
+    geographic location, address, phone, hours of operation, and available services. 
 
-    The Appeals API passes data through to Caseflow, a case management system. Caseflow
-    accepts a header with the Veteran’s SSN and returns the current status of their appeals.
-
-    Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
+    VA operates several different types of facilities, the types represented in this API include:
+    - Health facilities
+    - Benefits facilities
+    - Cemeteries
+    - Vet Centers 
 
     ## Design
     
@@ -20,57 +21,83 @@ info:
     
     API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey".
 
-    ### Status Request
+    ### Response Formats
     
-    Allows a client to check benefit appeals status
-
-    1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
-        * Provide the Veteran's SSN as the X-VA-SSN header
-        * Provide the VA username of the person requesting the appeals status as the X-VA-User header
-    
-    2. Service Response: A JSON API object with the current status of appeals
+    Clients may request several response formats by setting the `Accept` header. 
+    - application/json - The default JSON response format complies with JSON API.
+    - application/vnd.geo+json - GeoJSON-compliant format, representing each facility as a Feature with a Point geometry.
+    - text/csv - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.
           
-      ## Reference
+    ### Response Elements
 
-      Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+    Some data elements within the response are only present for facilities of a given type:
+    - The patient satisfaction scores contained in the `satisfaction` element are only applicable
+      to VA health facilities.
+    - The patient wait time values contained in the `wait_times` element are only applicable to 
+      VA health facilities.
+    - The list of available services in the `services` element is only applicable to VA health and
+      benefits facilities.
+
+    ## Reference
+
+    -Raw VA Facilities Open API Spec: http://dev-api.vets.gov/services/va_facilities/docs/v0/api
+    -GeoJSON Format: https://tools.ietf.org/html/rfc7946
+    -JSON API Format: http://jsonapi.org/format/
 
   termsOfService: ''
   contact:
-    name: Vets.gov
+    name: developer.va.gov
 tags:
-  - name: appeals
-    description: Caseflow appeals status API
+  - name: facilities
+    description: VA Facilities API
 servers: 
-  - url: dev-api.vets.gov/services/appeals/{version}
+  - url: https://dev-api.vets.gov/services/va_facilities/{version}
     description: Vets.gov API development environment
     variables:
       version:
         default: v0
 paths:
-  /appeals:
+  /facilities:
     get:
       tags:
-        - appeals_status 
-      summary: Retrieve appeals status for the Veteran with the supplied ssn
-      operationId: getAppealStatus
+        - facilities 
+      summary: Query facilities based on a geographic bounding box and optional attribute filters
+      operationId: getFacilitiesByLocation
       security:
         - api_key: []
       parameters:
-        - in: header
-          name: X-VA-SSN
+        - in: query
+          name: bbox[]
           required: true
+          style: form
+          exploded: true
+          schema:
+            type: array
+            minItems: 4
+            maxItems: 4
+            items:
+              type: float
+        - in: query
+          name: type
+          required: false
           schema:
             type: string
-          description: SSN of Veteran to retrieve appeals statuses for
-        - in: header
-          name: X-VA-User
-          required: true
+            enum:
+              - health
+              - cemetery
+              - benefits
+              - vet_center
+        - in: query
+          name: services[]
+          style: form
+          exploded: true
           schema:
-            type: string
-          description: VA username of the person making the request
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Appeals retrieved successfully
+          description: Facilities retrieved successfully
           content:
             application/json:
               schema:
@@ -78,289 +105,390 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/Appeal"
-        '400':
-          description: Missing SSN header
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Facility"
+            application/vnd.geo+json:
+              schema:
+                required:
+                  - type
+                  - features
+                properties:
+                  type:
+                    type: string
+                    enum: ["FeatureCollection"]
+                  features:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/FacilityFeature"
         '403':
           description: Bad API Token
+  /facilities/{id}:
+    get:
+      tags:
+        - facilities 
+      summary: Retrieve a specific facility by ID. 
+      operationId: getFacilityById
+      security:
+        - api_key: []
+      parameters:
+        - in: path
+          name: id
+          description: |
+            Facility ID, in the form `<prefix>_<id>`, where prefix is one of "vha", "vba", "nca", or "vc" 
+            for health, benefits, cemetery, or Vet Center facilities respectively. 
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Facility retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Facility"
+            application/vnd.geo+json:
+              schema:
+                $ref: "#/components/schemas/FacilityFeature"
         '404':
-          description: No appeals found for supplied SSN
-        '422':
-          description: invalid SSN
+          description: Facility ID not found
+        '403':
+          description: Bad API Token
 components:
   securitySchemes:
     api_key:
       type: apiKey
       name: apikey
-      in: query
+      in: header
   schemas:
-    Appeal:
-      description: |
-        Appeal and supporting information for the supplied Veteran SSN
+    Facility:
+      description: JSON API-compliant object describing a VA facility
       type: object
+      required:
+        - id
+        - type
+        - attributes
       properties:
         id:
           type: string
-          description: ID from VACOLS (Veteran Appeals Control and Locator Service)
-          example: '7387389'
         type:
           type: string
-          example: appealSeries
-          description: Required by JSON API standard
+          enum: ["va_facilities"]
         attributes:
           type: object
+          required:
+            - name
+            - facility_type
+            - lat
+            - long
           properties:
-            appealIds:
-              format: array
-              description: An array of the individual VACOLS (Veteran Appeals Control and Locator Service) IDs that are combined into this appeal
-              items:
-                type: string
-                example: '1234567'
-            updated:
-              format: date-time
-              example: '2018-01-03T09:30:15-05:00'
-              description: The timestamp for the last refresh of the data
-            active:
-              type: boolean
-              description: Indicates whether the appeal is ongoing or closed
-              example: true
-            incompleteHistory:
-              type: boolean
-              example: false
-              description: Indicates whether this response contains a complete history of this appeal
-            aoj:
+            name:
               type: string
-              description: Agency of Original Jurisdiction, vba is Veterans Benefits Administration, vha is Veterans Health Administration, and nca is National Cemetery Administration.
-              example: vba
-              enum:
-              - vba
-              - vha
-              - nca
-              - other
-            programArea:
+              example: Washington VA Medical Center
+            facility_type:
               type: string
-              description: Type of service or benefit being appealed
-              example: pension
               enum: 
-              - compensation
-              - pension
-              - insurance
-              - loan_guaranty
-              - education
-              - vre
-              - medical
-              - burial
-              - bva
-              - other
-              - multiple
-            description:
+                - va_health_facility
+                - va_benefits_facility
+                - va_cemetery
+                - vet_center
+            classification:
               type: string
-              description: 
-              example: Service connection, tinnitus, and 3 others
-            type:
+              example: VA Medical Center (VAMC)
+            lat:
+              description: Facility latitude
+              type: float
+              example: 38.9311137
+            long:
+              description: Facility longitude
+              type: float
+              example: -77.0109110499999
+            website:
               type: string
-              description: Indicates the type of Appeal. CAVC is the Court of Appeals for Veterans Claims
-              enum:
-              - original
-              - post_remand
-              - post_cavc_remand
-              - reconsideration
-              - cue
-            aod:
-              type: boolean
-              example: false
-              description: Advanced on Docket, whether this appeals have been given precedence due to Veteran age or urgency.
-            location:
-              type: string
-              example: bva
-              description: Indicates who currently has the appeal AOJ (Agency of Original Jurisdiction) or BVA (Board of Veterans Appeals)
-              enum:
-              - aoj
-              - bva
-            status:
+              format: url
+            address:
               type: object
-              description: Where in the appeals process this appeal currently is
               properties:
-                type:
-                  type: string
-                  description: 
-                  enum:
-                  - scheduled_hearing
-                  - pending_hearing_scheduling
-                  - on_docket
-                  - pending_certification_ssoc
-                  - pending_certification
-                  - pending_form9
-                  - pending_soc
-                  - stayed
-                  - at_vso
-                  - bva_development
-                  - decision_in_progress
-                  - bva_decision
-                  - field_grant
-                  - withdrawn
-                  - ftr
-                  - ramp
-                  - death
-                  - reconsideration
-                  - other_close
-                  - remand_ssoc
-                  - remand
-                  - merged
-                details:
-                  type: object
-                  description: Further information about the process step the appeal is in
-            docket:
+                mailing:
+                  $ref: "#/components/schemas/Address"
+                physical:
+                  $ref: "#/components/schemas/Address"
+            phone:
+              $ref: "#/components/schemas/PhoneNumbers"
+            hours:
+              $ref: "#/components/schemas/Hours"
+            services:
               type: object
-              description: Represents the appeals' position in line for a decision and the expected timing of the decision
               properties:
-                month:
+                other:
+                  type: array
+                  items:
+                    type: string
+                    enum: "Online Scheduling"
+                health: 
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/HealthService"
+                benefits:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/BenefitsService" 
+                last_updated:
                   type: string
                   format: date
-                  example: '2016-08-01'
-                docketMonth:
+            satisfaction:
+              type: object
+              properties:
+                health:
+                  $ref: "#/components/schemas/PatientSatisfaction"
+                effective_date:
                   type: string
                   format: date
-                  example: '2014-06-01'
-                front:
-                  type: boolean
-                  example: false
-                total:
-                  type: number
-                  example: 206900
-                ahead:
-                  type: number
-                  example: 109203
-                ready:
-                  type: number
-                  example: 22109
-                eta:
+                  example: "2018-01-01"
+            wait_times:
+              type: object
+              properties:
+                health:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PatientWaitTime"
+                effective_date:
                   type: string
                   format: date
-                  example: '2019-08-31'
-            issues:
-              type: array
-              items:
-                $ref: '#/components/schemas/Issue'
-            alerts:
-              type: array
-              items:
-                $ref: '#/components/schemas/Alert'
-            events:
-              type: array
-              items:
-                $ref: '#/components/schemas/Event'
-            evidence:
-              type: array
-              items:
-                $ref: '#/components/schemas/Evidence'
-    Alert:
+                  example: "2018-01-01"
+    FacilityFeature:
+      description: GeoJSON-complaint Feature object describing a VA Facility
       type: object
-      description: Notification of a request for more information or of a change in the appeal status that requires action.
       properties:
         type:
           type: string
-          description: Enum of notifications for an appeal. Acronyms used include cavc (Court of Appeals for Veteran Claims), vso (Veteran Service Organization), and dro (Decision Review Officer). 
-          example: form9_needed
-          enum:
-          - form9_needed
-          - scheduled_hearing
-          - hearing_no_show
-          - held_for_evidence
-          - cavc_option
-          - ramp_eligible
-          - ramp_ineligible
-          - decision_soon
-          - blocked_by_vso
-          - scheduled_dro_hearing
-          - dro_hearing_no_show
-        details:
-          description: Further information about the alert
+          enum: ["Feature"]
+          example: Feature
+        geometry: 
           type: object
-    Event:
-      type: object
-      description: Event during the appeals process
-      properties:
-        type:
-          type: string
-          example: soc
-          description: Enum of possible event types. Acronyms used include, nod (Notice of Disagreement), soc (Statement of Case), ssoc (Supplemental Statement of Case), ftr (Failed to Report), bva (Board of Veteran Appeals), cavc (Court of Appeals for Veteran Claims), and dro (Decision Review Officer). 
-          enum:
-          - claim_decision
-          - nod
-          - soc
-          - form9
-          - ssoc
-          - certified
-          - hearing_held
-          - hearing_no_show
-          - bva_decision
-          - field_grant
-          - withdrawn
-          - ftr
-          - ramp
-          - death
-          - merged
-          - record_designation
-          - reconsideration
-          - vacated
-          - other_close
-          - cavc_decision
-          - ramp_notice
-          - transcript
-          - remand_return
-          - dro_hearing_held
-          - dro_hearing_cancelled
-          - dro_hearing_no_show
-        date:
-          type: string
-          format: date
-          description: Date the event occurred
-          example: '2016-05-30'
-        details:
-          description: Further information about the event
+          properties:
+            type: 
+              type: string
+              enum: ["Point"]
+              example: Point
+            coordinates:
+              type: array
+              minLength: 2
+              maxLength: 2
+              items:
+                type: float
+              example: [-77.0367761, 38.9004181] 
+        properties:
           type: object
-    Issue:
+          properties:
+            name:
+              type: string
+              example: Washington VA Medical Center
+            id:
+              type: string
+              example: vha_688
+            facility_type:
+              type: string
+              enum: 
+                - va_health_facility
+                - va_benefits_facility
+                - va_cemetery
+                - vet_center
+            classification:
+              type: string
+              example: VA Medical Center (VAMC)
+            website:
+              type: string
+              format: url
+            address:
+              type: object
+              properties:
+                mailing:
+                  $ref: "#/components/schemas/Address"
+                physical:
+                  $ref: "#/components/schemas/Address"
+            phone:
+              $ref: "#/components/schemas/PhoneNumbers"
+            hours:
+              $ref: "#/components/schemas/Hours"
+            services:
+              type: object
+              properties:
+                other:
+                  type: array
+                  items:
+                    type: string
+                    enum: "Online Scheduling"
+                health: 
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/HealthService"
+                benefits:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/BenefitsService" 
+                last_updated:
+                  type: string
+                  format: date
+            satisfaction:
+              type: object
+              properties:
+                health:
+                  $ref: "#/components/schemas/PatientSatisfaction"
+                effective_date:
+                  type: string
+                  format: date
+                  example: "2018-01-01"
+            wait_times:
+              type: object
+              properties:
+                health:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PatientWaitTime"
+                effective_date:
+                  type: string
+                  format: date
+                  example: "2018-01-01"
+    Address:
       type: object
-      description: Issues on appeal
       properties:
-        active:
-          type: boolean
-          example: true
-          description: Whether the issue is presently under contention.
-        description:
+        address_1:
           type: string
-          example: Service connection, tinnitus
-          description: Description of the Issue
-        diagnosticCode:
+          example: "50 Irving Street, Northwest"
+        address_2:
           type: string
-          example: "6260"
-          description: The CFR (Code of Federal Regulations) diagnostic code for the issue, if applicable
-        lastAction:
+        address_3:
           type: string
-          description: Most recent decision made on this issue
-          enum:
-          - field_grant
-          - withdrawn
-          - allowed
-          - denied
-          - remand
-          - cavc_remand
-        date:
+        city: 
           type: string
-          format: date
-          description: "Date issue was submitted"
-          example: '2016-05-30'
-    Evidence:
+          example: "Washington"
+        state: 
+          type: string
+          example: "DC"
+        zip:
+          type: string
+          example: "20422-0001"
+    PhoneNumbers:
       type: object
-      description: Documentation and other evidence that has been submitted in support of the appeal
       properties:
-        description:
+        main: 
           type: string
-          example: Service treatment records
-          description: Short text describing what the evidence is
-        date:
+          example: "202-555-1212"
+        fax: 
           type: string
-          format: date
-          description: Date the evidence was added to the case
-          example: '2017-09-30'
+          example: "202-555-1212"
+        pharmacy: 
+          type: string
+          example: "202-555-1212"
+        after_hours: 
+          type: string
+          example: "202-555-1212"
+        patient_advocate: 
+          type: string
+          example: "202-555-1212"
+        mental_health_clinic: 
+          type: string
+          example: "202-555-1212"
+        enrollment_coordinator: 
+          type: string
+          example: "202-555-1212"
+    Hours:
+      description: |
+        Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parseable format. Hours of operation may vary due to holidays or other events.
+      type: object
+      properties:
+        Monday:
+          type: string
+          example: "9AM-5PM"
+        Monday:
+          type: string
+          example: "9AM-5PM"
+        Tuesday:
+          type: string
+          example: "9AM-5PM"
+        Wednesday:
+          type: string
+          example: "9AM-5PM"
+        Thursday:
+          type: string
+          example: "9AM-5PM"
+        Friday:
+          type: string
+          example: "9AM-5PM"
+        Saturday:
+          type: string
+          example: "Closed"
+        Sunday:
+          type: string
+          example: "Closed"
+    HealthService:
+      type: string
+      enum:
+        - PrimaryCare 
+        - MentalHealthCare 
+        - UrgentCare 
+        - EmergencyCare 
+        - Audiology 
+        - Cardiology 
+        - Dermatology
+        - Gastroenterology 
+        - Gynecology 
+        - Ophthalmology 
+        - Optometry 
+        - Orthopedics 
+        - Urology 
+        - WomensHealth
+    BenefitsService:
+      type: string
+      enum:
+        - ApplyingForBenefits 
+        - BurialClaimAssistance 
+        - DisabilityClaimAssistance
+        - eBenefitsRegistrationAssistance 
+        - EducationAndCareerCounseling 
+        - EducationClaimAssistance
+        - FamilyMemberClaimAssistance 
+        - HomelessAssistance 
+        - InsuranceClaimAssistanceAndFinancialCounseling 
+        - IntegratedDisabilityEvaluationSystemAssistance 
+        - Pensions
+        - PreDischargeClaimAssistance
+        - TransitionAssistance
+        - UpdatingDirectDepositInformation
+        - VAHomeLoanAssistance 
+        - VocationalRehabilitationAndEmploymentAssistance 
+    PatientSatisfaction:
+      description: Veteran-reported satisfaction scores for health care services 
+      type: object
+      properties:
+        primary_care_urgent:
+          type: float
+          example: 0.85
+        primary_care_routine:
+          type: float
+          example: 0.85
+        specialty_care_urgent:
+          type: float
+          example: 0.85
+        specialty_care_routine:
+          type: float
+          example: 0.85
+    PatientWaitTime: 
+      description: Expected wait times for new and established patients for a given health care service
+      type: object
+      properties:
+        service:
+          $ref: "#components/schemas/HealthService"
+        new: 
+          description: The average number of days a Veteran who hasn’t been to this location has to wait for a non-urgent appointment
+          type: integer
+          example: 10
+        established:
+          description: The average number of days a patient who has already been to this location has to wait for a non-urgent appointment
+          type: integer
+          example: 5

@@ -20,7 +20,7 @@ module VaFacilities
         respond_to do |format|
           format.json do 
             render json: resource,
-              each_serializer: VAFacilitySerializer,
+              each_serializer: VaFacilities::FacilitySerializer,
               meta: metadata(resource)
           end
           format.geojson do
@@ -39,7 +39,7 @@ module VaFacilities
           puts format
           puts format.inspect
           format.json do
-            render json: results, serializer: VAFacilitySerializer
+            render json: results, serializer: VaFacilities::FacilitySerializer
           end
           format.geojson do
             render geojson: VaFacilities::GeoSerializer.to_geojson(results)
