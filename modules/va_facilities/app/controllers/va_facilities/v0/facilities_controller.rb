@@ -17,7 +17,7 @@ module VaFacilities
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
 
       def all
-        resource = BaseFacility.all
+        resource = BaseFacility.all.order(:unique_id)
         respond_to do |format|
           format.geojson do
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
@@ -43,12 +43,9 @@ module VaFacilities
       end
 
       def show
-        puts request.headers['HTTP_ACCEPT']
         results = BaseFacility.find_facility_by_id(params[:id])
         raise Common::Exceptions::RecordNotFound, params[:id] if results.nil?
         respond_to do |format|
-          puts format
-          puts format.inspect
           format.json do
             render json: results, serializer: VaFacilities::FacilitySerializer
           end
@@ -60,15 +57,11 @@ module VaFacilities
 
       protected
         
-        def set_default_format
-          request.format = :json if params[:format].nil? && request.headers["HTTP_ACCEPT"].nil?
-        end
+      def set_default_format
+        request.format = :json if params[:format].nil? && request.headers["HTTP_ACCEPT"].nil?
+      end
 
       private
-
-      def consumer
-        request.headers['X-Consumer-Username']
-      end
 
       def validate_params
         validate_bbox
