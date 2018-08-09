@@ -475,6 +475,13 @@ RSpec.describe FormProfile, type: :model do
       end
     end
 
+    context 'user without an address' do
+      it 'prefills properly' do
+        expect(user.va_profile).to receive(:address).and_return(nil)
+        described_class.for('22-1990e').prefill(user)
+      end
+    end
+
     context 'with emis data', skip_emis: true do
       before do
         military_information = user.military_information

@@ -91,7 +91,7 @@ class BaseFacility < ActiveRecord::Base
       result = {}
       datum = FacilitySatisfaction.find(attrs['StationNumber'].upcase)
       if datum.present?
-        datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2) : nil }
+        datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2).to_f : nil }
         result['effective_date'] = to_date(datum.source_updated)
       end
       result
