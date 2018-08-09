@@ -104,11 +104,7 @@ class GIBillFeedback < Common::RedisStore
     array = []
     return array if hash.blank?
 
-    hash.each do |k, v|
-      array << k if v
-    end
-
-    array
+    hash.keep_if { |_,v| v.present? }.keys
   end
 
   def form_matches_schema
