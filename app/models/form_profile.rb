@@ -272,7 +272,7 @@ class FormProfile
       opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
     end
 
-    opt[:postal_code] = opt[:postal_code][0..4] if opt[:postal_code]
+    opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
   def extract_pciu_data(user, method)

@@ -48,7 +48,7 @@ RSpec.describe FormProfile, type: :model do
       'city' => user.va_profile[:address][:city],
       'state' => user.va_profile[:address][:state],
       'country' => user.va_profile[:address][:country],
-      'postal_code' => user.va_profile[:address][:postal_code]
+      'postal_code' => user.va_profile[:address][:postal_code][0..4]
     }
   end
 
@@ -103,7 +103,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -148,7 +148,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -171,7 +171,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
@@ -190,7 +190,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -260,7 +260,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'swAsiaCombat' => true,
       'lastServiceBranch' => 'air force',
@@ -300,7 +300,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'gender' => user.gender,
       'dayPhone' => us_phone,
@@ -322,7 +322,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
       'claimantEmail' => user.pciu_email
