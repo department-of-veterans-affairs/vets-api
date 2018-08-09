@@ -91,20 +91,21 @@ class FormProfile
   VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
-    '1010EZ'    => ::FormProfiles::VA1010ez,
-    '21-526EZ'  => ::FormProfiles::VA526ez,
-    '22-1990'   => ::FormProfiles::VA1990,
-    '22-1990N'  => ::FormProfiles::VA1990n,
-    '22-1990E'  => ::FormProfiles::VA1990e,
-    '22-1995'   => ::FormProfiles::VA1995,
-    '22-5490'   => ::FormProfiles::VA5490,
-    '22-5495'   => ::FormProfiles::VA5495,
-    '21P-530'   => ::FormProfiles::VA21p530,
-    '21-686C'   => ::FormProfiles::VA21686c,
-    'VIC'       => ::FormProfiles::VIC,
-    '40-10007'  => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez,
-    '22-0993'   => ::FormProfiles::VA0993
+    '1010EZ'         => ::FormProfiles::VA1010ez,
+    '21-526EZ'       => ::FormProfiles::VA526ez,
+    '22-1990'        => ::FormProfiles::VA1990,
+    '22-1990N'       => ::FormProfiles::VA1990n,
+    '22-1990E'       => ::FormProfiles::VA1990e,
+    '22-1995'        => ::FormProfiles::VA1995,
+    '22-5490'        => ::FormProfiles::VA5490,
+    '22-5495'        => ::FormProfiles::VA5495,
+    '21P-530'        => ::FormProfiles::VA21p530,
+    '21-686C'        => ::FormProfiles::VA21686c,
+    'VIC'            => ::FormProfiles::VIC,
+    '40-10007'       => ::FormProfiles::VA4010007,
+    '21P-527EZ'      => ::FormProfiles::VA21p527ez,
+    '22-0993'        => ::FormProfiles::VA0993,
+    'COMPLAINT-TOOL' => ::FormProfiles::ComplaintTool
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -124,6 +125,7 @@ class FormProfile
     forms += VIC_FORMS if Settings.vic.prefill
     forms << '21-686C'
     forms << '40-10007'
+    forms << 'COMPLAINT-TOOL'
     forms += EVSS_FORMS if Settings.evss.prefill
 
     forms

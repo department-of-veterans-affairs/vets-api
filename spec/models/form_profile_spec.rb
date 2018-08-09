@@ -392,6 +392,31 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vcomplaint_tool_expected) do
+    {
+      'address' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'serviceBranch' => 'air force',
+      'fullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'applicantEmail' => user.pciu_email,
+      'phone' => us_phone,
+      'serviceDateRange' => {
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
+      }
+    }
+  end
+
   before(:each) do
     described_class.instance_variable_set(:@mappings, nil)
   end
@@ -552,6 +577,11 @@ RSpec.describe FormProfile, type: :model do
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
           end
+        end
+
+        it 'returns prefilled complaint tool' do
+          user.va_profile.address.country = 'US'
+          expect_prefilled('complaint-tool')
         end
 
         context 'with a user that can prefill evss' do
