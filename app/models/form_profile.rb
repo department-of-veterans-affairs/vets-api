@@ -265,7 +265,7 @@ class FormProfile
   end
 
   def format_for_schema_compatibility(opt)
-    if opt[:address] && opt[:address][:street2].blank? && (apt = opt[:address][:street].match(APT_REGEX))
+    if opt.dig(:address, :street) && opt[:address][:street2].blank? && (apt = opt[:address][:street].match(APT_REGEX))
       opt[:address][:street2] = apt[1]
       opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
