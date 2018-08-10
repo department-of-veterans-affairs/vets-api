@@ -71,6 +71,8 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    resources :evss_claims_async, only: %i[index show]
+
     get 'intent_to_file', to: 'intent_to_files#index'
     get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
@@ -161,6 +163,8 @@ Rails.application.routes.draw do
       resources :supporting_documentation_attachments, only: :create
       resources :vic_submissions, only: %i[create show]
     end
+
+    resources :gi_bill_feedbacks, only: %i[create show]
 
     resource :address, only: %i[show update] do
       collection do

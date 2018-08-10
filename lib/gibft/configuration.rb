@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-module VIC
+module Gibft
   class Configuration < Salesforce::Configuration
-    SALESFORCE_INSTANCE_URL = Settings.salesforce.url
+    SALESFORCE_INSTANCE_URL = Settings['salesforce-gibft'].url
 
     def service_name
-      'VIC2'
+      'GIBFT'
     end
   end
 end
