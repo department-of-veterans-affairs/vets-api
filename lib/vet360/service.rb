@@ -30,7 +30,7 @@ module Vet360
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
         raise_backend_exception('VET360_502', self.class)
       when Common::Client::Errors::ClientError
-        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
+        log_error_messages(error)
         raise Common::Exceptions::Forbidden if error.status == 403
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         message = parse_messages(error)&.first
@@ -39,6 +39,31 @@ module Vet360
       else
         raise error
       end
+    end
+
+    def log_error_messages(error)
+      if person_transaction_failure?(error)
+        log_message_to_sentry(
+          error.message,
+          :error,
+          { url: config.base_path, body: error.body },
+          vet360: 'failed_vet360_id_initializations'
+        )
+      else
+        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
+      end
+    end
+
+    def person_transaction_failure?(error)
+      person_transaction?(error) && final_failure?(error)
+    end
+
+    def person_transaction?(error)
+      error&.backtrace&.join(',')&.include? 'get_person_transaction_status'
+    end
+
+    def final_failure?(error)
+      %w[COMPLETED_FAILURE REJECTED].include? error.body&.dig('status')
     end
 
     def parse_messages(error)
