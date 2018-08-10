@@ -232,9 +232,7 @@ describe VIC::Service, type: :model do
             "street": "123 Maple St",
             "street2": "apt 1",
             "city": "Milwaukee",
-            "postal_code": "53130",
-            "state": "WI",
-            "country": "US"
+            "country": "CHN"
           }
         },
         "programs": [
