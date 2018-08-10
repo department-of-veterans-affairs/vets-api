@@ -13,7 +13,7 @@ module AsyncTransaction
       SOURCE = 'EVSS'
 
       scope :for_user, ->(user) { where(user_uuid: user.uuid) }
-      scope :job_id, ->(job_id) { where(transaction_id: job_id).first }
+      scope :job_id, ->(job_id) { find_by(transaction_id: job_id) }
 
       # Creates an initial AsyncTransaction record for ongoing tracking and
       # set its transaction_status to submitted
