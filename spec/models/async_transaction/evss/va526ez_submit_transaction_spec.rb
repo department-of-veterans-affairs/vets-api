@@ -37,7 +37,7 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
   end
 
   describe '.find_transaction' do
-    it 'finds a transaction by job_id' do
+    it 'finds a transaction by job_id', :aggregate_failures do
       transaction = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(job_id)
       expect(transaction.user_uuid).to eq(user.uuid)
       expect(transaction.status).to eq('requested')
@@ -82,7 +82,7 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
     end
 
     context 'with a valid status of retrying' do
-      it 'updates a transaction' do
+      it 'updates a transaction', :aggregate_failures do
         AsyncTransaction::EVSS::VA526ezSubmitTransaction.update_transaction(
           update_job_id,
           :retrying,
@@ -98,7 +98,7 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
     end
 
     context 'with a valid status of received' do
-      it 'updates a transaction' do
+      it 'updates a transaction', :aggregate_failures do
         AsyncTransaction::EVSS::VA526ezSubmitTransaction.update_transaction(
           update_job_id,
           :received,

@@ -13,7 +13,7 @@ module AsyncTransaction
       SOURCE = 'EVSS'
 
       scope :for_user, ->(user) { where(user_uuid: user.uuid) }
-      scope :job_id, ->(job_id) { where(transaction_id: job_id).limit(1) }
+      scope :job_id, ->(job_id) { where(transaction_id: job_id).first }
 
       # Creates an initial AsyncTransaction record for ongoing tracking and
       # set its transaction_status to submitted
@@ -39,7 +39,7 @@ module AsyncTransaction
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
       def self.find_transaction(job_id)
-        VA526ezSubmitTransaction.job_id(job_id).first
+        VA526ezSubmitTransaction.job_id(job_id)
       end
 
       # Finds all of a users submit transactions
