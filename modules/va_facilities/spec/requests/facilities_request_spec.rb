@@ -50,6 +50,8 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with bbox' do
       setup_pdx
       get BASE_QUERY_PATH + PDX_BBOX, nil, accept_geojson
+      puts response.body
+      puts response.headers.inspect
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
