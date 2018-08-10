@@ -8,7 +8,7 @@ module VaFacilities
     extend ApiSerialization
 
     def self.to_csv(resource)
-      csv_string = CSV.generate('', headers: headers, write_headers: true) do |csv|
+      csv_string = CSV.generate(+'', headers: headers, write_headers: true) do |csv|
         resource.each do |object|
           csv << to_row(object)
         end
