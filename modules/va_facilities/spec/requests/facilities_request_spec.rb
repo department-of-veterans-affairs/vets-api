@@ -40,22 +40,22 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       create :vha_648A4
       get '/services/va_facilities/v0/facilities/vha_648A4', nil, accept_geojson
       expect(response).to be_success
-      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('Feature')
       expect(json['properties']['id']).to eq('vha_648A4')
+      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
     end
 
     it 'responds to GET #index with bbox' do
       setup_pdx
       get BASE_QUERY_PATH + PDX_BBOX, nil, accept_geojson
       expect(response).to be_success
-      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
       expect(json['features'].length).to eq(10)
+      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
     end
   end
 
