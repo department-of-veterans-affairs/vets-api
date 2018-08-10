@@ -52,6 +52,8 @@ describe HCA::Service do
     VCR.configure do |c|
       c.allow_http_connections_when_no_cassette = true
     end
+    form = JSON.parse(File.read('spec/fixtures/hca/conformance/spouse-financial.json'))
+    service.submit_form(form)
     binding.pry; fail
   end
 
