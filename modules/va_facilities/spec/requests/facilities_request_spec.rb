@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'Facilities API endpoint', type: :request do
   include SchemaMatchers
 
-  BASE_QUERY_PATH = '/services/va_facilities/v0/facilities?'
-  PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
+  let(:base_query_path) { '/services/va_facilities/v0/facilities?' }
+  let(:pdx_bbox) { 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64' }
 
   let(:setup_pdx) do
     %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
@@ -27,7 +27,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with bbox' do
       setup_pdx
-      get BASE_QUERY_PATH + PDX_BBOX, nil, accept_json
+      get base_query_path + pdx_bbox, nil, accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -49,11 +49,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with bbox' do
       setup_pdx
-      get BASE_QUERY_PATH + PDX_BBOX, nil, accept_geojson
-      puts request.format
-      puts request.headers['HTTP_ACCEPT']
-      puts response.body
-      puts response.headers.inspect
+      get base_query_path + pdx_bbox, nil, accept_geojson
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -85,35 +81,35 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
   context 'with invalid request parameters' do
     it 'returns 400 for nonsense bbox' do
-      get BASE_QUERY_PATH + 'bbox[]=everywhere'
+      get base_query_path + 'bbox[]=everywhere'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for non-array bbox' do
-      get BASE_QUERY_PATH + 'bbox=-90,180,45,80'
+      get base_query_path + 'bbox=-90,180,45,80'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for too many elements' do
-      get BASE_QUERY_PATH + 'bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=45&bbox=100'
+      get base_query_path + 'bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=45&bbox=100'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for not enough elements' do
-      get BASE_QUERY_PATH + 'bbox[]=-45&bbox[]=-45&bbox[]=45'
+      get base_query_path + 'bbox[]=-45&bbox[]=-45&bbox[]=45'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for non-numeric elements' do
-      get BASE_QUERY_PATH + 'bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=abc'
+      get base_query_path + 'bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=abc'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for invalid type parameter' do
-      get BASE_QUERY_PATH + PDX_BBOX + '&type=bogus'
+      get base_query_path + pdx_bbox + '&type=bogus'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for query with services but no type' do
-      get BASE_QUERY_PATH + PDX_BBOX + '&services[]=EyeCare'
+      get base_query_path + pdx_bbox + '&services[]=EyeCare'
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for health query with unknown service' do
-      get BASE_QUERY_PATH + PDX_BBOX + '&type=health&services[]=OilChange'
+      get base_query_path + pdx_bbox + '&type=health&services[]=OilChange'
       expect(response).to have_http_status(:bad_request)
     end
   end
