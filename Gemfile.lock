@@ -32,6 +32,12 @@ PATH
       rails (~> 4.2.7.1)
 
 PATH
+  remote: modules/va_facilities
+  specs:
+    va_facilities (0.0.1)
+      rails (~> 4.2.7.1)
+
+PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
@@ -1154,6 +1160,7 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
+  va_facilities!
   vba_documents!
   vcr
   vets_json_schema!
