@@ -40,9 +40,9 @@ info:
 
     ## Reference
 
-    -Raw VA Facilities Open API Spec: http://dev-api.vets.gov/services/va_facilities/docs/v0/api
-    -GeoJSON Format: https://tools.ietf.org/html/rfc7946
-    -JSON API Format: http://jsonapi.org/format/
+    - [Raw VA Facilities Open API Spec](http://dev-api.vets.gov/services/va_facilities/docs/v0/api)
+    - [GeoJSON Format](https://tools.ietf.org/html/rfc7946)
+    - [JSON API Format](http://jsonapi.org/format/)
 
   termsOfService: ''
   contact:
@@ -97,7 +97,7 @@ paths:
               type: string
       responses:
         '200':
-          description: Facilities retrieved successfully
+          description: Success
           content:
             application/json:
               schema:
@@ -127,7 +127,7 @@ paths:
     get:
       tags:
         - facilities 
-      summary: Retrieve a specific facility by ID. 
+      summary: Retrieve a specific facility by ID
       operationId: getFacilityById
       security:
         - api_key: []
@@ -142,7 +142,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Facility retrieved successfully
+          description: Success
           content:
             application/json:
               schema:
@@ -155,9 +155,46 @@ paths:
               schema:
                 $ref: "#/components/schemas/FacilityFeature"
         '404':
-          description: Facility ID not found
+          description: Requested facility not found
         '403':
-          description: Bad API Token
+          description: Bad API token
+  /facilities/all:
+    get:
+      tags:
+        - facilities 
+      summary: Bulk download of all available facilities
+      operationId: getAllFacilities
+      security:
+        - api_key: []
+      parameters:
+      responses:
+        '200':
+          description: Success
+          content:
+            application/vnd.geo+json:
+              schema:
+                required:
+                  - type
+                  - features
+                properties:
+                  type:
+                    type: string
+                    enum: ["FeatureCollection"]
+                  features:
+                    type: array
+                    items: 
+                      $ref: "#/components/schemas/FacilityFeature"
+            text/csv:
+              schema:
+                type: string
+                example: |
+                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday
+                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,02210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-
+                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,
+                  vha_402GC,Rumford VA Clinic,402GC,44.55185578,-70.55746856,va_health_facility,Primary Care CBOC,http://www.maine.va.gov/locations/rumford.asp,431 Franklin Street,,,Rumford,ME,04276-2100,,,,,,,207-369-3200 x,207-369-3277 x,207-369-3200 x 3200,207-623-8411 x5770,866-757-7503 x,207-623-5760 x,207-626-4743 x,,,,,,,
+                  nca_800,Alton National Cemetery,800,38.8905166870001,-90.1630421139999,va_cemetery,National Cemetery,https://www.cem.va.gov/cems/nchp/alton.asp,600 Pearl St,,,Alton,IL,62002,2900 Sheridan Rd,,,St. Louis,MO,63125,314-845-8320,314-845-8355,,,,,,,,,,,,
+        '403':
+          description: Bad API token
 components:
   securitySchemes:
     api_key:
@@ -175,6 +212,7 @@ components:
       properties:
         id:
           type: string
+          example: vha_688
         type:
           type: string
           enum: ["va_facilities"]
@@ -210,6 +248,7 @@ components:
             website:
               type: string
               format: url
+              example: http://www.washingtondc.va.gov
             address:
               type: object
               properties:
@@ -228,7 +267,8 @@ components:
                   type: array
                   items:
                     type: string
-                    enum: "Online Scheduling"
+                    enum: 
+                      - "Online Scheduling"
                 health: 
                   type: array
                   items:
@@ -240,6 +280,7 @@ components:
                 last_updated:
                   type: string
                   format: date
+                  example: "2018-01-01"
             satisfaction:
               type: object
               properties:
@@ -304,6 +345,7 @@ components:
             website:
               type: string
               format: url
+              example: http://www.washingtondc.va.gov
             address:
               type: object
               properties:
@@ -322,7 +364,8 @@ components:
                   type: array
                   items:
                     type: string
-                    enum: "Online Scheduling"
+                    enum: 
+                      - "Online Scheduling"
                 health: 
                   type: array
                   items:
@@ -334,6 +377,7 @@ components:
                 last_updated:
                   type: string
                   format: date
+                  example: "2018-01-01"
             satisfaction:
               type: object
               properties:
@@ -402,9 +446,6 @@ components:
         Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parseable format. Hours of operation may vary due to holidays or other events.
       type: object
       properties:
-        Monday:
-          type: string
-          example: "9AM-5PM"
         Monday:
           type: string
           example: "9AM-5PM"
@@ -492,3 +533,31 @@ components:
           description: The average number of days a patient who has already been to this location has to wait for a non-urgent appointment
           type: integer
           example: 5
+    APIError:
+      description: API invocation or processing error
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Missing parameter"
+              detail:
+                type: string
+                example: "The required parameter \"bbox\" is missing"
+              code:
+                type: string
+                example: "103"
+              status:
+                type: string
+                example: "400"
+    AuthorizationError:
+      description: "API Platform authorization (API token) error"
+      type: object
+      properties:
+        message:
+          type: string
+          example: "No API key found in request"
