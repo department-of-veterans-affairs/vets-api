@@ -62,7 +62,7 @@ module Vet360
     end
 
     def person_transaction?(error)
-      error&.backtrace&.join(',').include? 'get_person_transaction_status'
+      error&.backtrace&.join(',')&.include? 'get_person_transaction_status'
     end
 
     def final_failure?(error)
