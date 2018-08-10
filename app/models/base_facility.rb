@@ -56,7 +56,7 @@ class BaseFacility < ActiveRecord::Base
   }.freeze
 
   SERVICE_WHITELIST = {
-    HEALTH => %w[PrimaryCare MentalHealthCare UrgentCare EmergencyCare Audiology Cardiology Dermatology
+    HEALTH => %w[PrimaryCare MentalHealthCare DentalServices UrgentCare EmergencyCare Audiology Cardiology Dermatology
                  Gastroenterology Gynecology Ophthalmology Optometry Orthopedics Urology WomensHealth],
     BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
                    eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
