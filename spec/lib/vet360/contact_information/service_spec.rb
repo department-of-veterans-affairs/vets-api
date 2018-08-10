@@ -303,10 +303,6 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
-      RSpec::Matchers.define :vet360_tag do
-        match { |actual| actual[3]&.key?(:vet360) }
-      end
-
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 400', :aggregate_failures do
@@ -321,7 +317,8 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
 
       it 'logs a vet360 tagged error message to sentry', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
-          expect_any_instance_of(Vet360::Service).to receive(:log_message_to_sentry).with(vet360_tag)
+          expect_any_instance_of(Vet360::Service).to receive(:log_message_to_sentry)
+            .with(any_args, hash_including(:vet360))
 
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
