@@ -18,7 +18,8 @@ unless Rails.env.production?
       [
         'spec/**/*_spec.rb',
         'modules/vba_documents/spec/**/*_spec.rb',
-        'modules/appeals_api/spec/**/*_spec.rb'
+        'modules/appeals_api/spec/**/*_spec.rb',
+        'modules/veteran_verification/spec/**/*_spec.rb'
       ]
     )
     t.verbose = false

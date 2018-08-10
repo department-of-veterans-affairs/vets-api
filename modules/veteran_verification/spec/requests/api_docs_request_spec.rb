@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Appeals Status Documentation Endpoint', type: :request do
-  describe '#get /docs/v0/api' do
+RSpec.describe 'Veteran Verification Documentation Endpoints', type: :request do
+  describe '#get /docs/v0/service_history' do
     it 'should return Open API Spec v3 JSON' do
-      get '/services/appeals/docs/v0/api'
+      get '/services/veteran_verification/docs/v0/service_history'
       expect(response).to have_http_status(:ok)
       JSON.parse(response.body)
     end
