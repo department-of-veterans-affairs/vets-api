@@ -81,6 +81,8 @@ class ApplicationController < ActionController::API
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
+      when ActionController::UnknownFormat
+        Common::Exceptions::UnknownFormat.new()
       when Common::Exceptions::BaseError
         exception
       when Breakers::OutageException
