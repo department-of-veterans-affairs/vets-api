@@ -3,7 +3,7 @@
 module EducationForm::Forms
   class VA1990n < Base
     def header_form_type
-      'N1990'
+      'VN1990'
     end
 
     def school

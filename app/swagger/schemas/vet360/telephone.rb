@@ -7,12 +7,14 @@ module Swagger
         include Swagger::Blocks
 
         swagger_schema :PostVet360Telephone do
-          key :required, %i[phone_number area_code phone_type]
+          key :required, %i[phone_number area_code phone_type is_international country_code]
           property :is_international,
                    type: :boolean,
+                   enum: [false],
                    example: false
           property :country_code,
                    type: :string,
+                   enum: ['1'],
                    example: '1'
           property :phone_number,
                    type: :string,
@@ -37,13 +39,15 @@ module Swagger
         end
 
         swagger_schema :PutVet360Telephone do
-          key :required, %i[id phone_number area_code phone_type]
+          key :required, %i[id phone_number area_code phone_type is_international country_code]
           property :id, type: :integer, example: 1
           property :is_international,
                    type: :boolean,
+                   enum: [false],
                    example: false
           property :country_code,
                    type: :string,
+                   enum: ['1'],
                    example: '1'
           property :phone_number,
                    type: :string,

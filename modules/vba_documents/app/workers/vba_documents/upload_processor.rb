@@ -14,6 +14,7 @@ module VBADocuments
     SUBMIT_DOC_PART_NAME = 'document'
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/
+    MAX_PART_SIZE = 100_000_000 # 100MB
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
@@ -25,13 +26,12 @@ module VBADocuments
         metadata = perfect_metadata(parts, upload, timestamp)
         response = submit(metadata, parts)
         process_response(response, upload)
-        log_submission(metadata)
+        log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
         Rails.logger.info('VBADocuments: Submission failure',
-                          'uuid' => guid,
-                          'code' => e.code,
-                          'detail' => e.detail)
+                          'uuid' => guid, 'source' => upload.consumer_name,
+                          'code' => e.code, 'detail' => e.detail)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
@@ -40,12 +40,12 @@ module VBADocuments
 
     private
 
-    def log_submission(metadata)
+    def log_submission(metadata, upload)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
-                        'source' => metadata['source'],
+                        'source' => upload.consumer_name,
                         'docType' => metadata['docType'],
                         'pageCount' => page_total,
                         'pdfCount' => pdf_total)
@@ -70,7 +70,7 @@ module VBADocuments
         parts[att].rewind
         body["attachment#{i + 1}"] = to_faraday_upload(parts[att], "attachment#{i + 1}.pdf")
       end
-      PensionBurial::Service.new.upload(body)
+      CentralMail::Service.new.upload(body)
     end
 
     def to_faraday_upload(file_io, filename)
@@ -154,27 +154,36 @@ module VBADocuments
       metadata['source'] = "#{upload.consumer_name} via VA API"
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
-      doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
+      check_size(parts[DOC_PART_NAME])
+      doc_info = get_hash_and_pages(parts[DOC_PART_NAME], DOC_PART_NAME)
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       metadata['numberAttachments'] = attachment_names.size
       attachment_names.each_with_index do |att, i|
-        att_info = get_hash_and_pages(parts[att])
+        att_info = get_hash_and_pages(parts[att], att)
+        check_size(parts[att])
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
       metadata
     end
 
-    def get_hash_and_pages(file_path)
+    def check_size(file_path)
+      if File.size(file_path) > MAX_PART_SIZE
+        raise VBADocuments::UploadError.new(code: 'DOC106',
+                                            detail: 'Maximum document size exceeded. Limit is 100MB per document')
+      end
+    end
+
+    def get_hash_and_pages(file_path, part)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
         pages: PDF::Reader.new(file_path).pages.size
       }
     rescue PDF::Reader::MalformedPDFError
       raise VBADocuments::UploadError.new(code: 'DOC103',
-                                          detail: 'Invalid PDF content')
+                                          detail: "Invalid PDF content, part #{part}")
     end
   end
 end

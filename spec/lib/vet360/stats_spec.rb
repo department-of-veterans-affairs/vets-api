@@ -5,21 +5,6 @@ require 'rails_helper'
 describe Vet360::Stats do
   let(:statsd_prefix) { Vet360::Service::STATSD_KEY_PREFIX }
 
-  describe '.exception_keys' do
-    subject { described_class.exception_keys }
-
-    it 'returns an array of Vet360 exception keys' do
-      expect(subject).to be_a Array
-    end
-
-    it 'contains only downcased, Vet360 exception keys' do
-      total_key_count  = subject.size
-      keys_with_vet360 = subject.select { |key| key.include? 'vet360_' }.size
-
-      expect(total_key_count).to eq keys_with_vet360
-    end
-  end
-
   describe '.increment' do
     it 'increments the StatsD Vet360 counter' do
       bucket1 = 'exceptions'
@@ -108,6 +93,16 @@ describe Vet360::Stats do
           "#{statsd_prefix}.#{init_vet360}.failure"
         )
       end
+    end
+  end
+
+  describe '.increment_exception' do
+    it 'increments the StatsD Vet360 exceptions counter' do
+      tag = 'VET360_ADDR133'
+
+      expect { described_class.increment_exception(tag) }.to trigger_statsd_increment(
+        "#{statsd_prefix}.exceptions"
+      )
     end
   end
 end

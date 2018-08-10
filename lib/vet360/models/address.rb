@@ -13,7 +13,7 @@ module Vet360
       ADDRESS_POUS   = [RESIDENCE, CORRESPONDENCE].freeze
       DOMESTIC       = 'DOMESTIC'
       INTERNATIONAL  = 'INTERNATIONAL'
-      MILITARY       = 'MILITARY OVERSEAS'
+      MILITARY       = 'OVERSEAS MILITARY'
       ADDRESS_TYPES  = [DOMESTIC, INTERNATIONAL, MILITARY].freeze
 
       attribute :address_line1, String
@@ -111,6 +111,12 @@ module Vet360
         address.validates :state_code, presence: true
         address.validates :zip_code, presence: true
         address.validates :province, absence: true
+      end
+
+      def zip_plus_four
+        return if zip_code.blank?
+
+        [zip_code, zip_code_suffix].compact.join('-')
       end
 
       # Converts a decoded JSON response from Vet360 to an instance of the Address model

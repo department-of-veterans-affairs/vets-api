@@ -62,17 +62,31 @@ module Vet360
 
       validates(
         :is_international,
-        inclusion: { in: [true, false] },
-        exclusion: { in: [nil] }
+        inclusion: { in: [false] }
       )
+
+      validates(
+        :country_code,
+        presence: true,
+        inclusion: { in: ['1'] }
+      )
+
+      def formatted_phone
+        return if phone_number.blank?
+        # TODO: support international numbers
+
+        return_val = "(#{area_code}) #{phone_number[0..2]}-#{phone_number[3..7]}"
+        return_val += " Ext. #{extension}" if extension.present?
+
+        return_val
+      end
 
       # Converts an instance of the Telphone model to a JSON encoded string suitable for
       # use in the body of a request to Vet360
+      #
       # @return [String] JSON-encoded string suitable for requests to Vet360
+      #
       def in_json
-        # Determine international flag if not set
-        @is_international ||= @country_code.present? && @country_code != '1'
-
         {
           bio: {
             areaCode: @area_code,

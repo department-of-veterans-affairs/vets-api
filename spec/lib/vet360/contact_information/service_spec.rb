@@ -175,7 +175,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/telephone_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_telephone_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
@@ -204,7 +204,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end
@@ -231,7 +231,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/address_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect { subject.get_address_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
-            expect(e.status_code).to eq(404)
+            expect(e.status_code).to eq(400)
             expect(e.errors.first.code).to eq('VET360_CORE103')
           end
         end

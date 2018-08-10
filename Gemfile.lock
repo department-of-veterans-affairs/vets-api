@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 8beebb1f894d39989f056dce34f3059976321d2f
+  revision: ad74bc0a1aed7649bc0e558d53a09a2cd02eebef
   branch: master
   specs:
-    vets_json_schema (3.56.0)
+    vets_json_schema (3.71.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -726,7 +726,7 @@ GEM
       multipart-post (>= 1.2, < 3)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
-    faraday_middleware (0.11.0.1)
+    faraday_middleware (0.12.2)
       faraday (>= 0.7.4, < 1.0)
     fastimage (2.1.0)
     ffi (1.9.17)
@@ -763,7 +763,7 @@ GEM
       builder (>= 2.1.2)
     hashdiff (0.3.0)
     hashery (2.1.2)
-    hashie (3.4.6)
+    hashie (3.5.7)
     holidays (5.4.0)
     httpclient (2.8.3)
     httpi (2.4.2)
@@ -812,7 +812,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.8.2)
+    nokogiri (1.8.4)
       mini_portile2 (~> 2.3.0)
     nori (2.6.0)
     notiffany (0.0.8)
@@ -856,7 +856,7 @@ GEM
     puma (2.16.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
-    rack (1.6.5)
+    rack (1.6.10)
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
@@ -907,7 +907,7 @@ GEM
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
     require_all (1.4.0)
-    restforce (2.5.3)
+    restforce (3.0.0)
       faraday (>= 0.9.0, <= 1.0)
       faraday_middleware (>= 0.8.8, <= 1.0)
       hashie (>= 1.2.0, < 4.0)
@@ -1009,7 +1009,7 @@ GEM
       activesupport (>= 4.2)
     spring-commands-rspec (1.0.4)
       spring (>= 0.9.1)
-    sprockets (3.7.1)
+    sprockets (3.7.2)
       concurrent-ruby (~> 1.0)
       rack (> 1, < 3)
     sprockets-rails (3.2.0)

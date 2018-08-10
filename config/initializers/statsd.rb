@@ -63,11 +63,19 @@ StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.total", 0)
 StatsD.increment("#{MVI::Service::STATSD_KEY_PREFIX}.find_profile.fail", 0)
 
 # init Vet360
-Vet360::Stats.exception_keys.each do |key|
-  StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions.#{key}", 0)
+Vet360::Exceptions::Parser.instance.known_keys.each do |key|
+  StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ["exception:#{key}"])
 end
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.total_operations", 0)
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.success", 0)
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.posts_and_puts.failure", 0)
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.success", 0)
 StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.init_vet360_id.failure", 0)
+
+# init eMIS
+StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.edipi", 0, tags: ['present:true', 'present:false'])
+StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", 0, tags: ['present:true', 'present:false'])
+
+# init CentralMail
+StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.total", 0)
+StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.fail", 0)

@@ -6,19 +6,6 @@ module Vet360
     FINAL_FAILURE = %w[REJECTED COMPLETED_FAILURE].freeze
 
     class << self
-      # Parses our exceptions file and returns all of the Vet360 exception keys.
-      #
-      # @return [Array] An array of lowercased, alphabetized, Vet360 exception keys
-      #
-      def exception_keys
-        exceptions_file
-          .dig('en', 'common', 'exceptions')
-          .keys
-          .select { |exception| exception.include? 'VET360_' }
-          .sort
-          .map(&:downcase)
-      end
-
       # Triggers the associated StatsD.increment method for the Vet360 buckets that are
       # initialized in the config/initializers/statsd.rb file.
       #
@@ -48,13 +35,16 @@ module Vet360
         increment(bucket1, bucket_for(status))
       end
 
-      private
-
-      def exceptions_file
-        config = Rails.root + 'config/locales/exceptions.en.yml'
-
-        YAML.load_file(config)
+      # Increments the associated StatsD bucket with the passed in exception error key.
+      #
+      # @param key [String] A Vet360 exception key from the locales/exceptions file
+      #   For example, 'VET360_ADDR133'.
+      #
+      def increment_exception(key)
+        StatsD.increment("#{Vet360::Service::STATSD_KEY_PREFIX}.exceptions", tags: ["exception:#{key.downcase}"])
       end
+
+      private
 
       def status_in(response)
         response&.body&.dig('tx_status')&.upcase

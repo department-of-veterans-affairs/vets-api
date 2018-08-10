@@ -115,8 +115,11 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
+
+  # emis attributes
+  delegate :military_person?, to: :veteran_status
+  delegate :veteran?, to: :veteran_status
 
   def va_profile
     mvi.profile
@@ -235,8 +238,24 @@ class User < Common::RedisStore
     @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
   end
 
+  def can_access_vet360?
+    loa3? && icn.present? && vet360_id.present?
+  rescue StandardError # Default to false for any error
+    false
+  end
+
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  # A user can have served in the military without being a veteran.  For example,
+  # someone can be ex-military by having a discharge status higher than
+  # 'Other Than Honorable'.
+  #
+  # @return [Boolean]
+  #
+  def served_in_military?
+    edipi.present? && veteran? || military_person?
   end
 
   private

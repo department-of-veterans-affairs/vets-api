@@ -56,6 +56,7 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user)
             when 'slo'
               authenticate
+              destroy_sso_cookie!
               SAML::SettingsService.slo_url(session)
             end
       render json: { url: url }
@@ -105,21 +106,22 @@ module V0
       redirect_to Settings.saml.logout_relay + '?success=true'
     end
 
+    # rubocop:disable MethodLength
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
-
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
         async_create_evss_account(current_user)
+        set_sso_cookie!
         redirect_to saml_callback_success_url
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to Settings.saml.relay + '?auth=fail'
+        redirect_to Settings.saml.relay + "?auth=fail&code=#{@sso_service.auth_error_code}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
@@ -129,6 +131,7 @@ module V0
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
+    # rubocop:enable MethodLength
 
     private
 

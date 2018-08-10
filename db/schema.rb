@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180517173822) do
+ActiveRecord::Schema.define(version: 20180727213418) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -134,6 +134,16 @@ ActiveRecord::Schema.define(version: 20180517173822) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
+  create_table "form526_opt_ins", force: :cascade do |t|
+    t.string   "user_uuid",          null: false
+    t.string   "encrypted_email",    null: false
+    t.string   "encrypted_email_iv", null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
+
   create_table "form_attachments", force: :cascade do |t|
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
@@ -235,6 +245,16 @@ ActiveRecord::Schema.define(version: 20180517173822) do
   add_index "persistent_attachments", ["guid"], name: "index_persistent_attachments_on_guid", unique: true, using: :btree
   add_index "persistent_attachments", ["saved_claim_id"], name: "index_persistent_attachments_on_saved_claim_id", using: :btree
 
+  create_table "personal_information_logs", force: :cascade do |t|
+    t.jsonb    "data",        null: false
+    t.string   "error_class", null: false
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
+  add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
+
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
@@ -294,6 +314,7 @@ ActiveRecord::Schema.define(version: 20180517173822) do
     t.datetime "updated_at",                        null: false
     t.boolean  "s3_deleted"
     t.string   "consumer_name"
+    t.uuid     "consumer_id"
   end
 
   add_index "vba_documents_upload_submissions", ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
