@@ -2,6 +2,8 @@
 
 require 'rails_helper'
 
+
+
 describe Vet360::ContactInformation::Service, skip_vet360: true do
   let(:user) { build(:user, :loa3) }
   subject { described_class.new(user) }
@@ -209,6 +211,17 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
           end
         end
       end
+
+      it 'does not include "failed_vet360_id_initializations" tag in sentry error' do
+        VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
+        expect_any_instance_of(Vet360::Service).to receive(:log_message_to_sentry).with(anything, anything, anything)
+          expect { subject.get_email_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_CORE103')
+          end
+        end
+      end
     end
   end
 
@@ -292,10 +305,26 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
     end
 
     context 'when not successful' do
+      RSpec::Matchers.define :vet360_tag do
+        match { |actual| actual[3] && actual[3].key?(:vet360) }
+      end
+
       let(:transaction_id) { 'd47b3d96-9ddd-42be-ac57-8e564aa38029' }
 
       it 'returns a status of 400', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('VET360_PERS200')
+          end
+        end
+      end
+
+      it 'logs a vet360 tagged error message to sentry', :aggregate_failures do
+        VCR.use_cassette('vet360/contact_information/person_transaction_status_error', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(Vet360::Service).to receive(:log_message_to_sentry).with(vet360_tag)
+
           expect { subject.get_person_transaction_status(transaction_id) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
