@@ -15,6 +15,7 @@ module HCA
     def on_complete(env)
       super
     rescue Common::Client::Errors::HTTPError => e
+      puts env.body
       doc = parse_doc(env.body)
       el = doc.locate(FAULT_STRING_EL)[0]
 

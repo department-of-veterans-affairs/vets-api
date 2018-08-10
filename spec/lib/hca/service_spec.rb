@@ -49,6 +49,9 @@ describe HCA::Service do
     end
   end
   it 'foo' do
+    VCR.configure do |c|
+      c.allow_http_connections_when_no_cassette = true
+    end
     binding.pry; fail
   end
 
