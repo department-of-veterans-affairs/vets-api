@@ -214,7 +214,6 @@ describe VIC::Service, type: :model do
         "street": "123 Main St",
         "street2": "apt 1",
         "city": "Milwaukee",
-        "postal_code": "266033",
         "country": "CHN"
       },
       "profile_data": {
