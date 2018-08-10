@@ -11,9 +11,9 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   let(:setup_pdx) do
     %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
   end
-  let(:accept_json) { {'HTTP_ACCEPT' => 'application/json'} }
-  let(:accept_geojson) { {'HTTP_ACCEPT' => 'application/vnd.geo+json'} }
-  let(:accept_csv) { {'HTTP_ACCEPT' => 'text/csv'} } 
+  let(:accept_json) { { 'HTTP_ACCEPT' => 'application/json' } }
+  let(:accept_geojson) { { 'HTTP_ACCEPT' => 'application/vnd.geo+json' } }
+  let(:accept_csv) { { 'HTTP_ACCEPT' => 'text/csv' } }
 
   context 'when requesting JSON API format' do
     it 'responds to GET #show for VHA prefix' do
@@ -40,7 +40,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       create :vha_648A4
       get '/services/va_facilities/v0/facilities/vha_648A4', nil, accept_geojson
       expect(response).to be_success
-      expect(response.headers["Content-Type"]).to eq "application/vnd.geo+json; charset=utf-8"
+      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('Feature')
@@ -51,7 +51,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       setup_pdx
       get BASE_QUERY_PATH + PDX_BBOX, nil, accept_geojson
       expect(response).to be_success
-      expect(response.headers["Content-Type"]).to eq "application/vnd.geo+json; charset=utf-8"
+      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
@@ -64,7 +64,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       setup_pdx
       get '/services/va_facilities/v0/facilities/all', nil, accept_geojson
       expect(response).to be_success
-      expect(response.headers["Content-Type"]).to eq "application/vnd.geo+json; charset=utf-8"
+      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
@@ -74,7 +74,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       setup_pdx
       get '/services/va_facilities/v0/facilities/all', nil, accept_csv
       expect(response).to be_success
-      expect(response.headers["Content-Type"]).to eq "text/csv"
+      expect(response.headers['Content-Type']).to eq 'text/csv'
       expect(response.body).to be_a(String)
     end
   end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require_dependency 'va_facilities/api_serialization'
 
 module VaFacilities
@@ -13,7 +14,6 @@ module VaFacilities
 
     attributes :name, :facility_type, :classification, :website, :lat, :long,
                :address, :phone, :hours, :services, :satisfaction, :wait_times
-
 
     def services
       ApiSerialization.services(object)

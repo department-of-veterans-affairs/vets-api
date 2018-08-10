@@ -11,7 +11,7 @@ module VaFacilities
     class FacilitiesController < ApplicationController
       include ActionController::MimeResponds
       skip_before_action(:authenticate)
-      before_filter :set_default_format
+      before_action :set_default_format
       before_action :validate_params, only: [:index]
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
@@ -26,15 +26,15 @@ module VaFacilities
             render csv: VaFacilities::CsvSerializer.to_csv(resource), filename: 'va_facilities'
           end
         end
-      end 
+      end
 
       def index
         resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
         respond_to do |format|
-          format.json do 
+          format.json do
             render json: resource,
-              each_serializer: VaFacilities::FacilitySerializer,
-              meta: metadata(resource)
+                   each_serializer: VaFacilities::FacilitySerializer,
+                   meta: metadata(resource)
           end
           format.geojson do
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
@@ -56,9 +56,9 @@ module VaFacilities
       end
 
       protected
-        
+
       def set_default_format
-        request.format = :json if params[:format].nil? && request.headers["HTTP_ACCEPT"].nil?
+        request.format = :json if params[:format].nil? && request.headers['HTTP_ACCEPT'].nil?
       end
 
       private

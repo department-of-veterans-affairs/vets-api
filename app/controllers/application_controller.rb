@@ -82,7 +82,7 @@ class ApplicationController < ActionController::API
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
       when ActionController::UnknownFormat
-        Common::Exceptions::UnknownFormat.new()
+        Common::Exceptions::UnknownFormat.new
       when Common::Exceptions::BaseError
         exception
       when Breakers::OutageException
