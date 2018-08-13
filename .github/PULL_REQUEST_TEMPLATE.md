@@ -1,7 +1,13 @@
-## Background
-<!-- What would a code reviewer, or a future dev, need to know about this PR in order to understand why this PR is necessary -->
+## Description of change
+Please include a description of the change. What would a code reviewer, or a future dev, need to know about this PR in order to understand why this PR is necessary.
 
-## Definition of Done
+## Testing done
+Please describe testing done to verify the changes.
+
+## Testing planned
+Please describe testing planned
+
+## Acceptance Criteria (Definition of Done)
 
 #### Unique to this PR
 
