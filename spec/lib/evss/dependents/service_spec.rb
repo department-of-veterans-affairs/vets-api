@@ -325,6 +325,7 @@ describe EVSS::Dependents::Service do
     VCR.configure do |c|
       c.allow_http_connections_when_no_cassette = true
     end
+    form = form.deep_transform_keys { |k| k.camelize(:lower) }
     binding.pry; fail
     VCR.use_cassette('foo', record: :once) do
       subject.clean_form(form)
