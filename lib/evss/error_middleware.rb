@@ -14,11 +14,11 @@ module EVSS
     def on_complete(env)
       case env[:status]
       when 200
-        resp = env.body
-        raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
-        if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
-          raise EVSSError.new(resp['messages'], resp['messages'])
-        end
+        # resp = env.body
+        # raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
+        # if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
+        #   raise EVSSError.new(resp['messages'], resp['messages'])
+        # end
       when 503, 504
         resp = env.body
         raise EVSSBackendServiceError, resp
