@@ -50,7 +50,12 @@ module Vet360
           vet360: 'failed_vet360_id_initializations'
         )
       else
-        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
+        log_message_to_sentry(
+          error.message,
+          :error,
+          { url: config.base_path, body: error.body },
+          vet360: 'general_client_error'
+        )
       end
     end
 
