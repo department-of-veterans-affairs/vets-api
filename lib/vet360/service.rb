@@ -53,7 +53,8 @@ module Vet360
         log_message_to_sentry(
           error.message,
           :error,
-          url: config.base_path, body: error.body
+          { url: config.base_path, body: error.body },
+          vet360: 'general_client_error'
         )
       end
     end
