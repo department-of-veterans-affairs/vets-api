@@ -16,6 +16,10 @@ module EVSS
       def validate(form)
         perform(:post, 'inflightform/validateForm', form.to_json, headers)
       end
+
+      def submit(form)
+        perform(:post, 'form686submission/submit', form.to_json, headers)
+      end
     end
   end
 end
