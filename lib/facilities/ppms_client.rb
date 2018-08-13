@@ -12,12 +12,18 @@ module Facilities
     end
 
     def provider_locator(params)
-      Rails.logger.info('building params')
       qparams = build_params(params)
       Rails.logger.info('built params')
       response = perform(:get, 'ProviderLocator?', qparams)
       Rails.logger.info(response.body)
       response.body
+    end
+
+    def provider_info(identifier)
+      qparams = { :$expand => 'ProviderSpecialties' }
+      response = perform(:get, "Providers(#{identifier})?", qparams)
+      Rails.logger.info(response.body[0])
+      response.body[0]
     end
 
     def build_params(params)
@@ -29,8 +35,8 @@ module Facilities
       ylen = (longs.max - longs.min) * 69 / 2
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
       Rails.logger.info(radius)
-      { Address: '22033', Radius: radius, SpecialtyCode: '0',
-        Network: 0, Gender: 0, PrimaryCare: true, AcceptingNewPatients: true }
+      { Address: params[:address], Radius: radius, SpecialtyCode: '0',
+        Network: 0, Gender: 0, PrimaryCare: 0, AcceptingNewPatients: 0 }
     end
   end
 end

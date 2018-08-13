@@ -39,10 +39,21 @@ class V0::Facilities::VaController < FacilitiesController
     start = Time.now.utc
     ppms = Facilities::PPMSClient.new.test_routes(command, params)
     finish = Time.now.utc
-    ppms = "Latency: #{finish - start}\n" + ppms
+    ppms = "Latency: #{finish - start}\n" + ppms.to_s
     render text: ppms
   rescue StandardError => e
     render text: "message: #{e&.message} \nbody: #{e&.body} \nppms.url: #{Settings.ppms&.url}"
+  end
+
+  def provider_locator
+    ppms = Facilities::PPMSClient.new
+    providers = ppms.provider_locator(params)
+    Rails.logger.info(providers.class.name)
+    providers.map! do |provider|
+      prov_info = ppms.provider_info(provider['ProviderIdentifier'])
+      format_provloc(provider, prov_info)
+    end
+    render json: { data: providers }
   end
 
   private
@@ -71,6 +82,25 @@ class V0::Facilities::VaController < FacilitiesController
       BaseFacility::TYPES.include?(params[:type])
     unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+  end
+
+  def format_provloc(provider, prov_info)
+    { id: "ccp_#{provider['ProviderIdentifier']}", type: 'cc_provider', attributes: {
+      unique_id: provider['ProviderIdentifier'], name: provider['ProviderName'],
+      orgName: '¯\_(ツ)_/¯', lat: provider['Latitude'], long: provider['Longitude'],
+      address: { physical: { address1: prov_info['AddressStreet'], city: prov_info['AddressCity'],
+                             state: prov_info['AddressStateProvince'],
+                             zip: prov_info['AddressPostalCode'] } },
+      phone: prov_info['MainPhone'],
+      fax: prov_info['OrganizationFax'],
+      website: nil,
+      prefContact: prov_info['ContactMethod'],
+      accNewPatients: provider['ProviderAcceptingNewPatients'],
+      gender: provider['ProviderGender'],
+      distance: provider['Miles'],
+      network: provider['ProviderNetwork'],
+      specialty: prov_info['ProviderSpecialties'].map { |specialty| specialty['SpecialtyName'] }
+    } }
   end
 
   def metadata(resource)
