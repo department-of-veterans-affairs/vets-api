@@ -48,7 +48,7 @@ RSpec.describe FormProfile, type: :model do
       'city' => user.va_profile[:address][:city],
       'state' => user.va_profile[:address][:state],
       'country' => user.va_profile[:address][:country],
-      'postal_code' => user.va_profile[:address][:postal_code]
+      'postal_code' => user.va_profile[:address][:postal_code][0..4]
     }
   end
 
@@ -103,7 +103,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -148,7 +148,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -171,7 +171,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
@@ -190,7 +190,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -260,7 +260,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'swAsiaCombat' => true,
       'lastServiceBranch' => 'air force',
@@ -300,7 +300,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'gender' => user.gender,
       'dayPhone' => us_phone,
@@ -322,7 +322,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
       'claimantEmail' => user.pciu_email
@@ -388,6 +388,31 @@ RSpec.describe FormProfile, type: :model do
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
+      }
+    }
+  end
+
+  let(:vcomplaint_tool_expected) do
+    {
+      'address' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'serviceBranch' => 'Air Force',
+      'fullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'applicantEmail' => user.pciu_email,
+      'phone' => us_phone,
+      'serviceDateRange' => {
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
       }
     }
   end
@@ -483,9 +508,10 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with emis data', skip_emis: true do
-      before do
+      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def stub_methods_for_emis_data(military_branch = 'air force')
         military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return('air force')
+        expect(military_information).to receive(:last_service_branch).and_return(military_branch)
         expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
         expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
         expect(military_information).to receive(:discharge_type).and_return('honorable')
@@ -512,9 +538,11 @@ RSpec.describe FormProfile, type: :model do
           to: '2016-06-01'
         )
       end
+      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       context 'with vets360 prefill on' do
         before do
+          stub_methods_for_emis_data
           Settings.vet360.prefill = true
 
           v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
@@ -540,6 +568,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with a user that can prefill emis' do
         before do
+          stub_methods_for_emis_data
           can_prefill_emis(true)
         end
 
@@ -573,6 +602,17 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
+        end
+      end
+
+      context 'with a user that can prefill emis (Air Force)' do
+        before do
+          stub_methods_for_emis_data('Air Force')
+          can_prefill_emis(true)
+        end
+        it 'returns prefilled complaint tool' do
+          user.va_profile.address.country = 'US'
+          expect_prefilled('complaint-tool')
         end
       end
     end
