@@ -328,8 +328,8 @@ describe EVSS::Dependents::Service do
     form = form.deep_transform_keys { |k| k.camelize(:lower) }
     binding.pry; fail
     VCR.use_cassette('foo', record: :once) do
-      form = subject.retrieve.body
-      form = subject.clean_form(form).body
+      form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
+      form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
       subject.validate(form)
       subject.submit(form)
     end
