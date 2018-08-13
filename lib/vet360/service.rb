@@ -46,7 +46,7 @@ module Vet360
         log_message_to_sentry(
           error.message,
           :error,
-          { url: config.base_path, body: error.body },
+          extra_context: { url: config.base_path, body: error.body },
           vet360: 'failed_vet360_id_initializations'
         )
       else
