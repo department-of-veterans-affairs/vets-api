@@ -13,7 +13,6 @@ module Facilities
 
     def provider_locator(params)
       qparams = build_params(params)
-      Rails.logger.info('built params')
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       Rails.logger.info(response.body)
       response.body
