@@ -20,5 +20,4 @@ module Common
     end
   end
 end
-Rails.logger.info('should register')
 Faraday::Response.register_middleware ppms_parser: Common::Client::Middleware::Response::PPMSParser
