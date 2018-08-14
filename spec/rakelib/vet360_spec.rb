@@ -10,7 +10,7 @@ describe 'vet360 rake tasks' do
   end
 
   before :each do
-    # Prevents cross-poliation between tests
+    # Prevents cross-pollination between tests
     ENV['VET360_RAKE_DATA'] = nil
   end
 
@@ -178,6 +178,19 @@ describe 'vet360 rake tasks' do
       VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
         expect { silently { run_rake_task } }.not_to raise_error
       end
+    end
+  end
+
+  describe 'rake vet360:prep_error_codes' do
+    let :run_rake_task do
+      Rake::Task['vet360:prep_error_codes'].reenable
+      Rake.application.invoke_task 'vet360:prep_error_codes'
+    end
+
+    it 'runs without errors' do
+      expect_any_instance_of(Vet360::Exceptions::Builder).to receive(:construct_exceptions_from_csv)
+
+      expect { silently { run_rake_task } }.not_to raise_error
     end
   end
 end
