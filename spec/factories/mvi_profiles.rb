@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
-require 'faker'
-
-street = Faker::Address.street_address
-street2 = Faker::Address.secondary_address
+street = '49119 Jadon Mills'
+street2 = 'Apt. 832'
 
 FactoryBot.define do
   factory :street_check, class: Hash do
@@ -15,7 +13,7 @@ end
 
 FactoryBot.define do
   factory :mvi_profile_address, class: 'MVI::Models::MviProfileAddress' do
-    street { "#{street} #{street2}" }
+    street { "#{street}, #{street2}" }
     city { Faker::Address.city }
     state { Faker::Address.state_abbr }
     postal_code { Faker::Address.zip }
