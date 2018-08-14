@@ -34,7 +34,7 @@ module Facilities
       ylen = (longs.max - longs.min) * 69 / 2
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
       Rails.logger.info(radius)
-      { Address: params[:address], Radius: radius, SpecialtyCode: '0',
+      { Address: params[:address], Radius: radius, SpecialtyCode: '\'none\''',
         Network: 0, Gender: 0, PrimaryCare: 0, AcceptingNewPatients: 0 }
     end
   end
