@@ -127,7 +127,6 @@
         "needed": false
       }
     ],
-    "standardClaim": false,
-    "claimantCertification": true
+    "standardClaim": false
   }
 }
