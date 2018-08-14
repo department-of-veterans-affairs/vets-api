@@ -46,8 +46,8 @@ class MhvAccountsService
       if client_response[:status] == 'success'
         StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
         mhv_account.upgraded_at = Time.current
-        Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
         mhv_account.upgrade!
+        Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
       end
     elsif mhv_account.already_premium?
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
