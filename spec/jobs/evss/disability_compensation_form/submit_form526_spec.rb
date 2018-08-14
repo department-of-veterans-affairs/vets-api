@@ -15,7 +15,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
   describe '.perform_async' do
     let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/fe_submission_with_uploads.json' }
-    let(:last_transaction) { AsyncTransaction::EVSS::VA526ezSubmitTransaction.last }
+    let(:transaction_class) { AsyncTransaction::EVSS::VA526ezSubmitTransaction }
+    let(:last_transaction) { transaction_class.last }
 
     context 'with a successfull submission job' do
       it 'queues a job for submit' do
@@ -37,6 +38,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           subject.perform_async(user.uuid, valid_form_content, nil)
           expect { described_class.drain }.to change { InProgressForm.count }.by(-1)
+        end
+      end
+    end
+
+    context 'when retrying a job' do
+      it 'doesnt recreate the transaction' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          subject.perform_async(user.uuid, valid_form_content, nil)
+
+          jid = subject.jobs.last['jid']
+          transaction_class.start(user, jid)
+          transaction_class.update_transaction(jid, :retrying, 'Test retry')
+
+          described_class.drain
+          expect(last_transaction.transaction_status).to eq 'received'
+          expect(transaction_class.count).to eq 1
         end
       end
     end
