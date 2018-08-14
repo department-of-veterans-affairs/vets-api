@@ -24,6 +24,7 @@ class MhvAccount < ActiveRecord::Base
   scope :created, -> { where.not(registered_at: nil) }
   scope :existing_premium, -> { where(registered_at: nil, account_state: :upgraded, upgraded_at: nil) }
   scope :existing_upgraded, -> { where(registered_at: nil).where.not(upgraded_at: nil) }
+  scope :existing_failed_upgrade, -> { where(registered_at: nil, upgraded_at: nil, account_state: :upgrade_failed) }
   scope :created_premium, -> { created.where(upgraded_at: nil, account_state: :upgraded) }
   scope :created_failed_upgrade, -> { created.where(account_state: :upgrade_failed) }
   scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
