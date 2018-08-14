@@ -193,6 +193,21 @@ describe 'vet360 rake tasks' do
       expect { silently { run_rake_task } }.not_to raise_error
     end
   end
+
+  describe 'rake vet360:init_vet360_id' do
+    let :run_rake_task do
+      data = '123456,1312312'
+      ENV['VET360_RAKE_DATA'] = data
+      Rake::Task['vet360:init_vet360_id'].reenable
+      Rake.application.invoke_task 'vet360:init_vet360_id'
+    end
+
+    it 'runs without errors' do
+      VCR.use_cassette('vet360/person/init_vet360_id_success') do
+        expect { silently { run_rake_task } }.not_to raise_error
+      end
+    end
+  end
 end
 
 def silently
