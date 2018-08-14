@@ -14,14 +14,14 @@ module Facilities
     def provider_locator(params)
       qparams = build_params(params)
       Rails.logger.info('built params')
-      response = perform(:get, 'ProviderLocator?', qparams)
+      response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       Rails.logger.info(response.body)
       response.body
     end
 
     def provider_info(identifier)
       qparams = { :$expand => 'ProviderSpecialties' }
-      response = perform(:get, "Providers(#{identifier})?", qparams)
+      response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
       Rails.logger.info(response.body[0])
       response.body[0]
     end
