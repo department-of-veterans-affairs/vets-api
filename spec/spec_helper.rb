@@ -34,6 +34,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/vic/configuration.rb'
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/gibft/configuration.rb'
+    add_filter 'lib/vet360/response.rb'
+    add_filter 'lib/vet360/exceptions/builder.rb'
     # TODO: Remove once IHub is ready to merge into master
     add_filter 'lib/ihub'
     # TODO: remove this filter after removing sentry logging
