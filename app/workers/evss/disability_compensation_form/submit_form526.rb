@@ -17,15 +17,27 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |_msg, _ex|
-        transaction.update_transaction(jid, :exhausted)
+        transaction_class.update_transaction(jid, :exhausted)
       end
 
+      # Performs an asynchronous job for submitting a form526 to an upstream
+      # submission service (currently EVSS)
+      #
+      # @param user_uuid [String] The user's uuid thats associated with the form
+      # @param form_content [Hash] The form content that is to be submitted
+      # @param uploads [Hash] The users ancillary uploads that will be submitted separately
+      #
       def perform(user_uuid, form_content, uploads)
         user = User.find(user_uuid)
 
-        transaction.start(user, jid)
+        transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
         response = service(user).submit_form(form_content)
-        transaction.update_transaction(jid, :received, response.attributes)
+        transaction_class.update_transaction(jid, :received, response.attributes)
+
+        Rails.logger.info('Form526 Submission',
+                          'user_uuid' => user.uuid,
+                          'job_id' => jid,
+                          'job_status' => 'received')
 
         # Delete SiP form on successfull submission
         InProgressForm.form_for_user(FORM_ID, user)&.destroy
@@ -33,18 +45,13 @@ module EVSS
 
         EVSS::DisabilityCompensationForm::SubmitUploads.start(user, response.claim_id, uploads) if uploads.present?
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        if e.status_code.between?(500, 600)
-          transaction.update_transaction(jid, :retrying, e.messages)
-          raise e
-        end
-        transaction.update_transaction(jid, :non_retryable_error, e.messages)
+        handle_service_exception(e)
       rescue Common::Exceptions::GatewayTimeout => e
-        transaction.update_transaction(jid, :retrying, e.message)
-        raise e
+        handle_gateway_timeout_exception(e)
       rescue StandardError => e
         # Treat unexpected errors as hard failures
         # This includes BackeEndService Errors (including 403's)
-        transaction.update_transaction(jid, :non_retryable_error, e.to_s)
+        transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
       end
 
       private
@@ -53,8 +60,21 @@ module EVSS
         EVSS::DisabilityCompensationForm::Service.new(user)
       end
 
-      def transaction
+      def transaction_class
         AsyncTransaction::EVSS::VA526ezSubmitTransaction
+      end
+
+      def handle_service_exception(error)
+        if error.status_code.between?(500, 600)
+          transaction_class.update_transaction(jid, :retrying, error.messages)
+          raise error
+        end
+        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
+      end
+
+      def handle_gateway_timeout_exception(error)
+        transaction_class.update_transaction(jid, :retrying, error.message)
+        raise error
       end
     end
   end
