@@ -43,8 +43,8 @@ FactoryBot.define do
              'last_updated' => '2018-03-15')
     feedback('health' => {
                'effective_date' => '2017-08-15',
-               'primary_care_urgent' => '0.8',
-               'primary_care_routine' => '0.84'
+               'primary_care_urgent' => 0.8,
+               'primary_care_routine' => 0.84
              })
     access('health' => {
              'audiology' => {
@@ -125,10 +125,10 @@ FactoryBot.define do
              'last_updated' => '2018-03-15'
     feedback 'health' => {
       'effective_date' => '2017-08-15',
-      'primary_care_urgent' => '0.73',
-      'primary_care_routine' => '0.82',
-      'specialty_care_urgent' => '0.75',
-      'specialty_care_routine' => '0.82'
+      'primary_care_urgent' => 0.73,
+      'primary_care_routine' => 0.82,
+      'specialty_care_urgent' => 0.75,
+      'specialty_care_routine' => 0.82
     }
     access 'health' => {
       'audiology' => {

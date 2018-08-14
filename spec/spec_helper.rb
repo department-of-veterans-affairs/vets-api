@@ -34,6 +34,8 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/config_helper.rb'
     add_filter 'lib/feature_flipper.rb'
     add_filter 'lib/vic/configuration.rb'
+    add_filter 'lib/salesforce/configuration.rb'
+    add_filter 'lib/gibft/configuration.rb'
     # TODO: Remove once Vet360 is ready to merge into master
     add_filter 'lib/vet360'
     # TODO: Remove once IHub is ready to merge into master
@@ -44,6 +46,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'VaFacilities', 'modules/va_facilities/'
     add_filter 'version.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
