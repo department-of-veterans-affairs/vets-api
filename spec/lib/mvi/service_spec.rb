@@ -335,6 +335,14 @@ describe MVI::Service do
         end
         expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
       end
+
+      it 'should log the request and response data' do
+        expect {
+          VCR.use_cassette('mvi/find_candidate/valid') do
+            subject.find_profile(user)
+          end
+        }.to change{PersonalInformationLog.count}.by(1)
+      end
     end
 
     context 'with an unsuccessful request' do
