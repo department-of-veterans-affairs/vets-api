@@ -11,26 +11,37 @@ module V0
     end
 
     def submit
-      # Once we run this job asynchronously, this data translation can be moved into the
-      # async `perform` method
       form_content = JSON.parse(request.body.string)
+
+      claim = SavedClaim::DisabilityCompensation.new(form: form_content['form526'].to_json)
+      unless claim.save
+        StatsD.increment("#{stats_key}.failure")
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+      StatsD.increment("#{stats_key}.success")
+      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+
       uploads = form_content['form526'].delete('attachments')
       converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
         @current_user, form_content
       ).translate
-      response = service.submit_form(converted_form_content)
-      EVSS::IntentToFile::ResponseStrategy.delete("#{@current_user.uuid}:compensation")
-      if uploads.present?
-        EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id, uploads)
-      end
-      render json: response,
-             serializer: SubmitDisabilityFormSerializer
+
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
+        @current_user, converted_form_content, uploads
+      )
+
+      render json: { job_id: jid },
+             status: :accepted
     end
 
     private
 
     def service
       EVSS::DisabilityCompensationForm::Service.new(@current_user)
+    end
+
+    def stats_key
+      'api.disability_compensation'
     end
   end
 end
