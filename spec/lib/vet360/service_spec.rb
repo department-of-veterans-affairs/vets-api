@@ -34,6 +34,24 @@ describe Vet360::Service do
       end
     end
 
+    context 'when given a Common::Client::Errors::ParsingError from a Vet360 service call' do
+      let(:error) { Common::Client::Errors::ParsingError.new }
+      it 'logs an error message to sentry', :aggregate_failures do
+        expect(subject).to receive(:log_message_to_sentry).with(any_args)
+
+        expect { subject.send('handle_error', error) }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        end
+      end
+
+      it 'raises a VET360_502 backend exception', :aggregate_failures do
+        expect { subject.send('handle_error', error) }.to raise_error do |e|
+          expect(e.errors.first.code).to eq('VET360_502')
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
     context 'when error.body is not a Hash' do
       it 'raises a VET360_502', :aggregate_failures do
         invalid_body = '<html>Some response body</html>'
