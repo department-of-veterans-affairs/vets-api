@@ -13,7 +13,7 @@ FactoryBot.define do
           postalCode: '12345',
           country: 'US'
         },
-        serviceBranch: 'NOAA/PHS',
+        serviceBranch: 'Air Force',
         serviceAffiliation: 'Veteran',
         fullName: {
           prefix: 'Mr.',
