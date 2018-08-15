@@ -50,6 +50,16 @@ namespace :evss do
     end
   end
 
+  desc 'export post 911 not found users for the last week, usage: rake evss:export_post_911_not_found[/export/path.csv]'
+  task :export_post_911_not_found, [:file_path] => [:environment] do |_, args|
+    raise 'No JSON file path provided' unless args[:file_path]
+    File.open(args[:file_path], "w+") do |f|
+      Post911NotFoundError.last_week.find_each do |error|
+        f.puts({ timestamp: error.request_timestamp, user: JSON.parse(error.user_json) }.to_json)
+      end
+    end
+  end
+
   desc 'imports DoD facilities into base_facilities table'
   task import_dod_facilities: :environment do
     path = Rails.root.join('rakelib', 'support', 'files', 'dod_facilities.csv')
