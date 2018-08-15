@@ -27,6 +27,13 @@ class MhvAccount < ActiveRecord::Base
   scope :created_failed_upgrade, -> { created.where(account_state: :upgrade_failed) }
   scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
   scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
+  # Prior to 8/18 we did not track mhv_correlation_id, so we will be duplicating mhv account records, but because accounts could
+  # have been deleted / reregistered etc, there is no way to reconcile the historic accounts without reaching out to MHV for
+  # "historic" mhv_correlation_ids. Newly created records will be reflected as "active", but "existing" even though they might have
+  # actually been created by us and a single uuid can track multiple different mhv_correlation_ids even though only 1 should ever
+  # be the active one.
+  scope :historic, -> { where(mhv_correlation_id: nil) }
+  scope :active, -> { where.not(mhv_correlation_id: nil) }
 
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
@@ -57,12 +64,12 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :eligible
     end
 
+    # FIXME: revisit these in the future and see if they can be cleaned up
+    # in the future might need to consider downgrades from upgrade, if account level can be changed.
     event :check_account_state do
       transitions from: %i[eligible], to: :no_account, unless: :exists?
-      # The states below this line and the next comment will be removed when reintroducing upgrade.665
-      transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
       transitions from: %i[eligible], to: :registered, if: :previously_registered?
-      # this could mean that vets.gov created / upgraded before we started tracking mhv_ids
+      transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
       transitions from: %i[eligible], to: :existing
     end
 
@@ -113,13 +120,8 @@ class MhvAccount < ActiveRecord::Base
     mhv_correlation_id.present?
   end
 
-  # if vets.gov upgraded the account it is premium, if not, we have to check eligible data classes
-  # NOTE: individual services should always check mhv_account_type using eligible data classes since
-  # it is possible for accounts to get downgraded.
+  # TODO: fix specs around these
   def account_level
-    return 'Advanced' if registered?
-    return 'Advanced' if upgrade_failed? && registered_at.present?
-    return 'Premium' if upgraded?
     user.mhv_account_type
   end
 
@@ -171,7 +173,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def previously_registered?
-    exists? && eligible? && registered_at?
+    exists? && eligible? && registered_at? && !upgraded_at?
   end
 
   def setup

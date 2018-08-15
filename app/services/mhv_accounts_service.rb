@@ -49,9 +49,15 @@ class MhvAccountsService
         mhv_account.upgrade!
         Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
       end
+    elsif mhv_account.account_level == 'Error'
+      log_message_to_sentry('Possible Race Condition fetching Eliggible Data Classes', extra_context: mhv_account.attributes)
     elsif mhv_account.already_premium?
-      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
-      mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
+      if mhv_account.registered_at.present?
+        mhv_account.upgrade! # handling a scenario that appears to occur without explanation right now.
+      else
+        StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
+        mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
+      end
     end
   rescue => e
     log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
