@@ -3,15 +3,12 @@
 module V0
   module Profile
     class EmailsController < ApplicationController
-      include Vet360::Writeable
       include EVSS::Authorizeable
 
       before_action :authorize_evss!
 
       def show
         response = service.get_email_address
-
-        log_profile_data_to_sentry(response) if response&.email.blank?
 
         render json: response, serializer: EmailSerializer
       end
@@ -21,8 +18,6 @@ module V0
 
         if email_address.valid?
           response = service.post_email_address email_address
-
-          log_profile_data_to_sentry(response) if response&.email.blank?
 
           render json: response, serializer: EmailSerializer
         else
