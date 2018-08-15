@@ -44,7 +44,7 @@ class MhvAccountsService
     if mhv_account.upgradable?
       handle_upgrade!
     elsif mhv_account.already_premium? && mhv_account.registered_at? # we have historic evidence that some accounts
-      mhv_account.upgrade!  # we registered became 'Premium' on their own, so we want track it similarly as before.
+      mhv_account.upgrade! # we registered became 'Premium' on their own, so we want track it similarly as before.
     else
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
       mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
