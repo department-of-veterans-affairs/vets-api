@@ -6,14 +6,12 @@ module EVSS
       include Sidekiq::Worker
 
       FORM_ID = '21-526EZ'
-      RETRY = 15 # Retry count
+
+      # Sidekiq has built in exponential back-off functionality for retrys
+      # A max retry attempt of 10 will result in a run time of ~8 hours
+      RETRY = 10
 
       sidekiq_options retry: RETRY
-
-      # Set retry delay (in seconds) with an exponential back off
-      sidekiq_retry_in do |count|
-        (2**count - 1) / 2
-      end
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |_msg, _ex|
