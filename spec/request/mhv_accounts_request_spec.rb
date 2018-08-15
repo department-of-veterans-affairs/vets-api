@@ -164,6 +164,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     it_behaves_like 'non va patient'
 
     context 'without an account' do
+      around(:each) do |example|
+        VCR.use_cassette("mhv_account_type_service/advanced") do
+          example.run
+        end
+      end
+
       it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
       it_behaves_like 'a successful POST #create'
       it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
@@ -177,8 +183,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         %w[Basic Advanced].each do |type|
           context type do
             around(:each) do |example|
-              VCR.use_cassette("mhv_account_type_service/#{type.downcase}", allow_playback_repeats: true) do
-                example.run
+              VCR.use_cassette('mhv_account_type_service/premium') do
+                VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
+                  example.run
+                end
               end
             end
 
@@ -194,7 +202,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         %w[Premium Error Unknown].each do |type|
           context type do
             around(:each) do |example|
-              VCR.use_cassette("mhv_account_type_service/#{type.downcase}", allow_playback_repeats: true) do
+              VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
                 example.run
               end
             end
@@ -212,13 +220,17 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       context 'that is registered' do
         before(:each) do
+          MhvAccount.skip_callback(:initialize, :after, :setup)
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'registered', registered_at: Time.current)
+          MhvAccount.set_callback(:initialize, :after, :setup)
         end
 
         around(:each) do |example|
-          VCR.use_cassette('mhv_account_type_service/advanced', allow_playback_repeats: true) do
-            example.run
+          VCR.use_cassette('mhv_account_type_service/premium') do
+            VCR.use_cassette('mhv_account_type_service/advanced') do
+              example.run
+            end
           end
         end
 
@@ -232,8 +244,10 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       context 'that is upgraded' do
         before(:each) do
+          MhvAccount.skip_callback(:initialize, :after, :setup)
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', upgraded_at: Time.current)
+          MhvAccount.set_callback(:initialize, :after, :setup)
         end
 
         around(:each) do |example|
@@ -247,6 +261,29 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'non va patient', account_level: 'Premium'
         it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                                  message: V0::MhvAccountsController::CREATE_ERROR
+      end
+
+      context 'that is upgraded has registered_at but does not have upgraded at' do
+        before(:each) do
+          MhvAccount.skip_callback(:initialize, :after, :setup)
+          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+                            account_state: 'upgraded', registered_at: Time.current, upgraded_at: nil)
+          MhvAccount.set_callback(:initialize, :after, :setup)
+        end
+
+        around(:each) do |example|
+          VCR.use_cassette('mhv_account_type_service/premium') do
+            example.run
+          end
+        end
+
+        it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
+        it_behaves_like 'ssn mismatch', account_level: 'Premium'
+        it_behaves_like 'non va patient', account_level: 'Premium'
+        it_behaves_like 'a failed POST #create', http_status: :forbidden,
+                                                 message: V0::MhvAccountsController::CREATE_ERROR
+        it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
+                                                 message: V0::MhvAccountsController::UPGRADE_ERROR
       end
     end
   end

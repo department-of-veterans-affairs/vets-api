@@ -4,20 +4,6 @@ require 'mhv_ac/client'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-
-  TERMS_AND_CONDITIONS_NAME = 'mhvac'
-  # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
-  ALL_STATES = %i[
-    unknown
-    needs_terms_acceptance
-    existing
-    ineligible
-    registered
-    upgraded
-    register_failed
-    upgrade_failed
-  ].freeze
-
   # http://grafana.vetsgov-internal/dashboard/db/mhv-account-creation
   # the following scopes are used for dashboard metrics in grafana and are collected
   # by the job in app/workers/mhv/account_statistics_job.rb
