@@ -15,6 +15,8 @@ module AsyncTransaction
       scope :for_user, ->(user) { where(user_uuid: user.uuid) }
       scope :last_requested, -> { where(status: Base::REQUESTED).order(created_at: :desc).limit(1) }
 
+      validates :source_id, presence: true, unless: :initialize_person?
+
       # Creates an initial AsyncTransaction record for ongoing tracking
       #
       # @param user [User] The user associated with the transaction
@@ -114,6 +116,12 @@ module AsyncTransaction
         ongoing_transactions += EmailTransaction.last_requested.for_user(user)
         ongoing_transactions += TelephoneTransaction.last_requested.for_user(user)
         ongoing_transactions
+      end
+
+      private
+
+      def initialize_person?
+        type&.constantize == AsyncTransaction::Vet360::InitializePersonTransaction
       end
     end
   end

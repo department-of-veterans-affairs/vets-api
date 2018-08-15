@@ -7,9 +7,12 @@ module MHV
     sidekiq_options retry: false
 
     def perform
-      stats = { 'mhv.account.created_count' => MhvAccount.historic.created.count,
+      stats = {
+                'mhv.account.created_count' => MhvAccount.historic.created.count,
                 'mhv.account.existing_premium_count' => MhvAccount.historic.existing_premium.count,
                 'mhv.account.existing_upgraded_count' => MhvAccount.historic.existing_upgraded.count,
+                'mhv.account.existing_failed_upgrade_count' => MhvAccount.historic.existing_failed_upgrade.count,
+                'mhv.account.created_premium_count' => MhvAccount.historic.created_premium.count,
                 'mhv.account.created_failed_upgrade_count' => MhvAccount.historic.created_failed_upgrade.count,
                 'mhv.account.created_and_upgraded_count' => MhvAccount.historic.created_and_upgraded.count,
                 'mhv.account.failed_create_count' => MhvAccount.historic.failed_create.count,
@@ -17,10 +20,13 @@ module MHV
                 'mhv.account.active.created_count' => MhvAccount.active.created.count,
                 'mhv.account.active.existing_premium_count' => MhvAccount.active.existing_premium.count,
                 'mhv.account.active.existing_upgraded_count' => MhvAccount.active.existing_upgraded.count,
+                'mhv.account.active.existing_failed_upgrade_count' => MhvAccount.active.existing_failed_upgrade.count,
+                'mhv.account.active.created_premium_count' => MhvAccount.active.created_premium.count,
                 'mhv.account.active.created_failed_upgrade_count' => MhvAccount.active.created_failed_upgrade.count,
                 'mhv.account.active.created_and_upgraded_count' => MhvAccount.active.created_and_upgraded.count,
                 'mhv.account.active.failed_create_count' => MhvAccount.active.failed_create.count,
-                'mhv.account.active.total_count' => MhvAccount.active.count }
+                'mhv.account.active.total_count' => MhvAccount.active.count
+              }
       stats.each do |metric, count|
         StatsD.gauge(metric, count)
       end
