@@ -42,22 +42,14 @@ class MhvAccountsService
 
   def upgrade
     if mhv_account.upgradable?
-      client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
-      if client_response[:status] == 'success'
-        StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
-        mhv_account.upgraded_at = Time.current
-        mhv_account.upgrade!
-        Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
-      end
+      handle_upgrade!
     elsif mhv_account.account_level == 'Error'
-      log_message_to_sentry('Possible Race Condition fetching Eliggible Data Classes', extra_context: mhv_account.attributes)
-    elsif mhv_account.already_premium?
-      if mhv_account.registered_at?
-        mhv_account.upgrade! # handling a scenario that appears to occur without explanation right now.
-      else
-        StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
-        mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
-      end
+      log_message_to_sentry('Possible Race Condition In MHV Upgrade', :warn, extra_context: mhv_account.attributes)
+    elsif mhv_account.already_premium? && mhv_account.registered_at?
+      mhv_account.upgrade! # handling a scenario that appears to occur without explanation right now.
+    else
+      StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
+      mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
     end
   rescue => e
     log_warning(type: :upgrade, exception: e, extra: params_for_upgrade)
@@ -67,6 +59,16 @@ class MhvAccountsService
   end
 
   private
+
+  def handle_upgrade!
+    client_response = mhv_ac_client.post_upgrade(params_for_upgrade)
+    if client_response[:status] == 'success'
+      StatsD.increment("#{STATSD_ACCOUNT_UPGRADE_KEY}.success")
+      mhv_account.upgraded_at = Time.current
+      mhv_account.upgrade!
+      Common::Collection.bust("#{mhv_account.mhv_correlation_id}:geteligibledataclass")
+    end
+  end
 
   def address_params
     if user.va_profile&.address.present?

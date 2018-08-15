@@ -15,11 +15,11 @@ class MhvAccount < ActiveRecord::Base
   scope :created_failed_upgrade, -> { created.where(account_state: :upgrade_failed) }
   scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
   scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
-  # Prior to 8/18 we did not track mhv_correlation_id, so we will be duplicating mhv account records, but because accounts could
-  # have been deleted / reregistered etc, there is no way to reconcile the historic accounts without reaching out to MHV for
-  # "historic" mhv_correlation_ids. Newly created records will be reflected as "active", but "existing" even though they might have
-  # actually been created by us and a single uuid can track multiple different mhv_correlation_ids even though only 1 should ever
-  # be the active one.
+  # Prior to 8/18 we did not track mhv_correlation_id, so we will be duplicating mhv account records, but because
+  # accounts could have been deleted / reregistered etc, there is no way to reconcile the historic accounts without
+  # reaching out to MHV for "historic" mhv_correlation_ids. Newly created records will be reflected as "active", but
+  # "existing" even though they might have actually been created by us and a single uuid can track multiple
+  # different mhv_correlation_ids even though only 1 should ever be the active one.
   scope :historic, -> { where(mhv_correlation_id: nil) }
   scope :active, -> { where.not(mhv_correlation_id: nil) }
 
@@ -119,7 +119,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def already_premium?
-     !previously_upgraded? && !created_at? && account_level == 'Premium'
+    !previously_upgraded? && !created_at? && account_level == 'Premium'
   end
 
   private

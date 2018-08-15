@@ -165,7 +165,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
     context 'without an account' do
       around(:each) do |example|
-        VCR.use_cassette("mhv_account_type_service/advanced") do
+        VCR.use_cassette('mhv_account_type_service/advanced') do
           example.run
         end
       end
@@ -283,7 +283,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         it_behaves_like 'a failed POST #create', http_status: :forbidden,
                                                  message: V0::MhvAccountsController::CREATE_ERROR
         it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::UPGRADE_ERROR
+                                                  message: V0::MhvAccountsController::UPGRADE_ERROR
       end
     end
   end

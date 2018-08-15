@@ -215,7 +215,8 @@ RSpec.describe MhvAccount, type: :model do
           context 'previously registered but somehow upgraded because of account level' do
             before(:each) do
               MhvAccount.skip_callback(:initialize, :after, :setup)
-              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
+                                              mhv_correlation_id: user.mhv_correlation_id)
               MhvAccount.set_callback(:initialize, :after, :setup)
             end
 
