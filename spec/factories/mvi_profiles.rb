@@ -48,6 +48,7 @@ FactoryBot.define do
     icn { Faker::Number.number(17) }
     icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
     mhv_ids { Array.new(2) { Faker::Number.number(11) } }
+    active_mhv_ids { mhv_ids }
     edipi { Faker::Number.number(10) }
     participant_id { Faker::Number.number(10) }
     birls_id { Faker::Number.number(10) }
@@ -65,6 +66,7 @@ FactoryBot.define do
       home_phone '1112223333'
       icn '1000123456V123456'
       mhv_ids ['123456']
+      active_mhv_ids ['123456']
       vha_facility_ids %w[516 553 200HD 200IP 200MHV]
       edipi '1234'
       participant_id '12345678'
@@ -80,6 +82,7 @@ FactoryBot.define do
         home_phone nil
         icn '1008714701V416111'
         mhv_ids nil
+        active_mhv_ids nil
         vha_facility_ids ['200MHS']
         participant_id '9100792239'
         edipi nil
@@ -96,6 +99,7 @@ FactoryBot.define do
         icn '12345678901234567'
         sec_id '0001234567'
         mhv_ids %w[12345678901 12345678902]
+        active_mhv_ids %w[12345678901]
         vha_facility_ids %w[200MH 200MH]
         edipi '1122334455'
         participant_id '12345678'
