@@ -205,6 +205,33 @@ RSpec.describe MhvAccount, type: :model do
 
             it 'has upgraded' do
               expect(subject.account_state).to eq('upgraded')
+              expect(subject.changes[:account_state]).to be_nil
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
+          end
+
+          context 'previously registered but somehow upgraded because of account level' do
+            before(:each) do
+              MhvAccount.skip_callback(:initialize, :after, :setup)
+              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+              MhvAccount.set_callback(:initialize, :after, :setup)
+            end
+
+            it 'has upgraded, with account level Premium, but it is treated as upgraded therefore not upgradable' do
+              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Premium')
+              expect(subject.account_state).to eq('upgraded')
+              expect(subject.changes[:account_state]).to be_nil
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
+
+            it 'has upgraded, with account level Error, but it is treated as upgraded therefore not upgradable' do
+              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Error')
+              expect(subject.account_state).to eq('upgraded')
+              expect(subject.changes[:account_state]).to be_nil
               expect(subject.creatable?).to be_falsey
               expect(subject.upgradable?).to be_falsey
               expect(subject.terms_and_conditions_accepted?).to be_truthy
@@ -218,10 +245,39 @@ RSpec.describe MhvAccount, type: :model do
               MhvAccount.set_callback(:initialize, :after, :setup)
             end
 
-            it 'has registered' do
+            it 'has registered, upgradable with account level basic' do
+              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Basic')
               expect(subject.account_state).to eq('registered')
+              expect(subject.changes).to be_empty
               expect(subject.creatable?).to be_falsey
               expect(subject.upgradable?).to be_truthy
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
+
+            it 'has registered, upgradable with account level advanced' do
+              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Advanced')
+              expect(subject.account_state).to eq('registered')
+              expect(subject.changes).to be_empty
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_truthy
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
+
+            it 'has registered, upgradable with account level nil' do
+              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return(nil)
+              expect(subject.account_state).to eq('registered')
+              expect(subject.changes).to be_empty
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_truthy
+              expect(subject.terms_and_conditions_accepted?).to be_truthy
+            end
+
+            it 'has registered, NOT upgradable with account level Error' do
+              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Error')
+              expect(subject.account_state).to eq('registered')
+              expect(subject.changes).to be_empty
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
               expect(subject.terms_and_conditions_accepted?).to be_truthy
             end
           end

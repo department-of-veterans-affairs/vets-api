@@ -70,6 +70,7 @@ class MhvAccount < ActiveRecord::Base
     # in the future might need to consider downgrades from upgrade, if account level can be changed.
     event :check_account_state do
       transitions from: %i[eligible], to: :no_account, unless: :exists?
+      transitions from: %i[eligible], to: :upgraded, if: :previously_registered_somehow_upgraded?
       transitions from: %i[eligible], to: :registered, if: :previously_registered?
       transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
       transitions from: %i[eligible], to: :existing
@@ -132,7 +133,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def already_premium?
-    account_level == 'Premium' && !previously_upgraded?
+     !previously_upgraded? && !created_at? && account_level == 'Premium'
   end
 
   private
@@ -171,11 +172,15 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def previously_upgraded?
-    exists? && eligible? && upgraded_at?
+    exists? && eligible? && upgraded_at? # could be existing or registered
   end
 
   def previously_registered?
     exists? && eligible? && registered_at? && !upgraded_at?
+  end
+
+  def previously_registered_somehow_upgraded?
+    previously_registered? && changes[:account_state]&.first == 'upgraded'
   end
 
   def setup

@@ -52,7 +52,7 @@ class MhvAccountsService
     elsif mhv_account.account_level == 'Error'
       log_message_to_sentry('Possible Race Condition fetching Eliggible Data Classes', extra_context: mhv_account.attributes)
     elsif mhv_account.already_premium?
-      if mhv_account.registered_at.present?
+      if mhv_account.registered_at?
         mhv_account.upgrade! # handling a scenario that appears to occur without explanation right now.
       else
         StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
