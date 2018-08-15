@@ -210,7 +210,7 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         end
       end
 
-      it 'does not include "failed_vet360_id_initializations" tag in sentry error', :aggregate_failures do
+      it 'includes "general_client_error" tag in sentry error', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/email_transaction_status_error', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(Vet360::Service).to receive(:log_message_to_sentry)
             .with(any_args, hash_including(vet360: 'general_client_error'))
