@@ -17,7 +17,6 @@ class Shrine
       end
     end
 
-
     register_plugin(:validate_unlocked_pdf, ValidateUnlockedPdf)
   end
 end

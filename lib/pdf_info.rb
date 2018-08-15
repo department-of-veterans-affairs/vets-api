@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PdfInfo
-  class MetadataReadError < Exception
+  class MetadataReadError < RuntimeError
     def initialize(status, stdout)
       @status = status
       @stdout = stdout
@@ -11,15 +11,21 @@ module PdfInfo
   class Metadata
     def self.read(file_or_path)
       if file_or_path.is_a? String
-        self.new(file_or_path, Settings.binaries.pdfinfo)
+        new(file_or_path, Settings.binaries.pdfinfo)
       else
-        self.new(file_or_path.path, Settings.binaries.pdfinfo)
+        new(file_or_path.path, Settings.binaries.pdfinfo)
       end
     end
 
     def initialize(path, bin)
-      @result = %x(#{bin} #{path})
-      init_error unless $? == 0
+      @stdout = []
+      Open3.popen2e([bin, 'argv0'], path) do |_stdin, stdout, wait|
+        @exit_status = wait.value
+        stdout.each_line do |line|
+          @stdout.push(line)
+        end
+      end
+      init_error unless @exit_status.success?
     end
 
     def [](key)
@@ -28,24 +34,23 @@ module PdfInfo
     end
 
     def encrypted?
-      return self['Encrypted'] != 'no'
+      self['Encrypted'] != 'no'
     end
 
     def pages
-      return self['Pages'].to_i
+      self['Pages'].to_i
     end
 
     private
 
     def init_error
-      raise PdfInfo::MetadataReadError.new($?, @result)
+      raise PdfInfo::MetadataReadError.new(@exit_status.exitstatus, @stdout.join('\n'))
     end
 
     def parse_result
-      @result.split(/$/).reduce({}) do |out, line|
+      @stdout.each_with_object({}) do |line, out|
         key, value = line.split(/:\s+/)
         out[key.strip] = value.try(:strip)
-        out
       end
     end
   end
