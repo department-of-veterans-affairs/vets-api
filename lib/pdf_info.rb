@@ -28,7 +28,7 @@ module PdfInfo
     end
 
     def encrypted?
-      return self['Encrypted'] == 'yes'
+      return self['Encrypted'] != 'no'
     end
 
     def pages
