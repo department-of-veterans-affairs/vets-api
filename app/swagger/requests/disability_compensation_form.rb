@@ -34,7 +34,7 @@ module Swagger
 
           parameter :authorization
 
-          response 202 do
+          response 200 do
             key :description, 'Response is OK'
             schema do
               key :'$ref', :SubmitDisabilityForm

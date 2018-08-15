@@ -342,7 +342,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                 expect(subject).to validate(
                   :post,
                   '/v0/disability_compensation_form/submit',
-                  202,
+                  200,
                   auth_options.update(
                     '_data' => form526
                   )
