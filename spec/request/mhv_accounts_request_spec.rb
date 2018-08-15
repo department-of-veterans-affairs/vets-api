@@ -179,11 +179,12 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     context 'with account' do
       let(:mhv_ids) { ['14221465'] }
 
-      context 'that is' do
+      context 'that is existing' do
         %w[Basic Advanced].each do |type|
           context type do
             around(:each) do |example|
-              VCR.use_cassette('mhv_account_type_service/premium') do
+              # by wrapping these cassettes, we're ensuring that after a successful upgrade, the serialized
+              VCR.use_cassette('mhv_account_type_service/premium') do # account level is 'Premium'
                 VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
                   example.run
                 end
@@ -227,7 +228,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         end
 
         around(:each) do |example|
-          VCR.use_cassette('mhv_account_type_service/premium') do
+          # by wrapping these cassettes, we're ensuring that after a successful upgrade, the serialized
+          VCR.use_cassette('mhv_account_type_service/premium') do # account level is 'Premium'
             VCR.use_cassette('mhv_account_type_service/advanced') do
               example.run
             end
