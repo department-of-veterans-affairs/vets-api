@@ -94,7 +94,7 @@ RSpec.describe 'Disability compensation form', type: :request do
       it 'should match the rated disabilities schema' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-          expect(response).to have_http_status(:accepted)
+          expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('submit_disability_form')
         end
       end

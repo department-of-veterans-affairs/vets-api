@@ -30,8 +30,8 @@ module V0
         @current_user, converted_form_content, uploads
       )
 
-      render json: { job_id: jid },
-             status: :accepted
+      render json: { data: { attributes: { job_id: jid } } },
+             status: :ok
     end
 
     private
