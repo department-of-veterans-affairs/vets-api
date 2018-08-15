@@ -50,7 +50,7 @@ module MVI
         conn.request :soap_headers
         conn.response :soap_parser
         conn.use :breakers
-        conn.use :logging, 'MVIRequest'
+        conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging
         conn.response :betamocks if Settings.mvi.mock
         conn.adapter Faraday.default_adapter
       end

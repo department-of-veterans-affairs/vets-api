@@ -12,10 +12,10 @@ module Common
         end
 
         def call(env)
-          request_body = Base64.encode64(env.body)
+          request_body = Base64.encode64(env.body) if env.body
 
           @app.call(env).on_complete do |response_env|
-            PersonalInformationLog.create({
+            PersonalInformationLog.create(
               error_class: @type_key, # TODO: error_class is probably worth renaming
               data: {
                 method: env.method,
@@ -23,7 +23,7 @@ module Common
                 request_body: request_body,
                 response_body: Base64.encode64(response_env.body)
               }.to_json
-            })
+            )
           end
         end
       end

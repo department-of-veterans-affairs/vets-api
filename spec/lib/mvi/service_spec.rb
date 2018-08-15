@@ -337,11 +337,11 @@ describe MVI::Service do
       end
 
       it 'should log the request and response data' do
-        expect {
+        expect do
           VCR.use_cassette('mvi/find_candidate/valid') do
             subject.find_profile(user)
           end
-        }.to change{PersonalInformationLog.count}.by(1)
+        end.to change { PersonalInformationLog.count }.by(1)
       end
     end
 

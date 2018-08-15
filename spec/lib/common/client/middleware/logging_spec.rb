@@ -9,47 +9,42 @@ describe 'Logging Middleware' do
 
   subject(:client) do
     Faraday.new do |conn|
-      conn.response :logging, type_key
+      conn.use :logging, type_key
 
       conn.adapter :test do |stub|
-        stub.get('success') { |200, { 'Content-Type' => 'text/plain' }, response_data] }
+        stub.get('success') { [200, { 'Content-Type' => 'text/plain' }, response_data] }
+        stub.post('success') { [200, { 'Content-Type' => 'text/plain' }, response_data] }
       end
     end
   end
 
   it 'creates a new personal information log record' do
-
+    expect { client.get('success') }.to change { PersonalInformationLog.count }.by(1)
+    expect(PersonalInformationLog.last.data.keys).to eq(%w[url method request_body response_body])
   end
 
   it 'correctly records (no) request body on a GET request' do
-
+    client.get('success')
+    expect(PersonalInformationLog.last.data['request_body']).to be_nil
   end
 
   it 'correctly records the request body on a non-GET request' do
-
+    client.post('success', 'some_data')
+    expect(PersonalInformationLog.last.data['request_body']).not_to be_nil
   end
 
   it 'correctly records the response body' do
-
+    client.get('success')
+    expect(PersonalInformationLog.last.data['response_body']).not_to be_nil
   end
 
   it 'correctly records the url' do
-
+    client.get('success')
+    expect(PersonalInformationLog.last.data['url']).to eq('http:/success')
   end
 
   it 'correctly records the request method' do
-
-  end
-
-  it 'raises client response error' do
-    message = 'BackendServiceException: {:status=>404, :detail=>"Veteran not found", ' \
-              ':code=>"APPEALSSTATUS404", :source=>"A veteran with that SSN was not found in our systems."}'
-    expect { appeals_client.get('not-found') }
-      .to raise_error do |error|
-        expect(error).to be_a(Common::Exceptions::BackendServiceException)
-        expect(error.message).to eq(message)
-        expect(error.errors.first[:detail]).to eq('Appeals data for a veteran with that SSN was not found')
-        expect(error.errors.first[:code]).to eq('APPEALSSTATUS404')
-      end
+    client.get('success')
+    expect(PersonalInformationLog.last.data['method']).to eq('get')
   end
 end
