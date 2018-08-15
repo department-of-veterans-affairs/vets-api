@@ -46,8 +46,8 @@ module EVSS
         super(status, attributes)
       end
 
-      def response_timestamp
-        DateTime.parse(@response.response_headers['date']).utc
+      def timestamp
+        Time.parse(@response.response_headers['date']).utc
       end
 
       def success?

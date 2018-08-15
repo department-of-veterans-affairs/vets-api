@@ -36,7 +36,7 @@ module V0
         # 503
         raise EVSS::GiBillStatus::ExternalServiceUnavailable
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
-        log_vet_not_found(@current_user, response.response_timestamp)
+        log_vet_not_found(@current_user, response.timestamp)
         raise Common::Exceptions::RecordNotFound, @current_user.email
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
@@ -81,7 +81,7 @@ module V0
 
     def iso8601_birth_date(user)
       return nil unless user&.va_profile&.birth_date
-      DateTime.parse(user.va_profile.birth_date).iso8601
+      Time.parse(user.va_profile.birth_date).iso8601
     end
 
     def service
