@@ -5,8 +5,6 @@ module EVSS
     class SubmitForm526
       include Sidekiq::Worker
 
-      FORM_ID = '21-526EZ'
-
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 10 will result in a run time of ~8 hours
       RETRY = 10
@@ -37,10 +35,7 @@ module EVSS
                           'job_id' => jid,
                           'job_status' => 'received')
 
-        # Delete SiP form on successfull submission
-        InProgressForm.form_for_user(FORM_ID, user)&.destroy
-        EVSS::IntentToFile::ResponseStrategy.delete("#{user.uuid}:compensation")
-
+        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
         EVSS::DisabilityCompensationForm::SubmitUploads.start(user, response.claim_id, uploads) if uploads.present?
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         handle_service_exception(e)
