@@ -32,14 +32,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(last_transaction.transaction_status).to eq 'received'
         end
       end
-
-      it 'deletes the in progress form' do
-        create(:in_progress_form, user_uuid: user.uuid, form_id: '21-526EZ')
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          subject.perform_async(user.uuid, valid_form_content, nil)
-          expect { described_class.drain }.to change { InProgressForm.count }.by(-1)
-        end
-      end
     end
 
     context 'when retrying a job' do
