@@ -7,7 +7,7 @@ module V0
     def rated_disabilities
       response = service.get_rated_disabilities
       render json: response,
-             serializer: RatedDisabilitiesSerializer
+        serializer: RatedDisabilitiesSerializer
     end
 
     def submit
@@ -24,14 +24,27 @@ module V0
         EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id, uploads)
       end
       render json: response,
-             serializer: SubmitDisabilityFormSerializer
+        serializer: SubmitDisabilityFormSerializer
     end
 
     def submission_status
-      # pseudocode:
-      # submission = DisabilityCompensationSubmission.submission_for_user(params[:form_id], @current_user)
-      # if submission
-      #   return submission status and response body
+      submission = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(params[:job_id])
+      if submission
+        {
+          status: submission.status,
+          response: submission.response
+        }.to_json
+      end
+    end
+
+    def user_submissions
+      submissions = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(@current_user)
+      submissions.map do |submission|
+        {
+          status: submission.status,
+          response: submission.response
+        }
+      end
     end
 
     private
