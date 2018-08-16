@@ -172,6 +172,7 @@ mvi:
   processing_code: T
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
+  pii_logging: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
