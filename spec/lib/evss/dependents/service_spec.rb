@@ -332,7 +332,6 @@ describe EVSS::Dependents::Service do
          "appStatus"=>"Open",
          "bnftClaimType"=>"EBENDEPENDENCY686c",
          "createdDate"=>1533846225178,
-         "documents"=>[],
          'draftFormId' => 377000,
          "expirationDate"=>1565382225178,
          "has30Percent"=>true,
