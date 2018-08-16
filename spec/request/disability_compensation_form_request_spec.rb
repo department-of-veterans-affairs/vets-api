@@ -169,11 +169,18 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
-    it 'should return no response body if the submission status is "submitted"'
-    it 'should return a response with a claim id if the status is "received"'
-    it 'should return the last error if the status is "retrying"'
-    it 'should return the last error if the status is "non_retryable_error"'
-    it 'should return the last error if the status is "exhausted"'
+    let(:job_id) { 'foo' }
+    let(:transaction) { double(:transaction, status: 'received', response: 'foo') }
+
+    it 'should return the async submit transaction status and response' do
+      allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction).
+        to receive(:find_transaction).
+        and_return(transaction)
+      VCR.use_cassette('evss/disability_compensation_form/submission_status') do
+        get "/v0/disability_compensation_form/submission_status/#{job_id}", auth_header
+        expect(response).to have_http_status(:ok)
+      end
+    end
   end
 
   describe 'Get /v0/disability_compensation_form/user_submissions' do
