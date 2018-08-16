@@ -344,8 +344,14 @@ describe EVSS::Dependents::Service do
       form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
       form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
       subject.validate(form)
-      {"form_id"=>377000}
-      subject.submit(form)
+      form_id = subject.save(form).body['form_id']
+      subject.submit(
+        'submitProcess' => {
+          'application' => form['application'].merge({
+            'draftFormId' => form_id
+          })
+        }
+      )
     end
   end
 end
