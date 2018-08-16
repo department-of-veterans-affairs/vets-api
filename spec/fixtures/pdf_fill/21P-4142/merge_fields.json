@@ -1,0 +1,35 @@
+{  
+    "privacyAgreementAccepted":true,
+    "vaFileNumber":"12345678",
+    "veteranSocialSecurityNumber":{  
+       "first":"123",
+       "second":"45",
+       "third":"6789"
+    },
+    "veteranFullName":{  
+       "first":"Testy",
+       "middle":"Tester",
+       "last":"Testerson",
+       "suffix":"Jr.",
+       "middleInitial":"T"
+    },
+    "veteranSocialSecurityNumber1":{  
+       "first":"123",
+       "second":"45",
+       "third":"6789"
+    },
+    "signature": "Testy Testerson",
+    "signatureDate": "2016-12-31",
+    "printedName": "Testy Testerson", 
+    "claimantEmail": "testy.testerson@gmail.com", 
+    "claimantAddress":{
+        "city":"Baltimore", 
+        "country":"US", 
+        "postalCode":"21231", 
+        "veteranAddressLine1":"street", 
+        "apartmentOrUnitNumber":"street2", 
+        "zipOrPostalCode":"MD"
+    },
+    "veteranDateOfBirth": "1981-11-05",
+    "claimantPhone":"2123456789"
+ }

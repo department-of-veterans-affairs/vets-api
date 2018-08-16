@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/ClassLength
+require 'pdf_fill/forms/form_helper'
 
 module PdfFill
     module Forms
@@ -14,7 +15,7 @@ module PdfFill
                     question_num: 1,
                     question_text: "VETERAN/BENEFICIARY'S FIRST NAME"
                 },
-                'middle' => {
+                'middleInitial' => {
                     key: 'F[0].Page_1[0].VeteranMiddleInitial1[0]',
                 },
                 'last' => {
@@ -52,9 +53,9 @@ module PdfFill
             'veteranServiceNumber' => {
                 key: 'F[0].Page_1[0].VeteransServiceNumber[0]'
             },
-            'mailingAddress' => {
-                question_num: 6
-                question_text: "MAILING ADDRESS",
+            'claimantAddress' => {
+                question_num: 6,
+                question_text: 'MAILING ADDRESS',
 
                 'veteranAddressLine1' => {
                     key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
@@ -81,7 +82,7 @@ module PdfFill
                     key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]'
                 },
                 'country' => {
-                    key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]'
+                    key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]',
                     limit: 2
                 },
                 'zipOrPostalCode' => {
@@ -92,48 +93,14 @@ module PdfFill
                         key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
                     } 
                 }
-            }
+            },
             'emailAddress' => {
                 key: 'F[0].Page_1[0].EMAIL[0]'
             },
             'phoneNumber' => {
                 key: 'F[0].Page_1[0].EMAIL[1]'
             },
-            # Patient other than veteran not currently in scope.
-            # 'patientIdentification' => {
-            #     'patientFirstName' => {
-            #         key: 'F[0].Page_1[0].VeteranFirstName[1]',
-            #         limit: 12,
-            #         question_num: 9,
-            #         question_suffix: 'A',
-            #         question_text: "PATIENT'S FIRST NAME"
-            #     },
-            #     'patientMiddleInitial' => {
-            #         key: 'F[0].Page_1[0].VeteranMiddleInitial1[1]'
-            #     },
-            #     'patientLastName' => {
-            #         key: 'F[0].Page_1[0].VeteranLastName[1]',
-            #         limit: 18,
-            #         question_num: 9,
-            #         question_suffix: 'B',
-            #         question_text: "PATIENT'S LAST NAME"
-            #     }
-            #     'veteranSocialSecurityNumber1' => {
-            #         'first' => {
-            #             key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_FirstThreeNumbers[1]'
-            #         },
-            #         'second' => {
-            #             key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_SecondTwoNumbers[1]'
-            #         },
-            #         'third' => {
-            #             key: 'F[0].Page_1[0].ClaimantsSocialSecurityNumber_LastFourNumbers[1]'
-            #         }
-            #     },
-            #     'vaFileNumber1' => {
-            #         key: 'F[0].Page_1[0].VAFileNumber[1]'
-            #     }
-            # },
-            'veteranSocialSecurityNumber2' => {
+            'veteranSocialSecurityNumber1' => {
                 'first' => {
                     key: 'F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]'
                 },
@@ -153,56 +120,35 @@ module PdfFill
             'signatureDate' => {
                 key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]'
             },
-            'signature1' => {
+            'printedName' => {
                 key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
-            }, 
-            'relationshipToVeteran_Claimant' => {
-                key: 'F[0].#subform[1].RelationshipToVeteran_Claimant[0]'
             }
 
-        }
+        }.freeze
+        # rubocop:enable Metrics/LineLength
+        
 
-        def split_ssn
-            ssn = @form_data['veteranSocialSecurityNumber']
-            return if ssn.blank?
-            split_ssn = {
-              'first' => ssn[0..2],
-              'second' => ssn[3..4],
-              'third' => ssn[5..8]
-            }
-    
-            ['','1','2'].each do |suffix|
-              @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn
-            end
-    
-            split_ssn
-        end
-
-        # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
-        # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
-        # potential leading 'c' to ensure the file number will fit into the form without overflow.
-        def extract_va_file_number(va_file_number)
-            return va_file_number if va_file_number.blank? || va_file_number.length < 10
-
-            va_file_number.sub(/^[Cc]/, '')
-
-        end
-
-
+        # rubocop:disable Metrics/MethodLength
         def merge_fields
-            # make changes to the form before final processing
-            split_ssn
+            @form_data["vaFileNumber"] = FormHelper.extract_va_file_number(@form_data["vaFileNumber"])
 
-            # if we include patient information, this will be necessary.  commenting for now
-            # ['','1'].each do |suffix|
-            # @form_data["vaFileNumber#{suffix}"] = extract_va_file_number(@form_data["vaFileNumber#{suffix}"])
+            ssn = @form_data['veteranSocialSecurityNumber']
+            ['','1'].each do |suffix|
+                @form_data["veteranSocialSecurityNumber#{suffix}"] = FormHelper.split_ssn(ssn)
+            end
 
-            @form_data["vaFileNumber"] = extract_va_file_number(@form_data["vaFileNumber"])
+            @form_data["veteranFullName"] = FormHelper.extract_middle_i(@form_data, "veteranFullName")
 
             expand_signature(@form_data['veteranFullName'])
+            @form_data["printedName"] = @form_data['signature']
+            
+            # country = @form_data["claimantAddress"]
+            @form_data["claimantAddress"]["country"] = FormHelper.extract_country(@form_data["claimantAddress"])
 
             @form_data
         end
+        # rubocop:enable Metrics/MethodLength
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

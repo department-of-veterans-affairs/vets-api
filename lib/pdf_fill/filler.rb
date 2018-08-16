@@ -7,7 +7,8 @@ module PdfFill
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
-      '21P-530' => PdfFill::Forms::Va21p530
+      '21P-530' => PdfFill::Forms::Va21p530,
+      '21P-4142' => PdfFill::Forms::Va21p4142
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
