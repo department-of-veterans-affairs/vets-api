@@ -116,6 +116,53 @@ RSpec.describe MhvAccount, type: :model do
       end
     end
 
+    context '#track_state' do
+      let(:tracker_id) { user.uuid.to_s + user.mhv_correlation_id.to_s }
+
+      it 'creates redis entry' do
+        subject.creatable?
+        expect(MHVAccountIneligible.find(tracker_id)).to be_truthy
+      end
+
+      it 'updates an existing redis entry when the account_state is a mismatch' do
+        subject.creatable?
+        tracker = MHVAccountIneligible.find(tracker_id)
+        tracker.update(account_state: 'fake')
+        subject.send(:setup)
+        updated_tracker = MHVAccountIneligible.find(tracker_id)
+        expect(updated_tracker.account_state).not_to eq(tracker.account_state)
+      end
+
+      it 'does not update an existing redis entry when the account_state is a match' do
+        subject.creatable?
+        tracker = MHVAccountIneligible.find(tracker_id)
+        tracker.update(icn: 'fake')
+        subject.send(:setup)
+        updated_tracker = MHVAccountIneligible.find(tracker_id)
+        expect(updated_tracker.icn).to eq(tracker.icn)
+      end
+
+      it 'can have multiple trackers for the same uuid and icn' do
+        attrs = { uuid: user.uuid, account_state: 'whatever',
+                  mhv_correlation_id: 'different_id', icn: user.icn,
+                  tracker_id: (user.uuid.to_s + 'different_id') }
+        MHVAccountIneligible.create(attrs)
+
+        subject.creatable?
+        tracker = MHVAccountIneligible.find(tracker_id)
+        expect(tracker).to be_truthy
+        expect(tracker.mhv_correlation_id).to eq(user.mhv_correlation_id)
+        expect(tracker.account_state).to eq(:needs_terms_acceptance)
+        expect(tracker.uuid).to eq(user.uuid)
+
+        tracker = MHVAccountIneligible.find(user.uuid.to_s + 'different_id')
+        expect(tracker).to be_truthy
+        expect(tracker.mhv_correlation_id).to eq('different_id')
+        expect(tracker.account_state).to eq('whatever')
+        expect(tracker.uuid).to eq(user.uuid)
+      end
+    end
+
     context 'check_account_state' do
       context 'with terms accepted' do
         let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
