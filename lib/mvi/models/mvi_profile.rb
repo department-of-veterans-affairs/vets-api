@@ -18,6 +18,7 @@ module MVI
       attribute :icn, String
       attribute :icn_with_aaid, String
       attribute :mhv_ids, Array[String]
+      attribute :active_mhv_ids, Array[String]
       attribute :vha_facility_ids, Array[String]
       attribute :edipi, String
       attribute :participant_id, String
@@ -27,7 +28,7 @@ module MVI
       attribute :historical_icns, Array[String]
 
       def mhv_correlation_id
-        @mhv_ids&.first
+        @active_mhv_ids&.first
       end
 
       def normalized_suffix
