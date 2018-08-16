@@ -326,11 +326,26 @@ describe EVSS::Dependents::Service do
       c.allow_http_connections_when_no_cassette = true
     end
     form = form.deep_transform_keys { |k| k.camelize(:lower) }
+    form = {"submitProcess"=>
+      {"application"=>
+        {"acceptWarnings"=>false,
+         "appStatus"=>"Open",
+         "bnftClaimType"=>"EBENDEPENDENCY686c",
+         "createdDate"=>1533846225178,
+         "documents"=>[],
+         'draftFormId' => 377000,
+         "expirationDate"=>1565382225178,
+         "has30Percent"=>true,
+         "modifiedDate"=>1533846230731,
+         "validUser"=>true},
+       }}
+
     binding.pry; fail
     VCR.use_cassette('foo', record: :once) do
       form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
       form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
       subject.validate(form)
+      {"form_id"=>377000}
       subject.submit(form)
     end
   end
