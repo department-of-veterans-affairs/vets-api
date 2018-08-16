@@ -57,7 +57,6 @@ class SSOService
   end
 
   def mergable_identity_attributes
-    return nil if
     # We don't want to persist the mhv_account_type because then we would have to change it when we
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
