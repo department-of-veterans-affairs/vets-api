@@ -4,31 +4,26 @@ require 'mhv_ac/client'
 
 class MhvAccount < ActiveRecord::Base
   include AASM
-
-  STATSD_ACCOUNT_INELIGIBLE_KEY = 'mhv.account.ineligible'
-  TERMS_AND_CONDITIONS_NAME = 'mhvac'
-  # Everything except existing and ineligible accounts should be able to transition to :needs_terms_acceptance
-  ALL_STATES = %i[
-    unknown
-    needs_terms_acceptance
-    existing
-    ineligible
-    registered
-    upgraded
-    register_failed
-    upgrade_failed
-  ].freeze
-
   # http://grafana.vetsgov-internal/dashboard/db/mhv-account-creation
   # the following scopes are used for dashboard metrics in grafana and are collected
   # by the job in app/workers/mhv/account_statistics_job.rb
   scope :created, -> { where.not(registered_at: nil) }
   scope :existing_premium, -> { where(registered_at: nil, account_state: :upgraded, upgraded_at: nil) }
   scope :existing_upgraded, -> { where(registered_at: nil).where.not(upgraded_at: nil) }
+  scope :existing_failed_upgrade, -> { where(registered_at: nil, upgraded_at: nil, account_state: :upgrade_failed) }
+  scope :created_premium, -> { created.where(upgraded_at: nil, account_state: :upgraded) }
   scope :created_failed_upgrade, -> { created.where(account_state: :upgrade_failed) }
   scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
   scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
+  # Prior to 8/18 we did not track mhv_correlation_id, so we will be duplicating mhv account records, but because
+  # accounts could have been deleted / reregistered etc, there is no way to reconcile the historic accounts without
+  # reaching out to MHV for "historic" mhv_correlation_ids. Newly created records will be reflected as "active", but
+  # "existing" even though they might have actually been created by us and a single uuid can track multiple
+  # different mhv_correlation_ids even though only 1 should ever be the active one.
+  scope :historic, -> { where(mhv_correlation_id: nil) }
+  scope :active, -> { where.not(mhv_correlation_id: nil) }
 
+  STATSD_ACCOUNT_INELIGIBLE_KEY = 'mhv.account.ineligible'
   TERMS_AND_CONDITIONS_NAME = 'mhvac'
   UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
   INELIGIBLE_STATES = %i[
@@ -60,12 +55,13 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :eligible
     end
 
+    # FIXME: revisit these in the future and see if they can be cleaned up
+    # in the future might need to consider downgrades from upgrade, if account level can be changed.
     event :check_account_state do
       transitions from: %i[eligible], to: :no_account, unless: :exists?
-      # The states below this line and the next comment will be removed when reintroducing upgrade.665
-      transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
+      transitions from: %i[eligible], to: :upgraded, if: :previously_registered_somehow_upgraded?
       transitions from: %i[eligible], to: :registered, if: :previously_registered?
-      # this could mean that vets.gov created / upgraded before we started tracking mhv_ids
+      transitions from: %i[eligible], to: :upgraded, if: :previously_upgraded?
       transitions from: %i[eligible], to: :existing
     end
 
@@ -116,13 +112,8 @@ class MhvAccount < ActiveRecord::Base
     mhv_correlation_id.present?
   end
 
-  # if vets.gov upgraded the account it is premium, if not, we have to check eligible data classes
-  # NOTE: individual services should always check mhv_account_type using eligible data classes since
-  # it is possible for accounts to get downgraded.
+  # TODO: fix specs around these
   def account_level
-    return 'Advanced' if registered?
-    return 'Advanced' if upgrade_failed? && registered_at.present?
-    return 'Premium' if upgraded?
     user.mhv_account_type
   end
 
@@ -131,7 +122,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def already_premium?
-    account_level == 'Premium' && !previously_upgraded?
+    !previously_upgraded? && !created_at? && account_level == 'Premium'
   end
 
   private
@@ -181,16 +172,20 @@ class MhvAccount < ActiveRecord::Base
     if previously_upgraded? || previously_registered?
       false
     else
-      (user.va_profile.mhv_ids - user.va_profile.active_mhv_ids).to_a.any?
+      (user.va_profile.mhv_ids.to_a - user.va_profile.active_mhv_ids.to_a).any?
     end
   end
 
   def previously_upgraded?
-    exists? && eligible? && upgraded_at?
+    exists? && eligible? && upgraded_at? # could be existing or registered
   end
 
   def previously_registered?
-    exists? && eligible? && registered_at?
+    exists? && eligible? && registered_at? && !upgraded_at?
+  end
+
+  def previously_registered_somehow_upgraded?
+    previously_registered? && changes[:account_state]&.first == 'upgraded'
   end
 
   def setup

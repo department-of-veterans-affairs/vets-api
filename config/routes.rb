@@ -71,6 +71,8 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    resources :evss_claims_async, only: %i[index show]
+
     get 'intent_to_file', to: 'intent_to_files#index'
     get 'intent_to_file/:type/active', to: 'intent_to_files#active'
     post 'intent_to_file/:type', to: 'intent_to_files#submit'
@@ -162,6 +164,8 @@ Rails.application.routes.draw do
       resources :vic_submissions, only: %i[create show]
     end
 
+    resources :gi_bill_feedbacks, only: %i[create show]
+
     resource :address, only: %i[show update] do
       collection do
         if Settings.evss&.reference_data_service&.enabled
@@ -236,6 +240,7 @@ Rails.application.routes.draw do
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
+    mount VaFacilities::Engine, at: '/va_facilities'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

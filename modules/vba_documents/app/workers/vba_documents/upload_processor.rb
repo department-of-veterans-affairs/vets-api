@@ -155,13 +155,13 @@ module VBADocuments
       metadata['receiveDt'] = timestamp.in_time_zone('US/Central').strftime('%Y-%m-%d %H:%M:%S')
       metadata['uuid'] = upload.guid
       check_size(parts[DOC_PART_NAME])
-      doc_info = get_hash_and_pages(parts[DOC_PART_NAME])
+      doc_info = get_hash_and_pages(parts[DOC_PART_NAME], DOC_PART_NAME)
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       metadata['numberAttachments'] = attachment_names.size
       attachment_names.each_with_index do |att, i|
-        att_info = get_hash_and_pages(parts[att])
+        att_info = get_hash_and_pages(parts[att], att)
         check_size(parts[att])
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
@@ -176,14 +176,14 @@ module VBADocuments
       end
     end
 
-    def get_hash_and_pages(file_path)
+    def get_hash_and_pages(file_path, part)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
         pages: PDF::Reader.new(file_path).pages.size
       }
     rescue PDF::Reader::MalformedPDFError
       raise VBADocuments::UploadError.new(code: 'DOC103',
-                                          detail: 'Invalid PDF content')
+                                          detail: "Invalid PDF content, part #{part}")
     end
   end
 end
