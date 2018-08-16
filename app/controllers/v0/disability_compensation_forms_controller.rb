@@ -37,16 +37,6 @@ module V0
       end
     end
 
-    def user_submissions
-      submissions = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(@current_user)
-      submissions.map do |submission|
-        {
-          status: submission.status,
-          response: submission.response
-        }
-      end
-    end
-
     private
 
     def service

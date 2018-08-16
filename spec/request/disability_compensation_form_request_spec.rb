@@ -169,21 +169,12 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
-    let(:job_id) { 'foo' }
-    let(:transaction) { double(:transaction, status: 'received', response: 'foo') }
+    let(:transaction) { build(:va526ez_submit_transaction) }
+    let(:job_id) { transaction.transaction_id }
 
     it 'should return the async submit transaction status and response' do
-      allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction).
-        to receive(:find_transaction).
-        and_return(transaction)
-      VCR.use_cassette('evss/disability_compensation_form/submission_status') do
-        get "/v0/disability_compensation_form/submission_status/#{job_id}", auth_header
-        expect(response).to have_http_status(:ok)
-      end
+      get "/v0/disability_compensation_form/submission_status/#{job_id}", auth_header
+      expect(response).to have_http_status(:ok)
     end
-  end
-
-  describe 'Get /v0/disability_compensation_form/user_submissions' do
-    it 'should return an array of submissions'
   end
 end
