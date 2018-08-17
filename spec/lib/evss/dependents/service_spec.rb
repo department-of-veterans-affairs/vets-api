@@ -345,13 +345,8 @@ describe EVSS::Dependents::Service do
       form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
       subject.validate(form)
       form_id = subject.save(form).body['form_id']
-      subject.submit(
-        'submitProcess' => {
-          'application' => form['submitProcess']['application'].merge({
-            'draftFormId' => form_id
-          })
-        }
-      )
+      form['submitProcess']['application']['draftFormId'] = form_id
+      subject.submit(form)
     end
   end
 end
