@@ -339,14 +339,13 @@ describe EVSS::Dependents::Service do
          "validUser"=>true},
        }}
 
+    # binding.pry; fail
+    form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
+    form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
+    subject.validate(form)
+    form_id = subject.save(form).body['form_id']
+    form['submitProcess']['application']['draftFormId'] = form_id
     binding.pry; fail
-    VCR.use_cassette('foo', record: :once) do
-      form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
-      form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
-      subject.validate(form)
-      form_id = subject.save(form).body['form_id']
-      form['submitProcess']['application']['draftFormId'] = form_id
-      subject.submit(form)
-    end
+    subject.submit(form)
   end
 end
