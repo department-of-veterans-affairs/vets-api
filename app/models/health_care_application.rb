@@ -73,8 +73,9 @@ class HealthCareApplication < ActiveRecord::Base
   private
 
   def discharge_type_correct
+    return if form.blank?
     discharge_date = parsed_form.try(:[], 'lastDischargeDate')
-    return true if discharge_date.blank?
+    return if discharge_date.blank?
 
     future_date = Date.parse(discharge_date) > Time.now.in_time_zone('Central Time (US & Canada)').to_date
     discharge_type_present = parsed_form['dischargeType'].present?
@@ -84,8 +85,6 @@ class HealthCareApplication < ActiveRecord::Base
     elsif !discharge_type_present
       errors[:form] << 'dischargeType must be selected if discharge date is not in the future'
     end
-
-    true
   end
 
   def send_failure_mail
