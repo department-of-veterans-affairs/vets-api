@@ -9,6 +9,67 @@ RSpec.describe HealthCareApplication, type: :model do
       expect_attr_invalid(health_care_application, :state, "can't be blank")
     end
 
+    describe '#discharge_type_correct', run_at: '2017-01-04 03:00:00 EDT' do
+      def self.form_should_be_valid
+        it 'should be valid' do
+          expect_attr_valid(health_care_application, :form)
+        end
+      end
+
+      let(:health_care_application) { build(:health_care_application) }
+      let(:discharge_type) { nil }
+
+      before do
+        form = health_care_application.parsed_form
+        form['lastDischargeDate'] = discharge_date
+        form['dischargeType'] = discharge_type
+
+        health_care_application.form = form.compact.to_json
+        health_care_application.instance_variable_set(:@parsed_form, nil)
+      end
+
+      context 'with no discharge date' do
+        let(:discharge_date) { nil }
+
+        it 'should not validate discharge type' do
+          health_care_application.send(:discharge_type_correct)
+          expect(health_care_application.errors.blank?).to eq(true)
+        end
+      end
+
+      context 'with a future discharge date' do
+        let(:discharge_date) { Date.today + 1.day }
+
+        context 'with a discharge type' do
+          let(:discharge_type) { 'general' }
+
+          it 'should create a validation error' do
+            expect_attr_invalid(health_care_application, :form, 'dischargeType must be blank if the discharge date is in the future')
+          end
+        end
+
+        context 'without a discharge type' do
+          form_should_be_valid
+        end
+      end
+
+      context 'with a non-future discharge date' do
+        let(:discharge_date) { Date.today }
+
+        context 'with a discharge type' do
+          let(:discharge_type) { 'general' }
+
+          form_should_be_valid
+        end
+
+        context 'without a discharge type' do
+          it 'should create a validation error' do
+            expect_attr_invalid(health_care_application, :form, 'dischargeType must be selected if discharge date is not in the future')
+          end
+        end
+      end
+    end
+
     it 'should validate inclusion of state' do
       health_care_application = described_class.new
 

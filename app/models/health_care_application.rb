@@ -12,6 +12,7 @@ class HealthCareApplication < ActiveRecord::Base
 
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
+  validate(:discharge_type_correct)
 
   after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
 
@@ -70,6 +71,22 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   private
+
+  def discharge_type_correct
+    discharge_date = parsed_form.try(:[], 'lastDischargeDate')
+    return true if discharge_date.blank?
+
+    future_date = Date.parse(discharge_date).in_time_zone('Central Time (US & Canada)').future?
+    discharge_type_present = parsed_form['dischargeType'].present?
+
+    if future_date
+      errors[:form] << 'dischargeType must be blank if the discharge date is in the future' if discharge_type_present
+    else
+      errors[:form] << 'dischargeType must be selected if discharge date is not in the future' unless discharge_type_present
+    end
+
+    true
+  end
 
   def send_failure_mail
     HCASubmissionFailureMailer.build(parsed_form['email'], google_analytics_client_id).deliver_now
