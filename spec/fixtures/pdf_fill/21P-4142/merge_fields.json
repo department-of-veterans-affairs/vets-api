@@ -10,7 +10,6 @@
        "first":"Testy",
        "middle":"Tester",
        "last":"Testerson",
-       "suffix":"Jr.",
        "middleInitial":"T"
     },
     "veteranSocialSecurityNumber1":{  
@@ -25,11 +24,18 @@
     "claimantAddress":{
         "city":"Baltimore", 
         "country":"US", 
-        "postalCode":"21231", 
+        "postalCode":{
+            "firstFive": "21231",
+            "lastFour": "" 
+        },
         "veteranAddressLine1":"street", 
-        "apartmentOrUnitNumber":"street2", 
-        "zipOrPostalCode":"MD"
+        "apartmentOrUnitNumber":"1B", 
+        "state":"MD"
     },
-    "veteranDateOfBirth": "1981-11-05",
+    "veteranDateOfBirth": {
+        "month":"11",
+        "day": "05", 
+        "year": "1981"
+    },
     "claimantPhone":"2123456789"
  }

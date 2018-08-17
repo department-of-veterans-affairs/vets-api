@@ -6,15 +6,14 @@
     "veteranFullName": {
         "first": "Testy",
         "middle": "Tester",
-        "last": "Testerson",
-        "suffix": "Jr."
+        "last": "Testerson"
       },
       "claimantAddress": {
         "city": "Baltimore",
         "country": "USA",
         "postalCode": "21231",
         "veteranAddressLine1": "street",
-        "apartmentOrUnitNumber": "street2",
-        "zipOrPostalCode": "MD"
+        "apartmentOrUnitNumber": "1B",
+        "state": "MD"
     }
 }

@@ -5,8 +5,7 @@
     "veteranFullName": {
         "first": "Testy",
         "middle": "Tester",
-        "last": "Testerson",
-        "suffix": "Jr."
+        "last": "Testerson"
     },
     "veteranDateOfBirth": "1981-11-05",
     "claimantAddress": {
@@ -14,8 +13,8 @@
         "country": "USA",
         "postalCode": "21231",
         "veteranAddressLine1": "street",
-        "apartmentOrUnitNumber": "street2",
-        "zipOrPostalCode": "MD"
+        "apartmentOrUnitNumber": "1B",
+        "state": "MD"
     },
     "claimantEmail": "testy.testerson@gmail.com",
     "claimantPhone": "2123456789"

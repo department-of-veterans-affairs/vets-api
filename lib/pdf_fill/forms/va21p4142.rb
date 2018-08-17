@@ -78,14 +78,14 @@ module PdfFill
                     question_suffix: 'C',
                     question_text: 'City'
                 },
-                'stateOrProvince' => {
+                'state' => {
                     key: 'F[0].Page_1[0].CurrentMailingAddress_StateOrProvince[0]'
                 },
                 'country' => {
                     key: 'F[0].Page_1[0].CurrentMailingAddress_Country[0]',
                     limit: 2
                 },
-                'zipOrPostalCode' => {
+                'postalCode' => {
                     'firstFive' => {
                         key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
                     },
@@ -94,10 +94,10 @@ module PdfFill
                     } 
                 }
             },
-            'emailAddress' => {
+            'claimantEmail' => {
                 key: 'F[0].Page_1[0].EMAIL[0]'
             },
-            'phoneNumber' => {
+            'claimantPhone' => {
                 key: 'F[0].Page_1[0].EMAIL[1]'
             },
             'veteranSocialSecurityNumber1' => {
@@ -142,8 +142,11 @@ module PdfFill
             expand_signature(@form_data['veteranFullName'])
             @form_data["printedName"] = @form_data['signature']
             
-            # country = @form_data["claimantAddress"]
             @form_data["claimantAddress"]["country"] = FormHelper.extract_country(@form_data["claimantAddress"])
+
+            @form_data["claimantAddress"]["postalCode"] = FormHelper.split_postal_code(@form_data["claimantAddress"])
+
+            @form_data["veteranDateOfBirth"] = FormHelper.split_date(@form_data["veteranDateOfBirth"])
 
             @form_data
         end

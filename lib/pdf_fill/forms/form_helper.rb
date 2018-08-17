@@ -43,6 +43,37 @@ module PdfFill
                 country[0..1]
             end
         
+            def self.split_postal_code(address)
+                return if address.blank?
+                postal_code = address['postalCode']
+
+                return if postal_code.blank?
+                
+                split_postal_code = postal_code.scan(/.{1,5}/)
+                if(split_postal_code.length == 2)
+                    split_zip = {
+                        'firstFive' => split_postal_code.first,
+                        'lastFour' => split_postal_code.last
+                    }
+                    return split_zip
+                else
+                    split_zip = {
+                        'firstFive' => split_postal_code.first,
+                        'lastFour' => ''
+                    }
+                    return split_zip
+                end
+            end
+
+            def self.split_date(date)
+                return if date.blank?
+                s_date = date.split('-')
+                split_date = {
+                    'month' => s_date[1],
+                    'day' => s_date.last,
+                    'year' => s_date.first
+                }
+            end
         end
     end
 end
