@@ -38,13 +38,17 @@ RSpec.describe HealthCareApplication, type: :model do
       end
 
       context 'with a future discharge date' do
-        let(:discharge_date) { Date.today + 1.day }
+        let(:discharge_date) { Time.zone.today + 1.day }
 
         context 'with a discharge type' do
           let(:discharge_type) { 'general' }
 
           it 'should create a validation error' do
-            expect_attr_invalid(health_care_application, :form, 'dischargeType must be blank if the discharge date is in the future')
+            expect_attr_invalid(
+              health_care_application,
+              :form,
+              'dischargeType must be blank if the discharge date is in the future'
+            )
           end
         end
 
@@ -54,7 +58,7 @@ RSpec.describe HealthCareApplication, type: :model do
       end
 
       context 'with a non-future discharge date' do
-        let(:discharge_date) { Date.today }
+        let(:discharge_date) { Time.zone.today }
 
         context 'with a discharge type' do
           let(:discharge_type) { 'general' }
@@ -64,7 +68,11 @@ RSpec.describe HealthCareApplication, type: :model do
 
         context 'without a discharge type' do
           it 'should create a validation error' do
-            expect_attr_invalid(health_care_application, :form, 'dischargeType must be selected if discharge date is not in the future')
+            expect_attr_invalid(
+              health_care_application,
+              :form,
+              'dischargeType must be selected if discharge date is not in the future'
+            )
           end
         end
       end
