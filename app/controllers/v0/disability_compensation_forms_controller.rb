@@ -29,12 +29,8 @@ module V0
 
     def submission_status
       submission = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(params[:job_id])
-      if submission
-        {
-          status: submission.status,
-          response: submission.response
-        }.to_json
-      end
+      raise Common::Exceptions::RecordNotFound, params[:job_id] unless submission
+      render json: submission, serializer: AsyncTransaction::BaseSerializer
     end
 
     private

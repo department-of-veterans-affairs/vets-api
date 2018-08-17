@@ -169,11 +169,12 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
-    let(:transaction) { build(:va526ez_submit_transaction) }
-    let(:job_id) { transaction.transaction_id }
+    let(:job_id) { SecureRandom.uuid }
+    before { create(:va526ez_submit_transaction, transaction_id: job_id) }
 
     it 'should return the async submit transaction status and response' do
-      get "/v0/disability_compensation_form/submission_status/#{job_id}", auth_header
+      get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+      puts response.inspect
       expect(response).to have_http_status(:ok)
     end
   end
