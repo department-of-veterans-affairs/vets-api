@@ -347,7 +347,7 @@ describe EVSS::Dependents::Service do
       form_id = subject.save(form).body['form_id']
       subject.submit(
         'submitProcess' => {
-          'application' => form['application'].merge({
+          'application' => form['submitProcess']['application'].merge({
             'draftFormId' => form_id
           })
         }
