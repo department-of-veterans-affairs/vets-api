@@ -131,6 +131,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:discharge_date) { Time.zone.today + 181.days }
         let(:params) do
           test_veteran['lastDischargeDate'] = discharge_date.strftime('%Y-%m-%d')
+          test_veteran.delete('dischargeType')
 
           {
             form: test_veteran.to_json
