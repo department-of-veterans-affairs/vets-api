@@ -81,8 +81,8 @@ class HealthCareApplication < ActiveRecord::Base
 
     if future_date
       errors[:form] << 'dischargeType must be blank if the discharge date is in the future' if discharge_type_present
-    else
-      errors[:form] << 'dischargeType must be selected if discharge date is not in the future' unless discharge_type_present
+    elsif !discharge_type_present
+      errors[:form] << 'dischargeType must be selected if discharge date is not in the future'
     end
 
     true
