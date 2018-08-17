@@ -79,7 +79,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
 
         it 'logs a record' do
           request.headers['Authorization'] = "Token token=#{session.token}"
-          expect { get :show }.to change(Post911NotFoundError, :count).by(1)
+          expect { get :show }.to change(PersonalInformationLog, :count).by(1)
         end
 
         it 'increments the statsd total and fail counters' do

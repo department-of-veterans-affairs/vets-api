@@ -57,10 +57,10 @@ module V0
     end
 
     def log_vet_not_found(user, timestamp)
-      Post911NotFoundError.where(user_uuid: user.uuid).first_or_create do |record|
-        record.user_json = user_json(user)
-        record.request_timestamp = timestamp
-      end
+      PersonalInformationLog.create(
+        data: { timestamp: timestamp, user: user_json(user) },
+        error_class: 'EVSS::GiBillStatus::NotFound'
+      )
     end
 
     def user_json(user)

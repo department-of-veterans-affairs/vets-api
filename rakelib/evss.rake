@@ -54,8 +54,8 @@ namespace :evss do
   task :export_post_911_not_found, [:file_path] => [:environment] do |_, args|
     raise 'No JSON file path provided' unless args[:file_path]
     File.open(args[:file_path], 'w+') do |f|
-      Post911NotFoundError.last_week.find_each do |error|
-        f.puts({ timestamp: error.request_timestamp, user: JSON.parse(error.user_json) }.to_json)
+      PersonalInformationLog.where(error_class: 'EVSS::GiBillStatus::NotFound').last_week.find_each do |error|
+        f.puts(error.data.to_json)
       end
     end
   end
