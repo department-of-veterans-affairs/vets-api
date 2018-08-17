@@ -76,7 +76,7 @@ class HealthCareApplication < ActiveRecord::Base
     discharge_date = parsed_form.try(:[], 'lastDischargeDate')
     return true if discharge_date.blank?
 
-    future_date = Date.parse(discharge_date).in_time_zone('Central Time (US & Canada)').future?
+    future_date = Date.parse(discharge_date) > Time.now.in_time_zone('Central Time (US & Canada)').to_date
     discharge_type_present = parsed_form['dischargeType'].present?
 
     if future_date
