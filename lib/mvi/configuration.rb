@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'common/client/configuration/soap'
+require 'common/client/middleware/logging'
 
 module MVI
   class Configuration < Common::Client::Configuration::SOAP
@@ -49,6 +50,7 @@ module MVI
         conn.request :soap_headers
         conn.response :soap_parser
         conn.use :breakers
+        conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging
         conn.response :betamocks if Settings.mvi.mock
         conn.adapter Faraday.default_adapter
       end
