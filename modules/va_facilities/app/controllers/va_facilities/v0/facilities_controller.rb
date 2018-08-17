@@ -3,6 +3,7 @@
 require 'will_paginate/array'
 
 require_dependency 'va_facilities/application_controller'
+require_dependency 'va_facilities/pagination_headers'
 require_dependency 'va_facilities/geo_serializer'
 require_dependency 'va_facilities/csv_serializer'
 
@@ -10,6 +11,7 @@ module VaFacilities
   module V0
     class FacilitiesController < ApplicationController
       include ActionController::MimeResponds
+      include VaFacilities::PaginationHeaders
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :validate_params, only: [:index]
@@ -29,7 +31,7 @@ module VaFacilities
       end
 
       def index
-        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
+        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
         respond_to do |format|
           format.json do
             render json: resource,
@@ -37,6 +39,7 @@ module VaFacilities
                    meta: metadata(resource)
           end
           format.geojson do
+            response.headers['Link'] = link_header(resource)
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
           end
         end
