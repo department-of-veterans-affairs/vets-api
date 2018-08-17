@@ -8,7 +8,7 @@ module PdfFill
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
       '21P-530' => PdfFill::Forms::Va21p530,
-      '21P-4142' => PdfFill::Forms::Va21p4142
+      '21-4142' => PdfFill::Forms::Va21_4142
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
@@ -68,7 +68,7 @@ module PdfFill
         new_hash,
         flatten: Rails.env.production?
       )
-      
+
       combine_extras(file_path, hash_converter.extras_generator)
     end
 

@@ -5,7 +5,7 @@ require 'pdf_fill/forms/form_helper'
 
 module PdfFill
     module Forms
-     class Va21p4142 < FormBase
+     class Va21_4142 < FormBase
 
         KEY = {
             'veteranFullName' => {
