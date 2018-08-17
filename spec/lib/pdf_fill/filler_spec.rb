@@ -107,7 +107,7 @@ describe PdfFill::Filler do
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
 
-  %w[simple kitchen_sink].each do |type|
+  %w[kitchen_sink].each do |type|
       context "with #{type} test data" do
           let(:form_data) do
               get_fixture("pdf_fill/21-4142/#{type}")
@@ -119,7 +119,7 @@ describe PdfFill::Filler do
               FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21-4142/#{type}.pdf")
               ).to eq(true)
               
-              #File.delete(file_path)
+              File.delete(file_path)
           end
       end
   end
