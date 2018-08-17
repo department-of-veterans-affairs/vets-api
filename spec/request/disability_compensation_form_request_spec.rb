@@ -169,13 +169,47 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
-    let(:job_id) { SecureRandom.uuid }
-    before { create(:va526ez_submit_transaction, transaction_id: job_id) }
+    context 'with a found record' do
+      let(:job_id) { SecureRandom.uuid }
+      before do
+        create(:va526ez_submit_transaction, transaction_id: job_id, metadata: {
+          claim_id: 600130094,
+          end_product_claim_code: "020SUPP",
+          end_product_claim_name: "eBenefits 526EZ-Supplemental (020)",
+          inflight_document_id: 194300
+        })
+      end
 
-    it 'should return the async submit transaction status and response' do
-      get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
-      puts response.inspect
-      expect(response).to have_http_status(:ok)
+      it 'should return the async submit transaction status and response', :aggregate_failures do
+        get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)).to have_deep_attributes({
+          "data" => {
+            "id" => "",
+            "type" => "async_transaction_evss_va526ez_submit_transactions",
+            "attributes" => {
+              "transaction_id" => job_id,
+              "transaction_status" => "submitted",
+              "type" => "AsyncTransaction::EVSS::VA526ezSubmitTransaction",
+              "metadata" => {
+                "claim_id" => 600130094,
+                "end_product_claim_code" => "020SUPP",
+                "end_product_claim_name" => "eBenefits 526EZ-Supplemental (020)",
+                "inflight_document_id" => 194300
+              }
+            }
+          }
+        })
+      end
+    end
+
+    context 'when no record is found' do
+      let(:job_id) { SecureRandom.uuid }
+
+      it 'should return the async submit transaction status and response', :aggregate_failures do
+        get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end
