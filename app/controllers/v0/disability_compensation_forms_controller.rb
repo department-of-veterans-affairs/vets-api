@@ -7,7 +7,7 @@ module V0
     def rated_disabilities
       response = service.get_rated_disabilities
       render json: response,
-        serializer: RatedDisabilitiesSerializer
+             serializer: RatedDisabilitiesSerializer
     end
 
     def submit
@@ -24,7 +24,7 @@ module V0
         EVSS::DisabilityCompensationForm::SubmitUploads.start(@current_user, response.claim_id, uploads)
       end
       render json: response,
-        serializer: SubmitDisabilityFormSerializer
+             serializer: SubmitDisabilityFormSerializer
     end
 
     def submission_status
