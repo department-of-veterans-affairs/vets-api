@@ -10,6 +10,13 @@ class FormFullName
   attribute :suffix, String
 end
 
+class FormDate
+  include Virtus.model
+
+  attribute :from, Date
+  attribute :to, Date
+end
+
 class FormMilitaryInformation
   include Virtus.model
 
@@ -30,13 +37,15 @@ class FormMilitaryInformation
   attribute :vic_verified, Boolean
   attribute :service_branches, Array[String]
   attribute :service_periods, Array
+  attribute :guard_reserve_service_history, Array[FormDate]
+  attribute :latest_guard_reserve_service_period, FormDate
 end
 
 class FormAddress
   include Virtus.model
 
   attribute :street
-  attribute :street_2
+  attribute :street2
   attribute :city
   attribute :state
   attribute :country
@@ -63,6 +72,7 @@ class FormContactInformation
   attribute :address, FormAddress
   attribute :home_phone, String
   attribute :us_phone, String
+  attribute :mobile_phone, String
   attribute :email, String
 end
 
@@ -71,31 +81,34 @@ class FormProfile
   include SentryLogging
 
   EMIS_PREFILL_KEY = 'emis_prefill'
-  V360_PREFILL_KEY = 'vets360_prefill'
 
   MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
 
-  EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495'].freeze
+  EDU_FORMS = ['22-1990', '22-1990N', '22-1990E', '22-1995', '22-5490', '22-5495', '22-0993'].freeze
   EVSS_FORMS = ['21-526EZ'].freeze
   HCA_FORMS = ['1010ez'].freeze
   PENSION_BURIAL_FORMS = ['21P-530', '21P-527EZ'].freeze
   VIC_FORMS = ['VIC'].freeze
 
   FORM_ID_TO_CLASS = {
-    '1010EZ'    => ::FormProfiles::VA1010ez,
-    '21-526EZ'  => ::FormProfiles::VA526ez,
-    '22-1990'   => ::FormProfiles::VA1990,
-    '22-1990N'  => ::FormProfiles::VA1990n,
-    '22-1990E'  => ::FormProfiles::VA1990e,
-    '22-1995'   => ::FormProfiles::VA1995,
-    '22-5490'   => ::FormProfiles::VA5490,
-    '22-5495'   => ::FormProfiles::VA5495,
-    '21P-530'   => ::FormProfiles::VA21p530,
-    '21-686C'   => ::FormProfiles::VA21686c,
-    'VIC'       => ::FormProfiles::VIC,
-    '40-10007'  => ::FormProfiles::VA4010007,
-    '21P-527EZ' => ::FormProfiles::VA21p527ez
+    '1010EZ'         => ::FormProfiles::VA1010ez,
+    '21-526EZ'       => ::FormProfiles::VA526ez,
+    '22-1990'        => ::FormProfiles::VA1990,
+    '22-1990N'       => ::FormProfiles::VA1990n,
+    '22-1990E'       => ::FormProfiles::VA1990e,
+    '22-1995'        => ::FormProfiles::VA1995,
+    '22-5490'        => ::FormProfiles::VA5490,
+    '22-5495'        => ::FormProfiles::VA5495,
+    '21P-530'        => ::FormProfiles::VA21p530,
+    '21-686C'        => ::FormProfiles::VA21686c,
+    'VIC'            => ::FormProfiles::VIC,
+    '40-10007'       => ::FormProfiles::VA4010007,
+    '21P-527EZ'      => ::FormProfiles::VA21p527ez,
+    '22-0993'        => ::FormProfiles::VA0993,
+    'COMPLAINT-TOOL' => ::FormProfiles::ComplaintTool
   }.freeze
+
+  APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
 
   attr_accessor :form_id
 
@@ -112,6 +125,7 @@ class FormProfile
     forms += VIC_FORMS if Settings.vic.prefill
     forms << '21-686C'
     forms << '40-10007'
+    forms << 'COMPLAINT-TOOL'
     forms += EVSS_FORMS if Settings.evss.prefill
 
     forms
@@ -196,28 +210,71 @@ class FormProfile
     )
   end
 
+  def convert_vets360_address(address)
+    {
+      street:  address.address_line1,
+      street2:  address.address_line2,
+      city:  address.city,
+      state:  address.state_code || address.province,
+      country: address.country_code_iso3,
+      postal_code:  address.zip_plus_four || address.international_postal_code
+    }.compact
+  end
+
+  def initialize_vets360_contact_info(user)
+    return_val = {}
+    contact_information = Vet360Redis::ContactInformation.for_user(user)
+    return_val[:email] = contact_information.email&.email_address
+
+    if contact_information.mailing_address.present?
+      return_val[:address] = convert_vets360_address(contact_information.mailing_address)
+    end
+    phone = contact_information.home_phone&.formatted_phone
+    return_val[:us_phone] = phone
+    return_val[:home_phone] = phone
+    return_val[:mobile_phone] = contact_information.mobile_phone&.formatted_phone
+
+    return_val
+  end
+
   def initialize_contact_information(user)
-    address = {}
-    if user.va_profile&.address
-      address.merge!(
+    opt = {}
+    opt.merge!(initialize_vets360_contact_info(user)) if Settings.vet360.prefill && user.vet360_id.present?
+
+    if opt[:address].nil? && user.va_profile&.address
+      opt[:address] = {
         street: user.va_profile.address.street,
         street2: nil,
         city: user.va_profile.address.city,
         state: user.va_profile.address.state,
         country: user.va_profile.address.country,
         postal_code: user.va_profile.address.postal_code
-      )
+      }
     end
 
-    pciu_email = extract_pciu_data(user, :pciu_email)
-    pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+    opt[:email] ||= extract_pciu_data(user, :pciu_email)
+    if opt[:home_phone].nil?
+      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+      opt[:home_phone] = pciu_primary_phone
+      opt[:us_phone] = get_us_phone(pciu_primary_phone)
+    end
 
-    FormContactInformation.new(
-      address: address,
-      email: pciu_email,
-      us_phone: get_us_phone(pciu_primary_phone),
-      home_phone: pciu_primary_phone
-    )
+    format_for_schema_compatibility(opt)
+
+    FormContactInformation.new(opt)
+  end
+
+  def format_for_schema_compatibility(opt)
+    if opt.dig(:address, :street) && opt[:address][:street2].blank? && (apt = opt[:address][:street].match(APT_REGEX))
+      opt[:address][:street2] = apt[1]
+      opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
+    end
+
+    %i[home_phone us_phone mobile_phone].each do |phone|
+      opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
+    end
+
+    opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
   def extract_pciu_data(user, method)

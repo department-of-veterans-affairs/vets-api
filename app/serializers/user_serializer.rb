@@ -6,7 +6,7 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
+  attributes :services, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information
 
   def id
@@ -61,7 +61,8 @@ class UserSerializer < ActiveModel::Serializer
   def veteran_status
     {
       status: RESPONSE_STATUS[:ok],
-      is_veteran: object.veteran?
+      is_veteran: object.veteran?,
+      served_in_military: object.served_in_military?
     }
   rescue EMISRedis::VeteranStatus::NotAuthorized
     { status: RESPONSE_STATUS[:not_authorized] }
@@ -69,10 +70,6 @@ class UserSerializer < ActiveModel::Serializer
     { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
     { status: RESPONSE_STATUS[:server_error] }
-  end
-
-  def health_terms_current
-    object.mhv_account.terms_and_conditions_accepted?
   end
 
   def in_progress_forms

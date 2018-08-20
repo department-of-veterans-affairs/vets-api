@@ -115,8 +115,11 @@ class User < Common::RedisStore
   delegate :icn, to: :mvi
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
+
+  # emis attributes
+  delegate :military_person?, to: :veteran_status
+  delegate :veteran?, to: :veteran_status
 
   def va_profile
     mvi.profile
@@ -163,17 +166,9 @@ class User < Common::RedisStore
   def va_patient?
     facilities = va_profile&.vha_facility_ids
     facilities.to_a.any? do |f|
-      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
+        Settings.mhv.facility_specific.include?(f)
     end
-  end
-
-  # Must be LOA3 and a va patient
-  def mhv_account_eligible?
-    (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
-  end
-
-  def mhv_account_state
-    mhv_account.account_state
   end
 
   def can_save_partial_forms?
@@ -196,7 +191,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
   end
 
   def in_progress_forms
@@ -243,6 +238,16 @@ class User < Common::RedisStore
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  # A user can have served in the military without being a veteran.  For example,
+  # someone can be ex-military by having a discharge status higher than
+  # 'Other Than Honorable'.
+  #
+  # @return [Boolean]
+  #
+  def served_in_military?
+    edipi.present? && veteran? || military_person?
   end
 
   private

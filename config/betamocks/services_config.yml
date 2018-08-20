@@ -198,6 +198,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-form526-services-web/rest/form526/v1/submit"
+    :file_path: "evss/disability_form/submit"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
 
   # Letters
   - :method: :get
@@ -356,3 +362,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+
+# IHUB
+- :name: 'IHub'
+  :base_uri: <%= "#{URI(Settings.ihub.url).host}:#{URI(Settings.ihub.url).port}" %>
+  :endpoints:
+  # Appointments
+  - :method: :get
+    :path: "/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/*"
+    :file_path: "ihub/appointments/default"

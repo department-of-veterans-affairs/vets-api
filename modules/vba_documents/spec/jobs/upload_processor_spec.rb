@@ -8,7 +8,7 @@ require 'vba_documents/upload_processor'
 RSpec.describe VBADocuments::UploadProcessor, type: :job do
   include VBADocuments::Fixtures
 
-  let(:client_stub) { instance_double('PensionBurial::Service') }
+  let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:valid_metadata) { get_fixture('valid_metadata.json').read }
   let(:invalid_metadata_missing) { get_fixture('invalid_metadata_missing.json').read }
@@ -54,7 +54,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(200)
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(true)
@@ -75,7 +75,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'parses and uploads a valid multipart payload with attachments' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
-      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(200)
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(true)
@@ -95,6 +95,15 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
+    end
+
+    it 'sets error for file part size exceeding 100MB' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
+      allow(File).to receive(:size).and_return(100_000_001)
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC106')
     end
 
     it 'sets error status for invalid multipart format' do
@@ -238,7 +247,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error status for downstream server error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(422)
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(false)
@@ -260,7 +269,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'sets error status for downstream server error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive(:status).and_return(500)
       allow(faraday_response).to receive(:body).and_return('')
       allow(faraday_response).to receive(:success?).and_return(false)
@@ -282,7 +291,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
     it 'does not set error status for retriable timeout error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(PensionBurial::Service).to receive(:new) { client_stub }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:upload)
         .and_raise(Faraday::TimeoutError.new)
       expect { described_class.new.perform(upload.guid) }.to raise_error(Faraday::TimeoutError)

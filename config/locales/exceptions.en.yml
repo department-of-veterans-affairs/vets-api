@@ -106,6 +106,12 @@ en:
         detail: "There are no routes matching your request: %{path}"
         code: 411
         status: 404
+      unknown_format:
+        <<: *defaults
+        title: Not acceptable
+        detail: "The resource could not be returned in the requested format"
+        code: 406
+        status: 406
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
@@ -313,6 +319,18 @@ en:
         title: Unexpected response body
         code: 'EMIS_HIST502'
         detail: EMIS service responded with something other than the expected array of service history hashes.
+        status: 502
+      IHUB_101:
+        <<: *external_defaults
+        title: Error Occurred
+        code: 'IHUB_101'
+        detail: 'General error received from iHub.  Check sentry logs for details.'
+        status: 400
+      IHUB_102:
+        <<: *external_defaults
+        title: User missing ICN
+        code: 'IHUB_102'
+        detail: 'The user does not have an ICN.'
         status: 502
       MVI_BD502:
         <<: *external_defaults
