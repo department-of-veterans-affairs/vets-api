@@ -20,9 +20,8 @@ module V0
                serializer: Post911GIBillStatusSerializer,
                meta: response.metadata
       else
-        error_type = response.error_type
-        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{error_type}"])
-        render_error_json(error_type)
+        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{response.error_type}"])
+        render_error_json(response)
       end
     ensure
       StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
@@ -30,12 +29,14 @@ module V0
 
     private
 
-    def render_error_json(error_type)
+    def render_error_json(response)
+      error_type = response.error_type
       case error_type
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:evss_error]
         # 503
         raise EVSS::GiBillStatus::ExternalServiceUnavailable
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:vet_not_found]
+        log_vet_not_found(@current_user, response.timestamp)
         raise Common::Exceptions::RecordNotFound, @current_user.email
       when EVSS::GiBillStatus::GiBillStatusResponse::KNOWN_ERRORS[:invalid_auth]
         # 403
@@ -53,6 +54,34 @@ module V0
         # 503 response
         raise EVSS::GiBillStatus::OutsideWorkingHours
       end
+    end
+
+    def log_vet_not_found(user, timestamp)
+      PersonalInformationLog.create(
+        data: { timestamp: timestamp, user: user_json(user) },
+        error_class: 'EVSS::GiBillStatus::NotFound'
+      )
+    end
+
+    def user_json(user)
+      {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        assurance_level: user.loa[:current].to_s,
+        birls_id: user.birls_id,
+        icn: user.icn,
+        edipi: user.edipi,
+        mhv_correlation_id: user.mhv_correlation_id,
+        participant_id: user.participant_id,
+        vet360_id: user.vet360_id,
+        ssn: user.ssn,
+        birth_date: iso8601_birth_date(user)
+      }.to_json
+    end
+
+    def iso8601_birth_date(user)
+      return nil unless user&.va_profile&.birth_date
+      Time.parse(user.va_profile.birth_date).iso8601
     end
 
     def service

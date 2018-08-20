@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180727213418) do
+ActiveRecord::Schema.define(version: 20180815155404) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -77,14 +77,15 @@ ActiveRecord::Schema.define(version: 20180727213418) do
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",  null: false
-    t.string   "form_type",  null: false
-    t.integer  "claim_id",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.uuid     "user_uuid",                        null: false
+    t.string   "form_type",                        null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.string   "status",     default: "submitted"
+    t.uuid     "job_id"
+    t.json     "response"
   end
 
-  add_index "disability_compensation_submissions", ["claim_id"], name: "index_disability_compensation_submissions_on_claim_id", unique: true, using: :btree
   add_index "disability_compensation_submissions", ["user_uuid", "form_type"], name: "index_disability_compensation_submissions_on_uuid_and_form_type", unique: true, using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
@@ -254,6 +255,17 @@ ActiveRecord::Schema.define(version: 20180727213418) do
 
   add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
   add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
+
+  create_table "post911_not_found_errors", force: :cascade do |t|
+    t.uuid     "user_uuid",              null: false
+    t.string   "encrypted_user_json",    null: false
+    t.string   "encrypted_user_json_iv", null: false
+    t.datetime "request_timestamp",      null: false
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "post911_not_found_errors", ["user_uuid"], name: "index_post911_not_found_errors_on_user_uuid", unique: true, using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
