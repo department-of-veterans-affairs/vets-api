@@ -19,7 +19,7 @@ module VaFacilities
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
 
       def all
-        resource = BaseFacility.all.order(:unique_id)
+        resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
         respond_to do |format|
           format.geojson do
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)

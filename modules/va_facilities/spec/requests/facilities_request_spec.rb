@@ -179,6 +179,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   context 'when requesting all facilities' do
     it 'responds to GeoJSON format' do
       setup_pdx
+      create :dod_001
       get base_query_path + '/all', nil, accept_geojson
       expect(response).to be_success
       expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
@@ -189,6 +190,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to CSV format' do
       setup_pdx
+      create :dod_001
       get base_query_path + '/all', nil, accept_csv
       expect(response).to be_success
       expect(response.headers['Content-Type']).to eq 'text/csv'
