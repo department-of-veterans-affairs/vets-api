@@ -29,7 +29,8 @@ module AsyncTransaction
           source: SOURCE,
           status: REQUESTED,
           transaction_status: JOB_STATUS[:submitted],
-          transaction_id: job_id
+          transaction_id: job_id,
+          metadata: {}
         )
       end
 
@@ -39,7 +40,9 @@ module AsyncTransaction
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
       def self.find_transaction(job_id)
-        VA526ezSubmitTransaction.job_id(job_id)
+        result = VA526ezSubmitTransaction.job_id(job_id)
+        return nil if result == []
+        result
       end
 
       # Finds all of a users submit transactions
