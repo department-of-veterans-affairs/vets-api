@@ -11,7 +11,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180709214011) do
+ActiveRecord::Schema.define(version: 20180727213418) do
+
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
@@ -132,6 +133,16 @@ ActiveRecord::Schema.define(version: 20180709214011) do
   end
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
+
+  create_table "form526_opt_ins", force: :cascade do |t|
+    t.string   "user_uuid",          null: false
+    t.string   "encrypted_email",    null: false
+    t.string   "encrypted_email_iv", null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
 
   create_table "form_attachments", force: :cascade do |t|
     t.datetime "created_at",             null: false

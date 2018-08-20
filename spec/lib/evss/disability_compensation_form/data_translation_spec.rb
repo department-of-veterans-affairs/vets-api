@@ -215,6 +215,42 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     end
   end
 
+  describe '#translate_national_guard_service' do
+    context 'when the veteran has a reserve/guard service' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'serviceInformation' => {
+              'reservesNationalGuardService' => {
+                'obligationTermOfServiceDateRange' => {
+                  'from' => '2018-03-29T18:50:03.015Z',
+                  'to' => '2018-03-29T18:50:03.015Z'
+                },
+                'waiveVABenefitsToRetainTrainingPay' => false
+              }
+            }
+          }
+        )
+      end
+      it 'should translate the fields correctly' do
+        result_hash = {
+          'obligationTermOfServiceFromDate' => '2018-03-29T18:50:03.015Z',
+          'obligationTermOfServiceToDate' => '2018-03-29T18:50:03.015Z',
+          'inactiveDutyTrainingPay' => {
+            'waiveVABenefitsToRetainTrainingPay' => false
+          }
+        }
+        result = subject.send(
+          :translate_national_guard_service, subject.instance_variable_get(
+            :@form_content
+          ).dig('form526', 'serviceInformation', 'reservesNationalGuardService')
+        )
+        expect(result).to eq result_hash
+      end
+    end
+  end
+
   describe '#translate_homelessness' do
     context 'when the veteran is not homeless' do
       before do

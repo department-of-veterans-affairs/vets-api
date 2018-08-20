@@ -332,8 +332,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports submitting the form' do
-        allow(EVSS::DisabilityCompensationForm::SubmitUploads)
-          .to receive(:start).and_return("JID-#{SecureRandom.base64}")
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
+          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
@@ -1167,6 +1167,44 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'documents appeals 502' do
         VCR.use_cassette('/appeals/server_error') do
           expect(subject).to validate(:get, '/v0/appeals', 502, auth_options)
+        end
+      end
+    end
+
+    describe 'appointments' do
+      before do
+        allow_any_instance_of(User).to receive(:icn).and_return('1234')
+      end
+
+      context 'when successful' do
+        it 'supports getting appointments data' do
+          VCR.use_cassette('ihub/appointments/simple_success') do
+            expect(subject).to validate(:get, '/v0/appointments', 200, auth_options)
+          end
+        end
+      end
+
+      context 'when not signed in' do
+        it 'returns a 401 with error details' do
+          expect(subject).to validate(:get, '/v0/appointments', 401)
+        end
+      end
+
+      context 'when iHub experiences an error' do
+        it 'returns a 400 with error details' do
+          VCR.use_cassette('ihub/appointments/error_occurred') do
+            expect(subject).to validate(:get, '/v0/appointments', 400, auth_options)
+          end
+        end
+      end
+
+      context 'the user does not have an ICN' do
+        before do
+          allow_any_instance_of(User).to receive(:icn).and_return(nil)
+        end
+
+        it 'returns a 502 with error details' do
+          expect(subject).to validate(:get, '/v0/appointments', 502, auth_options)
         end
       end
     end
