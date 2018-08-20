@@ -161,7 +161,7 @@ class BaseFacility < ActiveRecord::Base
         service_condition(type, service)
       end
       facilities = facilities.where(service_conditions.join(' OR ')) if service_conditions&.any?
-      facilities = facilities.where.not(facility_type: 'dod_health')
+      facilities = facilities.where.not(facility_type: DOD_HEALTH)
       facilities
     end
 
