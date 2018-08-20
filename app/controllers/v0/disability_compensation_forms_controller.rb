@@ -27,7 +27,7 @@ module V0
       ).translate
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
-        @current_user, converted_form_content, uploads
+        @current_user.uuid, converted_form_content, uploads
       )
 
       render json: { data: { attributes: { job_id: jid } } },
