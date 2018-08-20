@@ -7,7 +7,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   let(:user) { build(:disabilities_compensation_user) }
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
+  let(:auth_header) { { 'Authorization' => "Token token=#{token}", 'CONTENT_TYPE' => 'application/json' } }
 
   before do
     Session.create(uuid: user.uuid, token: token)
@@ -80,10 +80,12 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a valid 200 evss response' do
-      let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/fe_submission_with_uploads.json' }
+      let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
       let(:jid) { "JID-#{SecureRandom.base64}" }
 
-      before(:each) { allow(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:start).and_return(jid) }
+      before(:each) do
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526).to receive(:perform_async).and_return(jid)
+      end
 
       before do
         create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
@@ -97,73 +99,18 @@ RSpec.describe 'Disability compensation form', type: :request do
         end
       end
 
-      it 'should start the uploads job' do
+      it 'should start the submit job' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect(EVSS::DisabilityCompensationForm::SubmitUploads).to receive(:start).once
+          expect(EVSS::DisabilityCompensationForm::SubmitForm526).to receive(:perform_async).once
           post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
         end
       end
+    end
 
-      context 'with a 500 response' do
-        it 'should return a bad gateway response' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_500') do
-            post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
-      end
-
-      context 'with a 403 unauthorized response' do
-        it 'should return a not authorized response' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_403') do
-            post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-            expect(response).to have_http_status(:forbidden)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
-      end
-
-      context 'with a 400 response' do
-        let(:validation_array) do
-          [
-            {
-              'key' => 'form526.serviceInformation.ConfinementPastActiveDutyDate',
-              'severity' => 'ERROR',
-              'text' => 'The confinement start date is too far in the past'
-            },
-            {
-              'key' => 'form526.serviceInformation.ConfinementWithInServicePeriod',
-              'severity' => 'ERROR',
-              'text' => 'Your period of confinement must be within a single period of service'
-            },
-            {
-              'key' => 'form526.veteran.homelessness.pointOfContact.pointOfContactName.Pattern',
-              'severity' => 'ERROR',
-              'text' => 'must match "([a-zA-Z0-9-/]+( ?))*$"'
-            }
-          ]
-        end
-
-        it 'should return a unprocessable_entity response' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_400') do
-            post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-            meta = JSON.parse(response.body).dig('errors').first.dig('meta', 'messages')
-            expect(meta).to match_array(validation_array)
-          end
-        end
-      end
-
-      context 'with a 401 response' do
-        it 'should return a bad gateway response' do
-          VCR.use_cassette('evss/disability_compensation_form/submit_401') do
-            post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
-        end
+    context 'with invalid json body' do
+      it 'should return a 500' do
+        post '/v0/disability_compensation_form/submit', { 'form526' => nil }.to_json, auth_header
+        expect(response).to have_http_status(:internal_server_error)
       end
     end
   end
