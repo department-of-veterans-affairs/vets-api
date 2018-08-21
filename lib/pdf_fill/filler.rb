@@ -71,6 +71,5 @@ module PdfFill
 
       combine_extras(file_path, hash_converter.extras_generator)
     end
-
   end
 end
