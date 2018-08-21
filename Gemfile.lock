@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 4e5d6a1082e8268b79cb3c433ba379ce97343bc0
+  revision: f42bad3ddff042d2700dd93a2dccd646a755f905
   branch: master
   specs:
-    vets_json_schema (3.62.0)
+    vets_json_schema (3.79.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -29,6 +29,12 @@ PATH
   remote: modules/appeals_api
   specs:
     appeals_api (0.0.1)
+      rails (~> 4.2.7.1)
+
+PATH
+  remote: modules/va_facilities
+  specs:
+    va_facilities (0.0.1)
       rails (~> 4.2.7.1)
 
 PATH
@@ -1154,6 +1160,7 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
+  va_facilities!
   vba_documents!
   vcr
   vets_json_schema!
