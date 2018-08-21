@@ -1,0 +1,12 @@
+class CreateAccounts < ActiveRecord::Migration
+  def change
+    create_table :accounts do |t|
+      t.uuid :uuid, null: false, unique: true
+      t.string :idme_uuid, unique: true
+      t.string :icn
+      t.string :edipi
+
+      t.timestamps null: false
+    end
+  end
+end
