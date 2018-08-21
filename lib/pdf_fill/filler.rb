@@ -7,7 +7,8 @@ module PdfFill
     PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
-      '21P-530' => PdfFill::Forms::Va21p530
+      '21P-530' => PdfFill::Forms::Va21p530,
+      '21-4142' => PdfFill::Forms::Va21_4142
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
@@ -48,5 +49,28 @@ module PdfFill
 
       combine_extras(file_path, hash_converter.extras_generator)
     end
+
+    def fill_ancillary_form(form_id, form_data, claim_id)
+      code = form_id
+      form_class = FORM_CLASSES[code]
+      folder = 'tmp/pdfs'
+      FileUtils.mkdir_p(folder)
+      file_path = "#{folder}/#{code}_#{claim_id}.pdf"
+      hash_converter = HashConverter.new(form_class.date_strftime)
+      new_hash = hash_converter.transform_data(
+        form_data: form_class.new(form_data).merge_fields,
+        pdftk_keys: form_class::KEY
+      )
+
+      PDF_FORMS.fill_form(
+        "lib/pdf_fill/forms/pdfs/#{code}.pdf",
+        file_path,
+        new_hash,
+        flatten: Rails.env.production?
+      )
+
+      combine_extras(file_path, hash_converter.extras_generator)
+    end
+
   end
 end
