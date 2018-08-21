@@ -177,19 +177,23 @@ class SubmitFormDataGenerator
 
   # rubocop:disable all
   def date
-    DateTime.parse(Faker::Date.between(Date.today - 365, Date.today - 182).to_s)
+    '2017-01-02'
+    # DateTime.parse(Faker::Date.between(Date.today - 365, Date.today - 182).to_s)
   end
 
   def from_date
-    DateTime.parse(Faker::Date.between(Date.today - (2 * 365), Date.today - 365).to_s)
+    '2018-01-01'
+    # DateTime.parse(Faker::Date.between(Date.today - (2 * 365), Date.today - 365).to_s)
   end
 
   def service_from_date
-    DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - (2 * 365)).to_s)
+    '2017-01-01'
+    # DateTime.parse(Faker::Date.between(Date.today - (3 * 365), Date.today - (2 * 365)).to_s)
   end
 
   def service_to_date
-    DateTime.parse(Faker::Date.between(Date.today - 182, Date.today).to_s)
+    '2018-01-02'
+    # DateTime.parse(Faker::Date.between(Date.today - 182, Date.today).to_s)
   end
   # rubocop:enable all
 
@@ -218,14 +222,14 @@ class SubmitFormDataGenerator
       'Air National Guard',
       'Army',
       'Army National Guard',
-      'Army Reserves',
+      'Army Reserve',
       'Coast Guard',
-      'Coast Guard Reserves',
+      'Coast Guard Reserve',
       'Marine Corps',
-      'Marine Corps Reserves',
+      'Marine Corps Reserve',
       'NOAA',
       'Navy',
-      'Navy Reserves',
+      'Navy Reserve',
       'Public Health Service'
     ].sample
   end
