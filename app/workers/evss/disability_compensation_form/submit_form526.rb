@@ -4,6 +4,7 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526
       include Sidekiq::Worker
+      include SentryLogging
 
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 10 will result in a run time of ~8 hours
@@ -12,8 +13,12 @@ module EVSS
       sidekiq_options retry: RETRY
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
-      sidekiq_retries_exhausted do |_msg, _ex|
+      sidekiq_retries_exhausted do |msg, _ex|
         transaction_class.update_transaction(jid, :exhausted)
+        log_message_to_sentry(
+          "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
+          :error
+        )
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -45,6 +50,7 @@ module EVSS
         # Treat unexpected errors as hard failures
         # This includes BackeEndService Errors (including 403's)
         transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
+        log_exception_to_sentry(error, extra_content(:non_retryable_error))
       end
 
       private
@@ -63,11 +69,16 @@ module EVSS
           raise error
         end
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
+        log_exception_to_sentry(error, extra_content(:non_retryable_error))
       end
 
       def handle_gateway_timeout_exception(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
         raise error
+      end
+
+      def extra_content(status)
+        { status: status, jid: jid }
       end
     end
   end
