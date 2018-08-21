@@ -50,7 +50,8 @@ module EVSS
         # Treat unexpected errors as hard failures
         # This includes BackeEndService Errors (including 403's)
         transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
-        log_exception_to_sentry(error, extra_content(:non_retryable_error))
+        extra_content = { status: :non_retryable_error, jid: jid }
+        log_exception_to_sentry(e, extra_content)
       end
 
       private
@@ -69,16 +70,13 @@ module EVSS
           raise error
         end
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
-        log_exception_to_sentry(error, extra_content(:non_retryable_error))
+        extra_content = { status: :non_retryable_error, jid: jid }
+        log_exception_to_sentry(error, extra_content)
       end
 
       def handle_gateway_timeout_exception(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
         raise error
-      end
-
-      def extra_content(status)
-        { status: status, jid: jid }
       end
     end
   end

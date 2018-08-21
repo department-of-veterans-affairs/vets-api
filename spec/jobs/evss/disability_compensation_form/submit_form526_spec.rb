@@ -82,5 +82,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         end
       end
     end
+
+    context 'with an unexpected error' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
+      end
+
+      it 'sets the transaction to "non_retryable_error"' do
+        expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+        subject.perform_async(user.uuid, valid_form_content, nil)
+        described_class.drain
+        expect(last_transaction.transaction_status).to eq 'non_retryable_error'
+      end
+    end
   end
 end
