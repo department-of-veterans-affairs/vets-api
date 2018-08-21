@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+# Account's purpose is to correlate unique identifiers, and to
+# remove our dependency on third party services for a user's
+# unique identifier.
+#
+# The account.uuid is intended to become the Vets-API user's uuid.
+#
 class Account < ActiveRecord::Base
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, presence: true, uniqueness: true
