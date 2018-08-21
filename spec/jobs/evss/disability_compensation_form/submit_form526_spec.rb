@@ -65,6 +65,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     context 'with a client error' do
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
+          expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
           subject.perform_async(user.uuid, valid_form_content, nil)
           described_class.drain
           expect(last_transaction.transaction_status).to eq 'non_retryable_error'
@@ -79,6 +80,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
           expect(last_transaction.transaction_status).to eq 'retrying'
         end
+      end
+    end
+
+    context 'with an unexpected error' do
+      before do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
+      end
+
+      it 'sets the transaction to "non_retryable_error"' do
+        expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+        subject.perform_async(user.uuid, valid_form_content, nil)
+        described_class.drain
+        expect(last_transaction.transaction_status).to eq 'non_retryable_error'
       end
     end
   end
