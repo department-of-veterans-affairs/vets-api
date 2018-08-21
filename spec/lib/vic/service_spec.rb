@@ -214,7 +214,7 @@ describe VIC::Service, type: :model do
         "street": "123 Main St",
         "street2": "apt 1",
         "city": "Milwaukee",
-        "country": "CHN"
+        "country": "US"
       },
       "profile_data": {
         "active_ICN":"12345678905",
@@ -232,7 +232,7 @@ describe VIC::Service, type: :model do
             "street": "123 Maple St",
             "street2": "apt 1",
             "city": "Milwaukee",
-            "country": "CHN"
+            "country": "US"
           }
         },
         "programs": [
