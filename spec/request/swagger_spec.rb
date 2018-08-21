@@ -1099,13 +1099,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     describe 'facility locator tests' do
       context 'successful calls' do
         it 'supports getting a list of facilities' do
-          VCR.use_cassette('facilities/va/pdx_bbox') do
-            expect(subject).to validate(:get, '/v0/facilities/va', 200,
-                                        'bbox' => ['-122.440689', '45.451913', '-122.78675', '45.64'])
-          end
-        end
-
-        it 'supports getting a list of facilities' do
           create :vha_648A4
           expect(subject).to validate(:get, '/v0/facilities/va/{id}', 200, 'id' => 'vha_648A4')
         end
