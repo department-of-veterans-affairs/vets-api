@@ -339,8 +339,6 @@ describe EVSS::Dependents::Service do
          "validUser"=>true},
        }}
 
-    binding.pry; fail
-    subject.send(:perform, :post, 'form686submission/submit', File.read('req'), { 'Content-Type' => 'application/xml' })
     form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
     form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
     subject.validate(form)
