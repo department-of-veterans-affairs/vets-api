@@ -59,7 +59,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :dependents_applications, only: [:create]
+    resource :dependents_applications, only: [:create] do
+      collection do
+        get(:disability_rating)
+      end
+    end
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
