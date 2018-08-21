@@ -3,10 +3,9 @@
 module PdfFill
   module Forms
     class FormHelper
-
       def self.split_ssn(veteran_social_security_number)
         return if veteran_social_security_number.blank?
-  
+
         split_ssn = {
           'first' => veteran_social_security_number[0..2],
           'second' => veteran_social_security_number[3..4],
@@ -29,7 +28,7 @@ module PdfFill
         return if full_name.blank?
 
         middle_name = full_name['middle']
-  
+
         if (middle_name.blank? || middle_name.nil?)
           return hash[key]
         else
@@ -44,26 +43,25 @@ module PdfFill
         return if country.blank?
         country[0..1]
       end
-  
+
       def self.split_postal_code(address)
         return if address.blank?
         postal_code = address['postalCode']
 
         return if postal_code.blank?
-  
+
         split_postal_code = postal_code.scan(/.{1,5}/)
-        if(split_postal_code.length == 2)
-          split_zip = {
+        if (split_postal_code.length == 2)
+          return split_zip = {
             'firstFive' => split_postal_code.first,
             'lastFour' => split_postal_code.last
           }
         else
-          split_zip = {
+          return split_zip = {
             'firstFive' => split_postal_code.first,
             'lastFour' => ''
           }
         end
-        split_zip
       end
 
       def self.split_date(date)
