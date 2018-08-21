@@ -256,17 +256,6 @@ ActiveRecord::Schema.define(version: 20180815155404) do
   add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
   add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
 
-  create_table "post911_not_found_errors", force: :cascade do |t|
-    t.uuid     "user_uuid",              null: false
-    t.string   "encrypted_user_json",    null: false
-    t.string   "encrypted_user_json_iv", null: false
-    t.datetime "request_timestamp",      null: false
-    t.datetime "created_at",             null: false
-    t.datetime "updated_at",             null: false
-  end
-
-  add_index "post911_not_found_errors", ["user_uuid"], name: "index_post911_not_found_errors_on_user_uuid", unique: true, using: :btree
-
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
