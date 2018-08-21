@@ -3,7 +3,7 @@ require 'pdf_fill/forms/form_helper'
 
 module PdfFill
   module Forms
-    class Va21_4142 < FormBase
+    class Va214142 < FormBase
 
     KEY = {
       'veteranFullName' => {
@@ -14,7 +14,7 @@ module PdfFill
           question_text: "VETERAN/BENEFICIARY'S FIRST NAME"
         },
         'middleInitial' => {
-          key: 'F[0].Page_1[0].VeteranMiddleInitial1[0]',
+          key: 'F[0].Page_1[0].VeteranMiddleInitial1[0]'
         },
         'last' => {
           key:'F[0].Page_1[0].VeteranLastName[0]',
@@ -120,9 +120,7 @@ module PdfFill
       },
       'printedName' => {
         key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
-      }
-
-    }.freeze    
+      }}.freeze    
 
     # rubocop:disable Metrics/MethodLength
     def merge_fields

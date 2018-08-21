@@ -7,10 +7,10 @@ include PdfFill
 PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
 
 def basic_class
-    PdfFill::Forms::Va21_4142.new({})
+    PdfFill::Forms::Va214142.new({})
 end
 
-describe PdfFill::Forms::Va21_4142 do
+describe PdfFill::Forms::Va214142 do
     let(:form_data) do
       {}
     end
