@@ -65,7 +65,8 @@ class BaseFacility < ActiveRecord::Base
                    IntegratedDisabilityEvaluationSystemAssistance TransitionAssistance
                    VocationalRehabilitationAndEmploymentAssistance UpdatingDirectDepositInformation],
     CEMETERY => [],
-    VET_CENTER => []
+    VET_CENTER => [],
+    'cc_provider' => []
   }.freeze
 
   PENSION_LOCATIONS = %w[310 330 335].freeze

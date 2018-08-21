@@ -15,6 +15,11 @@ module Facilities
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       Rails.logger.info(response.body)
+      bbox_num = params[:bbox].map { |x| Float(x) }
+      response.body.select do |provider|
+        provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
+          provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
+      end
       response.body
     end
 
