@@ -1,10 +1,10 @@
 # frozen_string_literal: true
+
 require 'pdf_fill/forms/form_helper'
 
 module PdfFill
   module Forms
     class Va214142 < FormBase
-
     KEY = {
       'veteranFullName' => {
         'first' => {
@@ -17,7 +17,7 @@ module PdfFill
           key: 'F[0].Page_1[0].VeteranMiddleInitial1[0]'
         },
         'last' => {
-          key:'F[0].Page_1[0].VeteranLastName[0]',
+          key: 'F[0].Page_1[0].VeteranLastName[0]',
           limit: 18,
           question_num: 1,
           question_text: "VETERAN/BENEFICIARY'S LAST NAME"
@@ -89,7 +89,7 @@ module PdfFill
           },
           'lastFour' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
-          } 
+          }
         }
       },
       'claimantEmail' => {
@@ -120,32 +120,30 @@ module PdfFill
       },
       'printedName' => {
         key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
-      }}.freeze    
+      }
+    }.freeze
 
-    # rubocop:disable Metrics/MethodLength
-    def merge_fields
-      @form_data["vaFileNumber"] = FormHelper.extract_va_file_number(@form_data["vaFileNumber"])
+      def merge_fields
+      @form_data['vaFileNumber'] = FormHelper.extract_va_file_number(@form_data['vaFileNumber'])
 
       ssn = @form_data['veteranSocialSecurityNumber']
       ['','1'].each do |suffix|
         @form_data["veteranSocialSecurityNumber#{suffix}"] = FormHelper.split_ssn(ssn)
       end
 
-      @form_data["veteranFullName"] = FormHelper.extract_middle_i(@form_data, "veteranFullName")
+      @form_data['veteranFullName'] = FormHelper.extract_middle_i(@form_data, 'veteranFullName')
 
       expand_signature(@form_data['veteranFullName'])
-      @form_data["printedName"] = @form_data['signature']
+      @form_data['printedName'] = @form_data['signature']
       
-      @form_data["claimantAddress"]["country"] = FormHelper.extract_country(@form_data["claimantAddress"])
+      @form_data['claimantAddress']['country'] = FormHelper.extract_country(@form_data['claimantAddress'])
 
-      @form_data["claimantAddress"]["postalCode"] = FormHelper.split_postal_code(@form_data["claimantAddress"])
+      @form_data['claimantAddress']['postalCode'] = FormHelper.split_postal_code(@form_data['claimantAddress'])
 
-      @form_data["veteranDateOfBirth"] = FormHelper.split_date(@form_data["veteranDateOfBirth"])
+      @form_data['veteranDateOfBirth'] = FormHelper.split_date(@form_data['veteranDateOfBirth'])
 
       @form_data
-    end
-    # rubocop:enable Metrics/MethodLength
+      end
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
