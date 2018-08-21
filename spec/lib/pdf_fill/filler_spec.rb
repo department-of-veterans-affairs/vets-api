@@ -106,17 +106,17 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-  %w[kitchen_sink].each do |type|
-    context "with #{type} test data" do
-      let(:form_data) do
-        get_fixture("pdf_fill/21-4142/#{type}")
-      end
-      it 'should fill the form correctly' do
-        file_path = described_class.fill_ancillary_form('21-4142', form_data, type.to_s)
-        expect(FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21-4142/#{type}.pdf")).to eq(true)
-        File.delete(file_path)
+    %w[kitchen_sink].each do |type|
+      context "with #{type} test data" do
+        let(:form_data) do
+          get_fixture("pdf_fill/21-4142/#{type}")
+        end
+        it 'should fill the form correctly' do
+          file_path = described_class.fill_ancillary_form('21-4142', form_data, type.to_s)
+          expect(FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21-4142/#{type}.pdf")).to eq(true)
+          File.delete(file_path)
+        end
       end
     end
   end
-end
 end

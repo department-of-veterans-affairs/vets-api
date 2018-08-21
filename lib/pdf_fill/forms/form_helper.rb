@@ -29,7 +29,7 @@ module PdfFill
 
         middle_name = full_name['middle']
 
-        if (middle_name.blank? || middle_name.nil?)
+        if middle_name.blank? || middle_name.nil?
           return hash[key]
         else
           full_name['middleInitial'] = middle_name[0]
@@ -51,13 +51,13 @@ module PdfFill
         return if postal_code.blank?
 
         split_postal_code = postal_code.scan(/.{1,5}/)
-        if (split_postal_code.length == 2)
-          return split_zip = {
+        if split_postal_code.length == 2
+          return {
             'firstFive' => split_postal_code.first,
             'lastFour' => split_postal_code.last
           }
         else
-          return split_zip = {
+          return {
             'firstFive' => split_postal_code.first,
             'lastFour' => ''
           }
