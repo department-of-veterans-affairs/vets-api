@@ -5,7 +5,7 @@ class FormProfiles::ComplaintTool < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant-information'
+      returnUrl: '/applicant-relationship'
     }
   end
 end
