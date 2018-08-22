@@ -3,8 +3,6 @@
 module V0
   module Profile
     class ServiceHistoriesController < ApplicationController
-      include Vet360::Writeable
-
       before_action :check_authorization
 
       # Fetches the service history for the current user.
@@ -55,8 +53,6 @@ module V0
 
       def handle_errors!(response)
         raise_error! unless response.is_a?(Array)
-
-        log_profile_data_to_sentry(response) if response.try(:first).try(:dig, :branch_of_service).blank?
       end
 
       def raise_error!

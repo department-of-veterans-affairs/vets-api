@@ -7,8 +7,8 @@ module LOA
   THREE = 3
 
   MAPPING = {
-    'http://idmanagement.gov/ns/assurance/loa/1': ONE,
-    'http://idmanagement.gov/ns/assurance/loa/2': TWO,
-    'http://idmanagement.gov/ns/assurance/loa/3': THREE
+    'http://idmanagement.gov/ns/assurance/loa/1/vets': ONE,
+    'http://idmanagement.gov/ns/assurance/loa/2/vets': TWO,
+    'http://idmanagement.gov/ns/assurance/loa/3/vets': THREE
   }.with_indifferent_access.freeze
 end
