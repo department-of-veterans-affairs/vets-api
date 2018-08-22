@@ -347,7 +347,6 @@ describe EVSS::Dependents::Service do
     VCR.configure do |c|
       c.allow_http_connections_when_no_cassette = true
     end
-    binding.pry; fail
     form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
     form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
     subject.validate(form)
