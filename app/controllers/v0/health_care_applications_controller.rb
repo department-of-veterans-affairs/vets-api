@@ -29,7 +29,7 @@ module V0
     private
 
     def skip_sentry_exception_types
-      super + [Common::Exceptions::GatewayTimeout, Common::Exceptions::BackendServiceException]
+      super + [Common::Exceptions::BackendServiceException]
     end
   end
 end
