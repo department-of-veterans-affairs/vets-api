@@ -29,7 +29,8 @@ module AsyncTransaction
           source: SOURCE,
           status: REQUESTED,
           transaction_status: JOB_STATUS[:submitted],
-          transaction_id: job_id
+          transaction_id: job_id,
+          metadata: {}
         )
       end
 
@@ -39,7 +40,9 @@ module AsyncTransaction
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
       def self.find_transaction(job_id)
-        VA526ezSubmitTransaction.job_id(job_id)
+        result = VA526ezSubmitTransaction.job_id(job_id)
+        return nil if result == []
+        result
       end
 
       # Finds all of a users submit transactions
@@ -58,13 +61,13 @@ module AsyncTransaction
       # @param response_body [Hash|String] the response body of the last request
       # @return [Boolean] did the update succeed
       #
-      def self.update_transaction(job_id, status, response_body)
+      def self.update_transaction(job_id, status, response_body = nil)
         raise ArgumentError, "#{status} is not a valid status" unless JOB_STATUS.keys.include?(status)
         transaction = VA526ezSubmitTransaction.find_transaction(job_id)
         transaction.update(
           status: (status == :retrying ? REQUESTED : COMPLETED),
           transaction_status: JOB_STATUS[status],
-          metadata: response_body
+          metadata: response_body || transaction.metadata
         )
       end
     end

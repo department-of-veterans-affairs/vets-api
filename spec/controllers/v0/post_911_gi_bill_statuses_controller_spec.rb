@@ -68,13 +68,18 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       gi_bill_404 = { cassette_name: 'evss/gi_bill_status/vet_not_found' }
       describe 'when EVSS has no knowledge of user', vcr: gi_bill_404 do
         # special EVSS CI user ssn=796066619
-        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066619', uuid: 'ertydfh456') }
+        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066619', uuid: '89b40886-95e3-4a5b-824e-a4658b707507') }
         let(:session) { Session.create(uuid: user.uuid) }
 
         it 'responds with 404' do
           request.headers['Authorization'] = "Token token=#{session.token}"
           get :show
           expect(response).to have_http_status(:not_found)
+        end
+
+        it 'logs a record' do
+          request.headers['Authorization'] = "Token token=#{session.token}"
+          expect { get :show }.to change(PersonalInformationLog, :count).by(1)
         end
 
         it 'increments the statsd total and fail counters' do
@@ -87,7 +92,7 @@ RSpec.describe V0::Post911GIBillStatusesController, type: :controller do
       end
       describe 'when EVSS has no info of user' do
         # special EVSS CI user ssn=796066622
-        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: 'fghj3456') }
+        let(:user) { FactoryBot.create(:user, :loa3, ssn: '796066622', uuid: '89b40886-95e3-4a5b-824e-a4658b707508') }
         let(:session) { Session.create(uuid: user.uuid) }
         it 'renders nil data' do
           VCR.use_cassette('evss/gi_bill_status/vet_with_no_info') do

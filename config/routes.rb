@@ -30,6 +30,8 @@ Rails.application.routes.draw do
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       post 'submit'
+      get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
+      get 'user_submissions'
     end
 
     resource :upload_supporting_evidence, only: :create
@@ -216,7 +218,9 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create]
+    resource :mhv_account, only: %i[show create] do
+      post :upgrade
+    end
 
     [
       'profile',
