@@ -6,8 +6,26 @@ describe EVSS::Dependents::Service do
   let(:user) { build(:evss_user) }
   subject { described_class.new(user) }
 
+  EVSS_TIME_KEYS = %w[createdDate expirationDate modifiedDate dateOfBirth]
+
   def convert_evss_time(time)
     Time.at(BigDecimal.new(time.to_s.insert(10, '.'))).iso8601
+  end
+
+  def change_evss_times(object)
+    if object.is_a?(Hash)
+      object.each do |k, v|
+        if EVSS_TIME_KEYS.include?(k)
+          object[k] = convert_evss_time(v)
+        else
+          change_evss_times(v)
+        end
+      end
+    elsif object.is_a?(Array)
+      object.each do |item|
+        change_evss_times(item)
+      end
+    end
   end
 
   it 'f' do
@@ -336,6 +354,7 @@ describe EVSS::Dependents::Service do
     form_id = subject.save(form).body['form_id']
     form['submitProcess']['application']['draftFormId'] = form_id
     binding.pry; fail
+    change_evss_times(form)
     subject.submit(form)
   end
 end
