@@ -6,6 +6,10 @@ describe EVSS::Dependents::Service do
   let(:user) { build(:evss_user) }
   subject { described_class.new(user) }
 
+  def convert_evss_time(time)
+    Time.at(BigDecimal.new(time.to_s.insert(10, '.'))).iso8601
+  end
+
   it 'f' do
     form = {"submit_process"=>
   {"application"=>
@@ -325,26 +329,7 @@ describe EVSS::Dependents::Service do
     VCR.configure do |c|
       c.allow_http_connections_when_no_cassette = true
     end
-    form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
-    form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
-    subject.validate(form)
-    form_id = subject.save(form).body['form_id']
     binding.pry; fail
-    subject.send(:perform, :post, 'form686submission/submit', File.read('req').gsub('200135', form_id), { 'Content-Type' => 'application/xml' })
-    form = form.deep_transform_keys { |k| k.camelize(:lower) }
-    form = {"submitProcess"=>
-      {"application"=>
-        {"acceptWarnings"=>false,
-         "appStatus"=>"Open",
-         "bnftClaimType"=>"EBENDEPENDENCY686c",
-         "createdDate"=>1533846225178,
-         'draftFormId' => 377000,
-         "expirationDate"=>1565382225178,
-         "has30Percent"=>true,
-         "modifiedDate"=>1533846230731,
-         "validUser"=>true},
-       }}
-
     form = subject.retrieve.body.deep_transform_keys { |k| k.camelize(:lower) }
     form = subject.clean_form(form).body.deep_transform_keys { |k| k.camelize(:lower) }
     subject.validate(form)
