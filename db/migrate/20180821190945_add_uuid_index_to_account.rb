@@ -3,5 +3,6 @@ class AddUuidIndexToAccount < ActiveRecord::Migration
 
   def change
     add_index(:accounts, :uuid, unique: true, algorithm: :concurrently)
+    add_index(:accounts, :idme_uuid, unique: true, algorithm: :concurrently)
   end
 end

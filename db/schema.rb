@@ -28,6 +28,7 @@ ActiveRecord::Schema.define(version: 20180821190945) do
     t.datetime "updated_at", null: false
   end
 
+  add_index "accounts", ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true, using: :btree
   add_index "accounts", ["uuid"], name: "index_accounts_on_uuid", unique: true, using: :btree
 
   create_table "async_transactions", force: :cascade do |t|
