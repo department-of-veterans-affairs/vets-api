@@ -325,6 +325,8 @@ describe EVSS::Dependents::Service do
     VCR.configure do |c|
       c.allow_http_connections_when_no_cassette = true
     end
+    binding.pry; fail
+    subject.send(:perform, :post, 'form686submission/submit', File.read('req'), { 'Content-Type' => 'application/xml' })
     form = form.deep_transform_keys { |k| k.camelize(:lower) }
     form = {"submitProcess"=>
       {"application"=>

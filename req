@@ -2,35 +2,35 @@
 <submit686Request>
   <submitProcess>
     <application>
-      <acceptWarnings type="boolean">false</acceptWarnings>
+      <acceptWarnings>false</acceptWarnings>
       <appStatus>Open</appStatus>
       <bnftClaimType>EBENDEPENDENCY686c</bnftClaimType>
-      <createdDate type="integer">1534867893584</createdDate>
-      <documents type="array"/>
-      <expirationDate type="integer">1566403893584</expirationDate>
-      <has30Percent type="boolean">true</has30Percent>
-      <modifiedDate type="integer">1534867895958</modifiedDate>
-      <validUser type="boolean">true</validUser>
-      <draftFormId type="integer">377290</draftFormId>
+      <draftFormId>200135</draftFormId>
+      <createdDate>2018-08-21T12:36:11.471-04:00</createdDate>
+      <documents/>
+      <expirationDate>2019-08-21T12:36:11.471-04:00</expirationDate>
+      <has30Percent>true</has30Percent>
+      <modifiedDate>2018-08-21T12:36:11.471-04:00</modifiedDate>
+      <validUser>true</validUser>
     </application>
-    <rbps type="boolean">true</rbps>
+    <rbps>true</rbps>
     <vaFaxNumber>540-597-1792</vaFaxNumber>
     <vaOffice>
       <addressLine1>Regional Office</addressLine1>
       <addressLine2>116 N Jefferson Street</addressLine2>
-      <addressLine3></addressLine3>
+      <addressLine3/>
       <addressLocality>DOMESTIC</addressLocality>
       <city>Roanoke</city>
       <country>
         <dropDownCountry>USA</dropDownCountry>
-        <textCountry></textCountry>
+        <textCountry/>
       </country>
       <postOffice>NONE</postOffice>
       <postalType>NONE</postalType>
       <sharedAddrsInd>N</sharedAddrsInd>
-      <state></state>
+      <state/>
       <zipCode>24016</zipCode>
-      <zipLastFour></zipLastFour>
+      <zipLastFour/>
     </vaOffice>
     <vaOfficeCode>314</vaOfficeCode>
     <vaOfficeName>Roanoke</vaOfficeName>
@@ -38,303 +38,296 @@
       <address>
         <addressLine1>3003 Van Ness St NW</addressLine1>
         <addressLine2>Apt W204</addressLine2>
-        <addressLine3></addressLine3>
+        <addressLine3/>
         <addressLocality>DOMESTIC</addressLocality>
         <city>Washington</city>
         <country>
           <dropDownCountry>USA</dropDownCountry>
-          <textCountry></textCountry>
+          <textCountry/>
         </country>
         <postOffice>NONE</postOffice>
         <postalType>NONE</postalType>
         <sharedAddrsInd>N</sharedAddrsInd>
         <state>DC</state>
         <zipCode>20008</zipCode>
-        <zipLastFour></zipLastFour>
+        <zipLastFour/>
       </address>
-      <children type="array">
-        <child>
-          <attendedSchool type="boolean">false</attendedSchool>
+      <children>
+        <e>
+          <attendedSchool>false</attendedSchool>
           <cityOfBirth>Alexandria</cityOfBirth>
-          <corpPtcnpntId type="integer">600111773</corpPtcnpntId>
+          <corpPtcnpntId>600111773</corpPtcnpntId>
           <countryOfBirth>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </countryOfBirth>
-          <dateOfBirth type="integer">1220936400000</dateOfBirth>
-          <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
+          <dateOfBirth>2012-05-06T00:00:00-08:00</dateOfBirth>
+          <dateOfBirthFromCorp>true</dateOfBirthFromCorp>
           <dependentStatus>NOTONAWARD</dependentStatus>
-          <disabled type="boolean">false</disabled>
-          <emailAddress></emailAddress>
+          <disabled>false</disabled>
+          <emailAddress/>
           <firstName>JOHNNY</firstName>
-          <govtTuitionAssist type="boolean">false</govtTuitionAssist>
-          <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-          <hasNoSsn type="boolean">false</hasNoSsn>
+          <govtTuitionAssist>false</govtTuitionAssist>
+          <hasNoFileNumber>false</hasNoFileNumber>
+          <hasNoSsn>false</hasNoSsn>
           <lastName>BOY</lastName>
-          <married type="boolean">false</married>
-          <middleName></middleName>
+          <married>false</married>
+          <middleName/>
           <primaryPhone>
             <phoneType>DAYTIME</phoneType>
           </primaryPhone>
-          <proofDepncyInd type="boolean">false</proofDepncyInd>
-          <rlsnIds type="array"/>
-          <sameResidency type="boolean">true</sameResidency>
+          <proofDepncyInd>false</proofDepncyInd>
+          <rlsnIds/>
+          <sameResidency>true</sameResidency>
           <secondaryPhone>
             <phoneType>DAYTIME</phoneType>
           </secondaryPhone>
           <ssn>430-43-0303</ssn>
-          <ssnFromCorp type="boolean">true</ssnFromCorp>
+          <ssnFromCorp>true</ssnFromCorp>
           <stateOfBirth>VA</stateOfBirth>
-          <tempDataId>
-          </tempDataId>
-          <uniqueIdentifier>-1582003877</uniqueIdentifier>
-          <veteran type="boolean">false</veteran>
-        </child>
-        <child>
-          <attendedSchool type="boolean">false</attendedSchool>
-          <cityOfBirth></cityOfBirth>
-          <corpPtcnpntId type="integer">600142192</corpPtcnpntId>
+          <tempDataId/>
+          <uniqueIdentifier>1865346457</uniqueIdentifier>
+          <veteran>false</veteran>
+        </e>
+        <e>
+          <attendedSchool>false</attendedSchool>
+          <cityOfBirth/>
+          <corpPtcnpntId>600142192</corpPtcnpntId>
           <countryOfBirth>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </countryOfBirth>
-          <dateOfBirth type="integer">894776400000</dateOfBirth>
-          <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
+          <dateOfBirth>2011-01-06T00:00:00-08:00</dateOfBirth>
+          <dateOfBirthFromCorp>true</dateOfBirthFromCorp>
           <dependentStatus>NOTONAWARD</dependentStatus>
-          <disabled type="boolean">false</disabled>
-          <emailAddress></emailAddress>
+          <disabled>false</disabled>
+          <emailAddress/>
           <firstName>NEWC</firstName>
-          <govtTuitionAssist type="boolean">false</govtTuitionAssist>
-          <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-          <hasNoSsn type="boolean">false</hasNoSsn>
+          <govtTuitionAssist>false</govtTuitionAssist>
+          <hasNoFileNumber>false</hasNoFileNumber>
+          <hasNoSsn>false</hasNoSsn>
           <lastName>CHLDLNAME</lastName>
-          <married type="boolean">false</married>
-          <middleName></middleName>
+          <married>false</married>
+          <middleName/>
           <primaryPhone>
             <phoneType>DAYTIME</phoneType>
           </primaryPhone>
-          <proofDepncyInd type="boolean">false</proofDepncyInd>
-          <rlsnIds type="array"/>
-          <sameResidency type="boolean">true</sameResidency>
+          <proofDepncyInd>false</proofDepncyInd>
+          <rlsnIds/>
+          <sameResidency>true</sameResidency>
           <secondaryPhone>
             <phoneType>DAYTIME</phoneType>
           </secondaryPhone>
           <ssn>234-23-5412</ssn>
-          <ssnFromCorp type="boolean">true</ssnFromCorp>
-          <stateOfBirth></stateOfBirth>
-          <tempDataId>
-          </tempDataId>
-          <uniqueIdentifier>1648981204</uniqueIdentifier>
-          <veteran type="boolean">false</veteran>
-        </child>
-        <child>
-          <attendedSchool type="boolean">false</attendedSchool>
-          <cityOfBirth></cityOfBirth>
-          <corpPtcnpntId type="integer">600142965</corpPtcnpntId>
+          <ssnFromCorp>true</ssnFromCorp>
+          <stateOfBirth/>
+          <tempDataId/>
+          <uniqueIdentifier>733666172</uniqueIdentifier>
+          <veteran>false</veteran>
+        </e>
+        <e>
+          <attendedSchool>false</attendedSchool>
+          <cityOfBirth/>
+          <corpPtcnpntId>600142965</corpPtcnpntId>
           <countryOfBirth>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </countryOfBirth>
-          <dateOfBirth type="integer">961131600000</dateOfBirth>
-          <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
+          <dateOfBirth>961131600000</dateOfBirth>
+          <dateOfBirthFromCorp>true</dateOfBirthFromCorp>
           <dependentStatus>NOTONAWARD</dependentStatus>
-          <disabled type="boolean">false</disabled>
-          <emailAddress></emailAddress>
+          <disabled>false</disabled>
+          <emailAddress/>
           <firstName>FNAME</firstName>
-          <govtTuitionAssist type="boolean">false</govtTuitionAssist>
-          <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-          <hasNoSsn type="boolean">false</hasNoSsn>
+          <govtTuitionAssist>false</govtTuitionAssist>
+          <hasNoFileNumber>false</hasNoFileNumber>
+          <hasNoSsn>false</hasNoSsn>
           <lastName>LNAME</lastName>
-          <married type="boolean">false</married>
+          <married>false</married>
           <middleName>MN</middleName>
           <primaryPhone>
             <phoneType>DAYTIME</phoneType>
           </primaryPhone>
-          <proofDepncyInd type="boolean">false</proofDepncyInd>
-          <rlsnIds type="array"/>
-          <sameResidency type="boolean">true</sameResidency>
+          <proofDepncyInd>false</proofDepncyInd>
+          <rlsnIds/>
+          <sameResidency>true</sameResidency>
           <secondaryPhone>
             <phoneType>DAYTIME</phoneType>
           </secondaryPhone>
           <ssn>346-23-6426</ssn>
-          <ssnFromCorp type="boolean">true</ssnFromCorp>
-          <stateOfBirth></stateOfBirth>
-          <tempDataId>
-          </tempDataId>
-          <uniqueIdentifier>464214053</uniqueIdentifier>
-          <veteran type="boolean">false</veteran>
-        </child>
-        <child>
-          <attendedSchool type="boolean">false</attendedSchool>
-          <cityOfBirth></cityOfBirth>
-          <corpPtcnpntId type="integer">600144961</corpPtcnpntId>
+          <ssnFromCorp>true</ssnFromCorp>
+          <stateOfBirth/>
+          <tempDataId/>
+          <uniqueIdentifier>-1368388816</uniqueIdentifier>
+          <veteran>false</veteran>
+        </e>
+        <e>
+          <attendedSchool>false</attendedSchool>
+          <cityOfBirth/>
+          <corpPtcnpntId>600144961</corpPtcnpntId>
           <countryOfBirth>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </countryOfBirth>
-          <dateOfBirth type="integer">962773200000</dateOfBirth>
-          <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
+          <dateOfBirth>2014-06-08T00:00:00-08:00</dateOfBirth>
+          <dateOfBirthFromCorp>true</dateOfBirthFromCorp>
           <dependentStatus>NOTONAWARD</dependentStatus>
-          <disabled type="boolean">false</disabled>
-          <emailAddress></emailAddress>
+          <disabled>false</disabled>
+          <emailAddress/>
           <firstName>EWRWE</firstName>
-          <govtTuitionAssist type="boolean">false</govtTuitionAssist>
-          <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-          <hasNoSsn type="boolean">false</hasNoSsn>
+          <govtTuitionAssist>false</govtTuitionAssist>
+          <hasNoFileNumber>false</hasNoFileNumber>
+          <hasNoSsn>false</hasNoSsn>
           <lastName>WERWRWER</lastName>
-          <married type="boolean">false</married>
+          <married>false</married>
           <middleName>WER</middleName>
           <primaryPhone>
             <phoneType>DAYTIME</phoneType>
           </primaryPhone>
-          <proofDepncyInd type="boolean">false</proofDepncyInd>
-          <rlsnIds type="array"/>
-          <sameResidency type="boolean">true</sameResidency>
+          <proofDepncyInd>false</proofDepncyInd>
+          <rlsnIds/>
+          <sameResidency>true</sameResidency>
           <secondaryPhone>
             <phoneType>DAYTIME</phoneType>
           </secondaryPhone>
           <ssn>234-24-2424</ssn>
-          <ssnFromCorp type="boolean">true</ssnFromCorp>
-          <stateOfBirth></stateOfBirth>
-          <tempDataId>
-          </tempDataId>
-          <uniqueIdentifier>-1943992068</uniqueIdentifier>
-          <veteran type="boolean">false</veteran>
-        </child>
-        <child>
-          <attendedSchool type="boolean">false</attendedSchool>
+          <ssnFromCorp>true</ssnFromCorp>
+          <stateOfBirth/>
+          <tempDataId/>
+          <uniqueIdentifier>14806550</uniqueIdentifier>
+          <veteran>false</veteran>
+        </e>
+        <e>
+          <attendedSchool>false</attendedSchool>
           <cityOfBirth>Vienna</cityOfBirth>
-          <corpPtcnpntId type="integer">600212195</corpPtcnpntId>
+          <corpPtcnpntId>600212195</corpPtcnpntId>
           <countryOfBirth>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </countryOfBirth>
-          <dateOfBirth type="integer">1521435600000</dateOfBirth>
-          <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
+          <dateOfBirth>2009-09-16T00:00:00-08:00</dateOfBirth>
+          <dateOfBirthFromCorp>true</dateOfBirthFromCorp>
           <dependentStatus>NOTONAWARD</dependentStatus>
-          <disabled type="boolean">false</disabled>
-          <emailAddress></emailAddress>
+          <disabled>false</disabled>
+          <emailAddress/>
           <firstName>TEST</firstName>
-          <govtTuitionAssist type="boolean">false</govtTuitionAssist>
-          <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-          <hasNoSsn type="boolean">false</hasNoSsn>
+          <govtTuitionAssist>false</govtTuitionAssist>
+          <hasNoFileNumber>false</hasNoFileNumber>
+          <hasNoSsn>false</hasNoSsn>
           <lastName>FORD</lastName>
-          <married type="boolean">false</married>
-          <middleName></middleName>
+          <married>false</married>
+          <middleName/>
           <primaryPhone>
             <phoneType>DAYTIME</phoneType>
           </primaryPhone>
-          <proofDepncyInd type="boolean">false</proofDepncyInd>
-          <rlsnIds type="array"/>
-          <sameResidency type="boolean">true</sameResidency>
+          <proofDepncyInd>false</proofDepncyInd>
+          <rlsnIds/>
+          <sameResidency>true</sameResidency>
           <secondaryPhone>
             <phoneType>DAYTIME</phoneType>
           </secondaryPhone>
           <ssn>876-32-1212</ssn>
-          <ssnFromCorp type="boolean">true</ssnFromCorp>
+          <ssnFromCorp>true</ssnFromCorp>
           <stateOfBirth>VA</stateOfBirth>
-          <tempDataId>
-          </tempDataId>
-          <uniqueIdentifier>-1617969718</uniqueIdentifier>
-          <veteran type="boolean">false</veteran>
-        </child>
+          <tempDataId/>
+          <uniqueIdentifier>1043369855</uniqueIdentifier>
+          <veteran>false</veteran>
+        </e>
       </children>
-      <corpPtcnpntId type="integer">600061742</corpPtcnpntId>
+      <corpPtcnpntId>600061742</corpPtcnpntId>
       <countryOfBirth>
-        <dropDownCountry></dropDownCountry>
-        <textCountry></textCountry>
+        <dropDownCountry/>
+        <textCountry/>
       </countryOfBirth>
-      <dateOfBirth type="integer">515739600000</dateOfBirth>
-      <dateOfBirthFromCorp type="boolean">false</dateOfBirthFromCorp>
+      <dateOfBirth>1986-05-06T00:00:00-08:00</dateOfBirth>
+      <dateOfBirthFromCorp>false</dateOfBirthFromCorp>
       <edipi>1007697216</edipi>
       <emailAddress>wford@gmail.com</emailAddress>
       <firstName>WESLEY</firstName>
-      <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-      <hasNoSsn type="boolean">false</hasNoSsn>
+      <hasNoFileNumber>false</hasNoFileNumber>
+      <hasNoSsn>false</hasNoSsn>
       <lastName>FORD</lastName>
       <marriageType>MARRIED</marriageType>
-      <married type="boolean">false</married>
+      <married>false</married>
       <middleName>Watson</middleName>
       <personTypeNm>Veteran</personTypeNm>
-      <previousMarriages type="array"/>
+      <previousMarriages/>
       <primaryPhone>
         <areaNbr>202</areaNbr>
         <phoneNbr>461-9724</phoneNbr>
         <phoneType>DAYTIME</phoneType>
       </primaryPhone>
-      <rlsnIds type="array"/>
+      <rlsnIds/>
       <secondaryPhone>
         <phoneType>DAYTIME</phoneType>
       </secondaryPhone>
       <spouse>
         <address>
-          <addressLine1></addressLine1>
-          <addressLine2></addressLine2>
-          <addressLine3></addressLine3>
+          <addressLine1/>
+          <addressLine2/>
+          <addressLine3/>
           <addressLocality>DOMESTIC</addressLocality>
-          <city></city>
+          <city/>
           <country>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </country>
           <postOffice>NONE</postOffice>
           <postalType>NONE</postalType>
           <sharedAddrsInd>N</sharedAddrsInd>
-          <state></state>
-          <zipCode></zipCode>
-          <zipLastFour></zipLastFour>
+          <state/>
+          <zipCode/>
+          <zipLastFour/>
         </address>
-        <cityOfBirth></cityOfBirth>
-        <corpPtcnpntId type="integer">600142193</corpPtcnpntId>
+        <cityOfBirth/>
+        <corpPtcnpntId>600142193</corpPtcnpntId>
         <countryOfBirth>
-          <dropDownCountry></dropDownCountry>
-          <textCountry></textCountry>
+          <dropDownCountry/>
+          <textCountry/>
         </countryOfBirth>
         <currentMarriage>
           <country>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </country>
           <dependentStatus>UNKNOWN</dependentStatus>
           <endCountry>
-            <dropDownCountry></dropDownCountry>
-            <textCountry></textCountry>
+            <dropDownCountry/>
+            <textCountry/>
           </endCountry>
-          <exSpouse type="boolean">false</exSpouse>
+          <exSpouse>false</exSpouse>
           <marriageTerminationReasonType>NONE</marriageTerminationReasonType>
         </currentMarriage>
-        <dateOfBirth type="integer">347695200000</dateOfBirth>
-        <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
+        <dateOfBirth>1987-05-06T00:00:00-08:00</dateOfBirth>
+        <dateOfBirthFromCorp>true</dateOfBirthFromCorp>
         <dependentStatus>NOTONAWARD</dependentStatus>
-        <emailAddress></emailAddress>
+        <emailAddress/>
         <firstName>JANE</firstName>
-        <hasNoFileNumber type="boolean">false</hasNoFileNumber>
-        <hasNoSsn type="boolean">false</hasNoSsn>
+        <hasNoFileNumber>false</hasNoFileNumber>
+        <hasNoSsn>false</hasNoSsn>
         <lastName>DOE</lastName>
-        <married type="boolean">false</married>
-        <middleName></middleName>
-        <previousMarriages type="array"/>
+        <married>false</married>
+        <middleName/>
+        <previousMarriages/>
         <primaryPhone>
           <phoneType>DAYTIME</phoneType>
         </primaryPhone>
-        <proofDepncyInd type="boolean">false</proofDepncyInd>
-        <rlsnIds type="array"/>
-        <sameResidency type="boolean">true</sameResidency>
+        <proofDepncyInd>false</proofDepncyInd>
+        <rlsnIds/>
+        <sameResidency>true</sameResidency>
         <secondaryPhone>
           <phoneType>DAYTIME</phoneType>
         </secondaryPhone>
-        <ssnFromCorp type="boolean">false</ssnFromCorp>
-        <stateOfBirth></stateOfBirth>
-        <tempDataId>
-        </tempDataId>
-        <uniqueIdentifier>1004667549</uniqueIdentifier>
-        <veteran type="boolean">false</veteran>
+        <ssnFromCorp>false</ssnFromCorp>
+        <stateOfBirth/>
+        <tempDataId/>
+        <uniqueIdentifier>-1319326912</uniqueIdentifier>
+        <veteran>false</veteran>
       </spouse>
       <ssn>796-04-3735</ssn>
-      <ssnFromCorp type="boolean">false</ssnFromCorp>
-      <tempDataId>
-      </tempDataId>
-      <uniqueIdentifier>2002209043</uniqueIdentifier>
+      <ssnFromCorp>false</ssnFromCorp>
+      <tempDataId/>
+      <uniqueIdentifier>994190649</uniqueIdentifier>
       <vaFileNumber>796-04-3735</vaFileNumber>
     </veteran>
   </submitProcess>
