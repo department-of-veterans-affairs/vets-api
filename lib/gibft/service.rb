@@ -6,7 +6,6 @@ module Gibft
 
     CONSUMER_KEY = Settings['salesforce-gibft'].consumer_key
     SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
-    # TODO: staging and prod username
     SALESFORCE_USERNAMES = {
       'prod' => 'vetsgov-devops@listserv.gsa.gov',
       'uat' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.uat',
