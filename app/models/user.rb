@@ -40,10 +40,10 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
-  delegate :uuid, to: :account, prefix: true
+  delegate :uuid, to: :account, prefix: true, allow_nil: true
 
   def account
-    Account.find_by(idme_uuid: uuid)
+    Account.find_by(idme_uuid: uuid) if Settings.account.enabled
   end
 
   def pciu_email

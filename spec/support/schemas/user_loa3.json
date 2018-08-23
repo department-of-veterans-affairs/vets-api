@@ -1,74 +1,36 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema" : "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": [
-    "data"
-  ],
+  "required": ["data"],
   "properties": {
     "data": {
       "type": "object",
-      "required": [
-        "id",
-        "type",
-        "attributes"
-      ],
+      "required": ["id", "type", "attributes"],
       "properties": {
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
+        "id": { "type": "string" },
+        "type": { "type": "string"},
         "attributes": {
           "type": "object",
-          "required": [
-            "services",
-            "profile",
-            "in_progress_forms"
-          ],
+          "required": ["services", "profile", "in_progress_forms"],
           "properties": {
             "in_progress_forms": {
-              "type": [
-                "array",
-                null
-              ],
+              "type": [ "array", null ],
               "items": {
                 "type": "object",
                 "properties": {
-                  "form_id": {
-                    "type": "string"
-                  },
-                  "last_updated": {
-                    "type": "integer"
-                  }
+                  "form_id": { "type": "string" },
+                  "last_updated": { "type": "integer" }
                 },
                 "required": []
               }
             },
-            "prefills_available": {
-              "type": [
-                "array",
-                null
-              ]
-            },
-            "services": {
-              "type": [
-                "array",
-                null
-              ]
-            },
+            "prefills_available": { "type": [ "array", null ] },
+            "services": { "type": [ "array", null ] },
             "account": {
               "type": "object",
-              "required": [
-                "account_uuid"
-              ],
+              "required": ["account_uuid"],
               "properties": {
-                "account_uuid": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                }
+                "account_uuid": { "type": [ "string", null ] }
               }
             },
             "profile": {
@@ -79,8 +41,7 @@
                 "middle_name",
                 "last_name",
                 "birth_date",
-                "gender",
-                "zip",
+                "gender", "zip",
                 "last_signed_in",
                 "loa",
                 "multifactor",
@@ -88,148 +49,71 @@
                 "authn_context"
               ],
               "properties": {
-                "email": {
-                  "type": "string"
-                },
-                "first_name": {
-                  "type": "string"
-                },
-                "middle_name": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                },
-                "last_name": {
-                  "type": "string"
-                },
-                "birth_date": {
-                  "type": "string"
-                },
-                "gender": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                },
-                "zip": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                },
-                "last_signed_in": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                },
+                "email": { "type": "string"},
+                "first_name": { "type": "string" },
+                "middle_name": { "type": [ "string", null ] },
+                "last_name": { "type": "string" },
+                "birth_date": { "type": "string" },
+                "gender": { "type": [ "string", null ] },
+                "zip": { "type": [ "string", null ] },
+                "last_signed_in": { "type": [ "string", null ] },
                 "loa": {
                   "type": "object",
-                  "required": [
-                    "current",
-                    "highest"
-                  ],
+                  "required": ["current", "highest"],
                   "properties": {
-                    "current": {
-                      "type": "integer"
-                    },
-                    "highest": {
-                      "type": "integer"
-                    }
+                    "current": { "type": "integer" },
+                    "highest": { "type": "integer" }
                   }
                 },
-                "multifactor": {
-                  "type": "boolean"
-                },
-                "verified": {
-                  "type": "boolean"
-                },
-                "authn_context": {
-                  "type": [
-                    "string",
-                    null
-                  ]
-                }
+                "multifactor": { "type": "boolean" },
+                "verified": { "type": "boolean" },
+                "authn_context": { "type": [ "string", null ] }
               }
             },
             "va_profile": {
-              "type": [
-                "object",
-                "null"
-              ],
+              "type": ["object", "null"],
               "required": [
                 "status"
               ],
               "oneOf": [
                 {
                   "properties": {
-                    "status": {
-                      "type": [
-                        "string"
-                      ]
-                    }
+                    "status": { "type": [ "string" ]  }
                   }
                 },
                 {
                   "properties": {
-                    "status": {
-                      "type": "string"
-                    },
-                    "birth_date": {
-                      "type": "string"
-                    },
-                    "family_name": {
-                      "type": "string"
-                    },
-                    "gender": {
-                      "type": "string"
-                    },
-                    "given_names": {
-                      "type": "array"
-                    }
+                    "status": { "type": "string"  },
+                    "birth_date": { "type": "string" },
+                    "family_name": { "type": "string" },
+                    "gender": { "type": "string" },
+                    "given_names": { "type": "array" }
                   }
                 }
               ]
             },
             "veteran_status": {
-              "type": [
-                "object",
-                "null"
-              ],
+              "type": ["object", "null"],
               "required": [
                 "status"
               ],
               "oneOf": [
                 {
                   "properties": {
-                    "status": {
-                      "type": [
-                        "string"
-                      ]
-                    }
+                    "status": { "type": [ "string" ]  }
                   }
                 },
                 {
                   "properties": {
-                    "is_veteran": {
-                      "type": "boolean"
-                    },
-                    "served_in_military": {
-                      "type": "boolean"
-                    },
-                    "status": {
-                      "type": "string"
-                    }
+                    "is_veteran": { "type": "boolean" },
+                    "served_in_military": { "type": "boolean" },
+                    "status": { "type": "string"  }
                   }
                 }
               ]
             },
             "vet360_contact_information": {
-              "type": [
-                "object",
-                "null"
-              ]
+              "type": ["object", "null"]
             }
           }
         }

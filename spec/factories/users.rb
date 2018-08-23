@@ -4,6 +4,7 @@ FactoryBot.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     last_signed_in Time.now.utc
+    
     transient do
       email 'abraham.lincoln@vets.gov'
       first_name 'abraham'
@@ -155,7 +156,6 @@ FactoryBot.define do
       uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
       last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
       mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
-
       email { Faker::Internet.email }
       first_name { Faker::Name.first_name }
       last_name { Faker::Name.last_name }
