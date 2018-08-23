@@ -4,7 +4,6 @@ FactoryBot.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     last_signed_in Time.now.utc
-    
     transient do
       email 'abraham.lincoln@vets.gov'
       first_name 'abraham'
