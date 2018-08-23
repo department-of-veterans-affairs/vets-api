@@ -25,6 +25,13 @@
             },
             "prefills_available": { "type": [ "array", null ] },
             "services": { "type": [ "array", null ] },
+            "account": {
+              "type": "object",
+              "required": ["account_uuid"],
+              "properties": {
+                "account_uuid": { "type": "string" }
+              }
+            },
             "profile": {
               "type": "object",
               "required": [
