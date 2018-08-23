@@ -14,7 +14,7 @@ module Accountable
       account.edipi = @current_user&.edipi
       account.icn   = @current_user&.icn
     end
-  rescue => error
+  rescue StandardError => error
     log error
   end
 
