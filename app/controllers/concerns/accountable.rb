@@ -3,6 +3,10 @@
 module Accountable
   extend ActiveSupport::Concern
 
+  # Creates a user's one Account record. By doing so, it initializes
+  # a unique account#uuid for the user, through a callback on
+  # Account.
+  #
   def create_user_account
     return unless @current_user.uuid
 
@@ -10,5 +14,22 @@ module Accountable
       account.edipi = @current_user&.edipi
       account.icn   = @current_user&.icn
     end
+  rescue => error
+    log error
+  end
+
+  private
+
+  def log(error)
+    log_message_to_sentry(
+      'Account Creation Error',
+      :error,
+      {
+        error: error.inspect,
+        idme_uuid: @current_user.uuid,
+        params: params
+      },
+      account: 'cannot_create_unique_account_record'
+    )
   end
 end
