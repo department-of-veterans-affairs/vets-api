@@ -40,6 +40,12 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
+  delegate :uuid, to: :account, prefix: true
+
+  def account
+    Account.find_by(idme_uuid: uuid)
+  end
+
   def pciu_email
     pciu.get_email_address.email
   end
