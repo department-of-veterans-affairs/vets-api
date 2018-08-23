@@ -138,6 +138,7 @@ module V0
       Swagger::Requests::PensionClaims,
       Swagger::Requests::Post911GiBillStatuses,
       Swagger::Requests::PPIU,
+      Swagger::Requests::PreneedsClaims,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,
