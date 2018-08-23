@@ -26,8 +26,7 @@ module Accountable
       :error,
       {
         error: error.inspect,
-        idme_uuid: @current_user.uuid,
-        params: params
+        idme_uuid: @current_user.uuid
       },
       account: 'cannot_create_unique_account_record'
     )
