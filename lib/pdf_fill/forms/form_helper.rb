@@ -6,6 +6,8 @@ module PdfFill
       def self.split_ssn(veteran_social_security_number)
         return if veteran_social_security_number.blank?
 
+        veteran_social_security_number = veteran_social_security_number.tr('^0-9', '')
+
         split_ssn = {
           'first' => veteran_social_security_number[0..2],
           'second' => veteran_social_security_number[3..4],
@@ -26,14 +28,8 @@ module PdfFill
       def self.extract_middle_i(hash, key)
         full_name = hash[key]
         return if full_name.blank?
-
         middle_name = full_name['middle']
-
-        if middle_name.blank? || middle_name.nil?
-          return hash[key]
-        else
-          full_name['middleInitial'] = middle_name[0]
-        end
+        full_name['middleInitial'] = middle_name[0] if middle_name.present?
         hash[key]
       end
 
@@ -49,6 +45,8 @@ module PdfFill
         postal_code = address['postalCode']
 
         return if postal_code.blank?
+
+        postal_code = postal_code.tr('^0-9', '')
 
         split_postal_code = postal_code.scan(/.{1,5}/)
         if split_postal_code.length == 2
