@@ -11,13 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180815155404) do
+ActiveRecord::Schema.define(version: 20180821190945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
   enable_extension "pg_trgm"
   enable_extension "btree_gin"
+
+  create_table "accounts", force: :cascade do |t|
+    t.uuid     "uuid",       null: false
+    t.string   "idme_uuid"
+    t.string   "icn"
+    t.string   "edipi"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "accounts", ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true, using: :btree
+  add_index "accounts", ["uuid"], name: "index_accounts_on_uuid", unique: true, using: :btree
 
   create_table "async_transactions", force: :cascade do |t|
     t.string   "type"
