@@ -19,6 +19,7 @@ RSpec.describe 'Fetching user data', type: :request do
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
       User.create(mhv_user)
+      create(:account, idme_uuid: mhv_user.uuid)
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
     end
@@ -67,6 +68,7 @@ RSpec.describe 'Fetching user data', type: :request do
     before do
       Session.create(uuid: loa1_user.uuid, token: token)
       User.create(loa1_user)
+      create(:account, idme_uuid: loa1_user.uuid)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
