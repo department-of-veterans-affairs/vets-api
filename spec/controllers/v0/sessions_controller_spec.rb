@@ -497,6 +497,32 @@ RSpec.describe V0::SessionsController, type: :controller do
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
+
+      context 'when creating a user account' do
+        context 'and the current user does not yet have an Account record' do
+          before do
+            expect(Account.count).to eq 0
+          end
+
+          it 'creates an Account record for the user' do
+            post :saml_callback
+
+            expect(Account.first.idme_uuid).to eq uuid
+          end
+        end
+
+        context 'and the current user already has an Account record' do
+          before do
+            create :account, idme_uuid: uuid
+          end
+
+          it 'does not create a new Account record for the user' do
+            post :saml_callback
+
+            expect(Account.count).to eq 1
+          end
+        end
+      end
     end
   end
 
