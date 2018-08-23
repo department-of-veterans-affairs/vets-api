@@ -1,41 +1,87 @@
-{  
-    "privacyAgreementAccepted":true,
-    "vaFileNumber":"12345678",
-    "veteranSocialSecurityNumber":{  
-       "first":"123",
-       "second":"45",
-       "third":"6789"
+{
+  "privacyAgreementAccepted": true,
+  "vaFileNumber": "12345678",
+  "veteranSocialSecurityNumber": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "veteranFullName": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson",
+    "middleInitial": "T"
+  },
+  "veteranFullName1": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson",
+    "middleInitial": "T"
+  },
+  "veteranSocialSecurityNumber1": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "signature": "Testy Testerson",
+  "signatureDate": "2016-12-31",
+  "printedName": "Testy Testerson",
+  "claimantEmail": "testy.testerson@gmail.com",
+  "claimantAddress": {
+    "city": "Baltimore",
+    "country": "US",
+    "postalCode": {
+      "firstFive": "21231",
+      "lastFour": "0000"
     },
-    "veteranFullName":{  
-       "first":"Testy",
-       "middle":"Tester",
-       "last":"Testerson",
-       "middleInitial":"T"
-    },
-    "veteranSocialSecurityNumber1":{  
-       "first":"123",
-       "second":"45",
-       "third":"6789"
-    },
-    "signature": "Testy Testerson",
-    "signatureDate": "2016-12-31",
-    "printedName": "Testy Testerson", 
-    "claimantEmail": "testy.testerson@gmail.com", 
-    "claimantAddress":{
-        "city":"Baltimore", 
-        "country":"US", 
-        "postalCode":{
-            "firstFive": "21231",
-            "lastFour": "" 
+    "veteranAddressLine1": "street",
+    "apartmentOrUnitNumber": "1B",
+    "state": "MD"
+  },
+  "veteranDateOfBirth": {
+    "month": "11",
+    "day": "05",
+    "year": "1981"
+  },
+  "claimantPhone": "2123456789",
+  "veteranSocialSecurityNumber2": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "veteranSocialSecurityNumber3": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "vaFileNumber1": "12345678",
+  "veteranDateOfBirth1": {
+    "month": "11",
+    "day": "05",
+    "year": "1981"
+  },
+  "providers": [
+    {
+      "providerName": "provider1",
+      "datesOfTreatment": [
+        {
+          "dateRangeStart0": "1980-1-1",
+          "dateRangeEnd0": "1985-1-1"
         },
-        "veteranAddressLine1":"street", 
-        "apartmentOrUnitNumber":"1B", 
-        "state":"MD"
-    },
-    "veteranDateOfBirth": {
-        "month":"11",
-        "day": "05", 
-        "year": "1981"
-    },
-    "claimantPhone":"2123456789"
- }
+        {
+          "dateRangeStart1": "1990-1-1",
+          "dateRangeEnd1": "1995-1-1"
+        }
+      ],
+      "numberAndStreet": "123 Main Street",
+      "apartmentOrUnitNumber": "1B",
+      "city": "Baltimore",
+      "state": "MD",
+      "country": "USA",
+      "postalCode": {
+        "firstFive": "21200",
+        "lastFour": "1111"
+      }
+    }
+  ]
+}

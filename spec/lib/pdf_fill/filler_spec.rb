@@ -114,7 +114,7 @@ describe PdfFill::Filler do
         it 'should fill the form correctly' do
           file_path = described_class.fill_ancillary_form('21-4142', form_data, type.to_s)
           expect(FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21-4142/#{type}.pdf")).to eq(true)
-          File.delete(file_path)
+          # File.delete(file_path)
         end
       end
     end
