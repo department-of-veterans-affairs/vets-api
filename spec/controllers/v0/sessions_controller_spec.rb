@@ -512,14 +512,13 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         context 'and the current user already has an Account record' do
-          before do
-            create :account, idme_uuid: uuid
-          end
+          let!(:account) { create :account, idme_uuid: uuid }
 
-          it 'does not create a new Account record for the user' do
+          it 'does not create a new Account record for the user', :aggregate_failures do
             post :saml_callback
 
             expect(Account.count).to eq 1
+            expect(Account.first.idme_uuid).to eq account.idme_uuid
           end
         end
       end
