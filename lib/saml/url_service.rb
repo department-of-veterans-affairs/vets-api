@@ -59,8 +59,15 @@ module SAML
       saml_settings(options)
     end
 
-    def saml_options
-      Settings.review_instance_slug.blank? ? {} : { RelayState: Settings.review_instance_slug }
+    def saml_options(use_alt_relay: false)
+      options = if use_alt_relay
+                  { RelayState: Settings.saml.alternate }
+                elsif Settings.review_instance_slug.blank? == false
+                  { RelayState: Settings.saml.relay.review_instance_slug }
+                else
+                  {}
+                end
+      options
     end
   end
 end
