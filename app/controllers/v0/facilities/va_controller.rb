@@ -28,13 +28,16 @@ class V0::Facilities::VaController < FacilitiesController
     resource = BaseFacility.query(params)
     ppms = Facilities::PPMSClient.new
     providers = ppms.provider_locator(params)
-
     bbox_num = params[:bbox].map { |x| Float(x) }
-    page = 1
-    page = Integer(params[:page]) if params[:page]
+    page = Integer(params[:page] || 1)
+    total = resource.length + providers.length
     sorted = merge(resource, providers, (bbox_num[0] + bbox_num[2]) / 2,
                    (bbox_num[1] + bbox_num[3]) / 2, page * BaseFacility.per_page)
-    render json: sorted
+    sorted = sorted[(page - 1) * BaseFacility.per_page, BaseFacility.per_page]
+    sorted.map! { |row| format_records(row, ppms) }
+    pages = { current_page: page, per_page: BaseFacility.per_page,
+              total_pages: total / BaseFacility.per_page, total_entries: total }
+    render json: { data: sorted, metadata: { pagination: pages } }
   end
 
   def show
@@ -60,8 +63,6 @@ class V0::Facilities::VaController < FacilitiesController
     finish = Time.now.utc
     ppms = "Latency: #{finish - start}\n" + ppms.to_s
     render text: ppms
-  rescue StandardError => e
-    render text: "message: #{e&.message} \nbody: #{e&.body} \nppms.url: #{Settings.ppms&.url}"
   end
 
   def provider_locator
@@ -85,6 +86,16 @@ class V0::Facilities::VaController < FacilitiesController
   end
 
   private
+
+  def format_records(record, ppms)
+    if record.is_a?(BaseFacility)
+      ser = VAFacilitySerializer.new(record)
+      { id: ser.id, name: record[:name], attributes: ser.as_json }
+    else
+      prov_info = ppms.provider_info(record['ProviderIdentifier'])
+      format_provloc(record, prov_info)
+    end
+  end
 
   def merge(facilities, providers, center_x, center_y, limit)
     distance_facilities = facilities.map do |facility|
