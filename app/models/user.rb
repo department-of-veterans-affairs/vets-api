@@ -265,6 +265,10 @@ class User < Common::RedisStore
     edipi.present? && veteran? || military_person?
   end
 
+  def cached_account
+    @cached_account ||= PreferencesRedis::Account.for_user(self)
+  end
+
   private
 
   def pciu
