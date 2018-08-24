@@ -105,8 +105,7 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def transform_keys_into_array(hash)
-    array = []
-    return array if hash.blank?
+    return [] if hash.blank?
 
     hash.keep_if { |_, v| v.present? }.keys
   end
