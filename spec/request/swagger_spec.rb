@@ -196,7 +196,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         200,
         '_data' => {
           'application' => {
-            'form' => build(:application).form
+            'form' => build(:preneed_claim).form
           }
         }
       )
