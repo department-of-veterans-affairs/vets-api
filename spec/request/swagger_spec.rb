@@ -197,7 +197,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         200,
         '_data' => {
           'application' => {
-            'form' => build(:preneeds_submission).form
+            build(application: attributes_for(:burial_form))
           }
         }
       )
