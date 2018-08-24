@@ -42,6 +42,12 @@ module Swagger
                   end
                 end
                 property :in_progress_forms
+                property :account, type: :object do
+                  property :account_uuid,
+                           type: %w[string null], # while Account feature is still flagged we need to allow null
+                           example: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+                           description: 'A UUID correlating all user identifiers. Intended to become the user\'s UUID.'
+                end
                 property :profile, type: :object do
                   property :email, type: :string
                   property :first_name, type: :string

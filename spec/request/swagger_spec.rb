@@ -35,6 +35,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
+    create(:account, idme_uuid: mhv_user.uuid)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
