@@ -302,3 +302,6 @@ faraday_socks_proxy:
   uri: socks5://localhost:2002
 
 google_analytics_tracking_id: ~
+
+account:
+  enabled: false

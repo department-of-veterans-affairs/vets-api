@@ -22,6 +22,7 @@ unless ENV['NOCOVERAGE']
 
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
+    add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'

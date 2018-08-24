@@ -6,6 +6,7 @@ RSpec.describe UserSerializer, type: :serializer do
   let(:user) { create(:user, :loa3) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+  let(:account) { attributes['account'] }
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
   let(:veteran_status) { attributes['veteran_status'] }
@@ -23,6 +24,13 @@ RSpec.describe UserSerializer, type: :serializer do
 
     it 'should include metadata' do
       expect(attributes['in_progress_forms'][0]['metadata']).to eq(in_progress_form.metadata)
+    end
+  end
+
+  describe '#account' do
+    let(:user) { create(:user, :accountable) }
+    it 'should include account uuid' do
+      expect(account['account_uuid']).to eq(user.account_uuid)
     end
   end
 
