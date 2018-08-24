@@ -6,11 +6,17 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :services, :profile, :va_profile, :veteran_status,
+  attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information
 
   def id
     nil
+  end
+
+  def account
+    {
+      account_uuid: object.account_uuid
+    }
   end
 
   def profile

@@ -4,6 +4,8 @@ require 'base64'
 
 module V0
   class SessionsController < ApplicationController
+    include Accountable
+
     skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -106,15 +108,14 @@ module V0
       redirect_to Settings.saml.logout_relay + '?success=true'
     end
 
-    # rubocop:disable MethodLength
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
-        async_create_evss_account(current_user)
-        set_sso_cookie!
+
+        after_login_actions
         redirect_to saml_callback_success_url
 
         log_persisted_session_and_warnings
@@ -131,9 +132,14 @@ module V0
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
-    # rubocop:enable MethodLength
 
     private
+
+    def after_login_actions
+      async_create_evss_account
+      set_sso_cookie!
+      create_user_account
+    end
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(session.token)
@@ -146,9 +152,9 @@ module V0
       end
     end
 
-    def async_create_evss_account(user)
-      return unless user.authorize :evss, :access?
-      auth_headers = EVSS::AuthHeaders.new(user).to_h
+    def async_create_evss_account
+      return unless @current_user.authorize :evss, :access?
+      auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
