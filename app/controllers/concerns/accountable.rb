@@ -8,7 +8,9 @@ module Accountable
   # Account.
   #
   def create_user_account
+    return if @current_user&.cached_account&.uuid.present?
     return unless @current_user.uuid && Settings.account.enabled
+
 
     Account.find_or_create_by!(idme_uuid: @current_user.uuid) do |account|
       account.edipi = @current_user&.edipi
