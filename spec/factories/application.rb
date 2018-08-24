@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :preneed_claim do
+  factory :application do
     form_id '40-10007'
     form do
       {
