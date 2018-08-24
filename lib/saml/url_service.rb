@@ -36,11 +36,11 @@ module SAML
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # nil authn_context and nil connect will always default to idme level 1
     # authn_context is the policy, connect represents the ID.me specific flow.
-    def build_sso_url(authn_context: LOA::MAPPING.invert[1], connect: nil, session: nil)
+    def build_sso_url(authn_context: LOA::MAPPING.invert[1], connect: nil, session: nil, alt_relay: false)
       url_settings = url_settings(authn_context: authn_context, name_identifier_value: session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       connect_param = "&connect=#{connect}"
-      link = saml_auth_request.create(url_settings, saml_options)
+      link = saml_auth_request.create(url_settings, saml_options(alt_relay: alt_relay))
       connect.present? ? link + connect_param : link
     end
 
@@ -59,9 +59,9 @@ module SAML
       saml_settings(options)
     end
 
-    def saml_options(use_alt_relay: false)
-      options = if use_alt_relay
-                  { RelayState: Settings.saml.alternate }
+    def saml_options(alt_relay: false)
+      options = if alt_relay
+                  { RelayState: Settings.saml.relay.alternate }
                 elsif Settings.review_instance_slug.blank? == false
                   { RelayState: Settings.saml.relay.review_instance_slug }
                 else
