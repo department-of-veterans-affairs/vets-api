@@ -12,9 +12,7 @@ class FormProfiles::ComplaintTool < FormProfile
   def convert_country!(form_data)
     country = form_data.try(:[], 'address').try(:[], 'country')
 
-    if country.present? && country.size == 3
-      form_data['address']['country'] = IsoCountryCodes.find(country).alpha2
-    end
+    form_data['address']['country'] = IsoCountryCodes.find(country).alpha2 if country.present? && country.size == 3
   end
 
   def prefill(*args)
