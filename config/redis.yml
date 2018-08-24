@@ -59,6 +59,9 @@ development: &defaults
     threshold_ttl: 86400
     count_limit: 30
     count_ttl: 604800
+  user_account_details:
+    namespace: user-account-details
+    each_ttl: 1296000
 
 test:
   <<: *defaults
