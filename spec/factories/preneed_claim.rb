@@ -47,12 +47,12 @@ FactoryBot.define do
         },
         veteran: {
           address: {
-            country:'USA'
+            country: 'USA'
           },
           currentName: {
             first: 'Test',
             last: 'User'
-          },          
+          },
           serviceName: {
             first: 'Test',
             last: 'User'
@@ -61,8 +61,8 @@ FactoryBot.define do
           isDeceased: 'no',
           maritalStatus: 'Single',
           militaryStatus: 'A',
-          serviceRecords:[
-            0: {
+          serviceRecords: [
+            {
               dateRange: {},
               serviceBranch: 'C7'
             }
