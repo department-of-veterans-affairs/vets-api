@@ -13,7 +13,7 @@ module Common
     end
 
     def at_limit?
-      @namespace['threshold_limit'] >= @redis.get(:threshold) || @namespace['count_limit'] > @redis.get(:count)
+      @namespace['threshold_limit'] >= @redis.get(:threshold) || @namespace['count_limit'] >= @redis.get(:count)
     end
 
     private
