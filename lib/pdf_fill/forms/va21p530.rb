@@ -419,12 +419,12 @@ module PdfFill
         expand_signature(@form_data['claimantFullName'])
 
         %w[veteranFullName claimantFullName].each do |attr|
-          FormHelper.extract_middle_i(@form_data, attr)
+          extract_middle_i(@form_data, attr)
         end
 
         ssn = @form_data['veteranSocialSecurityNumber']
         ['', '2'].each do |suffix|
-          @form_data["veteranSocialSecurityNumber#{suffix}"] = FormHelper.split_ssn(ssn)
+          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
 
         split_phone(@form_data, 'claimantPhone')
@@ -437,7 +437,7 @@ module PdfFill
 
         @form_data['previousNames'] = combine_previous_names(@form_data['previousNames'])
 
-        @form_data['vaFileNumber'] = FormHelper.extract_va_file_number(@form_data['vaFileNumber'])
+        @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
 
         expand_burial_allowance
 
