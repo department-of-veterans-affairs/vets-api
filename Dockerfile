@@ -14,7 +14,8 @@ git \
 libpq-dev \
 clamav \
 imagemagick \
-pdftk
+pdftk \
+poppler-utils
 
 WORKDIR $APP_PATH
 ADD Gemfile $APP_PATH

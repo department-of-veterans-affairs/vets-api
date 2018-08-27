@@ -1,5 +1,6 @@
 binaries:
   # you can specify a full path in settings.local.yml if necessary
+  pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
@@ -16,9 +17,15 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
+set_sso_cookie: false
+sso_cookie_key: '$\xBB\xDA\xFD\xB9c;\x05@|w\xEB\x81\xC7\x0EPZ\xEA\xF6\xC2\xD1\x1C\xDCrl;\xDD\x10v\x99\x16\x1D'
+
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
+
+salesforce-gibft:
+  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
 
 salesforce:
   env: dev
@@ -61,7 +68,8 @@ ihub:
   url: "https://qacrmdac.np.crm.vrm.vba.va.gov"
   appointments:
     timeout: 30
-    mock: false
+    mock: true
+  in_production: false
 
 
 # Settings for EVSS
@@ -138,7 +146,9 @@ locators:
 
 # Settings for MyHealthEVet
 mhv:
-  facility_range: [[358,718],[720,758]]
+  # include ranges first, then individual exceptions to the ranges last.
+  facility_range: [[358,718],[720,740],[742,758]]
+  facility_specific: [['741MM']] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -163,6 +173,7 @@ mvi:
   processing_code: T
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
+  pii_logging: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
@@ -246,9 +257,9 @@ reports:
 
 # Settings for SAML authentication
 saml:
-  cert_path: ~/.certs/vetsgov-localhost.crt
-  cert_new_path: ~/.certs/vetsgov-localhost_new.crt
-  key_path: ~/.certs/vetsgov-localhost.key
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: config/certs/vetsgov-localhost_new.crt
+  key_path: config/certs/vetsgov-localhost.key
   # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
   # certificate: ~
   # key: ~
@@ -293,3 +304,5 @@ faraday_socks_proxy:
 
 google_analytics_tracking_id: ~
 
+account:
+  enabled: false

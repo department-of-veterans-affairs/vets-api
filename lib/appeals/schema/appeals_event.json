@@ -11,7 +11,6 @@
           "ssoc",
           "certified",
           "hearing_held",
-          "hearing_cancelled",
           "hearing_no_show",
           "bva_decision",
           "field_grant",
@@ -40,12 +39,3 @@
   },
   "type": "object"
 }
-
-
-
-
-
-
-
-
-

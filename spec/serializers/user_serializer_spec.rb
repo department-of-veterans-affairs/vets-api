@@ -6,6 +6,7 @@ RSpec.describe UserSerializer, type: :serializer do
   let(:user) { create(:user, :loa3) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+  let(:account) { attributes['account'] }
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
   let(:veteran_status) { attributes['veteran_status'] }
@@ -23,6 +24,13 @@ RSpec.describe UserSerializer, type: :serializer do
 
     it 'should include metadata' do
       expect(attributes['in_progress_forms'][0]['metadata']).to eq(in_progress_form.metadata)
+    end
+  end
+
+  describe '#account' do
+    let(:user) { create(:user, :accountable) }
+    it 'should include account uuid' do
+      expect(account['account_uuid']).to eq(user.account_uuid)
     end
   end
 
@@ -171,31 +179,6 @@ RSpec.describe UserSerializer, type: :serializer do
         expect(expected['data']['attributes']['veteran_status']).to eq(
           'status' => 'NOT_AUTHORIZED'
         )
-      end
-    end
-  end
-
-  describe '#health_terms_current' do
-    context 'with an ineligible user' do
-      let(:user) { create(:user, :loa1) }
-
-      it 'should be false' do
-        expect(user.mhv_account.terms_and_conditions_accepted?).to be_falsey
-        expect(attributes['health_terms_current']).to be_falsey
-      end
-    end
-
-    context 'with an eligible user' do
-      let(:user) { create(:user, :mhv) }
-
-      it 'without terms accepted should be false' do
-        allow(user.mhv_account).to receive(:terms_and_conditions_accepted?).and_return(false)
-        expect(attributes['health_terms_current']).to be_falsey
-      end
-
-      it 'when terms are accepted should be true' do
-        allow(user.mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
-        expect(attributes['health_terms_current']).to be_truthy
       end
     end
   end

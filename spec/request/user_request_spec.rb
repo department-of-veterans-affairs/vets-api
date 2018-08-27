@@ -14,11 +14,12 @@ RSpec.describe 'Fetching user data', type: :request do
     before do
       Session.create(uuid: mhv_user.uuid, token: token)
       allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
-      mhv_account = double('MhvAccount', account_state: 'upgraded')
+      mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
       User.create(mhv_user)
+      create(:account, idme_uuid: mhv_user.uuid)
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
     end
@@ -39,7 +40,7 @@ RSpec.describe 'Fetching user data', type: :request do
           BackendServices::RX,
           BackendServices::MESSAGING,
           BackendServices::HEALTH_RECORDS,
-          BackendServices::MHV_AC,
+          # BackendServices::MHV_AC, this will be false if mhv account is premium
           BackendServices::FORM_PREFILL,
           BackendServices::SAVE_IN_PROGRESS,
           BackendServices::APPEALS_STATUS,
@@ -50,7 +51,7 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'gives me the list of available prefill forms' do
-      num_enabled = 2
+      num_enabled = 3
       num_enabled += FormProfile::EDU_FORMS.length if Settings.edu.prefill
       num_enabled += FormProfile::HCA_FORMS.length if Settings.hca.prefill
       num_enabled += FormProfile::PENSION_BURIAL_FORMS.length if Settings.pension_burial.prefill
@@ -67,6 +68,7 @@ RSpec.describe 'Fetching user data', type: :request do
     before do
       Session.create(uuid: loa1_user.uuid, token: token)
       User.create(loa1_user)
+      create(:account, idme_uuid: loa1_user.uuid)
 
       auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header

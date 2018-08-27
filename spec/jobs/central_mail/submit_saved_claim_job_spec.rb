@@ -79,8 +79,8 @@ RSpec.describe CentralMail::SubmitSavedClaimJob, uploader_helpers: true do
         expect(Digest::SHA256).to receive(:file).with('path').and_return(
           OpenStruct.new(hexdigest: 'hexdigest')
         )
-        expect(PDF::Reader).to receive(:new).with('path').and_return(
-          OpenStruct.new(pages: [1, 2])
+        expect(PdfInfo::Metadata).to receive(:read).with('path').and_return(
+          OpenStruct.new(pages: 2)
         )
 
         expect(described_class.new.get_hash_and_pages('path')).to eq(

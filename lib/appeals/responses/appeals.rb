@@ -9,8 +9,6 @@ module Appeals
       def initialize(body, status)
         self.body = body if json_format_is_valid?(body)
         self.status = status
-      rescue JSON::Schema::ValidationError => error
-        raise Common::Client::Errors::ClientError.new(error.message, 500)
       end
 
       private

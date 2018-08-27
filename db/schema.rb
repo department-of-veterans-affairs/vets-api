@@ -11,13 +11,25 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180709214011) do
+ActiveRecord::Schema.define(version: 20180821190945) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
   enable_extension "pg_trgm"
   enable_extension "btree_gin"
+
+  create_table "accounts", force: :cascade do |t|
+    t.uuid     "uuid",       null: false
+    t.string   "idme_uuid"
+    t.string   "icn"
+    t.string   "edipi"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "accounts", ["idme_uuid"], name: "index_accounts_on_idme_uuid", unique: true, using: :btree
+  add_index "accounts", ["uuid"], name: "index_accounts_on_uuid", unique: true, using: :btree
 
   create_table "async_transactions", force: :cascade do |t|
     t.string   "type"
@@ -77,14 +89,15 @@ ActiveRecord::Schema.define(version: 20180709214011) do
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",  null: false
-    t.string   "form_type",  null: false
-    t.integer  "claim_id",   null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.uuid     "user_uuid",                        null: false
+    t.string   "form_type",                        null: false
+    t.datetime "created_at",                       null: false
+    t.datetime "updated_at",                       null: false
+    t.string   "status",     default: "submitted"
+    t.uuid     "job_id"
+    t.json     "response"
   end
 
-  add_index "disability_compensation_submissions", ["claim_id"], name: "index_disability_compensation_submissions_on_claim_id", unique: true, using: :btree
   add_index "disability_compensation_submissions", ["user_uuid", "form_type"], name: "index_disability_compensation_submissions_on_uuid_and_form_type", unique: true, using: :btree
 
   create_table "education_benefits_claims", force: :cascade do |t|
@@ -133,6 +146,16 @@ ActiveRecord::Schema.define(version: 20180709214011) do
   end
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
+
+  create_table "form526_opt_ins", force: :cascade do |t|
+    t.string   "user_uuid",          null: false
+    t.string   "encrypted_email",    null: false
+    t.string   "encrypted_email_iv", null: false
+    t.datetime "created_at",         null: false
+    t.datetime "updated_at",         null: false
+  end
+
+  add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
 
   create_table "form_attachments", force: :cascade do |t|
     t.datetime "created_at",             null: false

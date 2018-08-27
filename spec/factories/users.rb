@@ -4,7 +4,6 @@ FactoryBot.define do
   factory :user, class: 'User' do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     last_signed_in Time.now.utc
-
     transient do
       email 'abraham.lincoln@vets.gov'
       first_name 'abraham'
@@ -40,6 +39,17 @@ FactoryBot.define do
                              multifactor: t.multifactor,
                              mhv_account_type: t.mhv_account_type)
       user.instance_variable_set(:@identity, user_identity)
+    end
+
+    trait :accountable do
+      uuid { SecureRandom.uuid }
+      callback(:after_build) do |user|
+        create(:account, idme_uuid: user.uuid)
+      end
+
+      loa do
+        { current: LOA::THREE, highest: LOA::THREE }
+      end
     end
 
     trait :loa1 do

@@ -92,6 +92,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:succesful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
+  let(:decrypter) { ActiveSupport::MessageEncryptor.new(Settings.sso_cookie_key) }
 
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -133,6 +134,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
+      Settings.set_sso_cookie = true
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
     end
@@ -142,7 +144,18 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme mfa verify slo].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             request.env['HTTP_AUTHORIZATION'] = auth_header
+            request.cookies['va_session'] = 'bar'
             get(:new, type: type)
+            if type == 'slo'
+              expect(cookies[:va_session]).to be_nil
+            elsif %w[mhv dslogon idme].include?(type)
+              expect(cookies[:va_session]).not_to be_nil
+              expect(cookies[:va_session]).to eq('bar')
+            else
+              expect(cookies[:va_session]).not_to be_nil
+              expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
+                .to eq('icn' => nil, 'mhv_correlation_id' => nil)
+            end
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
@@ -210,10 +223,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe 'POST saml_callback' do
       before(:each) do
+        Settings.set_sso_cookie = true
+        allow(controller).to receive(:async_create_evss_account)
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
-      it 'uplevels an LOA 1 session to LOA 3' do
+      it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
         existing_user = User.find(uuid)
         expect(existing_user.last_signed_in).to be_a(Time)
         expect(existing_user.multifactor).to be_falsey
@@ -245,9 +260,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
         expect(new_user.multifactor).to be_falsey
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
+        expect(cookies[:va_session]).not_to be_nil
+        expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
+          .to eq('icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id)
       end
 
-      it 'does not log to sentry when SSN matches' do
+      it 'does not log to sentry when SSN matches', :aggregate_failures do
         existing_user = User.find(uuid)
         allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
         expect(existing_user.ssn).to eq('796111863')
@@ -256,6 +274,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).to eq('796111863')
+        expect(cookies[:va_session]).not_to be_nil
+        expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
+          .to eq('icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id)
       end
 
       context 'changing multifactor' do
@@ -263,7 +284,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
         end
 
-        it 'changes the multifactor to true, time is the same' do
+        it 'changes the multifactor to true, time is the same', :aggregate_failures do
           existing_user = User.find(uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
@@ -275,6 +296,13 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(new_user.multifactor).to be_truthy
           expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
         end
+
+        it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
+          post :saml_callback
+          expect(cookies[:va_session]).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
+            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
+        end
       end
 
       context 'when user has LOA current 1 and highest 3' do
@@ -284,9 +312,12 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
-        it 'redirects to identity proof URL' do
+        it 'redirects to identity proof URL', :aggregate_failures do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
+          expect(cookies[:va_session]).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
+            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
         end
       end
 
@@ -297,18 +328,21 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
-        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+        it 'handles NoMethodError - and redirects to saml.relay with success token', :aggregate_failures do
           expect(Raven).to receive(:extra_context).once
           expect(Raven).to receive(:user_context).once
           expect(Raven).to receive(:tags_context).twice
           expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
           post :saml_callback
           expect(response.location).to start_with(Settings.saml.relay + '?token=')
+          expect(cookies[:va_session]).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
+            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
         end
       end
 
       context 'when NoMethodError is encountered elsewhere' do
-        it 'redirects to adds context and re-raises the exception' do
+        it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
           expect(Raven).to receive(:extra_context).twice
           expect(Raven).not_to receive(:user_context)
@@ -321,7 +355,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
-        it 'redirects to an auth failure page' do
+        it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
@@ -331,20 +365,22 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
 
-        it 'redirects to an auth failure page' do
+        it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)
+          expect(cookies[:va_session]).to be_nil
         end
       end
 
       context 'when clock drift causes us to consume the Assertion before its creation' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_early) }
 
-        it 'redirects to an auth failure page' do
+        it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=003')
           expect(response).to have_http_status(:found)
+          expect(cookies[:va_session]).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -362,7 +398,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when saml response returns an unknown type of error' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_unknown_error) }
 
-        it 'logs a generic error' do
+        it 'logs a generic error', :aggregate_failures do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
@@ -376,6 +412,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=007')
           expect(response).to have_http_status(:found)
+          expect(cookies[:va_session]).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -393,7 +430,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_multi_error) }
 
-        it 'logs a generic error' do
+        it 'logs a generic error', :aggregate_failures do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
@@ -407,6 +444,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
+          expect(cookies[:va_session]).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -428,7 +466,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
-        it 'logs a generic user validation error' do
+        it 'logs a generic user validation error', :aggregate_failures do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! on User/Session Validation',
@@ -445,6 +483,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=')
           expect(response).to have_http_status(:found)
+          expect(cookies[:va_session]).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -456,6 +495,31 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'when creating a user account' do
+        context 'and the current user does not yet have an Account record' do
+          before do
+            expect(Account.count).to eq 0
+          end
+
+          it 'creates an Account record for the user' do
+            post :saml_callback
+
+            expect(Account.first.idme_uuid).to eq uuid
+          end
+        end
+
+        context 'and the current user already has an Account record' do
+          let!(:account) { create :account, idme_uuid: uuid }
+
+          it 'does not create a new Account record for the user', :aggregate_failures do
+            post :saml_callback
+
+            expect(Account.count).to eq 1
+            expect(Account.first.idme_uuid).to eq account.idme_uuid
+          end
         end
       end
     end
