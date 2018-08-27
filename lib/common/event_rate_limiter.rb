@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 module Common
-  class RateLimiter
+  class EventRateLimiter
     def initialize(namespace)
       @namespace = namespace
+      raise ArgumentError, 'threshold_ttl must be lower than count_ttl' if @namespace['threshold_ttl'] > @namespace['count_ttl']
       @redis = Redis::Namespace.new(@namespace, redis: Redis.current)
     end
 
