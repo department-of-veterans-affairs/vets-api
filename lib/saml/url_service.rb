@@ -4,26 +4,26 @@ module SAML
   # This module is responsible for providing the URLs for the various SSO and SLO endpoints
   module URLService
     # SSO URLS
-    def mhv_url
-      build_sso_url(authn_context: 'myhealthevet', connect: 'myhealthevet')
+    def mhv_url(alt_relay: false)
+      build_sso_url(authn_context: 'myhealthevet', connect: 'myhealthevet', alt_relay: alt_relay)
     end
 
-    def dslogon_url
-      build_sso_url(authn_context: 'dslogon', connect: 'dslogon')
+    def dslogon_url(alt_relay: false)
+      build_sso_url(authn_context: 'dslogon', connect: 'dslogon', alt_relay: alt_relay)
     end
 
-    def idme_loa1_url
-      build_sso_url
+    def idme_loa1_url(alt_relay: false)
+      build_sso_url(alt_relay: alt_relay)
     end
 
-    def idme_loa3_url(current_user)
-      build_sso_url(authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context)
+    def idme_loa3_url(current_user, alt_relay: false)
+      build_sso_url(authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, alt_relay: alt_relay)
     end
 
-    def mfa_url(current_user)
+    def mfa_url(current_user, alt_relay: false)
       policy = current_user.authn_context
       authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
-      build_sso_url(authn_context: authn_context, connect: policy)
+      build_sso_url(authn_context: authn_context, connect: policy, alt_relay: alt_relay)
     end
 
     # SLO URLS
