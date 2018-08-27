@@ -70,7 +70,7 @@ STDOUT
     context 'when the command errors' do
       it 'should raise a PdfInfo::MetadataReadError' do
         expect(Open3).to receive(:popen2e).with(%w[pdfinfo argv0], '/tmp/file.pdf').and_yield('', result, bad_exit)
-        expect { described_class.read('/tmp/file.pdf') }.to raise_error(PdfInfo::MetadataReadError)
+        expect { described_class.read('/tmp/file.pdf') }.to raise_error(PdfInfo::MetadataReadError, /pdfinfo exited/)
       end
     end
   end

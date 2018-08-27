@@ -3,8 +3,7 @@
 module PdfInfo
   class MetadataReadError < RuntimeError
     def initialize(status, stdout)
-      @status = status
-      @stdout = stdout
+      super "pdfinfo exited with status #{status} and message #{stdout}"
     end
   end
 
