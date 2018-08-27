@@ -51,11 +51,10 @@ module PdfFill
     end
 
     def fill_ancillary_form(form_id, form_data, claim_id)
-      code = form_id
-      form_class = FORM_CLASSES[code]
+      form_class = FORM_CLASSES[form_id]
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{code}_#{claim_id}.pdf"
+      file_path = "#{folder}/#{form_id}_#{claim_id}.pdf"
       hash_converter = HashConverter.new(form_class.date_strftime)
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields,
@@ -64,7 +63,7 @@ module PdfFill
       binding.pry
 
       PDF_FORMS.fill_form(
-        "lib/pdf_fill/forms/pdfs/#{code}.pdf",
+        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,
         new_hash,
         flatten: Rails.env.production?

@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'pdf_fill/forms/form_helper'
-
 module PdfFill
   module Forms
     class Va214142 < FormBase
+      include FormHelper
+
       PROVIDER_ITERATOR = PdfFill::HashConverter::ITERATOR
       PROVIDER_TREATMENT_DATE_ITERATOR = PdfFill::HashConverter::ITERATOR
 
@@ -259,24 +259,24 @@ module PdfFill
         
         ssn = @form_data['veteranSocialSecurityNumber']
         ['', '1', '2', '3'].each do |suffix|
-          @form_data["veteranSocialSecurityNumber#{suffix}"] = FormHelper.split_ssn(ssn)
+          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
 
         ['', '1'].each do |suffix|
-          @form_data["veteranFullName#{suffix}"] = FormHelper.extract_middle_i(@form_data, 'veteranFullName')
+          @form_data["veteranFullName#{suffix}"] = extract_middle_i(@form_data, 'veteranFullName')
         end
 
         expand_signature(@form_data['veteranFullName'])
 
         @form_data['printedName'] = @form_data['signature']
 
-        @form_data['claimantAddress']['country'] = FormHelper.extract_country(@form_data['claimantAddress'])
+        @form_data['claimantAddress']['country'] = extract_country(@form_data['claimantAddress'])
 
-        @form_data['claimantAddress']['postalCode'] = FormHelper.split_postal_code(@form_data['claimantAddress'])
+        @form_data['claimantAddress']['postalCode'] = split_postal_code(@form_data['claimantAddress'])
 
         veteran_date_of_birth = @form_data['veteranDateOfBirth']
         ['', '1'].each do |suffix|
-          @form_data["veteranDateOfBirth#{suffix}"] = FormHelper.split_date(veteran_date_of_birth)
+          @form_data["veteranDateOfBirth#{suffix}"] = split_date(veteran_date_of_birth)
         end
 
         veteran_service_number = @form_data['veteranServiceNumber']

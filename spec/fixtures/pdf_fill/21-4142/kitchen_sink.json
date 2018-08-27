@@ -1,7 +1,7 @@
 {
   "privacyAgreementAccepted": true,
   "vaFileNumber": "12345678",
-  "veteranSocialSecurityNumber": "123456789",
+  "veteranSocialSecurityNumber": "123-45z6789",
   "veteranFullName": {
     "first": "Testy",
     "middle": "Tester",
@@ -11,7 +11,7 @@
   "claimantAddress": {
     "city": "Baltimore",
     "country": "USA",
-    "postalCode": "212310000",
+    "postalCode": "21231z1234",
     "veteranAddressLine1": "street",
     "apartmentOrUnitNumber": "1B",
     "state": "MD"

@@ -1,5 +1,6 @@
 binaries:
   # you can specify a full path in settings.local.yml if necessary
+  pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
@@ -256,9 +257,9 @@ reports:
 
 # Settings for SAML authentication
 saml:
-  cert_path: ~/.certs/vetsgov-localhost.crt
-  cert_new_path: ~/.certs/vetsgov-localhost_new.crt
-  key_path: ~/.certs/vetsgov-localhost.key
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: config/certs/vetsgov-localhost_new.crt
+  key_path: config/certs/vetsgov-localhost.key
   # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
   # certificate: ~
   # key: ~
@@ -302,3 +303,6 @@ faraday_socks_proxy:
   uri: socks5://localhost:2002
 
 google_analytics_tracking_id: ~
+
+account:
+  enabled: false
