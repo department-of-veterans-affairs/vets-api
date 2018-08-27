@@ -98,7 +98,7 @@ describe VIC::Service, type: :model do
         ProcessFileJob.drain
         final_pdf = service.combine_files(records)
 
-        expect(PDF::Reader.new(final_pdf).pages.size).to eq(1)
+        expect(PdfInfo::Metadata.read(final_pdf).pages).to eq(1)
 
         File.delete(final_pdf)
       end
@@ -113,7 +113,7 @@ describe VIC::Service, type: :model do
         ProcessFileJob.drain
         final_pdf = service.combine_files(records)
 
-        expect(PDF::Reader.new(final_pdf).pages.size).to eq(2)
+        expect(PdfInfo::Metadata.read(final_pdf).pages).to eq(2)
 
         File.delete(final_pdf)
       end

@@ -179,9 +179,9 @@ module VBADocuments
     def get_hash_and_pages(file_path, part)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PDF::Reader.new(file_path).pages.size
+        pages: PdfInfo::Metadata.read(file_path).pages
       }
-    rescue PDF::Reader::MalformedPDFError
+    rescue PdfInfo::MetadataReadError
       raise VBADocuments::UploadError.new(code: 'DOC103',
                                           detail: "Invalid PDF content, part #{part}")
     end
