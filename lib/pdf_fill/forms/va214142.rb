@@ -124,24 +124,24 @@ module PdfFill
       }.freeze
 
       def merge_fields
-        @form_data['vaFileNumber'] = FormHelper.extract_va_file_number(@form_data['vaFileNumber'])
+        @form_data['vaFileNumber'] = extract_va_file_number(@form_data['vaFileNumber'])
 
         ssn = @form_data['veteranSocialSecurityNumber']
         ['', '1'].each do |suffix|
-          @form_data["veteranSocialSecurityNumber#{suffix}"] = FormHelper.split_ssn(ssn)
+          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
 
-        @form_data['veteranFullName'] = FormHelper.extract_middle_i(@form_data, 'veteranFullName')
+        @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
 
         expand_signature(@form_data['veteranFullName'])
 
         @form_data['printedName'] = @form_data['signature']
 
-        @form_data['claimantAddress']['country'] = FormHelper.extract_country(@form_data['claimantAddress'])
+        @form_data['claimantAddress']['country'] = extract_country(@form_data['claimantAddress'])
 
-        @form_data['claimantAddress']['postalCode'] = FormHelper.split_postal_code(@form_data['claimantAddress'])
+        @form_data['claimantAddress']['postalCode'] = split_postal_code(@form_data['claimantAddress'])
 
-        @form_data['veteranDateOfBirth'] = FormHelper.split_date(@form_data['veteranDateOfBirth'])
+        @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
 
         @form_data
       end
