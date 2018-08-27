@@ -31,6 +31,6 @@ class BackendServices
   SAVE_IN_PROGRESS = 'form-save-in-progress'
   FORM_PREFILL = 'form-prefill'
 
-  # 526 claim for increase has not reached daily or weekly limit
+  # 526 claim for increase beta has not reached daily or weekly limit
   CLAIM_INCREASE_AVAILABLE = 'claim-increase-available'
 end
