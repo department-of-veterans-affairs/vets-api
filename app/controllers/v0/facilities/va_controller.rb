@@ -12,25 +12,15 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    blank_matcher = lambda { |r1, r2|
-      r1.uri.match(r2.uri)
-    }
-    VCR.configure do |c|
-      c.cassette_library_dir = 'spec/support/vcr_cassettes'
-      c.allow_http_connections_when_no_cassette = false
-      c.hook_into :faraday
-    end
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher], allow_playback_repeats: true) do
-      if BaseFacility::TYPES.include?(params[:type])
-        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
-        render json: resource,
-              each_serializer: VAFacilitySerializer,
-              meta: metadata(resource)
-      elsif params[:type] == 'cc_provider'
-        provider_locator
-      else
-        combined
-      end
+    if BaseFacility::TYPES.include?(params[:type])
+      resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
+      render json: resource,
+             each_serializer: VAFacilitySerializer,
+             meta: metadata(resource)
+    elsif params[:type] == 'cc_provider'
+      provider_locator
+    else
+      combined
     end
   end
 
