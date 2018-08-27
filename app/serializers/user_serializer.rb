@@ -112,7 +112,7 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
     service_list << BackendServices::VET360 if object.can_access_vet360?
-    service_list << BackendServices::CLAIM_INCREASE_AVAILABLE if claims_for_increase_availlable?
+    service_list << BackendServices::CLAIM_INCREASE_AVAILABLE if claims_for_increase_available?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
@@ -120,7 +120,7 @@ class UserSerializer < ActiveModel::Serializer
 
   private
 
-  def claims_for_increase_availlable?
+  def claims_for_increase_available?
     object.authorize(:evss, :access?) && !claims_for_increase_limiter.at_limit?
   end
 
