@@ -12,15 +12,25 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    if BaseFacility::TYPES.include?(params[:type])
-      resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
-      render json: resource,
-             each_serializer: VAFacilitySerializer,
-             meta: metadata(resource)
-    elsif params[:type] == 'cc_provider'
-      provider_locator
-    else
-      combined
+    blank_matcher = lambda { |r1, r2|
+      r1.uri.match(r2.uri)
+    }
+    VCR.configure do |c|
+      c.cassette_library_dir = 'spec/support/vcr_cassettes'
+      c.allow_http_connections_when_no_cassette = false
+      c.hook_into :faraday
+    end
+    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher], allow_playback_repeats: true) do
+      if BaseFacility::TYPES.include?(params[:type])
+        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
+        render json: resource,
+              each_serializer: VAFacilitySerializer,
+              meta: metadata(resource)
+      elsif params[:type] == 'cc_provider'
+        provider_locator
+      else
+        combined
+      end
     end
   end
 
@@ -37,7 +47,7 @@ class V0::Facilities::VaController < FacilitiesController
     sorted.map! { |row| format_records(row, ppms) }
     pages = { current_page: page, per_page: BaseFacility.per_page,
               total_pages: total / BaseFacility.per_page, total_entries: total }
-    render json: { data: sorted, metadata: { pagination: pages } }
+    render json: { data: sorted, meta: { pagination: pages } }
   end
 
   def show
@@ -70,7 +80,7 @@ class V0::Facilities::VaController < FacilitiesController
     providers = ppms.provider_locator(params)
     Rails.logger.info(providers.class.name)
     page = 1
-    page = params[:page] if params[:page]
+    page = Integer(params[:page]) if params[:page]
     total = providers.length
     start_ind = (page - 1) * BaseFacility.per_page
     providers = providers[start_ind, BaseFacility.per_page - 1]
@@ -82,7 +92,7 @@ class V0::Facilities::VaController < FacilitiesController
     pages = { current_page: page, per_page: BaseFacility.per_page,
               total_pages: total / BaseFacility.per_page, total_entries: total }
 
-    render json: { data: providers, metadata: { pagination: pages } }
+    render json: { data: providers, meta: { pagination: pages } }
   end
 
   private
@@ -150,9 +160,9 @@ class V0::Facilities::VaController < FacilitiesController
     { id: "ccp_#{provider['ProviderIdentifier']}", type: 'cc_provider', attributes: {
       unique_id: provider['ProviderIdentifier'], name: provider['ProviderName'],
       orgName: '¯\_(ツ)_/¯', lat: provider['Latitude'], long: provider['Longitude'],
-      address: { physical: { address1: prov_info['AddressStreet'], city: prov_info['AddressCity'],
-                             state: prov_info['AddressStateProvince'],
-                             zip: prov_info['AddressPostalCode'] } },
+      address: { street: prov_info['AddressStreet'], city: prov_info['AddressCity'],
+                 state: prov_info['AddressStateProvince'],
+                 zip: prov_info['AddressPostalCode'] },
       phone: prov_info['MainPhone'],
       fax: prov_info['OrganizationFax'],
       website: nil,

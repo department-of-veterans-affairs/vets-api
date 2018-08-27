@@ -73,7 +73,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     blank_matcher = lambda { |r1, r2|
       r1.uri.match(r2.uri)
     }
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
+    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher], allow_playback_repeats: true) do
       get BASE_QUERY_PATH + PDX_BBOX
       expect(response).to be_success
       expect(response.body).to be_a(String)
