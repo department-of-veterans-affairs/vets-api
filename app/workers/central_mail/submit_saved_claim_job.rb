@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_info'
+
 module CentralMail
   class SubmitSavedClaimJob
     include Sidekiq::Worker
@@ -73,7 +75,7 @@ module CentralMail
     def get_hash_and_pages(file_path)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PDF::Reader.new(file_path).pages.size
+        pages: PdfInfo::Metadata.read(file_path).pages
       }
     end
 
