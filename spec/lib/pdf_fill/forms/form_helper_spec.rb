@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'pdf_fill/forms/form_helper'
 
 describe PdfFill::Forms::FormHelper do
-  
   describe '#split_ssn' do
     it 'should return nil' do
       expect(described_class.split_ssn('')).to eq(nil)
@@ -40,9 +39,11 @@ describe PdfFill::Forms::FormHelper do
           'first' => 'testy',
           'last' => 'testerson'
         }
-      }      
-      expect(described_class.extract_middle_i(veteran_full_name, 'veteranFullName')).to eq('first' => 'testy',
-      'last' => 'testerson')
+      }
+      expect(described_class.extract_middle_i(veteran_full_name, 'veteranFullName')).to eq(
+        'first' => 'testy',
+        'last' => 'testerson'
+      )
     end
 
     it 'should extract middle initial when there is a middle name' do
@@ -50,12 +51,12 @@ describe PdfFill::Forms::FormHelper do
         'veteranFullName' => {
           'middle' => 'middle'
         }
-      }    
-      expect(described_class.extract_middle_i(veteran_full_name, 'veteranFullName')).to eq('middle' => 'middle',
-                            'middleInitial' => 'm')
+      }
+      expect(described_class.extract_middle_i(veteran_full_name, 'veteranFullName')).to eq(
+        'middle' => 'middle',
+        'middleInitial' => 'm'
+      )
     end
-
-
   end
 
   describe '#extract_country' do
@@ -124,12 +125,11 @@ describe PdfFill::Forms::FormHelper do
       }
       expect(described_class.split_postal_code(address)).to eq('firstFive' => '12345', 'lastFour' => '')
     end
-
   end
 
-  describe '#split_date' do 
+  describe '#split_date' do
     it 'should return nil with no date' do
-      expect(described_class.split_date(nil)).to be_nil 
+      expect(described_class.split_date(nil)).to be_nil
     end
 
     it 'should return nil if date not correct format (expected yyyy-mm-dd)' do
@@ -142,26 +142,24 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#validate_date' do
-    it 'should return nil with bad data' do 
-      expect(described_class.validate_date('1234567')).to be_nil  
+    it 'should return nil with bad data' do
+      expect(described_class.validate_date('1234567')).to be_nil
     end
 
-    it 'should return nil with nil date' do 
-      expect(described_class.validate_date(nil)).to be_nil 
+    it 'should return nil with nil date' do
+      expect(described_class.validate_date(nil)).to be_nil
     end
 
-    it 'should return false with impossible date' do 
-      expect(described_class.validate_date('2018-01-32')).to be false  
+    it 'should return false with impossible date' do
+      expect(described_class.validate_date('2018-01-32')).to be false
     end
 
-    it 'should return nil with blank date' do 
+    it 'should return nil with blank date' do
       expect(described_class.validate_date('')).to be_nil
     end
 
-    it 'should return date' do 
-      expect(described_class.validate_date('2018-01-01')).to be_truthy  
+    it 'should return date' do
+      expect(described_class.validate_date('2018-01-01')).to be_truthy
     end
-
   end
-
 end
