@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'date'
+
 module PdfFill
   module Forms
-    class FormHelper
+    module FormHelper
+
       def self.split_ssn(veteran_social_security_number)
         return if veteran_social_security_number.blank?
 
@@ -30,7 +33,7 @@ module PdfFill
         return if full_name.blank?
         middle_name = full_name['middle']
         full_name['middleInitial'] = middle_name[0] if middle_name.present?
-        hash[key]
+        full_name
       end
 
       def self.extract_country(address)
@@ -62,8 +65,15 @@ module PdfFill
         end
       end
 
-      def self.split_date(date)
+      def self.validate_date(date)
         return if date.blank?
+        format_ok = date.match(/\d{4}-\d{2}-\d{2}/)
+        parseable = Date.strptime(date, '%Y-%m-%d') rescue false
+        return format_ok && parseable
+      end
+
+      def self.split_date(date)
+        return if !validate_date(date)
         s_date = date.split('-')
         split_date = {
           'month' => s_date[1],
@@ -72,6 +82,8 @@ module PdfFill
         }
         split_date
       end
+
+
     end
   end
 end
