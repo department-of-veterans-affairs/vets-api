@@ -67,7 +67,13 @@ module PdfFill
       def self.validate_date(date)
         return if date.blank?
         format_ok = date.match(/\d{4}-\d{2}-\d{2}/)
-        parseable = Date.strptime(date, '%Y-%m-%d')
+
+        begin
+          parseable = Date.strptime(date, '%Y-%m-%d')
+        rescue ArgumentError
+          false
+        end
+
         format_ok && parseable
       end
 

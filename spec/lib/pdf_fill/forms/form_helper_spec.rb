@@ -150,8 +150,8 @@ describe PdfFill::Forms::FormHelper do
       expect(described_class.validate_date(nil)).to be_nil
     end
 
-    it 'should return false with impossible date' do
-      expect(described_class.validate_date('2018-01-32')).to be false
+    it 'should return nil with impossible date' do
+      expect(described_class.validate_date('2018-01-32')).to be nil
     end
 
     it 'should return nil with blank date' do
