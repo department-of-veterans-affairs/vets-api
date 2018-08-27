@@ -80,19 +80,6 @@ module EVSS
         raise error
       end
 
-      def redis
-        Redis::Namespace.new(REDIS_CONFIG['evss_526_submit_form_rate_limit']['namespace'], redis: Redis.current)
-      end
-
-      def increment_limits
-        increment(:threshold, REDIS_CONFIG['evss_526_submit_form_rate_limit']['threshold_ttl'])
-        increment(:count, REDIS_CONFIG['evss_526_submit_form_rate_limit']['count_ttl'])
-      end
-
-      def increment(key, ttl)
-        redis.expire(key, ttl) if redis.incr(key) == 1
-      end
-
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
       end
