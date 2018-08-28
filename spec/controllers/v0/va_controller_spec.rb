@@ -39,8 +39,9 @@ RSpec.describe V0::Facilities::VaController, type: :controller do
     form = @controller.send :format_provloc, prov, prov_info
     expect(form).to eq(id: 'ccp_a', type: 'cc_provider', attributes: {
                          unique_id: 'a', name: 'b', orgName: '¯\_(ツ)_/¯', lat: 1, long: 2, address: {
-                           physical: { address1: 'e', city: 'f', state: 'g', zip: 'h' }
-                         }, phone: 'i', fax: 'j', website: nil, prefContact: 'k', accNewPatients: true,
+                           street: 'e', city: 'f', state: 'g', zip: 'h'
+                         },
+                         phone: 'i', fax: 'j', website: nil, prefContact: 'k', accNewPatients: true,
                          gender: 'c', distance: 3, network: 'd', specialty: ['l']
                        })
   end
