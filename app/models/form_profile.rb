@@ -107,6 +107,7 @@ class FormProfile
     '22-0993'        => ::FormProfiles::VA0993,
     'COMPLAINT-TOOL' => ::FormProfiles::ComplaintTool,
     '21-4142'        => ::FormProfiles::VA214142
+    'FEEDBACK-TOOL'  => ::FormProfiles::FeedbackTool
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -126,7 +127,7 @@ class FormProfile
     forms += VIC_FORMS if Settings.vic.prefill
     forms << '21-686C'
     forms << '40-10007'
-    forms << 'COMPLAINT-TOOL'
+    forms << 'FEEDBACK-TOOL'
     forms += EVSS_FORMS if Settings.evss.prefill
     forms << '21-4142'
 

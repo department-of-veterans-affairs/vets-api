@@ -392,7 +392,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:vcomplaint_tool_expected) do
+  let(:vfeedback_tool_expected) do
     {
       'address' => {
         'street' => street_check[:street],
@@ -610,8 +610,8 @@ RSpec.describe FormProfile, type: :model do
           stub_methods_for_emis_data('Air Force')
           can_prefill_emis(true)
         end
-        it 'returns prefilled complaint tool' do
-          expect_prefilled('complaint-tool')
+        it 'returns prefilled feedback tool' do
+          expect_prefilled('FEEDBACK-TOOL')
         end
       end
     end
