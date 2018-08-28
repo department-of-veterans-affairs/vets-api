@@ -62,6 +62,10 @@ Rails.application.routes.draw do
     end
 
     resource :dependents_applications, only: [:create]
+      
+    resource :private_medical_records, only: [] do
+     post 'submit'
+    end
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
