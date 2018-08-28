@@ -267,7 +267,6 @@ saml:
     original: http://localhost:3001/auth/login/callback
     alternate: http://doesntexist
     review_instance_slug: ~
-  alternate_relay: http://doesntexists
   logout_relay: http://localhost:3001/logout
 
 sentry:
