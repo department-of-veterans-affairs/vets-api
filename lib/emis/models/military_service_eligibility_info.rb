@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'emis/models/combat_pay'
-require 'emis/models/deployment_location'
+require 'emis/models/deployment'
 require 'emis/models/veteran_status'
 
 module EMIS
