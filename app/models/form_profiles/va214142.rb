@@ -6,7 +6,7 @@ class FormProfiles::VA214142 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/veteran-information'
+      returnUrl: '/private-medical-record'
     }
   end
 
