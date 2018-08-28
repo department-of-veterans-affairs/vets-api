@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'emis/models/deployment'
+require 'emis/models/deployment_location'
 require 'emis/responses/response'
 
 module EMIS
