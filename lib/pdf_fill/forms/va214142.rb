@@ -180,15 +180,15 @@ module PdfFill
             key: 'F[0].#subform[9].VeteransSocialSecurityNumber_LastFourNumbers[1]'
           }
         },
-        'providers' => {
+        'providerFacility' => {
           limit: 5,
           first_key: 'providerOrFacilityName',
           question_text: 'PROVIDERS',
-                      
-          'providerName' => {
+
+          'providerFacilityName' => {
             key: "F[0].provider.name[#{PROVIDER_ITERATOR}]"
           },
-          'datesOfTreatment' => {
+          'treatmentDateRange' => {
             question_text: 'DATES OF TREATMENT AT THIS PROVIDER',
             limit: 2,
             'dateRangeStart' => {
@@ -204,11 +204,11 @@ module PdfFill
               key: "F[#{PROVIDER_ITERATOR}].provider.datesOfTreatment.toDate[1]"
             }
           },
-          'numberAndStreet' => {
+          'street' => {
             limit: 30,
             key: "F[0].provider.numberAndStreet[#{PROVIDER_ITERATOR}]"
           },
-          'apartmentOrUnitNumber' => {
+          'street2' => {
             limit: 5,
             key: "F[0].provider.apartmentOrUnitNumber[#{PROVIDER_ITERATOR}]"
           },
@@ -220,7 +220,7 @@ module PdfFill
             key: "F[0].provider.state[#{PROVIDER_ITERATOR}]"
           },
           'country' => {
-            key:"F[0].provider.country[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.country[#{PROVIDER_ITERATOR}]"
           },
           'postalCode' => {
             'firstFive' => {
@@ -228,65 +228,85 @@ module PdfFill
             },
             'lastFour' => {
               key: "F[0].provider.postalCode_LastFourNumbers[#{PROVIDER_ITERATOR}]"
-            } 
+            }
           }
         }
       }.freeze
 
-      def expand_providers(providers)
-        return if providers.blank?
-
-        providers.each do |provider|
-          provider['postalCode'] = FormHelper.split_postal_code(provider)
-          dates_of_treatment = provider['datesOfTreatment']
-          date_ranges = []
-          dates_of_treatment.each_with_index do |date_of_treatment, index|
-            date_ranges[index] = {
-              "dateRangeStart#{index}" => date_of_treatment['fromDate'],
-              "dateRangeEnd#{index}" => date_of_treatment['toDate']
-            }
-          end
-          provider['datesOfTreatment'] = date_ranges
-        end
-      end
-
-      def merge_fields
-
-        va_file_number = FormHelper.extract_va_file_number(@form_data['vaFileNumber'])
+      def expand_va_file_number
+        va_file_number = extract_va_file_number(@form_data['vaFileNumber'])
         ['', '1'].each do |suffix|
           @form_data["vaFileNumber#{suffix}"] = va_file_number
         end
-        
+      end
+
+      def expand_ssn
         ssn = @form_data['veteranSocialSecurityNumber']
         ['', '1', '2', '3'].each do |suffix|
           @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
+      end
 
+      def expand_claimant_address
+        @form_data['claimantAddress']['country'] = extract_country(@form_data['claimantAddress'])
+        @form_data['claimantAddress']['postalCode'] = split_postal_code(@form_data['claimantAddress'])
+      end
+
+      def expand_veteran_full_name
         ['', '1'].each do |suffix|
           @form_data["veteranFullName#{suffix}"] = extract_middle_i(@form_data, 'veteranFullName')
         end
+      end
+
+      def expand_veteran_dob
+        veteran_date_of_birth = @form_data['veteranDateOfBirth']
+        ['', '1'].each do |suffix|
+          @form_data["veteranDateOfBirth#{suffix}"] = split_date(veteran_date_of_birth)
+        end
+      end
+
+      def expand_veteran_service_number
+        veteran_service_number = @form_data['veteranServiceNumber']
+        if veteran_service_number
+          ['', '1'].each do |suffix|
+            @form_data["veteranServiceNumber#{suffix}"] = veteran_service_number
+          end
+        end
+      end
+
+      def expand_providers(providers)
+        return if providers.blank?
+       
+        providers.each do |provider|
+          dates_of_treatment = provider['treatmentDateRange']
+          date_ranges = {
+            "dateRangeStart" => dates_of_treatment['from'],
+            "dateRangeEnd" => dates_of_treatment['to']
+          }
+          provider['treatmentDateRange'] = date_ranges
+          provider['providerFacilityAddress']['country'] = extract_country(provider['providerFacilityAddress'])
+          provider['providerFacilityAddress']['postalCode'] = split_postal_code(provider['providerFacilityAddress'])
+        end
+      end
+
+      def merge_fields
+        expand_va_file_number
+
+        expand_ssn
+
+        expand_veteran_full_name
 
         expand_signature(@form_data['veteranFullName'])
 
         @form_data['printedName'] = @form_data['signature']
 
-        @form_data['claimantAddress']['country'] = extract_country(@form_data['claimantAddress'])
+        expand_claimant_address
 
-        @form_data['claimantAddress']['postalCode'] = split_postal_code(@form_data['claimantAddress'])
+        expand_veteran_dob
 
-        veteran_date_of_birth = @form_data['veteranDateOfBirth']
-        ['', '1'].each do |suffix|
-          @form_data["veteranDateOfBirth#{suffix}"] = split_date(veteran_date_of_birth)
-        end
+        expand_veteran_service_number
 
-        veteran_service_number = @form_data['veteranServiceNumber']
-        if veteran_service_number
-          ['', '1'].each do |suffix|
-            @form_data["veteranServiceNumber#{suffix}"] =  veteran_service_number
-          end
-        end
-
-        @form_data['providers'] = expand_providers(@form_data['providers'])
+        @form_data['providerFacility'] = expand_providers(@form_data['providerFacility'])
 
         @form_data
       end

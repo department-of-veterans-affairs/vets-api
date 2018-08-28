@@ -138,7 +138,6 @@ module PdfFill
       case form_data
       when Array
         transform_array(form_data, pdftk_keys)
-        binding.pry
       when Hash
         form_data.each do |k, v|
           transform_data(
@@ -146,11 +145,9 @@ module PdfFill
             pdftk_keys: pdftk_keys[k],
             i: i
           )
-          binding.pry
         end
       else
         set_value(form_data, pdftk_keys, i)
-        binding.pry
       end
 
       @pdftk_form

@@ -1,7 +1,7 @@
 {
   "privacyAgreementAccepted": true,
   "vaFileNumber": "12345678",
-  "veteranSocialSecurityNumber": "123-45z6789",
+  "veteranSocialSecurityNumber": "123456789",
   "veteranFullName": {
     "first": "Testy",
     "middle": "Tester",
@@ -11,32 +11,28 @@
   "claimantAddress": {
     "city": "Baltimore",
     "country": "USA",
-    "postalCode": "21231z1234",
+    "postalCode": "21231-1234",
     "veteranAddressLine1": "street",
     "apartmentOrUnitNumber": "1B",
     "state": "MD"
   },
   "claimantEmail": "testy.testerson@gmail.com",
   "claimantPhone": "2123456789",
-  "providers": [
+  "providerFacility": [
     {
-      "providerName": "provider1",
-      "datesOfTreatment": [
-        {
-          "fromDate": "1980-1-1",
-          "toDate": "1985-1-1"
-        },
-        {
-          "fromDate": "1990-1-1",
-          "toDate": "1995-1-1"
-        }
-      ],
-      "numberAndStreet": "123 Main Street",
-      "apartmentOrUnitNumber": "1B",
-      "city": "Baltimore",
-      "state": "MD",
-      "country": "USA",
-      "postalCode": "212001111"
+      "providerFacilityName": "provider1",
+      "treatmentDateRange": {
+        "from": "1980-1-1",
+        "to": "1985-1-1"
+      },
+      "providerFacilityAddress": {
+        "street": "123 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
     }
   ]
 }
