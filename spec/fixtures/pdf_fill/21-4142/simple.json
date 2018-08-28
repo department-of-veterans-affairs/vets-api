@@ -11,9 +11,9 @@
   "claimantAddress": {
     "city": "Baltimore",
     "country": "USA",
-    "postalCode": "21231",
+    "postalCode": "21231-1234",
     "veteranAddressLine1": "street",
-    "apartmentOrUnitNumber": "1ABCDEFG",
+    "apartmentOrUnitNumber": "1B",
     "state": "MD"
   },
   "claimantEmail": "testy.testerson@gmail.com",

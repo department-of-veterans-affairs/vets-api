@@ -230,6 +230,7 @@ Rails.application.routes.draw do
       'profile',
       'dashboard',
       'veteran_id_card',
+      'claim_increase',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
