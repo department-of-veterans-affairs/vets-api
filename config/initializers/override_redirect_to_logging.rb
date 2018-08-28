@@ -15,8 +15,10 @@ end
 # Add our custom log subscriber for redirect_to
 class FilteredLogSubscriber < ActiveSupport::LogSubscriber
   def redirect_to(event)
-    if event.payload[:location].include?(Settings.saml.relay + '?token=')
-      info { "Redirected to #{Settings.saml.relay} with token" }
+    if event.payload[:location].include?(Settings.saml.relay.original + '?token=')
+      info { "Redirected to #{Settings.saml.relay.original} with token" }
+    elsif event.payload[:location].include?(Settings.saml.relay.alternate + '?token=')
+      info { "Redirected to #{Settings.saml.relay.alternate} with token" }
     else
       info { "Redirected to #{event.payload[:location]}" }
     end
