@@ -105,7 +105,7 @@ class FormProfile
     '40-10007'       => ::FormProfiles::VA4010007,
     '21P-527EZ'      => ::FormProfiles::VA21p527ez,
     '22-0993'        => ::FormProfiles::VA0993,
-    'FEEDBACK-TOOL' => ::FormProfiles::FeedbackTool
+    'FEEDBACK-TOOL'  => ::FormProfiles::FeedbackTool
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
