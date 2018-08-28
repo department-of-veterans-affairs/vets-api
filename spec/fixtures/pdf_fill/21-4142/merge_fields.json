@@ -37,5 +37,47 @@
     "day": "05",
     "year": "1981"
   },
-  "claimantPhone": "2123456789"
+  "claimantPhone": "2123456789",
+  "veteranFullName1": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson",
+    "middleInitial": "T"
+  },
+  "veteranSocialSecurityNumber2": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "veteranSocialSecurityNumber3": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "vaFileNumber1": "12345678",
+  "veteranDateOfBirth1": {
+    "month": "11",
+    "day": "05",
+    "year": "1981"
+  },
+  "providerFacility": [
+    {
+      "providerFacilityName": "provider1",
+      "treatmentDateRange": {
+        "dateRangeStart": "1980-1-1",
+        "dateRangeEnd": "1985-1-1"
+      },
+      "providerFacilityAddress": {
+        "street": "123 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "US",
+        "postalCode": {
+          "firstFive": "21200",
+          "lastFour": "1111"
+        }
+      }
+    }
+  ]
 }

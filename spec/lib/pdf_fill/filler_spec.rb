@@ -60,7 +60,7 @@ describe PdfFill::Filler do
       fields[0] == fields[1]
     end
 
-    %w[21P-527EZ 21P-530].each do |form_id|
+    %w[21P-527EZ 21P-530 21-4142].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
@@ -69,7 +69,14 @@ describe PdfFill::Filler do
             end
 
             it 'should fill the form correctly' do
-              fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
+              case form_id
+              when '21P-527EZ'
+                fact_name = :pension_claim
+              when '21P-530'
+                fact_name = :burial_claim
+              when '21-4142'
+                fact_name = :
+
               saved_claim = create(fact_name, form: form_data.to_json)
 
               if type == 'overflow'
@@ -97,24 +104,53 @@ describe PdfFill::Filler do
                 compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
-              File.delete(file_path)
+              #File.delete(file_path)
             end
           end
         end
       end
     end
-  end
 
-  describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[kitchen_sink].each do |type|
-      context "with #{type} test data" do
-        let(:form_data) do
-          get_fixture("pdf_fill/21-4142/#{type}")
-        end
-        it 'should fill the form correctly' do
-          file_path = described_class.fill_ancillary_form('21-4142', form_data, type.to_s)
-          expect(FileUtils.compare_file(file_path, "spec/fixtures/pdf_fill/21-4142/#{type}.pdf")).to eq(true)
-          File.delete(file_path)
+    %w[21-4142].each do |form_id|
+      context "form #{form_id}" do
+        %w[simple kitchen_sink overflow].each do |type|
+          context "with #{type} test data" do
+            let(:form_data) do
+              get_fixture("pdf_fill/#{form_id}/#{type}")
+            end
+
+            it 'should fill the form correctly' do
+              fact_name = form_id
+              saved_claim = create(fact_name, form: form_data.to_json)
+
+              if type == 'overflow'
+                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+                the_extras_generator = nil
+
+                expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
+                  the_extras_generator = extras_generator
+                  old_file_path
+                end
+              end
+
+              file_path = described_class.fill_form(saved_claim)
+
+              if type == 'overflow'
+                extras_path = the_extras_generator.generate
+                expect(
+                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                ).to eq(true)
+
+                File.delete(extras_path)
+              end
+
+              expect(
+                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+              ).to eq(true)
+
+              #File.delete(file_path)
+            end
+          end
         end
       end
     end
