@@ -7,7 +7,7 @@ class GIBillFeedback < Common::RedisStore
   attr_accessor(:user)
   attr_accessor(:form)
 
-  FORM_ID = 'complaint-tool'
+  FORM_ID = 'FEEDBACK-TOOL'
 
   redis_store REDIS_CONFIG['gi_bill_feedback']['namespace']
   redis_ttl REDIS_CONFIG['gi_bill_feedback']['each_ttl']
