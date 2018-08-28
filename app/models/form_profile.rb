@@ -105,7 +105,6 @@ class FormProfile
     '40-10007'       => ::FormProfiles::VA4010007,
     '21P-527EZ'      => ::FormProfiles::VA21p527ez,
     '22-0993'        => ::FormProfiles::VA0993,
-    'COMPLAINT-TOOL' => ::FormProfiles::ComplaintTool,
     '21-4142'        => ::FormProfiles::VA214142
     'FEEDBACK-TOOL'  => ::FormProfiles::FeedbackTool
   }.freeze
