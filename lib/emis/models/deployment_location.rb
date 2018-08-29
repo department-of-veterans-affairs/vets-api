@@ -17,6 +17,5 @@ module EMIS
         begin_date..end_date
       end
     end
-
   end
 end

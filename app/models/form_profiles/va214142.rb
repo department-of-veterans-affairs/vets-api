@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class FormProfiles::VA214142 < FormProfile
-
   def metadata
     {
       version: 0,
@@ -9,6 +8,4 @@ class FormProfiles::VA214142 < FormProfile
       returnUrl: '/private-medical-record'
     }
   end
-
-  
 end
