@@ -1,3 +1,6 @@
-veteran: [veteran_contact_information, veteran]
-veteran_full_name: [identity_information, full_name]
+veteranFullName: [identity_information, full_name]
 veteranSocialSecurityNumber: [identity_information, ssn]
+vaFileNumber: 
+veteranDateOfBirth: [identity_information, date_of_birth]
+veteranAddress: [contact_information, address]
+veteranPhone: [contact_information, us_phone]
