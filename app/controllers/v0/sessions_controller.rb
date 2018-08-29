@@ -122,7 +122,7 @@ module V0
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to Settings.saml.relay + "?auth=fail&code=#{@sso_service.auth_error_code}"
+        redirect_to Settings.saml.relay.original + "?auth=fail&code=#{@sso_service.auth_error_code}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
@@ -184,13 +184,13 @@ module V0
       if current_user.loa[:current] < current_user.loa[:highest]
         SAML::SettingsService.idme_loa3_url(current_user, alt_relay: alternate_saml_relay?)
       else
-        Settings.saml.relay + '?token=' + @session.token
+        Settings.saml.relay.original + '?token=' + @session.token
       end
     rescue NoMethodError
       Raven.user_context(user_context)
       Raven.tags_context(tags_context)
       log_message_to_sentry('SSO Callback Success URL', :warn)
-      Settings.saml.relay + '?token=' + @session.token
+      Settings.saml.relay.original + '?token=' + @session.token
     end
 
     def benchmark_tags(*tags)
