@@ -34,6 +34,7 @@ module EVSS
         transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
         response = service(user).submit_form(form_content)
         transaction_class.update_transaction(jid, :received, response.attributes)
+        submission_rate_limiter.increment
 
         Rails.logger.info('Form526 Submission',
                           'user_uuid' => user.uuid,
@@ -77,6 +78,10 @@ module EVSS
       def handle_gateway_timeout_exception(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
         raise error
+      end
+
+      def submission_rate_limiter
+        Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
       end
     end
   end
