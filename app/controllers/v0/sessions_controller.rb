@@ -59,7 +59,7 @@ module V0
             when 'slo'
               authenticate
               destroy_sso_cookie!
-              SAML::SettingsService.slo_url(session, alt_relay: alternate_saml_relay?)
+              SAML::SettingsService.slo_url(session)
             end
       render json: { url: url }
     end
