@@ -22,4 +22,18 @@ RSpec.describe GIBillFeedback, type: :model do
       end
     end
   end
+
+  describe '#create_submission_job' do
+    it 'should not pass in the user if form is anonymous' do
+      form = gi_bill_feedback.parsed_form
+      form['onBehalfOf'] = 'Anonymous'
+      user = create(:user)
+      gi_bill_feedback.form = form.to_json
+      gi_bill_feedback.instance_variable_set(:@parsed_form, nil)
+      gi_bill_feedback.user = user
+
+      expect(GIBillFeedbackSubmissionJob).to receive(:perform_async).with(gi_bill_feedback.id, form.to_json, nil)
+      gi_bill_feedback.send(:create_submission_job)
+    end
+  end
 end
