@@ -69,11 +69,11 @@ describe PdfFill::Filler do
             end
 
             it 'should fill the form correctly' do
-              unless form_id == '21-4142'
-                fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
-                saved_claim = create(fact_name, form: form_data.to_json)                
-              else
+              if form_id == '21-4142'
                 saved_claim = SavedClaim::PrivateMedicalRecord.new(form: form_data.to_json)
+              else
+                fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
+                saved_claim = create(fact_name, form: form_data.to_json)
               end
 
               if type == 'overflow'
@@ -95,14 +95,14 @@ describe PdfFill::Filler do
                   FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
                 ).to eq(true)
 
-              #  File.delete(extras_path)
+                #  File.delete(extras_path)
               end
 
               expect(
                 compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
-              #File.delete(file_path)
+              # File.delete(file_path)
             end
           end
         end

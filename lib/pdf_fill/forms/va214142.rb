@@ -183,7 +183,7 @@ module PdfFill
         'providerFacility' => {
           limit: 5,
           first_key: 'providerFacilityName',
-          question_text: "PROVIDER / FACILITY",
+          question_text: 'PROVIDER / FACILITY',
 
           'providerFacilityName' => {
             key: "F[0].provider.name[#{PROVIDER_ITERATOR}]",
@@ -192,7 +192,7 @@ module PdfFill
             question_suffix: 'A'
           },
           'treatmentDateRange' => {
-            question_text: "Treatment Date Range",
+            question_text: 'Treatment Date Range',
             limit: 2,
             'dateRangeStart' => {
               key: "F[#{PROVIDER_ITERATOR}].provider.datesOfTreatment.fromDate[0]",
@@ -220,51 +220,51 @@ module PdfFill
             }
           },
           'street' => {
-            question_text: "Provider / Facility Street Address",
+            question_text: 'Provider / Facility Street Address',
             question_num: 9,
-              question_suffix: 'F',
-              limit: 30,
-              key: "F[0].provider.numberAndStreet[#{PROVIDER_ITERATOR}]"
+            question_suffix: 'F',
+            limit: 30,
+            key: "F[0].provider.numberAndStreet[#{PROVIDER_ITERATOR}]"
           },
-            'street2' => {
-              question_text: "Provider / Facility Street Address 2",
+          'street2' => {
+            question_text: 'Provider / Facility Street Address 2',
+            question_num: 9,
+            question_suffix: 'G',
+            limit: 5,
+            key: "F[0].provider.apartmentOrUnitNumber[#{PROVIDER_ITERATOR}]"
+          },
+          'city' => {
+            question_text: 'Provider / Facility City',
+            question_num: 9,
+            question_suffix: 'H',
+            limit: 18,
+            key: "F[0].provider.city[#{PROVIDER_ITERATOR}]"
+          },
+          'state' => {
+            question_text: 'Provider / Facility State',
+            question_num: 9,
+            question_suffix: 'I',
+            key: "F[0].provider.state[#{PROVIDER_ITERATOR}]"
+          },
+          'country' => {
+            question_text: 'Provider / Facility Country',
+            question_num: 9,
+            question_suffix: 'J',
+            key: "F[0].provider.country[#{PROVIDER_ITERATOR}]"
+          },
+          'postalCode' => {
+            question_text: 'Provider Postal Code',
+            'firstFive' => {
+              question_text: 'Provider / Facility Postal Code First Five',
               question_num: 9,
-              question_suffix: 'G',
-              limit: 5,
-              key: "F[0].provider.apartmentOrUnitNumber[#{PROVIDER_ITERATOR}]"
+              question_suffix: 'K',
+              key: "F[0].provider.postalCode_FirstFiveNumbers[#{PROVIDER_ITERATOR}]"
             },
-            'city' => {
-              question_text: "Provider / Facility City",
+            'lastFour' => {
+              question_text: 'Provider / Facility Postal Code Last Four',
               question_num: 9,
-              question_suffix: 'H',
-              limit: 18,
-              key: "F[0].provider.city[#{PROVIDER_ITERATOR}]"
-            },
-            'state' => {
-              question_text: "Provider / Facility State",
-              question_num: 9,
-              question_suffix: 'I',
-              key: "F[0].provider.state[#{PROVIDER_ITERATOR}]"
-            },
-            'country' => {
-              question_text: "Provider / Facility Country",
-              question_num: 9,
-              question_suffix: 'J',
-              key: "F[0].provider.country[#{PROVIDER_ITERATOR}]"
-            },
-            'postalCode' => {
-              question_text: "Provider Postal Code",
-              'firstFive' => {
-                question_text: "Provider / Facility Postal Code First Five",
-                question_num: 9,
-                question_suffix: 'K',
-                key: "F[0].provider.postalCode_FirstFiveNumbers[#{PROVIDER_ITERATOR}]"
-              },
-              'lastFour' => {
-                question_text: "Provider / Facility Postal Code Last Four",
-                question_num: 9,
-                question_suffix: 'L',
-                key: "F[0].provider.postalCode_LastFourNumbers[#{PROVIDER_ITERATOR}]"
+              question_suffix: 'L',
+              key: "F[0].provider.postalCode_LastFourNumbers[#{PROVIDER_ITERATOR}]"
             }
           }
         }
@@ -313,12 +313,12 @@ module PdfFill
 
       def expand_providers(providers)
         return if providers.blank?
-       
+
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
           date_ranges = {
-            "dateRangeStart" => dates_of_treatment['from'],
-            "dateRangeEnd" => dates_of_treatment['to']
+            'dateRangeStart' => dates_of_treatment['from'],
+            'dateRangeEnd' => dates_of_treatment['to']
           }
           provider['treatmentDateRange'] = date_ranges
           provider['street'] = provider['providerFacilityAddress']['street']
