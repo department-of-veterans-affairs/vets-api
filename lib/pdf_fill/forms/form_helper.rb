@@ -8,8 +8,6 @@ module PdfFill
       def split_ssn(veteran_social_security_number)
         return if veteran_social_security_number.blank?
 
-        veteran_social_security_number = veteran_social_security_number.tr('^0-9', '')
-
         split_ssn = {
           'first' => veteran_social_security_number[0..2],
           'second' => veteran_social_security_number[3..4],
@@ -17,14 +15,6 @@ module PdfFill
         }
 
         split_ssn
-      end
-
-      # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
-      # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
-      # potential leading 'c' to ensure the file number will fit into the form without overflow.
-      def extract_va_file_number(va_file_number)
-        return va_file_number if va_file_number.blank? || va_file_number.length < 10
-        va_file_number.sub(/^[Cc]/, '')
       end
 
       def extract_middle_i(hash, key)
@@ -38,8 +28,7 @@ module PdfFill
       def extract_country(address)
         return if address.blank?
         country = address['country']
-        return if country.blank?
-        country[0..1]
+        IsoCountryCodes.find(country).alpha2
       end
 
       def split_postal_code(address)

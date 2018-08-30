@@ -62,7 +62,7 @@ describe PdfFill::Filler do
 
     %w[21-4142].each do |form_id|
       context "form #{form_id}" do
-        %w[overflow].each do |type|
+        %w[simple].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")

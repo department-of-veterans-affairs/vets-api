@@ -6,7 +6,6 @@ module PdfFill
       include FormHelper
 
       PROVIDER_ITERATOR = PdfFill::HashConverter::ITERATOR
-      PROVIDER_TREATMENT_DATE_ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
         'veteranFullName' => {
@@ -191,79 +190,42 @@ module PdfFill
             question_num: 9,
             question_suffix: 'A'
           },
-          'treatmentDateRange' => {
-            question_text: 'Treatment Date Range',
-            limit: 2,
-            'dateRangeStart' => {
-              key: "F[#{PROVIDER_ITERATOR}].provider.datesOfTreatment.fromDate[0]",
-              question_num: 9,
-              question_text: 'Treatment Start Date',
-              question_suffix: 'B'
-            },
-            'dateRangeEnd' => {
-              key: "F[#{PROVIDER_ITERATOR}].provider.datesOfTreatment.toDate[0]",
-              question_num: 9,
-              question_text: 'Treatment End Date',
-              question_suffix: 'C'
-            },
-            'dateRangeStart1' => {
-              key: "F[#{PROVIDER_ITERATOR}].provider.datesOfTreatment.fromDate[1]",
-              question_num: 9,
-              question_text: 'Treatment End Date',
-              question_suffix: 'D'
-            },
-            'dateRangeEnd1' => {
-              key: "F[#{PROVIDER_ITERATOR}].provider.datesOfTreatment.toDate[1]",
-              question_num: 9,
-              question_text: 'Treatment End Date',
-              question_suffix: 'E'
-            }
+          'dateRangeStart0' => {
+            key: "F[0].provider.dateRangeStart0[#{PROVIDER_ITERATOR}]"
+          },
+          'dateRangeEnd0' => {
+            key: "F[0].provider.dateRangeEnd0[#{PROVIDER_ITERATOR}]"
+          },
+          'dateRangeStart1' => {
+              key: "F[0].provider.dateRangeStart1[#{PROVIDER_ITERATOR}]"
+          },
+          'dateRangeEnd1' => {
+            key: "F[0].provider.dateRangeEnd1[#{PROVIDER_ITERATOR}]"
           },
           'street' => {
-            question_text: 'Provider / Facility Street Address',
-            question_num: 9,
-            question_suffix: 'F',
             limit: 30,
             key: "F[0].provider.numberAndStreet[#{PROVIDER_ITERATOR}]"
           },
           'street2' => {
-            question_text: 'Provider / Facility Street Address 2',
-            question_num: 9,
-            question_suffix: 'G',
             limit: 5,
             key: "F[0].provider.apartmentOrUnitNumber[#{PROVIDER_ITERATOR}]"
           },
           'city' => {
-            question_text: 'Provider / Facility City',
-            question_num: 9,
-            question_suffix: 'H',
             limit: 18,
             key: "F[0].provider.city[#{PROVIDER_ITERATOR}]"
           },
           'state' => {
-            question_text: 'Provider / Facility State',
-            question_num: 9,
-            question_suffix: 'I',
             key: "F[0].provider.state[#{PROVIDER_ITERATOR}]"
           },
           'country' => {
-            question_text: 'Provider / Facility Country',
-            question_num: 9,
-            question_suffix: 'J',
             key: "F[0].provider.country[#{PROVIDER_ITERATOR}]"
           },
           'postalCode' => {
             question_text: 'Provider Postal Code',
             'firstFive' => {
-              question_text: 'Provider / Facility Postal Code First Five',
-              question_num: 9,
-              question_suffix: 'K',
               key: "F[0].provider.postalCode_FirstFiveNumbers[#{PROVIDER_ITERATOR}]"
             },
             'lastFour' => {
-              question_text: 'Provider / Facility Postal Code Last Four',
-              question_num: 9,
-              question_suffix: 'L',
               key: "F[0].provider.postalCode_LastFourNumbers[#{PROVIDER_ITERATOR}]"
             }
           }
@@ -271,7 +233,7 @@ module PdfFill
       }.freeze
 
       def expand_va_file_number
-        va_file_number = extract_va_file_number(@form_data['vaFileNumber'])
+        va_file_number = @form_data['vaFileNumber']
         ['', '1'].each do |suffix|
           @form_data["vaFileNumber#{suffix}"] = va_file_number
         end
@@ -285,8 +247,8 @@ module PdfFill
       end
 
       def expand_claimant_address
-        @form_data['claimantAddress']['country'] = extract_country(@form_data['claimantAddress'])
-        @form_data['claimantAddress']['postalCode'] = split_postal_code(@form_data['claimantAddress'])
+        @form_data['veteranAddress']['country'] = extract_country(@form_data['veteranAddress'])
+        @form_data['veteranAddress']['postalCode'] = split_postal_code(@form_data['veteranAddress'])
       end
 
       def expand_veteran_full_name
@@ -316,17 +278,27 @@ module PdfFill
 
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
-          date_ranges = {
-            'dateRangeStart' => dates_of_treatment['from'],
-            'dateRangeEnd' => dates_of_treatment['to']
+          date_ranges = {}
+          dates_of_treatment.each_with_index do |dateRange, index|
+            date_ranges.merge!({
+              "dateRangeStart#{index}" => dateRange['from'],
+              "dateRangeEnd#{index}" => dateRange['to']
+            })
+          end
+          provider.except!('treatmentDateRange')
+          provider.merge!(date_ranges)
+
+          providerAddress = {
+            'street' => provider['providerFacilityAddress']['street'],
+            'street2' => provider['providerFacilityAddress']['street2'],
+            'city' => provider['providerFacilityAddress']['city'],
+            'state' => provider['providerFacilityAddress']['state'],
+            'country' => extract_country(provider['providerFacilityAddress']),
+            'postalCode' => split_postal_code(provider['providerFacilityAddress'])
           }
-          provider['treatmentDateRange'] = date_ranges
-          provider['street'] = provider['providerFacilityAddress']['street']
-          provider['street2'] = provider['providerFacilityAddress']['street2']
-          provider['city'] = provider['providerFacilityAddress']['city']
-          provider['state'] = provider['providerFacilityAddress']['state']
-          provider['country'] = extract_country(provider['providerFacilityAddress'])
-          provider['postalCode'] = split_postal_code(provider['providerFacilityAddress'])
+          provider.except!('providerFacilityAddress')
+          provider.merge!(providerAddress)
+
           # extras_address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
           # PdfFill::FormValue.new(provider['providerFacilityAddress'], extras_address)
         end

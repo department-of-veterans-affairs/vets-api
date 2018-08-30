@@ -42,10 +42,12 @@
     },
     {
       "providerFacilityName": "provider 2",
-      "treatmentDateRange": {
-        "from": "1980-2-1",
-        "to": "1985-2-1"
-      },
+      "treatmentDateRange": [
+        {
+          "from": "1980-2-1",
+          "to": "1985-2-1"
+        }
+      ],
       "providerFacilityAddress": {
         "street": "456 Main Street",
         "street2": "1B",
@@ -57,10 +59,12 @@
     },
     {
       "providerFacilityName": "provider 3",
-      "treatmentDateRange": {
-        "from": "1980-3-1",
-        "to": "1985-3-1"
-      },
+      "treatmentDateRange": [
+        {
+          "from": "1980-3-1",
+          "to": "1985-3-1"
+        }
+      ],
       "providerFacilityAddress": {
         "street": "789 Main Street",
         "street2": "1B",
@@ -72,10 +76,12 @@
     },
     {
       "providerFacilityName": "provider 4",
-      "treatmentDateRange": {
-        "from": "1980-4-1",
-        "to": "1985-4-1"
-      },
+      "treatmentDateRange": [
+        {
+          "from": "1980-4-1",
+          "to": "1985-4-1"
+        }
+      ],
       "providerFacilityAddress": {
         "street": "101 Main Street",
         "street2": "1B",
@@ -87,12 +93,31 @@
     },
     {
       "providerFacilityName": "provider 5",
-      "treatmentDateRange": {
-        "from": "1980-5-1",
-        "to": "1985-5-1"
-      },
+      "treatmentDateRange": [
+        {
+          "from": "1980-5-1",
+          "to": "1985-5-1"
+        }
+      ],
       "providerFacilityAddress": {
         "street": "102 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    },
+    {
+      "providerFacilityName": "provider 6",
+      "treatmentDateRange": [
+        {
+          "from": "1980-6-1",
+          "to": "1985-6-1"
+        }
+      ],
+      "providerFacilityAddress": {
+        "street": "103 Main Street",
         "street2": "1B",
         "city": "Baltimore",
         "state": "MD",

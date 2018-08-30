@@ -414,6 +414,14 @@ module PdfFill
         ]
       end
 
+      # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
+      # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
+      # potential leading 'c' to ensure the file number will fit into the form without overflow.
+      def extract_va_file_number(va_file_number)
+        return va_file_number if va_file_number.blank? || va_file_number.length < 10
+        va_file_number.sub(/^[Cc]/, '')
+      end
+      
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         expand_signature(@form_data['claimantFullName'])
