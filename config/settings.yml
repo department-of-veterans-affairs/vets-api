@@ -76,6 +76,7 @@ ihub:
 evss:
   prefill: true
   url: https://csraciapp6.evss.srarad.com
+  service_name: "wss-form526-services-web"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
