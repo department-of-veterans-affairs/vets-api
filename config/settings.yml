@@ -17,8 +17,9 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
-set_sso_cookie: false
-sso_cookie_key: '$\xBB\xDA\xFD\xB9c;\x05@|w\xEB\x81\xC7\x0EPZ\xEA\xF6\xC2\xD1\x1C\xDCrl;\xDD\x10v\x99\x16\x1D'
+sso:
+  shared_cookie_key: '$\xBB\xDA\xFD\xB9c;\x05@|w\xEB\x81\xC7\x0EPZ\xEA\xF6\xC2\xD1\x1C\xDCrl;\xDD\x10v\x99\x16\x1D'
+  enabled: false
 
 review_instance_slug: ~
 

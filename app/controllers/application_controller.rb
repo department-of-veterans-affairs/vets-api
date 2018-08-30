@@ -147,10 +147,10 @@ class ApplicationController < ActionController::API
   # In a future refactor consider moving some of these methods into a module for some pseudo abstraction
   #  since classes and service objects don't play so nice with controller methods.
   def set_sso_cookie!
-    return unless Settings.set_sso_cookie && Settings.sso_cookie_key
+    return unless Settings.sso.enabled && Settings.sso.shared_cookie_key
     contents = ActiveSupport::JSON.encode(cookie_value)
     cookies[:va_session] = {
-      value: encrypt(contents, Settings.sso_cookie_key),
+      value: encrypt(contents, Settings.sso.shared_cookie_key),
       expires: 30.minutes.from_now,
       httponly: true
     }
