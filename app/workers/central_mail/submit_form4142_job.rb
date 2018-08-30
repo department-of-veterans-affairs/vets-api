@@ -10,39 +10,39 @@ module CentralMail
     # Sidekiq has built in exponential back-off functionality for retrys
     # A max retry attempt of 10 will result in a run time of ~8 hours
     RETRY = 10
- 
+
     sidekiq_options retry: RETRY
- 
+
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     sidekiq_retries_exhausted do |msg, _ex|
-     transaction_class.update_transaction(jid, :exhausted)
-     log_message_to_sentry(
+      transaction_class.update_transaction(jid, :exhausted)
+      log_message_to_sentry(
         "Failed all retries on Form4142 submit, last error: #{msg['error_message']}",
         :error
       )
     end
-    
+
     # Performs an asynchronous job for submitting a form4142 to central mail service
     #
     # @param user_uuid [String] The user's uuid thats associated with the form
     # @param form_content [Hash] The form content that is to be submitted
     # @param claim [Array] The saved claim that is to be submitted
     #
-    def perform(user_uuid, form_content, claim)
+    def perform(user_uuid, _form_content, claim)
       user = User.find(user_uuid)
-      
+
       @claim = claim
-      
+
       transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
-      
-      # TODO uncomment to integrate PDF generation 
-      #@pdf_path = process_record(@claim)
-      
+
+      # TODO: uncomment to integrate PDF generation
+      # @pdf_path = process_record(@claim)
+
       response = CentralMail::Service.new.upload(create_request_body)
-      
-      # TODO uncomment to integrate PDF generation
-      #File.delete(@pdf_path)
-      
+
+      # TODO: uncomment to integrate PDF generation
+      # File.delete(@pdf_path)
+
       transaction_class.update_transaction(jid, :received, response.body)
 
       Rails.logger.info('Form4142 Submission',
@@ -52,29 +52,26 @@ module CentralMail
 
       # Do a clean up of 4142 form from in progress
       CentralMail::SubmitForm4142Cleanup.perform_async(user_uuid)
-      
-      unless response.success?
-        handle_service_exception(response)
-      end     
-      rescue Common::Exceptions::GatewayTimeout => e
-        handle_gateway_timeout_exception(e)
-      rescue StandardError => e
-        # Treat unexpected errors as hard failures
-        # This includes BackeEndService Errors (including 403's)
-        transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
+
+      handle_service_exception(response) unless response.success?
+    rescue Common::Exceptions::GatewayTimeout => e
+      handle_gateway_timeout_exception(e)
+    rescue StandardError => e
+      # Treat unexpected errors as hard failures
+      # This includes BackeEndService Errors (including 403's)
+      transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
     end
 
     def create_request_body
       body = {
-        # TODO uncomment to integrate PDF generation 
-        #'metadata' => generate_metadata.to_json
+        # TODO: uncomment to integrate PDF generation
+        # 'metadata' => generate_metadata.to_json
       }
-      
-      # TODO uncomment to integrate PDF generation 
+
+      # TODO: uncomment to integrate PDF generation
       # body['document'] = to_faraday_upload(@pdf_path)
 
       body
-     
     end
 
     def to_faraday_upload(file_path)
@@ -128,23 +125,22 @@ module CentralMail
     end
 
     def transaction_class
-       AsyncTransaction::CentralMail::VA4142SubmitTransaction
+      AsyncTransaction::CentralMail::VA4142SubmitTransaction
     end
-    
+
     def handle_service_exception(response)
-       if response.status.between?(500, 600)
-         transaction_class.update_transaction(jid, :retrying, response.body)
-         raise error
-       end
-       transaction_class.update_transaction(jid, :non_retryable_error, response.body)
-       extra_content = { status: :non_retryable_error, jid: jid }
-       log_exception_to_sentry(error, extra_content)
+      if response.status.between?(500, 600)
+        transaction_class.update_transaction(jid, :retrying, response.body)
+        raise error
+      end
+      transaction_class.update_transaction(jid, :non_retryable_error, response.body)
+      extra_content = { status: :non_retryable_error, jid: jid }
+      log_exception_to_sentry(error, extra_content)
     end
- 
+
     def handle_gateway_timeout_exception(error)
-       transaction_class.update_transaction(jid, :retrying, error.message)
-       raise error
+      transaction_class.update_transaction(jid, :retrying, error.message)
+      raise error
     end
-    
   end
 end
