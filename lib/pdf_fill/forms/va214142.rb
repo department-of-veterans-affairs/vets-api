@@ -276,12 +276,12 @@ module PdfFill
 
       def expand_providers(providers)
         return if providers.blank?
-       
+
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
           date_ranges = {
-            "dateRangeStart" => dates_of_treatment['from'],
-            "dateRangeEnd" => dates_of_treatment['to']
+            'dateRangeStart' => dates_of_treatment['from'],
+            'dateRangeEnd' => dates_of_treatment['to']
           }
           provider['treatmentDateRange'] = date_ranges
           provider['providerFacilityAddress']['country'] = extract_country(provider['providerFacilityAddress'])
