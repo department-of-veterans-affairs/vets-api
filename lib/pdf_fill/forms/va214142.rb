@@ -54,18 +54,18 @@ module PdfFill
         'veteranServiceNumber' => {
           key: 'F[0].Page_1[0].VeteransServiceNumber[0]'
         },
-        'claimantAddress' => {
+        'veteranAddress' => {
           question_num: 6,
           question_text: 'MAILING ADDRESS',
 
-          'veteranAddressLine1' => {
+          'street' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]',
             limit: 30,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'Number and Street'
           },
-          'apartmentOrUnitNumber' => {
+          'street2' => {
             key: 'F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
             limit: 5,
             question_num: 6,
@@ -95,10 +95,10 @@ module PdfFill
             }
           }
         },
-        'claimantEmail' => {
+        'email' => {
           key: 'F[0].Page_1[0].EMAIL[0]'
         },
-        'claimantPhone' => {
+        'veteranPhone' => {
           key: 'F[0].Page_1[0].EMAIL[1]'
         },
         'veteranSocialSecurityNumber1' => {
