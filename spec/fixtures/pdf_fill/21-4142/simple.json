@@ -12,10 +12,10 @@
     "city": "Baltimore",
     "country": "USA",
     "postalCode": "21231-1234",
-    "veteranAddressLine1": "street",
-    "apartmentOrUnitNumber": "1B",
+    "street": "street",
+    "street2": "1B",
     "state": "MD"
   },
-  "claimantEmail": "testy.testerson@gmail.com",
-  "claimantPhone": "2123456789"
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": "2123456789"
 }

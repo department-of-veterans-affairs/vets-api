@@ -12,6 +12,7 @@ module PdfFill
       end
 
       def combine_name_addr_extras(hash, name_key, address_key)
+        binding.pry
         [hash[name_key], combine_full_address_extras(hash[address_key])].compact.join("\n")
       end
 
