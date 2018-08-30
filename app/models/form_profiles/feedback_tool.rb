@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::ComplaintTool < FormProfile
+class FormProfiles::FeedbackTool < FormProfile
   def metadata
     {
       version: 0,

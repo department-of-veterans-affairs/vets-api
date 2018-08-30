@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_info'
+
 class Shrine
   module Plugins
     module ValidateUnlockedPdf
@@ -7,9 +9,9 @@ class Shrine
         def validate_unlocked_pdf
           return unless get.mime_type == Mime[:pdf].to_s
           cached_path = get.download
-          xref = PDF::Reader::XRef.new cached_path
-          errors << I18n.t('uploads.pdf.locked') if xref.trailer[:Encrypt].present?
-        rescue PDF::Reader::MalformedPDFError
+          metadata = PdfInfo::Metadata.read(cached_path)
+          errors << I18n.t('uploads.pdf.locked') if metadata.encrypted?
+        rescue PdfInfo::MetadataReadError
           errors << I18n.t('uploads.pdf.invalid')
         end
       end
