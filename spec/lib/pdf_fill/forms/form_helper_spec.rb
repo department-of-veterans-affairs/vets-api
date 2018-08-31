@@ -13,20 +13,6 @@ describe PdfFill::Forms::FormHelper do
     it 'should split the ssn' do
       expect(including_class.new.split_ssn('111223333')).to eq('first' => '111', 'second' => '22', 'third' => '3333')
     end
-
-    it 'should remove the extra characters and split the ssn' do
-      expect(including_class.new.split_ssn('111-22-3333')).to eq('first' => '111', 'second' => '22', 'third' => '3333')
-    end
-  end
-
-  describe '#extract_va_file_number' do
-    it 'should strip the leading character' do
-      expect(including_class.new.extract_va_file_number('c123456789')).to eq('123456789')
-    end
-
-    it 'should leave the file number unchanged' do
-      expect(including_class.new.extract_va_file_number('c12345678')).to eq('c12345678')
-    end
   end
 
   describe '#extract_middle_i' do
@@ -61,29 +47,11 @@ describe PdfFill::Forms::FormHelper do
   end
 
   describe '#extract_country' do
-    it 'should return nil with blank address' do
-      expect(including_class.new.extract_country({})).to eq(nil)
-    end
-
-    it 'should return nil with no country' do
-      address = {
-        'city' => 'Baltimore'
-      }
-      expect(including_class.new.extract_country(address)).to eq(nil)
-    end
-
-    it 'should return first two digits for country' do
+    it 'should return the correct code for country' do
       address = {
         'country' => 'USA'
       }
       expect(including_class.new.extract_country(address)).to eq('US')
-    end
-
-    it 'should return nil for blank country' do
-      address = {
-        'country' => ''
-      }
-      expect(including_class.new.extract_country(address)).to eq(nil)
     end
   end
 

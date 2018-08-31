@@ -59,10 +59,10 @@ describe PdfFill::Filler do
 
       fields[0] == fields[1]
     end
-
-    %w[21-4142].each do |form_id|
+# 
+    %w[21P-527EZ 21P-530 21-4142].each do |form_id|
       context "form #{form_id}" do
-        %w[simple].each do |type|
+        %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
@@ -71,6 +71,7 @@ describe PdfFill::Filler do
             it 'should fill the form correctly' do
               if form_id == '21-4142'
                 saved_claim = SavedClaim::PrivateMedicalRecord.new(form: form_data.to_json)
+                allow(saved_claim).to receive(:id).and_return(1)
               else
                 fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
                 saved_claim = create(fact_name, form: form_data.to_json)

@@ -2,6 +2,7 @@
   "privacyAgreementAccepted": true,
   "vaFileNumber": "12345678",
   "veteranSocialSecurityNumber": "123456789",
+  "veteranServiceNumber": "987654321",
   "veteranFullName": {
     "first": "Testy",
     "middle": "Tester",
@@ -18,6 +19,7 @@
   },
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
+  "limitedConsent": "true",
   "providerFacility": [
     {
       "providerFacilityName": "provider 1",
@@ -46,6 +48,10 @@
         {
           "from": "1980-2-1",
           "to": "1985-2-1"
+        },
+        {
+          "from": "1986-2-1",
+          "to": "1987-2-1"
         }
       ],
       "providerFacilityAddress": {
@@ -63,6 +69,10 @@
         {
           "from": "1980-3-1",
           "to": "1985-3-1"
+        },
+        {
+          "from": "1986-3-1",
+          "to": "1987-3-1"
         }
       ],
       "providerFacilityAddress": {
@@ -80,6 +90,10 @@
         {
           "from": "1980-4-1",
           "to": "1985-4-1"
+        },
+        {
+          "from": "1986-4-1",
+          "to": "1987-4-1"
         }
       ],
       "providerFacilityAddress": {
@@ -97,6 +111,10 @@
         {
           "from": "1980-5-1",
           "to": "1985-5-1"
+        },
+        {
+          "from": "1986-5-1",
+          "to": "1987-5-1"
         }
       ],
       "providerFacilityAddress": {
