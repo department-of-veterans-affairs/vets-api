@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180821190945) do
+ActiveRecord::Schema.define(version: 20180831155019) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -99,6 +99,18 @@ ActiveRecord::Schema.define(version: 20180821190945) do
   end
 
   add_index "disability_compensation_submissions", ["user_uuid", "form_type"], name: "index_disability_compensation_submissions_on_uuid_and_form_type", unique: true, using: :btree
+
+  create_table "disability_contentions", force: :cascade do |t|
+    t.integer  "code",         null: false
+    t.string   "medical_term", null: false
+    t.string   "lay_term"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "disability_contentions", ["code"], name: "index_disability_contentions_on_code", unique: true, using: :btree
+  add_index "disability_contentions", ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
+  add_index "disability_contentions", ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
 
   create_table "education_benefits_claims", force: :cascade do |t|
     t.datetime "submitted_at"
