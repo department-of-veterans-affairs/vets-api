@@ -190,7 +190,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       )
     end
 
-    it 'supports adding a preneed' do
+    it 'supports adding a preneed claim' do
       expect(subject).to validate(
         :post,
         '/v0/preneeds/burial_forms',
