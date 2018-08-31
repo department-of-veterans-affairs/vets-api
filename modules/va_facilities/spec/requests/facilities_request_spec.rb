@@ -73,6 +73,15 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['data'].length).to eq(1)
     end
 
+    it 'responds to GET #index with a malformed id' do
+      ids_query_with_extra = ids_query + ',0618B'
+      get base_query_path + ids_query_with_extra, nil, accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(10)
+    end
+
     it 'responds to GET #index with ids where one does not exist' do
       ids_query_with_extra = ids_query + ',vc_0618B'
       get base_query_path + ids_query_with_extra, nil, accept_json

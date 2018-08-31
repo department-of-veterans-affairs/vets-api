@@ -165,8 +165,10 @@ class BaseFacility < ActiveRecord::Base
     def build_result_set_from_ids(ids)
       ids_for_types = ids.split(',').each_with_object({}) do |type_id, obj|
         facility_type, unique_id = type_id.split('_')
-        obj[facility_type] ||= []
-        obj[facility_type].push unique_id
+        if facility_type && unique_id
+          obj[facility_type] ||= []
+          obj[facility_type].push unique_id
+        end
       end
       ids_for_types.map do |facility_type, unique_ids|
         klass = "Facilities::#{facility_type.upcase}Facility".constantize
