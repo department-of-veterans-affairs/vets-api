@@ -274,7 +274,7 @@ module PdfFill
 
       def expand_limited_consent
         unless @form_data['limitedConsent'] == 'true'
-          @form_data['limitedConsent'] = 'no'
+          @form_data['limitedConsent'] = ''
         else
           @form_data['limitedConsent'] = 'yes'
         end
