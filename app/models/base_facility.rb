@@ -148,6 +148,7 @@ class BaseFacility < ActiveRecord::Base
     end
 
     def query(params)
+      # TODO: Sort hours similar to `find_factility_by_id` method on line 146
       return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
       return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
