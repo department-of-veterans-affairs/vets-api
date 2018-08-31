@@ -22,6 +22,7 @@ class FormMilitaryInformation
 
   attribute :post_nov_1998_combat, Boolean
   attribute :last_service_branch, String
+  attribute :gibft_last_service_branch, String
   attribute :last_entry_date, String
   attribute :last_discharge_date, String
   attribute :discharge_type, String

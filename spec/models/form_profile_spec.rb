@@ -497,9 +497,10 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with emis data', skip_emis: true do
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
-      def stub_methods_for_emis_data(military_branch = 'air force')
+      def stub_methods_for_emis_data
         military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return(military_branch)
+        expect(military_information).to receive(:last_service_branch).and_return('air force')
+        expect(military_information).to receive(:gibft_last_service_branch).and_return('Air Force')
         expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
         expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
         expect(military_information).to receive(:discharge_type).and_return('honorable')
@@ -593,9 +594,9 @@ RSpec.describe FormProfile, type: :model do
         end
       end
 
-      context 'with a user that can prefill emis (Air Force)' do
+      context 'with a user that can prefill emis' do
         before do
-          stub_methods_for_emis_data('Air Force')
+          stub_methods_for_emis_data
           can_prefill_emis(true)
         end
         it 'returns prefilled feedback tool' do
