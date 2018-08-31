@@ -89,10 +89,10 @@ ActiveRecord::Schema.define(version: 20180831005436) do
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.datetime "created_at",                 null: false
-    t.datetime "updated_at",                 null: false
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
     t.integer  "disability_compensation_id"
-    t.integer  "async_transactions_id"
+    t.integer  "va526ez_submit_transaction_id"
   end
 
   create_table "education_benefits_claims", force: :cascade do |t|
