@@ -221,7 +221,6 @@ module PdfFill
             key: "F[0].provider.country[#{PROVIDER_ITERATOR}]"
           },
           'postalCode' => {
-            question_text: 'Provider Postal Code',
             'firstFive' => {
               key: "F[0].provider.postalCode_FirstFiveNumbers[#{PROVIDER_ITERATOR}]"
             },
@@ -273,6 +272,14 @@ module PdfFill
         end
       end
 
+      def expand_limited_consent
+        unless @form_data['limitedConsent'] == 'true'
+          @form_data['limitedConsent'] = 'no'
+        else
+          @form_data['limitedConsent'] = 'yes'
+        end
+      end
+
       def expand_providers(providers)
         return if providers.blank?
 
@@ -320,6 +327,8 @@ module PdfFill
         expand_veteran_dob
 
         expand_veteran_service_number
+
+        expand_limited_consent
 
         @form_data['providerFacility'] = expand_providers(@form_data['providerFacility'])
 
