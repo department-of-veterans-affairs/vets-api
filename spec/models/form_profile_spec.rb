@@ -339,13 +339,7 @@ RSpec.describe FormProfile, type: :model do
           'name' => 'Diabetes mellitus0',
           'ratedDisabilityId' => '0',
           'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100,
-          'specialIssues' => [
-            {
-              'code' => 'TRM',
-              'name' => 'Personal Trauma PTSD'
-            }
-          ]
+          'ratingPercentage' => 100
         },
         {
           'diagnosticCode' => 5238,
@@ -354,13 +348,7 @@ RSpec.describe FormProfile, type: :model do
           'name' => 'Diabetes mellitus1',
           'ratedDisabilityId' => '1',
           'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100,
-          'specialIssues' => [
-            {
-              'code' => 'TRM',
-              'name' => 'Personal Trauma PTSD'
-            }
-          ]
+          'ratingPercentage' => 100
         }
       ],
       'servicePeriods' => [
@@ -392,14 +380,14 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:vcomplaint_tool_expected) do
+  let(:vfeedback_tool_expected) do
     {
       'address' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
-        'country' => user.va_profile[:address][:country],
+        'country' => 'US',
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'serviceBranch' => 'Air Force',
@@ -610,9 +598,8 @@ RSpec.describe FormProfile, type: :model do
           stub_methods_for_emis_data('Air Force')
           can_prefill_emis(true)
         end
-        it 'returns prefilled complaint tool' do
-          user.va_profile.address.country = 'US'
-          expect_prefilled('complaint-tool')
+        it 'returns prefilled feedback tool' do
+          expect_prefilled('FEEDBACK-TOOL')
         end
       end
     end
