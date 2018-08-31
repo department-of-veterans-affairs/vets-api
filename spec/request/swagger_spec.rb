@@ -196,7 +196,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         '/v0/preneeds/burial_forms',
         200,
         '_data' => {
-          'application' =>  attributes_for(:burial_form)
+          'application' => attributes_for(:burial_form)
         }
       )
 
