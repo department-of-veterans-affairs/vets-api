@@ -24,7 +24,7 @@ http_interactions:
         5</firstName><lastName>last 5</lastName><maidenName>maiden 5</maidenName><middleName>middle
         5</middleName><suffix>Jr.</suffix></currentName><dateOfBirth>2001-01-31</dateOfBirth><dateOfDeath>2001-01-31</dateOfDeath><gender>Male</gender><isDeceased>unsure</isDeceased><maritalStatus>Married</maritalStatus><militaryServiceNumber>123456789</militaryServiceNumber><placeOfBirth>Brooklyn,
         NY</placeOfBirth><serviceName><firstName>first 6</firstName><lastName>last
-        6</lastName><maidenName>maiden 6</maidenName><middleName>middle 6</middleName><suffix>Jr.</suffix></serviceName><serviceRecords><branchOfService>AF</branchOfService><dischargeType>1</dischargeType><enteredOnDutyDate>1940-08-07</enteredOnDutyDate><highestRank>GEN</highestRank><nationalGuardState>N</nationalGuardState><releaseFromDutyDate>1945-08-07</releaseFromDutyDate></serviceRecords><ssn>123-45-6789</ssn><vaClaimNumber>23456789</vaClaimNumber><militaryStatus>A</militaryStatus></veteran></preNeedRequest></tns:receivePreNeedApplication></env:Body></env:Envelope>
+        6</lastName><maidenName>maiden 6</maidenName><middleName>middle 6</middleName><suffix>Jr.</suffix></serviceName><serviceRecords><branchOfService>AF</branchOfService><dischargeType>1</dischargeType><enteredOnDutyDate>1940-08-07</enteredOnDutyDate><highestRank>GEN</highestRank><nationalGuardState>NY</nationalGuardState><releaseFromDutyDate>1945-08-07</releaseFromDutyDate></serviceRecords><ssn>123-45-6789</ssn><vaClaimNumber>23456789</vaClaimNumber><militaryStatus>A</militaryStatus></veteran></preNeedRequest></tns:receivePreNeedApplication></env:Body></env:Envelope>
     headers:
       Accept:
       - text/xml;charset=UTF-8
@@ -35,7 +35,7 @@ http_interactions:
       Date:
       - Tue, 21 Nov 2017 23:03:55 GMT
       Content-Length:
-      - '3463'
+      - '3464'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:

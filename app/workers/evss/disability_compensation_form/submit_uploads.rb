@@ -21,7 +21,7 @@ module EVSS
         end
       end
 
-      def self.perform(upload_data, claim_id, user)
+      def perform(upload_data, claim_id, user)
         auth_headers = EVSS::AuthHeaders.new(user).to_h
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = SupportingEvidenceAttachment.find_by(guid: upload_data[:confirmationCode]).file_data
