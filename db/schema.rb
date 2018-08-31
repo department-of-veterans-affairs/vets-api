@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180830212116) do
+ActiveRecord::Schema.define(version: 20180831155019) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -108,6 +108,7 @@ ActiveRecord::Schema.define(version: 20180830212116) do
     t.datetime "updated_at",   null: false
   end
 
+  add_index "disability_contentions", ["code"], name: "index_disability_contentions_on_code", unique: true, using: :btree
   add_index "disability_contentions", ["lay_term"], name: "index_disability_contentions_on_lay_term", using: :gin
   add_index "disability_contentions", ["medical_term"], name: "index_disability_contentions_on_medical_term", using: :gin
 
