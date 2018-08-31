@@ -6,7 +6,7 @@ module EVSS
       self.read_timeout = Settings.evss.disability_compensation_form.timeout || 55
 
       def base_path
-        "#{Settings.evss.url}/wss-form526-services-web/rest/form526/v1"
+        "#{Settings.evss.url}/#{Settings.evss.service_name}/rest/form526/v1"
       end
 
       def service_name
