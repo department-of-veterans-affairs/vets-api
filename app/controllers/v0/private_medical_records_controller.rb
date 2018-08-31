@@ -5,27 +5,29 @@ module V0
     FORM_ID = '21-4142'
 
     def submit
-      form_content = JSON.parse(request.body.string)
+      form_content = populate_form_content
 
-      # TODO: uncomment below line to support submission during 526 integration
-      # form_content = InProgressForm.form_for_user(FORM_ID, @current_user) ? if form_content.empty?
+      if form_content.empty?
+        render json: { data: { attributes: { job_id: 'NA' } } },
+               status: :ok
+      else
+        # save the claim
+        claim = SavedClaim::PrivateMedicalRecord.new(form: form_content.to_json)
+        unless claim.save
+          StatsD.increment("#{stats_key}.failure")
+          raise Common::Exceptions::ValidationErrors, claim
+        end
+        StatsD.increment("#{stats_key}.success")
 
-      # save the claim
-      claim = SavedClaim::PrivateMedicalRecord.new(form: form_content.to_json)
-      unless claim.save
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
+        Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+
+        jid = CentralMail::SubmitForm4142Job.perform_async(
+          @current_user.uuid, form_content, claim
+        )
+
+        render json: { data: { attributes: { job_id: jid } } },
+               status: :ok
       end
-      StatsD.increment("#{stats_key}.success")
-
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-
-      jid = CentralMail::SubmitForm4142Job.perform_async(
-        @current_user.uuid, form_content, claim
-      )
-
-      render json: { data: { attributes: { job_id: jid } } },
-             status: :ok
     end
 
     def submission_status
@@ -37,6 +39,19 @@ module V0
 
     def stats_key
       'api.private_medical_records'
+    end
+
+    private
+
+    def populate_form_content
+      form_content = ''
+      if !request.body.string.empty?
+        form_content = JSON.parse(request.body.string)
+      else
+        form = InProgressForm.form_for_user(FORM_ID, @current_user)
+        form_content = JSON.parse(form.form_data) unless form.nil?
+      end
+      form_content
     end
   end
 end
