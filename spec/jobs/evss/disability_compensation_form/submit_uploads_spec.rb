@@ -66,7 +66,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         .and_return(document_data)
 
       expect(client).to receive(:upload).with(attachment.file_data, document_data)
-      subject.new.perform(upload_data, claim_id, user)
+      subject.new.perform(upload_data, claim_id, user.uuid)
     end
   end
 end
