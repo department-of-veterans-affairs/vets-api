@@ -3,6 +3,18 @@
 module AsyncTransaction
   module EVSS
     class VA526ezSubmitTransaction < AsyncTransaction::Base
+      has_one(
+        :disability_compensation_submission,
+        class_name: 'DisabilityCompensationSubmission',
+        inverse_of: :disability_compensation_job,
+        dependent: :destroy
+      )
+      has_one(
+        :saved_claim,
+        through: :disability_compensation_submission,
+        source: :disability_compensation_claim
+      )
+
       JOB_STATUS = {
         submitted: 'submitted',
         received: 'received',
