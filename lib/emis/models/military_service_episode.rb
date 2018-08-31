@@ -16,6 +16,16 @@ module EMIS
         'O' => 'NOAA'
       }.freeze
 
+      GIBFT_SERVICE_BRANCHES = {
+        'A' => 'Army',
+        'C' => 'Coast Guard',
+        'F' => 'Air Force',
+        'H' => 'Public Health Service',
+        'M' => 'Marine Corps',
+        'N' => 'Navy',
+        'O' => 'NOAA'
+      }.freeze
+
       HCA_SERVICE_BRANCHES = {
         'F' => 'air force',
         'A' => 'army',
@@ -60,6 +70,10 @@ module EMIS
 
       def hca_branch_of_service
         HCA_SERVICE_BRANCHES[branch_of_service_code] || 'other'
+      end
+
+      def gibft_branch_of_service
+        GIBFT_SERVICE_BRANCHES[branch_of_service_code]
       end
 
       def branch_of_service

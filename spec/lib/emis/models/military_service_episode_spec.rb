@@ -10,4 +10,12 @@ describe EMIS::Models::MilitaryServiceEpisode do
       )
     end
   end
+
+  describe '#gibft_branch_of_service' do
+    it 'should convert the code into a branch name' do
+      expect(described_class.new(branch_of_service_code: 'F').gibft_branch_of_service).to eq(
+        'Air Force'
+      )
+    end
+  end
 end

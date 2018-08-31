@@ -25,6 +25,7 @@ module EMISRedis
 
     PREFILL_METHODS = %i[
       last_service_branch
+      gibft_last_service_branch
       currently_active_duty
       currently_active_duty_hash
       tours_of_duty
@@ -146,6 +147,10 @@ module EMISRedis
 
     def service_branches
       military_service_episodes.map(&:branch_of_service_code).uniq
+    end
+
+    def gibft_last_service_branch
+      latest_service_episode&.gibft_branch_of_service
     end
 
     def last_service_branch
