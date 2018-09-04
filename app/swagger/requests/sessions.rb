@@ -10,6 +10,8 @@ module Swagger
           key :description, 'Fetch various urls for initiating authentication'
           key :tags, %w[authentication]
 
+          parameter name: :is_va_gov, in: :path, required: false, type: :boolean, description: 'true if the desired success redirect url is for va.gov'
+
           response 200 do
             key :description, 'returns a list of urls for invoking SAML authentication flow'
             schema do
