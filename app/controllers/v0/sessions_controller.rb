@@ -183,7 +183,18 @@ module V0
     def saml_callback_success_url
       if current_user.loa[:current] < current_user.loa[:highest]
         SAML::SettingsService.idme_loa3_url(current_user, alt_relay: params['RelayState']&.start_with?('http'))
-      elsif params['RelayState']&.start_with?('http')
+      else
+        env_specific_success_url
+      end
+    rescue NoMethodError
+      Raven.user_context(user_context)
+      Raven.tags_context(tags_context)
+      log_message_to_sentry('SSO Callback Success URL', :warn)
+      env_specific_success_url
+    end
+
+    def env_specific_success_url
+      if params['RelayState']&.start_with?('http')
         Settings.saml.relay.alternate + '?token=' + @session.token
       else
         Settings.saml.relay.original + '?token=' + @session.token
