@@ -38,7 +38,7 @@ describe PreferencesRedis::Account do
 
       cached_uuid = response.user_account.dig('uuid')
 
-      expect(cached_uuid).to eq (user.account.uuid)
+      expect(cached_uuid).to eq user.account.uuid
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DatabaseCacheable
   class Account
     attr_reader :user_account

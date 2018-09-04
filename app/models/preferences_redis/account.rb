@@ -43,7 +43,7 @@ module PreferencesRedis
       response_from_redis_or_service
     end
 
-    # @return [Hash] with the Account attributes 
+    # @return [Hash] with the Account attributes
     #
     def response
       @response ||= response_from_redis_or_service
