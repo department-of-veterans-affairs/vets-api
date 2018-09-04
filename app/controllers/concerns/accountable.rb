@@ -8,7 +8,7 @@ module Accountable
   # Account.
   #
   def create_user_account
-    return if @current_user&.cached_account&.uuid.present?
+    return if @current_user&.cached_account&.account_uuid.present?
     return unless @current_user.uuid && Settings.account.enabled
 
     Account.create_if_needed! @current_user

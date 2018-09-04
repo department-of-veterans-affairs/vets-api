@@ -21,8 +21,8 @@ module PreferencesRedis
       account
     end
 
-    def uuid
-      response&.user_account #&.uuid
+    def account_uuid
+      response&.user_account&.dig('uuid')
     end
 
     def populate_from_redis
@@ -37,7 +37,7 @@ module PreferencesRedis
 
     def response_from_redis_or_service
       do_cached_with(key: @user.uuid) do
-        DatabaseCacheable::Account.new(@user)  # nil?
+        DatabaseCacheable::Account.new(@user)
       end
     end
   end
