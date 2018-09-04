@@ -28,7 +28,6 @@ module Common
     delegate :redis_namespace_ttl, to: 'self.class'
 
     def self.redis_key(key)
-      byebug
       @redis_namespace_key = key
     end
     delegate :redis_namespace_key, to: 'self.class'
@@ -79,7 +78,6 @@ module Common
 
     def save
       return false unless valid?
-      byebug
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
       expire(redis_namespace_ttl) if defined? redis_namespace_ttl
       @persisted = true
