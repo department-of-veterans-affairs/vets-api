@@ -16,6 +16,13 @@ class Account < ActiveRecord::Base
 
   attr_readonly :uuid
 
+  def self.create_if_needed!(user)
+    find_or_create_by!(idme_uuid: user.uuid) do |account|
+      account.edipi = user&.edipi
+      account.icn   = user&.icn
+    end
+  end
+
   private
 
   def initialize_uuid

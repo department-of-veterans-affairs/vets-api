@@ -11,11 +11,7 @@ module Accountable
     return if @current_user&.cached_account&.uuid.present?
     return unless @current_user.uuid && Settings.account.enabled
 
-
-    Account.find_or_create_by!(idme_uuid: @current_user.uuid) do |account|
-      account.edipi = @current_user&.edipi
-      account.icn   = @current_user&.icn
-    end
+    Account.create_if_needed! @current_user
   rescue StandardError => error
     log error
   end
