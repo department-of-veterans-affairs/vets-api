@@ -3,16 +3,9 @@
 module VaFacilities
   module ApiSerialization
     def id(object)
-      "#{PREFIX_MAP[object.facility_type]}_#{object.unique_id}"
+      "#{object.facility_type_prefix}_#{object.unique_id}"
     end
     module_function :id
-
-    PREFIX_MAP = {
-      'va_health_facility' => 'vha',
-      'va_benefits_facility' => 'vba',
-      'va_cemetery' => 'nca',
-      'vet_center' => 'vc'
-    }.freeze
 
     def services(object)
       result = object.services.dup

@@ -71,6 +71,13 @@ paths:
         services. Only facilities of type "health" and "benefits" may be filtered by available
         services.
 
+        Alternatively, one can retrieve multiple facilities by id using this endpoint by making a
+        request with a comma-separated list of ids like `?ids=id1,id2`. When requesting facilities
+        in bulk by `id`, the API will return as many ids as it can find matches for and omit any
+        ids where there is no match. It will not return an HTTP error code if it is unable to match
+        a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
+        URI path lengths -- usually 2,048 characters.
+
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
         information in the "Link" header.
@@ -78,12 +85,23 @@ paths:
       security:
         - api_key: []
       parameters:
+        - name: ids
+          description: |
+            List of command separated ids of facilities to retrieve in a single request
+          in: query
+          style: form
+          explode: false
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
         - name: bbox[]
           description: |
             Bounding longitude/latitude/longitude/latitude within which facilities will be returned. 
             Bounding box parameters should be specified in WGS84 coordinate reference system.
           in: query
-          required: true
+          required: false
           style: form
           exploded: true
           schema:
