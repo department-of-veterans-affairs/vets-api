@@ -72,7 +72,7 @@ paths:
         services.
 
         Alternatively, one can retrieve multiple facilities by id using this endpoint by making a
-        request with a comma-separated list of ids like `?ids=id1,id1`. When requesting facilities
+        request with a comma-separated list of ids like `?ids=id1,id2`. When requesting facilities
         in bulk by `id`, the API will return as many ids as it can find matches for and omit any
         ids where there is no match. It will not return an HTTP error code if it is unable to match
         a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
