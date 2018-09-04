@@ -43,11 +43,11 @@ module V0
       form_content = populate_form_content
 
       if form_content.empty?
-        render json: {"message": "Unable to find form data"}, status: :ok
+        render json: { "message": 'Unable to find form data' }, status: :ok
       else
         file_path = fill_ancillary_form(form_content, '12345678')
 
-        render json: {"message": file_path}, status: :ok
+        render json: { "message": file_path }, status: :ok
         # render pdf: file_path, status: :ok
       end
     end
