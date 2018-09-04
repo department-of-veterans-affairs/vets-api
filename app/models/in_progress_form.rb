@@ -9,13 +9,17 @@ class InProgressForm < ActiveRecord::Base
     alias type_cast type_cast_for_database
   end
 
-  EXPIRES_AFTER = 60.days
+  EXPIRES_AFTER = {
+    '21-526EZ' => 365.days
+  }
+
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
   validates(:form_data, presence: true)
   validates(:user_uuid, presence: true)
   validate(:id_me_user_uuid)
   before_save :serialize_form_data
+  before_save :set_expires_at
 
   def self.form_for_user(form_id, user)
     InProgressForm.find_by(form_id: form_id, user_uuid: user.uuid)
@@ -32,7 +36,7 @@ class InProgressForm < ActiveRecord::Base
     data = super || {}
     expires = updated_at || Time.current
     data.merge(
-      'expires_at' => (expires + EXPIRES_AFTER).to_i,
+      'expires_at' => self.expires_at.to_i || (expires + expires_after).to_i,
       'last_updated' => updated_at.to_i
     )
   end
@@ -51,5 +55,13 @@ class InProgressForm < ActiveRecord::Base
 
   def serialize_form_data
     self.form_data = form_data.to_json unless form_data.is_a?(String)
+  end
+
+  def set_expires_at
+    self.expires_at = Time.current + expires_after
+  end
+
+  def expires_after
+    EXPIRES_AFTER[self.id] || 60.days
   end
 end
