@@ -13,6 +13,25 @@ RSpec.describe Account, type: :model do
     expect(account.reload.uuid).to eq uuid
   end
 
+  describe '.create_if_needed!' do
+    it 'creates an Account if one does not exist' do
+      expect(Account.count).to eq 0
+
+      user = create(:user, :loa3)
+
+      Account.create_if_needed!(user)
+      expect(Account.count).to eq 1
+    end
+
+    it 'should not create a second Account' do
+      user = create(:user, :accountable)
+      expect(Account.count).to eq 1
+
+      Account.create_if_needed!(user)
+      expect(Account.count).to eq 1
+    end
+  end
+
   describe 'Account factory' do
     it 'should generate a valid factory' do
       account = create :account
