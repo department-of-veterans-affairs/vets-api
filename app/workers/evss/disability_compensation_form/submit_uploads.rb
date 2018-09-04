@@ -16,12 +16,14 @@ module EVSS
         )
         batch.jobs do
           uploads.each do |upload_data|
-            perform_async(upload_data, claim_id, user)
+            perform_async(upload_data, claim_id, user.uuid)
           end
         end
       end
 
-      def perform(upload_data, claim_id, user)
+      def perform(upload_data, claim_id, user_uuid)
+        user = User.find(user_uuid)
+
         auth_headers = EVSS::AuthHeaders.new(user).to_h
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = SupportingEvidenceAttachment.find_by(guid: upload_data[:confirmationCode]).file_data
