@@ -288,8 +288,8 @@ module PdfFill
           date_ranges = {}
           dates_of_treatment.each_with_index do |dateRange, index|
             date_ranges.merge!({
-              "dateRangeStart#{index}" => dateRange['from'],
-              "dateRangeEnd#{index}" => dateRange['to']
+              "dateRangeStart#{index}" => dateRange.first['from'],
+              "dateRangeEnd#{index}" => dateRange.first['to']
             })
           end
           provider.except!('treatmentDateRange')
