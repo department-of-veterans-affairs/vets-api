@@ -65,6 +65,7 @@ Rails.application.routes.draw do
 
     resource :private_medical_records, only: [] do
       post 'submit'
+      post 'make_pdf'
     end
 
     if Settings.central_mail.upload.enabled
