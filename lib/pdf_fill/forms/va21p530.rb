@@ -421,7 +421,7 @@ module PdfFill
         return va_file_number if va_file_number.blank? || va_file_number.length < 10
         va_file_number.sub(/^[Cc]/, '')
       end
-      
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         expand_signature(@form_data['claimantFullName'])

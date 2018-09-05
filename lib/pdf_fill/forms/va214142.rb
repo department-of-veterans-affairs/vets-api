@@ -197,7 +197,7 @@ module PdfFill
             key: "F[0].provider.dateRangeEnd0[#{PROVIDER_ITERATOR}]"
           },
           'dateRangeStart1' => {
-              key: "F[0].provider.dateRangeStart1[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.dateRangeStart1[#{PROVIDER_ITERATOR}]"
           },
           'dateRangeEnd1' => {
             key: "F[0].provider.dateRangeEnd1[#{PROVIDER_ITERATOR}]"
@@ -273,11 +273,11 @@ module PdfFill
       end
 
       def expand_limited_consent
-        unless @form_data['limitedConsent'] == 'true'
-          @form_data['limitedConsent'] = ''
-        else
-          @form_data['limitedConsent'] = 'yes'
-        end
+        @form_data['limitedConsent'] = if @form_data['limitedConsent'] == 'true'
+                                         'yes'
+                                       else
+                                         ''
+                                       end
       end
 
       def expand_providers(providers)
@@ -286,16 +286,16 @@ module PdfFill
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
           date_ranges = {}
-          dates_of_treatment.each_with_index do |dateRange, index|
-            date_ranges.merge!({
-              "dateRangeStart#{index}" => dateRange.first['from'],
-              "dateRangeEnd#{index}" => dateRange.first['to']
-            })
+          dates_of_treatment.each_with_index do |date_range, index|
+            date_ranges.merge!(
+              "dateRangeStart#{index}" => date_range.first['from'],
+              "dateRangeEnd#{index}" => date_range.first['to']
+            )
           end
           provider.except!('treatmentDateRange')
           provider.merge!(date_ranges)
 
-          providerAddress = {
+          provider_address = {
             'street' => provider['providerFacilityAddress']['street'],
             'street2' => provider['providerFacilityAddress']['street2'],
             'city' => provider['providerFacilityAddress']['city'],
@@ -304,7 +304,7 @@ module PdfFill
             'postalCode' => split_postal_code(provider['providerFacilityAddress'])
           }
           provider.except!('providerFacilityAddress')
-          provider.merge!(providerAddress)
+          provider.merge!(provider_address)
 
           # extras_address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
           # PdfFill::FormValue.new(provider['providerFacilityAddress'], extras_address)
