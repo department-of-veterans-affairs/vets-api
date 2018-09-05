@@ -16,7 +16,7 @@ module Swagger
             key :description, 'true if the desired success redirect url is for va.gov'
             key :required, false
             key :type, :string
-            key :enum, ['true', 'false']
+            key :enum, %w[true false]
           end
 
           response 200 do
