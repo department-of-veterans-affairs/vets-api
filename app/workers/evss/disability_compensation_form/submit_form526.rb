@@ -28,10 +28,12 @@ module EVSS
       # @param form_content [Hash] The form content that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
-      def perform(user_uuid, form_content, uploads)
+      def perform(user_uuid, claim_id, form_content, uploads)
         user = User.find(user_uuid)
 
-        transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
+        if transaction_class.find_transaction(jid).blank?
+          saved_claim(claim_id).async_transaction = transaction_class.start(user, jid)
+        end
         response = service(user).submit_form(form_content)
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
@@ -50,15 +52,17 @@ module EVSS
       rescue StandardError => e
         # Treat unexpected errors as hard failures
         # This includes BackeEndService Errors (including 403's)
-        transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(e, extra_content)
+        handle_standard_error(e)
       end
 
       private
 
       def service(user)
         EVSS::DisabilityCompensationForm::Service.new(user)
+      end
+
+      def saved_claim(claim_id)
+        SavedClaim::DisabilityCompensation.find(claim_id)
       end
 
       def transaction_class
@@ -78,6 +82,12 @@ module EVSS
       def handle_gateway_timeout_exception(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
         raise error
+      end
+
+      def handle_standard_error(error)
+        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
+        extra_content = { status: :non_retryable_error, jid: jid }
+        log_exception_to_sentry(error, extra_content)
       end
 
       def submission_rate_limiter

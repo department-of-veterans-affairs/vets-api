@@ -24,6 +24,13 @@ class BaseFacility < ActiveRecord::Base
   DOD_HEALTH = 'dod_health'
   TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER, DOD_HEALTH].freeze
 
+  PREFIX_MAP = {
+    'va_health_facility' => 'vha',
+    'va_benefits_facility' => 'vba',
+    'va_cemetery' => 'nca',
+    'vet_center' => 'vc'
+  }.freeze
+
   FACILITY_MAPPINGS = {
     'va_cemetery' => 'Facilities::NCAFacility',
     'va_benefits_facility' => 'Facilities::VBAFacility',
@@ -141,6 +148,8 @@ class BaseFacility < ActiveRecord::Base
     end
 
     def query(params)
+      # TODO: Sort hours similar to `find_factility_by_id` method on line 146
+      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
       return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
@@ -151,6 +160,20 @@ class BaseFacility < ActiveRecord::Base
       longs = bbox_num.values_at(2, 0)
       conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
       TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
+    end
+
+    def build_result_set_from_ids(ids)
+      ids_for_types = ids.split(',').each_with_object({}) do |type_id, obj|
+        facility_type, unique_id = type_id.split('_')
+        if facility_type && unique_id
+          obj[facility_type] ||= []
+          obj[facility_type].push unique_id
+        end
+      end
+      ids_for_types.map do |facility_type, unique_ids|
+        klass = "Facilities::#{facility_type.upcase}Facility".constantize
+        klass.where(unique_id: unique_ids)
+      end
     end
 
     def get_facility_data(conditions, type, facility_type, services)
@@ -338,6 +361,10 @@ class BaseFacility < ActiveRecord::Base
               'VBA_Facilities' => VBA_MAP,
               'VHA_VetCenters' => VC_MAP,
               'VHA_Facilities' => VHA_MAP }.freeze
+
+  def facility_type_prefix
+    PREFIX_MAP[facility_type]
+  end
 
   private
 
