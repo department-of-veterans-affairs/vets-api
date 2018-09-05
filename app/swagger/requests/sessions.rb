@@ -11,11 +11,12 @@ module Swagger
           key :tags, %w[authentication]
 
           parameter do
-            key :name, :is_va_gov
-            key :in, :path
-            key :required, false
-            key :type, :boolean
+            key :name, 'is_va_gov'
+            key :in, :query
             key :description, 'true if the desired success redirect url is for va.gov'
+            key :required, false
+            key :type, :string
+            key :enum, ['true', 'false']
           end
 
           response 200 do
