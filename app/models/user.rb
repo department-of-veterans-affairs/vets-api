@@ -122,7 +122,6 @@ class User < Common::RedisStore
 
   # mvi attributes
   delegate :birls_id, to: :mvi
-  delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
@@ -131,6 +130,10 @@ class User < Common::RedisStore
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
+
+  def edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
+  end
 
   def va_profile
     mvi.profile
