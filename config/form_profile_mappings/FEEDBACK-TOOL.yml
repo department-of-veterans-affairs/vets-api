@@ -5,4 +5,4 @@ applicantEmail: [contact_information, email]
 phone: [contact_information, us_phone]
 serviceDateRange:
   from: [military_information, last_entry_date]
-  to: [military_information, last_discharge_date] 
+  to: [military_information, last_discharge_date]
