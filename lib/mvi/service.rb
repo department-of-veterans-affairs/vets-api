@@ -36,6 +36,7 @@ module MVI
     #
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
+    # rubocop:disable Metrics/MethodLength
     def find_profile(user)
       with_monitoring do
         Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) do
@@ -60,6 +61,7 @@ module MVI
         MVI::Responses::FindProfileResponse.with_server_error
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
