@@ -4,16 +4,6 @@ module EMISRedis
   class MilitaryInformation < Model
     CLASS_NAME = 'MilitaryInformationService'
 
-    SERVICE_BRANCHES = {
-      'F' => 'air force',
-      'A' => 'army',
-      'C' => 'coast guard',
-      'M' => 'marine corps',
-      'N' => 'navy',
-      'O' => 'noaa',
-      'H' => 'usphs'
-    }.freeze
-
     DISCHARGE_TYPES = {
       'A' => 'honorable',
       'B' => 'general',
@@ -24,8 +14,8 @@ module EMISRedis
     }.freeze
 
     PREFILL_METHODS = %i[
+      hca_last_service_branch
       last_service_branch
-      gibft_last_service_branch
       currently_active_duty
       currently_active_duty_hash
       tours_of_duty
@@ -149,13 +139,12 @@ module EMISRedis
       military_service_episodes.map(&:branch_of_service_code).uniq
     end
 
-    def gibft_last_service_branch
-      latest_service_episode&.gibft_branch_of_service
+    def last_service_branch
+      latest_service_episode&.branch_of_service
     end
 
-    def last_service_branch
-      return if latest_service_episode.blank?
-      latest_service_episode.hca_branch_of_service
+    def hca_last_service_branch
+      latest_service_episode&.hca_branch_of_service
     end
 
     def discharge_type

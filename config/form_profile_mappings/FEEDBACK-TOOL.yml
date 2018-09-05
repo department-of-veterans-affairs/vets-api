@@ -1,5 +1,5 @@
 address: [contact_information, address]
-serviceBranch: [military_information, gibft_last_service_branch]
+serviceBranch: [military_information, last_service_branch]
 fullName: [identity_information, full_name]
 applicantEmail: [contact_information, email]
 phone: [contact_information, us_phone]

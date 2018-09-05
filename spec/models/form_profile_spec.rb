@@ -480,8 +480,7 @@ RSpec.describe FormProfile, type: :model do
         can_prefill_emis(true)
         error = RuntimeError.new('foo')
         expect(Rails.env).to receive(:production?).and_return(true)
-        expect(user.military_information).to receive(:last_service_branch).and_return('air force').and_raise(error)
-
+        expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
         form_profile = described_class.for('1010ez')
         expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
         form_profile.prefill(user)
@@ -499,8 +498,8 @@ RSpec.describe FormProfile, type: :model do
       # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       def stub_methods_for_emis_data
         military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return('air force')
-        expect(military_information).to receive(:gibft_last_service_branch).and_return('Air Force')
+        expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+        expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
         expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
         expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
         expect(military_information).to receive(:discharge_type).and_return('honorable')
@@ -573,6 +572,7 @@ RSpec.describe FormProfile, type: :model do
           21-686C
           1010ez
           22-0993
+          FEEDBACK-TOOL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)
@@ -591,16 +591,6 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
-        end
-      end
-
-      context 'with a user that can prefill emis' do
-        before do
-          stub_methods_for_emis_data
-          can_prefill_emis(true)
-        end
-        it 'returns prefilled feedback tool' do
-          expect_prefilled('FEEDBACK-TOOL')
         end
       end
     end
