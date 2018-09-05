@@ -43,6 +43,9 @@ module MVI
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
       end
+    rescue Breakers::OutageException => e
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      MVI::Responses::FindProfileResponse.with_server_error
     rescue Faraday::ConnectionFailed => e
       log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
