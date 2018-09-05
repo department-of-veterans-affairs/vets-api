@@ -17,7 +17,7 @@ module Swagger
           parameter :optional_authorization
 
           parameter do
-            key :name, :form
+            key :name, :application
             key :in, :body
             key :description, 'Pre-need burial eligibility form data'
             key :required, true
