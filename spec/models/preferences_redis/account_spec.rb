@@ -8,7 +8,7 @@ describe PreferencesRedis::Account do
 
   describe '.for_user' do
     context 'when the cache is empty' do
-      it 'should attempt to cache the user account', :aggregate_failures do
+      it 'should attempt to cache the user account' do
         expect_any_instance_of(PreferencesRedis::Account).to receive(:cache).once
 
         PreferencesRedis::Account.for_user(user)
