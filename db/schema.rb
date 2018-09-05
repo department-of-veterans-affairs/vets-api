@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180831180308) do
+ActiveRecord::Schema.define(version: 20180905174728) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -275,6 +275,20 @@ ActiveRecord::Schema.define(version: 20180831180308) do
   add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
   add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
 
+  create_table "preference_choices", force: :cascade do |t|
+    t.string   "code"
+    t.string   "description"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  create_table "preferences", force: :cascade do |t|
+    t.string   "code"
+    t.string   "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
@@ -324,6 +338,14 @@ ActiveRecord::Schema.define(version: 20180831180308) do
   end
 
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
+
+  create_table "user_preferences", force: :cascade do |t|
+    t.integer  "account_id",           null: false
+    t.integer  "preference_id",        null: false
+    t.integer  "preference_choice_id", null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
   create_table "vba_documents_upload_submissions", force: :cascade do |t|
     t.uuid     "guid",                              null: false
