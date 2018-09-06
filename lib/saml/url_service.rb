@@ -17,7 +17,9 @@ module SAML
     end
 
     def idme_loa3_url(current_user, success_relay: nil)
-      build_sso_url(authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, success_relay: success_relay)
+      build_sso_url(
+        authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, success_relay: success_relay
+      )
     end
 
     def mfa_url(current_user, success_relay: nil)
