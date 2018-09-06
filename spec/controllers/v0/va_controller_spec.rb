@@ -7,13 +7,6 @@ RSpec.describe V0::Facilities::VaController, type: :controller do
     r1.uri.match(r2.uri)
   }
 
-  it 'should 200' do
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
-      get :ppms, params: { Command: 'Providers', Identifier: '12345' }
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   it 'should return a certain data shape' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher], allow_playback_repeats: true) do
       get :provider_locator, address: '22033', bbox: [-78.11, 38.11, -76.11, 39.61]

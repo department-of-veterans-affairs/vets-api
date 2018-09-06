@@ -53,18 +53,6 @@ class V0::Facilities::VaController < FacilitiesController
            each_serializer: VASuggestedFacilitySerializer
   end
 
-  def ppms
-    params.delete 'action'
-    params.delete 'controller'
-    params.delete 'format'
-    command = params.delete 'Command'
-    start = Time.now.utc
-    ppms = Facilities::PPMSClient.new.test_routes(command, params)
-    finish = Time.now.utc
-    ppms = "Latency: #{finish - start}\n" + ppms.to_s
-    render text: ppms
-  end
-
   def provider_locator
     ppms = Facilities::PPMSClient.new
     providers = ppms.provider_locator(params)
