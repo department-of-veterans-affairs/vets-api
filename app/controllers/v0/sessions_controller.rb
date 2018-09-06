@@ -118,13 +118,13 @@ module V0
         @session = @sso_service.new_session
 
         after_login_actions
-        redirect_to saml_callback_success_url
+        redirect_to saml_callback_url + '?token=' + @session.token
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to Settings.saml.relay.original + "?auth=fail&code=#{@sso_service.auth_error_code}"
+        redirect_to saml_callback_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
@@ -182,13 +182,13 @@ module V0
       errors
     end
 
-    def saml_callback_success_url
+    def saml_callback_url
       if current_user.loa[:current] < current_user.loa[:highest]
         SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
       elsif Settings.saml.relays&.to_h&.values&.include?(params['RelayState']) && params['RelayState'].blank? == false
         params['RelayState']
       else
-        (Settings.saml.relay || Saml.relay.relays.vetsgov) + '?token=' + @session.token
+        (Settings.saml.relay || Saml.relay.relays.vetsgov)
       end
     rescue NoMethodError
       Raven.user_context(user_context)
