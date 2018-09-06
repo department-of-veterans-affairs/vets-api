@@ -106,7 +106,6 @@ class FormProfile
     '40-10007'       => ::FormProfiles::VA4010007,
     '21P-527EZ'      => ::FormProfiles::VA21p527ez,
     '22-0993'        => ::FormProfiles::VA0993,
-    '21-4142'        => ::FormProfiles::VA214142,
     'FEEDBACK-TOOL'  => ::FormProfiles::FeedbackTool
   }.freeze
 
@@ -128,7 +127,6 @@ class FormProfile
     forms << '21-686C'
     forms << '40-10007'
     forms += EVSS_FORMS if Settings.evss.prefill
-    forms << '21-4142'
 
     forms
   end
