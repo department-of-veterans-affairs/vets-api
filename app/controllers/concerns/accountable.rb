@@ -8,23 +8,14 @@ module Accountable
   # Account.
   #
   def create_user_account
-    return if account_is_cached?
-    return unless user_eligible?
+    return unless Settings.account.enabled
 
-    Account.create_if_needed! @current_user
+    Account.cache_or_create_by! @current_user
   rescue StandardError => error
     log error
   end
 
   private
-
-  def account_is_cached?
-    @current_user&.cached_account&.account_uuid.present?
-  end
-
-  def user_eligible?
-    @current_user.uuid && Settings.account.enabled
-  end
 
   def log(error)
     log_message_to_sentry(
