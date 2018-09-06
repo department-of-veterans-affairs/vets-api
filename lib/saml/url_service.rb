@@ -4,26 +4,26 @@ module SAML
   # This module is responsible for providing the URLs for the various SSO and SLO endpoints
   module URLService
     # SSO URLS
-    def mhv_url(alt_relay: false)
-      build_sso_url(authn_context: 'myhealthevet', connect: 'myhealthevet', alt_relay: alt_relay)
+    def mhv_url(success_relay: nil)
+      build_sso_url(authn_context: 'myhealthevet', connect: 'myhealthevet', success_relay: success_relay)
     end
 
-    def dslogon_url(alt_relay: false)
-      build_sso_url(authn_context: 'dslogon', connect: 'dslogon', alt_relay: alt_relay)
+    def dslogon_url(success_relay: nil)
+      build_sso_url(authn_context: 'dslogon', connect: 'dslogon', success_relay: success_relay)
     end
 
-    def idme_loa1_url(alt_relay: false)
-      build_sso_url(alt_relay: alt_relay)
+    def idme_loa1_url(success_relay: nil)
+      build_sso_url(success_relay: success_relay)
     end
 
-    def idme_loa3_url(current_user, alt_relay: false)
-      build_sso_url(authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, alt_relay: alt_relay)
+    def idme_loa3_url(current_user, success_relay: nil)
+      build_sso_url(authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, success_relay: success_relay)
     end
 
-    def mfa_url(current_user, alt_relay: false)
+    def mfa_url(current_user, success_relay: nil)
       policy = current_user.authn_context
       authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
-      build_sso_url(authn_context: authn_context, connect: policy, alt_relay: alt_relay)
+      build_sso_url(authn_context: authn_context, connect: policy, success_relay: success_relay)
     end
 
     # SLO URLS
@@ -36,11 +36,11 @@ module SAML
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # nil authn_context and nil connect will always default to idme level 1
     # authn_context is the policy, connect represents the ID.me specific flow.
-    def build_sso_url(authn_context: LOA::MAPPING.invert[1], connect: nil, session: nil, alt_relay: false)
+    def build_sso_url(authn_context: LOA::MAPPING.invert[1], connect: nil, session: nil, success_relay: nil)
       url_settings = url_settings(authn_context: authn_context, name_identifier_value: session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
       connect_param = "&connect=#{connect}"
-      link = saml_auth_request.create(url_settings, saml_options(alt_relay: alt_relay))
+      link = saml_auth_request.create(url_settings, saml_options(success_relay: success_relay))
       connect.present? ? link + connect_param : link
     end
 
@@ -59,11 +59,11 @@ module SAML
       saml_settings(options)
     end
 
-    def saml_options(alt_relay: false)
-      options = if alt_relay
-                  { RelayState: Settings.saml.relays&.vagov }
-                elsif Settings.review_instance_slug.blank? == false
-                  { RelayState: Settings.saml.review_instance_slug || Settings.review_instance_slug }
+    def saml_options(success_relay: nil)
+      options = if Settings.saml.relays&.keys&.include?(success_relay)
+                  { RelayState: Settings.saml.relays[success_relay] }
+                elsif Settings.review_instance_slug || Settings.saml.relays&.review_instance_slug
+                  { RelayState: Settings.review_instance_slug || Settings.saml.relays&.review_instance_slug }
                 else
                   {}
                 end

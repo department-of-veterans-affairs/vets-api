@@ -30,9 +30,9 @@ module V0
     # TODO: DEPRECATED
     def authn_urls
       render json: {
-        mhv: SAML::SettingsService.mhv_url(alt_relay: alternate_saml_relay?),
-        dslogon: SAML::SettingsService.dslogon_url(alt_relay: alternate_saml_relay?),
-        idme: SAML::SettingsService.idme_loa1_url(alt_relay: alternate_saml_relay?)
+        mhv: SAML::SettingsService.mhv_url(success_relay: params[:success_relay]),
+        dslogon: SAML::SettingsService.dslogon_url(success_relay: params[:success_relay]),
+        idme: SAML::SettingsService.idme_loa1_url(success_relay: params[:success_relay])
       }
     end
 
@@ -44,18 +44,18 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url(alt_relay: alternate_saml_relay?)
+              SAML::SettingsService.mhv_url(success_relay: params[:success_relay])
             when 'dslogon'
-              SAML::SettingsService.dslogon_url(alt_relay: alternate_saml_relay?)
+              SAML::SettingsService.dslogon_url(success_relay: params[:success_relay])
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url(alt_relay: alternate_saml_relay?) + query
+              SAML::SettingsService.idme_loa1_url(success_relay: params[:success_relay]) + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user, alt_relay: alternate_saml_relay?)
+              SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay])
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user, alt_relay: alternate_saml_relay?)
+              SAML::SettingsService.idme_loa3_url(current_user, success_relay: params[:success_relay])
             when 'slo'
               authenticate
               destroy_sso_cookie!
@@ -70,7 +70,7 @@ module V0
     # authn_context is the policy, connect represents the ID.me flow
     # TODO: DEPRECATED
     def multifactor
-      render json: { multifactor_url: SAML::SettingsService.mfa_url(current_user, alt_relay: alternate_saml_relay?) }
+      render json: { multifactor_url: SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay]) }
     end
 
     # Member Action: auth token required
@@ -79,7 +79,7 @@ module V0
     # TODO: DEPRECATED
     def identity_proof
       render json: {
-        identity_proof_url: SAML::SettingsService.idme_loa3_url(current_user, alt_relay: alternate_saml_relay?)
+        identity_proof_url: SAML::SettingsService.idme_loa3_url(current_user, success_relay: params[:success_relay])
       }
     end
 
@@ -212,10 +212,6 @@ module V0
       STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
-    end
-
-    def alternate_saml_relay?
-      params[:is_va_gov].present? && params[:is_va_gov] != 'false'
     end
   end
 end
