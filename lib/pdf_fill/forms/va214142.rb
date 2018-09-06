@@ -291,6 +291,7 @@ module PdfFill
         end
         extras_ranges.join("\n")
       end
+
       def expand_provider_date_range(providers)
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
