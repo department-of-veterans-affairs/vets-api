@@ -11,12 +11,12 @@ module Swagger
           key :tags, %w[authentication]
 
           parameter do
-            key :name, 'is_va_gov'
+            key :name, 'success_relay'
             key :in, :query
-            key :description, 'true if the desired success redirect url is for va.gov'
+            key :description, 'Desired relay redirect location after login success'
             key :required, false
             key :type, :string
-            key :enum, %w[true false]
+            key :enum, %w[vetsgov vagov preview_vagov]
           end
 
           response 200 do
