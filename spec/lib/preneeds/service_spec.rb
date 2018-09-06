@@ -5,6 +5,7 @@ require 'preneeds/service'
 
 describe Preneeds::Service do
   let(:subject) { described_class.new }
+  let(:burial_subject) { Preneeds::BurialService.new }
   let(:burial_form) { build(:burial_form) }
 
   describe 'get_cemeteries' do
@@ -115,7 +116,7 @@ describe Preneeds::Service do
           'preneeds/burial_forms/burial_form_with_attachments',
           match_requests_on: [multipart_matcher, :uri, :method]
         ) do
-          subject.receive_pre_need_application(burial_form)
+          burial_subject.receive_pre_need_application(burial_form)
         end
       end
     end
@@ -131,7 +132,7 @@ describe Preneeds::Service do
           'preneeds/burial_forms/creates_a_pre_need_burial_form',
           match_requests_on: %i[method uri body headers]
         ) do
-          subject.receive_pre_need_application burial_form
+          burial_subject.receive_pre_need_application burial_form
         end
 
         expect(application).to be_a(Preneeds::ReceiveApplication)

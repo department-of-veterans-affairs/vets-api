@@ -26,6 +26,10 @@ module V0
 
       private
 
+      def client
+        @client ||= Preneeds::BurialService.new
+      end
+
       def burial_form_params
         params.require(:application).permit(
           :application_status, :has_currently_buried, :sending_code,
