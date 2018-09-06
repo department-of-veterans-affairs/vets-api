@@ -185,7 +185,7 @@ module V0
     def saml_callback_url
       if !current_user.nil? && current_user.loa[:current] < current_user.loa[:highest]
         SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
-      elsif Settings.saml.relays&.to_h&.values&.include?(params['RelayState']) && !params['RelayState'].blank?
+      elsif valid_relay_state?
         params['RelayState']
       else
         (Settings.saml.relay || Saml.relay.relays.vetsgov)
@@ -195,6 +195,10 @@ module V0
       Raven.tags_context(tags_context)
       log_message_to_sentry('SSO Callback Success URL', :warn)
       (Settings.saml.relay || Saml.relay.relays.vetsgov)
+    end
+
+    def valid_relay_state?
+      params['RelayState'].present? && Settings.saml.relays&.to_h&.values&.include?(params['RelayState'])
     end
 
     def benchmark_tags(*tags)
