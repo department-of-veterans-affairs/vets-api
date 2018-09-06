@@ -269,6 +269,7 @@ saml:
   relays:
     vetsgov: https://dev.vets.gov/auth/login/callback
     vagov: https://preview.va.gov/auth/login/callback
+    preview_vagov: ~
     review_instance_slug: ~
   logout_relay: http://localhost:3001/logout
 
