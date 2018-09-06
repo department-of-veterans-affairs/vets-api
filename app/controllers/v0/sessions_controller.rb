@@ -70,8 +70,8 @@ module V0
     # authn_context is the policy, connect represents the ID.me flow
     # TODO: DEPRECATED
     def multifactor
-      render json: { 
-        multifactor_url: SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay]) 
+      render json: {
+        multifactor_url: SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay])
       }
     end
 
