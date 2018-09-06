@@ -6,7 +6,6 @@ module PdfFill
       include FormHelper
 
       PROVIDER_ITERATOR = PdfFill::HashConverter::ITERATOR
-
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -185,10 +184,7 @@ module PdfFill
           question_text: 'PROVIDER / FACILITY',
 
           'providerFacilityName' => {
-            key: "F[0].provider.name[#{PROVIDER_ITERATOR}]",
-            question_text: 'PROVIDER / FACILITY NAME',
-            question_num: 9,
-            question_suffix: 'A'
+            key: "F[0].provider.name[#{PROVIDER_ITERATOR}]"
           },
           'dateRangeStart0' => {
             key: "F[0].provider.dateRangeStart0[#{PROVIDER_ITERATOR}]"
@@ -227,6 +223,18 @@ module PdfFill
             'lastFour' => {
               key: "F[0].provider.postalCode_LastFourNumbers[#{PROVIDER_ITERATOR}]"
             }
+          },
+          'nameAndAddressOfProvider' => {
+            key: '',
+            question_suffix: 'A',
+            question_text: 'Name and Address of Provider',
+            question_num: 9
+          },
+          'combinedTreatmentDates' => {
+            key: '',
+            question_suffix: 'B',
+            question_text: 'Treatment Dates',
+            question_num: 9
           }
         }
       }.freeze
@@ -276,14 +284,14 @@ module PdfFill
         @form_data['limitedConsent'] = @form_data['limitedConsent'] == 'true' ? 'yes' : 'no'
       end
 
-      def expand_provider_date_range
+      def expand_provider_date_range(providers)
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
           date_ranges = {}
           dates_of_treatment.each_with_index do |date_range, index|
             date_ranges.merge!(
-              "dateRangeStart#{index}" => date_range.first['from'],
-              "dateRangeEnd#{index}" => date_range.first['to']
+              "dateRangeStart#{index}" => date_range['from'],
+              "dateRangeEnd#{index}" => date_range['to']
             )
           end
           provider.except!('treatmentDateRange')
@@ -291,7 +299,7 @@ module PdfFill
         end
       end
 
-      def expand_provider_address
+      def expand_provider_address(providers)
         providers.each do |provider|
           provider_address = {
             'street' => provider['providerFacilityAddress']['street'],
@@ -306,13 +314,22 @@ module PdfFill
         end
       end
 
+      def expand_provider_extras(providers)
+        providers.each do |provider|
+          name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
+          name_address = combine_hash(provider, %w[providerFacilityName providerFacilityAddress], ', ')
+          provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new(name_address, name_address_extras)
+
+          dates_extras = combine_date_ranges(provider['treatmentDateRange'])
+          provider['combinedTreatmentDates'] = PdfFill::FormValue.new(dates_extras, dates_extras)
+        end
+      end
+
       def expand_providers(providers)
         return if providers.blank?
-        expand_provider_date_range
-        expand_provider_address
-
-        # extras_address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
-        # PdfFill::FormValue.new(provider['providerFacilityAddress'], extras_address)
+        expand_provider_extras(providers)
+        expand_provider_address(providers)
+        expand_provider_date_range(providers)
       end
 
       def merge_fields

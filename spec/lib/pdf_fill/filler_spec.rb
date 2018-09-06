@@ -59,10 +59,10 @@ describe PdfFill::Filler do
 
       fields[0] == fields[1]
     end
-    #
-    %w[21P-527EZ 21P-530 21-4142].each do |form_id|
+    # 21P-530 21P-527EZ
+    %w[21-4142].each do |form_id|
       context "form #{form_id}" do
-        %w[simple kitchen_sink overflow].each do |type|
+        %w[overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
