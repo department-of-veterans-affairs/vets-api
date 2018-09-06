@@ -3,6 +3,18 @@
 module AsyncTransaction
   module EVSS
     class VA526ezSubmitTransaction < AsyncTransaction::Base
+      has_one(
+        :disability_compensation_submission,
+        class_name: 'DisabilityCompensationSubmission',
+        inverse_of: :disability_compensation_job,
+        dependent: :destroy
+      )
+      has_one(
+        :saved_claim,
+        through: :disability_compensation_submission,
+        source: :disability_compensation_claim
+      )
+
       JOB_STATUS = {
         submitted: 'submitted',
         received: 'received',
@@ -64,7 +76,7 @@ module AsyncTransaction
       def self.update_transaction(job_id, status, response_body = nil)
         raise ArgumentError, "#{status} is not a valid status" unless JOB_STATUS.keys.include?(status)
         transaction = VA526ezSubmitTransaction.find_transaction(job_id)
-        transaction.update(
+        transaction.update_attributes(
           status: (status == :retrying ? REQUESTED : COMPLETED),
           transaction_status: JOB_STATUS[status],
           metadata: response_body || transaction.metadata

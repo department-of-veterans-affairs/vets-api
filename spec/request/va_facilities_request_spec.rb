@@ -9,6 +9,13 @@ RSpec.describe 'VA GIS Integration', type: :request do
   PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
   NY_BBOX = 'bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
 
+  let(:ids_query) do
+    ids = []
+    setup_pdx.each do |facility|
+      ids.push("#{facility.facility_type_prefix}_#{facility.unique_id}") if facility.facility_type != 'dod_health'
+    end
+    "ids=#{ids.join(',')}"
+  end
   let(:setup_pdx) do
     %w[
       vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348
@@ -71,6 +78,15 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox' do
     setup_pdx
     get BASE_QUERY_PATH + PDX_BBOX
+    expect(response).to be_success
+    expect(response.body).to be_a(String)
+    json = JSON.parse(response.body)
+    expect(json['data'].length).to eq(10)
+  end
+
+  it 'responds to GET #index with ids' do
+    setup_pdx
+    get BASE_QUERY_PATH + ids_query
     expect(response).to be_success
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)

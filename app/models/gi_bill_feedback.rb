@@ -42,9 +42,7 @@ class GIBillFeedback < Common::RedisStore
         'city' => attributes[:city],
         'postal_code' => attributes[:zip],
         'state' => attributes[:state],
-        'country' => lambda do
-          IsoCountryCodes.find(attributes[:country]).alpha2 if attributes[:country].present?
-        end.call
+        'country' => attributes[:country]
       }
     }
   end
@@ -100,9 +98,12 @@ class GIBillFeedback < Common::RedisStore
 
   private
 
+  def anonymous?
+    parsed_form['onBehalfOf'] == 'Anonymous'
+  end
+
   def transform_keys_into_array(hash)
-    array = []
-    return array if hash.blank?
+    return [] if hash.blank?
 
     hash.keep_if { |_, v| v.present? }.keys
   end
@@ -114,6 +115,7 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def create_submission_job
-    GIBillFeedbackSubmissionJob.perform_async(id, form, user&.uuid)
+    user_uuid = anonymous? ? nil : user&.uuid
+    GIBillFeedbackSubmissionJob.perform_async(id, form, user_uuid)
   end
 end

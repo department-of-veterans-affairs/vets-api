@@ -112,8 +112,19 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
     service_list << BackendServices::VET360 if object.can_access_vet360?
+    service_list << BackendServices::CLAIM_INCREASE_AVAILABLE if claims_for_increase_available?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
+
+  private
+
+  def claims_for_increase_available?
+    object.authorize(:evss, :access?) && !claims_for_increase_limiter.at_limit?
+  end
+
+  def claims_for_increase_limiter
+    Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
+  end
 end
