@@ -5,6 +5,8 @@ module CentralMail
     include Sidekiq::Worker
     include SentryLogging
 
+    FORM_ID = '21-4142'
+
     FOREIGN_POSTALCODE = '00000'
 
     # Sidekiq has built in exponential back-off functionality for retrys
@@ -22,26 +24,27 @@ module CentralMail
       )
     end
 
-    # Performs an asynchronous job for submitting a form4142 to central mail service
+    # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
-    # @param user_uuid [String] The user's uuid thats associated with the form
-    # @param form_content [Hash] The form content that is to be submitted
-    # @param claim [Array] The saved claim that is to be submitted
+    # @param user_uuid [String] The user's UUID that's associated with the form
+    # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
+    # @param saved_claim [Array] The saved claim of 526 form to set receive date metadata using created_at
+    # @param claim_id [String] Claim id received from EVSS 526 submission to generate unique PDF file path
     #
-    def perform(user_uuid, _form_content, claim)
+    def perform(user_uuid, form_content, saved_claim, claim_id)
+      # find user using uuid
       user = User.find(user_uuid)
 
-      @claim = claim
+      # assign 526 saved claim
+      @claim = saved_claim
 
       transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
 
-      # TODO: uncomment to integrate PDF generation
-      # @pdf_path = process_record(@claim)
+      @pdf_path = process_record(form_content, claim_id)
 
       response = CentralMail::Service.new.upload(create_request_body)
 
-      # TODO: uncomment to integrate PDF generation
-      # File.delete(@pdf_path)
+      File.delete(@pdf_path)
 
       transaction_class.update_transaction(jid, :received, response.body)
 
@@ -49,9 +52,6 @@ module CentralMail
                         'user_uuid' => user.uuid,
                         'job_id' => jid,
                         'job_status' => 'received')
-
-      # Do a clean up of 4142 form from in progress
-      CentralMail::SubmitForm4142Cleanup.perform_async(user_uuid)
 
       handle_service_exception(response) unless response.success?
     rescue Common::Exceptions::GatewayTimeout => e
@@ -81,8 +81,8 @@ module CentralMail
       )
     end
 
-    def process_record(record)
-      pdf_path = record.to_pdf
+    def process_record(form_content, claim_id)
+      pdf_path = fill_ancillary_form(form_content, claim_id)
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
       CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - Vets.gov Submission',
@@ -90,6 +90,32 @@ module CentralMail
         y: 770,
         text_only: true
       )
+    end
+
+    def fill_ancillary_form(form_data, claim_id)
+      form_class = PdfFill::Forms::Va214142
+
+      folder = 'tmp/pdfs'
+      FileUtils.mkdir_p(folder)
+      file_path = "#{folder}/#{FORM_ID}_#{claim_id}.pdf"
+
+      hash_converter = PdfFill::HashConverter.new(form_class.date_strftime)
+
+      new_hash = hash_converter.transform_data(
+        form_data: form_class.new(form_data).merge_fields,
+        pdftk_keys: form_class::KEY
+      )
+
+      PdfFill::Filler::PDF_FORMS.fill_form(
+        "lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf",
+        file_path,
+        new_hash,
+        flatten: false
+      )
+
+      PdfFill::Filler.combine_extras(file_path, hash_converter.extras_generator)
+
+      file_path
     end
 
     def get_hash_and_pages(file_path)
@@ -100,24 +126,23 @@ module CentralMail
     end
 
     def generate_metadata
-      form = @claim.parsed_form
       form_pdf_metadata = get_hash_and_pages(@pdf_path)
       number_attachments = 0
-      veteran_full_name = form['veteranFullName']
-      address = form['claimantAddress'] || form['veteranAddress']
+      veteran_full_name = form_content['veteranFullName']
+      address = form_content['claimantAddress'] || form_content['veteranAddress']
       receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
-        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        'fileNumber' => form_content['vaFileNumber'] || form_content['veteranSocialSecurityNumber'],
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => jid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => 'Vets.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => number_attachments,
-        'docType' => @claim.form_id,
+        'docType' => FORM_ID,
         'numberPages' => form_pdf_metadata[:pages]
       }
 
