@@ -61,9 +61,9 @@ module SAML
 
     def saml_options(alt_relay: false)
       options = if alt_relay
-                  { RelayState: Settings.saml.relay.alternate }
+                  { RelayState: Settings.saml.relays&.vagov }
                 elsif Settings.review_instance_slug.blank? == false
-                  { RelayState: Settings.saml.relay.review_instance_slug }
+                  { RelayState: Settings.saml.review_instance_slug || Settings.review_instance_slug }
                 else
                   {}
                 end

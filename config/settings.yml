@@ -265,9 +265,10 @@ saml:
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
-  relay:
-    original: http://localhost:3001/auth/login/callback
-    alternate: http://doesntexist
+  # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
+  relays:
+    vetsgov: https://dev.vets.gov/auth/login/callback
+    vagov: https://preview.va.gov/auth/login/callback
     review_instance_slug: ~
   logout_relay: http://localhost:3001/logout
 
