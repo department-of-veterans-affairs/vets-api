@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+#
+# TODO:
+# DO NOT REVIEW THIS FILE AS IT WOULD BE DELETED IN SPRINT 3
+# DUE TO 526 and 4142 SUBMIT INTEGRATION
+#
+
 module V0
   class PrivateMedicalRecordsController < ApplicationController
     skip_before_action :authenticate

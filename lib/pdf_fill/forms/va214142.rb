@@ -273,16 +273,10 @@ module PdfFill
       end
 
       def expand_limited_consent
-        @form_data['limitedConsent'] = if @form_data['limitedConsent'] == 'true'
-                                         'yes'
-                                       else
-                                         ''
-                                       end
+        @form_data['limitedConsent'] = @form_data['limitedConsent'] == 'true' ? 'yes' : 'no'
       end
 
-      def expand_providers(providers)
-        return if providers.blank?
-
+      def expand_provider_date_range
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
           date_ranges = {}
@@ -294,7 +288,11 @@ module PdfFill
           end
           provider.except!('treatmentDateRange')
           provider.merge!(date_ranges)
+        end
+      end
 
+      def expand_provider_address
+        providers.each do |provider|
           provider_address = {
             'street' => provider['providerFacilityAddress']['street'],
             'street2' => provider['providerFacilityAddress']['street2'],
@@ -305,10 +303,16 @@ module PdfFill
           }
           provider.except!('providerFacilityAddress')
           provider.merge!(provider_address)
-
-          # extras_address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
-          # PdfFill::FormValue.new(provider['providerFacilityAddress'], extras_address)
         end
+      end
+
+      def expand_providers(providers)
+        return if providers.blank?
+        expand_provider_date_range
+        expand_provider_address
+
+        # extras_address = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
+        # PdfFill::FormValue.new(provider['providerFacilityAddress'], extras_address)
       end
 
       def merge_fields
