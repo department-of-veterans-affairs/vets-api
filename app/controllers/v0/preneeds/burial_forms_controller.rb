@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require 'preneeds/burial_service'
 
 module V0
   module Preneeds
@@ -27,7 +28,7 @@ module V0
       private
 
       def client
-        @client ||= Preneeds::BurialService.new
+        @client ||= ::Preneeds::BurialService.new
       end
 
       def burial_form_params
