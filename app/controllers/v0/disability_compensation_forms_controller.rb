@@ -10,6 +10,13 @@ module V0
              serializer: RatedDisabilitiesSerializer
     end
 
+    def suggested_conditions
+      results = DisabilityContention.suggested(params[:name_part])
+      render json: results,
+        serializer: CollectionSerializer,
+        each_serializer: DisabilityContentionSerializer
+    end
+
     def submit
       form_content = JSON.parse(request.body.string)
 
