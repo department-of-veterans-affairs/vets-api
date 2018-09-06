@@ -182,19 +182,29 @@ module V0
       errors
     end
 
-    def saml_callback_url
-      if !current_user.nil? && current_user.loa[:current] < current_user.loa[:highest]
+    def default_relay_url
+      (Settings.saml.relay || Saml.relay.relays.vetsgov)
+    end
+
+    def saml_logout_relay_url
+      return params['RelayState'] if valid_relay_state?
+      default_relay_url
+    end
+
+    def saml_login_relay_url
+      # TODO: this validation should happen when we create the user, not here
+      if current_user.loa.key?(:highest) == false
+        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
+        return default_relay_url
+      end
+
+      if current_user.loa[:current] < current_user.loa[:highest]
         SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
       elsif valid_relay_state?
         params['RelayState']
       else
-        (Settings.saml.relay || Saml.relay.relays.vetsgov)
+        default_relay_url
       end
-    rescue NoMethodError
-      Raven.user_context(user_context)
-      Raven.tags_context(tags_context)
-      log_message_to_sentry('SSO Callback Success URL', :warn)
-      (Settings.saml.relay || Saml.relay.relays.vetsgov)
     end
 
     def valid_relay_state?
