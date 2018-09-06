@@ -80,7 +80,7 @@ module PdfFill
       def combine_date_ranges(date_range_array)
         extras_ranges = []
         date_range_array.each do |range|
-          extras_ranges.push("from: " + range['from'] + " to: " + range['to'])
+          extras_ranges.push('from: ' + range['from'] + ' to: ' + range['to'])
         end
         extras_ranges.join("\n")
       end
