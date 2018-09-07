@@ -118,13 +118,13 @@ module V0
         @session = @sso_service.new_session
 
         after_login_actions
-        redirect_to saml_callback_url + '?token=' + @session.token
+        redirect_to saml_login_relay_url + '?token=' + @session.token
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to saml_callback_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
+        redirect_to saml_login_relay_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
@@ -186,14 +186,10 @@ module V0
       (Settings.saml.relay || Saml.relay.relays.vetsgov)
     end
 
-    def saml_logout_relay_url
-      return params['RelayState'] if valid_relay_state?
-      default_relay_url
-    end
-
     def saml_login_relay_url
+      return default_relay_url if current_user.nil?
       # TODO: this validation should happen when we create the user, not here
-      if current_user.loa.key?(:highest) == false
+      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
         log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
         return default_relay_url
       end

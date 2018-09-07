@@ -328,11 +328,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
-        it 'handles NoMethodError - and redirects to saml.relay with success token', :aggregate_failures do
-          expect(Raven).to receive(:extra_context).once
-          expect(Raven).to receive(:user_context).once
-          expect(Raven).to receive(:tags_context).twice
-          expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
+        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+          expect(controller).to receive(:log_message_to_sentry).with('ID.me did not provide LOA.highest!', :error)
           post :saml_callback
           expect(response.location).to start_with(Settings.saml.relay + '?token=')
           expect(cookies[:va_session]).not_to be_nil
@@ -355,7 +352,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
-        it 'redirects to an auth failure page', :aggregate_failures do
+        it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
@@ -430,7 +427,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_multi_error) }
 
-        it 'logs a generic error', :aggregate_failures do
+        it 'logs a generic error' do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
