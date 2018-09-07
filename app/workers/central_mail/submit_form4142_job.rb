@@ -34,20 +34,21 @@ module CentralMail
     # @param claim_id [String] Claim id received from EVSS 526 submission to generate unique PDF file path
     # @param saved_claim_created_at [DateTime] Claim receive date time for 526 form
     #
-    def perform(user_uuid, form_content, claim_id, saved_claim_created_at = '')
+    def perform(user_uuid, form_content, claim_id, saved_claim_created_at)
       # find user using uuid
       user = User.find(user_uuid)
 
       # TODO: For debugging purpose
-      # @jid = '2B8B0814-9F28-4997-9D68-B5D5A122F2H'
+      # @jid = '2B8B0814-9F28-4997-9D68-B5D5A122F2V'
 
       transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
 
-      @saved_claim_created_at = saved_claim_created_at
-      @saved_claim_created_at = Time.now.in_time_zone('Central Time (US & Canada)') if @saved_claim_created_at.blank?
+      format_saved_claim_created_at(saved_claim_created_at)
+
+      form_content = form_content.to_json if form_content.is_a?(Hash)
 
       # Parse form content to JSON
-      @parsed_form = JSON.parse(form_content)
+      @parsed_form ||= JSON.parse(form_content)
 
       # process record to create PDF
       @pdf_path = process_record(@parsed_form, claim_id)
@@ -141,7 +142,6 @@ module CentralMail
       number_attachments = 0
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
-      @saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
@@ -158,6 +158,16 @@ module CentralMail
       }
 
       metadata
+    end
+
+    def format_saved_claim_created_at(saved_claim_created_at)
+      @saved_claim_created_at = saved_claim_created_at
+      if @saved_claim_created_at.blank?
+        @saved_claim_created_at = Time.now.in_time_zone('Central Time (US & Canada)')
+      else
+        @saved_claim_created_at = Date.parse(@saved_claim_created_at) if @saved_claim_created_at.is_a?(String)
+        @saved_claim_created_at = @saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
+      end
     end
 
     def transaction_class

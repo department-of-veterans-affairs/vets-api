@@ -3,59 +3,31 @@
 #
 # TODO:
 # DO NOT REVIEW THIS FILE AS IT WOULD BE DELETED IN SPRINT 3
-# DUE TO 526 and 4142 SUBMIT INTEGRATION
+# WHEN THE 526 and 4142 SUBMIT INTEGRATION IS COMPLETED
+# THIS ALSO DEMOS THE CONTRACT BETWEEN 526 AND 4142/4142A IN
+# TERMS OF METHOD PARAMETERS SUPPORTED BY SubmitForm4142Job
 #
 
 module V0
   class PrivateMedicalRecordsController < ApplicationController
-    skip_before_action :authenticate
-
     FORM_ID = '21-4142'
+    CLAIM_ID = '600033692'
 
     # Use Submit Function to demonstrate PDF Generation in Isolation
     def submit
       make_pdf
     end
 
-    # Use this Submit Function for Production
-    # def submit
-    #   form_content = populate_form_content
-    #
-    #   if form_content.empty?
-    #     render json: { data: { attributes: { job_id: 'NA' } } },
-    #            status: :ok
-    #   else
-    #     # save the claim
-    #     claim = SavedClaim::PrivateMedicalRecord.new(form: form_content.to_json)
-    #     unless claim.save
-    #       StatsD.increment("#{stats_key}.failure")
-    #       raise Common::Exceptions::ValidationErrors, claim
-    #     end
-    #     StatsD.increment("#{stats_key}.success")
-    #
-    #     Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
-    #
-    #     jid = 0
-    #     # jid = CentralMail::SubmitForm4142Job.perform_async(
-    #     #   @current_user.uuid, form_content, claim
-    #     # )
-    #
-    #     render json: { data: { attributes: { job_id: jid } } },
-    #            status: :ok
-    #   end
-    # end
-
     def make_pdf
       form_content = populate_form_content
 
-      if form_content.empty?
-        render json: { "message": 'Unable to find form data' }, status: :ok
-      else
-        file_path = fill_ancillary_form(form_content, '12345678')
+      form_content = (File.read 'spec/support/ancillary_forms/submit_form4142.json') if form_content.empty?
 
-        render json: { "message": file_path }, status: :ok
-        # render pdf: file_path, status: :ok
-      end
+      jid = CentralMail::SubmitForm4142Job.perform_async(
+        @current_user.uuid, form_content, CLAIM_ID, Time.now.in_time_zone('Central Time (US & Canada)')
+      )
+      render json: { data: { attributes: { job_id: jid } } },
+             status: :ok
     end
 
     def submission_status
@@ -80,32 +52,6 @@ module V0
         form_content = JSON.parse(form.form_data) unless form.nil?
       end
       form_content
-    end
-
-    def fill_ancillary_form(form_data, claim_id)
-      form_class = PdfFill::Forms::Va214142
-
-      folder = 'tmp/pdf'
-      FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{FORM_ID}_#{claim_id}.pdf"
-
-      hash_converter = PdfFill::HashConverter.new(form_class.date_strftime)
-
-      new_hash = hash_converter.transform_data(
-        form_data: form_class.new(form_data).merge_fields,
-        pdftk_keys: form_class::KEY
-      )
-
-      PdfFill::Filler::PDF_FORMS.fill_form(
-        "lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf",
-        file_path,
-        new_hash,
-        flatten: false
-      )
-
-      PdfFill::Filler.combine_extras(file_path, hash_converter.extras_generator)
-
-      file_path
     end
   end
 end
