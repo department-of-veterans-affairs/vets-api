@@ -3,7 +3,7 @@
 require 'common/client/middleware/logging'
 
 module Preneeds
-  class BurialConfiguration < Configuration
+  class LoggedConfiguration < Configuration
     def connection
       path = Preneeds::Configuration.url
       @faraday ||= Faraday.new(

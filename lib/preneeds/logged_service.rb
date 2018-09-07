@@ -3,7 +3,7 @@
 require 'common/client/base'
 
 module Preneeds
-  class BurialService < Service
-    configuration Preneeds::BurialConfiguration
+  class LoggedService < Service
+    configuration Preneeds::LoggedConfiguration
   end
 end
