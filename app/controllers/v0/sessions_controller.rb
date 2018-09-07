@@ -183,7 +183,7 @@ module V0
     end
 
     def default_relay_url
-      (Settings.saml.relays&.vetsgov || Settings.saml.relay)
+      Settings.saml.relays.vetsgov
     end
 
     def saml_login_relay_url
