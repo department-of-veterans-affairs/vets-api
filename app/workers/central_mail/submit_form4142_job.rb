@@ -15,6 +15,9 @@ module CentralMail
 
     sidekiq_options retry: RETRY
 
+    class CentralMailResponseError < StandardError
+    end
+
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     sidekiq_retries_exhausted do |msg, _ex|
       transaction_class.update_transaction(jid, :exhausted)
@@ -28,22 +31,31 @@ module CentralMail
     #
     # @param user_uuid [String] The user's UUID that's associated with the form
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
-    # @param saved_claim [Array] The saved claim of 526 form to set receive date metadata using created_at
     # @param claim_id [String] Claim id received from EVSS 526 submission to generate unique PDF file path
+    # @param saved_claim_created_at [DateTime] Claim receive date time for 526 form
     #
-    def perform(user_uuid, form_content, saved_claim, claim_id)
+    def perform(user_uuid, form_content, claim_id, saved_claim_created_at = '')
       # find user using uuid
       user = User.find(user_uuid)
 
-      # assign 526 saved claim
-      @claim = saved_claim
+      # TODO: For debugging purpose
+      # @jid = '2B8B0814-9F28-4997-9D68-B5D5A122F2G'
 
       transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
 
+      @saved_claim_created_at = saved_claim_created_at
+      @saved_claim_created_at = Time.now.in_time_zone('Central Time (US & Canada)') if @saved_claim_created_at.blank?
+      @saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
+
+      # process record to create PDF
       @pdf_path = process_record(form_content, claim_id)
+
+      # Parse form content to JSON
+      @parsed_form = JSON.parse(form_content)
 
       response = CentralMail::Service.new.upload(create_request_body)
 
+      # Delete the PDF file
       File.delete(@pdf_path)
 
       transaction_class.update_transaction(jid, :received, response.body)
@@ -53,23 +65,22 @@ module CentralMail
                         'job_id' => jid,
                         'job_status' => 'received')
 
-      handle_service_exception(response) unless response.success?
+      handle_service_exception(response) if response.status.between?(201, 600)
     rescue Common::Exceptions::GatewayTimeout => e
       handle_gateway_timeout_exception(e)
     rescue StandardError => e
       # Treat unexpected errors as hard failures
       # This includes BackeEndService Errors (including 403's)
       transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
+      log_exception_to_sentry(e)
     end
 
     def create_request_body
       body = {
-        # TODO: uncomment to integrate PDF generation
-        # 'metadata' => generate_metadata.to_json
+        'metadata' => generate_metadata.to_json
       }
 
-      # TODO: uncomment to integrate PDF generation
-      # body['document'] = to_faraday_upload(@pdf_path)
+      body['document'] = to_faraday_upload(@pdf_path)
 
       body
     end
@@ -126,17 +137,17 @@ module CentralMail
     end
 
     def generate_metadata
+      form = @parsed_form
       form_pdf_metadata = get_hash_and_pages(@pdf_path)
       number_attachments = 0
-      veteran_full_name = form_content['veteranFullName']
-      address = form_content['claimantAddress'] || form_content['veteranAddress']
-      receive_date = @claim.created_at.in_time_zone('Central Time (US & Canada)')
+      veteran_full_name = form['veteranFullName']
+      address = form['claimantAddress'] || form['veteranAddress']
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
-        'fileNumber' => form_content['vaFileNumber'] || form_content['veteranSocialSecurityNumber'],
-        'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        'receiveDt' => @saved_claim_created_at.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => jid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => 'Vets.gov',
@@ -156,11 +167,11 @@ module CentralMail
     def handle_service_exception(response)
       if response.status.between?(500, 600)
         transaction_class.update_transaction(jid, :retrying, response.body)
-        raise error
+        raise CentralMailResponseError
       end
       transaction_class.update_transaction(jid, :non_retryable_error, response.body)
-      extra_content = { status: :non_retryable_error, jid: jid }
-      log_exception_to_sentry(error, extra_content)
+      extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
+      log_exception_to_sentry(raise(CentralMailResponseError, extra_content))
     end
 
     def handle_gateway_timeout_exception(error)
