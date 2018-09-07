@@ -39,19 +39,18 @@ module CentralMail
       user = User.find(user_uuid)
 
       # TODO: For debugging purpose
-      # @jid = '2B8B0814-9F28-4997-9D68-B5D5A122F2G'
+      # @jid = '2B8B0814-9F28-4997-9D68-B5D5A122F2H'
 
       transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
 
       @saved_claim_created_at = saved_claim_created_at
       @saved_claim_created_at = Time.now.in_time_zone('Central Time (US & Canada)') if @saved_claim_created_at.blank?
-      @saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
-
-      # process record to create PDF
-      @pdf_path = process_record(form_content, claim_id)
 
       # Parse form content to JSON
       @parsed_form = JSON.parse(form_content)
+
+      # process record to create PDF
+      @pdf_path = process_record(@parsed_form, claim_id)
 
       response = CentralMail::Service.new.upload(create_request_body)
 
@@ -142,6 +141,7 @@ module CentralMail
       number_attachments = 0
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
+      @saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
