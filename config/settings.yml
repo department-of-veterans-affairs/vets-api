@@ -20,6 +20,8 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 set_sso_cookie: false
 sso_cookie_key: '$\xBB\xDA\xFD\xB9c;\x05@|w\xEB\x81\xC7\x0EPZ\xEA\xF6\xC2\xD1\x1C\xDCrl;\xDD\x10v\x99\x16\x1D'
 
+review_instance_slug: ~
+
 sidekiq_admin_panel: false
 
 salesforce-gibft:
@@ -266,6 +268,7 @@ saml:
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
+  relay: https://dev.vets.gov/auth/login/callback
   relays:
     vetsgov: https://dev.vets.gov/auth/login/callback
     vagov: https://preview.va.gov/auth/login/callback
