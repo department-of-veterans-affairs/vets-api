@@ -117,6 +117,34 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
         end
+
+        describe 'GET ?success_relay=vagov' do
+          context 'with a non-nil relay setting' do
+            let(:fake_vagov_url) { 'http://fake-vagov' }
+            before do
+              with_settings(Settings.saml.relays, vagov: fake_vagov_url) do
+                get(:new, type: :idme, success_relay: 'vagov')
+              end
+            end
+
+            it 'returns a RelayState of vagov' do
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['url']).to include("&RelayState=#{CGI.escape(fake_vagov_url)}")
+            end
+          end
+          context 'with a nil relay setting' do
+            before do
+              with_settings(Settings.saml.relays, vagov: nil) do
+                get(:new, type: :idme, success_relay: 'vagov')
+              end
+            end
+
+            it 'does not contain a RelayState' do
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['url']).to_not include('RelayState')
+            end
+          end
+        end
       end
 
       context 'routes requiring auth' do
