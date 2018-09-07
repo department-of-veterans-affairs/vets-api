@@ -3,6 +3,9 @@
 module SAML
   # This module is responsible for providing the URLs for the various SSO and SLO endpoints
   module URLService
+    # converts from symbols to strings
+    SUCCESS_RELAY_KEYS = Settings.saml.relays&.keys&.map { |k| k.to_s }
+
     # SSO URLS
     def mhv_url(success_relay: nil)
       build_sso_url(authn_context: 'myhealthevet', connect: 'myhealthevet', success_relay: success_relay)
@@ -62,7 +65,7 @@ module SAML
     end
 
     def saml_options(success_relay: nil)
-      options = if Settings.saml.relays&.keys&.include?(success_relay)
+      options = if SUCCESS_RELAY_KEYS.include?(success_relay) && Settings.saml.relays[success_relay].present?
                   { RelayState: Settings.saml.relays[success_relay] }
                 elsif Settings.review_instance_slug
                   { RelayState: Settings.review_instance_slug }
