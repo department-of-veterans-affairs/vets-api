@@ -73,23 +73,23 @@ RSpec.describe 'Disability compensation form', type: :request do
       create(:disability_contention_arthritis)
     end
 
-    let(:conditions) { JSON.parse(response.body['data']) }
+    let(:conditions) { JSON.parse(response.body)['data'] }
 
     it 'returns matching conditions', :aggregate_failures do
-      get '/v0/disability_compensation_form/suggested_conditions?name_part=art'
+      get '/v0/disability_compensation_form/suggested_conditions?name_part=art', nil, auth_header
       expect(response).to have_http_status(:ok)
-      # expect(response).to match_response_schema('suggested_conditions')
+      expect(response).to match_response_schema('suggested_conditions')
       expect(conditions.count).to eq 3
     end
 
     it 'returns an empty array when no conditions match', :aggregate_failures do
-      get '/v0/disability_compensation_form/suggested_conditions?name_part=xyz'
+      get '/v0/disability_compensation_form/suggested_conditions?name_part=xyz', nil, auth_header
       expect(response).to have_http_status(:ok)
       expect(conditions.count).to eq 0
     end
 
     it 'returns a 500 when name_part is missing' do
-      get '/v0/disability_compensation_form/suggested_conditions'
+      get '/v0/disability_compensation_form/suggested_conditions', nil, auth_header
       expect(response).to have_http_status(:bad_request)
     end
   end
