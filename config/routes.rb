@@ -124,8 +124,9 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      resources :ccp, only: %i[show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
-      get 'ppms', to: 'va#ppms'
+      get 'ppms', to: 'ccp#ppms'
       get 'provider_locator', to: 'va#provider_locator'
     end
 
