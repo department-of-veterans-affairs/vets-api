@@ -117,6 +117,34 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
         end
+
+        describe 'GET ?success_relay=vagov' do
+          context 'with a non-nil relay setting' do
+            let(:fake_vagov_url) { 'http://fake-vagov' }
+            before do
+              with_settings(Settings.saml.relays, vagov: fake_vagov_url) do
+                get(:new, type: :idme, success_relay: 'vagov')
+              end
+            end
+
+            it 'returns a RelayState of vagov' do
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['url']).to include("&RelayState=#{CGI.escape(fake_vagov_url)}")
+            end
+          end
+          context 'with a nil relay setting' do
+            before do
+              with_settings(Settings.saml.relays, vagov: nil) do
+                get(:new, type: :idme, success_relay: 'vagov')
+              end
+            end
+
+            it 'does not contain a RelayState' do
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['url']).to_not include('RelayState')
+            end
+          end
+        end
       end
 
       context 'routes requiring auth' do
@@ -252,7 +280,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
-        expect(response.location).to start_with(Settings.saml.relay + '?token=')
+        expect(response.location).to start_with(Settings.saml.relays.vetsgov + '?token=')
 
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
@@ -328,13 +356,10 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
-        it 'handles NoMethodError - and redirects to saml.relay with success token', :aggregate_failures do
-          expect(Raven).to receive(:extra_context).once
-          expect(Raven).to receive(:user_context).once
-          expect(Raven).to receive(:tags_context).twice
-          expect(controller).to receive(:log_message_to_sentry).with('SSO Callback Success URL', :warn)
+        it 'handles NoMethodError - and redirects to saml.relay with success token' do
+          expect(controller).to receive(:log_message_to_sentry).with('ID.me did not provide LOA.highest!', :error)
           post :saml_callback
-          expect(response.location).to start_with(Settings.saml.relay + '?token=')
+          expect(response.location).to start_with(Settings.saml.relays.vetsgov + '?token=')
           expect(cookies[:va_session]).not_to be_nil
           expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
             .to eq('icn' => nil, 'mhv_correlation_id' => nil)
@@ -355,9 +380,9 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
-        it 'redirects to an auth failure page', :aggregate_failures do
+        it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
       end
@@ -367,7 +392,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=002')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies[:va_session]).to be_nil
         end
@@ -378,7 +403,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=003')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=003')
           expect(response).to have_http_status(:found)
           expect(cookies[:va_session]).to be_nil
         end
@@ -410,7 +435,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                 ]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=007')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=007')
           expect(response).to have_http_status(:found)
           expect(cookies[:va_session]).to be_nil
         end
@@ -430,7 +455,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_multi_error) }
 
-        it 'logs a generic error', :aggregate_failures do
+        it 'logs a generic error' do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
@@ -442,7 +467,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                 ]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
           expect(cookies[:va_session]).to be_nil
         end
@@ -481,7 +506,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                 errors: ["Uuid can't be blank"]
               }
             )
-          expect(post(:saml_callback)).to redirect_to(Settings.saml.relay + '?auth=fail&code=')
+          expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=')
           expect(response).to have_http_status(:found)
           expect(cookies[:va_session]).to be_nil
         end

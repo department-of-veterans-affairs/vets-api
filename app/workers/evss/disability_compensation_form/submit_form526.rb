@@ -7,8 +7,8 @@ module EVSS
       include SentryLogging
 
       # Sidekiq has built in exponential back-off functionality for retrys
-      # A max retry attempt of 10 will result in a run time of ~8 hours
-      RETRY = 10
+      # A max retry attempt of 13 will result in a run time of ~25 hours
+      RETRY = 13
 
       sidekiq_options retry: RETRY
 
@@ -25,6 +25,7 @@ module EVSS
       # submission service (currently EVSS)
       #
       # @param user_uuid [String] The user's uuid thats associated with the form
+      # @param claim_id [String] The claim id for the claim that will be associated with the async transaction
       # @param form_content [Hash] The form content that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #

@@ -42,25 +42,25 @@ class GIBillFeedback < Common::RedisStore
         'city' => attributes[:city],
         'postal_code' => attributes[:zip],
         'state' => attributes[:state],
-        'country' => lambda do
-          IsoCountryCodes.find(attributes[:country]).alpha2 if attributes[:country].present?
-        end.call
+        'country' => attributes[:country]
       }
     }
   end
 
   def get_user_details
-    return {} if user.blank?
-    va_profile = user.va_profile
+    profile_data = {}
 
-    {
-      'profile_data' => {
+    if user.present?
+      va_profile = user.va_profile
+      profile_data = {
         'active_ICN' => user.icn,
         'historical_ICN' => va_profile&.historical_icns,
         'sec_ID' => va_profile&.sec_id,
         'SSN' => user.ssn
       }
-    }
+    end
+
+    { 'profile_data' => profile_data }
   end
 
   def transform_form
