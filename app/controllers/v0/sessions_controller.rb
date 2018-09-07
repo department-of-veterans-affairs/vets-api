@@ -30,9 +30,9 @@ module V0
     # TODO: DEPRECATED
     def authn_urls
       render json: {
-        mhv: SAML::SettingsService.mhv_url,
-        dslogon: SAML::SettingsService.dslogon_url,
-        idme: SAML::SettingsService.idme_loa1_url
+        mhv: SAML::SettingsService.mhv_url(success_relay: params[:success_relay]),
+        dslogon: SAML::SettingsService.dslogon_url(success_relay: params[:success_relay]),
+        idme: SAML::SettingsService.idme_loa1_url(success_relay: params[:success_relay])
       }
     end
 
@@ -44,18 +44,18 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url
+              SAML::SettingsService.mhv_url(success_relay: params[:success_relay])
             when 'dslogon'
-              SAML::SettingsService.dslogon_url
+              SAML::SettingsService.dslogon_url(success_relay: params[:success_relay])
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url + query
+              SAML::SettingsService.idme_loa1_url(success_relay: params[:success_relay]) + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user)
+              SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay])
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user)
+              SAML::SettingsService.idme_loa3_url(current_user, success_relay: params[:success_relay])
             when 'slo'
               authenticate
               destroy_sso_cookie!
@@ -70,7 +70,9 @@ module V0
     # authn_context is the policy, connect represents the ID.me flow
     # TODO: DEPRECATED
     def multifactor
-      render json: { multifactor_url: SAML::SettingsService.mfa_url(current_user) }
+      render json: {
+        multifactor_url: SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay])
+      }
     end
 
     # Member Action: auth token required
@@ -79,7 +81,7 @@ module V0
     # TODO: DEPRECATED
     def identity_proof
       render json: {
-        identity_proof_url: SAML::SettingsService.idme_loa3_url(current_user)
+        identity_proof_url: SAML::SettingsService.idme_loa3_url(current_user, success_relay: params[:success_relay])
       }
     end
 
@@ -116,13 +118,13 @@ module V0
         @session = @sso_service.new_session
 
         after_login_actions
-        redirect_to saml_callback_success_url
+        redirect_to saml_login_relay_url + '?token=' + @session.token
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to Settings.saml.relay + "?auth=fail&code=#{@sso_service.auth_error_code}"
+        redirect_to saml_login_relay_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
@@ -180,17 +182,29 @@ module V0
       errors
     end
 
-    def saml_callback_success_url
-      if current_user.loa[:current] < current_user.loa[:highest]
-        SAML::SettingsService.idme_loa3_url(current_user)
-      else
-        Settings.saml.relay + '?token=' + @session.token
+    def default_relay_url
+      Settings.saml.relays.vetsgov
+    end
+
+    def saml_login_relay_url
+      return default_relay_url if current_user.nil?
+      # TODO: this validation should happen when we create the user, not here
+      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
+        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
+        return default_relay_url
       end
-    rescue NoMethodError
-      Raven.user_context(user_context)
-      Raven.tags_context(tags_context)
-      log_message_to_sentry('SSO Callback Success URL', :warn)
-      Settings.saml.relay + '?token=' + @session.token
+
+      if current_user.loa[:current] < current_user.loa[:highest]
+        SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
+      elsif valid_relay_state?
+        params['RelayState']
+      else
+        default_relay_url
+      end
+    end
+
+    def valid_relay_state?
+      params['RelayState'].present? && Settings.saml.relays&.to_h&.values&.include?(params['RelayState'])
     end
 
     def benchmark_tags(*tags)
