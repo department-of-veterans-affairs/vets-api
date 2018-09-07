@@ -273,7 +273,6 @@ saml:
     vetsgov: http://localhost:3001/auth/login/callback
     vagov: ~
     preview_vagov: ~
-    review_instance_slug: ~
   logout_relay: http://localhost:3001/logout
 
 sentry:

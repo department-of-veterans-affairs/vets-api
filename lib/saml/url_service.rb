@@ -64,8 +64,8 @@ module SAML
     def saml_options(success_relay: nil)
       options = if Settings.saml.relays&.keys&.include?(success_relay)
                   { RelayState: Settings.saml.relays[success_relay] }
-                elsif Settings.review_instance_slug || Settings.saml.relays&.review_instance_slug
-                  { RelayState: Settings.review_instance_slug || Settings.saml.relays&.review_instance_slug }
+                elsif Settings.review_instance_slug
+                  { RelayState: Settings.review_instance_slug }
                 else
                   {}
                 end
