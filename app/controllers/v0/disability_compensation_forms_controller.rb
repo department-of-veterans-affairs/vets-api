@@ -3,11 +3,17 @@
 module V0
   class DisabilityCompensationFormsController < ApplicationController
     before_action { authorize :evss, :access? }
+    before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
       response = service.get_rated_disabilities
       render json: response,
              serializer: RatedDisabilitiesSerializer
+    end
+
+    def suggested_conditions
+      results = DisabilityContention.suggested(params[:name_part])
+      render json: results, each_serializer: DisabilityContentionSerializer
     end
 
     def submit
@@ -41,6 +47,10 @@ module V0
     end
 
     private
+
+    def validate_name_part
+      raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
+    end
 
     def service
       EVSS::DisabilityCompensationForm::Service.new(@current_user)
