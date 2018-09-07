@@ -14,8 +14,8 @@ module V0
     def suggested_conditions
       results = DisabilityContention.suggested(params[:name_part])
       render json: results,
-        serializer: CollectionSerializer,
-        each_serializer: DisabilityContentionSerializer
+             serializer: CollectionSerializer,
+             each_serializer: DisabilityContentionSerializer
     end
 
     def submit
@@ -50,9 +50,9 @@ module V0
 
     private
 
-		def validate_name_part
-			raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
-		end
+    def validate_name_part
+      raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
+    end
 
     def service
       EVSS::DisabilityCompensationForm::Service.new(@current_user)

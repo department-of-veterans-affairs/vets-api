@@ -68,7 +68,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Post /v0/disability_compensation_form/suggested_conditions/:name_part' do
     before(:each) do
-			create(:disability_contention_arrhythmia)
+      create(:disability_contention_arrhythmia)
       create(:disability_contention_arteriosclerosis)
       create(:disability_contention_arthritis)
     end
