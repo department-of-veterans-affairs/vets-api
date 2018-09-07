@@ -19,6 +19,7 @@ module Common
         @redis_namespace_ttl = ttl
       end
 
+      # rubocop:disable Security/MarshalLoad
       def self.do_cached_with(key:)
         cached = @redis_namespace.get(key)
         return Marshal.load(cached) if cached
@@ -28,6 +29,7 @@ module Common
         cache_record(key, record) if record.cache?
         record
       end
+      # rubocop:enable Security/MarshalLoad
 
       def self.cache_record(key, record)
         serialized = Marshal.dump(record)
