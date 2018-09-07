@@ -24,9 +24,6 @@ module AsyncTransaction
       }.freeze
       SOURCE = 'EVSS'
 
-      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
-      scope :job_id, ->(job_id) { find_by(transaction_id: job_id) }
-
       # Creates an initial AsyncTransaction record for ongoing tracking and
       # set its transaction_status to submitted
       #
@@ -52,7 +49,7 @@ module AsyncTransaction
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
       def self.find_transaction(job_id)
-        result = VA526ezSubmitTransaction.job_id(job_id)
+        result = VA526ezSubmitTransaction.find_by(transaction_id: job_id)
         return nil if result == []
         result
       end
@@ -63,7 +60,7 @@ module AsyncTransaction
       # @return [Array AsyncTransaction::EVSS::VA526ezSubmitTransaction] the user's transactions
       #
       def self.find_transactions(user)
-        VA526ezSubmitTransaction.for_user(user)
+        VA526ezSubmitTransaction.where(user_uuid: user.uuid)
       end
 
       # Updates a transaction
