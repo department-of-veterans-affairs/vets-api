@@ -270,8 +270,8 @@ saml:
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
   relay: http://localhost:3001/auth/login/callback
   relays:
-    vetsgov: https://dev.vets.gov/auth/login/callback
-    vagov: https://preview.va.gov/auth/login/callback
+    vetsgov: http://localhost:3001/auth/login/callback
+    vagov: ~
     preview_vagov: ~
     review_instance_slug: ~
   logout_relay: http://localhost:3001/logout
