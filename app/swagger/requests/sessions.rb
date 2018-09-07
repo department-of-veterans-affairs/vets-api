@@ -10,6 +10,15 @@ module Swagger
           key :description, 'Fetch various urls for initiating authentication'
           key :tags, %w[authentication]
 
+          parameter do
+            key :name, 'success_relay'
+            key :in, :query
+            key :description, 'Desired relay redirect location after login success'
+            key :required, false
+            key :type, :string
+            key :enum, %w[vetsgov vagov preview_vagov]
+          end
+
           response 200 do
             key :description, 'returns a list of urls for invoking SAML authentication flow'
             schema do
