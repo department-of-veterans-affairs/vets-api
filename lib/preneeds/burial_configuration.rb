@@ -1,29 +1,8 @@
 # frozen_string_literal: true
-
-require 'common/client/configuration/soap'
-require 'common/client/middleware/request/soap_headers'
-require 'common/client/middleware/response/soap_parser'
-require 'preneeds/middleware/response/clean_response'
-require 'preneeds/middleware/response/eoas_xml_errors'
-require 'preneeds/middleware/response/preneeds_parser'
 require 'common/client/middleware/logging'
 
 module Preneeds
-  class BurialConfiguration < Common::Client::Configuration::SOAP
-    TIMEOUT = 30
-
-    def self.url
-      "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
-    end
-
-    def base_path
-      self.class.url
-    end
-
-    def service_name
-      'Preneeds'
-    end
-
+  class BurialConfiguration < Configuration
     def connection
       path = Preneeds::Configuration.url
       @faraday ||= Faraday.new(
