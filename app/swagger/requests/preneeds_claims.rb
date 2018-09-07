@@ -22,8 +22,30 @@ module Swagger
             key :description, 'Pre-need burial eligibility form data'
             key :required, true
 
+            # TODO add `required` designations
+
             schema do
-              key :type, :string
+              property :applicationStatus, type: :string, example: 'example needed' # TODO: not in schema.  remove?
+              property :hasCurrentlyBuried, type: :string, example: '1', enum: %w[1 2 3]
+              property :sendingCode, type: :string, example: 'abc' # TODO: not in schema.  remove?
+              property :preneedAttachments, type: :array, description: 'data about uploaded attachments' do
+                items do
+                  property :confirmationCode, type: :string, description: 'uuid',
+                  example: '9b3ae0e1-fd58-4074-bf81-d58fb18fa86'
+                  property :attachmentId, type: :string, example: '1'
+                end
+              end
+              property :applicant, type: :object do
+                property :applicantEmail, type: :string, example: 'jon.doe@example.com'
+                property :applicantPhoneNumber, type: :string, example: '5551235454'
+                property :applicantRelationshipToClaimant, type: :string, example: 'Authorized Agent/Rep'
+                property :mailingAddress, type: :object do
+                  # TODO: create `address` object in app/swagger/schemas that corresponds to 
+                  # `address` definition in schema definitions:
+                  # https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/dist/definitions.json#L49
+                  # reference it here
+                end
+              end
             end
           end
         end
@@ -31,3 +53,12 @@ module Swagger
     end
   end
 end
+
+# TODO
+# permitted params from burial_forms_controller
+# :application_status, :has_currently_buried, :sending_code,
+#           preneed_attachments: ::Preneeds::PreneedAttachmentHash.permitted_params,
+#           applicant: ::Preneeds::Applicant.permitted_params,
+#           claimant: ::Preneeds::Claimant.permitted_params,
+#           currently_buried_persons: ::Preneeds::CurrentlyBuriedPerson.permitted_params,
+#           veteran: ::Preneeds::Veteran.permitted_params

@@ -4,11 +4,11 @@ require 'common/models/base'
 
 module Preneeds
   class BurialForm < Preneeds::Base
-    attribute :application_status, String
+    attribute :application_status, String # TODO: not in schema, not in submission from frontend
     attribute :preneed_attachments, Array[PreneedAttachmentHash]
     attribute :has_currently_buried, String
     attribute :sending_application, String, default: 'vets.gov'
-    attribute :sending_code, String
+    attribute :sending_code, String # TODO: not in schema, not in submission from frontend 
     attribute :sent_time, Common::UTCTime, default: :current_time
     attribute :tracking_number, String, default: :generate_tracking_number
 
