@@ -42,9 +42,7 @@ class GIBillFeedback < Common::RedisStore
         'city' => attributes[:city],
         'postal_code' => attributes[:zip],
         'state' => attributes[:state],
-        'country' => lambda do
-          IsoCountryCodes.find(attributes[:country]).alpha2 if attributes[:country].present?
-        end.call
+        'country' => attributes[:country]
       }
     }
   end
