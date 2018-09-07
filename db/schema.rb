@@ -278,9 +278,12 @@ ActiveRecord::Schema.define(version: 20180905180210) do
   create_table "preference_choices", force: :cascade do |t|
     t.string   "code"
     t.string   "description"
-    t.datetime "created_at",  null: false
-    t.datetime "updated_at",  null: false
+    t.integer  "preference_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
   end
+
+  add_index "preference_choices", ["preference_id"], name: "index_preference_choices_on_preference_id", using: :btree
 
   create_table "preferences", force: :cascade do |t|
     t.string   "code"
