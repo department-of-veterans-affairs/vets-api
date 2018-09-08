@@ -8,13 +8,13 @@ module EVSS
     STATSD_KEY_PREFIX = 'api.evss'
 
     def initialize(user)
-      @user = user
+      @headers = headers_for_user(user)
     end
 
     def perform(method, path, body = nil, headers = {})
-      headers = headers_for_user(@user).merge(headers)
-      Raven.capture_message('evss_headers', level: :info, extra: { evss_headers: headers })
-      super(method, path, body, headers)
+      merged_headers = @headers.merge(headers)
+      Raven.capture_message('evss_headers', level: :info, extra: { evss_headers: merged_headers })
+      super(method, path, body, merged_headers)
     end
 
     def headers

@@ -10,7 +10,7 @@ module EVSS
       # A max retry attempt of 13 will result in a run time of ~25 hours
       RETRY = 13
 
-      sidekiq_options retry: RETRY
+      sidekiq_options retry: RETRY, dead: false
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
@@ -29,13 +29,11 @@ module EVSS
       # @param form_content [Hash] The form content that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
-      def perform(user_uuid, claim_id, form_content, uploads)
-        user = User.find(user_uuid)
-
+      def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
         if transaction_class.find_transaction(jid).blank?
           saved_claim(claim_id).async_transaction = transaction_class.start(user, jid)
         end
-        response = service(user).submit_form(form_content)
+        response = service(auth_headers).submit_form(form_content)
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
@@ -45,7 +43,7 @@ module EVSS
                           'job_status' => 'received')
 
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
-        EVSS::DisabilityCompensationForm::SubmitUploads.start(user, response.claim_id, uploads) if uploads.present?
+        EVSS::DisabilityCompensationForm::SubmitUploads.start(auth_headers, response.claim_id, uploads) if uploads.present?
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         handle_service_exception(e)
       rescue Common::Exceptions::GatewayTimeout => e
@@ -58,8 +56,10 @@ module EVSS
 
       private
 
-      def service(user)
-        EVSS::DisabilityCompensationForm::Service.new(user)
+      def service(auth_headers)
+        EVSS::DisabilityCompensationForm::Service.new(
+          auth_headers
+        )
       end
 
       def saved_claim(claim_id)
