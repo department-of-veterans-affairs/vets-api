@@ -186,7 +186,7 @@ module V0
       Settings.saml.relays.vetsgov
     end
 
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
     def saml_login_relay_url
       return default_relay_url if current_user.nil?
       # TODO: this validation should happen when we create the user, not here
@@ -205,7 +205,7 @@ module V0
         default_relay_url
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
 
     def valid_relay_state?
       params['RelayState'].present? && Settings.saml.relays&.to_h&.values&.include?(params['RelayState'])
