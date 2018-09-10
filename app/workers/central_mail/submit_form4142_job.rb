@@ -9,9 +9,9 @@ module CentralMail
 
     FOREIGN_POSTALCODE = '00000'
 
-    # Sidekiq has built in exponential back-off functionality for retrys
-    # A max retry attempt of 10 will result in a run time of ~8 hours
-    RETRY = 10
+    # Sidekiq has built in exponential back-off functionality for retry's
+    # A max retry attempt of 13 will result in a run time of ~25 hours
+    RETRY = 13
 
     sidekiq_options retry: RETRY
 
