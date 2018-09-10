@@ -37,10 +37,9 @@ Rails.application.routes.draw do
 
     resource :upload_supporting_evidence, only: :create
 
-    resource :sessions, only: :destroy do
-      get :authn_urls, on: :collection
-      get :multifactor, on: :member
-      get :identity_proof, on: :member
+    resource :sessions, :only => [] do
+      get  :logout, to: 'sessions#logout'
+      delete :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
