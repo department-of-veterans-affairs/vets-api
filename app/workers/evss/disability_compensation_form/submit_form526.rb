@@ -10,7 +10,7 @@ module EVSS
       # A max retry attempt of 13 will result in a run time of ~25 hours
       RETRY = 13
 
-      sidekiq_options retry: RETRY, dead: false
+      sidekiq_options retry: RETRY
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
