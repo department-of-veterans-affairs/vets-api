@@ -197,6 +197,8 @@ module V0
 
       if current_user.loa[:current] < current_user.loa[:highest] && valid_relay_state?
         SAML::SettingsService.idme_loa3_url(current_user, success_relay_url: params['RelayState'])
+      elsif current_user.loa[:current] < current_user.loa[:highest]
+        SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
       elsif valid_relay_state?
         params['RelayState']
       else
