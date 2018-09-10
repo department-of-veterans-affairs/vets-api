@@ -5,12 +5,15 @@ module Common::Client
     extend ActiveSupport::Concern
 
     def with_monitoring
+      puts "A"
       caller = caller_locations(1, 1)[0].label
       yield
     rescue => error
+      puts "B"
       increment_failure(caller, error)
       raise error
     ensure
+      puts "C"
       increment_total(caller)
     end
 

@@ -30,15 +30,15 @@ module EVSS
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
       def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
-        if transaction_class.find_transaction(jid).blank?
-          saved_claim(claim_id).async_transaction = transaction_class.start(user, jid)
-        end
+        associate_transaction_to_claim(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
+
         response = service(auth_headers).submit_form(form_content)
+
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
         Rails.logger.info('Form526 Submission',
-                          'user_uuid' => user.uuid,
+                          'user_uuid' => user_uuid,
                           'job_id' => jid,
                           'job_status' => 'received')
 
@@ -55,6 +55,10 @@ module EVSS
       end
 
       private
+
+      def associate_transaction_to_claim(auth_headers, claim_id, user_uuid)
+        saved_claim(claim_id).async_transaction = transaction_class.start(user_uuid, auth_headers['va_eauth_dodedipnid'], jid)
+      end
 
       def service(auth_headers)
         EVSS::DisabilityCompensationForm::Service.new(

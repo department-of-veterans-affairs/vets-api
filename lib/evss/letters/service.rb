@@ -21,6 +21,7 @@ module EVSS
         end
       rescue StandardError => e
         begin
+          puts "invalid_address_error?(e) #{invalid_address_error?(e)}"
           log_edipi if invalid_address_error?(e)
         ensure
           handle_error(e)
@@ -50,6 +51,9 @@ module EVSS
       end
 
       def log_edipi
+        puts "LOG!"
+        puts @user.inspect
+        puts "user edipi #{@user.edipi}"
         InvalidLetterAddressEdipi.find_or_create_by(edipi: @user.edipi)
       end
 
