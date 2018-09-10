@@ -28,6 +28,7 @@ module V0
       Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
 
       uploads = form_content['form526'].delete('attachments')
+      # form_4142 = EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content)
       converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
         @current_user, form_content
       ).translate
