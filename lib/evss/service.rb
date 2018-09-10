@@ -8,7 +8,8 @@ module EVSS
     STATSD_KEY_PREFIX = 'api.evss'
 
     def initialize(user)
-      @headers = headers_for_user(user)
+      @user = user
+      @headers = headers_for_user(@user)
     end
 
     def perform(method, path, body = nil, headers = {})
