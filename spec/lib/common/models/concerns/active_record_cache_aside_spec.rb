@@ -5,7 +5,7 @@ require 'common/models/concerns/active_record_cache_aside'
 
 describe Common::ActiveRecordCacheAside do
   let(:user) { build(:user, :loa3) }
-  let(:serialized_record) { Marshal.dump(build :account, idme_uuid: user.uuid) }
+  let(:serialized_record) { Marshal.dump(build(:account, idme_uuid: user.uuid)) }
   let(:redis_key) { "user-account-details:#{user.uuid}" }
   let(:ttl) { REDIS_CONFIG['user_account_details']['each_ttl'] }
 
