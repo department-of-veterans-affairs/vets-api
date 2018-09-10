@@ -61,4 +61,21 @@ RSpec.describe Account, type: :model do
       end
     end
   end
+
+  describe '.cache_or_create_by!' do
+    let(:user) { build(:user, :loa3) }
+
+    it 'first attempts to fetch the Account record from the Redis cache' do
+      expect(Account).to receive(:do_cached_with)
+
+      Account.cache_or_create_by! user
+    end
+
+    it "returns the user's db Account record", :aggregate_failures do
+      record = Account.cache_or_create_by! user
+
+      expect(record).to eq Account.find_by(idme_uuid: user.uuid)
+      expect(record.class).to eq Account
+    end
+  end
 end
