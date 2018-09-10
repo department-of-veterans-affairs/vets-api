@@ -348,7 +348,7 @@ module PdfFill
         expand_ssn
 
         expand_veteran_full_name
-        
+
         expand_signature(@form_data['veteranFullName'])
         @form_data['printedName'] = @form_data['signature']
         @form_data['signature'] = '/es/ ' + @form_data['signature']
