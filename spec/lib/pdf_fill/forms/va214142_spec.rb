@@ -419,7 +419,7 @@ describe PdfFill::Forms::Va214142 do
             'extras_value' => "provider 1\n123 Main Street\n1B\nBaltimore, MD, 21200-1111\nUSA"
           },
           'combinedTreatmentDates' => {
-            'value' => "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1",
+            'value' => '',
             'extras_value' => "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
           }
         }]
@@ -427,20 +427,4 @@ describe PdfFill::Forms::Va214142 do
     end
   end
 
-  # describe '' do
-  #   context '' do
-  #     let (:form_data) do
-  #       {
-
-  #       }
-  #     end
-  #     it '' do
-  #       new_form_class.
-  #       expect(
-  #         JSON.parse(class_form_data.to_json)
-  #       ).to eq(
-  #       )
-  #     end
-  #   end
-  #  end
 end

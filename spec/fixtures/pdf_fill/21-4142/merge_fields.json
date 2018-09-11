@@ -40,7 +40,7 @@
         "extras_value": "provider 1\n123 Main Street\n1B\nBaltimore, MD, 21200-1111\nUSA"
       },
       "combinedTreatmentDates": {
-        "value": "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1",
+        "value": "",
         "extras_value": "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
       },
       "street": "123 Main Street",
@@ -64,7 +64,7 @@
         "extras_value": "provider 2\n456 Main Street\n1B\nBaltimore, MD, 21200-1111\nUSA"
       },
       "combinedTreatmentDates": {
-        "value": "from: 1980-2-1 to: 1985-2-1\nfrom: 1986-2-1 to: 1987-2-1",
+        "value": "",
         "extras_value": "from: 1980-2-1 to: 1985-2-1\nfrom: 1986-2-1 to: 1987-2-1"
       },
       "street": "456 Main Street",
@@ -88,7 +88,7 @@
         "extras_value": "provider 3\n789 Main Street\n1B\nBaltimore, MD, 21200-1111\nUSA"
       },
       "combinedTreatmentDates": {
-        "value": "from: 1980-3-1 to: 1985-3-1\nfrom: 1986-3-1 to: 1987-3-1",
+        "value": "",
         "extras_value": "from: 1980-3-1 to: 1985-3-1\nfrom: 1986-3-1 to: 1987-3-1"
       },
       "street": "789 Main Street",
@@ -112,7 +112,7 @@
         "extras_value": "provider 4\n101 Main Street\n1B\nBaltimore, MD, 21200-1111\nUSA"
       },
       "combinedTreatmentDates": {
-        "value": "from: 1980-4-1 to: 1985-4-1\nfrom: 1986-4-1 to: 1987-4-1",
+        "value": "",
         "extras_value": "from: 1980-4-1 to: 1985-4-1\nfrom: 1986-4-1 to: 1987-4-1"
       },
       "street": "101 Main Street",
@@ -136,7 +136,7 @@
         "extras_value": "provider 5\n102 Main Street\n1B\nBaltimore, MD, 21200-1111\nUSA"
       },
       "combinedTreatmentDates": {
-        "value": "from: 1980-5-1 to: 1985-5-1\nfrom: 1986-5-1 to: 1987-5-1",
+        "value": "",
         "extras_value": "from: 1980-5-1 to: 1985-5-1\nfrom: 1986-5-1 to: 1987-5-1"
       },
       "street": "102 Main Street",
