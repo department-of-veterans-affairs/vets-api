@@ -9,9 +9,7 @@ class InProgressForm < ActiveRecord::Base
     alias type_cast type_cast_for_database
   end
 
-  EXPIRES_AFTER = {
-    '21-526EZ' => 365.days
-  }
+  EXPIRES_AFTER = YAML.load
 
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
