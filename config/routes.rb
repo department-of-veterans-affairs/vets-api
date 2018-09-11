@@ -39,7 +39,6 @@ Rails.application.routes.draw do
 
     resource :sessions, :only => [] do
       get  :logout, to: 'sessions#logout'
-      delete :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
