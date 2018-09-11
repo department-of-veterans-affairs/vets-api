@@ -45,3 +45,6 @@ module EVSS
     end
   end
 end
+
+# {"messages"=>[{"key"=>"form526.submit.save.draftForm.MaxEPCode", "severity"=>"FATAL", "text"=>"This claim could not be established. The Maximum number of
+# EP codes have been reached for this benefit type claim code"}]}
