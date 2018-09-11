@@ -15,7 +15,7 @@ module CentralMail
 
     sidekiq_options retry: RETRY
 
-    class CentralMailResponseError < StandardError
+    class CentralMailResponseError < Common::Exceptions::BackendServiceException
     end
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
@@ -38,25 +38,16 @@ module CentralMail
       # find user using uuid
       user = User.find(user_uuid)
 
-      # TODO: For debugging purpose
-      # @jid = '2B8B0814-9F28-4997-9D68-B5D5A122F2V'
-
       transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
 
       format_saved_claim_created_at(saved_claim_created_at)
 
-      form_content = form_content.to_json if form_content.is_a?(Hash)
-
-      # Parse form content to JSON
-      @parsed_form ||= JSON.parse(form_content)
+      @parsed_form = process_form(form_content)
 
       # process record to create PDF
       @pdf_path = process_record(@parsed_form, claim_id)
 
       response = CentralMail::Service.new.upload(create_request_body)
-
-      # Delete the PDF file
-      File.delete(@pdf_path)
 
       transaction_class.update_transaction(jid, :received, response.body)
 
@@ -65,14 +56,16 @@ module CentralMail
                         'job_id' => jid,
                         'job_status' => 'received')
 
-      handle_service_exception(response) if response.status.between?(201, 600)
+      handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+    rescue CentralMailResponseError => e
+      raise(e)
     rescue Common::Exceptions::GatewayTimeout => e
       handle_gateway_timeout_exception(e)
     rescue StandardError => e
-      # Treat unexpected errors as hard failures
-      # This includes BackeEndService Errors (including 403's)
-      transaction_class.update_transaction(jid, :non_retryable_error, e.to_s)
-      log_exception_to_sentry(e)
+      handle_standard_error(e)
+    ensure
+      # Delete the temporary PDF file
+      File.delete(@pdf_path) if @pdf_path.present?
     end
 
     def create_request_body
@@ -170,23 +163,54 @@ module CentralMail
       end
     end
 
+    def process_form(form_content)
+      form_content = form_content.to_json if form_content.is_a?(Hash)
+
+      # Parse form content to JSON
+      @parsed_form ||= JSON.parse(form_content)
+    end
+
     def transaction_class
       AsyncTransaction::CentralMail::VA4142SubmitTransaction
     end
 
     def handle_service_exception(response)
+      # create service error with CentralMailResponseError
+      error = create_service_error(nil, self.class, response)
       if response.status.between?(500, 600)
         transaction_class.update_transaction(jid, :retrying, response.body)
-        raise CentralMailResponseError
+        raise error
+      else
+        transaction_class.update_transaction(jid, :non_retryable_error, response.body)
+        extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
+        Rails.logger.error('Error Message' => error.message)
+        log_exception_to_sentry(error, extra_content)
       end
-      transaction_class.update_transaction(jid, :non_retryable_error, response.body)
-      extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
-      log_exception_to_sentry(raise(CentralMailResponseError, extra_content))
     end
 
     def handle_gateway_timeout_exception(error)
       transaction_class.update_transaction(jid, :retrying, error.message)
       raise error
+    end
+
+    def handle_standard_error(error)
+      transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
+      extra_content = { status: :non_retryable_error, jid: jid }
+      log_exception_to_sentry(error, extra_content)
+    end
+
+    def create_service_error(key, source, response, _error = nil)
+      response_values = response_values(key, source, response.status, response.body)
+      CentralMailResponseError.new(key, response_values, nil, nil)
+    end
+
+    def response_values(key, source, status, detail)
+      {
+        status: status,
+        detail: detail,
+        code:   key,
+        source: source.to_s
+      }
     end
   end
 end
