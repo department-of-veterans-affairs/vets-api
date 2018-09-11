@@ -47,7 +47,7 @@ class Session < Common::RedisStore
   end
 
   def ttl_in_time
-    Time.current + ttl
+    Time.current.utc + ttl
   end
 
   private
@@ -72,7 +72,7 @@ class Session < Common::RedisStore
       log_message_to_sentry(
         'Maximum Session Duration Reached', :info, {}, session_token: self.class.obscure_token(@token)
       )
-      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] ago. Session is too old")
+      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] seconds. Session is too old")
     end
   end
 end
