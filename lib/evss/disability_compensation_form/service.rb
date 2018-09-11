@@ -11,6 +11,10 @@ module EVSS
 
       configuration EVSS::DisabilityCompensationForm::Configuration
 
+      def initialize(headers)
+        @headers = headers
+      end
+
       def get_rated_disabilities
         with_monitoring do
           raw_response = perform(:get, 'ratedDisabilities')
@@ -31,10 +35,6 @@ module EVSS
       end
 
       private
-
-      def headers_for_user(user)
-        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-      end
 
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
