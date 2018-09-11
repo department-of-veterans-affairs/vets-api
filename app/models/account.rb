@@ -49,9 +49,8 @@ class Account < ActiveRecord::Base
     end
   end
 
-  # Determines if the associated Account record is cacheable.
-  #
-  # Required method to accomodate the ActiveRecordCacheAside API.
+  # Determines if the associated Account record is cacheable. Required
+  # method to accomodate the ActiveRecordCacheAside API.
   #
   # @return [Boolean]
   #
