@@ -134,9 +134,9 @@ RSpec.describe 'Disability compensation form', type: :request do
         end
       end
 
-      it 'should create a form 4142 object' do
+      it 'should start the 4142 submit job' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect(EVSS::DisabilityCompensationForm::Form4142).to receive(:new)
+          expect(::CentralMail::SubmitForm4142Job).to receive(:perform_async).once
           post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
         end
       end

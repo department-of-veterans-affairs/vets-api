@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'json'
-
 module EVSS
 	module DisabilityCompensationForm
 		class Form4142

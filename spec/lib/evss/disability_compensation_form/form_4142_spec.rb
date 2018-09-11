@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/disability_compensation_form/form_4142'
+require 'evss/disability_compensation_form/form4142'
 
 describe EVSS::DisabilityCompensationForm::Form4142 do
   let(:form_content) { JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission_with_4142.json')) }
