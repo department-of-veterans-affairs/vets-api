@@ -14,7 +14,6 @@ module EVSS
 
     def perform(method, path, body = nil, headers = {})
       merged_headers = @headers.merge(headers)
-      Raven.capture_message('evss_headers', level: :info, extra: { evss_headers: merged_headers })
       super(method, path, body, merged_headers)
     end
 
