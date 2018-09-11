@@ -224,11 +224,11 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
     end
   end
 
-  describe '#last_service_branch' do
+  describe '#hca_last_service_branch' do
     context 'with service episodes' do
       it 'should return the last branch of service' do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.last_service_branch).to eq('air force')
+          expect(subject.hca_last_service_branch).to eq('air force')
         end
       end
 
@@ -242,7 +242,7 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
         end
 
         it 'should return other' do
-          expect(subject.last_service_branch).to eq('other')
+          expect(subject.hca_last_service_branch).to eq('other')
         end
       end
     end
@@ -253,7 +253,42 @@ describe EMISRedis::MilitaryInformation, skip_emis: true do
       end
       it 'should return nil' do
         VCR.use_cassette('emis/get_military_service_episodes/valid') do
-          expect(subject.last_service_branch).to eq(nil)
+          expect(subject.hca_last_service_branch).to be_nil
+        end
+      end
+    end
+  end
+
+  describe '#last_service_branch' do
+    context 'with service episodes' do
+      it 'should return the last branch of service' do
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject.last_service_branch).to eq('Air Force')
+        end
+      end
+
+      context 'with a code not in the list' do
+        before do
+          allow(subject).to receive(:service_episodes_by_date).and_return(
+            [
+              EMIS::Models::MilitaryServiceEpisode.new(branch_of_service_code: 'foo')
+            ]
+          )
+        end
+
+        it 'should return other' do
+          expect(subject.last_service_branch).to be_nil
+        end
+      end
+    end
+
+    context 'with no service episodes' do
+      before do
+        allow(subject).to receive(:service_episodes_by_date).and_return([])
+      end
+      it 'should return nil' do
+        VCR.use_cassette('emis/get_military_service_episodes/valid') do
+          expect(subject.last_service_branch).to be_nil
         end
       end
     end
