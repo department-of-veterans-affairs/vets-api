@@ -20,11 +20,20 @@ class Account < ActiveRecord::Base
 
   attr_readonly :uuid
 
+  # Required for configuring mixed in ActiveRecordCacheAside module.
   # Redis settings for ttl and namespacing reside in config/redis.yml
   #
   redis REDIS_CONFIG['user_account_details']['namespace']
   redis_ttl REDIS_CONFIG['user_account_details']['each_ttl']
 
+  # Returns the one Account record for the passed in user.
+  #
+  # Will first attempt to return the cached record.  If one does
+  # not exist, it will find/create one, and cache it before returning it.
+  #
+  # @param user [User] An instance of User
+  # @return [Account] A persisted instance of Account
+  #
   def self.cache_or_create_by!(user)
     return unless user.uuid
 
@@ -40,6 +49,12 @@ class Account < ActiveRecord::Base
     end
   end
 
+  # Determines if the associated Account record is cacheable.
+  #
+  # Required method to accomodate the ActiveRecordCacheAside API.
+  #
+  # @return [Boolean]
+  #
   def cache?
     persisted?
   end
