@@ -48,3 +48,8 @@ shrine:
 
 account:
   enabled: true
+
+search:
+  access_key:
+  affiliate: va
+  url: https://search.usa.gov/api/v2
