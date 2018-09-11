@@ -223,9 +223,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
-          expect(cookies['vagov_session_dev']).to eq('bar')
           get(:logout, session: Base64.urlsafe_encode64(token))
-          expect(cookies['vagov_session_dev']).to be_nil
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
