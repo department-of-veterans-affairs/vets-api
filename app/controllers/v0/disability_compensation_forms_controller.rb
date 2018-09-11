@@ -31,7 +31,7 @@ module V0
       ).translate
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
-        @current_user.uuid, claim.id, converted_form_content, uploads
+        @current_user.uuid, auth_headers, claim.id, converted_form_content, uploads
       )
 
       render json: { data: { attributes: { job_id: jid } } },
@@ -69,7 +69,11 @@ module V0
     end
 
     def service
-      EVSS::DisabilityCompensationForm::Service.new(@current_user)
+      EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+    end
+
+    def auth_headers
+      EVSS::DisabilityCompensationAuthHeaders.new(@current_user).add_headers(EVSS::AuthHeaders.new(@current_user).to_h)
     end
 
     def stats_key
