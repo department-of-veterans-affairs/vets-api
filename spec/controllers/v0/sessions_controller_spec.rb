@@ -92,7 +92,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:succesful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
-  let(:decrypter) { ActiveSupport::MessageEncryptor.new(Settings.sso_cookie_key) }
+  let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
 
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -169,12 +169,17 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'new' do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme mfa verify slo].each do |type|
+          around(:each) do |example|
+            Settings.sso.cookie_enabled = true
+            example.run
+            Settings.sso.cookie_enabled = false
+          end
+
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            Settings.set_sso_cookie = true
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
-            expect(cookies[:va_session]).not_to be_nil unless type.in?(%w[mhv dslogon idme])
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme])
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
@@ -194,6 +199,13 @@ RSpec.describe V0::SessionsController, type: :controller do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
+        request.cookies['va_session'] = 'bar'
+      end
+
+      around(:each) do |example|
+        Settings.sso.cookie_enabled = true
+        example.run
+        Settings.sso.cookie_enabled = false
       end
 
       context 'cannot find a session' do
@@ -205,17 +217,15 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'can find an active session' do
         it 'destroys the user and session, and cookie, persists logout_request object, redirects to SLO url' do
-          Settings.set_sso_cookie = true
-          request.cookies['va_session'] = 'bar'
           # these should have been destroyed yet
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
-          expect(cookies[:va_session]).to eq('bar')
+          expect(cookies['vagov_session_dev']).to eq('bar')
           get(:logout, session: Base64.urlsafe_encode64(token))
-          expect(cookies[:va_session]).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
@@ -267,9 +277,19 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe 'POST saml_callback' do
       before(:each) do
-        Settings.set_sso_cookie = true
         allow(controller).to receive(:async_create_evss_account)
         allow(SAML::User).to receive(:new).and_return(saml_user)
+      end
+
+      let(:frozen_time) { Time.current }
+      let(:expire_at) { frozen_time + 1800}
+
+      around(:each) do |example|
+        Timecop.freeze(frozen_time)
+        Settings.sso.cookie_enabled = true
+        example.run
+        Settings.sso.cookie_enabled = false
+        Timecop.return
       end
 
       it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
@@ -304,9 +324,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
         expect(new_user.multifactor).to be_falsey
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
-        expect(cookies[:va_session]).not_to be_nil
-        expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-          .to eq('icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id)
+        expect(cookies['vagov_session_dev']).not_to be_nil
+        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+          .to eq('patientIcn' => loa3_user.icn, 'mhvCorrelationId' => loa3_user.mhv_correlation_id, 'expirationTime' => expire_at.iso8601(0))
       end
 
       it 'does not log to sentry when SSN matches', :aggregate_failures do
@@ -318,9 +338,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).to eq('796111863')
-        expect(cookies[:va_session]).not_to be_nil
-        expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-          .to eq('icn' => loa3_user.icn, 'mhv_correlation_id' => loa3_user.mhv_correlation_id)
+        expect(cookies['vagov_session_dev']).not_to be_nil
+        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+          .to eq('patientIcn' => loa3_user.icn, 'mhvCorrelationId' => loa3_user.mhv_correlation_id, 'expirationTime' => expire_at.iso8601(0))
       end
 
       context 'changing multifactor' do
@@ -343,9 +363,9 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
           post :saml_callback
-          expect(cookies[:va_session]).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
         end
       end
 
@@ -359,9 +379,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to identity proof URL', :aggregate_failures do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
-          expect(cookies[:va_session]).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
         end
       end
 
@@ -376,9 +396,9 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry).with('ID.me did not provide LOA.highest!', :error)
           post :saml_callback
           expect(response.location).to start_with(Settings.saml.relays.vetsgov + '?token=')
-          expect(cookies[:va_session]).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-            .to eq('icn' => nil, 'mhv_correlation_id' => nil)
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
         end
       end
 
@@ -410,7 +430,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)
-          expect(cookies[:va_session]).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
         end
       end
 
@@ -421,7 +441,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=003')
           expect(response).to have_http_status(:found)
-          expect(cookies[:va_session]).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -453,7 +473,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=007')
           expect(response).to have_http_status(:found)
-          expect(cookies[:va_session]).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -485,7 +505,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
-          expect(cookies[:va_session]).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -524,7 +544,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=')
           expect(response).to have_http_status(:found)
-          expect(cookies[:va_session]).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do

@@ -144,10 +144,11 @@ class ApplicationController < ActionController::API
 
   def set_sso_cookie!
     return unless Settings.sso.cookie_enabled
-    contents = ActiveSupport::JSON.encode(cookie_value)
     encryptor = Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv)
+    contents = ActiveSupport::JSON.encode(@session.cookie_data)
+    encrypted_value = encryptor.encrypt(contents)
     cookies[Settings.sso.cookie_name] = {
-      value: encryptor.encrypt(ActiveSupport::JSON.encode(@session.cookie_data)),
+      value: encrypted_value,
       expires: @session.ttl_in_time,
       httponly: true
     }

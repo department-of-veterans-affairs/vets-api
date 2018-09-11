@@ -40,9 +40,9 @@ class Session < Common::RedisStore
 
   def cookie_data
     {
-      "mhvCorrelationId" => user.mhv_correlation_id,
       "patientIcn" => user.icn,
-      "expirationTime" => ttl_in_time
+      "mhvCorrelationId" => user.mhv_correlation_id,
+      "expirationTime" => ttl_in_time.iso8601(0)
     }
   end
 
