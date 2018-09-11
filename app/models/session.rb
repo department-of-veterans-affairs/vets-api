@@ -42,7 +42,7 @@ class Session < Common::RedisStore
     {
       "mhvCorrelationId" => user.mhv_correlation_id,
       "patientIcn" => user.icn,
-      "expirationTime" = ttl_in_time
+      "expirationTime" => ttl_in_time
     }
   end
 

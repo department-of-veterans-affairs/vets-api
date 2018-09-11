@@ -138,6 +138,7 @@ class ApplicationController < ActionController::API
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
       extend_session!
+      return true
     end
   end
 
@@ -154,8 +155,8 @@ class ApplicationController < ActionController::API
 
   def extend_session!
     session.expire(Session.redis_namespace_ttl)
-    user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    user&.expire(User.redis_namespace_ttl)
+    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    current_user&.expire(User.redis_namespace_ttl)
     set_sso_cookie!
   end
 
