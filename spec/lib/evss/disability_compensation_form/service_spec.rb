@@ -5,7 +5,11 @@ require 'evss/disability_compensation_form/service'
 
 describe EVSS::DisabilityCompensationForm::Service do
   let(:user) { build(:disabilities_compensation_user) }
-  subject { described_class.new(user) }
+  subject do
+    described_class.new(
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    )
+  end
 
   describe '#get_rated_disabilities' do
     context 'with a valid evss response' do
