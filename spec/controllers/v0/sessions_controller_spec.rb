@@ -162,7 +162,6 @@ RSpec.describe V0::SessionsController, type: :controller do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
       Session.create(uuid: uuid, token: token)
-      Settings.set_sso_cookie = true
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
     end
@@ -171,44 +170,15 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme mfa verify slo].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            Settings.set_sso_cookie = true
             request.env['HTTP_AUTHORIZATION'] = auth_header
-            request.cookies['va_session'] = 'bar'
             get(:new, type: type)
-            if type == 'slo'
-              expect(cookies[:va_session]).to be_nil
-            elsif %w[mhv dslogon idme].include?(type)
-              expect(cookies[:va_session]).not_to be_nil
-              expect(cookies[:va_session]).to eq('bar')
-            else
-              expect(cookies[:va_session]).not_to be_nil
-              expect(JSON.parse(decrypter.decrypt_and_verify(cookies[:va_session])))
-                .to eq('icn' => nil, 'mhv_correlation_id' => nil)
-            end
             expect(response).to have_http_status(:ok)
+            expect(cookies[:va_session]).not_to be_nil unless type.in?(%w[mhv dslogon idme])
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
       end
-    end
-
-    it 'returns a url for leveling up or verifying current level' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
-      get :identity_proof
-      expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w[identity_proof_url]
-    end
-
-    it 'returns a url for adding multifactor authentication to your account' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
-      get :multifactor
-      expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w[multifactor_url]
-    end
-
-    it 'returns a logout url' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
-      delete :destroy
-      expect(response).to have_http_status(202)
     end
 
     it 'redirects as success even when logout fails, but it logs the failure' do
@@ -217,10 +187,49 @@ RSpec.describe V0::SessionsController, type: :controller do
         .to redirect_to(Settings.saml.logout_relay + '?success=true')
     end
 
-    context 'logout has been requested' do
+    describe 'GET sessions/logout' do
+      let(:logout_request) { OneLogin::RubySaml::Logoutrequest.new }
+
+      before do
+        mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+        allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+        allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
+      end
+
+      context 'cannot find a session' do
+        it 'raises a Forbidden exception' do
+          get(:logout, session: Base64.urlsafe_encode64('invalid_token'))
+          expect(JSON.parse(response.body)).to eq({"errors"=>[{"title"=>"Forbidden", "detail"=>"Invalid request", "code"=>"403", "status"=>"403"}]})
+        end
+      end
+
+      context 'can find an active session' do
+        it 'destroys the user and session, and cookie, persists logout_request object, redirects to SLO url' do
+          Settings.set_sso_cookie = true
+          request.cookies['va_session'] = 'bar'
+          # these should have been destroyed yet
+          expect(Session.find(token)).to_not be_nil
+          expect(User.find(uuid)).to_not be_nil
+          # this should not exist yet
+          expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
+          # it has the cookie set
+          expect(cookies[:va_session]).to eq('bar')
+          get(:logout, session: Base64.urlsafe_encode64(token))
+          expect(cookies[:va_session]).to be_nil
+          expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
+          # these should be destroyed.
+          expect(Session.find(token)).to be_nil
+          expect(User.find(uuid)).to be_nil
+          # this should be created in redis
+          expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
+        end
+      end
+    end
+
+    describe 'POST saml_logout_callback' do
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
-      context 'logout_response is invalid' do
+      context 'saml_logout_response is invalid' do
         before do
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(invalid_logout_response)
         end
@@ -231,20 +240,27 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to redirect_to(Settings.saml.logout_relay + '?success=true')
         end
       end
-      context ' logout_response is success' do
+
+      context 'saml_logout_response is success' do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
         end
 
-        it 'redirects to success and destroy the session' do
+        it 'redirects to success and destroys only the logout request' do
+          # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
+          # this will be destroyed
+          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
             .to redirect_to(redirect_to(Settings.saml.logout_relay + '?success=true'))
-          expect(Session.find(token)).to be_nil
-          expect(User.find(uuid)).to be_nil
+          # these should have been destroyed in the initial call to sessions/logout, not in the callback.
+          expect(Session.find(token)).to_not be_nil
+          expect(User.find(uuid)).to_not be_nil
+          # this should be destroyed
+          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
         end
       end
     end
@@ -551,29 +567,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when not logged in' do
-    it 'returns the urls for for all three possible authN requests' do
-      get :authn_urls
-      expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body).keys).to eq %w[mhv dslogon idme]
-    end
-
-    it 'does not allow fetching the identity proof url' do
-      get :identity_proof
-      expect(response).to have_http_status(401)
-    end
-
-    it 'does not allow fetching the multifactor url' do
-      get :multifactor
-      expect(response).to have_http_status(401)
-    end
-
-    describe ' DELETE destroy' do
-      it 'returns unauthorized' do
-        delete :destroy
-        expect(response).to have_http_status(:unauthorized)
-      end
-    end
-
     describe 'POST saml_callback' do
       context 'loa1_user' do
         let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
