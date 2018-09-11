@@ -7,6 +7,8 @@
 # The account.uuid is intended to become the Vets-API user's uuid.
 #
 class Account < ActiveRecord::Base
+  has_many :user_preferences, dependent: :destroy
+
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, presence: true, uniqueness: true
 
