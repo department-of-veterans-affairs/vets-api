@@ -25,27 +25,28 @@ module EVSS
       # submission service (currently EVSS)
       #
       # @param user_uuid [String] The user's uuid thats associated with the form
+      # @param auth_headers [Hash] The VAAFI headers for the user
       # @param claim_id [String] The claim id for the claim that will be associated with the async transaction
       # @param form_content [Hash] The form content that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
-      def perform(user_uuid, claim_id, form_content, uploads)
-        user = User.find(user_uuid)
+      def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
+        associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
 
-        if transaction_class.find_transaction(jid).blank?
-          saved_claim(claim_id).async_transaction = transaction_class.start(user, jid)
-        end
-        response = service(user).submit_form(form_content)
+        response = service(auth_headers).submit_form(form_content)
+
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
         Rails.logger.info('Form526 Submission',
-                          'user_uuid' => user.uuid,
+                          'user_uuid' => user_uuid,
                           'job_id' => jid,
                           'job_status' => 'received')
 
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
-        EVSS::DisabilityCompensationForm::SubmitUploads.start(user, response.claim_id, uploads) if uploads.present?
+        if uploads.present?
+          EVSS::DisabilityCompensationForm::SubmitUploads.start(user_uuid, auth_headers, response.claim_id, uploads)
+        end
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         handle_service_exception(e)
       rescue Common::Exceptions::GatewayTimeout => e
@@ -58,8 +59,16 @@ module EVSS
 
       private
 
-      def service(user)
-        EVSS::DisabilityCompensationForm::Service.new(user)
+      def associate_transaction(auth_headers, claim_id, user_uuid)
+        saved_claim(claim_id).async_transaction = transaction_class.start(
+          user_uuid, auth_headers['va_eauth_dodedipnid'], jid
+        )
+      end
+
+      def service(auth_headers)
+        EVSS::DisabilityCompensationForm::Service.new(
+          auth_headers
+        )
       end
 
       def saved_claim(claim_id)
