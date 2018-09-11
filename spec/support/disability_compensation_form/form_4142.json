@@ -5,7 +5,7 @@
   "veteranServiceNumber": "string",
   "veteranFullName": {
     "first": "Beyonce",
-    "middle": "Giselle",
+    "middle": null,
     "last": "Knowles"
   },
   "veteranDateOfBirth": "1809-02-12",

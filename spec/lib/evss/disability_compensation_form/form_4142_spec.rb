@@ -23,8 +23,4 @@ describe EVSS::DisabilityCompensationForm::Form4142 do
       expect(JSON.parse(subject.translate)).to eq expected_output
     end
   end
-
-  describe '#submit' do
-    it 'should kick off the 4142 async job'
-  end
 end

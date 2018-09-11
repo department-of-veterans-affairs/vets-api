@@ -104,7 +104,6 @@ FactoryBot.define do
 
     factory :disabilities_compensation_user, traits: [:loa3] do
       first_name('Beyonce')
-      middle_name('Giselle')
       last_name('Knowles')
       gender('F')
       last_signed_in(Time.zone.parse('2017-12-07T00:55:09Z'))
