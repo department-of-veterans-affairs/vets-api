@@ -23,6 +23,40 @@ RSpec.describe Session, type: :model do
     it 'has a persisted attribute of false' do
       expect(subject.persisted?).to be_falsey
     end
+
+    context 'without a user match' do
+      it '#user returns nil' do
+        expect(subject.user).to eq(nil)
+      end
+
+      it '#cookie_data returns {}' do
+        expect(subject.cookie_data).to eq(nil)
+      end
+    end
+
+    context 'with a matching user' do
+      let(:start_time) { Time.current.utc }
+      let(:expry_time) { start_time + 1800 }
+
+      before(:each) do
+        Timecop.freeze(start_time)
+        create(:user, :mhv, uuid: attributes[:uuid])
+        subject.save # persisting it to freeze the ttl
+      end
+
+      after(:each) do
+        Timecop.return
+      end
+
+      it '#user returns a matching user object' do
+        expect(subject.user).to be_a(User)
+      end
+
+      it '#cookie_data returns certain attribute for user object' do
+        expect(subject.cookie_data)
+          .to eq({"patientIcn"=>"1000123456V123456", "mhvCorrelationId"=>"12345678901", "expirationTime"=>expry_time.iso8601(0)})
+      end
+    end
   end
 
   describe 'redis persistence' do

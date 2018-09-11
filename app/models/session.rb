@@ -39,6 +39,7 @@ class Session < Common::RedisStore
   end
 
   def cookie_data
+    return nil unless user.present?
     {
       "patientIcn" => user.icn,
       "mhvCorrelationId" => user.mhv_correlation_id,
