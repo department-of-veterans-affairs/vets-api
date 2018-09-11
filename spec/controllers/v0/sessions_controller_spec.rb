@@ -211,7 +211,13 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'cannot find a session' do
         it 'raises a Forbidden exception' do
           get(:logout, session: Base64.urlsafe_encode64('invalid_token'))
-          expect(JSON.parse(response.body)).to eq({"errors"=>[{"title"=>"Forbidden", "detail"=>"Invalid request", "code"=>"403", "status"=>"403"}]})
+          expect(JSON.parse(response.body))
+            .to eq('errors' => [{
+                     'title' => 'Forbidden',
+                     'detail' => 'Invalid request',
+                     'code' => '403',
+                     'status' => '403'
+                   }])
         end
       end
 
@@ -280,7 +286,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       let(:frozen_time) { Time.current }
-      let(:expire_at) { frozen_time + 1800}
+      let(:expire_at) { frozen_time + 1800 }
 
       around(:each) do |example|
         Timecop.freeze(frozen_time)
@@ -324,7 +330,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
         expect(cookies['vagov_session_dev']).not_to be_nil
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-          .to eq('patientIcn' => loa3_user.icn, 'mhvCorrelationId' => loa3_user.mhv_correlation_id, 'expirationTime' => expire_at.iso8601(0))
+          .to eq('patientIcn' => loa3_user.icn,
+                 'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+                 'expirationTime' => expire_at.iso8601(0))
       end
 
       it 'does not log to sentry when SSN matches', :aggregate_failures do
@@ -338,7 +346,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.va_profile.ssn).to eq('796111863')
         expect(cookies['vagov_session_dev']).not_to be_nil
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-          .to eq('patientIcn' => loa3_user.icn, 'mhvCorrelationId' => loa3_user.mhv_correlation_id, 'expirationTime' => expire_at.iso8601(0))
+          .to eq('patientIcn' => loa3_user.icn,
+                 'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+                 'expirationTime' => expire_at.iso8601(0))
       end
 
       context 'changing multifactor' do

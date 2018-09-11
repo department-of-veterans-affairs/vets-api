@@ -54,7 +54,9 @@ RSpec.describe Session, type: :model do
 
       it '#cookie_data returns certain attribute for user object' do
         expect(subject.cookie_data)
-          .to eq({"patientIcn"=>"1000123456V123456", "mhvCorrelationId"=>"12345678901", "expirationTime"=>expry_time.iso8601(0)})
+          .to eq('patientIcn' => '1000123456V123456',
+                 'mhvCorrelationId' => '12345678901',
+                 'expirationTime' => expry_time.iso8601(0))
       end
     end
   end

@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 class Aes256CbcEncryptor
   def initialize(hex_secret, hex_iv)
     @secret = [hex_secret].pack('H*')
     @iv = [hex_iv].pack('H*')
     # Pad with zero bytes to correct length
     @secret << ("\x00" * (32 - secret.length))
-    @iv  << ("\x00" * (16 - iv.length))
+    @iv << ("\x00" * (16 - iv.length))
   end
 
   attr_reader :secret, :iv
