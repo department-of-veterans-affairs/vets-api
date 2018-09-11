@@ -34,6 +34,22 @@ class Session < Common::RedisStore
     super(ttl)
   end
 
+  def user
+    User.find(uuid)
+  end
+
+  def cookie_data
+    {
+      "mhvCorrelationId" => user.mhv_correlation_id,
+      "patientIcn" => user.icn,
+      "expirationTime" = ttl_in_time
+    }
+  end
+
+  def ttl_in_time
+    Time.current + ttl
+  end
+
   private
 
   def secure_random_token(length = DEFAULT_TOKEN_LENGTH)

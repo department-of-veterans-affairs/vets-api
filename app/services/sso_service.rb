@@ -32,12 +32,6 @@ class SSOService
 
   validate :composite_validations
 
-  def self.extend_session!(session, user)
-    session.expire(Session.redis_namespace_ttl)
-    user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    user&.expire(User.redis_namespace_ttl)
-  end
-
   def persist_authentication!
     if new_login?
       # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
