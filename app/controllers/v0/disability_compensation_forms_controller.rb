@@ -20,19 +20,11 @@ module V0
       form_content = JSON.parse(request.body.string)
 
       claim = SavedClaim::DisabilityCompensation.new(form: form_content['form526'].to_json)
-      unless claim.save
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
-      end
-      StatsD.increment("#{stats_key}.success")
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      log_claim(claim)
 
       uploads = form_content['form526'].delete('attachments')
 
-      form_4142 = EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
-      CentralMail::SubmitForm4142Job.perform_async(
-        @current_user.uuid, form_4142, claim.id, claim.created_at
-      )
+      submit_4142(form_content, claim)
 
       converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
         @current_user, form_content
@@ -53,6 +45,24 @@ module V0
     end
 
     private
+
+    def submit_4142(form_content, claim)
+      if form_content['form4142'].present?
+        translated_form = EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
+        CentralMail::SubmitForm4142Job.perform_async(
+          @current_user.uuid, translated_form, claim.id, claim.created_at
+        )
+      end
+    end
+
+    def log_claim(claim)
+      unless claim.save
+        StatsD.increment("#{stats_key}.failure")
+        raise Common::Exceptions::ValidationErrors, claim
+      end
+      StatsD.increment("#{stats_key}.success")
+      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+    end
 
     def validate_name_part
       raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?

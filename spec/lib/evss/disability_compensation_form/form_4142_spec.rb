@@ -4,7 +4,11 @@ require 'rails_helper'
 require 'evss/disability_compensation_form/form4142'
 
 describe EVSS::DisabilityCompensationForm::Form4142 do
-  let(:form_content) { JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission_with_4142.json')) }
+  let(:form_content) do
+    JSON.parse(
+      File.read('spec/support/disability_compensation_form/front_end_submission_with_4142.json')
+    )
+  end
   let(:expected_output) { JSON.parse(File.read('spec/support/disability_compensation_form/form_4142.json')) }
   let(:user) { build(:disabilities_compensation_user) }
 
