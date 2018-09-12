@@ -49,12 +49,12 @@ module PdfFill
       combine_extras(file_path, hash_converter.extras_generator)
     end
 
-    def fill_ancillary_form(form_data, claim_id)
-      form_class = PdfFill::Forms::Va214142
+    def fill_ancillary_form(form_data, claim_id, form_id)
+      form_class = FORM_CLASSES[form_id]
 
       folder = 'tmp/pdfs'
       FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{FORM_ID}_#{claim_id}.pdf"
+      file_path = "#{folder}/#{form_id}_#{claim_id}.pdf"
 
       hash_converter = PdfFill::HashConverter.new(form_class.date_strftime)
 
@@ -64,7 +64,7 @@ module PdfFill
       )
 
       PdfFill::Filler::PDF_FORMS.fill_form(
-        "lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf",
+        "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,
         new_hash,
         flatten: false

@@ -86,7 +86,7 @@ module CentralMail
     end
 
     def process_record(form_content, claim_id)
-      pdf_path = fill_ancillary_form(form_content, claim_id)
+      pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, claim_id, FORM_ID)
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
       CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - Vets.gov Submission',
@@ -94,32 +94,6 @@ module CentralMail
         y: 770,
         text_only: true
       )
-    end
-
-    def fill_ancillary_form(form_data, claim_id)
-      form_class = PdfFill::Forms::Va214142
-
-      folder = 'tmp/pdfs'
-      FileUtils.mkdir_p(folder)
-      file_path = "#{folder}/#{FORM_ID}_#{claim_id}.pdf"
-
-      hash_converter = PdfFill::HashConverter.new(form_class.date_strftime)
-
-      new_hash = hash_converter.transform_data(
-        form_data: form_class.new(form_data).merge_fields,
-        pdftk_keys: form_class::KEY
-      )
-
-      PdfFill::Filler::PDF_FORMS.fill_form(
-        "lib/pdf_fill/forms/pdfs/#{FORM_ID}.pdf",
-        file_path,
-        new_hash,
-        flatten: false
-      )
-
-      PdfFill::Filler.combine_extras(file_path, hash_converter.extras_generator)
-
-      file_path
     end
 
     def get_hash_and_pages(file_path)
