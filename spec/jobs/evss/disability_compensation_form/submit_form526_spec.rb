@@ -99,6 +99,16 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
       end
     end
 
+    context 'with a max ep code server error' do
+      it 'sets the transaction to "retrying"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_500_with_max_ep_code') do
+          subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil)
+          described_class.drain
+          expect(last_transaction.transaction_status).to eq 'non_retryable_error'
+        end
+      end
+    end
+
     context 'with an unexpected error' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))

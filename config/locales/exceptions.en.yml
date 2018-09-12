@@ -1486,7 +1486,7 @@ en:
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-    526:
+    disability_compensation_form:
       not_eligible:
         <<: *defaults
         title: Proxy error
@@ -1513,9 +1513,15 @@ en:
         status: 500
       start_batch_job_error:
         <<: *defaults
-        title: Cannot launch the 526 post submit batch job
+        title: 'Cannot launch the 526 post submit batch job'
         code: 125
         status: 502
+      max_ep_code:
+        <<: *defaults
+        title: Unprocessable Entity
+        detail: 'The Maximum number of EP codes have been reached for this benefit type claim code'
+        code: 126
+        status: 422
     ppiu:
       unprocessable_entity:
         <<: *defaults
