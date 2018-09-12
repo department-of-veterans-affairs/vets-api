@@ -8,11 +8,11 @@ module EVSS
       ERROR_MAP = {
         serviceError: 'evss.external_service_unavailable',
         ServiceException: 'evss.external_service_unavailable',
-        notEligible: 'evss.526.not_eligible',
-        InProcess: 'evss.526.form_in_process',
-        disabled: 'evss.526.disabled',
-        marshalError: 'evss.526.marshall_error',
-        startBatchJobError: 'evss.526.start_batch_job_error',
+        notEligible: 'evss.disability_compensation_form.not_eligible',
+        InProcess: 'evss.disability_compensation_form.form_in_process',
+        disabled: 'evss.disability_compensation_form.disabled',
+        marshalError: 'evss.disability_compensation_form.marshall_error',
+        startBatchJobError: 'evss.disability_compensation_form.start_batch_job_error',
         Size: 'common.exceptions.validation_errors',
         Pattern: 'common.exceptions.validation_errors',
         NotNull: 'common.exceptions.validation_errors',
@@ -26,7 +26,8 @@ module EVSS
         militaryPayments: 'common.exceptions.validation_errors',
         serviceInformation: 'common.exceptions.validation_errors',
         treatments: 'common.exceptions.validation_errors',
-        veteran: 'common.exceptions.validation_errors'
+        veteran: 'common.exceptions.validation_errors',
+        MaxEPCode: 'evss.disability_compensation_form.max_ep_code'
       }.freeze
 
       def errors
