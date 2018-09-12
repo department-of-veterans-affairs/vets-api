@@ -20,12 +20,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     let(:claim) { FactoryBot.build(:va526ez) }
 
     before do
-      Settings.sentry.dsn = 'asdf'
       claim.save!
-    end
-
-    after do
-      Settings.sentry.dsn = nil
     end
 
     context 'with a successful submission job' do
