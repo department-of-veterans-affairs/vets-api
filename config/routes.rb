@@ -205,6 +205,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :search, only: :index
+
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
