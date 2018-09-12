@@ -96,7 +96,7 @@ module EVSS
       def handle_gateway_timeout_exception(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
         increment_retryable(error)
-        raise EVSS::DisabilityCompensationForm::GatewayTimeout.new(error)
+        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
       def handle_standard_error(error)
