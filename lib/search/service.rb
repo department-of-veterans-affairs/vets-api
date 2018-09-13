@@ -18,7 +18,7 @@ module Search
     end
 
     # GETs a list of search results from Search.gov web results API
-    # @return [Search::ResultsResponse wrapper around results data
+    # @return [Search::ResultsResponse] wrapper around results data
     #
     def results
       with_monitoring do
