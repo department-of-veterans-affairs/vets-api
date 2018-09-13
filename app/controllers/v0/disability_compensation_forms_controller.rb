@@ -24,7 +24,7 @@ module V0
 
       uploads = form_content['form526'].delete('attachments')
 
-      form4142 = translate_form4142(form_content)
+      form4142 = translate_form4142(form_content) if form_content['form526']['form4142'].present?
 
       converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
         @current_user, form_content
@@ -57,9 +57,7 @@ module V0
     end
 
     def translate_form4142(form_content)
-      if form_content['form526']['form4142'].present?
-        EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
-      end
+      EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
     end
 
     def validate_name_part
