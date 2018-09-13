@@ -73,7 +73,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
       it 'sets the transaction to "retrying"' do
         subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil)
-        expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
         expect(last_transaction.transaction_status).to eq 'retrying'
       end
     end
