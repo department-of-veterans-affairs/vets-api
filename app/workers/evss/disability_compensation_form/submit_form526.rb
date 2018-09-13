@@ -37,7 +37,7 @@ module EVSS
 
         response = service(auth_headers).submit_form(form_content)
 
-        submit_4142(form4142, response.claim_id, saved_claim(claim_id).created_at) if form4142
+        submit_4142(form4142, user_uuid, response.claim_id, saved_claim(claim_id).created_at) if form4142
 
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
@@ -74,7 +74,7 @@ module EVSS
 
       def submit_4142(form_content, evss_claim_id, saved_claim_created_at)
         CentralMail::SubmitForm4142Job.perform_async(
-          @current_user.uuid, form_content, evss_claim_id, saved_claim_created_at
+          user_uuid, form_content, evss_claim_id, saved_claim_created_at
         )
       end
 
