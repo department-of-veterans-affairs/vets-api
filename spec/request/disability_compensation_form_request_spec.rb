@@ -110,7 +110,7 @@ RSpec.describe 'Disability compensation form', type: :request do
     context 'with a valid 200 evss response' do
       let(:valid_form_content) do
         File.read(
-          'spec/support/disability_compensation_form/front_end_submission_with_4142.json'
+          'spec/support/disability_compensation_form/front_end_submission.json'
         )
       end
       let(:jid) { "JID-#{SecureRandom.base64}" }
@@ -134,13 +134,6 @@ RSpec.describe 'Disability compensation form', type: :request do
       it 'should start the submit job' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           expect(EVSS::DisabilityCompensationForm::SubmitForm526).to receive(:perform_async).once
-          post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-        end
-      end
-
-      it 'should start the 4142 submit job' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect(::CentralMail::SubmitForm4142Job).to receive(:perform_async).once
           post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
         end
       end

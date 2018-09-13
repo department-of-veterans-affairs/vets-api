@@ -30,10 +30,12 @@ module EVSS
       # @param form_content [Hash] The form content that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
-      def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
+      def perform(user_uuid, auth_headers, claim_id, form_content, form4142, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
 
         response = service(auth_headers).submit_form(form_content)
+
+        submit_4142(form4142, response.claim_id, saved_claim.created_at) if form4142
 
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
@@ -62,6 +64,12 @@ module EVSS
       def associate_transaction(auth_headers, claim_id, user_uuid)
         saved_claim(claim_id).async_transaction = transaction_class.start(
           user_uuid, auth_headers['va_eauth_dodedipnid'], jid
+        )
+      end
+
+      def submit_4142(form_content, evss_claim_id, saved_claim_created_at)
+        CentralMail::SubmitForm4142Job.perform_async(
+          @current_user.uuid, form_content, evss_claim_id, saved_claim_created_at
         )
       end
 

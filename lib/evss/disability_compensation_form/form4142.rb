@@ -6,7 +6,7 @@ module EVSS
       def initialize(user, form_content)
         @user = user
         @veteran_data = form_content['form526']['veteran']
-        @final_output = form_content['form4142']
+        @final_output = form_content['form526']['form4142']
       end
 
       def translate
