@@ -31,7 +31,7 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
   describe '.start' do
     it 'creates an asyn transaction' do
       expect do
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction.start(user, SecureRandom.uuid)
+        AsyncTransaction::EVSS::VA526ezSubmitTransaction.start(user.uuid, user.edipi, SecureRandom.uuid)
       end.to change { AsyncTransaction::EVSS::VA526ezSubmitTransaction.count }.by(1)
     end
   end
@@ -49,11 +49,11 @@ RSpec.describe AsyncTransaction::EVSS::VA526ezSubmitTransaction, type: :model do
 
   describe '.find_transactions' do
     it 'finds all 526ez transactions for a user' do
-      expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(user).count).to eq(2)
+      expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(user.uuid).count).to eq(2)
     end
     it 'finds only 526ez transactions for a user' do
       expect(
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(user).all? do |t|
+        AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transactions(user.uuid).all? do |t|
           t.class == AsyncTransaction::EVSS::VA526ezSubmitTransaction
         end
       ).to be_truthy

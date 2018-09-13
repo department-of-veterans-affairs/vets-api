@@ -70,7 +70,7 @@ module PdfFill
         flatten: false
       )
 
-      PdfFill::Filler.combine_extras(file_path, hash_converter.extras_generator)
+      file_path = PdfFill::Filler.combine_extras(file_path, hash_converter.extras_generator)
 
       file_path
     end

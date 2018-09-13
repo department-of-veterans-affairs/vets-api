@@ -108,7 +108,11 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a valid 200 evss response' do
-      let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
+      let(:valid_form_content) do
+        File.read(
+          'spec/support/disability_compensation_form/front_end_submission.json'
+        )
+      end
       let(:jid) { "JID-#{SecureRandom.base64}" }
 
       before(:each) do
