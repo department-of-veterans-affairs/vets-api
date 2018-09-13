@@ -13,6 +13,25 @@ RSpec.describe Account, type: :model do
     expect(account.reload.uuid).to eq uuid
   end
 
+  describe '.create_if_needed!' do
+    it 'creates an Account if one does not exist' do
+      expect(Account.count).to eq 0
+
+      user = create(:user, :loa3)
+
+      Account.create_if_needed!(user)
+      expect(Account.count).to eq 1
+    end
+
+    it 'should not create a second Account' do
+      user = create(:user, :accountable)
+      expect(Account.count).to eq 1
+
+      Account.create_if_needed!(user)
+      expect(Account.count).to eq 1
+    end
+  end
+
   describe 'Account factory' do
     it 'should generate a valid factory' do
       account = create :account
@@ -40,6 +59,23 @@ RSpec.describe Account, type: :model do
           expect(existing_uuid).to_not eq new_account.uuid
         end
       end
+    end
+  end
+
+  describe '.cache_or_create_by!' do
+    let(:user) { build(:user, :loa3) }
+
+    it 'first attempts to fetch the Account record from the Redis cache' do
+      expect(Account).to receive(:do_cached_with)
+
+      Account.cache_or_create_by! user
+    end
+
+    it "returns the user's db Account record", :aggregate_failures do
+      record = Account.cache_or_create_by! user
+
+      expect(record).to eq Account.find_by(idme_uuid: user.uuid)
+      expect(record.class).to eq Account
     end
   end
 end
