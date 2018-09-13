@@ -40,15 +40,16 @@ module Search
       config.base_path
     end
 
+    # Required params [affiliate, access_key, query]
+    # Optional params [enable_highlighting, limit, offset, sort_by]
+    #
+    # @see https://search.usa.gov/sites/7378/api_instructions
+    #
     def query_params
       {
         affiliate:  affiliate,
         access_key: access_key,
-        query:      query # ,
-        # enable_highlighting: highlight?,
-        # limit: limit,
-        # offset: offset,
-        # sort_by: sort_by
+        query:      query
       }
     end
 
