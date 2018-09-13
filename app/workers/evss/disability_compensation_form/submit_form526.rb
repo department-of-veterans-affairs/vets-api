@@ -30,6 +30,8 @@ module EVSS
       # @param form_content [Hash] The form content that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
+
+      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       def perform(user_uuid, auth_headers, claim_id, form_content, form4142, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
 
@@ -60,6 +62,7 @@ module EVSS
       ensure
         StatsD.increment('worker.evss.submit_form526.try')
       end
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
       private
 
