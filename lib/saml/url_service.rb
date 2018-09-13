@@ -33,6 +33,13 @@ module SAML
       build_sso_url(authn_context: authn_context, connect: policy, success_relay: success_relay)
     end
 
+    # This is the internal vets-api url that first gets invoked, it should redirect without authentication
+    # when this url gets invoked, the session should be destroyed, before the callback returns
+    def logout_url(session)
+     token = Base64.urlsafe_encode64(session.token)
+     Rails.application.routes.url_helpers.logout_v0_sessions_url(method: 'delete', session: token)
+    end
+
     # SLO URLS
     def slo_url(session)
       build_slo_url(session)
