@@ -57,6 +57,8 @@ module EVSS
         # Treat unexpected errors as hard failures
         # This includes BackeEndService Errors (including 403's)
         handle_standard_error(e)
+      ensure
+        StatsD.increment('worker.evss.submit_form526.try')
       end
 
       private
@@ -90,26 +92,46 @@ module EVSS
       def handle_service_exception(error)
         if error.status_code.between?(500, 600)
           transaction_class.update_transaction(jid, :retrying, error.messages)
+          increment_retryable(error)
           raise error
         end
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
         extra_content = { status: :non_retryable_error, jid: jid }
         log_exception_to_sentry(error, extra_content)
+        increment_non_retryable(error)
       end
 
       def handle_gateway_timeout_exception(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
-        raise error
+        increment_retryable(error)
+        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
       def handle_standard_error(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
         extra_content = { status: :non_retryable_error, jid: jid }
         log_exception_to_sentry(error, extra_content)
+        increment_non_retryable(error)
       end
 
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
+      end
+
+      def increment_non_retryable(error)
+        tags = statsd_tags(error)
+        StatsD.increment('worker.evss.submit_form526.non_retryable_error', tags: tags)
+      end
+
+      def increment_retryable(error)
+        tags = statsd_tags(error)
+        StatsD.increment('worker.evss.submit_form526.retryable_error', tags: tags)
+      end
+
+      def statsd_tags(error)
+        tags = ["error:#{error.class}"]
+        tags << "status:#{error.status}" if error.try(:status)
+        tags
       end
     end
   end
