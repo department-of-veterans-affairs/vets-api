@@ -17,12 +17,12 @@ describe Search::Service do
           response = subject.results
 
           expect(response).to be_ok
-          expect(response).to be_a(Search::ResultsTransactionResponse)
+          expect(response).to be_a(Search::ResultsResponse)
         end
       end
 
       it 'returns an array of search result data' do
-        VCR.use_cassette('search/success') do
+        VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
 
           query = response.results['query']
