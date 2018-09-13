@@ -8,7 +8,7 @@ module Search
     include Common::Client::ServiceStatus
 
     attribute :status, Integer
-    attribute :results, Hash
+    attribute :body, Hash
 
     def initialize(status, attributes = nil)
       super(attributes) if attributes
@@ -16,8 +16,8 @@ module Search
     end
 
     def self.from(response)
-      results = response.body
-      new(response.status, results: results)
+      body = response.body
+      new(response.status, body: body)
     end
 
     def ok?
