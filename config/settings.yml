@@ -312,5 +312,5 @@ account:
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
-  affiliate: vets.gov_search
-  url: https://search.vets.gov/api/v2
+  affiliate: va
+  url: https://search.usa.gov/api/v2
