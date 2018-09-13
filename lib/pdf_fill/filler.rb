@@ -56,23 +56,21 @@ module PdfFill
       FileUtils.mkdir_p(folder)
       file_path = "#{folder}/#{form_id}_#{claim_id}.pdf"
 
-      hash_converter = PdfFill::HashConverter.new(form_class.date_strftime)
+      hash_converter = HashConverter.new(form_class.date_strftime)
 
       new_hash = hash_converter.transform_data(
         form_data: form_class.new(form_data).merge_fields,
         pdftk_keys: form_class::KEY
       )
 
-      PdfFill::Filler::PDF_FORMS.fill_form(
+      PDF_FORMS.fill_form(
         "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
         file_path,
         new_hash,
         flatten: false
       )
 
-      file_path = PdfFill::Filler.combine_extras(file_path, hash_converter.extras_generator)
-
-      file_path
+      combine_extras(file_path, hash_converter.extras_generator)
     end
   end
 end
