@@ -4,6 +4,8 @@ require 'common/client/configuration/rest'
 
 module Search
   class Configuration < Common::Client::Configuration::REST
+    self.read_timeout = 30
+
     def connection
       @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
@@ -19,8 +21,6 @@ module Search
     def mock_enabled?
       false
     end
-
-    self.read_timeout = 30
 
     def base_path
       "#{Settings.search.url}/search/i14y"
