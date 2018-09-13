@@ -18,12 +18,12 @@ module Search
     end
 
     # GETs a list of search results from Search.gov web results API
-    # @return [Search::ResultsTransactionResponse] response wrapper around results data
+    # @return [Search::ResultsResponse wrapper around results data
     #
     def results
       with_monitoring do
         response = perform(:get, results_url, query_params)
-        Search::ResultsTransactionResponse.from(response)
+        Search::ResultsResponse.from(response)
       end
     rescue StandardError => error
       log_message_to_sentry(

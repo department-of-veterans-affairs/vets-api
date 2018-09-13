@@ -4,7 +4,7 @@ require 'common/client/concerns/service_status'
 require 'common/models/base'
 
 module Search
-  class ResultsTransactionResponse < Common::Base
+  class ResultsResponse < Common::Base
     include Common::Client::ServiceStatus
 
     attribute :status, Integer
