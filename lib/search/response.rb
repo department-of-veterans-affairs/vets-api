@@ -27,22 +27,5 @@ module Search
     def cache?
       ok?
     end
-
-    def metadata
-      { status: response_status }
-    end
-
-    def response_status
-      case status
-      when 200
-        RESPONSE_STATUS[:ok]
-      when 403
-        RESPONSE_STATUS[:not_authorized]
-      when 404
-        RESPONSE_STATUS[:not_found]
-      else
-        RESPONSE_STATUS[:server_error]
-      end
-    end
   end
 end
