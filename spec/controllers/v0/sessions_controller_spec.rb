@@ -168,7 +168,6 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'new' do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme mfa verify slo].each do |type|
-
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
