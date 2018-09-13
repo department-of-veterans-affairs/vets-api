@@ -5,9 +5,9 @@ require 'search/response'
 
 module Search
   class Service < Common::Client::Base
-    STATSD_KEY_PREFIX = 'api.search'
-
     include Common::Client::Monitoring
+
+    STATSD_KEY_PREFIX = 'api.search'
 
     configuration Search::Configuration
 
@@ -30,7 +30,7 @@ module Search
         error.message,
         :error,
         { url: config.base_path },
-        search: 'results query errored'
+        search: 'search_results_query_error'
       )
     end
 
