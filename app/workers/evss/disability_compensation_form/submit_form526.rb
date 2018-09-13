@@ -32,9 +32,7 @@ module EVSS
       #
       def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
-
         response = service(auth_headers).submit_form(form_content)
-
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
@@ -52,8 +50,6 @@ module EVSS
       rescue Common::Exceptions::GatewayTimeout => e
         handle_gateway_timeout_exception(e)
       rescue StandardError => e
-        # Treat unexpected errors as hard failures
-        # This includes BackeEndService Errors (including 403's)
         handle_standard_error(e)
       ensure
         StatsD.increment('worker.evss.submit_form526.try')
@@ -122,7 +118,8 @@ module EVSS
 
       def statsd_tags(error)
         tags = ["error:#{error.class}"]
-        tags << "status:#{error.status}" if error.try(:status)
+        tags << "status:#{error.status}" if error.try(:status_code)
+        tags << "message:#{error.message}" if error.try(:message)
         tags
       end
     end
