@@ -45,7 +45,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
       let(:error) { Common::Client::Errors::HTTPError }
 
       before do
-        expect(hca_service).to receive(:submit_form).with(form).once.and_raise(error)
+        expect(hca_service).to receive(:submit_form_526).with(form).once.and_raise(error)
       end
 
       context 'with a validation error' do
@@ -78,7 +78,7 @@ RSpec.describe HCA::SubmissionJob, type: :job do
 
     context 'with a successful submission' do
       before do
-        expect(hca_service).to receive(:submit_form).with(form).once.and_return(result)
+        expect(hca_service).to receive(:submit_form_526).with(form).once.and_return(result)
         expect(Rails.logger).to receive(:info).with("SubmissionID=#{result[:formSubmissionId]}")
       end
 

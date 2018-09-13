@@ -19,6 +19,7 @@ module EVSS
           "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
           :error
         )
+        StatsD.increment('worker.evss.submit_form526.exhausted', tags:["job_id:#{jid}"])
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -32,7 +33,7 @@ module EVSS
       #
       def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
-        response = service(auth_headers).submit_form(form_content)
+        response = service(auth_headers).submit_form_526(form_content)
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
@@ -52,7 +53,7 @@ module EVSS
       rescue StandardError => e
         handle_standard_error(e)
       ensure
-        StatsD.increment('worker.evss.submit_form526.try')
+        StatsD.increment('worker.evss.submit_form526.try', tags:["job_id:#{jid}"])
       end
 
       private
@@ -118,7 +119,8 @@ module EVSS
 
       def statsd_tags(error)
         tags = ["error:#{error.class}"]
-        tags << "status:#{error.status}" if error.try(:status_code)
+        tags << "job_id:#{jid}"
+        tags << "status:#{error.status_code}" if error.try(:status_code)
         tags << "message:#{error.message}" if error.try(:message)
         tags
       end
