@@ -112,7 +112,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     context 'with a pif in use server error' do
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_pif_in_use') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil)
+          subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil, nil)
           described_class.drain
           expect(last_transaction.transaction_status).to eq 'non_retryable_error'
         end
@@ -122,7 +122,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     context 'with an error that is not mapped' do
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_unmapped') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil)
+          subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil, nil)
           described_class.drain
           expect(last_transaction.transaction_status).to eq 'non_retryable_error'
         end
