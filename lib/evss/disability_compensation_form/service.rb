@@ -24,7 +24,7 @@ module EVSS
         handle_error(e)
       end
 
-      def submit_form_526(form_content)
+      def submit_form526(form_content)
         with_monitoring do
           headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'submit', form_content, headers)

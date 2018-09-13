@@ -43,7 +43,7 @@ describe HCA::Service do
             expect(pretty_printed[1..-1]).to eq(xml)
           end.and_return(response)
 
-          service.submit_form_526(json)
+          service.submit_form(json)
         end
       end
     end
