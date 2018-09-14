@@ -59,19 +59,36 @@ module Search
     def handle_error(error)
       case error
       when Common::Client::Errors::ClientError
-        log_error_message(error)
-        return ResultsResponse.new(400, body: error.message) if error.status == 400
+        message = parse_messages(error).first
+        log_error_message(message)
+        # raise_backend_exception('SEARCH_400', self.class, error) if message.present?
+        return ResultsResponse.new(400, body: message) if error.status == 400
       else
         raise error
       end
     end
 
-    def log_error_message(error)
+    def parse_messages(error)
+      error.body&.dig('errors')
+    end
+
+    def log_error_message(error_message)
       log_message_to_sentry(
-        error.message,
+        error_message,
         :error,
         { url: config.base_path },
-        search: 'search_results_query_error'
+        search: 'general_search_query_error'
+      )
+    end
+
+    def raise_backend_exception(key, source, error = nil)
+      Search::Stats.increment_exception('SEARCH_400')
+
+      raise Common::Exceptions::BackendServiceException.new(
+        key,
+        { source: source.to_s },
+        error&.status,
+        error&.body
       )
     end
   end

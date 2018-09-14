@@ -36,7 +36,7 @@ describe Search::Service do
     context 'with an empty search query' do
       let(:query) { '' }
 
-      it 'returns a status of 400' do
+      it 'returns a status of 400', :aggregate_failures do
         VCR.use_cassette('search/status_400', VCR::MATCH_EVERYTHING) do
           response = subject.results
 
@@ -47,7 +47,7 @@ describe Search::Service do
     end
 
     context 'with an invalid API access key' do
-      it 'returns a status of 400' do
+      it 'returns a status of 400', :aggregate_failures do
         VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
           allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
           response = subject.results
@@ -59,7 +59,7 @@ describe Search::Service do
     end
 
     context 'with an invalid affiliate' do
-      it 'returns a status of 400' do
+      it 'returns a status of 400', :aggregate_failures do
         VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
           allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
           response = subject.results
