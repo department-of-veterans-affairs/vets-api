@@ -31,10 +31,10 @@ module AsyncTransaction
       # @param job_id [String] A sidekiq job id (uuid)
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
-      def self.start(user, job_id)
+      def self.start(user_uuid, edipi, job_id)
         create!(
-          user_uuid: user.uuid,
-          source_id: user.edipi,
+          user_uuid: user_uuid,
+          source_id: edipi,
           source: SOURCE,
           status: REQUESTED,
           transaction_status: JOB_STATUS[:submitted],
@@ -59,8 +59,8 @@ module AsyncTransaction
       # @param user [User] The user associated with the transaction
       # @return [Array AsyncTransaction::EVSS::VA526ezSubmitTransaction] the user's transactions
       #
-      def self.find_transactions(user)
-        VA526ezSubmitTransaction.where(user_uuid: user.uuid)
+      def self.find_transactions(user_uuid)
+        VA526ezSubmitTransaction.where(user_uuid: user_uuid)
       end
 
       # Updates a transaction

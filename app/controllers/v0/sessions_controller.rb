@@ -104,7 +104,6 @@ module V0
 
     def after_login_actions
       async_create_evss_account
-      set_sso_cookie!
       create_user_account
     end
 

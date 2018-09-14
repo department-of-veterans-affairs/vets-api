@@ -138,7 +138,7 @@ class ApplicationController < ActionController::API
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
       extend_session!
-      return true
+      return true if @current_user.present
     end
   end
 

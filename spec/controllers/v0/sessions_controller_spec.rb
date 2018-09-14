@@ -92,6 +92,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:succesful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
+
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
 
   before do
@@ -199,7 +200,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
-        request.cookies['va_session'] = 'bar'
+        request.cookies['vagov_session_dev'] = 'bar'
       end
 
       around(:each) do |example|
@@ -222,18 +223,20 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'can find an active session' do
-        it 'destroys the user and session, and cookie, persists logout_request object, redirects to SLO url' do
+        it 'destroys the user, session, and cookie, persists logout_request object, redirects to SLO url' do
           # these should have been destroyed yet
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
+          expect(cookies['vagov_session_dev']).to_not be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(User.find(uuid)).to be_nil
+          expect(cookies['vagov_session_dev']).to be_nil
           # this should be created in redis
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
         end
