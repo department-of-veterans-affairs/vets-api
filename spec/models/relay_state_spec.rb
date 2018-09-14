@@ -52,11 +52,14 @@ RSpec.describe RelayState, type: :model do
         expect(subject.logout_url).to eq(Settings.saml.logout_relays.vetsgov)
       end
       it 'logs a error to sentry' do
-        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).once
+        expect_any_instance_of(described_class)
+          .to receive(:log_message_to_sentry)
+          .once
           .with(
             'Invalid SAML RelayState!',
             :error,
-            url_whitelist: described_class::ALL_RELAY_URLS, enum_whitelist: described_class::RELAY_KEYS
+            url_whitelist: described_class::ALL_RELAY_URLS,
+            enum_whitelist: described_class::RELAY_KEYS
           )
         subject.dup
       end
@@ -75,11 +78,14 @@ RSpec.describe RelayState, type: :model do
         expect(subject.logout_url).to eq(Settings.saml.logout_relays.vetsgov)
       end
       it 'logs a error to sentry' do
-        expect_any_instance_of(described_class).to receive(:log_message_to_sentry).once
+        expect_any_instance_of(described_class)
+          .to receive(:log_message_to_sentry)
+          .once
           .with(
             'Invalid SAML RelayState!',
             :error,
-            url_whitelist: described_class::ALL_RELAY_URLS, enum_whitelist: described_class::RELAY_KEYS
+            url_whitelist: described_class::ALL_RELAY_URLS,
+            enum_whitelist: described_class::RELAY_KEYS
           )
         subject.dup
       end
