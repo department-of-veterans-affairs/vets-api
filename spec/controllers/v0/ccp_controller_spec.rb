@@ -3,19 +3,12 @@
 require 'rails_helper'
 
 RSpec.describe V0::Facilities::CcpController, type: :controller do
-  blank_matcher = lambda { |r1, r2|
+  regex_matcher = lambda { |r1, r2|
     r1.uri.match(r2.uri)
   }
 
-  it 'should 200' do
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
-      get :ppms, params: { Command: 'Providers', Identifier: '12345' }
-      expect(response).to have_http_status(:ok)
-    end
-  end
-
   it 'should have a certain shape' do
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
+    VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
       get 'show', id: 12_345
       puts(response.body)
       expect(response).to have_http_status(:ok)

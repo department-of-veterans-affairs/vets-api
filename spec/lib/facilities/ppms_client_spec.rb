@@ -39,7 +39,7 @@ module Facilities
       it 'should edit the parameters' do
         params = PPMSClient.new.build_params('bbox': [73, -60, 74, -61])
         Rails.logger.info(params)
-        expect(params[:Radius]).to be > 35
+        expect(params[:radius]).to be > 35
       end
     end
   end

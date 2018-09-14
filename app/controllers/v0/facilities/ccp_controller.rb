@@ -3,20 +3,9 @@
 class V0::Facilities::CcpController < FacilitiesController
   def show
     ppms = Facilities::PPMSClient.new
-    result = ppms.provider_info(params[:id])
+    id = params[:id][4..-1]
+    result = ppms.provider_info(id)
     render json: format_details(result)
-  end
-
-  def ppms
-    params.delete 'action'
-    params.delete 'controller'
-    params.delete 'format'
-    command = params.delete 'Command'
-    start = Time.now.utc
-    ppms = Facilities::PPMSClient.new.test_routes(command, params)
-    finish = Time.now.utc
-    ppms = "Latency: #{finish - start}\n" + ppms.to_s
-    render text: ppms
   end
 
   private
