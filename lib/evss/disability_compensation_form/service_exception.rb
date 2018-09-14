@@ -5,6 +5,8 @@ require 'evss/service_exception'
 module EVSS
   module DisabilityCompensationForm
     class ServiceException < EVSS::ServiceException
+      include SentryLogging
+
       ERROR_MAP = {
         serviceError: 'evss.external_service_unavailable',
         ServiceException: 'evss.external_service_unavailable',
@@ -27,7 +29,8 @@ module EVSS
         serviceInformation: 'common.exceptions.validation_errors',
         treatments: 'common.exceptions.validation_errors',
         veteran: 'common.exceptions.validation_errors',
-        MaxEPCode: 'evss.disability_compensation_form.max_ep_code'
+        MaxEPCode: 'evss.disability_compensation_form.max_ep_code',
+        PIFInUse: 'evss.disability_compensation_form.pif_in_use'
       }.freeze
 
       def errors
