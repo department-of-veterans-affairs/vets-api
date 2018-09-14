@@ -26,12 +26,7 @@ module Search
         Search::ResultsResponse.from(response)
       end
     rescue StandardError => error
-      log_message_to_sentry(
-        error.message,
-        :error,
-        { url: config.base_path },
-        search: 'search_results_query_error'
-      )
+      handle_error(error)
     end
 
     private
@@ -59,6 +54,25 @@ module Search
 
     def access_key
       Settings.search.access_key
+    end
+
+    def handle_error(error)
+      case error
+      when Common::Client::Errors::ClientError
+        log_error_message(error)
+        return ResultsResponse.new(400, body: error.message) if error.status == 400
+      else
+        raise error
+      end
+    end
+
+    def log_error_message(error)
+      log_message_to_sentry(
+        error.message,
+        :error,
+        { url: config.base_path },
+        search: 'search_results_query_error'
+      )
     end
   end
 end
