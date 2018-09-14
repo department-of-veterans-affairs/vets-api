@@ -48,17 +48,19 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def get_user_details
-    return {} if user.blank?
-    va_profile = user.va_profile
+    profile_data = {}
 
-    {
-      'profile_data' => {
+    if user.present?
+      va_profile = user.va_profile
+      profile_data = {
         'active_ICN' => user.icn,
         'historical_ICN' => va_profile&.historical_icns,
         'sec_ID' => va_profile&.sec_id,
         'SSN' => user.ssn
       }
-    }
+    end
+
+    { 'profile_data' => profile_data }
   end
 
   def transform_form
