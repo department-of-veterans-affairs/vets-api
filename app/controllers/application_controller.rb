@@ -136,43 +136,8 @@ class ApplicationController < ActionController::API
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      extend_sso_cookie!
       SSOService.extend_session!(@session, @current_user)
     end
-  end
-
-  # FIXME: methods starting here through encrypt, really ought to live in SSOService, but its complicated,
-  # Those methods should probably not be abstracted to class otherwise we'll be stuck doing:
-  # controller.send(:cookies) etc.
-  # In a future refactor consider moving some of these methods into a module for some pseudo abstraction
-  #  since classes and service objects don't play so nice with controller methods.
-  def set_sso_cookie!
-    return unless Settings.set_sso_cookie && Settings.sso_cookie_key
-    contents = ActiveSupport::JSON.encode(cookie_value)
-    cookies[:va_session] = {
-      value: encrypt(contents, Settings.sso_cookie_key),
-      expires: 30.minutes.from_now,
-      httponly: true
-    }
-  end
-
-  def extend_sso_cookie!
-    set_sso_cookie!
-  end
-
-  def destroy_sso_cookie!
-    cookies.delete(:va_session)
-  end
-
-  def cookie_value
-    {
-      icn: (@current_user.mhv_icn || @current_user.icn),
-      mhv_correlation_id: @current_user.mhv_correlation_id
-    }
-  end
-
-  def encrypt(message, key)
-    ActiveSupport::MessageEncryptor.new(key).encrypt_and_sign(message)
   end
 
   attr_reader :current_user, :session
