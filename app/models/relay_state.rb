@@ -24,7 +24,8 @@ class RelayState
 
     unless valid?
       log_message_to_sentry(
-        'Invalid SAML RelayState!', :error, url_whitelist: ALL_RELAY_URLS, enum_whitelist: RELAY_KEYS
+        'Invalid SAML RelayState!', :error, 
+        error_messages: errors.messages, url_whitelist: ALL_RELAY_URLS, enum_whitelist: RELAY_KEYS
       )
     end
   end

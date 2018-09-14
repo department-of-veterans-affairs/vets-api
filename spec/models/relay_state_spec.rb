@@ -58,6 +58,7 @@ RSpec.describe RelayState, type: :model do
           .with(
             'Invalid SAML RelayState!',
             :error,
+            error_messages: { url: ["[#{invalid_relay_url}] not a valid relay url"] },
             url_whitelist: described_class::ALL_RELAY_URLS,
             enum_whitelist: described_class::RELAY_KEYS
           )
@@ -84,6 +85,7 @@ RSpec.describe RelayState, type: :model do
           .with(
             'Invalid SAML RelayState!',
             :error,
+            error_messages: { relay_enum: ["[#{invalid_relay_enum}] not a valid relay enum"] },
             url_whitelist: described_class::ALL_RELAY_URLS,
             enum_whitelist: described_class::RELAY_KEYS
           )
