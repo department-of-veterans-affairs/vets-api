@@ -37,7 +37,7 @@ module SAML
     # when this url gets invoked, the session should be destroyed, before the callback returns
     def logout_url(session)
       token = Base64.urlsafe_encode64(session.token)
-      Rails.application.routes.url_helpers.logout_v0_sessions_url(method: 'delete', session: token)
+      Rails.application.routes.url_helpers.logout_v0_sessions_url(session: token)
     end
 
     # SLO URLS
