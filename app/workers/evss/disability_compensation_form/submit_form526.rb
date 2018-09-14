@@ -56,6 +56,7 @@ module EVSS
                           'user_uuid' => user_uuid,
                           'job_id' => jid,
                           'job_status' => 'received')
+        StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["job_id:#{jid}"])
 
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
 
