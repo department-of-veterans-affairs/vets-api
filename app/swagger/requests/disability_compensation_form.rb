@@ -24,6 +24,30 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/disability_compensation_form/suggested_conditions' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Given part of a condition name (medical or lay), return a list of matching conditions'
+          key :operationId, 'getSuggestedConditions'
+          key :tags, %w[form_526]
+
+          parameter do
+            key :name, :name_part
+            key :description, 'part of a condition name'
+            key :in, :query
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Returns a list of conditions'
+            schema do
+              key :'$ref', :SuggestedConditions
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/disability_compensation_form/submit' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
@@ -38,6 +62,25 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :SubmitDisabilityForm
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/disability_compensation_form/submission_status' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Check the status of a submission job'
+          key :operationId, 'getSubmissionStatus'
+          key :tags, %w[form_526]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Returns the status of a given submission'
+            schema do
+              key :'$ref', :SubmissionStatus
             end
           end
         end
