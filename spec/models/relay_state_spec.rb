@@ -133,5 +133,26 @@ RSpec.describe RelayState, type: :model do
         expect(subject.logout_url).to eq(Settings.saml.logout_relays[relay_enum])
       end
     end
+
+    context 'with a review instance slug for RelayState' do
+      let(:slug) { '8d89abfbff975ec465c7b88fcbbf175b' }
+      subject { described_class.new(url: slug) }
+
+      it '#login_url returns the review-instance login url' do
+        with_settings(Settings, review_instance_slug: slug) do
+          with_settings(Settings.saml.relays, vetsgov: "http://#{slug}.review.vetsgov-internal/auth/login/callback") do
+            expect(subject.login_url).to eq("http://#{slug}.review.vetsgov-internal/auth/login/callback")
+          end
+        end
+      end
+
+      it '#logout_url returns the review-instance logout url' do
+        with_settings(Settings, review_instance_slug: slug) do
+          with_settings(Settings.saml, logout_relay: "http://#{slug}.review.vetsgov-internal/logout/") do
+            expect(subject.logout_url).to eq("http://#{slug}.review.vetsgov-internal/logout/")
+          end
+        end
+      end
+    end
   end
 end

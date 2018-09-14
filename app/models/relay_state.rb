@@ -9,9 +9,9 @@ class RelayState
 
   attr_accessor :relay_enum, :url
 
-  RELAY_KEYS = Settings.saml.relays&.keys&.map { |k| k.to_s }.freeze
-  LOGIN_URLS = Settings.saml.relays&.to_h&.values&.compact.freeze
-  LOGOUT_URLS = Settings.saml.logout_relays&.to_h&.values&.compact.freeze
+  RELAY_KEYS = Settings.saml.relays.keys.map(&:to_s).freeze
+  LOGIN_URLS = (Settings.saml.relays.to_h.values + [Settings.review_instance_slug]).compact.freeze
+  LOGOUT_URLS = (Settings.saml.logout_relays.to_h.values + [Settings.saml.logout_relay]).compact.freeze
   ALL_RELAY_URLS = (LOGIN_URLS + LOGOUT_URLS).freeze
 
   validates :relay_enum, allow_blank: true, inclusion: { in: RELAY_KEYS, message: '[%<value>s] not a valid relay enum' }
@@ -24,7 +24,7 @@ class RelayState
 
     unless valid?
       log_message_to_sentry(
-        'Invalid SAML RelayState!', :error, 
+        'Invalid SAML RelayState!', :error,
         error_messages: errors.messages, url_whitelist: ALL_RELAY_URLS, enum_whitelist: RELAY_KEYS
       )
     end
@@ -32,11 +32,13 @@ class RelayState
 
   def login_url
     return default_login_url if @relay_enum.blank? && @url.blank?
-    get_url(LOGIN_URLS, :relays)
+    return Settings.saml.relays.vetsgov if @url.present? && @url == Settings.review_instance_slug
+    get_url(LOGIN_URLS + [], :relays)
   end
 
   def logout_url
     return default_logout_url if @relay_enum.blank? && @url.blank?
+    return Settings.saml.logout_relay if @url.present? && @url == Settings.review_instance_slug
     get_url(LOGOUT_URLS, :logout_relays)
   end
 
