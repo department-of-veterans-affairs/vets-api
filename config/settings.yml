@@ -177,7 +177,7 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  mock: false
+  mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService
