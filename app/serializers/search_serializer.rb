@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SearchSerializer < ActiveModel::Serializer
-  attributes :results
+  attributes :body
 
   def id
     nil
