@@ -9,6 +9,7 @@ module EVSS
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
       RETRY = 13
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       sidekiq_options retry: RETRY
 
@@ -19,6 +20,7 @@ module EVSS
           "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
           :error
         )
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags: ["job_id:#{jid}"])
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -28,17 +30,29 @@ module EVSS
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param claim_id [String] The claim id for the claim that will be associated with the async transaction
       # @param form_content [Hash] The form content that is to be submitted
+      # @param form4142 [Hash] The form content for 4142 that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
-
-      # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+      # rubocop:disable Metrics/ParameterLists
       def perform(user_uuid, auth_headers, claim_id, form_content, form4142, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
-
-        response = service(auth_headers).submit_form(form_content)
-
+        response = service(auth_headers).submit_form526(form_content)
         submit_4142(form4142, user_uuid, response.claim_id, saved_claim(claim_id).created_at) if form4142
+        handle_success(user_uuid, auth_headers, response, uploads)
+      rescue EVSS::DisabilityCompensationForm::ServiceException => e
+        handle_service_exception(e)
+      rescue Common::Exceptions::GatewayTimeout => e
+        handle_gateway_timeout_exception(e)
+      rescue StandardError => e
+        handle_standard_error(e)
+      ensure
+        StatsD.increment("#{STATSD_KEY_PREFIX}.try", tags: ["job_id:#{jid}"])
+      end
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
+      private
+
+      def handle_success(user_uuid, auth_headers, response, uploads)
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
@@ -46,25 +60,14 @@ module EVSS
                           'user_uuid' => user_uuid,
                           'job_id' => jid,
                           'job_status' => 'received')
+        StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["job_id:#{jid}"])
 
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
+
         if uploads.present?
           EVSS::DisabilityCompensationForm::SubmitUploads.start(user_uuid, auth_headers, response.claim_id, uploads)
         end
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        handle_service_exception(e)
-      rescue Common::Exceptions::GatewayTimeout => e
-        handle_gateway_timeout_exception(e)
-      rescue StandardError => e
-        # Treat unexpected errors as hard failures
-        # This includes BackeEndService Errors (including 403's)
-        handle_standard_error(e)
-      ensure
-        StatsD.increment('worker.evss.submit_form526.try')
       end
-      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
-
-      private
 
       def associate_transaction(auth_headers, claim_id, user_uuid)
         saved_claim(claim_id).async_transaction = transaction_class.start(
@@ -123,17 +126,19 @@ module EVSS
 
       def increment_non_retryable(error)
         tags = statsd_tags(error)
-        StatsD.increment('worker.evss.submit_form526.non_retryable_error', tags: tags)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.non_retryable_error", tags: tags)
       end
 
       def increment_retryable(error)
         tags = statsd_tags(error)
-        StatsD.increment('worker.evss.submit_form526.retryable_error', tags: tags)
+        StatsD.increment("#{STATSD_KEY_PREFIX}.retryable_error", tags: tags)
       end
 
       def statsd_tags(error)
         tags = ["error:#{error.class}"]
-        tags << "status:#{error.status}" if error.try(:status)
+        tags << "job_id:#{jid}"
+        tags << "status:#{error.status_code}" if error.try(:status_code)
+        tags << "message:#{error.message}" if error.try(:message)
         tags
       end
     end
