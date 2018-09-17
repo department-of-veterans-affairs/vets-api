@@ -81,8 +81,6 @@ module Search
     end
 
     def raise_backend_exception(key, source, error = nil)
-      Search::Stats.increment_exception('SEARCH_400')
-
       raise Common::Exceptions::BackendServiceException.new(
         key,
         { source: source.to_s },
