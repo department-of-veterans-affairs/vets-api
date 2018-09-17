@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sentry_logging'
+require 'preneeds/logged_service'
 
 module V0
   module Preneeds
@@ -25,6 +26,10 @@ module V0
       end
 
       private
+
+      def client
+        @client ||= ::Preneeds::LoggedService.new
+      end
 
       def burial_form_params
         params.require(:application).permit(
