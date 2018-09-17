@@ -5,6 +5,11 @@ require 'search/response'
 
 module Search
   class Service < Common::Client::Base
+    # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
+    # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
+    #
+    # @see https://search.usa.gov/sites/7378/api_instructions
+    #
     include Common::Client::Monitoring
 
     STATSD_KEY_PREFIX = 'api.search'
