@@ -42,22 +42,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         end
       end
 
-      it 'kicks off 4142 job' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          response = double(:response, claim_id: SecureRandom.uuid, attributes: nil)
-          service = double(:service, submit_form: response)
-          transaction = double(:transaction)
-          allow(EVSS::DisabilityCompensationForm::Service)
-            .to receive(:new).and_return(service)
-          allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
-            .to receive(:find_transaction).and_return(transaction)
-          allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
-            .to receive(:update_transaction).and_return(transaction)
-
-          expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
-          subject.new.perform(user.uuid, auth_headers, claim.id, valid_form_content, form4142, nil)
-        end
-      end
+#      it 'kicks off 4142 job' do
+#        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+#          response = double(:response, claim_id: SecureRandom.uuid, attributes: nil)
+#          service = double(:service, submit_form: response)
+#          transaction = double(:transaction)
+#          allow(EVSS::DisabilityCompensationForm::Service)
+#            .to receive(:new).and_return(service)
+#          allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
+#            .to receive(:find_transaction).and_return(transaction)
+#          allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
+#            .to receive(:update_transaction).and_return(transaction)
+#
+#          expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
+#          subject.new.perform(user.uuid, auth_headers, claim.id, valid_form_content, form4142, nil)
+#        end
+#      end
 
       it 'assigns the saved claim via the xref table' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
