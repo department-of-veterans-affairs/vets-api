@@ -308,3 +308,6 @@ google_analytics_tracking_id: ~
 
 account:
   enabled: false
+
+search:
+  access_key: SEARCH_GOV_ACCESS_KEY
