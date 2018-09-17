@@ -114,7 +114,7 @@ module V0
       end
 
       if current_user.loa[:current] < current_user.loa[:highest]
-        SAML::SettingsService.idme_loa3_url(current_user, success_relay_url: @relay_state.login_url)
+        SAML::SettingsService.idme_loa3_url(current_user, @relay_state)
       else
         @relay_state.login_url
       end
