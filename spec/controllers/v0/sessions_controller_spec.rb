@@ -371,9 +371,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
-        it 'redirects to identity proof URL' do
-          expect(SAML::SettingsService).to receive(:idme_loa3_url)
-          post :saml_callback
+        it 'redirects to idme for up-level' do
+          expect(post(:saml_callback, RelayState: Settings.saml.relays.vetsgov))
+            .to redirect_to(/api.idmelabs.com/)
+        end
+
+        it 'includes RelayState when up-leveling' do
+          expect(post(:saml_callback, RelayState: Settings.saml.relays.vagov))
+            .to redirect_to(/RelayState=#{CGI.escape(Settings.saml.relays.vagov)}/)
         end
       end
 
