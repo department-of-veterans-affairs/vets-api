@@ -12,15 +12,15 @@ describe Aes256CbcEncryptor do
     let(:hex_secret) { 'EC121FF80513AE58ED478D5C5787075BF53C35733B' }
 
     it 'secret must be 32 bytes' do
-      expect{subject}.to raise_error(ArgumentError, 'Secret must be 32 bytes.')
+      expect { subject }.to raise_error(ArgumentError, 'Secret must be 32 bytes.')
     end
   end
 
   context 'invalid iv' do
-    let(:hex_iv)     { '00ABEB85AB5C2' }
+    let(:hex_iv) { '00ABEB85AB5C2' }
 
     it 'iv must be 16 bytes' do
-      expect{subject}.to raise_error(ArgumentError, 'IV must be 16 bytes.')
+      expect { subject }.to raise_error(ArgumentError, 'IV must be 16 bytes.')
     end
   end
 
