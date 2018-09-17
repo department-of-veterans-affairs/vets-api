@@ -5,7 +5,11 @@ require 'evss/disability_compensation_form/service'
 
 describe EVSS::DisabilityCompensationForm::Service do
   let(:user) { build(:disabilities_compensation_user) }
-  subject { described_class.new(user) }
+  subject do
+    described_class.new(
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    )
+  end
 
   describe '#get_rated_disabilities' do
     context 'with a valid evss response' do
@@ -42,7 +46,7 @@ describe EVSS::DisabilityCompensationForm::Service do
     context 'with valid input' do
       it 'returns a form submit response object' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          response = subject.submit_form(valid_form_content)
+          response = subject.submit_form526(valid_form_content)
           expect(response).to be_ok
           expect(response).to be_an EVSS::DisabilityCompensationForm::FormSubmitResponse
           expect(response.claim_id).to be_an Integer
@@ -57,10 +61,10 @@ describe EVSS::DisabilityCompensationForm::Service do
 
       it 'should log an error and raise GatewayTimeout' do
         expect(StatsD).to receive(:increment).once.with(
-          'api.evss.submit_form.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
+          'api.evss.submit_form526.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
-        expect(StatsD).to receive(:increment).once.with('api.evss.submit_form.total')
-        expect { subject.submit_form(valid_form_content) }.to raise_error(Common::Exceptions::GatewayTimeout)
+        expect(StatsD).to receive(:increment).once.with('api.evss.submit_form526.total')
+        expect { subject.submit_form526(valid_form_content) }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
   end

@@ -1486,10 +1486,10 @@ en:
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-    526:
+    disability_compensation_form:
       not_eligible:
         <<: *defaults
-        title: Proxy error
+        title: Not eligible
         detail: 'Upstream server returned not eligible response'
         code: 120
         status: 502
@@ -1513,9 +1513,28 @@ en:
         status: 500
       start_batch_job_error:
         <<: *defaults
-        title: Cannot launch the 526 post submit batch job
+        title: Start batch error
+        detail: 'Cannot launch the 526 post submit batch job'
         code: 125
         status: 502
+      max_ep_code:
+        <<: *defaults
+        title: Max EP codes
+        detail: 'The Maximum number of EP codes have been reached for this benefit type claim code'
+        code: 126
+        status: 409
+      pif_in_use:
+        <<: *defaults
+        title: Conflict
+        detail: 'Claim could not be established. Contact the BDN team and have them run the WIPP process to delete Cancelled/Cleared PIFs'
+        code: 127
+        status: 409
+    unmapped_service_exception:
+      <<: *defaults
+      title: Internal Server Error
+      detail: 'The upstream server returned an error code that is unmapped'
+      code: 128
+      status: 400
     ppiu:
       unprocessable_entity:
         <<: *defaults

@@ -8,12 +8,9 @@ module Accountable
   # Account.
   #
   def create_user_account
-    return unless @current_user.uuid && Settings.account.enabled
+    return unless Settings.account.enabled
 
-    Account.find_or_create_by!(idme_uuid: @current_user.uuid) do |account|
-      account.edipi = @current_user&.edipi
-      account.icn   = @current_user&.icn
-    end
+    Account.cache_or_create_by! @current_user
   rescue StandardError => error
     log error
   end

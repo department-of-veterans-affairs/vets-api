@@ -42,27 +42,37 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   context 'has valid paths' do
     let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
 
+    context 'for authentication' do
+      it 'supports session mhv url' do
+        expect(subject).to validate(:get, '/sessions/mhv/new', 200)
+      end
+
+      it 'supports session dslogon urs' do
+        expect(subject).to validate(:get, '/sessions/dslogon/new', 200)
+      end
+
+      it 'supports session idme url' do
+        expect(subject).to validate(:get, '/sessions/idme/new', 200)
+      end
+
+      it 'supports session mfa url' do
+        expect(subject).to validate(:get, '/sessions/mfa/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/mfa/new', 401)
+      end
+
+      it 'supports session verify url' do
+        expect(subject).to validate(:get, '/sessions/verify/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/verify/new', 401)
+      end
+
+      it 'supports session slo url' do
+        expect(subject).to validate(:get, '/sessions/slo/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/slo/new', 401)
+      end
+    end
+
     it 'supports getting backend service status' do
       expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, auth_options.merge('service' => 'gibs'))
-    end
-
-    it 'supports fetching authentication urls' do
-      expect(subject).to validate(:get, '/v0/sessions/authn_urls', 200)
-    end
-
-    it 'supports invoking multifactor policy' do
-      expect(subject).to validate(:get, '/v0/sessions/multifactor', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/sessions/multifactor', 401)
-    end
-
-    it 'supports fetching identity verification url' do
-      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 401)
-    end
-
-    it 'supports session deletion' do
-      expect(subject).to validate(:delete, '/v0/sessions', 202, auth_options)
-      expect(subject).to validate(:delete, '/v0/sessions', 401)
     end
 
     it 'supports listing in-progress forms' do
