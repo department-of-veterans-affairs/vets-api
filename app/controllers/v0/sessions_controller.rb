@@ -34,18 +34,18 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url(success_relay: params[:success_relay])
+              SAML::SettingsService.mhv_url(@relay_state)
             when 'dslogon'
-              SAML::SettingsService.dslogon_url(success_relay: params[:success_relay])
+              SAML::SettingsService.dslogon_url(@relay_state)
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url(success_relay: params[:success_relay]) + query
+              SAML::SettingsService.idme_loa1_url(@relay_state) + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay])
+              SAML::SettingsService.mfa_url(current_user, @relay_state)
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user, success_relay: params[:success_relay])
+              SAML::SettingsService.idme_loa3_url(current_user, @relay_state)
             when 'slo'
               authenticate
               SAML::SettingsService.logout_url(session)

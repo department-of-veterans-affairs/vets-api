@@ -25,6 +25,15 @@ RSpec.describe RelayState, type: :model do
       end
     end
 
+    context 'when success_relay=vagov & Settings.saml.relays.vagov=nil' do
+      subject { described_class.new(relay_enum: 'vagov') }
+      it 'returns default' do
+        with_settings(Settings.saml.relays, vagov: nil) do
+          expect(subject.login_url).to eq(Settings.saml.relays.vetsgov)
+        end
+      end
+    end
+
     context 'when no params are provided' do
       subject { described_class.new(relay_enum: nil, url: nil) }
 

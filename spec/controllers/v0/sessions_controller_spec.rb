@@ -140,7 +140,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
             it 'does not contain a RelayState' do
               expect(response).to have_http_status(:ok)
-              expect(JSON.parse(response.body)['url']).to_not include('RelayState')
+              expect(JSON.parse(response.body)['url']).to include("RelayState=#{CGI.escape(Settings.saml.relays.vetsgov)}")
             end
           end
         end

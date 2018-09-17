@@ -53,7 +53,7 @@ class RelayState
     elsif Settings.saml[type][@relay_enum].present?
       return Settings.saml[type][@relay_enum]
     else
-      return nil
+      return get_default(type)
     end
   end
 
