@@ -26,6 +26,7 @@ module Swagger
           property :code, type: :integer, example: 460
           property :medical_term, type: :string, example: 'arteriosclerosis'
           property :lay_term, type: :string, example: 'hardened arteries'
+        end
       end
     end
   end
