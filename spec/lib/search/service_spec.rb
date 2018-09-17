@@ -32,40 +32,45 @@ describe Search::Service do
         end
       end
     end
+  end
 
-    context 'with an empty search query' do
-      let(:query) { '' }
+  context 'with an empty search query' do
+    let(:query) { '' }
 
-      it 'returns a status of 400', :aggregate_failures do
-        VCR.use_cassette('search/status_400', VCR::MATCH_EVERYTHING) do
-          response = subject.results
-
-          expect(response).to be_a(Search::ResultsResponse)
-          expect(response.status).to eq 400
+    it 'raises an exception', :aggregate_failures do
+      VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
+        expect { subject.results }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(400)
+          expect(e.errors.first.code).to eq('SEARCH_400')
         end
       end
     end
+  end
 
-    context 'with an invalid API access key' do
-      it 'returns a status of 400', :aggregate_failures do
-        VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
-          allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
-          response = subject.results
+  context 'with an invalid API access key' do
+    it 'raises an exception', :aggregate_failures do
+      VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
+        allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
 
-          expect(response).to be_a(Search::ResultsResponse)
-          expect(response.status).to eq 400
+        expect { subject.results }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(400)
+          expect(e.errors.first.code).to eq('SEARCH_400')
         end
       end
     end
+  end
 
-    context 'with an invalid affiliate' do
-      it 'returns a status of 400', :aggregate_failures do
-        VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
-          allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
-          response = subject.results
+  context 'with an invalid affiliate' do
+    it 'raises an exception', :aggregate_failures do
+      VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
+        allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
 
-          expect(response).to be_a(Search::ResultsResponse)
-          expect(response.status).to eq 400
+        expect { subject.results }.to raise_error do |e|
+          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e.status_code).to eq(400)
+          expect(e.errors.first.code).to eq('SEARCH_400')
         end
       end
     end

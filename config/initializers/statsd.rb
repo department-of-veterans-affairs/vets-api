@@ -88,3 +88,9 @@ StatsD.increment("#{EMIS::Service::STATSD_KEY_PREFIX}.service_history", 0, tags:
 # init CentralMail
 StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.total", 0)
 StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.fail", 0)
+
+# init Search
+StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:SEARCH_400'])
+StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.get_results.total", 0)
+StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.get_results.success", 0)
+StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.get_results.failure", 0)
