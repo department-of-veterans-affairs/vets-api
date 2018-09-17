@@ -51,10 +51,11 @@ services = [
   MHVAC::Configuration.instance.breakers_service,
   MVI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
-  SM::Configuration.instance.breakers_service
+  SM::Configuration.instance.breakers_service,
+  Vet360::ContactInformation::Configuration.instance.breakers_service
 ]
 
-services << PensionBurial::Configuration.instance.breakers_service if Settings.pension_burial&.upload&.enabled
+services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
 
 plugin = Breakers::StatsdPlugin.new
 

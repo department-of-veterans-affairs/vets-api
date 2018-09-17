@@ -67,11 +67,11 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "claimId" : -6820564985530150012,
-          "endProductClaimCode" : "400SUPP",
-          "endProductClaimName" : "400-eBenefits-Supplemental",
-          "inflightDocumentId" : -7166975058082066996
+          "claimId" : 600130094,
+          "endProductClaimCode" : "020SUPP",
+          "endProductClaimName" : "eBenefits 526EZ-Supplemental (020)",
+          "inflightDocumentId" : 194300
         }
-    http_version: 
+    http_version:
   recorded_at: Mon, 02 Apr 2018 22:46:34 GMT
 recorded_with: VCR 3.0.3

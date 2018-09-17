@@ -20,6 +20,9 @@
                 },
                 "end_date": {
                   "type": "string"
+                },
+                "personnel_category_type_code": {
+                  "type": "string"
                 }
               },
               "type": "array"

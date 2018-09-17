@@ -43,9 +43,26 @@ RSpec.describe MhvAccountTypeService do
     it '#mhv_account_type returns Premium' do
       VCR.use_cassette('mhv_account_type_service/premium') do
         eligible_data_classes = subject.eligible_data_classes
-        expect(Raven).not_to receive(:capture_message)
+        # expect(Raven).not_to receive(:capture_message)
         expect(eligible_data_classes.count).to eq(32)
         expect(subject.mhv_account_type).to eq('Premium')
+        described_class.new(user)
+      end
+    end
+  end
+
+  context 'fetches cached value' do
+    let(:namespace) { Redis::Namespace.new('common_collection', redis: Redis.current) }
+    let(:cache_key) { '12210827:geteligibledataclass' }
+
+    it '#mhv_account_type returns Premium' do
+      VCR.use_cassette('mhv_account_type_service/premium') do
+        expect(described_class.new(user).mhv_account_type).to eq('Premium')
+      end
+
+      5.times do
+        expect(namespace.get(cache_key)).not_to be_nil
+        expect(described_class.new(user).mhv_account_type).to eq('Premium')
       end
     end
   end
@@ -95,7 +112,7 @@ RSpec.describe MhvAccountTypeService do
           expect(Raven).to receive(:extra_context).with(extra_context)
           expect(Raven).to receive(:tags_context).with(tags_context)
           expect(Raven).to receive(:capture_message).with(error_message, level: level)
-          expect(subject.mhv_account_type).to eq('Unknown')
+          expect(subject.mhv_account_type).to eq('Error')
         end
       end
     end

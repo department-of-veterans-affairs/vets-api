@@ -3,7 +3,9 @@
 module V0
   module Profile
     class PrimaryPhonesController < ApplicationController
-      before_action { authorize :evss, :access? }
+      include EVSS::Authorizeable
+
+      before_action :authorize_evss!
 
       def show
         response = service.get_primary_phone

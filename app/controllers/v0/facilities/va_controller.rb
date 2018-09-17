@@ -5,6 +5,7 @@ require 'will_paginate/array'
 class V0::Facilities::VaController < FacilitiesController
   TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
   before_action :validate_params, only: [:index]
+  before_action :validate_types_name_part, only: [:suggested]
 
   # Index supports the following query parameters:
   # @param bbox - Bounding box in form "xmin,ymin,xmax,ymax" in Lat/Long coordinates
@@ -23,7 +24,21 @@ class V0::Facilities::VaController < FacilitiesController
     render json: results, serializer: VAFacilitySerializer
   end
 
+  def suggested
+    results = BaseFacility.suggested(params[:type], params[:name_part])
+    render json: results,
+           serializer: CollectionSerializer,
+           each_serializer: VASuggestedFacilitySerializer
+  end
+
   private
+
+  def validate_types_name_part
+    raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
+    raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
+    raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
+      (params[:type] - BaseFacility::TYPES).empty?
+  end
 
   def validate_params
     super

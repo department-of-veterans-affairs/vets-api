@@ -30,7 +30,7 @@
     "city": "Washington",
     "country": "USA",
     "state": "DC",
-    "zipcode": "20005"
+    "postalCode": "20005"
   },
   "email": "foo@example.com",
   "homePhone": "1231241234",
@@ -53,7 +53,7 @@
     "city": "Dulles",
     "country": "USA",
     "state": "VA",
-    "zipcode": "20101"
+    "postalCode": "20101"
   },
   "spousePhone": "1112221234",
   "dependents": [

@@ -13,9 +13,12 @@ Rails.application.routes.draw do
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
+    resources :appointments, only: :index
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
+
+    resource :form526_opt_in, only: :create
 
     resources :letters, only: [:index] do
       collection do
@@ -24,10 +27,18 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :sessions, only: :destroy do
-      get :authn_urls, on: :collection
-      get :multifactor, on: :member
-      get :identity_proof, on: :member
+    resource :disability_compensation_form, only: [] do
+      get 'rated_disabilities'
+      post 'submit'
+      get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
+      get 'user_submissions'
+      get 'suggested_conditions'
+    end
+
+    resource :upload_supporting_evidence, only: :create
+
+    resource :sessions, only: [] do
+      get  :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
@@ -35,6 +46,7 @@ Rails.application.routes.draw do
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
     resource :feedback, only: [:create]
+    resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
       collection do
@@ -48,7 +60,9 @@ Rails.application.routes.draw do
       end
     end
 
-    if Settings.pension_burial.upload.enabled
+    resource :dependents_applications, only: [:create]
+
+    if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
       resources :burial_claims, only: %i[create show]
     end
@@ -58,9 +72,17 @@ Rails.application.routes.draw do
       resources :documents, only: [:create]
     end
 
+    resources :evss_claims_async, only: %i[index show]
+
+    get 'intent_to_file', to: 'intent_to_files#index'
+    get 'intent_to_file/:type/active', to: 'intent_to_files#active'
+    post 'intent_to_file/:type', to: 'intent_to_files#submit'
+
     get 'welcome', to: 'example#welcome', as: :welcome
     get 'limited', to: 'example#limited', as: :limited
     get 'status', to: 'admin#status'
+
+    get 'ppiu/payment_information', to: 'ppiu#index'
 
     resources :maintenance_windows, only: [:index]
 
@@ -108,6 +130,7 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      get 'suggested', to: 'va#suggested'
     end
 
     scope :gi, module: 'gi' do
@@ -117,6 +140,7 @@ Rails.application.routes.draw do
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
+      resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
 
     scope :id_card do
@@ -141,6 +165,8 @@ Rails.application.routes.draw do
       resources :vic_submissions, only: %i[create show]
     end
 
+    resources :gi_bill_feedbacks, only: %i[create show]
+
     resource :address, only: %i[show update] do
       collection do
         if Settings.evss&.reference_data_service&.enabled
@@ -160,6 +186,23 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+
+      # Vet360 Routes
+      resource :addresses, only: %i[create update destroy]
+      resource :email_addresses, only: %i[create update destroy]
+      resource :telephones, only: %i[create update destroy]
+      post 'initialize_vet360_id', to: 'persons#initialize_vet360_id'
+      get 'person/status/:transaction_id', to: 'persons#status', as: 'person/status'
+      get 'status/:transaction_id', to: 'transactions#status'
+      get 'status', to: 'transactions#statuses'
+
+      resource :reference_data, only: %i[show] do
+        collection do
+          get 'countries', to: 'reference_data#countries'
+          get 'states', to: 'reference_data#states'
+          get 'zipcodes', to: 'reference_data#zipcodes'
+        end
+      end
     end
 
     get 'profile/mailing_address', to: 'addresses#show'
@@ -174,12 +217,15 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create]
+    resource :mhv_account, only: %i[show create] do
+      post :upgrade
+    end
 
     [
       'profile',
       'dashboard',
       'veteran_id_card',
+      'claim_increase',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
@@ -194,17 +240,9 @@ Rails.application.routes.draw do
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do
-    namespace :v0, defaults: { format: 'json' } do
-      namespace :docs, only: [] do
-        # namespace :health do
-        #   resources :prescriptions
-        #   resources :secure_messages
-        # end
-        # resources :health, only: [:index]
-
-        resources :benefits, only: [:index]
-      end
-    end
+    mount VBADocuments::Engine, at: '/vba_documents'
+    mount AppealsApi::Engine, at: '/appeals'
+    mount VaFacilities::Engine, at: '/va_facilities'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

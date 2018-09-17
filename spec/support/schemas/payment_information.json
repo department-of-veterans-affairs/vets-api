@@ -1,0 +1,44 @@
+{
+    "data": {
+        "attributes": {
+            "responses": [
+                {
+                    "control_information": {
+                        "can_update_address": true,
+                        "corp_avail_indicator": true,
+                        "corp_rec_found_indicator": true,
+                        "has_no_bdn_payments_indicator": true,
+                        "identity_indicator": true,
+                        "index_indicator": true,
+                        "is_competent_indicator": true,
+                        "no_fiduciary_assigned_indicator": true,
+                        "not_deceased_indicator": true
+                    },
+                    "payment_account": {
+                        "account_number": "9876543211234",
+                        "account_type": "Checking",
+                        "financial_institution_name": "Comerica",
+                        "financial_institution_routing_number": "042102115"
+                    },
+                    "payment_address": {
+                        "address_effective_date": null,
+                        "address_one": null,
+                        "address_three": null,
+                        "address_two": null,
+                        "city": null,
+                        "country_name": null,
+                        "military_post_office_type_code": null,
+                        "military_state_code": null,
+                        "state_code": null,
+                        "type": null,
+                        "zip_code": null,
+                        "zip_suffix": null
+                    },
+                    "payment_type": "CNP"
+                }
+            ]
+        },
+        "id": "",
+        "type": "evss_ppiu_payment_information_responses"
+    }
+}

@@ -6,6 +6,7 @@ RSpec.describe UserSerializer, type: :serializer do
   let(:user) { create(:user, :loa3) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
+  let(:account) { attributes['account'] }
   let(:profile) { attributes['profile'] }
   let(:va_profile) { attributes['va_profile'] }
   let(:veteran_status) { attributes['veteran_status'] }
@@ -23,6 +24,13 @@ RSpec.describe UserSerializer, type: :serializer do
 
     it 'should include metadata' do
       expect(attributes['in_progress_forms'][0]['metadata']).to eq(in_progress_form.metadata)
+    end
+  end
+
+  describe '#account' do
+    let(:user) { create(:user, :accountable) }
+    it 'should include account uuid' do
+      expect(account['account_uuid']).to eq(user.account_uuid)
     end
   end
 
@@ -121,6 +129,10 @@ RSpec.describe UserSerializer, type: :serializer do
       it 'should include status' do
         expect(veteran_status['status']).to eq('OK')
       end
+
+      it 'should include served_in_military' do
+        expect(veteran_status['served_in_military']).to eq(user.served_in_military?)
+      end
     end
 
     context 'when a veteran status is not found' do
@@ -171,27 +183,41 @@ RSpec.describe UserSerializer, type: :serializer do
     end
   end
 
-  describe '#health_terms_current' do
-    context 'with an ineligible user' do
+  describe '#vet360_contact_information' do
+    context 'with an loa1 user' do
       let(:user) { create(:user, :loa1) }
 
-      it 'should be false' do
-        expect(user.mhv_account.terms_and_conditions_accepted?).to be_falsey
-        expect(attributes['health_terms_current']).to be_falsey
+      it 'should return nil' do
+        expect(user.vet360_contact_info).to be_nil
+        expect(attributes['vet360_contact_information']).to eq({})
       end
     end
 
-    context 'with an eligible user' do
-      let(:user) { create(:user, :mhv) }
+    context 'with a valid user' do
+      let(:user) { create(:user, :loa3) }
+      let(:json) { attributes['vet360_contact_information'] }
 
-      it 'without terms accepted should be false' do
-        allow(user.mhv_account).to receive(:terms_and_conditions_accepted?).and_return(false)
-        expect(attributes['health_terms_current']).to be_falsey
-      end
+      it 'should be populated' do
+        expect(user.vet360_contact_info).not_to be_nil
+        expect(json).to include(
+          'email',
+          'residential_address',
+          'mailing_address',
+          'home_phone',
+          'mobile_phone',
+          'work_phone',
+          'fax_number',
+          'temporary_phone'
+        )
 
-      it 'when terms are accepted should be true' do
-        allow(user.mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
-        expect(attributes['health_terms_current']).to be_truthy
+        expect(json['email']).not_to be_nil
+        expect(json['residential_address']).not_to be_nil
+        expect(json['mailing_address']).not_to be_nil
+        expect(json['home_phone']).not_to be_nil
+        expect(json['mobile_phone']).not_to be_nil
+        expect(json['work_phone']).not_to be_nil
+        expect(json['fax_number']).not_to be_nil
+        expect(json['temporary_phone']).not_to be_nil
       end
     end
   end

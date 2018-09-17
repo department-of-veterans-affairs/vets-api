@@ -6,14 +6,12 @@ module EVSS
   module Letters
     class ServiceException < EVSS::ServiceException
       ERROR_MAP = {
-        serviceError: 'evss.letters.external_service_unavailable',
+        serviceError: 'evss.external_service_unavailable',
         notEligible: 'evss.letters.not_eligible',
         letterEligibilityError: 'evss.letters.unable_to_determine_eligibilty',
         letterDestination: 'evss.letters.unprocessable_entity',
         default: 'common.exceptions.internal_server_error'
       }.freeze
-
-      attr_reader :key, :messages
 
       def errors
         Array(

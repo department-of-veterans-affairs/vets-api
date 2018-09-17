@@ -21,8 +21,7 @@ class EVSSClaimService
       end
     end.flatten
     return claims, true
-  rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
-    log_error(e)
+  rescue Breakers::OutageException, Common::Exceptions::SentryIgnoredGatewayTimeout
     return claims_scope.all, false
   end
 
@@ -31,8 +30,7 @@ class EVSSClaimService
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
       successful_sync = true
-    rescue Faraday::Error::TimeoutError, Breakers::OutageException => e
-      log_error(e)
+    rescue Breakers::OutageException, Common::Exceptions::SentryIgnoredGatewayTimeout
       successful_sync = false
     end
     [claim, successful_sync]
@@ -44,7 +42,7 @@ class EVSSClaimService
 
   # upload file to s3 and enqueue job to upload to EVSS
   def upload_document(evss_claim_document)
-    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.tracked_item_id)
+    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
     # the uploader sanitizes the filename before storing, so set our doc to match
     evss_claim_document.file_name = uploader.final_filename
@@ -69,9 +67,5 @@ class EVSSClaimService
     claim = claims_scope.where(evss_id: raw_claim['id']).first_or_initialize(data: {})
     claim.update_attributes(list_data: raw_claim)
     claim
-  end
-
-  def log_error(exception)
-    log_exception_to_sentry(exception, {}, backend_service: :evss)
   end
 end

@@ -4,18 +4,6 @@ require 'common/models/attribute_types/date_time_string'
 
 module MVI
   module Models
-    # A vets primary address in MVI
-    class MviProfileAddress
-      include Virtus.model
-
-      attribute :street, String
-      attribute :city, String
-      attribute :state, String
-      attribute :postal_code, String
-      attribute :country, String
-    end
-
-    # A vets attributes in MVI
     class MviProfile
       include Virtus.model
 
@@ -28,7 +16,9 @@ module MVI
       attribute :address, MviProfileAddress
       attribute :home_phone, String
       attribute :icn, String
+      attribute :icn_with_aaid, String
       attribute :mhv_ids, Array[String]
+      attribute :active_mhv_ids, Array[String]
       attribute :vha_facility_ids, Array[String]
       attribute :edipi, String
       attribute :participant_id, String
@@ -38,7 +28,7 @@ module MVI
       attribute :historical_icns, Array[String]
 
       def mhv_correlation_id
-        @mhv_ids&.first
+        @active_mhv_ids&.first
       end
 
       def normalized_suffix

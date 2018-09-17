@@ -2,8 +2,15 @@
 :services:
 
 - :name: 'MHV_Rx'
-  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}" %>:443
+  :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
+    # data classes
+    - :method: :get
+      :path: "/mhv-api/patient/v1/bluebutton/geteligibledataclass"
+      :file_path: "mhv/bluebutton/geteligibledataclass"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
     # MHV rx active
     - :method: :get
       :path: "/mhv-api/patient/v1/prescription/getactiverx"
@@ -81,7 +88,20 @@
       :cache_multiple_responses:
         :uid_location: url
         :uid_locator: '\/message\/(.+)\/history'
-
+    # MHV account create
+    - :method: :post
+      :path: '/mhv-api/patient/v1/account/register'
+      :file_path: 'mhv/account/register'
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'icn":"(\w+)"'
+    # MHV account upgrade
+    - :method: :post
+      :path: '/mhv-api/patient/v1/account/upgrade'
+      :file_path: 'mhv/account/upgrade'
+      :cache_multiple_responses:
+        :uid_location: body
+        :uid_locator: 'userId":(\d+)'
 
 # EVSS
 - :name: 'EVSS'
@@ -142,6 +162,45 @@
   - :method: :post
     :path: "/wss-pciu-services-web/rest/pciuServices/v1/mailingAddress"
     :file_path: "evss/pciu_address/address_update"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+  # PPIU payment information
+  - :method: :get
+    :path: "/wss-ppiu-services-web/rest/ppiuServices/v1/paymentInformation"
+    :file_path: "evss/ppiu/payment_information"
+
+  # Intent To File
+  - :method: :get
+    :path: "/wss-intenttofile-services-web/rest/intenttofile/v1"
+    :file_path: "evss/itf/all_itf"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :get
+    :path: "/wss-intenttofile-services-web/rest/intenttofile/v1/compensation/active"
+    :file_path: "evss/itf/active_itf"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-intenttofile-services-web/rest/intenttofile/v1/compensation"
+    :file_path: "evss/itf/post_itf"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+
+  # Disability Compensation Form
+  - :method: :get
+    :path: "/wss-form526-services-web/rest/form526/v1/ratedDisabilities"
+    :file_path: "evss/disability_form/rated_disabilities"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: "/wss-form526-services-web/rest/form526/v1/submit"
+    :file_path: "evss/disability_form/submit"
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
@@ -303,3 +362,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+
+# IHUB
+- :name: 'IHub'
+  :base_uri: <%= "#{URI(Settings.ihub.url).host}:#{URI(Settings.ihub.url).port}" %>
+  :endpoints:
+  # Appointments
+  - :method: :get
+    :path: "/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/*"
+    :file_path: "ihub/appointments/default"

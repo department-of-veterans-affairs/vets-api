@@ -22,6 +22,8 @@ class FacilityWaitTime < Common::RedisStore
 
   attribute :station_number
   attribute :metrics
+  attribute :emergency_care
+  attribute :urgent_care
   attribute :source_updated
   attribute :local_updated
 

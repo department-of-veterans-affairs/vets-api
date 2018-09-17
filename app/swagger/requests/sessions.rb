@@ -5,25 +5,51 @@ module Swagger
     class Sessions
       include Swagger::Blocks
 
-      swagger_path '/v0/sessions/authn_urls' do
+      swagger_path '/sessions/mhv/new' do
         operation :get do
-          key :description, 'Fetch various urls for initiating authentication'
+          key :description, 'Get url for initiating SSO with MyHealtheVet'
           key :tags, %w[authentication]
 
           response 200 do
-            key :description, 'returns a list of urls for invoking SAML authentication flow'
+            key :description, 'returns the url for invoking SAML authentication flow via MyHealtheVet'
             schema do
-              key :'$ref', :AuthenticationURLs
+              key :'$ref', :AuthenticationURL
             end
           end
         end
       end
 
-      swagger_path '/v0/sessions/multifactor' do
+      swagger_path '/sessions/dslogon/new' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
+          key :description, 'Get url for initiating SSO with DS Logon'
+          key :tags, %w[authentication]
 
-          key :description, 'Fetch url for invoking multifactor policy'
+          response 200 do
+            key :description, 'returns the url for invoking SAML authentication flow via DS Logon'
+            schema do
+              key :'$ref', :AuthenticationURL
+            end
+          end
+        end
+      end
+
+      swagger_path '/sessions/idme/new' do
+        operation :get do
+          key :description, 'Get url for initiating SSO with Id.me'
+          key :tags, %w[authentication]
+
+          response 200 do
+            key :description, 'returns the url for invoking SAML authentication flow via Id.me'
+            schema do
+              key :'$ref', :AuthenticationURL
+            end
+          end
+        end
+      end
+
+      swagger_path '/sessions/mfa/new' do
+        operation :get do
+          key :description, 'Get url for initiating enabling multifactor authentication'
           key :tags, %w[authentication]
 
           parameter do
@@ -34,20 +60,25 @@ module Swagger
             key :type, :string
           end
 
-          response 200 do
-            key :description, 'returns a url for triggering the multifactor policy when previously declined'
+          response 401 do
+            key :description, 'Unauthorized User'
             schema do
-              key :'$ref', :MultifactorURL
+              key :'$ref', :Errors
+            end
+          end
+
+          response 200 do
+            key :description, 'returns the url to enable multifactor authentication'
+            schema do
+              key :'$ref', :AuthenticationURL
             end
           end
         end
       end
 
-      swagger_path '/v0/sessions/identity_proof' do
+      swagger_path '/sessions/verify/new' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Fetch url for verifying identity (or triggering ID.me FICAM flow)'
+          key :description, 'Get url for initiating FICAM identity proofing'
           key :tags, %w[authentication]
 
           parameter do
@@ -56,23 +87,27 @@ module Swagger
             key :description, 'The authorization method and token value'
             key :required, true
             key :type, :string
+          end
+
+          response 401 do
+            key :description, 'Unauthorized User'
+            schema do
+              key :'$ref', :Errors
+            end
           end
 
           response 200 do
-            key :description, 'returns a url for triggering identity proof verification / FICAM flow.'
+            key :description, 'returns the url to initiate FICAM identity proofing flow'
             schema do
-              key :'$ref', :IdentityProofURL
+              key :'$ref', :AuthenticationURL
             end
           end
         end
       end
 
-      swagger_path '/v0/sessions' do
-        operation :delete do
-          extend Swagger::Responses::AuthenticationError
-
-          key :description, 'Fetch url for terminating a session'
-          key :operationId, 'endSession'
+      swagger_path '/sessions/slo/new' do
+        operation :get do
+          key :description, 'Get url for terminating session and initiating SLO flow'
           key :tags, %w[authentication]
 
           parameter do
@@ -83,31 +118,24 @@ module Swagger
             key :type, :string
           end
 
-          response 202 do
-            key :description, 'returns a url to invoke SAML logout process'
+          response 401 do
+            key :description, 'Unauthorized User'
             schema do
-              key :'$ref', :LogoutURL
+              key :'$ref', :Errors
+            end
+          end
+
+          response 200 do
+            key :description, 'returns the url to terminate the current session and initiates external SLO flow'
+            schema do
+              key :'$ref', :AuthenticationURL
             end
           end
         end
       end
 
-      swagger_schema :AuthenticationURLs, required: %i[mhv dslogon idme] do
-        property :mhv, type: :string
-        property :dslogon, type: :string
-        property :idme, type: :string
-      end
-
-      swagger_schema :MultifactorURL, required: [:multifactor_url] do
-        property :multifactor_url, type: :string
-      end
-
-      swagger_schema :IdentityProofURL, required: [:identity_proof_url] do
-        property :identity_proof_url, type: :string
-      end
-
-      swagger_schema :LogoutURL, required: [:logout_via_get] do
-        property :logout_via_get, type: :string
+      swagger_schema :AuthenticationURL, required: %i[url] do
+        property :url, type: :string
       end
     end
   end

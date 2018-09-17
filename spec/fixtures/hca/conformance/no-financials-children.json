@@ -31,8 +31,7 @@
     "country": "CAN",
     "state": "ON",
     "provinceCode": "ProvinceName",
-    "zipcode": "21231",
-    "postalCode": "13AA"
+    "postalCode": "21231"
   },
   "email": "foo@example.com",
   "homePhone": "1231241234",
@@ -54,10 +53,8 @@
     "street": "123 NW 8th St",
     "city": "Dulles",
     "country": "USA",
-    "postalCode": "13AA",
-    "provinceCode": "ProvinceName",
-    "state": "VA",
-    "zipcode": "20101-0101"
+    "postalCode": "20101-0101",
+    "state": "VA"
   },
   "spousePhone": "1112221234",
   "dependents": [

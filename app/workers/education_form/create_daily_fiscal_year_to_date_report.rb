@@ -5,6 +5,8 @@ module EducationForm
     include Sidekiq::Worker
     require 'csv'
 
+    sidekiq_options(unique_for: 30.minutes)
+
     TOTALS_HASH = {
       yearly: 0,
       daily_submitted: 0,
@@ -53,7 +55,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      form_type != '1990n'
+      !%w[1990n 0993].include?(form_type)
     end
 
     def calculate_submissions(range_type: :year, status: :processed)

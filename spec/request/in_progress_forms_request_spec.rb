@@ -108,7 +108,10 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
 
       context 'when a form is not found' do
+        let(:street_check) { build(:street_check) }
         it 'returns pre-fill data' do
+          _, phone_response = stub_evss_pciu(user)
+
           get v0_in_progress_form_url('FAKEFORM'), nil, auth_header
 
           expected_data = {
@@ -120,13 +123,14 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             'veteranDateOfBirth' => user.birth_date,
             'veteranSocialSecurityNumber' => user.ssn.to_s,
             'veteranAddress' => {
-              'street' => user.va_profile.address.street,
+              'street' => street_check[:street],
+              'street2' => street_check[:street2],
               'city' => user.va_profile.address.city,
               'state' => user.va_profile.address.state,
               'country' => user.va_profile.address.country,
-              'postal_code' => user.va_profile.address.postal_code
+              'postalCode' => user.va_profile.address.postal_code[0..4]
             },
-            'homePhone' => user.va_profile.home_phone.gsub(/[^\d]/, '')
+            'homePhone' => "#{phone_response.country_code}#{phone_response.number}#{phone_response.extension}"
           }
 
           if user.va_profile&.normalized_suffix.present?
@@ -235,9 +239,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         end
 
         it 'returns the deleted form id' do
-          expect { subject }.to change {
-            InProgressForm.count
-          }.from(1).to(0)
+          expect { subject }.to change { InProgressForm.count }.by(-1)
           expect(response).to have_http_status(:ok)
         end
       end

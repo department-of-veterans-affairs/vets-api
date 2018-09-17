@@ -182,6 +182,7 @@ Rails/SkipsModelValidations:
   Exclude:
     - "app/workers/education_form/create_daily_spool_files.rb"
     - "app/models/saved_claim.rb"
+    - 'spec/**/*.rb'
 
 # Need to revisit why this is necessary:
 Lint/RescueException:

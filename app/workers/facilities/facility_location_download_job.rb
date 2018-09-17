@@ -27,6 +27,7 @@ module Facilities
     end
 
     def process_deletes
+      return if fresh_by_unique_id.empty? # do not wipe cached data if endpoint returns empty
       missing_ids = (existing_by_unique_id.keys - fresh_by_unique_id.keys)
       klass.delete(missing_ids) if missing_ids.any?
     end
@@ -40,7 +41,9 @@ module Facilities
     end
 
     def fetch_existing_data
-      @fetch_existing_data ||= klass.pluck(:fingerprint, :unique_id)
+      @fetch_existing_data ||= klass
+                               .where("classification != 'State Cemetery' OR classification is NULL")
+                               .pluck(:fingerprint, :unique_id)
     end
 
     def fresh_by_fingerprint

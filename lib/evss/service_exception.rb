@@ -4,9 +4,11 @@ require 'common/exceptions/base_error'
 
 module EVSS
   class ServiceException < Common::Exceptions::BaseError
+    attr_reader :key, :messages
+
     def initialize(original_body)
       @messages = original_body['messages']
-      @key = error_key
+      @key = error_key || 'evss.unmapped_service_exception'
       super
     end
 

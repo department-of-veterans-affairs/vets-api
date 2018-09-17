@@ -16,6 +16,7 @@ describe MVI::Service do
   end
 
   let(:user) { build(:user, :loa3, user_hash) }
+  let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
 
   let(:mvi_profile) do
     build(
@@ -25,7 +26,8 @@ describe MVI::Service do
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
       sec_id: nil,
-      historical_icns: nil
+      historical_icns: nil,
+      icn_with_aaid: icn_with_aaid
     )
   end
 
@@ -332,6 +334,16 @@ describe MVI::Service do
           subject.find_profile(user)
         end
         expect(StatsD).to have_received(:increment).with('api.mvi.find_profile.total')
+      end
+
+      it 'should log the request and response data' do
+        expect do
+          VCR.use_cassette('mvi/find_candidate/valid') do
+            Settings.mvi.pii_logging = true
+            subject.find_profile(user)
+            Settings.mvi.pii_logging = false
+          end
+        end.to change { PersonalInformationLog.count }.by(1)
       end
     end
 

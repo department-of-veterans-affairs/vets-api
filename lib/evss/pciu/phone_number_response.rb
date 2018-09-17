@@ -20,6 +20,10 @@ module EVSS
 
         super(status, attributes)
       end
+
+      def to_s
+        "#{country_code}#{number}#{extension}".gsub(/[^\d]/, '')
+      end
     end
   end
 end

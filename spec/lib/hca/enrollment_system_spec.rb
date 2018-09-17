@@ -13,10 +13,8 @@ describe HCA::EnrollmentSystem do
     'street3' =>  '',
     'city' => 'Dulles',
     'country' => 'USA',
-    'postalCode' => '13AA',
-    'provinceCode' => 'ProvinceName',
     'state' => 'VA',
-    'zipcode' => '20101-0101'
+    'postalCode' => '20101-0101'
   }.freeze
 
   TEST_CHILD = {
@@ -211,6 +209,10 @@ describe HCA::EnrollmentSystem do
     'format_zipcode',
     [
       [
+        [nil],
+        {}
+      ],
+      [
         '12345',
         { 'zipCode' => '12345', 'zipPlus4' => nil }
       ],
@@ -226,6 +228,18 @@ describe HCA::EnrollmentSystem do
   )
 
   describe '#format_address' do
+    context 'with no zipcode' do
+      it 'should format addr correctly' do
+        test_address.delete('postalCode')
+        expect(described_class.format_address(test_address)).to eq(
+          'city' => 'Dulles',
+          'country' => 'USA',
+          'line1' => '123 NW 8th St',
+          'state' => 'VA'
+        )
+      end
+    end
+
     it 'should format the address correctly' do
       expect(described_class.format_address(test_address)).to eq(
         'city' => 'Dulles',
@@ -873,8 +887,7 @@ describe HCA::EnrollmentSystem do
             "country": 'CAN',
             "state": 'ON',
             "provinceCode": 'ProvinceName',
-            "zipcode": '21231',
-            "postalCode": '13AA'
+            "postalCode": '21231'
           },
           wantsInitialVaContact: true,
           "email": 'foo@example.com',

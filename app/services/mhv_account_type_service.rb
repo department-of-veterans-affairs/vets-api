@@ -25,7 +25,9 @@ class MhvAccountTypeService
     return nil unless mhv_account?
 
     if account_type_known?
-      @user.identity.mhv_account_type
+      user.identity.mhv_account_type
+    elsif eligible_data_classes.nil?
+      'Error'
     else
       ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL.fetch(eligible_data_classes.size)
     end
@@ -35,22 +37,33 @@ class MhvAccountTypeService
   end
 
   def mhv_account?
-    @user.mhv_correlation_id.present?
+    user.mhv_correlation_id.present?
   end
 
   def account_type_known?
-    @user.identity.mhv_account_type.present?
+    user.identity.mhv_account_type.present?
   end
 
   private
 
   def fetch_eligible_data_classes
-    bb_client = BB::Client.new(session: { user_id: @user.mhv_correlation_id })
-    bb_client.authenticate
-    bb_client.get_eligible_data_classes.members.map(&:name)
+    if cached_eligible_data_class
+      json = Oj.load(cached_eligible_data_class)
+      Common::Collection.new(::EligibleDataClass, json.symbolize_keys).members.map(&:name)
+    else
+      bb_client = BB::Client.new(session: { user_id: @user.mhv_correlation_id })
+      bb_client.authenticate
+      bb_client.get_eligible_data_classes.members.map(&:name)
+    end
   rescue StandardError
     log_account_type_heuristic_once(MHV_DOWN_MESSAGE)
-    []
+    nil
+  end
+
+  def cached_eligible_data_class
+    namespace = Redis::Namespace.new('common_collection', redis: Redis.current)
+    cache_key = "#{user.mhv_correlation_id}:geteligibledataclass"
+    namespace.get(cache_key)
   end
 
   def log_account_type_heuristic_once(message)

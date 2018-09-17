@@ -6,6 +6,7 @@ module V0
 
     def show
       response = service.get_address
+
       render json: response,
              serializer: AddressSerializer
     end
@@ -14,6 +15,7 @@ module V0
       address = EVSS::PCIUAddress::Address.build_address(params)
       raise Common::Exceptions::ValidationErrors, address unless address.valid?
       response = service.update_address(address)
+
       render json: response,
              serializer: AddressSerializer
     end

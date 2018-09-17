@@ -56,7 +56,7 @@ VCR.configure do |c|
   c.cassette_library_dir = 'spec/support/vcr_cassettes'
   c.hook_into :webmock
   c.configure_rspec_metadata!
-  c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.pension_burial.upload.token }
+  c.filter_sensitive_data('<PENSIONS_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
   c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
   c.filter_sensitive_data('<EVSS_AWS_BASE_URL>') { Settings.evss.aws.url }
@@ -145,9 +145,23 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
+  config.before(:all) do
+    unless defined?(Sidekiq::Batch)
+      Sidekiq::Batch = Class.new do
+        def on(_callback, _klass, _options) end
+
+        def jobs
+          yield
+        end
+      end
+    end
+  end
+
   config.before(:each) do |example|
     stub_mvi unless example.metadata[:skip_mvi]
     stub_emis unless example.metadata[:skip_emis]
+    stub_vet360 unless example.metadata[:skip_vet360]
+
     Sidekiq::Worker.clear_all
   end
 

@@ -49,6 +49,10 @@ module V0
         key :description, 'Check status of benefits claims and appeals'
       end
       tag do
+        key :name, 'form_526'
+        key :description, 'Creating and submitting compensation applications'
+      end
+      tag do
         key :name, 'prescriptions'
         key :description, 'Prescription refill/tracking operations'
       end
@@ -113,15 +117,18 @@ module V0
     SWAGGERED_CLASSES = [
       Swagger::Requests::Address,
       Swagger::Requests::Appeals,
+      Swagger::Requests::Appointments,
       Swagger::Requests::BackendStatuses,
       Swagger::Requests::BB::HealthRecords,
       Swagger::Requests::BurialClaims,
+      Swagger::Requests::DisabilityCompensationForm,
       Swagger::Requests::EducationBenefitsClaims,
       Swagger::Requests::Feedbacks,
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::HealthCareApplications,
       Swagger::Requests::InProgressForms,
+      Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,
       Swagger::Requests::MaintenanceWindows,
       Swagger::Requests::Messages::Folders,
@@ -130,21 +137,26 @@ module V0
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::PensionClaims,
       Swagger::Requests::Post911GiBillStatuses,
+      Swagger::Requests::PPIU,
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,
       Swagger::Requests::Sessions,
       Swagger::Requests::TermsAndConditions,
+      Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
       Swagger::Requests::VAFacilities,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Address,
       Swagger::Schemas::Appeals,
+      Swagger::Schemas::AsyncTransaction::Vet360,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
+      Swagger::Schemas::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
+      Swagger::Schemas::EVSSAuthError,
       Swagger::Schemas::Gibct::CalculatorConstants,
       Swagger::Schemas::Gibct::Institutions,
       Swagger::Schemas::Health::Folders,
@@ -154,14 +166,25 @@ module V0
       Swagger::Schemas::Health::Prescriptions,
       Swagger::Schemas::Health::Trackings,
       Swagger::Schemas::Health::TriageTeams,
+      Swagger::Schemas::IntentToFile,
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,
       Swagger::Schemas::PhoneNumber,
+      Swagger::Schemas::PPIU,
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
+      Swagger::Schemas::SubmitDisabilityForm,
       Swagger::Schemas::TermsAndConditions,
+      Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::VAFacilities,
+      Swagger::Schemas::Vet360::Address,
+      Swagger::Schemas::Vet360::Email,
+      Swagger::Schemas::Vet360::Telephone,
+      Swagger::Schemas::Vet360::ContactInformation,
+      Swagger::Schemas::Vet360::Countries,
+      Swagger::Schemas::Vet360::States,
+      Swagger::Schemas::Vet360::Zipcodes,
       self
     ].freeze
 

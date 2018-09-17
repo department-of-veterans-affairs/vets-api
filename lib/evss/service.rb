@@ -9,11 +9,12 @@ module EVSS
 
     def initialize(user)
       @user = user
+      @headers = headers_for_user(@user)
     end
 
     def perform(method, path, body = nil, headers = {})
-      headers = headers_for_user(@user).merge(headers)
-      super(method, path, body, headers)
+      merged_headers = @headers.merge(headers)
+      super(method, path, body, merged_headers)
     end
 
     def headers
@@ -32,8 +33,8 @@ module EVSS
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
         raise_backend_exception('EVSS502', self.class)
       when Common::Client::Errors::ClientError
-        raise Common::Exceptions::Forbidden if error.status == 403
         log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
+        raise Common::Exceptions::Forbidden if error.status == 403
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400
         raise_backend_exception('EVSS502', self.class, error)
       else

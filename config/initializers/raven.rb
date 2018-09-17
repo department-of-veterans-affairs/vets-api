@@ -8,5 +8,8 @@ Raven.configure do |config|
   config.processors << Sentry::Processor::EmailSanitizer
   config.processors << Sentry::Processor::PIISanitizer
 
-  config.excluded_exceptions += ['Sentry::IgnoredError']
+  config.excluded_exceptions += ['Sentry::IgnoredError', 'Common::Exceptions::SentryIgnoredGatewayTimeout']
+  config.async = lambda { |event|
+    SentryJob.perform_async(event)
+  }
 end

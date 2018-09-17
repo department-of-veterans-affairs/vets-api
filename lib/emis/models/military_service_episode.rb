@@ -26,6 +26,14 @@ module EMIS
         'H' => 'usphs'
       }.freeze
 
+      PERSONNEL_CATEGORY_TYPE = {
+        'A' => 'Regular Active',
+        'N' => 'Guard',
+        'V' => 'Reserve',
+        'Q' => 'Reserve Retiree'
+      }.freeze
+
+      attribute :personnel_category_type_code, String
       attribute :begin_date, Date
       attribute :end_date, Date
       attribute :termination_reason, String
@@ -56,6 +64,10 @@ module EMIS
 
       def branch_of_service
         SERVICE_BRANCHES[branch_of_service_code]
+      end
+
+      def personnel_category_type
+        PERSONNEL_CATEGORY_TYPE[personnel_category_type_code]
       end
     end
   end

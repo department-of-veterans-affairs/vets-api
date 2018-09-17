@@ -27,7 +27,7 @@
 		"city": "Washington",
 		"country": "USA",
 		"state": "DC",
-		"zipcode": "20005"
+		"postalCode": "20005"
 	},
 	"email": "foo_bar@example.com",
 	"homePhone": "1231241234",

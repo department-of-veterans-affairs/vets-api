@@ -18,7 +18,7 @@ module AwsHelpers
     expect(s3).to receive(:bucket).once.with('bucket').and_return(bucket)
     expect(bucket).to receive(:object).once.with("#{uuid}.csv").and_return(obj)
     expect(obj).to receive(:upload_file).once.with(filename, content_type: 'text/csv')
-    expect(obj).to receive(:presigned_url).once.with(:get, expires_in: 1.week).and_return(url)
+    expect(obj).to receive(:presigned_url).once.with(:get, expires_in: 1.week.to_i).and_return(url)
 
     yield
 

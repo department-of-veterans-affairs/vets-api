@@ -14,7 +14,7 @@ module EVSS
       end
 
       def i18n_key
-        'evss.gi_bill_status.external_service_unavailable'
+        'evss.external_service_unavailable'
       end
     end
   end

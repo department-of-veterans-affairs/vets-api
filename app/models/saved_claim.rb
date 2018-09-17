@@ -23,7 +23,7 @@ class SavedClaim < ActiveRecord::Base
   validate(:form_must_be_string)
   attr_encrypted(:form, key: Settings.db_encryption_key)
 
-  has_many :persistent_attachments, inverse_of: :saved_claim
+  has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
 
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
@@ -43,7 +43,7 @@ class SavedClaim < ActiveRecord::Base
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.update_all(saved_claim_id: id)
 
-    SubmitSavedClaimJob.perform_async(id)
+    CentralMail::SubmitSavedClaimJob.perform_async(id)
   end
 
   def confirmation_number

@@ -11,10 +11,8 @@
         "type": { "type": "string"},
         "attributes": {
           "type": "object",
-          "required": ["services", "profile", "mhv_account_state", "in_progress_forms"],
+          "required": ["services", "profile", "in_progress_forms"],
           "properties": {
-            "mhv_account_state": { "type": ["string", null]},
-            "health_terms_current": { "type": "boolean" },
             "in_progress_forms": {
               "type": [ "array", null ],
               "items": {
@@ -28,6 +26,13 @@
             },
             "prefills_available": { "type": [ "array", null ] },
             "services": { "type": [ "array", null ] },
+            "account": {
+              "type": "object",
+              "required": ["account_uuid"],
+              "properties": {
+                "account_uuid": { "type": [ "string", null ] }
+              }
+            },
             "profile": {
               "type": "object",
               "required": [
@@ -101,10 +106,14 @@
                 {
                   "properties": {
                     "is_veteran": { "type": "boolean" },
+                    "served_in_military": { "type": "boolean" },
                     "status": { "type": "string"  }
                   }
                 }
               ]
+            },
+            "vet360_contact_information": {
+              "type": ["object", "null"]
             }
           }
         }

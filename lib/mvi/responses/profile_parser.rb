@@ -102,13 +102,15 @@ module MVI
           home_phone: parse_phone(patient),
           icn: correlation_ids[:icn],
           mhv_ids: correlation_ids[:mhv_ids],
+          active_mhv_ids: correlation_ids[:active_mhv_ids],
           edipi: correlation_ids[:edipi],
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
           sec_id: correlation_ids[:sec_id],
           birls_id: correlation_ids[:birls_id],
           vet360_id: correlation_ids[:vet360_id],
-          historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns
+          historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
+          icn_with_aaid: correlation_ids[:icn_with_aaid]
         )
       end
       # rubocop:enable MethodLength

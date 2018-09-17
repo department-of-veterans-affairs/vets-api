@@ -19,6 +19,7 @@ class BackendServices
   USER_PROFILE = 'user-profile'
   ID_CARD = 'id-card'
   IDENTITY_PROOFED = 'identity-proofed'
+  VET360 = 'vet360'
 
   # MHV services
   RX = 'rx'
@@ -29,4 +30,7 @@ class BackendServices
   # Core Form Features
   SAVE_IN_PROGRESS = 'form-save-in-progress'
   FORM_PREFILL = 'form-prefill'
+
+  # 526 claim for increase beta has not reached daily or weekly limit
+  CLAIM_INCREASE_AVAILABLE = 'claim-increase-available'
 end

@@ -27,6 +27,7 @@ module Appeals
         faraday.use Faraday::Response::RaiseError
         faraday.request :json
         faraday.response :betamocks if mock_enabled?
+        faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
     end

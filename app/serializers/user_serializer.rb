@@ -6,11 +6,17 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
-             :in_progress_forms, :prefills_available
+  attributes :services, :account, :profile, :va_profile, :veteran_status,
+             :in_progress_forms, :prefills_available, :vet360_contact_information
 
   def id
     nil
+  end
+
+  def account
+    {
+      account_uuid: object.account_uuid
+    }
   end
 
   def profile
@@ -30,6 +36,22 @@ class UserSerializer < ActiveModel::Serializer
     }
   end
 
+  def vet360_contact_information
+    person = object.vet360_contact_info
+    return {} if person.blank?
+
+    {
+      email: person.email,
+      residential_address: person.residential_address,
+      mailing_address: person.mailing_address,
+      mobile_phone: person.mobile_phone,
+      home_phone: person.home_phone,
+      work_phone: person.work_phone,
+      temporary_phone: person.temporary_phone,
+      fax_number: person.fax_number
+    }
+  end
+
   def va_profile
     status = object.va_profile_status
     return { status: status } unless status == RESPONSE_STATUS[:ok]
@@ -45,7 +67,8 @@ class UserSerializer < ActiveModel::Serializer
   def veteran_status
     {
       status: RESPONSE_STATUS[:ok],
-      is_veteran: object.veteran?
+      is_veteran: object.veteran?,
+      served_in_military: object.served_in_military?
     }
   rescue EMISRedis::VeteranStatus::NotAuthorized
     { status: RESPONSE_STATUS[:not_authorized] }
@@ -53,10 +76,6 @@ class UserSerializer < ActiveModel::Serializer
     { status: RESPONSE_STATUS[:not_found] }
   rescue StandardError
     { status: RESPONSE_STATUS[:server_error] }
-  end
-
-  def health_terms_current
-    object.mhv_account.terms_and_conditions_accepted?
   end
 
   def in_progress_forms
@@ -74,7 +93,7 @@ class UserSerializer < ActiveModel::Serializer
     FormProfile.prefill_enabled_forms
   end
 
-  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
   def services
     service_list = [
       BackendServices::FACILITIES,
@@ -92,8 +111,20 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::FORM_PREFILL if object.can_access_prefill_data?
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
+    service_list << BackendServices::VET360 if object.can_access_vet360?
+    service_list << BackendServices::CLAIM_INCREASE_AVAILABLE if claims_for_increase_available?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
-  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
+
+  private
+
+  def claims_for_increase_available?
+    object.authorize(:evss, :access?) && !claims_for_increase_limiter.at_limit?
+  end
+
+  def claims_for_increase_limiter
+    Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
+  end
 end

@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
 module VIC
-  class Service < Common::Client::Base
+  class Service < Salesforce::Service
     configuration VIC::Configuration
 
+    CONSUMER_KEY = Settings.salesforce.consumer_key
+    SIGNING_KEY_PATH = Settings.salesforce.signing_key_path
     SALESFORCE_USERNAMES = {
       'prod' => 'vetsgov-devops@listserv.gsa.gov',
       'uat' => 'vetsgov-devops@listserv.gsa.gov.uat',
       'dev' => 'vetsgov-devops@listserv.gsa.gov.vicdev'
     }.freeze
-
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings.salesforce.env]
-    SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
     SERVICE_BRANCHES = {
       'F' => 'Air Force',
       'A' => 'Army',
@@ -27,37 +27,6 @@ module VIC
       veteran_address
       phone
     ].freeze
-
-    def oauth_params
-      {
-        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: jwt_bearer_token
-      }
-    end
-
-    def jwt_bearer_token
-      JWT.encode(claim_set, private_key, 'RS256')
-    end
-
-    def claim_set
-      {
-        iss: Settings.salesforce.consumer_key,
-        sub: SALESFORCE_USERNAME,
-        aud: SALESFORCE_HOST,
-        exp: Time.now.utc.to_i.to_s
-      }
-    end
-
-    def private_key
-      OpenSSL::PKey::RSA.new(File.read(Settings.salesforce.signing_key_path))
-    end
-
-    def get_oauth_token
-      body = request(:post, '', oauth_params).body
-      Raven.extra_context(oauth_response_body: body)
-
-      body['access_token']
-    end
 
     def convert_form(form)
       converted_form = form.deep_transform_keys { |key| key.to_s.underscore }
@@ -82,13 +51,8 @@ module VIC
       converted_form
     end
 
-    def send_file(client, case_id, form_attachment, description)
-      return if form_attachment.blank?
-
-      file_body = form_attachment.get_file.read
-      mime_type = MimeMagic.by_magic(file_body).type
+    def send_file_with_path(client, case_id, file_path, mime_type, description)
       file_name = "#{description}.#{mime_type.split('/')[1]}"
-      file_path = Common::FileHelpers.generate_temp_file(file_body)
 
       content_version_id = client.create!(
         'ContentVersion',
@@ -106,6 +70,16 @@ module VIC
       )
 
       File.delete(file_path)
+    end
+
+    def send_file(client, case_id, form_attachment, description)
+      return if form_attachment.blank?
+
+      file_body = form_attachment.get_file.read
+      mime_type = MimeMagic.by_magic(file_body).type
+      file_path = Common::FileHelpers.generate_temp_file(file_body)
+      send_file_with_path(client, case_id, file_path, mime_type, description)
+
       form_attachment.destroy
     end
 
@@ -140,11 +114,38 @@ module VIC
       true
     end
 
+    def combine_files(attachment_records)
+      return if attachment_records.blank?
+
+      converted_files = attachment_records.map do |attachment|
+        Common::ConvertToPdf.new(attachment.get_file).run
+      end
+
+      return converted_files[0] if converted_files.size == 1
+
+      file_path = Common::FileHelpers.random_file_path
+
+      PdfFill::Filler::PDF_FORMS.cat(*(converted_files + [file_path]))
+
+      converted_files.each do |file|
+        File.delete(file)
+      end
+
+      file_path
+    end
+
     def send_files(case_id, form)
       client = get_client
       attachment_records = get_attachment_records(form)
-      attachment_records[:supporting].each_with_index do |form_attachment, i|
-        send_file(client, case_id, form_attachment, "Discharge Documentation #{i}")
+      supporting_records = attachment_records[:supporting].compact
+
+      if supporting_records.present?
+        send_file_with_path(
+          client, case_id,
+          combine_files(supporting_records), Mime[:pdf].to_s,
+          'Discharge Documentation'
+        )
+        supporting_records.each(&:destroy)
       end
 
       form_attachment = attachment_records[:profile_photo]
@@ -192,14 +193,6 @@ module VIC
       sleep(1)
 
       false
-    end
-
-    def get_client
-      Restforce.new(
-        oauth_token: get_oauth_token,
-        instance_url: Configuration::SALESFORCE_INSTANCE_URL,
-        api_version: '41.0'
-      )
     end
 
     def submit(form, user)

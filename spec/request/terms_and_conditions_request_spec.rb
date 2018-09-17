@@ -11,10 +11,6 @@ RSpec.describe 'terms_and_conditions', type: :request do
   let!(:terms21) { create(:terms_and_conditions, name: terms2.name, latest: true) }
   let!(:terms3) { create(:terms_and_conditions, latest: true, name: 'three') }
 
-  before(:each) do
-    use_authenticated_current_user(current_user: current_user)
-  end
-
   it 'responds to GET #index' do
     get '/v0/terms_and_conditions'
 
@@ -35,6 +31,10 @@ RSpec.describe 'terms_and_conditions', type: :request do
   end
 
   context 'with some acceptances' do
+    before(:each) do
+      use_authenticated_current_user(current_user: current_user)
+    end
+
     let!(:terms2_acceptance) do
       create(:terms_and_conditions_acceptance, user_uuid: current_user.uuid, terms_and_conditions: terms2)
     end
@@ -71,6 +71,10 @@ RSpec.describe 'terms_and_conditions', type: :request do
   end
 
   context 'with no acceptances' do
+    before(:each) do
+      use_authenticated_current_user(current_user: current_user)
+    end
+
     describe 'getting user data' do
       it 'responds to GET #user_data with a 404' do
         get "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data"

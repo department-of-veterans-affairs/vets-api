@@ -1,0 +1,54 @@
+{
+  "address": {
+    "street": "street",
+    "street2": "street2",
+    "city": "city",
+    "state": "VA",
+    "postal_code": "12345",
+    "country": "US"
+  },
+  "service_branch": "Air Force",
+  "full_name": {
+    "prefix": "Mr.",
+    "first": "Test",
+    "middle": "middle",
+    "last": "last",
+    "suffix": "Jr."
+  },
+  "on_behalf_of": "Myself",
+  "education_details": {
+    "school": {
+      "name": "ZURICH NORTH AMERICA",
+      "address": {
+        "street": "1400 AMERICAN LN",
+        "street2": null,
+        "city": "SCHAUMBURG",
+        "postal_code": "60196",
+        "state": "IL",
+        "country": "USA"
+      }
+    },
+    "programs": [
+      "MGIB-AD Ch 30"
+    ],
+    "assistance": [
+      "TA"
+    ]
+  },
+  "issue": [
+    "student_loans"
+  ],
+  "phone": "5551110000",
+  "issue_description": "issueDescription",
+  "issue_resolution": "issueResolution",
+  "affiliation": "Veteran",
+  "entered_duty": "2000-01-01",
+  "release_from_duty": "2000-01-02",
+  "profile_data": {
+    "active_ICN": null,
+    "historical_ICN": null,
+    "sec_ID": null,
+    "SSN": "796111863"
+  },
+  "email": "foo@foo.com"
+}

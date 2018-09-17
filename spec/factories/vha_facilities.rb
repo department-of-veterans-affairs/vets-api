@@ -43,8 +43,8 @@ FactoryBot.define do
              'last_updated' => '2018-03-15')
     feedback('health' => {
                'effective_date' => '2017-08-15',
-               'primary_care_urgent' => '0.8',
-               'primary_care_routine' => '0.84'
+               'primary_care_urgent' => 0.8,
+               'primary_care_routine' => 0.84
              })
     access('health' => {
              'audiology' => {
@@ -59,7 +59,7 @@ FactoryBot.define do
                'new' => 4.0,
                'established' => nil
              },
-             'opthalmology' => {
+             'ophthalmology' => {
                'new' => 1.0,
                'established' => 4.0
              },
@@ -112,15 +112,23 @@ FactoryBot.define do
       { 'sl1' => ['MentalHealthCare'],
         'sl2' => [] },
       { 'sl1' => ['PrimaryCare'],
+        'sl2' => [] },
+      { 'sl1' => ['EmergencyCare'],
+        'sl2' => [] },
+      { 'sl1' => ['UrgentCare'],
+        'sl2' => [] },
+      { 'sl1' => ['Audiology'],
+        'sl2' => [] },
+      { 'sl1' => ['Optometry'],
         'sl2' => [] }
     ],
              'last_updated' => '2018-03-15'
     feedback 'health' => {
       'effective_date' => '2017-08-15',
-      'primary_care_urgent' => '0.73',
-      'primary_care_routine' => '0.82',
-      'specialty_care_urgent' => '0.75',
-      'specialty_care_routine' => '0.82'
+      'primary_care_urgent' => 0.73,
+      'primary_care_routine' => 0.82,
+      'specialty_care_urgent' => 0.75,
+      'specialty_care_routine' => 0.82
     }
     access 'health' => {
       'audiology' => {
@@ -147,7 +155,7 @@ FactoryBot.define do
         'new' => 26.0,
         'established' => 9.0
       },
-      'opthalmology' => {
+      'ophthalmology' => {
         'new' => 18.0,
         'established' => 8.0
       },
@@ -164,7 +172,7 @@ FactoryBot.define do
         'established' => 5.0
       },
       'effective_date' => '2018-03-05',
-      'urology_clinic' => {
+      'urology' => {
         'new' => 24.0,
         'established' => 8.0
       },

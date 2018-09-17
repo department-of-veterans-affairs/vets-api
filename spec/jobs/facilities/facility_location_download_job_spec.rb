@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'facilities/bulk_json_client'
 
 RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
+  before(:each) { BaseFacility.validate_on_load = false }
+  after(:each) { BaseFacility.validate_on_load = true }
+
   describe 'NCA Facilities' do
     it 'retrieves and persists facilities data' do
       VCR.use_cassette('facilities/va/nca_facilities') do
         expect(Facilities::NCAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('nca')
-        expect(Facilities::NCAFacility.count).to eq(173)
+        expect(Facilities::NCAFacility.count).to eq(10)
       end
     end
 
@@ -60,14 +64,49 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::NCAFacility.count).to eq(count)
       end
     end
+
+    context 'source data returns empty' do
+      it 'does not delete cached data' do
+        VCR.use_cassette('facilities/va/nca_facilities', allow_playback_repeats: true) do
+          Facilities::FacilityLocationDownloadJob.new.perform('nca')
+          count = Facilities::NCAFacility.count
+          expect(count).not_to eq(0)
+          allow(BaseFacility).to receive(:pull_source_data).and_return([])
+          Facilities::FacilityLocationDownloadJob.new.perform('nca')
+          expect(Facilities::NCAFacility.count).to eq(count)
+        end
+      end
+    end
   end
 
   describe 'VBA Facilities' do
     it 'retrieves and persists facilities data' do
-      VCR.use_cassette('facilities/va/vba_facilities') do
+      VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
         expect(Facilities::VBAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vba')
-        expect(Facilities::VBAFacility.count).to eq(487)
+        expect(Facilities::VBAFacility.count).to eq(6)
+      end
+    end
+
+    it 'should indicate Pensions for appropriate facilities' do
+      VCR.use_cassette('facilities/va/vba_facilities_limit_results') do
+        expect(Facilities::VBAFacility.count).to eq(0)
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        expect(Facilities::VBAFacility.find('310').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('330').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('335').services['benefits']['standard']).to include('Pensions')
+        expect(Facilities::VBAFacility.find('0206V').services['benefits']['standard']).not_to include('Pensions')
+      end
+    end
+
+    it 'adds data that does not exist in the db' do
+      VCR.use_cassette('facilities/va/vba_facilities_limit_results', allow_playback_repeats: true) do
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        count = Facilities::VBAFacility.count
+        Facilities::VBAFacility.all.sample(5).map(&:destroy)
+        expect(Facilities::VBAFacility.count).to eq(count - 5)
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        expect(Facilities::VBAFacility.count).to eq(count)
       end
     end
   end
@@ -77,17 +116,88 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
       VCR.use_cassette('facilities/va/vc_facilities') do
         expect(Facilities::VCFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vc')
-        expect(Facilities::VCFacility.count).to eq(318)
+        expect(Facilities::VCFacility.count).to eq(10)
+      end
+    end
+
+    it 'adds data that does not exist in the db' do
+      VCR.use_cassette('facilities/va/vc_facilities', allow_playback_repeats: true) do
+        Facilities::FacilityLocationDownloadJob.new.perform('vc')
+        count = Facilities::VCFacility.count
+        Facilities::VCFacility.all.sample(5).map(&:destroy)
+        expect(Facilities::VCFacility.count).to eq(count - 5)
+        Facilities::FacilityLocationDownloadJob.new.perform('vc')
+        expect(Facilities::VCFacility.count).to eq(count)
       end
     end
   end
 
   describe 'VHA Facilities' do
     it 'retrieves and persists facilities data' do
-      VCR.use_cassette('facilities/va/vha_facilities') do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
         expect(Facilities::VHAFacility.count).to eq(0)
         Facilities::FacilityLocationDownloadJob.new.perform('vha')
-        expect(Facilities::VHAFacility.count).to eq(1185)
+        expect(Facilities::VHAFacility.count).to eq(3)
+      end
+    end
+
+    it 'adds data that does not exist in the db' do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results', allow_playback_repeats: true) do
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        count = Facilities::VHAFacility.count
+        Facilities::VHAFacility.all.sample(2).map(&:destroy)
+        expect(Facilities::VHAFacility.count).to eq(count - 2)
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        expect(Facilities::VHAFacility.count).to eq(count)
+      end
+    end
+  end
+
+  context 'with facility validation' do
+    before(:each) { BaseFacility.validate_on_load = true }
+    after(:each) { BaseFacility.validate_on_load = false }
+    it 'raises an error when trying to retrieve and persist facilities data' do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+        expect { Facilities::FacilityLocationDownloadJob.new.perform('vha') }
+          .to raise_error(Common::Client::Errors::ParsingError, 'invalid source data: duplicate ids')
+      end
+    end
+  end
+
+  context 'with wait time data' do
+    let(:satisfaction_data) do
+      fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"
+      File.open(fixture_file_name, 'rb') do |f|
+        JSON.parse(f.read)
+      end
+    end
+
+    let(:wait_time_data) do
+      fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/wait_time_data.json"
+      File.open(fixture_file_name, 'rb') do |f|
+        JSON.parse(f.read)
+      end
+    end
+
+    let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
+    let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
+
+    before(:each) do
+      allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
+      allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
+      allow(sat_client_stub).to receive(:download).and_return(satisfaction_data)
+      allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
+      Facilities::AccessDataDownload.new.perform
+    end
+
+    it 'has the wait time indicated services' do
+      VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        facility = Facilities::VHAFacility.find('603')
+        services = facility.services['health'].map { |service| service['sl1'].first }
+        expected_services = %w[WomensHealth Audiology Cardiology Dermatology Gastroenterology
+                               Gynecology Ophthalmology Optometry Orthopedics Urology]
+        expect(services).to include(*expected_services)
       end
     end
   end

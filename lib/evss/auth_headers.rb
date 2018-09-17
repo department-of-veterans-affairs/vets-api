@@ -7,7 +7,7 @@ module EVSS
     end
 
     def to_h
-      @headers ||= {
+      @headers ||= sanitize(
         'va_eauth_csid' => 'DSLogon',
         # TODO: Change va_eauth_authenticationmethod to vets.gov
         # once the EVSS team is ready for us to use it
@@ -18,15 +18,21 @@ module EVSS
         'va_eauth_lastName' => @user.last_name,
         'va_eauth_issueinstant' => @user.last_signed_in.iso8601,
         'va_eauth_dodedipnid' => @user.edipi,
-        'va_eauth_birlsfilenumber' => (@user.birls_id || ''),
+        'va_eauth_birlsfilenumber' => @user.birls_id,
         'va_eauth_pid' => @user.participant_id,
         'va_eauth_pnid' => @user.ssn,
         'va_eauth_birthdate' => iso8601_birth_date,
         'va_eauth_authorization' => eauth_json
-      }
+      )
     end
 
     private
+
+    def sanitize(headers)
+      headers.transform_values! do |value|
+        value.nil? ? '' : value
+      end
+    end
 
     def eauth_json
       {

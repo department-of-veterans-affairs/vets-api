@@ -41,6 +41,8 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
     launch it manually with `brew services start redis`.
 1. Install ImageMagick
    - `brew install imagemagick`
+1. Install Poppler
+   -  `brew install poppler`
 1. Install ClamAV
   - `brew install clamav`
   - Take note of the the post-install instructions `To finish installation & run

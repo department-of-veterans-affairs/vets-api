@@ -11,10 +11,11 @@ module EducationForm
   end
 
   class CreateDailySpoolFiles
-    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495].map { |t| "22-#{t.upcase}" }.freeze
+    LIVE_FORM_TYPES = %w[1990 1995 1990e 5490 1990n 5495 0993].map { |t| "22-#{t.upcase}" }.freeze
     include Sidekiq::Worker
     include SentryLogging
     sidekiq_options queue: 'default',
+                    unique_for: 30.minutes,
                     retry: 5
 
     # Setting the default value to the `unprocessed` scope is safe

@@ -46,6 +46,10 @@ module EVSS
         super(status, attributes)
       end
 
+      def timestamp
+        Time.parse(@response.response_headers['date']).utc
+      end
+
       def success?
         contains_education_info?
       end

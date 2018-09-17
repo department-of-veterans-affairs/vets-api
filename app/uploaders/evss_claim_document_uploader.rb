@@ -15,10 +15,13 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
     end
   end
 
-  def initialize(user_uuid, tracked_item_id)
+  def initialize(user_uuid, ids)
+    # carrierwave allows only 2 arguments, which they will pass onto
+    # different versions by calling the initialize function again,
+    # that's why i put all ids in the 2nd argument instead of adding a 3rd argument
     super
     @user_uuid = user_uuid
-    @tracked_item_id = tracked_item_id
+    @ids = ids
     set_storage_options!
   end
 
@@ -44,7 +47,9 @@ class EVSSClaimDocumentUploader < CarrierWave::Uploader::Base
 
   def store_dir
     store_dir = "evss_claim_documents/#{@user_uuid}"
-    store_dir += "/#{@tracked_item_id}" if @tracked_item_id
+    @ids.compact.each do |id|
+      store_dir += "/#{id}"
+    end
     store_dir
   end
 

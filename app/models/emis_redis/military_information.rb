@@ -4,16 +4,6 @@ module EMISRedis
   class MilitaryInformation < Model
     CLASS_NAME = 'MilitaryInformationService'
 
-    SERVICE_BRANCHES = {
-      'F' => 'air force',
-      'A' => 'army',
-      'C' => 'coast guard',
-      'M' => 'marine corps',
-      'N' => 'navy',
-      'O' => 'noaa',
-      'H' => 'usphs'
-    }.freeze
-
     DISCHARGE_TYPES = {
       'A' => 'honorable',
       'B' => 'general',
@@ -24,6 +14,7 @@ module EMISRedis
     }.freeze
 
     PREFILL_METHODS = %i[
+      hca_last_service_branch
       last_service_branch
       currently_active_duty
       currently_active_duty_hash
@@ -37,6 +28,9 @@ module EMISRedis
       discharge_type
       service_branches
       va_compensation_type
+      service_periods
+      guard_reserve_service_history
+      latest_guard_reserve_service_period
     ].freeze
 
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
@@ -98,13 +92,59 @@ module EMISRedis
       end
     end
 
+    # EVSS requires the reserve/national guard category to be a part
+    # of the service branch field.
+    # rubocop:disable Metrics/CyclomaticComplexity
+    def build_service_branch(military_service_episode)
+      branch = case military_service_episode.hca_branch_of_service
+               when 'noaa'
+                 military_service_episode.hca_branch_of_service.upcase
+               when 'usphs'
+                 'Public Health Service'
+               else
+                 military_service_episode.hca_branch_of_service.titleize
+               end
+
+      category = case military_service_episode.personnel_category_type_code
+                 when 'A'
+                   ''
+                 when 'N'
+                   'National Guard'
+                 when 'V' || 'Q'
+                   'Reserve'
+                 else
+                   ''
+                 end
+
+      "#{branch} #{category}".strip
+    end
+    # rubocop:enable Metrics/CyclomaticComplexity
+
+    def service_periods
+      service_episodes_by_date.map do |military_service_episode|
+        # avoid prefilling if service branch is 'other' as this breaks validation
+        return {} if military_service_episode.hca_branch_of_service == 'other'
+
+        {
+          service_branch: build_service_branch(military_service_episode),
+          date_range: {
+            from: military_service_episode.begin_date.to_s,
+            to: military_service_episode.end_date.to_s
+          }
+        }
+      end
+    end
+
     def service_branches
       military_service_episodes.map(&:branch_of_service_code).uniq
     end
 
     def last_service_branch
-      return if latest_service_episode.blank?
-      latest_service_episode.hca_branch_of_service
+      latest_service_episode&.branch_of_service
+    end
+
+    def hca_last_service_branch
+      latest_service_episode&.hca_branch_of_service
     end
 
     def discharge_type
@@ -211,9 +251,33 @@ module EMISRedis
         {
           branch_of_service: episode.branch_of_service,
           begin_date: episode.begin_date,
-          end_date: episode.end_date
+          end_date: episode.end_date,
+          personnel_category_type_code: episode.personnel_category_type_code
         }
       end
+    end
+
+    def guard_reserve_service_periods
+      @guard_reserve_service_periods ||= items_from_response('get_guard_reserve_service_periods')
+    end
+
+    def guard_reserve_service_by_date
+      @guard_reserve_service_by_date ||= begin
+        guard_reserve_service_periods.sort_by { |per| per.end_date || Time.zone.today + 3650 }.reverse
+      end
+    end
+
+    def guard_reserve_service_history
+      guard_reserve_service_by_date.map do |period|
+        {
+          from: period.begin_date,
+          to: period.end_date
+        }
+      end
+    end
+
+    def latest_guard_reserve_service_period
+      guard_reserve_service_history.try(:[], 0)
     end
   end
 end

@@ -1,10 +1,6 @@
 # frozen_string_literal: true
 
 class FormProfiles::VA5490 < FormProfile
-  def prefill(user)
-    super
-  end
-
   def metadata
     {
       version: 0,

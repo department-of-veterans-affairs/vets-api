@@ -40,6 +40,29 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
+  # This delegated method can also be called with #account_uuid
+  delegate :uuid, to: :account, prefix: true, allow_nil: true
+
+  # Retrieve a user's Account record.
+  #
+  # @return [Account] an instance of the Account object
+  #
+  def account
+    Account.find_by(idme_uuid: uuid) if Settings.account.enabled
+  end
+
+  def pciu_email
+    pciu.get_email_address.email
+  end
+
+  def pciu_primary_phone
+    pciu.get_primary_phone.to_s
+  end
+
+  def pciu_alternate_phone
+    pciu.get_alternate_phone.to_s
+  end
+
   def first_name
     identity.first_name || (mhv_icn.present? ? mvi&.profile&.given_names&.first : nil)
   end
@@ -96,14 +119,22 @@ class User < Common::RedisStore
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :dslogon_edipi, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi
-  delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
+  delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
-  delegate :veteran?, to: :veteran_status
   delegate :vet360_id, to: :mvi
+
+  # emis attributes
+  delegate :military_person?, to: :veteran_status
+  delegate :veteran?, to: :veteran_status
+
+  def edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
+  end
 
   def va_profile
     mvi.profile
@@ -150,17 +181,9 @@ class User < Common::RedisStore
   def va_patient?
     facilities = va_profile&.vha_facility_ids
     facilities.to_a.any? do |f|
-      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
+        Settings.mhv.facility_specific.include?(f)
     end
-  end
-
-  # Must be LOA3 and a va patient
-  def mhv_account_eligible?
-    (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
-  end
-
-  def mhv_account_state
-    mhv_account.account_state
   end
 
   def can_save_partial_forms?
@@ -183,7 +206,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
   end
 
   def in_progress_forms
@@ -217,9 +240,34 @@ class User < Common::RedisStore
     @identity ||= UserIdentity.find(uuid)
   end
 
-  private
+  def vet360_contact_info
+    return nil unless Settings.vet360.contact_information.enabled && vet360_id.present?
+    @vet360_contact_info ||= Vet360Redis::ContactInformation.for_user(self)
+  end
+
+  def can_access_vet360?
+    loa3? && icn.present? && vet360_id.present?
+  rescue StandardError # Default to false for any error
+    false
+  end
 
   def mvi
     @mvi ||= Mvi.for_user(self)
+  end
+
+  # A user can have served in the military without being a veteran.  For example,
+  # someone can be ex-military by having a discharge status higher than
+  # 'Other Than Honorable'.
+  #
+  # @return [Boolean]
+  #
+  def served_in_military?
+    edipi.present? && veteran? || military_person?
+  end
+
+  private
+
+  def pciu
+    @pciu ||= EVSS::PCIU::Service.new self
   end
 end

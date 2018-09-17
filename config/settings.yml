@@ -1,9 +1,10 @@
 binaries:
   # you can specify a full path in settings.local.yml if necessary
+  pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-hostname: www.example.com
+hostname: localhost:3000
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
@@ -19,6 +20,9 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
+
+salesforce-gibft:
+  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
 
 salesforce:
   env: dev
@@ -39,14 +43,37 @@ pension_burial:
   prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
+
+central_mail:
   upload:
     enabled: true
     host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
+# Settings for Vet360
+vet360:
+  url: "https://int.vet360.va.gov"
+  contact_information:
+    cache_enabled: false
+    enabled: true
+    timeout: 30
+    mock: false
+
+
+# Settings for IHub
+ihub:
+  url: "https://qacrmdac.np.crm.vrm.vba.va.gov"
+  appointments:
+    timeout: 30
+    mock: true
+  in_production: false
+
+
 # Settings for EVSS
 evss:
+  prefill: true
   url: https://csraciapp6.evss.srarad.com
+  service_name: "wss-form526-services-web"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -60,7 +87,10 @@ evss:
     aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
     bucket: evss_s3_bucket
     region: evss_s3_region
+  disability_compensation_form:
+    timeout: 55
   letters:
+    url: https://csraciapp6.evss.srarad.com
     timeout: 55
   pciu:
     timeout: 30
@@ -71,6 +101,9 @@ evss:
   mock_gi_bill_status: false
   mock_pciu: true
   mock_pciu_address: false
+  mock_ppiu: true
+  mock_itf: true
+  mock_disabilities_form: true
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
     cert_path: ~
@@ -111,7 +144,9 @@ locators:
 
 # Settings for MyHealthEVet
 mhv:
-  facility_range: [[358,718],[720,758]]
+  # include ranges first, then individual exceptions to the ranges last.
+  facility_range: [[358,718],[720,740],[742,758]]
+  facility_specific: [['741MM']] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -122,7 +157,10 @@ mhv:
     app_token: fake-app-token
     mock: true
   bb:
+    mock: true
     collection_caching_enabled: true
+  account:
+    mock: false
 
 # Settings for Master Veteran Index
 mvi:
@@ -133,12 +171,13 @@ mvi:
   processing_code: T
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
+  pii_logging: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  mock: false
+  mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService
@@ -171,7 +210,6 @@ vic:
   url: https://some.fakesite.com
   signing_key_path: /fake/signing/key/path
   prefill: true
-
   s3:
     aws_access_key_id: 'aws_access_key_id'
     aws_secret_access_key: 'aws_secret_access_key'
@@ -184,6 +222,20 @@ preneeds:
   host: http://some.fakesite.com
   wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
   burial_form_schema: 'config/preneeds/burial_form_schema.json'
+
+# Settings for VBA Document upload service module
+vba_documents:
+  location:
+    prefix:  http://some.fakesite.com/path
+    replacement: http://another.fakesite.com/rewrittenpath
+  s3:
+    enabled: false
+    aws_access_key_id: 'aws_access_key_id'
+    aws_secret_access_key: 'aws_secret_access_key'
+    region: 'region'
+    bucket: 'bucket'
+  sns:
+    topic_arn: ~
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
@@ -203,16 +255,20 @@ reports:
 
 # Settings for SAML authentication
 saml:
-  cert_path: ~/.certs/vetsgov-localhost.crt
-  cert_new_path: ~/.certs/vetsgov-localhost_new.crt
-  key_path: ~/.certs/vetsgov-localhost.key
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: config/certs/vetsgov-localhost_new.crt
+  key_path: config/certs/vetsgov-localhost.key
   # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
   # certificate: ~
   # key: ~
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
-  relay: http://localhost:3001/auth/login/callback
+  # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
+  relays:
+    vetsgov: http://localhost:3001/auth/login/callback
+    vagov: ~
+    preview_vagov: ~
   logout_relay: http://localhost:3001/logout
 
 sentry:
@@ -248,3 +304,10 @@ faraday_socks_proxy:
   enabled: false
   uri: socks5://localhost:2002
 
+google_analytics_tracking_id: ~
+
+account:
+  enabled: false
+
+search:
+  access_key: SEARCH_GOV_ACCESS_KEY

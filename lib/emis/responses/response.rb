@@ -17,6 +17,10 @@ module EMIS
         locate_one('essResponseCode')&.nodes&.first == 'Success'
       end
 
+      def cache?
+        ok?
+      end
+
       def error?
         locate_one('essResponseCode')&.nodes&.first == 'ERROR'
       end

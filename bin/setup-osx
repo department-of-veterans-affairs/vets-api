@@ -100,6 +100,13 @@ fi
 
 freshclam -v
 
+if command_exists pdfinfo ; then
+  echo "${GREEN} * pdfinfo already installed.${RESET}"
+else
+  echo "${RED} * Installing pdfinfo (poppler). ${RESET}"
+  brew install poppler
+fi
+
 if command_exists pdftk ; then
   echo "${GREEN} * pdftk already installed.${RESET}"
 else
@@ -137,8 +144,6 @@ rbenv rehash && cd .
 bundle exec overcommit --install --sign
 
 rake db:create db:setup db:seed
-
-cp config/mvi_schema/mock_mvi_responses.yml.example config/mvi_schema/mock_mvi_responses.yml
 
 # Run a test to make sure things are working after setup
 
