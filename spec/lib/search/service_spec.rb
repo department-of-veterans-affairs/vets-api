@@ -16,7 +16,7 @@ describe Search::Service do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
 
-          expect(response).to be_ok
+          expect(response.status).to eq 200
           expect(response).to be_a(Search::ResultsResponse)
         end
       end

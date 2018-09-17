@@ -20,12 +20,8 @@ module Search
       new(response.status, body: body)
     end
 
-    def ok?
-      status == 200
-    end
-
     def cache?
-      ok?
+      status == 200
     end
 
     def metadata
