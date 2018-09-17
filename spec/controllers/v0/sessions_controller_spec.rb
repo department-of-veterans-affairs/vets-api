@@ -117,7 +117,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
         end
 
-        describe 'GET ?success_relay=vagov' do
+        describe '#new' do
           context 'with a non-nil relay setting' do
             let(:fake_vagov_url) { 'http://fake-vagov' }
             before do
@@ -138,9 +138,21 @@ RSpec.describe V0::SessionsController, type: :controller do
               end
             end
 
-            it 'does not contain a RelayState' do
+            it 'returns a default RelayState' do
               expect(response).to have_http_status(:ok)
-              expect(JSON.parse(response.body)['url']).to include("RelayState=#{CGI.escape(Settings.saml.relays.vetsgov)}")
+              expect(JSON.parse(response.body)['url'])
+                .to include("RelayState=#{CGI.escape(Settings.saml.relays.vetsgov)}")
+            end
+          end
+
+          context 'with an invalid relay setting' do
+            before do
+              get(:new, type: :idme, success_relay: 'notvalid')
+            end
+            it 'returns a default RelayState' do
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['url'])
+                .to include("RelayState=#{CGI.escape(Settings.saml.relays.vetsgov)}")
             end
           end
         end
@@ -207,7 +219,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'can find an active session' do
-        let (:fake_vagov_relay) { 'https://fake-vagov' }
+        let(:fake_vagov_relay) { 'https://fake-vagov' }
         it 'destroys the user and session, persists logout_request object, redirects to SLO url' do
           # these should have been destroyed yet
           expect(Session.find(token)).to_not be_nil

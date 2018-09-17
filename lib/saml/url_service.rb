@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/LineLength
-
 module SAML
   # This module is responsible for providing the URLs for the various SSO and SLO endpoints
   module URLService
