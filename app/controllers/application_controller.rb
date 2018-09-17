@@ -138,10 +138,11 @@ class ApplicationController < ActionController::API
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
       extend_session!
-      return true if @current_user.present
+      return true if @current_user.present?
     end
   end
 
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
     return unless Settings.sso.cookie_enabled
     encryptor = Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv)

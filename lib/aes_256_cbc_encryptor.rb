@@ -4,9 +4,8 @@ class Aes256CbcEncryptor
   def initialize(hex_secret, hex_iv)
     @secret = [hex_secret].pack('H*')
     @iv = [hex_iv].pack('H*')
-    # Pad with zero bytes to correct length
-    @secret << ("\x00" * (32 - secret.length))
-    @iv << ("\x00" * (16 - iv.length))
+    raise ArgumentError, 'Secret must be 32 bytes.' unless @secret.length == 32
+    raise ArgumentError, 'IV must be 16 bytes.' unless @iv.length == 16
   end
 
   attr_reader :secret, :iv

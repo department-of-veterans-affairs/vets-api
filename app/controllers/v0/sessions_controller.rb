@@ -103,6 +103,7 @@ module V0
     private
 
     def after_login_actions
+      set_sso_cookie!
       async_create_evss_account
       create_user_account
     end

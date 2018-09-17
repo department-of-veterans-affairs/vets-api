@@ -38,6 +38,7 @@ class Session < Common::RedisStore
     User.find(uuid)
   end
 
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def cookie_data
     return nil if user.blank?
     {
