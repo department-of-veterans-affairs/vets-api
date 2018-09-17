@@ -41,6 +41,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/ihub'
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/central_mail/service.rb'
+    add_filter 'lib/search/response.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
