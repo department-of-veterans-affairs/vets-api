@@ -7,6 +7,9 @@ module V0
     include Accountable
 
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
+    before_action do
+      @relay_state = RelayState.new(relay_enum: params[:success_relay], url: params[:RelayState])
+    end
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
 
@@ -72,7 +75,7 @@ module V0
       # in the future the FE shouldnt count on ?success=true
     ensure
       logout_request&.destroy
-      redirect_to Settings.saml.logout_relay + '?success=true'
+      redirect_to @relay_state.logout_url + '?success=true'
     end
 
     def saml_callback
@@ -101,6 +104,21 @@ module V0
     end
 
     private
+
+    def saml_login_relay_url
+      return @relay_state.login_url if current_user.nil?
+      # TODO: this validation should happen when we create the user, not here
+      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
+        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
+        return @relay_state.login_url
+      end
+
+      if current_user.loa[:current] < current_user.loa[:highest]
+        SAML::SettingsService.idme_loa3_url(current_user, success_relay_url: @relay_state.login_url)
+      else
+        @relay_state.login_url
+      end
+    end
 
     def after_login_actions
       async_create_evss_account
@@ -138,35 +156,6 @@ module V0
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
       errors
-    end
-
-    def default_relay_url
-      Settings.saml.relays.vetsgov
-    end
-
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
-    def saml_login_relay_url
-      return default_relay_url if current_user.nil?
-      # TODO: this validation should happen when we create the user, not here
-      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
-        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
-        return default_relay_url
-      end
-
-      if current_user.loa[:current] < current_user.loa[:highest] && valid_relay_state?
-        SAML::SettingsService.idme_loa3_url(current_user, success_relay_url: params['RelayState'])
-      elsif current_user.loa[:current] < current_user.loa[:highest]
-        SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
-      elsif valid_relay_state?
-        params['RelayState']
-      else
-        default_relay_url
-      end
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
-
-    def valid_relay_state?
-      params['RelayState'].present? && Settings.saml.relays&.to_h&.values&.include?(params['RelayState'])
     end
 
     def benchmark_tags(*tags)

@@ -340,7 +340,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
-        it 'redirects to identity proof URL', :aggregate_failures do
+        it 'redirects to identity proof URL' do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
         end
@@ -384,7 +384,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
 
-        it 'redirects to an auth failure page', :aggregate_failures do
+        it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)
