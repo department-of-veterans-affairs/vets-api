@@ -1525,7 +1525,7 @@ en:
         status: 409
       pif_in_use:
         <<: *defaults
-        title: Conflict
+        title: PIF in use
         detail: 'Claim could not be established. Contact the BDN team and have them run the WIPP process to delete Cancelled/Cleared PIFs'
         code: 127
         status: 409
