@@ -35,14 +35,16 @@ module SAML
 
     # This is the internal vets-api url that first gets invoked, it should redirect without authentication
     # when this url gets invoked, the session should be destroyed, before the callback returns
-    def logout_url(session)
+    def logout_url(session, relay_state)
       token = Base64.urlsafe_encode64(session.token)
-      Rails.application.routes.url_helpers.logout_v0_sessions_url(session: token)
+      Rails.application.routes.url_helpers.logout_v0_sessions_url(
+        success_relay: relay_state.relay_enum, session: token
+      )
     end
 
     # SLO URLS
-    def slo_url(session)
-      build_slo_url(session)
+    def slo_url(session, relay_state)
+      build_slo_url(session, relay_state)
     end
 
     private
@@ -59,14 +61,14 @@ module SAML
     end
 
     # Builds the url to trigger SLO, caching the request
-    def build_slo_url(session)
+    def build_slo_url(session, relay_state)
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
 
       url_settings = url_settings(name_identifier_value: session.uuid)
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
-      logout_request.create(url_settings, saml_options)
+      logout_request.create(url_settings, RelayState: relay_state.logout_url)
     end
 
     def url_settings(options)

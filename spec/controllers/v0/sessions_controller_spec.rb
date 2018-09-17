@@ -207,6 +207,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'can find an active session' do
+        let (:fake_vagov_relay) { 'https://fake-vagov' }
         it 'destroys the user and session, persists logout_request object, redirects to SLO url' do
           # these should have been destroyed yet
           expect(Session.find(token)).to_not be_nil
@@ -215,11 +216,19 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
+          expect(response.location).to include("RelayState=#{CGI.escape(Settings.saml.logout_relays.vetsgov)}")
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(User.find(uuid)).to be_nil
           # this should be created in redis
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
+        end
+
+        it 'contains the proper success_relay' do
+          with_settings(Settings.saml.logout_relays, vagov: fake_vagov_relay) do
+            get(:logout, session: Base64.urlsafe_encode64(token), success_relay: 'vagov')
+            expect(response.location).to include("RelayState=#{CGI.escape(fake_vagov_relay)}")
+          end
         end
       end
     end
@@ -259,6 +268,16 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(User.find(uuid)).to_not be_nil
           # this should be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
+        end
+
+        it 'redirects to the specified RelayState' do
+          expect(post(:saml_logout_callback, SAMLResponse: '-', RelayState: Settings.saml.logout_relays.vagov))
+            .to redirect_to(redirect_to(Settings.saml.logout_relays.vagov + '?success=true'))
+        end
+
+        it 'defaults with an invalid RelayState' do
+          expect(post(:saml_logout_callback, SAMLResponse: '-', RelayState: 'https://blah.com'))
+            .to redirect_to(redirect_to(Settings.saml.logout_relays.vetsgov + '?success=true'))
         end
       end
     end

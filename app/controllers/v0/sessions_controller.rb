@@ -48,7 +48,7 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user, @relay_state)
             when 'slo'
               authenticate
-              SAML::SettingsService.logout_url(session)
+              SAML::SettingsService.logout_url(session, @relay_state)
             end
       render json: { url: url }
     end
@@ -58,7 +58,7 @@ module V0
       session = Session.find(Base64.urlsafe_decode64(params[:session]))
       raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
       destroy_user_session!(User.find(session.uuid), session)
-      redirect_to SAML::SettingsService.slo_url(session)
+      redirect_to SAML::SettingsService.slo_url(session, @relay_state)
     end
 
     def saml_logout_callback
