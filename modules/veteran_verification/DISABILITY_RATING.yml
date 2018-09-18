@@ -5,7 +5,7 @@ info:
   description: |
     Veteran Verification - Disability Rating
 
-    ## Backgroun
+    ## Background
 
     This API is provided as a proof of concept for a general-purpose VA API that allows Veterans to provide authorization to a third-party to access information on their behalf. The use-case of this API is to allow third-parties to access the service history of a Veteran after receiving authorization to do so using an Open ID Connect flow.
 
@@ -107,7 +107,7 @@ components:
           format: datetime
           example: "2018-03-27T21:00:41.000+0000"
         rating_percentage:
-          description: Amount the VA has determine a Veteran is disabled from this particular disability. Used to calculate disability pay and benefits
+          description: Severity rating determined by VA that indicates how disabling an illness or injury is for the Veteran. Used to help determine disability compensation (pay) and related benefits.
           type: number
           example: 50
           
