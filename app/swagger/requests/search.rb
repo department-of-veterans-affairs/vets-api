@@ -15,6 +15,7 @@ module Swagger
 
           parameter do
             key :name, 'query'
+            key :in, :query
             key :description, 'The search term being queried'
             key :required, true
             key :type, :string
