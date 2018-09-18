@@ -43,5 +43,18 @@ RSpec.describe 'search', type: :request do
         end
       end
     end
+
+    context 'with un-sanitized parameters' do
+      it 'sanitizes the input, stripping all tags and attributes that are not whitelisted' do
+        VCR.use_cassette('search/success') do
+          dirty_params     = '<script>alert(document.cookie);</script>'
+          sanitized_params = 'alert(document.cookie);'
+
+          expect(Search::Service).to receive(:new).with(sanitized_params)
+
+          get '/v0/search', query: dirty_params
+        end
+      end
+    end
   end
 end
