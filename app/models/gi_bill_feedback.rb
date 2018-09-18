@@ -31,22 +31,6 @@ class GIBillFeedback < Common::RedisStore
     @parsed_response ||= JSON.parse(response)
   end
 
-  def get_school_details(facility_code)
-    attributes = GI::Client.new.get_institution_details(id: facility_code)[:data][:attributes]
-
-    {
-      'name' => attributes[:name],
-      'address' => {
-        'street' => [attributes[:address_1], attributes[:address_2]].compact.join(' '),
-        'street2' => attributes[:address_3],
-        'city' => attributes[:city],
-        'postal_code' => attributes[:zip],
-        'state' => attributes[:state],
-        'country' => attributes[:country]
-      }
-    }
-  end
-
   def get_user_details
     profile_data = {}
 
@@ -75,9 +59,7 @@ class GIBillFeedback < Common::RedisStore
     transformed.merge!(get_user_details)
 
     transformed['education_details'].tap do |education_details|
-      next if education_details.blank?
-      facility_code = education_details.delete('facility_code')
-      education_details['school'] = get_school_details(facility_code) if facility_code.present?
+      transform_school_address(education_details['school']['address'])
       %w[programs assistance].each do |key|
         education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
       end
@@ -85,7 +67,6 @@ class GIBillFeedback < Common::RedisStore
 
     transformed['issue'] = transform_keys_into_array(transformed['issue'])
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
-
     transformed
   end
 
@@ -99,6 +80,12 @@ class GIBillFeedback < Common::RedisStore
   end
 
   private
+
+  def transform_school_address(address)
+    return if address['street3'].blank?
+    address['street'] = [address['street'], address['street2']].compact.join(', ')
+    address['street2'] = address.delete('street3')
+  end
 
   def anonymous?
     parsed_form['onBehalfOf'] == 'Anonymous'
