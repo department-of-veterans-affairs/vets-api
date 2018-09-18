@@ -98,7 +98,7 @@ components:
         - rating_percentage
       properties:
         decision:
-          description: Whether the disability is service connected or not
+          description: Whether the disability is service connected or not. 
           type: string
           example: 'Service Connected'
         effective_date:
@@ -107,7 +107,7 @@ components:
           format: datetime
           example: "2018-03-27T21:00:41.000+0000"
         rating_percentage:
-          description: Amount the Veteran is disability from this particular disability. Used to calculate disability pay and benefits
+          description: Amount the VA has determine a Veteran is disabled from this particular disability. Used to calculate disability pay and benefits
           type: number
           example: 50
           

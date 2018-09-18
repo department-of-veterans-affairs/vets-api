@@ -85,7 +85,7 @@ components:
       properties:
         id:
           type: string
-          description: Service History Episode ID from eMIS
+          description: Service History Episode ID
           example: "12312AASDf"
         type:
           type: string
