@@ -9,7 +9,10 @@ module VBADocuments
       skip_before_action(:authenticate)
 
       def create
-        submission = VBADocuments::UploadSubmission.create(consumer_name: request.headers['X-Consumer-Username'])
+        submission = VBADocuments::UploadSubmission.create(
+          consumer_name: request.headers['X-Consumer-Username'],
+          consumer_id: request.headers['X-Consumer-ID']
+        )
         render status: :accepted,
                json: submission,
                serializer: VBADocuments::UploadSerializer,
