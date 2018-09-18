@@ -11,6 +11,8 @@ info:
 
     The Document Upload API passes data through to ICMHS aka Benefits Intake API. Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document, attachments, and identifies the person that the document relates to. This payload is encoded as multipart/form-data. A unique identifier supplied with the payload can be used to subsequently request the processing status of the uploaded document package.
 
+    API consumers are encouraged to validate the zipCode and fileNumber fields before submission according to their description in the DocumentUploadMetadata model. 
+
     ## Design
     
     ### Authorization
@@ -294,7 +296,7 @@ components:
         zipCode:
           type: string
           example: '20571'
-          description: Veteran zip code
+          description: Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses. 
         source:
           type: string
           example: MyVSO
