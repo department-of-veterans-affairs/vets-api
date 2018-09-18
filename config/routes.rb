@@ -32,14 +32,13 @@ Rails.application.routes.draw do
       post 'submit'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
       get 'user_submissions'
+      get 'suggested_conditions'
     end
 
     resource :upload_supporting_evidence, only: :create
 
-    resource :sessions, only: :destroy do
-      get :authn_urls, on: :collection
-      get :multifactor, on: :member
-      get :identity_proof, on: :member
+    resource :sessions, only: [] do
+      get  :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end

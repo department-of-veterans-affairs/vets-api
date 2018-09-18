@@ -4,7 +4,7 @@ binaries:
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-hostname: www.example.com
+hostname: localhost:3000
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
@@ -16,9 +16,6 @@ database_url: postgres:///vets-api
 relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
-
-set_sso_cookie: false
-sso_cookie_key: '$\xBB\xDA\xFD\xB9c;\x05@|w\xEB\x81\xC7\x0EPZ\xEA\xF6\xC2\xD1\x1C\xDCrl;\xDD\x10v\x99\x16\x1D'
 
 review_instance_slug: ~
 
@@ -76,6 +73,7 @@ ihub:
 evss:
   prefill: true
   url: https://csraciapp6.evss.srarad.com
+  service_name: "wss-form526-services-web"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -179,7 +177,7 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  mock: false
+  mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService
@@ -266,7 +264,11 @@ saml:
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
-  relay: http://localhost:3001/auth/login/callback
+  # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
+  relays:
+    vetsgov: http://localhost:3001/auth/login/callback
+    vagov: ~
+    preview_vagov: ~
   logout_relay: http://localhost:3001/logout
 
 sentry:
@@ -306,3 +308,9 @@ google_analytics_tracking_id: ~
 
 account:
   enabled: false
+
+# Settings for search
+search:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  url: https://search.usa.gov/api/v2

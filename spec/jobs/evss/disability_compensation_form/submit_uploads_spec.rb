@@ -10,6 +10,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:auth_headers) do
+    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  end
   let(:claim_id) { 123_456_789 }
   let(:uploads) do
     [
@@ -26,7 +29,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'with four uploads' do
       it 'queues four submit upload jobs' do
         expect do
-          subject.start(user, claim_id, uploads)
+          subject.start(user.uuid, auth_headers, claim_id, uploads)
         end.to change(subject.jobs, :size).by(4)
       end
     end
@@ -36,7 +39,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'queues no submit upload jobs' do
         expect do
-          subject.start(user, claim_id, uploads)
+          subject.start(user.uuid, auth_headers, claim_id, uploads)
         end.to_not change(subject.jobs, :size)
       end
     end
@@ -66,7 +69,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         .and_return(document_data)
 
       expect(client).to receive(:upload).with(attachment.file_data, document_data)
-      subject.new.perform(upload_data, claim_id, user)
+      subject.new.perform(upload_data, claim_id, auth_headers)
     end
   end
 end

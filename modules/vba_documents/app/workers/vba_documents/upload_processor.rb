@@ -35,9 +35,7 @@ module VBADocuments
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
-        Rails.logger.info('VBADocuments: Submission failure',
-                          'uuid' => guid, 'source' => upload.consumer_name,
-                          'code' => e.code, 'detail' => e.detail)
+        log_error(e, upload)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
@@ -46,12 +44,24 @@ module VBADocuments
 
     private
 
+    def log_error(e, upload)
+      Rails.logger.info('VBADocuments: Submission failure',
+                        'consumer_id' => upload.consumer_id,
+                        'consumer_username' => upload.consumer_name,
+                        'source' => upload.consumer_name,
+                        'uuid' => upload.guid,
+                        'code' => e.code,
+                        'detail' => e.detail)
+    end
+
     def log_submission(metadata, upload)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
                         'source' => upload.consumer_name,
+                        'consumer_id' => upload.consumer_id,
+                        'consumer_username' => upload.consumer_name,
                         'docType' => metadata['docType'],
                         'pageCount' => page_total,
                         'pdfCount' => pdf_total)

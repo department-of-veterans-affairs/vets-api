@@ -3,6 +3,18 @@
 module AsyncTransaction
   module EVSS
     class VA526ezSubmitTransaction < AsyncTransaction::Base
+      has_one(
+        :disability_compensation_submission,
+        class_name: 'DisabilityCompensationSubmission',
+        inverse_of: :disability_compensation_job,
+        dependent: :destroy
+      )
+      has_one(
+        :saved_claim,
+        through: :disability_compensation_submission,
+        source: :disability_compensation_claim
+      )
+
       JOB_STATUS = {
         submitted: 'submitted',
         received: 'received',
@@ -12,9 +24,6 @@ module AsyncTransaction
       }.freeze
       SOURCE = 'EVSS'
 
-      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
-      scope :job_id, ->(job_id) { find_by(transaction_id: job_id) }
-
       # Creates an initial AsyncTransaction record for ongoing tracking and
       # set its transaction_status to submitted
       #
@@ -22,10 +31,10 @@ module AsyncTransaction
       # @param job_id [String] A sidekiq job id (uuid)
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
-      def self.start(user, job_id)
+      def self.start(user_uuid, edipi, job_id)
         create!(
-          user_uuid: user.uuid,
-          source_id: user.edipi,
+          user_uuid: user_uuid,
+          source_id: edipi,
           source: SOURCE,
           status: REQUESTED,
           transaction_status: JOB_STATUS[:submitted],
@@ -40,7 +49,7 @@ module AsyncTransaction
       # @return [AsyncTransaction::EVSS::VA526ezSubmitTransaction] the transaction
       #
       def self.find_transaction(job_id)
-        result = VA526ezSubmitTransaction.job_id(job_id)
+        result = VA526ezSubmitTransaction.find_by(transaction_id: job_id)
         return nil if result == []
         result
       end
@@ -50,8 +59,8 @@ module AsyncTransaction
       # @param user [User] The user associated with the transaction
       # @return [Array AsyncTransaction::EVSS::VA526ezSubmitTransaction] the user's transactions
       #
-      def self.find_transactions(user)
-        VA526ezSubmitTransaction.for_user(user)
+      def self.find_transactions(user_uuid)
+        VA526ezSubmitTransaction.where(user_uuid: user_uuid)
       end
 
       # Updates a transaction
@@ -64,7 +73,7 @@ module AsyncTransaction
       def self.update_transaction(job_id, status, response_body = nil)
         raise ArgumentError, "#{status} is not a valid status" unless JOB_STATUS.keys.include?(status)
         transaction = VA526ezSubmitTransaction.find_transaction(job_id)
-        transaction.update(
+        transaction.update_attributes(
           status: (status == :retrying ? REQUESTED : COMPLETED),
           transaction_status: JOB_STATUS[status],
           metadata: response_body || transaction.metadata
