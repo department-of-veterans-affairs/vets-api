@@ -313,5 +313,8 @@ google_analytics_tracking_id: ~
 account:
   enabled: false
 
+# Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  url: https://search.usa.gov/api/v2
