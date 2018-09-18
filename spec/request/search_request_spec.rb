@@ -11,7 +11,7 @@ RSpec.describe 'search', type: :request do
     context 'with a 200 response' do
       it 'should match the search schema', :aggregate_failures do
         VCR.use_cassette('search/success') do
-          get '/v0/search', { query: 'benefits' }
+          get '/v0/search', query: 'benefits'
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('search')
@@ -20,7 +20,7 @@ RSpec.describe 'search', type: :request do
 
       it 'should return an array of hash search results in its body', :aggregate_failures do
         VCR.use_cassette('search/success') do
-          get '/v0/search', { query: 'benefits' }
+          get '/v0/search', query: 'benefits'
 
           body    = JSON.parse response.body
           results = body.dig('data', 'attributes', 'body', 'web', 'results')
@@ -36,7 +36,7 @@ RSpec.describe 'search', type: :request do
     context 'with an empty query string' do
       it 'should match the errors schema', :aggregate_failures do
         VCR.use_cassette('search/empty_query') do
-          get '/v0/search', { query: '' }
+          get '/v0/search', query: ''
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
