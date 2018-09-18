@@ -14,7 +14,11 @@ module VeteranVerification
       private
 
       def service
-        EVSS::DisabilityCompensationForm::Service.new(@current_user)
+        EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+      end
+
+      def auth_headers
+        EVSS::DisabilityCompensationAuthHeaders.new(@current_user).add_headers(EVSS::AuthHeaders.new(@current_user).to_h)
       end
     end
   end
