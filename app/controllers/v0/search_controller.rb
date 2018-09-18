@@ -2,6 +2,8 @@
 
 module V0
   class SearchController < ApplicationController
+    skip_before_action :authenticate
+
     def index
       response = Search::Service.new(params['query']).results
 
