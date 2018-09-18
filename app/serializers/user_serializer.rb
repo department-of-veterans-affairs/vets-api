@@ -6,11 +6,17 @@ require 'common/client/concerns/service_status'
 class UserSerializer < ActiveModel::Serializer
   include Common::Client::ServiceStatus
 
-  attributes :services, :profile, :va_profile, :veteran_status, :mhv_account_state, :health_terms_current,
+  attributes :services, :account, :profile, :va_profile, :veteran_status,
              :in_progress_forms, :prefills_available, :vet360_contact_information
 
   def id
     nil
+  end
+
+  def account
+    {
+      account_uuid: object.account_uuid
+    }
   end
 
   def profile
@@ -72,10 +78,6 @@ class UserSerializer < ActiveModel::Serializer
     { status: RESPONSE_STATUS[:server_error] }
   end
 
-  def health_terms_current
-    object.mhv_account.terms_and_conditions_accepted?
-  end
-
   def in_progress_forms
     object.in_progress_forms.map do |form|
       {
@@ -110,8 +112,19 @@ class UserSerializer < ActiveModel::Serializer
     service_list << BackendServices::ID_CARD if object.can_access_id_card?
     service_list << BackendServices::IDENTITY_PROOFED if object.identity_proofed?
     service_list << BackendServices::VET360 if object.can_access_vet360?
+    service_list << BackendServices::CLAIM_INCREASE_AVAILABLE if claims_for_increase_available?
     service_list += BetaRegistration.where(user_uuid: object.uuid).pluck(:feature) || []
     service_list
   end
   # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
+
+  private
+
+  def claims_for_increase_available?
+    object.authorize(:evss, :access?) && !claims_for_increase_limiter.at_limit?
+  end
+
+  def claims_for_increase_limiter
+    Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
+  end
 end

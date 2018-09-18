@@ -8,6 +8,9 @@ development: &defaults
   rx_store:
     namespace: rx-service
     each_ttl: 1200
+  gi_bill_feedback:
+    namespace: gi_bill_feedback
+    each_ttl: 86400
   sm_store:
     namespace: sm-service
     each_ttl: 1200
@@ -44,6 +47,21 @@ development: &defaults
   intent_to_file_response:
     namespace: intent-to-file-response
     each_ttl: 86400
+  mhv_account_ineligible:
+    namespace: mhv_account_ineligible
+    each_ttl: 1296000
+  evss_claims_store:
+    namespace: evss
+    each_ttl: 3600
+  evss_526_submit_form_rate_limit:
+    namespace: evss-526-submit-form-rate-limit
+    threshold_limit: 10
+    threshold_ttl: 86400
+    count_limit: 30
+    count_ttl: 604800
+  user_account_details:
+    namespace: user-account-details
+    each_ttl: 1296000 # 15 days
 
 test:
   <<: *defaults

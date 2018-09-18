@@ -40,6 +40,17 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
+  # This delegated method can also be called with #account_uuid
+  delegate :uuid, to: :account, prefix: true, allow_nil: true
+
+  # Retrieve a user's Account record.
+  #
+  # @return [Account] an instance of the Account object
+  #
+  def account
+    Account.find_by(idme_uuid: uuid) if Settings.account.enabled
+  end
+
   def pciu_email
     pciu.get_email_address.email
   end
@@ -108,10 +119,10 @@ class User < Common::RedisStore
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :authn_context, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
+  delegate :dslogon_edipi, to: :identity, allow_nil: true
 
   # mvi attributes
   delegate :birls_id, to: :mvi
-  delegate :edipi, to: :mvi
   delegate :icn, to: :mvi
   delegate :icn_with_aaid, to: :mvi
   delegate :participant_id, to: :mvi
@@ -120,6 +131,10 @@ class User < Common::RedisStore
   # emis attributes
   delegate :military_person?, to: :veteran_status
   delegate :veteran?, to: :veteran_status
+
+  def edipi
+    loa3? && dslogon_edipi.present? ? dslogon_edipi : mvi&.edipi
+  end
 
   def va_profile
     mvi.profile
@@ -166,17 +181,9 @@ class User < Common::RedisStore
   def va_patient?
     facilities = va_profile&.vha_facility_ids
     facilities.to_a.any? do |f|
-      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) }
+      Settings.mhv.facility_range.any? { |range| f.to_i.between?(*range) } ||
+        Settings.mhv.facility_specific.include?(f)
     end
-  end
-
-  # Must be LOA3 and a va patient
-  def mhv_account_eligible?
-    (MhvAccount::ALL_STATES - [:ineligible]).map(&:to_s).include?(mhv_account_state)
-  end
-
-  def mhv_account_state
-    mhv_account.account_state
   end
 
   def can_save_partial_forms?
@@ -199,7 +206,7 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid)
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
   end
 
   def in_progress_forms

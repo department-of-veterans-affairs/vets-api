@@ -1,8 +1,8 @@
 {
   "form526": {
     "veteran": {
-      "emailAddress": "string",
-      "alternateEmailAddress": "string",
+      "emailAddress": "test@email.com",
+      "alternateEmailAddress": "test2@email.com",
       "mailingAddress": {
         "city": "Quaint Town",
         "state": "OR",
@@ -18,9 +18,11 @@
         "militaryStateCode": "AA",
         "militaryPostOfficeTypeCode": "APO",
         "type": "MILITARY",
+        "zipFirstFive": "12345",
+        "zipLastFour": "6789",
         "addressLine1": "1234 de Buen Tono Calle",
         "addressLine2": "Apartamento 567",
-        "effectiveDate": "2018-03-29T18:50:03.014Z"
+        "effectiveDate": "2018-03-29"
       },
       "primaryPhone": {
         "areaCode": "202",
@@ -53,21 +55,20 @@
       "servicePeriods": [
         {
           "serviceBranch": "National Oceanic & Atmospheric Administration",
-          "activeDutyBeginDate": "2018-03-29T18:50:03.015Z",
-          "activeDutyEndDate": "2018-03-29T18:50:03.015Z"
+          "activeDutyBeginDate": "2018-03-29",
+          "activeDutyEndDate": "2018-03-29"
         }
       ],
       "reservesNationalGuardService": {
         "title10Activation": {
-          "title10ActivationDate": "2018-03-29T18:50:03.015Z",
-          "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
+          "title10ActivationDate": "2018-03-29",
+          "anticipatedSeparationDate": "2018-03-29"
         },
-        "obligationTermOfServiceFromDate": "2018-03-29T18:50:03.015Z",
-        "obligationTermOfServiceToDate": "2018-03-29T18:50:03.015Z",
+        "obligationTermOfServiceFromDate": "2018-03-29",
+        "obligationTermOfServiceToDate": "2018-03-29",
         "unitName": "string",
-        "unitPhone": {
-          "areaCode": "202",
-          "phoneNumber": "4561111"
+        "inactiveDutyTrainingPay": {
+          "waiveVABenefitsToRetainTrainingPay": false
         }
       },
       "servedInCombatZone": true,
@@ -80,8 +81,8 @@
       ],
       "confinements": [
         {
-          "confinementBeginDate": "2018-03-29T18:50:03.015Z",
-          "confinementEndDate": "2018-03-29T18:50:03.015Z",
+          "confinementBeginDate": "2018-03-29",
+          "confinementEndDate": "2018-03-29",
           "verifiedIndicator": false
         }
       ]
@@ -91,12 +92,6 @@
         "name": "Diabetes mellitus",
         "classificationCode": "string",
         "disabilityActionType": "INCREASE",
-        "specialIssues": [
-          {
-            "code": "TRM",
-            "name": "Personal Trauma PTSD"
-          }
-        ],
         "ratedDisabilityId": "0",
         "diagnosticCode": 5235,
         "secondaryDisabilities": [
@@ -121,12 +116,12 @@
         "center": {
           "name": "string",
           "type": "DOD_MTF",
-          "country": "string",
-          "state": "string",
+          "country": "USA",
+          "state": "OR",
           "city": "string"
         },
-        "startDate": "2018-03-29T18:50:03.015Z",
-        "endDate": "2018-03-29T18:50:03.015Z"
+        "startDate": "2018-03-29",
+        "endDate": "2018-03-29"
       }
     ],
     "specialCircumstances": [

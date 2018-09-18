@@ -2,6 +2,7 @@
 
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
+require_dependency 'emis/responses'
 
 module EMISRedis
   class Model < Common::RedisStore

@@ -8,6 +8,7 @@ require 'sentry_logging'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
+  include ActionController::Cookies
   include SentryLogging
   include Pundit
 
@@ -80,6 +81,8 @@ class ApplicationController < ActionController::API
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
+      when ActionController::UnknownFormat
+        Common::Exceptions::UnknownFormat.new
       when Common::Exceptions::BaseError
         exception
       when Breakers::OutageException

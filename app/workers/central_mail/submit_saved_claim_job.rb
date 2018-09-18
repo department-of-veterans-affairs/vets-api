@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf_info'
+
 module CentralMail
   class SubmitSavedClaimJob
     include Sidekiq::Worker
@@ -20,7 +22,7 @@ module CentralMail
         process_record(record)
       end
 
-      response = PensionBurial::Service.new.upload(create_request_body)
+      response = CentralMail::Service.new.upload(create_request_body)
       File.delete(@pdf_path)
       @attachment_paths.each { |p| File.delete(p) }
 
@@ -61,8 +63,8 @@ module CentralMail
 
     def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = PensionBurial::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
-      PensionBurial::DatestampPdf.new(stamped_path1).run(
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
+      CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - Vets.gov Submission',
         x: 429,
         y: 770,
@@ -73,7 +75,7 @@ module CentralMail
     def get_hash_and_pages(file_path)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PDF::Reader.new(file_path).pages.size
+        pages: PdfInfo::Metadata.read(file_path).pages
       }
     end
 

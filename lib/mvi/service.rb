@@ -38,14 +38,16 @@ module MVI
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     def find_profile(user)
       with_monitoring do
-        raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
-        MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+        Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) do
+          raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+          MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+        end
       end
     rescue Faraday::ConnectionFailed => e
-      log_message_to_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
-      log_message_to_sentry("MVI find_profile error: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue MVI::Errors::Base => e
       mvi_error_handler(user, e)
@@ -58,25 +60,35 @@ module MVI
 
     private
 
-    # TODO: Possibly consider adding Grafana Instrumentation here too
     def mvi_error_handler(user, e)
       case e
       when MVI::Errors::DuplicateRecords
-        log_message_to_sentry('MVI Duplicate Record', :warn)
+        log_console_and_sentry('MVI Duplicate Record', :warn)
       when MVI::Errors::RecordNotFound
-        # Not going to log RecordNotFound
-        # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
-        # log_message_to_sentry('MVI Record Not Found', :warn)
-        nil
+        # Not going to log RecordNotFound to sentry, cloudwatch only.
+        log_console_and_sentry('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
+        # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
         if user.mhv_icn.present?
-          log_message_to_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
+          log_console_and_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
-          log_message_to_sentry('MVI Invalid Request', :error)
+          log_console_and_sentry('MVI Invalid Request', :error)
         end
       when MVI::Errors::FailedRequestError
-        log_message_to_sentry('MVI Failed Request', :error)
+        log_console_and_sentry('MVI Failed Request', :error)
       end
+    end
+
+    def log_console_and_sentry(message, sentry_classification = nil)
+      Rails.logger.info(message)
+      log_message_to_sentry(message, sentry_classification) if sentry_classification.present?
+    end
+
+    def logging_context(user)
+      {
+        uuid: user.uuid,
+        authn_context: user.authn_context
+      }
     end
 
     def create_profile_message(user)

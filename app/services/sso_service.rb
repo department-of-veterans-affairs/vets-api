@@ -39,12 +39,29 @@ class SSOService
   end
 
   def persist_authentication!
-    existing_user.destroy if new_login?
+    if new_login?
+      # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
+      # merged? MHV LOA1 -> IDME LOA3 is ok, DS Logon LOA1 -> IDME LOA3 is ok, everything else is not.
+      # because user, session, user_identity all have the same TTL, this is probably not a problem.
+      mergable_identity_attributes.each do |attribute|
+        new_user_identity.send(attribute + '=', existing_user.identity.send(attribute))
+      end
+      existing_user.destroy
+    end
+
     if valid?
       new_session.save && new_user.save && new_user_identity.save
     else
       handle_error_reporting_and_instrumentation
     end
+  end
+
+  def mergable_identity_attributes
+    # We don't want to persist the mhv_account_type because then we would have to change it when we
+    # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
+    # signed in session.
+    # TODO: Do we want to pull in DS Logon attributes here as well??
+    %w[mhv_correlation_id mhv_icn dslogon_edipi]
   end
 
   def new_login?

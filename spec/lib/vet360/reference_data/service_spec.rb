@@ -8,51 +8,44 @@ describe Vet360::ReferenceData::Service, skip_vet360: true do
   before { Timecop.freeze('2018-04-09T17:52:03Z') }
   after  { Timecop.return }
 
-  describe '#countries' do
-    context 'when successful' do
-      it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/reference_data/countries', VCR::MATCH_EVERYTHING) do
-          response = subject.countries
+  %w[countries states zipcodes].each do |message|
+    describe "##{message}" do
+      let(:cassette) { "vet360/reference_data/#{message}" }
 
-          expect(response).to be_ok
-          expect(response.countries).to be_a(Array)
+      context 'when successful' do
+        it 'returns a status of 200', :aggregate_failures do
+          VCR.use_cassette(cassette, VCR::MATCH_EVERYTHING) do
+            response = subject.send(message)
 
-          data = response.countries.first
-          expect(data).to have_key('country_name')
-          expect(data).to have_key('country_code_iso3')
+            expect(response).to be_ok
+            expect(response.send(message)).to be_a(Array)
+          end
+        end
+
+        it 'returns the correct data' do
+          VCR.use_cassette(cassette, VCR::MATCH_EVERYTHING) do
+            response = subject.send(message)
+            data = response.send(message).first
+
+            case message
+            when 'countries'
+              expect(data).to have_key('country_name')
+              expect(data).to have_key('country_code_iso3')
+            when 'states'
+              expect(data).to have_key('state_name')
+              expect(data).to have_key('state_code')
+            when 'zipcodes'
+              expect(data).to have_key('zip_code')
+            end
+          end
         end
       end
-    end
-  end
 
-  describe '#states' do
-    context 'when successful' do
-      it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/reference_data/states', VCR::MATCH_EVERYTHING) do
-          response = subject.states
-
-          expect(response).to be_ok
-          expect(response.states).to be_a(Array)
-
-          data = response.states.first
-          expect(data).to have_key('state_name')
-          expect(data).to have_key('state_code')
-        end
-      end
-    end
-  end
-
-  describe '#zipcodes' do
-    context 'when successful' do
-      it 'returns a status of 200', :aggregate_failures do
-        VCR.use_cassette('vet360/reference_data/zipcodes', VCR::MATCH_EVERYTHING) do
-          response = subject.zipcodes
-
-          expect(response).to be_ok
-          expect(response.zipcodes).to be_a(Array)
-
-          data = response.zipcodes.first
-          expect(data).to have_key('zip_code')
+      context 'when not successful' do
+        it 'raises an error' do
+          VCR.use_cassette(cassette + '_error', VCR::MATCH_EVERYTHING) do
+            expect { subject.send(message) }.to raise_error(Common::Exceptions::BackendServiceException)
+          end
         end
       end
     end

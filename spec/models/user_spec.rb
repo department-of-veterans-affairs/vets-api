@@ -76,7 +76,7 @@ RSpec.describe User, type: :model do
 
   describe '.create()' do
     context 'with LOA 1' do
-      subject(:loa1_user) { described_class.new(FactoryBot.build(:user, loa: loa_one)) }
+      subject(:loa1_user) { described_class.new(build(:user, loa: loa_one)) }
 
       it 'should not allow a blank uuid' do
         loa1_user.uuid = ''
@@ -86,10 +86,10 @@ RSpec.describe User, type: :model do
     end
   end
 
-  subject { described_class.new(FactoryBot.build(:user)) }
+  subject { described_class.new(build(:user)) }
 
   context 'user without attributes' do
-    let(:test_user) { FactoryBot.build(:user) }
+    let(:test_user) { build(:user) }
 
     it 'expect ttl to an Integer' do
       expect(subject.ttl).to be_an(Integer)
@@ -106,6 +106,11 @@ RSpec.describe User, type: :model do
 
     it 'has a persisted attribute of false' do
       expect(subject.persisted?).to be_falsey
+    end
+
+    it 'has nil edipi locally and from IDENTITY' do
+      expect(subject.identity.dslogon_edipi).to be_nil
+      expect(subject.edipi).to be_nil
     end
   end
 
@@ -154,8 +159,8 @@ RSpec.describe User, type: :model do
 
     describe 'getter methods' do
       context 'when saml user attributes available, icn is available, and user LOA3' do
-        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
-        let(:user) { FactoryBot.build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa3, middle_name: 'J', mhv_icn: mvi_profile.icn) }
         before(:each) do
           stub_mvi(mvi_profile)
         end
@@ -188,14 +193,23 @@ RSpec.describe User, type: :model do
           expect(user.ssn).to be(user.identity.ssn)
         end
 
+        it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
+          expect(user.edipi).to be(user.mvi.edipi)
+        end
+
+        it 'fetches edipi from identity.dslogon_edipi when available' do
+          user.identity.dslogon_edipi = '001001999'
+          expect(user.edipi).to be(user.identity.dslogon_edipi)
+        end
+
         it 'has a vet360 id if one exists' do
           expect(user.vet360_id).to be(user.va_profile.vet360_id)
         end
       end
 
       context 'when saml user attributes NOT available, icn is available, and user LOA3' do
-        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
-        let(:user) { FactoryBot.build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa3, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from MVI' do
@@ -203,7 +217,7 @@ RSpec.describe User, type: :model do
         end
 
         context 'when given_names has no middle_name' do
-          let(:mvi_profile) { FactoryBot.build(:mvi_profile, given_names: ['Joe']) }
+          let(:mvi_profile) { build(:mvi_profile, given_names: ['Joe']) }
 
           it 'fetches middle name from MVI' do
             expect(user.middle_name).to be_nil
@@ -211,7 +225,7 @@ RSpec.describe User, type: :model do
         end
 
         context 'when given_names has middle_name' do
-          let(:mvi_profile) { FactoryBot.build(:mvi_profile, given_names: %w[Joe Bob]) }
+          let(:mvi_profile) { build(:mvi_profile, given_names: %w[Joe Bob]) }
 
           it 'fetches middle name from MVI' do
             expect(user.middle_name).to eq('Bob')
@@ -219,7 +233,7 @@ RSpec.describe User, type: :model do
         end
 
         context 'when given_names has multiple middle names' do
-          let(:mvi_profile) { FactoryBot.build(:mvi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
+          let(:mvi_profile) { build(:mvi_profile, given_names: %w[Michael Joe Bob Sinclair]) }
 
           it 'fetches middle name from MVI' do
             expect(user.middle_name).to eq('Joe Bob Sinclair')
@@ -248,8 +262,8 @@ RSpec.describe User, type: :model do
       end
 
       context 'when saml user attributes NOT available, icn is available, and user NOT LOA3' do
-        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
-        let(:user) { FactoryBot.build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa1, :mhv_sign_in, mhv_icn: mvi_profile.icn) }
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
@@ -282,8 +296,8 @@ RSpec.describe User, type: :model do
       end
 
       context 'when icn is not available from saml data' do
-        let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
-        let(:user) { FactoryBot.build(:user, :loa3) }
+        let(:mvi_profile) { build(:mvi_profile) }
+        let(:user) { build(:user, :loa3) }
         before(:each) { stub_mvi(mvi_profile) }
 
         it 'fetches first_name from IDENTITY' do
@@ -317,18 +331,19 @@ RSpec.describe User, type: :model do
 
       describe '#mhv_correlation_id' do
         context 'when mhv ids are nil' do
-          let(:user) { FactoryBot.build(:user) }
+          let(:user) { build(:user) }
           it 'has a mhv correlation id of nil' do
             expect(user.mhv_correlation_id).to be_nil
           end
         end
 
         context 'when there are mhv ids' do
-          let(:loa3_user) { FactoryBot.build(:user, :loa3) }
-          let(:mvi_profile) { FactoryBot.build(:mvi_profile) }
+          let(:loa3_user) { build(:user, :loa3) }
+          let(:mvi_profile) { build(:mvi_profile) }
           it 'has a mhv correlation id' do
             stub_mvi(mvi_profile)
             expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.mhv_ids.first)
+            expect(loa3_user.mhv_correlation_id).to eq(mvi_profile.active_mhv_ids.first)
           end
         end
       end
@@ -342,6 +357,14 @@ RSpec.describe User, type: :model do
       stub_mvi(mvi_profile)
     end
 
+    around(:each) do |example|
+      with_settings(Settings.mhv, facility_range: [[450, 758]]) do
+        with_settings(Settings.mhv, facility_specific: ['759MM']) do
+          example.run
+        end
+      end
+    end
+
     context 'when there are no facilities' do
       let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: []) }
       it 'is false' do
@@ -349,17 +372,75 @@ RSpec.describe User, type: :model do
       end
     end
 
-    context 'when there are no facilities in the defined range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [719]) }
+    context 'when there are nil facilities' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: nil) }
       it 'is false' do
         expect(user.va_patient?).to be_falsey
       end
     end
 
-    context 'when there are facilities in the defined range' do
-      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [400]) }
+    context 'when there are no facilities in the defined range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [200, 759]) }
+      it 'is false' do
+        expect(user.va_patient?).to be_falsey
+      end
+    end
+
+    context 'when facility is at the bottom edge of range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [450]) }
       it 'is true' do
         expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when alphanumeric facility is at the bottom edge of range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH]) }
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when facility is at the top edge of range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: [758]) }
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when alphanumeric facility is at the top edge of range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[758MH]) }
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when there are multiple alphanumeric facilities all within defined range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[450MH 758MH]) }
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when there are multiple facilities all outside of defined range' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[449MH 759MH]) }
+      it 'is false' do
+        expect(user.va_patient?).to be_falsey
+      end
+    end
+
+    context 'when it matches exactly to a facility_specific' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759MM]) }
+
+      it 'is true' do
+        expect(user.va_patient?).to be_truthy
+      end
+    end
+
+    context 'when it does not match exactly to a facility_specific and is outside of ranges' do
+      let(:mvi_profile) { build(:mvi_profile, vha_facility_ids: %w[759]) }
+
+      it 'is false' do
+        expect(user.va_patient?).to be_falsey
       end
     end
   end

@@ -1,9 +1,10 @@
 binaries:
   # you can specify a full path in settings.local.yml if necessary
+  pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-hostname: www.example.com
+hostname: localhost:3000
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
@@ -19,6 +20,9 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
+
+salesforce-gibft:
+  url: 'https://va--rdtcddev.cs33.my.salesforce.com/'
 
 salesforce:
   env: dev
@@ -39,11 +43,12 @@ pension_burial:
   prefill: true
   sftp:
     relative_path: '../VETSGOV_PENSION'
+
+central_mail:
   upload:
     enabled: true
     host: 'icmhsgc-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
-
 
 # Settings for Vet360
 vet360:
@@ -57,16 +62,18 @@ vet360:
 
 # Settings for IHub
 ihub:
-  url: "https://qacrmdac.np.crm.vrm.vba.va.gov/WebParts/DEV"
+  url: "https://qacrmdac.np.crm.vrm.vba.va.gov"
   appointments:
     timeout: 30
-    mock: false
+    mock: true
+  in_production: false
 
 
 # Settings for EVSS
 evss:
   prefill: true
   url: https://csraciapp6.evss.srarad.com
+  service_name: "wss-form526-services-web"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -137,7 +144,9 @@ locators:
 
 # Settings for MyHealthEVet
 mhv:
-  facility_range: [[358,718],[720,758]]
+  # include ranges first, then individual exceptions to the ranges last.
+  facility_range: [[358,718],[720,740],[742,758]]
+  facility_specific: [['741MM']] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -162,12 +171,13 @@ mvi:
   processing_code: T
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
+  pii_logging: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  mock: false
+  mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService
@@ -245,16 +255,20 @@ reports:
 
 # Settings for SAML authentication
 saml:
-  cert_path: ~/.certs/vetsgov-localhost.crt
-  cert_new_path: ~/.certs/vetsgov-localhost_new.crt
-  key_path: ~/.certs/vetsgov-localhost.key
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: config/certs/vetsgov-localhost_new.crt
+  key_path: config/certs/vetsgov-localhost.key
   # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
   # certificate: ~
   # key: ~
   issuer: saml-rp.vetsgov.localhost
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
-  relay: http://localhost:3001/auth/login/callback
+  # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
+  relays:
+    vetsgov: http://localhost:3001/auth/login/callback
+    vagov: ~
+    preview_vagov: ~
   logout_relay: http://localhost:3001/logout
 
 sentry:
@@ -292,3 +306,11 @@ faraday_socks_proxy:
 
 google_analytics_tracking_id: ~
 
+account:
+  enabled: false
+
+# Settings for search
+search:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  url: https://search.usa.gov/api/v2

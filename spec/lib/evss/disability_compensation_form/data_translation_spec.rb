@@ -107,7 +107,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'state' => 'AA',
-          'city' => 'ASO'
+          'city' => 'ASO',
+          'zipCode' => '12345-6789'
         }
       end
 
@@ -117,7 +118,9 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
           'country' => 'USA',
           'addressLine1' => '123 South Frampington St.',
           'militaryPostOfficeTypeCode' => 'ASO',
-          'militaryStateCode' => 'AA'
+          'militaryStateCode' => 'AA',
+          'zipFirstFive' => '12345',
+          'zipLastFour' => '6789'
         }
         expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
@@ -185,6 +188,65 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         expect(
           subject.instance_variable_get(:@form_content).dig('form526', 'treatments')
         ).to eq nil
+      end
+    end
+  end
+
+  describe '#translate_disabilities' do
+    context 'there are special issues' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'disabilities' => [
+              {
+                'specialIssues' => [{ 'code' => 'TRM' }]
+              }
+            ]
+          }
+        )
+      end
+      it 'should delete the "specialIssues" key' do
+        subject.send(:translate_disabilities)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'disabilities', 0, 'specialIssues')
+        ).to eq nil
+      end
+    end
+  end
+
+  describe '#translate_national_guard_service' do
+    context 'when the veteran has a reserve/guard service' do
+      before do
+        subject.instance_variable_set(
+          :@form_content,
+          'form526' => {
+            'serviceInformation' => {
+              'reservesNationalGuardService' => {
+                'obligationTermOfServiceDateRange' => {
+                  'from' => '2018-03-29T18:50:03.015Z',
+                  'to' => '2018-03-29T18:50:03.015Z'
+                },
+                'waiveVABenefitsToRetainTrainingPay' => false
+              }
+            }
+          }
+        )
+      end
+      it 'should translate the fields correctly' do
+        result_hash = {
+          'obligationTermOfServiceFromDate' => '2018-03-29T18:50:03.015Z',
+          'obligationTermOfServiceToDate' => '2018-03-29T18:50:03.015Z',
+          'inactiveDutyTrainingPay' => {
+            'waiveVABenefitsToRetainTrainingPay' => false
+          }
+        }
+        result = subject.send(
+          :translate_national_guard_service, subject.instance_variable_get(
+            :@form_content
+          ).dig('form526', 'serviceInformation', 'reservesNationalGuardService')
+        )
+        expect(result).to eq result_hash
       end
     end
   end
