@@ -11,13 +11,7 @@ module Swagger
         property :data, type: :object do
           property :attributes, type: :object do
             property :transaction_id, type: :string
-            property :transaction_status, type: :string, enum: %(
-            submitted
-            received
-            retrying
-            non_retryable_error
-            exhausted
-            )
+            property :transaction_status, type: :string
           end
           property :id, type: :string
           property :type, type: :string

@@ -16,7 +16,7 @@ module Swagger
         end
       end
 
-      swagger_schema :DisabilityContetion do
+      swagger_schema :DisabilityContention do
         key :required, %i[id type attributes]
 
         property :id, type: :string

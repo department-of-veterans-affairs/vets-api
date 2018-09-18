@@ -342,6 +342,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports getting suggested conditions' do
+        create(:disability_contention_arrhythmia)
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          401,
+          'params' => '?name_part=arr'
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          200,
+          auth_options.merge('params' => '?name_part=arr')
+        )
+      end
+
       it 'supports submitting the form' do
         allow(EVSS::DisabilityCompensationForm::SubmitForm526)
           .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
@@ -362,6 +378,26 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
         end
+      end
+
+      it 'supports getting submission status' do
+        job_id = SecureRandom.uuid
+        create(:va526ez_submit_transaction,
+               transaction_id: job_id,
+               transaction_status: 'submitted',
+               metadata: {})
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          401,
+          'job_id' => job_id
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          200,
+          auth_options.merge('job_id' => job_id)
+        )
       end
     end
 

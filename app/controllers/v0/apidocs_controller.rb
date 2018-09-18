@@ -175,6 +175,8 @@ module V0
       Swagger::Schemas::SavedForm,
       Swagger::Schemas::States,
       Swagger::Schemas::SubmitDisabilityForm,
+      Swagger::Schemas::SubmissionStatus,
+      Swagger::Schemas::SuggestedConditions,
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::VAFacilities,

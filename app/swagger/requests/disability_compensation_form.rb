@@ -24,7 +24,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/disability_compensation_form/suggested_conditions' do
+      swagger_path '/v0/disability_compensation_form/suggested_conditions{params}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -32,11 +32,14 @@ module Swagger
           key :operationId, 'getSuggestedConditions'
           key :tags, %w[form_526]
 
+          parameter :authorization
+
           parameter do
             key :name, :name_part
             key :description, 'part of a condition name'
-            key :in, :query
+            key :in, :path
             key :type, :string
+            key :required, true
           end
 
           response 200 do
@@ -67,7 +70,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/disability_compensation_form/submission_status' do
+      swagger_path '/v0/disability_compensation_form/submission_status/{job_id}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -76,6 +79,14 @@ module Swagger
           key :tags, %w[form_526]
 
           parameter :authorization
+
+          parameter do
+            key :name, :job_id
+            key :description, 'the job_id for the submission to check the status of'
+            key :in, :path
+            key :type, :string
+            key :required, true
+          end
 
           response 200 do
             key :description, 'Returns the status of a given submission'
