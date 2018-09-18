@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/LineLength
 module Swagger
   module Requests
     class Search
@@ -30,11 +31,13 @@ module Swagger
                 property :attributes, type: :object do
                   key :required, [:body]
                   property :body, type: :object do
-                    property :query, type: :string
+                    property :query, type: :string, description: 'The term used to generate these search results'
                     property :web, type: :object do
-                      property :total, type: :integer
-                      property :next_offset, type: :integer
-                      property :spelling_correction, type: %i[string null]
+                      property :total, type: :integer, description: 'Total number of results available.'
+                      property :next_offset, type: :integer, description: 'Offset for the subsequent results.'
+                      property :spelling_correction,
+                               type: %i[string null],
+                               description: 'Spelling correction for your search term.'
                       property :results do
                         key :type, :array
                         items do
@@ -47,15 +50,17 @@ module Swagger
                     end
                     property :text_best_bets do
                       key :type, :array
+                      key :description, 'Text best bets, which appear only when the query matches the text of the best bet’s title, description, or keywords.'
                       items do
                         property :id, type: :integer
-                        property :title, type: :string, description: 'Title of the best bet'
+                        property :title, type: :string
                         property :url, type: :string
                         property :description, type: :string
                       end
                     end
                     property :graphic_best_bets do
                       key :type, :array
+                      key :description, 'Graphic best bets, which appear only when the query matches the text of the best bet’s title, description, or keywords.'
                       items do
                         property :title, type: :string
                         property :title_url, type: :string
@@ -63,6 +68,7 @@ module Swagger
                         property :image_alt_text, type: :string
                         property :links do
                           key :type, :array
+                          key :description, 'An array of links in the graphic best bet. Each link contains a title and a URL'
                           items do
                             key :type, :string
                           end
@@ -77,12 +83,14 @@ module Swagger
                         property :snippet, type: :string
                         property :related_topics do
                           key :type, :array
+                          key :description, 'An array of topics related to the health topic. Each topic contains a title and a URL'
                           items do
                             key :type, :string
                           end
                         end
                         property :related_sites do
                           key :type, :array
+                          key :description, 'An array of sites related to the the health topic. Each site contains a title and a URL'
                           items do
                             key :type, :string
                           end
@@ -95,13 +103,14 @@ module Swagger
                         property :position_title, type: :string
                         property :organization_name, type: :string
                         property :rate_interval_code, type: :string
-                        property :minimum, type: :string
-                        property :maximum, type: :string
+                        property :minimum, type: :string, description: 'Minimum salary of the job opening'
+                        property :maximum, type: :string, description: 'Maximum salary of the job opening'
                         property :start_date, type: :string
                         property :end_date, type: :string
                         property :url, type: :string
                         property :locations do
                           key :type, :array
+                          key :description, 'An array of locations of the job opening'
                           items do
                             key :type, :string
                           end
@@ -121,7 +130,7 @@ module Swagger
                         property :url, type: :string
                         property :name, type: :string
                         property :snippet, type: :string
-                        property :screen_name, type: :string
+                        property :screen_name, type: :string, description: 'Screen name of the tweet author'
                         property :profile_image_url, type: :string
                       end
                     end
@@ -154,7 +163,13 @@ module Swagger
                         property :document_type, type: :string
                         property :title, type: :string
                         property :url, type: :string
-                        property :agency_names, type: :string
+                        property :agency_names do
+                          key :type, :array
+                          key :description, 'An array of agency names of the federal register document'
+                          items do
+                            key :type, :string
+                          end
+                        end
                         property :page_length, type: :string
                         property :start_page, type: :string
                         property :end_page, type: :string
@@ -164,6 +179,7 @@ module Swagger
                     end
                     property :related_search_terms do
                       key :type, :array
+                      key :description, 'An array of related search terms, which are based on recent, common searches on the your site.'
                       items do
                         key :type, :string
                       end
@@ -185,3 +201,4 @@ module Swagger
     end
   end
 end
+# rubocop:enable Metrics/LineLength
