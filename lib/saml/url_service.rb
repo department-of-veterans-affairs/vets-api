@@ -72,17 +72,5 @@ module SAML
     def url_settings(options)
       saml_settings(options)
     end
-
-    def saml_options(success_relay: nil)
-      options = if SUCCESS_RELAY_KEYS.include?(success_relay) && Settings.saml.relays[success_relay].present?
-                  { RelayState: Settings.saml.relays[success_relay] }
-                elsif Settings.review_instance_slug
-                  { RelayState: Settings.review_instance_slug }
-                else
-                  {}
-                end
-      options
-    end
   end
 end
-# rubocop:enable Metrics/LineLength
