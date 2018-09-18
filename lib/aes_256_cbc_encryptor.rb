@@ -11,36 +11,32 @@ class Aes256CbcEncryptor
   attr_reader :secret, :iv
 
   def encrypt(payload)
-    cipher = _encryption_cipher
+    cipher = encryption_cipher
     encrypted = cipher.update(payload) + cipher.final
     Base64.urlsafe_encode64(encrypted)
   end
 
   def decrypt(encrypted)
-    cipher = _decryption_cipher
+    cipher = decryption_cipher
     encrypted_data = Base64.urlsafe_decode64(encrypted)
     cipher.update(encrypted_data) + cipher.final
   end
 
   private
 
-  def _encryption_cipher
-    encryption_cipher = _cipher
-    encryption_cipher.encrypt
-    encryption_cipher.key = @secret
-    encryption_cipher.iv = @iv
-    encryption_cipher
+  def encryption_cipher
+    cipher(:encrypt)
   end
 
-  def _decryption_cipher
-    decryption_cipher = _cipher
-    decryption_cipher.decrypt
-    decryption_cipher.key = @secret
-    decryption_cipher.iv = @iv
-    decryption_cipher
+  def decryption_cipher
+    cipher(:decrypt)
   end
 
-  def _cipher
-    OpenSSL::Cipher::AES.new(256, :CBC)
+  def cipher(type)
+    cipher = OpenSSL::Cipher::AES.new(256, :CBC)
+    cipher.send(type)
+    cipher.key = @secret
+    cipher.iv = @iv
+    cipher
   end
 end
