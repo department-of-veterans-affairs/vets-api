@@ -9,7 +9,7 @@ class InProgressForm < ActiveRecord::Base
     alias type_cast type_cast_for_database
   end
 
-  EXPIRES_AFTER = YAML.load
+  EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))
 
   attribute :user_uuid, CleanUUID.new
   attr_encrypted :form_data, key: Settings.db_encryption_key
