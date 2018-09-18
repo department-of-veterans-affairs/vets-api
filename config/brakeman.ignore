@@ -18,6 +18,25 @@
       "user_input": "params[:path]",
       "confidence": "Weak",
       "note": ""
+    },
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "e1e5e4ef3cefe762741c95668c9451d928b2c179773a866849a4897d34752af1",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/v0/sessions_controller.rb",
+      "line": 78,
+      "link": "http://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to((RelayState.new(:relay_enum => params[:success_relay], :url => params[:RelayState]).logout_url + \"?success=true\"))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::SessionsController",
+        "method": "saml_logout_callback"
+      },
+      "user_input": "(RelayState.new(:relay_enum => params[:success_relay], :url => params[:RelayState]).logout_url + \"?success=true\")",
+      "confidence": "High",
+      "note": "Manually reviewed code path, and relay URL is whitelisted. Bill Ryan"
     }
   ],
   "updated": "2018-02-08 09:52:28 -0800",

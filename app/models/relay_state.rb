@@ -46,7 +46,7 @@ class RelayState
 
   def get_url(valid_urls, type)
     return get_default(type) unless valid?
-    return nil if @url.present? && valid_urls.include?(@url) == false
+    return get_default(type) if @url.present? && valid_urls.include?(@url) == false
 
     if @url.present?
       return @url

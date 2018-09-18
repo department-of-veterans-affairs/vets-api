@@ -20,8 +20,8 @@ RSpec.describe RelayState, type: :model do
       it '#login_url returns RelayState' do
         expect(subject.login_url).to eq(relay_url)
       end
-      it '#logout_url returns nil' do
-        expect(subject.logout_url).to eq(nil)
+      it '#logout_url returns default logout' do
+        expect(subject.logout_url).to eq(Settings.saml.logout_relays.vetsgov)
       end
     end
 
@@ -111,8 +111,8 @@ RSpec.describe RelayState, type: :model do
       it '#login_url returns RelayState' do
         expect(subject.login_url).to eq(relay_url)
       end
-      it '#logout_url returns nil' do
-        expect(subject.logout_url).to eq(nil)
+      it '#logout_url returns default' do
+        expect(subject.logout_url).to eq(Settings.saml.logout_relays.vetsgov)
       end
     end
 
@@ -122,8 +122,8 @@ RSpec.describe RelayState, type: :model do
       it 'is valid' do
         expect(subject.valid?).to be_truthy
       end
-      it '#login_url returns nil' do
-        expect(subject.login_url).to eq(nil)
+      it '#login_url returns default' do
+        expect(subject.login_url).to eq(Settings.saml.relays.vetsgov)
       end
       it '#logout_url returns RelayState' do
         expect(subject.logout_url).to eq(logout_relay_url)
