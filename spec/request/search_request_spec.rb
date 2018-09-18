@@ -32,5 +32,16 @@ RSpec.describe 'search', type: :request do
         end
       end
     end
+
+    context 'with an empty query string' do
+      it 'should match the errors schema', :aggregate_failures do
+        VCR.use_cassette('search/empty_query') do
+          get '/v0/search', { query: '' }
+
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('errors')
+        end
+      end
+    end
   end
 end
