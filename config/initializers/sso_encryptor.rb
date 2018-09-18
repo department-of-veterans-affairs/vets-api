@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'aes_256_cbc_encryptor'
 
 # This sets the constant to be used for encryption and decryption of the cookie
