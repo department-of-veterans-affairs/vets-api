@@ -427,7 +427,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback, RelayState: Settings.saml.relays.vagov))
             .to redirect_to(/RelayState=#{CGI.escape(Settings.saml.relays.vagov)}/)
         end
-        
+
         it 'redirects to identity proof URL', :aggregate_failures do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
