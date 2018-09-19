@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://api.vets.gov/services/veteran_verification/docs/v0/api'
   s.summary     = 'Veteran Verification APIs'
   s.description = 'Collection of API resources intended for 3rd verification of veteran status and service history'
-  s.license     = 'MIT'
+  s.license     = 'CC0'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
   s.test_files = Dir['spec/**/*']
