@@ -109,7 +109,8 @@ components:
               example: "Air Force"
             discharge_status:
               type: string
-              description: status level of discharge from service history episode
+              description: |
+                Character of discharge from service episode. These are derived from the following eMIS status codes. A becomes 'honorable'. B is 'general'. D is 'bad-conduct'. F is 'dishonorable'. J was originally a 'bad-conduct' or 'dishonorable', but has been changed to 'honorable' (as reported by this API) via an administrative decision. K was originally a 'bad-conduct' or 'dishonorable' and was determined to still be after an administrative hearing (reported as 'dishonorable' by this API). 
               enum:
                 - honorable
                 - general
