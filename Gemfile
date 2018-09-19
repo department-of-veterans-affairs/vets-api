@@ -5,6 +5,7 @@ source 'https://rubygems.org'
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
+gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
 gem 'puma', '~> 2.16.0'
