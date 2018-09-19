@@ -3,7 +3,8 @@
 require 'rails_helper'
 
 describe Benchmark::Performance do
-  let(:stats_d_key) { "#{Benchmark::Performance::FE}.#{Benchmark::Performance::PAGE_LOAD}" }
+  let(:metric) { 'initial_pageload' }
+  let(:stats_d_key) { "#{Benchmark::Performance::FE}.#{Benchmark::Performance::PAGE_PERFORMANCE}.#{metric}" }
   let(:page_id) { 'some_unique_page_identifier' }
 
   describe '.track' do
@@ -19,10 +20,10 @@ describe Benchmark::Performance do
     end
   end
 
-  describe '.page_load' do
-    it 'calls StatsD.measure with frontend page load data' do
+  describe '.by_page_and_metric' do
+    it 'calls StatsD.measure with benchmark data for the passed page and metric.' do
       expect do
-        Benchmark::Performance.page_load(100, page_id)
+        Benchmark::Performance.by_page_and_metric(metric, 100, page_id)
       end.to trigger_statsd_measure(
         stats_d_key,
         tags: [page_id],

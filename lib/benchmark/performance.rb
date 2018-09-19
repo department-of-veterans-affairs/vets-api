@@ -3,7 +3,7 @@
 module Benchmark
   class Performance
     FE = 'frontend'
-    PAGE_LOAD = 'page_load'
+    PAGE_PERFORMANCE = 'page_performance'
 
     # Calls StatsD.measure with the passed benchmarking data.
     #
@@ -17,14 +17,16 @@ module Benchmark
       StatsD.measure(key, duration, tags: tags)
     end
 
-    # Calls StatsD.measure with frontend page load data.
+    # Calls StatsD.measure with benchmark data for the passed page and metric.
     #
+    # @param metric [String] Creates a namespace/bucket for what is being
+    #   measured.  For example, 'initial_pageload', 'dom_loaded', etc.
     # @param duration [Float] Duration of benchmark measurement in milliseconds
     # @param page_id [String] A unique identifier for the FE page being benchmarked
     # @return [StatsD::Instrument::Metric] The metric that was sent to StatsD
     #
-    def self.page_load(duration, page_id)
-      stats_d_key = "#{FE}.#{PAGE_LOAD}"
+    def self.by_page_and_metric(metric, duration, page_id)
+      stats_d_key = "#{FE}.#{PAGE_PERFORMANCE}.#{metric}"
 
       track(stats_d_key, duration, tags: [page_id])
     end
