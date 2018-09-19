@@ -1,0 +1,115 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Disability Rating
+  description: |
+    Veteran Verification - Disability Rating
+
+    ## Background
+
+    This API is provided as a proof of concept for a general-purpose VA API that allows Veterans to provide authorization to a third-party to access information on their behalf. The use-case of this API is to allow third-parties to access the service history of a Veteran after receiving authorization to do so using an Open ID Connect flow.
+
+    The Disability Rating API passes requests through to EVSS, the Electronic Veterans Self Service, and formats the response into consumable data.
+
+    ## Design
+
+    ### Authorization
+
+    API requests are authorized using a Bearer token issued through an OpenID Connect service to permit access to Veteran information to third-party applications. The token should be submitted as an `Authorization` header in the form `Bearer <token>`.
+
+    ### Disability Rating Request
+
+    Allows a third-party application to request a Veteran's disability rating with the authorization of the Veteran.
+
+    1. Client Request: GET https://api.vets.gov/services/veteran_verification/v0/diability_rating
+       *  Provide the Bearer token as a header: `Authorization: Bearer <token>`
+
+    2. Service Response: A JSON API object with the Veteran's disability rating
+
+    ## Reference
+
+    Raw Open API Spec: https://dev-api.vets.gov/services/appeals/docs/v0/api
+
+  termsOfService: ''
+  contact:
+    name: Vets.gov
+tags:
+  - name: disability_rating
+    description: Veteran Verification - Disability Rating
+servers:
+  - url: https://dev-api.vets.gov/services/veteran_verification/{version}
+    description: Vets.gov API development environment
+    variables:
+      version:
+        default: v0
+paths:
+  /disability_rating:
+    get:
+      tags:
+        - disability_rating
+      summary: Retrieve disability rating of authorized Veteran
+      operationId: getDisabilityRating
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Disability Rating retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                propertiesw:
+                  data:
+                    $ref: '#/components/schemas/DisabilityRating'
+        '404':
+          description: No disability ratings found
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: token
+  schemas:
+    DisabilityRating:
+      description: |
+        The disability rating percentage applied to the Veteran.
+      required:
+        - id
+        - type
+        - atttributes
+      properties:
+        id:
+          description: JSON API identifier
+          type: string
+          example: 12303
+        type:
+          description: JSON API type specification
+          type: string
+          example: 'document_upload'
+        attributes:
+          $ref: '#/components/schemas/RatingAttributes'
+    RatingAttributes:
+      description: |
+        Body of the disability rating response
+      required:
+        - decision
+        - effective_date
+        - rating_percentage
+      properties:
+        decision:
+          description: Whether the disability is service connected or not. 
+          type: string
+          example: 'Service Connected'
+        effective_date:
+          description: When the Veteran could begin claiming benefits related to this disability
+          type: string
+          format: datetime
+          example: "2018-03-27T21:00:41.000+0000"
+        rating_percentage:
+          description: Severity rating determined by VA that indicates how disabling an illness or injury is for the Veteran. Used to help determine disability compensation (pay) and related benefits.
+          type: number
+          example: 50
+          
+      
+          
