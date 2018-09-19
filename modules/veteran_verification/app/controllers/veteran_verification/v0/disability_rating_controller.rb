@@ -18,7 +18,8 @@ module VeteranVerification
       end
 
       def auth_headers
-        EVSS::DisabilityCompensationAuthHeaders.new(@current_user).add_headers(EVSS::AuthHeaders.new(@current_user).to_h)
+        EVSS::DisabilityCompensationAuthHeaders.new(@current_user)
+          .add_headers(EVSS::AuthHeaders.new(@current_user).to_h)
       end
     end
   end
