@@ -42,6 +42,14 @@ class RelayState
     get_url(LOGOUT_URLS, :logout_relays)
   end
 
+  def default_login_url
+    Settings.saml.relays&.vetsgov || Settings.saml.relay
+  end
+
+  def default_logout_url
+    Settings.saml.logout_relays&.vetsgov || Settings.saml.logout_relay
+  end
+
   private
 
   def get_url(valid_urls, type)
@@ -59,13 +67,5 @@ class RelayState
 
   def get_default(type = :relays)
     type == :logout_relays ? default_logout_url : default_login_url
-  end
-
-  def default_login_url
-    Settings.saml.relays&.vetsgov || Settings.saml.relay
-  end
-
-  def default_logout_url
-    Settings.saml.logout_relays&.vetsgov || Settings.saml.logout_relay
   end
 end

@@ -103,11 +103,11 @@ module V0
     private
 
     def saml_login_relay_url
-      return relay_state.login_url if current_user.nil?
+      return relay_state.default_login_url if current_user.nil?
       # TODO: this validation should happen when we create the user, not here
       if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
         log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
-        return relay_state.login_url
+        return relay_state.default_login_url
       end
 
       if current_user.loa[:current] < current_user.loa[:highest]
