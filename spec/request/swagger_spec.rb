@@ -1647,6 +1647,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         expect(subject).to validate(:get, '/v0/profile/service_history', 502, auth_options)
       end
     end
+
+    describe 'search' do
+      context 'when successful' do
+        it 'supports getting search results data' do
+          VCR.use_cassette('search/success') do
+            expect(subject).to validate(:get, '/v0/search', 200, '_query_string' => 'query=benefits')
+          end
+        end
+      end
+
+      context 'with an empty search query' do
+        it 'returns a 400 with error details' do
+          VCR.use_cassette('search/empty_query') do
+            expect(subject).to validate(:get, '/v0/search', 400, '_query_string' => 'query=')
+          end
+        end
+      end
+    end
   end
 
   context 'and' do

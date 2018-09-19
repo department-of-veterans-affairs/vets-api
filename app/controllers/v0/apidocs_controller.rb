@@ -141,6 +141,7 @@ module V0
       Swagger::Requests::Prescriptions::Prescriptions,
       Swagger::Requests::Prescriptions::Trackings,
       Swagger::Requests::Profile,
+      Swagger::Requests::Search,
       Swagger::Requests::Sessions,
       Swagger::Requests::TermsAndConditions,
       Swagger::Requests::UploadSupportingEvidence,
