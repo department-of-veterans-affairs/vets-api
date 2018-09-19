@@ -9,7 +9,7 @@ module Gibft
     SALESFORCE_USERNAMES = {
       'prod' => 'vetsgov-devops@listserv.gsa.gov',
       'uat' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.uat',
-      'dev' => 'vetsgov-devops-cl-feedback@listserv.gsa.gov.rdtcddev'
+      'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.rdtcddev'
     }.freeze
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings['salesforce-gibft'].env]
 
