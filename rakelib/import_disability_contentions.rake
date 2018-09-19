@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 desc 'imports conditions into disability_contentions table'
 task :import_conditions, [:csv_path] => [:environment] do |_, args|
   raise 'No CSV path provided' unless args[:csv_path]
