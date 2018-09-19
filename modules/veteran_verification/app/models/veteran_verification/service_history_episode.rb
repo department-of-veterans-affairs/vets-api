@@ -66,7 +66,7 @@ module VeteranVerification
     end
 
     def discharge_status
-      EMISRedis::MilitaryInformation::DISCHARGE_TYPES[discharge_type] || 'other'
+      EMISRedis::MilitaryInformation::EXTERNAL_DISCHARGE_TYPES[discharge_type] || 'unknown'
     end
   end
 end
