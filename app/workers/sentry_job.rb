@@ -3,7 +3,7 @@
 class SentryJob
   include Sidekiq::Worker
 
-  sidekiq_options queue: 'tasker'
+  sidekiq_options queue: 'tasker', retry: false, backtrace: false
 
   def perform(event)
     Raven.send_event(event)
