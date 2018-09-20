@@ -7,7 +7,7 @@ class SentryJob
 
   def perform(event)
     Raven.send_event(event)
-  rescue => e
+  rescue StandardError => e
     Rails.logger.error(
       "Error performing SentryJob: #{e.message}",
       original_culprit: event&.culprit,

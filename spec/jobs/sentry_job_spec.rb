@@ -18,12 +18,11 @@ RSpec.describe SentryJob do
         { 'request_uuid' => 'c9043fb4-1696-4816-8a73-b780a76a973e',
           'errors' => [
             { 'title' => 'Invalid field value',
-              'detail' => "\"['\u0000\u0001\u0000\u0000\u0000\xFF', '41.15', '-86.88', '42.65']\" is not a valid value for \"bbox\"",
+              'detail' => "\"['\u0000\u0001\u0000\u0000\u0000\xFF', '41.15', '-86.88', '42.65']\" " \
+'is not a valid value for "bbox"',
               'code' => '103',
-              'status' => '400'
-            }
-          ]
-        }
+              'status' => '400' }
+          ] }
       end
       let(:backtrace) { '/srv/vets-api/src/vendor/bundle/ruby/2.3/gems/puma-2.16.0/lib/puma/thread_pool.rb...' }
 
