@@ -1261,9 +1261,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         expect(subject).to validate(:post, '/v0/performance_monitorings', 401)
 
         body = {
-          metric: 'initial_page_load',
-          duration: 100.1,
-          page_id: 'some_unique_page_identifier'
+          page_id: 'some_unique_page_identifier',
+          metrics: [
+            { metric: 'initial_page_load', duration: 1234.56 },
+            { metric: 'time_to_paint', duration: 123.45 }
+          ]
         }
 
         expect(subject).to validate(

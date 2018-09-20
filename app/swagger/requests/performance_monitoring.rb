@@ -24,19 +24,7 @@ module Swagger
             key :required, true
 
             schema do
-              key :required, %i[metric duration page_id]
-              property :metric,
-                       type: :string,
-                       example: 'initial_page_load',
-                       description: 'Creates a namespace/bucket for what is being measured.'
-              property :duration,
-                       type: :float,
-                       example: 100.1,
-                       description: 'Duration of benchmark measurement in milliseconds'
-              property :page_id,
-                       type: :string,
-                       example: 'some_unique_page_indentifier',
-                       description: 'A unique identifier for the frontend page being benchmarked'
+              key :'$ref', :PerformanceMetric
             end
           end
 
@@ -48,12 +36,9 @@ module Swagger
               property :data, type: :object do
                 key :required, [:attributes]
                 property :id, type: :string
-                property :type, type: :string, example: 'stats_d_instrument_metrics'
+                property :type, type: :string
                 property :attributes, type: :object do
-                  key :required, %i[metric duration page_id]
-                  property :metric, type: :string, example: 'frontend.page_performance.initial_page_load'
-                  property :duration, type: :float, example: 100.1
-                  property :page_id, type: :string, example: 'some_unique_page_indentifier'
+                  key :'$ref', :PerformanceMetric
                 end
               end
             end
