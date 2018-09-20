@@ -5,7 +5,8 @@ module Benchmark
     FE = 'frontend'
     PAGE_PERFORMANCE = 'page_performance'
 
-    # Calls StatsD.measure with the passed benchmarking data.
+    # Calls StatsD.measure with the passed benchmarking data. StatsD.measure lets
+    # you benchmark how long the execution of a specific task/method takes.
     #
     # @param key [String] A StatsD key. See https://github.com/Shopify/statsd-instrument#statsd-keys
     # @param duration [Float] Duration of benchmark measurement in milliseconds
