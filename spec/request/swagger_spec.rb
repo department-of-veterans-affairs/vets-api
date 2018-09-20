@@ -1256,6 +1256,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'performance monitoring' do
+      it 'supports posting performance monitoring data' do
+        expect(subject).to validate(:post, '/v0/performance_monitorings', 401)
+
+        body = {
+          metric: 'initial_page_load',
+          duration: 100.1,
+          page_id: 'some_unique_page_identifier'
+        }
+
+        expect(subject).to validate(
+          :post,
+          '/v0/performance_monitorings',
+          200,
+          auth_options.merge('_data' => body.as_json)
+        )
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
