@@ -36,9 +36,11 @@ RSpec.describe SentryJob do
 
         expect(Rails.logger).to receive(:error).with(
           'Error performing SentryJob: string for Float contains null byte',
-          original_culprit: culprit,
-          original_extra: extra,
-          original_backtrace: backtrace
+          original_event: {
+            culprit: culprit,
+            extra: extra,
+            backtrace: backtrace
+          }
         )
         SentryJob.new.perform(event)
       end

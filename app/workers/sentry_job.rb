@@ -10,9 +10,11 @@ class SentryJob
   rescue StandardError => e
     Rails.logger.error(
       "Error performing SentryJob: #{e.message}",
-      original_culprit: event&.culprit,
-      original_extra: event&.extra,
-      original_backtrace: event&.backtrace
+      original_event: {
+        culprit: event&.culprit,
+        extra: event&.extra,
+        backtrace: event&.backtrace
+      }
     )
   end
 end
