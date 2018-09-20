@@ -18,13 +18,15 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
   end
 
   describe 'POST /v0/performance_monitorings' do
-    let(:body) {
+    let(:body) do
       {
-        metric: 'initial_page_load',
-        duration: 100.1,
-        page_id: 'some_unique_page_identifier'
+        page_id: 'some_unique_page_identifier',
+        metrics: [
+          { metric: 'initial_page_load', duration: 1234.56 },
+          { metric: 'time_to_paint', duration: 123.45 }
+        ]
       }
-    }
+    end
 
     context 'with a 200 response' do
       it 'should match the performance monitoring schema', :aggregate_failures do
@@ -42,13 +44,15 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
     end
 
     context 'with a missing parameter' do
-      let(:body_missing_param) {
+      let(:body_missing_param) do
         {
-          metric: 'initial_page_load',
-          duration: nil,
-          page_id: 'some_unique_page_identifier'
+          page_id: 'some_unique_page_identifier',
+          metrics: [
+            { metric: 'initial_page_load', duration: 1234.56 },
+            { metric: 'time_to_paint', duration: nil }
+          ]
         }
-      }
+      end
 
       it 'should match the errors schema', :aggregate_failures do
         post(

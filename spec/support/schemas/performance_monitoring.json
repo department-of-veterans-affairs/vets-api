@@ -6,14 +6,23 @@
       "properties": {
         "attributes": {
           "properties": {
-            "metric": {
-              "type": "string"
-            },
-            "duration": {
-              "type": "float"
-            },
             "page_id": {
               "type": "string"
+            },
+            "metrics": {
+              "description": "A collection of benchmark metrics and durations for a given page",
+              "items": {
+                "properties": {
+                  "metric": {
+                    "type": "string"
+                  },
+                  "duration": {
+                    "type": "float"
+                  }
+                },
+                "type": "object"
+              },
+              "type": "array"
             }
           },
           "type": "object"

@@ -3,27 +3,23 @@
 module V0
   class PerformanceMonitoringsController < ApplicationController
     def create
-      response = Benchmark::Performance.by_page_and_metric(metric, duration, page_id)
+      response = Benchmark::Performance.metrics_for_page(page_id, metrics_data)
 
-      render json: response, serializer: PerformanceMonitoringSerializer
+      render json: { page_id: page_id, response: response }, serializer: PerformanceMonitoringSerializer
     end
 
     private
 
     def performance_params
-      params.permit(:metric, :duration, :page_id)
-    end
-
-    def metric
-      performance_params['metric']
-    end
-
-    def duration
-      performance_params['duration']
+      params.permit(:page_id, metrics: [:metric, :duration])
     end
 
     def page_id
       performance_params['page_id']
+    end
+
+    def metrics_data
+      performance_params['metrics']
     end
   end
 end

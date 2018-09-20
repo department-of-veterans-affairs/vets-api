@@ -1,21 +1,24 @@
 # frozen_string_literal: true
 
 class PerformanceMonitoringSerializer < ActiveModel::Serializer
-  attributes :metric, :duration, :page_id
+  attributes :page_id, :metrics
 
   def id
     nil
   end
 
-  def metric
-    object&.name
-  end
-
-  def duration
-    object&.value
-  end
-
   def page_id
-    object&.tags&.first
+    object[:page_id]
+  end
+
+  def metrics
+    return [] if object[:response].blank?
+
+    object[:response].map do |stats_d_object|
+      {
+        metric: stats_d_object&.name,
+        duration: stats_d_object&.value
+      }
+    end
   end
 end
