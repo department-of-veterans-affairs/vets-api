@@ -15,6 +15,8 @@ module Benchmark
     #
     def self.track(key, duration, tags:)
       StatsD.measure(key, duration, tags: tags)
+    rescue ArgumentError => error
+      raise Common::Exceptions::ParameterMissing.new('Missing parameter', detail: error&.message)
     end
 
     # Calls StatsD.measure with benchmark data for the passed page and metric.

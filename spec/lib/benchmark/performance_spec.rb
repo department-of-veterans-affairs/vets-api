@@ -18,6 +18,34 @@ describe Benchmark::Performance do
         value: 100
       )
     end
+
+    context 'with an ArgumentError' do
+      context 'due to a StatsD key not being provided' do
+        it 'raises a Common::Exceptions::ParameterMissing error', :aggregate_failures do
+          expect { Benchmark::Performance.track(nil, 100, tags: [page_id]) }.to raise_error do |error|
+            error_detail = error.errors.first.detail
+
+            expect(error).to be_a Common::Exceptions::ParameterMissing
+            expect(error_detail).to eq 'Metric :name is required.'
+            expect(error.message).to eq 'Missing parameter'
+            expect(error.status_code).to eq 400
+          end
+        end
+      end
+
+      context 'due to a duration not being provided' do
+        it 'raises a Common::Exceptions::ParameterMissing error', :aggregate_failures do
+          expect { Benchmark::Performance.track(stats_d_key, nil, tags: [page_id]) }.to raise_error do |error|
+            error_detail = error.errors.first.detail
+
+            expect(error).to be_a Common::Exceptions::ParameterMissing
+            expect(error_detail).to eq 'A value is required for metric type :ms.'
+            expect(error.message).to eq 'Missing parameter'
+            expect(error.status_code).to eq 400
+          end
+        end
+      end
+    end
   end
 
   describe '.by_page_and_metric' do
