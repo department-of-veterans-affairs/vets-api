@@ -36,6 +36,24 @@ module Benchmark
       stats_d_key = "#{FE}.#{PAGE_PERFORMANCE}.#{metric}"
       track(stats_d_key, duration, tags: [page_id])
     end
+
+    # Calls StatsD.measure for a given page, for a given set of metrics and durations.
+    #
+    # @param page_id [String] A unique identifier for the FE page being benchmarked
+    # @param metrics_data [Array<Hash>] An array of hash metric data.  Hash must
+    #   have two keys: 'metric' and 'duration'. For example:
+    #   [
+    #     { "metric": "initial_page_load", "duration": 1234.56 }
+    #     { "metric": "time_to_paint", "duration": 123.45 }
+    #   ]
+    # @return [Array<StatsD::Instrument::Metric>] An array of metrics that were sent to StatsD
+    #
+    def self.metrics_for_page(page_id, metrics_data)
+      metrics_data.map do |metrics|
+        by_page_and_metric(metrics['metric'], metrics['duration'], page_id)
+      end
+    end
+
     class << self
       private
 
