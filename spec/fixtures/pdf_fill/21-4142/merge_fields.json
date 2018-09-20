@@ -31,7 +31,7 @@
   },
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
-  "limitedConsent": "yes",
+  "limitedConsent": "limit1 limit2 limit3 limit4",
   "providerFacility": [
     {
       "providerFacilityName": "provider 1",

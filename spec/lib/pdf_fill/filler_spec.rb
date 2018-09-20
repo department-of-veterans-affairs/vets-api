@@ -140,7 +140,7 @@ describe PdfFill::Filler do
               compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
             ).to eq(true)
 
-            # File.delete(file_path)
+              File.delete(file_path)
           end
         end
       end
