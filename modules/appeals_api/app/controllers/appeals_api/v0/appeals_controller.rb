@@ -25,7 +25,6 @@ module AppealsApi
       def log_request
         hashed_ssn = Digest::SHA2.hexdigest ssn
         Rails.logger.info('Caseflow Request',
-                          'consumer' => consumer,
                           'va_user' => requesting_va_user,
                           'lookup_identifier' => hashed_ssn)
       end
@@ -34,7 +33,6 @@ module AppealsApi
         first_appeal_id = appeals_response.body['data'][0]['id']
         count = appeals_response.body['data'].length
         Rails.logger.info('Caseflow Response',
-                          'consumer' => consumer,
                           'va_user' => requesting_va_user,
                           'first_appeal_id' => first_appeal_id,
                           'appeal_count' => count)

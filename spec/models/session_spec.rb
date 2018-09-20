@@ -23,6 +23,42 @@ RSpec.describe Session, type: :model do
     it 'has a persisted attribute of false' do
       expect(subject.persisted?).to be_falsey
     end
+
+    context 'without a user match' do
+      it '#user returns nil' do
+        expect(subject.user).to eq(nil)
+      end
+
+      it '#cookie_data returns {}' do
+        expect(subject.cookie_data).to eq(nil)
+      end
+    end
+
+    context 'with a matching user' do
+      let(:start_time) { Time.current.utc }
+      let(:expry_time) { start_time + 1800 }
+
+      before(:each) do
+        Timecop.freeze(start_time)
+        create(:user, :mhv, uuid: attributes[:uuid])
+        subject.save # persisting it to freeze the ttl
+      end
+
+      after(:each) do
+        Timecop.return
+      end
+
+      it '#user returns a matching user object' do
+        expect(subject.user).to be_a(User)
+      end
+
+      it '#cookie_data returns certain attribute for user object' do
+        expect(subject.cookie_data)
+          .to eq('patientIcn' => '1000123456V123456',
+                 'mhvCorrelationId' => '12345678901',
+                 'expirationTime' => expry_time.iso8601(0))
+      end
+    end
   end
 
   describe 'redis persistence' do
@@ -30,26 +66,29 @@ RSpec.describe Session, type: :model do
 
     context 'expire' do
       it 'extends a session' do
-        expect(subject.expire(7200)).to eq(true)
-        expect(subject.ttl).to eq(7200)
+        expect(subject.expire(3600)).to eq(true)
+        expect(subject.ttl).to eq(3600)
       end
+
       it 'will extend the session when within maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME - 1.minute)
-        expect(subject.expire(3600)).to eq(true)
+        expect(subject.expire(1800)).to eq(true)
       end
+
       it 'will not extend the session when beyond the maximum ttl' do
         subject.created_at = subject.created_at - (described_class::MAX_SESSION_LIFETIME + 1.minute)
-        expect(subject.expire(3600)).to eq(false)
+        expect(subject.expire(1800)).to eq(false)
         expect(subject.errors.messages).to include(:created_at)
       end
+
       it 'allows for continuous session extension up to the maximum' do
         start_time = Time.current
         Timecop.freeze(start_time)
 
         # keep extending session so Redis doesn't kill it while remaining
         # within Sesion::MAX_SESSION_LIFETIME
-        increment = subject.redis_namespace_ttl - 1.minute
-        max_hours = described_class::MAX_SESSION_LIFETIME / 1.hour
+        increment = subject.redis_namespace_ttl - 60.seconds
+        max_hours = described_class::MAX_SESSION_LIFETIME / 1800.seconds
         (1..max_hours).each do |hour|
           Timecop.freeze(start_time + increment * hour)
           expect(subject.expire(described_class.redis_namespace_ttl)).to eq(true)

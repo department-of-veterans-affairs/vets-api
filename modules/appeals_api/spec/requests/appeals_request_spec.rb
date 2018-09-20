@@ -18,7 +18,7 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       end
     end
 
-    it 'should log the consumer name' do
+    it 'should log details about the request' do
       VCR.use_cassette('appeals/appeals') do
         allow(Rails.logger).to receive(:info)
         get '/services/appeals/v0/appeals', nil,
@@ -27,11 +27,9 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
             'X-VA-User' => 'adhoc.test.user'
         hash = Digest::SHA2.hexdigest '111223333'
         expect(Rails.logger).to have_received(:info).with('Caseflow Request',
-                                                          'consumer' => 'TestConsumer',
                                                           'va_user' => 'adhoc.test.user',
                                                           'lookup_identifier' => hash)
         expect(Rails.logger).to have_received(:info).with('Caseflow Response',
-                                                          'consumer' => 'TestConsumer',
                                                           'va_user' => 'adhoc.test.user',
                                                           'first_appeal_id' => '1196201',
                                                           'appeal_count' => 3)

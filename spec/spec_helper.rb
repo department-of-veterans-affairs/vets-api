@@ -41,11 +41,13 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/ihub'
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/central_mail/service.rb'
+    add_filter 'lib/search/response.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'VaFacilities', 'modules/va_facilities/'
+    add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_filter 'version.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
