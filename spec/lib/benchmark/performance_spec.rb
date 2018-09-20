@@ -59,5 +59,16 @@ describe Benchmark::Performance do
         value: 100
       )
     end
+
+    context 'when "metric" attribute is missing' do
+      it 'raises a Common::Exceptions::ParameterMissing error', :aggregate_failures do
+        expect { Benchmark::Performance.by_page_and_metric(nil, 100, page_id) }.to raise_error do |error|
+          expect(error).to be_a Common::Exceptions::ParameterMissing
+          expect(error.message).to eq 'Missing parameter'
+          expect(error.status_code).to eq 400
+        end
+      end
+    end
+  end
   end
 end

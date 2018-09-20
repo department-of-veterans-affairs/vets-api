@@ -22,6 +22,8 @@ module Benchmark
 
     # Calls StatsD.measure with benchmark data for the passed page and metric.
     #
+    # Checks for presence of 'metric'. Delegates check for duration to StatsD.
+    #
     # @param metric [String] Creates a namespace/bucket for what is being
     #   measured.  For example, 'initial_pageload', 'dom_loaded', etc.
     # @param duration [Float] Duration of benchmark measurement in milliseconds
@@ -29,9 +31,22 @@ module Benchmark
     # @return [StatsD::Instrument::Metric] The metric that was sent to StatsD
     #
     def self.by_page_and_metric(metric, duration, page_id)
-      stats_d_key = "#{FE}.#{PAGE_PERFORMANCE}.#{metric}"
+      check_for_metric! metric
 
+      stats_d_key = "#{FE}.#{PAGE_PERFORMANCE}.#{metric}"
       track(stats_d_key, duration, tags: [page_id])
+    end
+    class << self
+      private
+
+      def check_for_metric!(metric)
+        if metric.blank?
+          raise Common::Exceptions::ParameterMissing.new(
+            'Missing parameter',
+            detail: 'A value for metric is required.'
+          )
+        end
+      end
     end
   end
 end
