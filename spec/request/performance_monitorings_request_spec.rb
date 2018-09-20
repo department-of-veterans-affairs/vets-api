@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/error_details'
 
 RSpec.describe 'PerformanceMonitorings', type: :request do
   include SchemaMatchers
+  include ErrorDetails
 
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
@@ -36,6 +38,32 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('performance_monitoring')
+      end
+    end
+
+    context 'with a missing parameter' do
+      let(:body_missing_param) {
+        {
+          metric: 'initial_page_load',
+          duration: nil,
+          page_id: 'some_unique_page_identifier'
+        }
+      }
+
+      it 'should match the errors schema', :aggregate_failures do
+        post(
+          '/v0/performance_monitorings',
+          body_missing_param.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        body = JSON.parse(response.body)
+        error_keys = body.dig('errors').first.keys
+
+        expect(response).to have_http_status(:bad_request)
+        expect(error_keys).to include 'title', 'detail', 'code', 'status'
       end
     end
   end
