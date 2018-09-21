@@ -12,20 +12,21 @@ module AsyncTransaction
       }.freeze
       SOURCE = 'central_mail'
 
-      scope :for_user, ->(user) { where(user_uuid: user.uuid) }
+      scope :for_user, ->(user_uuid) { where(user_uuid: user_uuid) }
       scope :job_id, ->(job_id) { where(transaction_id: job_id) }
 
       # Creates an initial AsyncTransaction record for ongoing tracking and
       # set its transaction_status to submitted
       #
-      # @param user [User] The user associated with the transaction
+      # @param user_uuid [String] The user uuid associated with the transaction
+      # @param user_edipi [String] The user edipi associated with the transaction
       # @param job_id [String] A sidekiq job id (uuid)
       # @return [AsyncTransaction::CentralMail::VA4142SubmitTransaction] the transaction
       #
-      def self.start(user, job_id)
+      def self.start(user_uuid, user_edipi, job_id)
         create!(
-          user_uuid: user.uuid,
-          source_id: user.edipi,
+          user_uuid: user_uuid,
+          source_id: user_edipi,
           source: SOURCE,
           status: REQUESTED,
           transaction_status: JOB_STATUS[:submitted],
@@ -47,11 +48,11 @@ module AsyncTransaction
 
       # Finds all of a users submit transactions
       #
-      # @param user [User] The user associated with the transaction
+      # @param user_uuid [String] The user uuid associated with the transaction
       # @return [Array AsyncTransaction::CentralMail::VA4142SubmitTransaction] the user's transactions
       #
-      def self.find_transactions(user)
-        VA4142SubmitTransaction.for_user(user)
+      def self.find_transactions(user_uuid)
+        VA4142SubmitTransaction.for_user(user_uuid)
       end
 
       # Updates a transaction

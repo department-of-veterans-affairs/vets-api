@@ -37,7 +37,7 @@ module EVSS
       def perform(user_uuid, auth_headers, claim_id, form_content, form4142, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
         response = service(auth_headers).submit_form526(form_content)
-        submit_4142(form4142, user_uuid, response.claim_id, saved_claim(claim_id).created_at) if form4142
+        submit_4142(form4142, user_uuid, auth_headers, response.claim_id, saved_claim(claim_id).created_at) if form4142
         handle_success(user_uuid, auth_headers, response, uploads)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         handle_service_exception(e)
@@ -75,9 +75,9 @@ module EVSS
         )
       end
 
-      def submit_4142(form_content, user_uuid, evss_claim_id, saved_claim_created_at)
+      def submit_4142(form_content, user_uuid, auth_headers, evss_claim_id, saved_claim_created_at)
         CentralMail::SubmitForm4142Job.perform_async(
-          user_uuid, form_content, evss_claim_id, saved_claim_created_at
+          user_uuid, auth_headers, form_content, evss_claim_id, saved_claim_created_at
         )
       end
 

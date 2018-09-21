@@ -31,7 +31,7 @@ RSpec.describe AsyncTransaction::CentralMail::VA4142SubmitTransaction, type: :mo
   describe '.start' do
     it 'creates an async transaction' do
       expect do
-        AsyncTransaction::CentralMail::VA4142SubmitTransaction.start(user, SecureRandom.uuid)
+        AsyncTransaction::CentralMail::VA4142SubmitTransaction.start(user.uuid, user.edipi, SecureRandom.uuid)
       end.to change { AsyncTransaction::CentralMail::VA4142SubmitTransaction.count }.by(1)
     end
   end
@@ -50,11 +50,11 @@ RSpec.describe AsyncTransaction::CentralMail::VA4142SubmitTransaction, type: :mo
 
   describe '.find_transactions' do
     it 'finds all 4142 transactions for a user' do
-      expect(AsyncTransaction::CentralMail::VA4142SubmitTransaction.find_transactions(user).count).to eq(2)
+      expect(AsyncTransaction::CentralMail::VA4142SubmitTransaction.find_transactions(user.uuid).count).to eq(2)
     end
     it 'finds only 4142 transactions for a user' do
       expect(
-        AsyncTransaction::CentralMail::VA4142SubmitTransaction.find_transactions(user).all? do |t|
+        AsyncTransaction::CentralMail::VA4142SubmitTransaction.find_transactions(user.uuid).all? do |t|
           t.class == AsyncTransaction::CentralMail::VA4142SubmitTransaction
         end
       ).to be_truthy
