@@ -9,7 +9,7 @@ describe EVSS::Dependents::Service do
   describe '#retrieve' do
     VCR.use_cassette(
       'evss/dependents/retrieve',
-      record: :always
+      record: :once
     ) do
       service.retrieve
     end
