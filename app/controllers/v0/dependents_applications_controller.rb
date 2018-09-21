@@ -3,13 +3,18 @@
 module V0
   class DependentsApplicationsController < ApplicationController
     FORM_ID = '21-686C'
-    skip_before_action(:authenticate)
+    skip_before_action :authenticate, only: :create
     before_action(:tag_rainbows)
 
     def create
       form = JSON.parse(params[:form])
       validate!(form)
       render json: {}
+    end
+
+    def disability_rating
+      res = EVSS::Dependents::Service.new(current_user).retrieve
+      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
     end
 
     private
