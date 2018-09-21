@@ -569,7 +569,6 @@ RSpec.describe FormProfile, type: :model do
           22-5490
           22-5495
           40-10007
-          21-686C
           1010ez
           22-0993
           FEEDBACK-TOOL
@@ -589,6 +588,11 @@ RSpec.describe FormProfile, type: :model do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                 expect_prefilled('21-526EZ')
               end
+            end
+          end
+          it 'returns prefilled 21-686C' do
+            VCR.use_cassette('evss/dependents/retrieve') do
+              expect_prefilled('21-686C')
             end
           end
         end
