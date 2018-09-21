@@ -12,7 +12,7 @@ describe EVSS::Dependents::Service do
         'evss/dependents/retrieve'
       ) do
         response = service.retrieve
-        binding.pry; fail
+        expect(response.body['submitProcess']['application']['has30Percent']).to eq(true)
       end
     end
   end
