@@ -36,7 +36,6 @@ class FormProfiles::VA21686c < FormProfile
     return {} unless user.authorize :evss, :access?
     res = EVSS::Dependents::Service.new(user).retrieve
     veteran = res.body['submitProcess']['veteran']
-    binding.pry
     VA21686c::FormContactInformation.new(
       mailing_address: prefill_address(veteran['address']),
       full_name: {
