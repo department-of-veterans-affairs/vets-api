@@ -171,7 +171,7 @@ module V0
     end
 
     def relay_state
-      @relay_state = RelayState.new(relay_enum: params[:success_relay], url: params[:RelayState])
+      @relay_state ||= RelayState.new(relay_enum: params[:success_relay], url: params[:RelayState])
     end
   end
 end
