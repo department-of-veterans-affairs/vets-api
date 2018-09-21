@@ -126,7 +126,7 @@ Rails.application.routes.draw do
       resources :va, only: %i[index show], defaults: { format: :json }
       resources :ccp, only: %i[show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
-      get 'ppms', to: 'ccp#ppms'
+      get 'specialties', to: 'ccp#specialties'
       get 'provider_locator', to: 'va#provider_locator'
     end
 

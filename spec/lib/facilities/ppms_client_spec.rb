@@ -7,32 +7,34 @@ module Facilities
       expect(described_class.new).to be_an(PPMSClient)
     end
 
-    blank_matcher = lambda { |r1, r2|
+    regex_matcher = lambda { |r1, r2|
       r1.uri.match(r2.uri)
     }
 
-    # WIP just a smoke test
     describe 'route_fuctions' do
-      it 'should not be null' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
-          r = PPMSClient.new.test_routes('Providers', 'Identifier': '12345')
-          expect(r).not_to be(nil)
-        end
-      end
-
       it 'should also not be null' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
+        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_locator('bbox': [73, -60, 74, -61])
-          expect(r).not_to be(nil)
+          expect(r.length).to be > 0
+          expect(r[0]['Lattitude']).to be > 73
+          expect(r[0]['Lattitude']).to be < 74
         end
       end
 
       it 'should return a Provider shape' do
-        VCR.use_cassette('facilities/va/ppms', match_requests_on: [blank_matcher]) do
+        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_info(1_427_435_759)
           expect(r['ProviderIdentifier']).not_to be(nil)
           expect(r['Name']).not_to be(nil)
           expect(r['ProviderSpecialties'].class.name).to eq('Array')
+        end
+      end
+
+      it 'should return some Specialties' do
+        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+          r = PPMSClient.new.specialties
+          expect(r.length).to be > 0
+          expect(r[0]['SpecialtyCode']).not_to be(nil)
         end
       end
 

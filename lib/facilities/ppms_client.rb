@@ -6,17 +6,12 @@ module Facilities
   # Core class responsible for api interface operations
   class PPMSClient < Common::Client::Base
     configuration Facilities::PPMSConfiguration
-    def test_routes(command, params)
-      response = perform(:get, command, params)
-      response.body
-    end
 
     def provider_locator(params)
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
-      Rails.logger.info(response.body)
       bbox_num = params[:bbox].map { |x| Float(x) }
-      response.body.select do |provider|
+      response.body.select! do |provider|
         provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
           provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
       end
@@ -26,8 +21,12 @@ module Facilities
     def provider_info(identifier)
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
-      Rails.logger.info(response.body[0])
       response.body[0]
+    end
+
+    def specialties
+      response = perform(:get, 'v1.0/Specialties', {})
+      response.body
     end
 
     def build_params(params)
@@ -38,7 +37,6 @@ module Facilities
       xlen = (lats.max - lats.min) * 69 / 2
       ylen = (longs.max - longs.min) * 69 / 2
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
-      Rails.logger.info(radius)
       { address: params[:address], radius: radius, driveTime: 10_000, specialtycode1: 'null',
         specialtycode2: 'null', specialtycode3: 'null', specialtycode4: 'null',
         network: 0, gender: 0, primarycare: 0, acceptingnewpatients: 0, maxResults: 200 }

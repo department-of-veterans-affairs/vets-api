@@ -8,6 +8,12 @@ class V0::Facilities::CcpController < FacilitiesController
     render json: format_details(result)
   end
 
+  def specialties
+    ppms = Facilities::PPMSClient.new
+    result = ppms.specialties
+    render json: result
+  end
+
   private
 
   def format_details(prov_info)

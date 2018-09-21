@@ -137,7 +137,7 @@ class V0::Facilities::VaController < FacilitiesController
   def format_provloc(provider, prov_info)
     { id: "ccp_#{provider['ProviderIdentifier']}", type: 'cc_provider', attributes: {
       unique_id: provider['ProviderIdentifier'], name: provider['ProviderName'],
-      orgName: '¯\_(ツ)_/¯', lat: provider['Latitude'], long: provider['Longitude'],
+      lat: provider['Latitude'], long: provider['Longitude'],
       address: { street: prov_info['AddressStreet'], city: prov_info['AddressCity'],
                  state: prov_info['AddressStateProvince'],
                  zip: prov_info['AddressPostalCode'] },
