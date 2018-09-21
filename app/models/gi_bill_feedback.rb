@@ -39,8 +39,7 @@ class GIBillFeedback < Common::RedisStore
       profile_data = {
         'active_ICN' => user.icn,
         'historical_ICN' => va_profile&.historical_icns,
-        'sec_ID' => va_profile&.sec_id,
-        'SSN' => user.ssn
+        'sec_ID' => va_profile&.sec_id
       }
     end
 
@@ -57,6 +56,9 @@ class GIBillFeedback < Common::RedisStore
     end
 
     transformed.merge!(get_user_details)
+    if transformed['social_security_number_last_four'].present?
+      transformed['profile_data']['SSN'] = transformed.delete('social_security_number_last_four')
+    end
 
     transformed['education_details'].tap do |education_details|
       transform_school_address(education_details['school']['address'])
