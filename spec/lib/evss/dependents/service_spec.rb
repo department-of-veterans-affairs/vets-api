@@ -21,11 +21,10 @@ describe EVSS::Dependents::Service do
   describe '#clean_form' do
     it 'should clean the form request' do
       VCR.use_cassette(
-        'evss/dependents/clean_form',
-        record: :once
+        'evss/dependents/clean_form'
       ) do
         response = service.clean_form(get_fixture('dependents/retrieve'))
-        binding.pry; fail
+        expect(response.body['submitProcess'].present?).to eq(true)
       end
     end
   end
