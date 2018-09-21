@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'sentry_logging'
-
 class RelayState
   extend ActiveModel::Naming
   include ActiveModel::Validations
