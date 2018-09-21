@@ -9,10 +9,10 @@ describe EVSS::Dependents::Service do
   describe '#retrieve' do
     it 'should get user details' do
       VCR.use_cassette(
-        'evss/dependents/retrieve',
-        record: :once
+        'evss/dependents/retrieve'
       ) do
-        service.retrieve
+        response = service.retrieve
+        binding.pry; fail
       end
     end
   end
