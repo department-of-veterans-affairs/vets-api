@@ -7,6 +7,11 @@ describe EVSS::Dependents::Service do
   let(:service) { described_class.new(user) }
 
   describe '#retrieve' do
-    binding.pry; fail
+    VCR.use_cassette(
+      'evss/dependents/retrieve',
+      record: :always
+    ) do
+      service.retrieve
+    end
   end
 end
