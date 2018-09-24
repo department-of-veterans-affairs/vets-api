@@ -24,12 +24,14 @@ module EVSS
 
       def perform(upload_data, claim_id, auth_headers)
         client = EVSS::DocumentsService.new(auth_headers)
-        file_body = SupportingEvidenceAttachment.find_by(guid: upload_data[:confirmationCode]).file_data
+        code = upload_data['confirmationCode']
+        file_body = SupportingEvidenceAttachment.find_by(guid: code)&.file_data
+        raise ArgumentError, "supporting evidence attachment with guid #{code} has no file data" if file_body.nil?
         document_data = EVSSClaimDocument.new(
           evss_claim_id: claim_id,
-          file_name: upload_data[:name],
+          file_name: upload_data['name'],
           tracked_item_id: nil,
-          document_type: upload_data[:attachmentId]
+          document_type: upload_data['attachmentId']
         )
         client.upload(file_body, document_data)
       end
