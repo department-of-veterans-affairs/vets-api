@@ -33,6 +33,12 @@ describe EVSS::Dependents::Service do
 
   describe '#validate' do
     it 'should validate the form' do
+      VCR.use_cassette(
+        'evss/dependents/validate',
+        record: :once
+      ) do
+        returns_form(service.clean_form(get_fixture('dependents/clean_form')))
+      end
     end
   end
 end
