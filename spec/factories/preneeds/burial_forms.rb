@@ -17,7 +17,7 @@ FactoryBot.define do
     veteran { attributes_for :veteran }
   end
 
-  factory :burial_form_foreign_address, parent: :burial_form  do
+  factory :burial_form_foreign_address, parent: :burial_form do
     applicant { attributes_for :applicant_foreign_address }
     claimant { attributes_for :claimant_foreign_address }
     veteran { attributes_for :veteran_foreign_address }
