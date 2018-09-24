@@ -37,7 +37,7 @@ describe EVSS::Dependents::Service do
         'evss/dependents/validate',
         record: :once
       ) do
-        returns_form(service.clean_form(get_fixture('dependents/clean_form')))
+        returns_form(service.validate(get_fixture('dependents/clean_form')))
       end
     end
   end
