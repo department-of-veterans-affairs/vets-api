@@ -7,7 +7,6 @@ module VA21686c
     attribute :first, String
     attribute :middle, String
     attribute :last, String
-    # TODO:  does service ever return suffix?
   end
 
   class FormContactInformation
@@ -62,7 +61,7 @@ class FormProfiles::VA21686c < FormProfile
       street2: address['addressLine2'],
       city: address['city'],
       state: address['state'],
-      country: address['country']['dropDownCountry'], # TODO: `"country"=>{"dropDownCountry"=>"US", "textCountry"=>""}` in the example I used
+      country: address['country']['dropDownCountry'],
       postal_code: address['zipCode']
     }.compact
   end
