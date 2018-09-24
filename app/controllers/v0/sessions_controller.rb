@@ -103,6 +103,7 @@ module V0
     private
 
     def after_login_actions
+      set_sso_cookie!
       async_create_evss_account
       create_user_account
     end
@@ -128,6 +129,7 @@ module V0
       # shouldn't return an error, but we'll put everything else in an ensure block just in case.
       MHVLoggingService.logout(user) if user
     ensure
+      destroy_sso_cookie!
       session&.destroy
       user&.destroy
     end

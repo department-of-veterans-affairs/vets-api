@@ -338,6 +338,12 @@ en:
         code: 'MVI_BD502'
         detail: MVI service responded without a birthday or a gender.
         status: 502
+      SEARCH_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_400'
+        detail: 'Search.gov service responded with a Bad Request'
+        status: 400
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
