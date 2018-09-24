@@ -22,7 +22,7 @@ module V0
       # TODO: While testing `all claims` submissions we will be merging the submission
       # with a hard coded "completed" form which will gap fill any missing data. This should
       # be removed before `all claims` goes live.
-      form_content = all_claims_integration(form_content) if form_content.key?('21-526EZ-all-claims')
+      form_content = all_claims_integration(form_content) if form_content.key?('form526AllClaims')
 
       # TODO: Once `all_claims` is finalized and the test form is removed, the form assignment will
       # need to be normalized from `form526` to whatever the finalized form id is
@@ -56,7 +56,7 @@ module V0
     private
 
     def all_claims_integration(form)
-      form['form526'] = form.delete('21-526EZ-all-claims')
+      form['form526'] = form.delete('form526AllClaims')
 
       test_form = JSON.parse(File.read(Settings.evss.all_claims_submission))
 
