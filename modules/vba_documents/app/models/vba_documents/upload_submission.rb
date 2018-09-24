@@ -53,7 +53,11 @@ module VBADocuments
         response = CentralMail::Service.new.status(guid)
         if response.success?
           response_object = JSON.parse(response.body)[0][0]
-          map_downstream_status(response_object)
+          if response_object.blank?
+            log_message_to_sentry('Empty status response for known UUID from Central Mail API', :warning)
+          else
+            map_downstream_status(response_object)
+          end
           save!
         else
           log_message_to_sentry('Error getting status from Central Mail API',
@@ -94,17 +98,14 @@ module VBADocuments
     end
 
     def map_downstream_status(response_object)
-      if response_object.blank?
-        log_message_to_sentry('Empty status response for known UUID from Central Mail API', :warning)
-        return
-      end
-      if response_object['status'] == 'Received'
+      case response_object['status']
+      when 'Received'
         self.status = 'received'
-      elsif response_object['status'] == 'In Process'
+      when 'In Process', 'Processing Success'
         self.status = 'processing'
-      elsif response_object['status'] == 'Success'
+      when 'Success'
         self.status = 'success'
-      elsif response_object['status'] == 'Error'
+      when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
         self.detail = "Downstream status: #{response_object['errorMessage']}"
