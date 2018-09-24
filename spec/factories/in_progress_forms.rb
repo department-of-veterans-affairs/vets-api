@@ -216,10 +216,10 @@ FactoryBot.define do
             },
             "mailing_address" => {
               "country" => "USA",
-              "address_line1" => "531 Arbolado Dr",
-              "city" => "Fullerton",
+              "address_line1" => "123 Main St.",
+              "city" => "Costa Mesa",
               "state" => "CA",
-              "zip_code" => "92835"
+              "zip_code" => "92626"
             },
             "view:contact_info_description" => {},
             "homelessness" => {}
