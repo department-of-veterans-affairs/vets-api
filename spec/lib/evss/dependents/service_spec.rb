@@ -24,7 +24,8 @@ describe EVSS::Dependents::Service do
   describe '#clean_form' do
     it 'should clean the form request' do
       VCR.use_cassette(
-        'evss/dependents/clean_form'
+        'evss/dependents/clean_form',
+        VCR::MATCH_EVERYTHING
       ) do
         returns_form(service.clean_form(get_fixture('dependents/retrieve')))
       end
@@ -35,9 +36,10 @@ describe EVSS::Dependents::Service do
     it 'should validate the form' do
       VCR.use_cassette(
         'evss/dependents/validate',
-        record: :once
+        VCR::MATCH_EVERYTHING
       ) do
-        returns_form(service.validate(get_fixture('dependents/clean_form')))
+        res = service.validate(get_fixture('dependents/clean_form'))
+        expect(res.body['errors']).to eq([])
       end
     end
   end
