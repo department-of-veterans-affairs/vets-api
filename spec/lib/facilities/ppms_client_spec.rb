@@ -12,12 +12,12 @@ module Facilities
     }
 
     describe 'route_fuctions' do
-      it 'should also not be null' do
+      it 'should afind at least one provider' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-          r = PPMSClient.new.provider_locator('bbox': [73, -60, 74, -61])
+          r = PPMSClient.new.provider_locator('bbox': [-79, 38, -77, 39])
           expect(r.length).to be > 0
-          expect(r[0]['Lattitude']).to be > 73
-          expect(r[0]['Lattitude']).to be < 74
+          expect(r[0]['Latitude']).to be > 38
+          expect(r[0]['Latitude']).to be < 39
         end
       end
 
