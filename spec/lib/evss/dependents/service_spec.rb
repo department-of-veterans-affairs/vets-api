@@ -30,4 +30,9 @@ describe EVSS::Dependents::Service do
       end
     end
   end
+
+  describe '#validate' do
+    it 'should validate the form' do
+    end
+  end
 end
