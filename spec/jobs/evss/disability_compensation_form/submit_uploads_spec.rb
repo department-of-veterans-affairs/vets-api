@@ -87,7 +87,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'when file_data is nil' do
       let(:attachment) { double(:attachment, file_data: nil) }
 
-      it 'calls the documents service api with file body and document data' do
+      it 'raises an ArgumentError' do
         expect do
           subject.new.perform(upload_data, claim_id, auth_headers)
         end.to raise_error(
