@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
-
 module Preneeds
   class Base
     extend ActiveModel::Naming
