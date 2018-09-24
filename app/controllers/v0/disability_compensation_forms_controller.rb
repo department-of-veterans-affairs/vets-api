@@ -19,6 +19,13 @@ module V0
     def submit
       form_content = JSON.parse(request.body.string)
 
+      # TODO: While testing `all claims` submissions we will be merging the submission
+      # with a hard coded "completed" form which will gap fill any missing data. This should
+      # be removed before `all claims` goes live.
+      form_content = all_claims_integration(form_content) if form_content.key?('form526AllClaims')
+
+      # TODO: Once `all_claims` is finalized and the test form is removed, the form assignment will
+      # need to be normalized from `form526` to whatever the finalized form id is
       claim = SavedClaim::DisabilityCompensation.new(form: form_content['form526'].to_json)
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
@@ -47,6 +54,16 @@ module V0
     end
 
     private
+
+    def all_claims_integration(form)
+      form['form526'] = form.delete('form526AllClaims')
+
+      test_form = JSON.parse(File.read(Settings.evss.all_claims_submission))
+
+      # `deep_merge` will recursively replace any key values that have been included
+      # in the submitted form
+      test_form.deep_merge(form)
+    end
 
     def validate_name_part
       raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
