@@ -172,7 +172,6 @@ module V0
       Swagger::Schemas::LetterBeneficiary,
       Swagger::Schemas::Letters,
       Swagger::Schemas::MaintenanceWindows,
-      Swagger::Schemas::PerformanceMetric,
       Swagger::Schemas::PhoneNumber,
       Swagger::Schemas::PPIU,
       Swagger::Schemas::SavedForm,

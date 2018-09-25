@@ -24,7 +24,26 @@ module Swagger
             key :required, true
 
             schema do
-              key :'$ref', :PerformanceMetric
+              key :required, %i[page_id metrics]
+              property :page_id,
+                       type: :string,
+                       example: 'some_unique_page_indentifier',
+                       description: 'A unique identifier for the frontend page being benchmarked'
+              property :metrics do
+                key :type, :array
+                key :description, 'A collection of benchmark metrics and durations for a given page'
+                items do
+                  key :required, %i[metric duration]
+                  property :metric,
+                           type: :string,
+                           example: 'initial_page_load',
+                           description: 'Creates a namespace/bucket for what is being measured.'
+                  property :duration,
+                           type: :number,
+                           example: 100.1,
+                           description: 'Duration of benchmark measurement in milliseconds'
+                end
+              end
             end
           end
 
@@ -38,27 +57,26 @@ module Swagger
                 property :id, type: :string
                 property :type, type: :string
                 property :attributes, type: :object do
-                  key :'$ref', :PerformanceMetric
-                end
-              end
-            end
-          end
-
-          response 400 do
-            key :description, 'Missing Parameter'
-            schema do
-              key :required, [:errors]
-
-              property :errors do
-                key :type, :array
-                items do
-                  key :required, %i[title detail code status source]
-                  property :title, type: :string, example: 'Missing parameter'
-                  property :detail,
+                  key :required, %i[page_id metrics]
+                  property :page_id,
                            type: :string,
-                           example: 'A value is required for metric type :ms.'
-                  property :code, type: :string, example: '108'
-                  property :status, type: :string, example: '400'
+                           example: 'some_unique_page_indentifier',
+                           description: 'A unique identifier for the frontend page being benchmarked'
+                  property :metrics do
+                    key :type, :array
+                    key :description, 'A collection of benchmark metrics and durations for a given page'
+                    items do
+                      key :required, %i[metric duration]
+                      property :metric,
+                               type: :string,
+                               example: 'frontend.page_performance.initial_page_load',
+                               description: 'Creates a namespace/bucket for what is being measured.'
+                      property :duration,
+                               type: :string,
+                               example: '100.1',
+                               description: 'Duration of benchmark measurement in milliseconds'
+                    end
+                  end
                 end
               end
             end
