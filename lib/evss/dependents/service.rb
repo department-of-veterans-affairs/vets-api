@@ -35,12 +35,12 @@ module EVSS
             if k.downcase.include?('date') && v.is_a?(Numeric)
               object[k] = convert_evss_time(v)
             else
-              change_evss_times(v)
+              change_evss_times!(v)
             end
           end
         elsif object.is_a?(Array)
           object.each do |item|
-            change_evss_times(item)
+            change_evss_times!(item)
           end
         end
       end
