@@ -43,4 +43,15 @@ describe EVSS::Dependents::Service do
       end
     end
   end
+
+  describe '#save' do
+    it 'should save the form' do
+      VCR.use_cassette(
+        'evss/dependents/save',
+        record: :once
+      ) do
+        res = service.save(get_fixture('dependents/clean_form'))
+      end
+    end
+  end
 end
