@@ -59,10 +59,10 @@ describe EVSS::Dependents::Service do
   describe '#submit' do
     it 'should submit the form' do
       VCR.use_cassette(
-        'evss/dependents/submit',
-        record: :once
+        'evss/dependents/submit'
       ) do
         res = service.submit(get_fixture('dependents/clean_form'), 380682)
+        expect(res['submit686Response']['confirmationNumber']).to eq('600138358')
       end
     end
   end
