@@ -1,35 +1,9 @@
 # frozen_string_literal: true
 
 class GIBillFeedback < Common::RedisStore
-  include SetGuid
-  include AsyncRequest
-
-  attr_accessor(:user)
-  attr_accessor(:form)
+  include RedisForm
 
   FORM_ID = 'FEEDBACK-TOOL'
-
-  redis_store REDIS_CONFIG['gi_bill_feedback']['namespace']
-  redis_ttl REDIS_CONFIG['gi_bill_feedback']['each_ttl']
-  redis_key(:guid)
-
-  attribute(:state, String, default: 'pending')
-  attribute(:guid, String)
-  attribute(:response, String)
-
-  alias id guid
-
-  validate(:form_matches_schema, unless: :persisted?)
-  validates(:form, presence: true, unless: :persisted?)
-
-  def parsed_form
-    @parsed_form ||= JSON.parse(form)
-  end
-
-  def parsed_response
-    return if response.blank?
-    @parsed_response ||= JSON.parse(response)
-  end
 
   def get_user_details
     profile_data = {}
@@ -70,15 +44,6 @@ class GIBillFeedback < Common::RedisStore
     transformed
   end
 
-  def save
-    originally_persisted = @persisted
-    saved = super
-
-    create_submission_job if saved && !originally_persisted
-
-    saved
-  end
-
   private
 
   def transform_school_address(address)
@@ -95,12 +60,6 @@ class GIBillFeedback < Common::RedisStore
     return [] if hash.blank?
 
     hash.keep_if { |_, v| v.present? }.keys
-  end
-
-  def form_matches_schema
-    if form.present?
-      errors[:form].concat(JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form))
-    end
   end
 
   def create_submission_job
