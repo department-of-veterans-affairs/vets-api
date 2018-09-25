@@ -1,4 +1,3 @@
-# coding: utf-8
 # frozen_string_literal: true
 
 require 'rails_helper'
@@ -102,9 +101,9 @@ STDOUT
       let(:result) do
         bad_str = (100..1000).to_a.pack('c*').force_encoding('utf-8')
         <<~STDOUT
-          Title:          
-          Subject:        
-          Keywords:       
+          Title:
+          Subject:
+          Keywords:
           Author:         CamScanner
           Producer:       intsig.com pdf producer
           ModDate:        #{bad_str}
