@@ -35,7 +35,7 @@ module EVSS
       def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
         response = service(auth_headers).submit_form526(form_content)
-        handle_success(user_uuid, auth_headers, response, uploads)
+        handle_success(user_uuid, auth_headers, claim_id, response, uploads)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         handle_service_exception(e)
       rescue Common::Exceptions::GatewayTimeout => e
@@ -48,7 +48,7 @@ module EVSS
 
       private
 
-      def handle_success(user_uuid, auth_headers, response, uploads)
+      def handle_success(user_uuid, auth_headers, saved_claim_id, response, uploads)
         transaction_class.update_transaction(jid, :received, response.attributes)
         submission_rate_limiter.increment
 
@@ -61,7 +61,7 @@ module EVSS
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
 
         if uploads.present?
-          EVSS::DisabilityCompensationForm::SubmitUploads.start(user_uuid, auth_headers, response.claim_id, uploads)
+          EVSS::DisabilityCompensationForm::SubmitUploads.start(auth_headers, saved_claim_id, response.claim_id, uploads)
         end
       end
 
@@ -77,8 +77,8 @@ module EVSS
         )
       end
 
-      def saved_claim(claim_id)
-        SavedClaim::DisabilityCompensation.find(claim_id)
+      def saved_claim(saved_claim_id)
+        SavedClaim::DisabilityCompensation.find(saved_claim_id)
       end
 
       def transaction_class
