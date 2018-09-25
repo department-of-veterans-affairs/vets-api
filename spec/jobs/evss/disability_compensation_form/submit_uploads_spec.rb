@@ -22,6 +22,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       { confirmationCode: SecureRandom.uuid }
     ]
   end
+  let(:saved_claim) { FactoryBot.create(:va526ez) }
+
+  before(:each) do
+    saved_claim.async_transaction = AsyncTransaction::EVSS::VA526ezSubmitTransaction.start(
+      user.uuid, auth_headers['va_eauth_dodedipnid'], SecureRandom.uuid
+    )
+  end
 
   subject { described_class }
 
@@ -29,7 +36,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'with four uploads' do
       it 'queues four submit upload jobs' do
         expect do
-          subject.start(user.uuid, auth_headers, claim_id, uploads)
+          subject.start(auth_headers, saved_claim.id, claim_id, uploads)
         end.to change(subject.jobs, :size).by(4)
       end
     end
@@ -39,7 +46,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'queues no submit upload jobs' do
         expect do
-          subject.start(user.uuid, auth_headers, claim_id, uploads)
+          subject.start(auth_headers, saved_claim.id, claim_id, uploads)
         end.to_not change(subject.jobs, :size)
       end
     end

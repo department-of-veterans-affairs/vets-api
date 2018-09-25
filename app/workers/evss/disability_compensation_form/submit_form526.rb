@@ -20,7 +20,7 @@ module EVSS
           "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
           :error
         )
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags: ["job_id:#{jid}"])
+        metrics.increment_exhausted
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -35,34 +35,60 @@ module EVSS
       def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
         response = service(auth_headers).submit_form526(form_content)
-        handle_success(user_uuid, auth_headers, claim_id, response, uploads)
+        success_handler(user_uuid, auth_headers, claim_id, response, uploads)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        handle_service_exception(e)
+        retryable_error_handler(e) if e.status_code.between?(500, 600)
+        non_retryable_error_handler(e)
       rescue Common::Exceptions::GatewayTimeout => e
-        handle_gateway_timeout_exception(e)
+        gateway_timeout_handler(e)
       rescue StandardError => e
-        handle_standard_error(e)
+        standard_error_handler(e)
       ensure
-        StatsD.increment("#{STATSD_KEY_PREFIX}.try", tags: ["job_id:#{jid}"])
+        metrics.increment_try
       end
 
       private
 
-      def handle_success(user_uuid, auth_headers, saved_claim_id, response, uploads)
-        transaction_class.update_transaction(jid, :received, response.attributes)
+      def success_handler(user_uuid, auth_headers, saved_claim_id, response, uploads)
         submission_rate_limiter.increment
+        metrics.increment_success
+        transaction_class.update_transaction(jid, :received, response.attributes)
 
         Rails.logger.info('Form526 Submission',
                           'user_uuid' => user_uuid,
                           'job_id' => jid,
                           'job_status' => 'received')
-        StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["job_id:#{jid}"])
 
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
 
         if uploads.present?
           EVSS::DisabilityCompensationForm::SubmitUploads.start(auth_headers, saved_claim_id, response.claim_id, uploads)
         end
+      end
+
+      def non_retryable_error_handler(error)
+        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
+        log_exception_to_sentry(error, { status: :non_retryable_error, jid: jid })
+        metrics.increment_non_retryable(error)
+      end
+
+      def retryable_error_handler(error)
+        transaction_class.update_transaction(jid, :retrying, error.messages)
+        metrics.increment_retryable(error)
+        raise error
+      end
+
+      def gateway_timeout_handler(error)
+        transaction_class.update_transaction(jid, :retrying, error.message)
+        metrics.increment_retryable(error)
+        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
+      end
+
+      def standard_error_handler(error)
+        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
+        extra_content = { status: :non_retryable_error, jid: jid }
+        log_exception_to_sentry(error, extra_content)
+        metrics.increment_non_retryable(error)
       end
 
       def associate_transaction(auth_headers, claim_id, user_uuid)
@@ -85,51 +111,12 @@ module EVSS
         AsyncTransaction::EVSS::VA526ezSubmitTransaction
       end
 
-      def handle_service_exception(error)
-        if error.status_code.between?(500, 600)
-          transaction_class.update_transaction(jid, :retrying, error.messages)
-          increment_retryable(error)
-          raise error
-        end
-        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(error, extra_content)
-        increment_non_retryable(error)
-      end
-
-      def handle_gateway_timeout_exception(error)
-        transaction_class.update_transaction(jid, :retrying, error.message)
-        increment_retryable(error)
-        raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
-      end
-
-      def handle_standard_error(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(error, extra_content)
-        increment_non_retryable(error)
-      end
-
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
       end
 
-      def increment_non_retryable(error)
-        tags = statsd_tags(error)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.non_retryable_error", tags: tags)
-      end
-
-      def increment_retryable(error)
-        tags = statsd_tags(error)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.retryable_error", tags: tags)
-      end
-
-      def statsd_tags(error)
-        tags = ["error:#{error.class}"]
-        tags << "job_id:#{jid}"
-        tags << "status:#{error.status_code}" if error.try(:status_code)
-        tags << "message:#{error.message}" if error.try(:message)
-        tags
+      def metrics
+        @metrics ||= Metrics.new(STATSD_KEY_PREFIX, jid)
       end
     end
   end

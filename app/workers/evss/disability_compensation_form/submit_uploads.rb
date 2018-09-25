@@ -9,7 +9,7 @@ module EVSS
       FORM_TYPE = '21-526EZ'
 
       def self.start(auth_headers, saved_claim_id, claim_id, uploads)
-        Reporting.new.mark_has_uploads(saved_claim_id)
+        Reporting.new.set_has_uploads(saved_claim_id)
 
         batch = Sidekiq::Batch.new
         batch.on(
