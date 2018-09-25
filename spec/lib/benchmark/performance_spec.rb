@@ -48,7 +48,7 @@ describe Benchmark::Performance do
         Benchmark::Performance.by_page_and_metric(metric, 100, page_id)
       end.to trigger_statsd_measure(
         stats_d_key,
-        tags: [page_id],
+        tags: ["page_id:#{page_id}"],
         times: 1,
         value: 100
       )
@@ -84,7 +84,7 @@ describe Benchmark::Performance do
         Benchmark::Performance.metrics_for_page(page_id, metrics_data)
       end.to trigger_statsd_measure(
         stats_d_key,
-        tags: [page_id],
+        tags: ["page_id:#{page_id}"],
         times: 1,
         value: 1234.56
       )

@@ -10,7 +10,9 @@ module Benchmark
     #
     # @param key [String] A StatsD key. See https://github.com/Shopify/statsd-instrument#statsd-keys
     # @param duration [Float] Duration of benchmark measurement in milliseconds
-    # @param tags [Array<String>] An array of string tag names
+    # @param tags [Array<String>] An array of string tag names. Tags must be in the key:value
+    #   format in the string.  For example:
+    #   ['page_id:initial_pageload', 'page_id:dom_loaded']
     # @return [StatsD::Instrument::Metric] The metric that was sent to StatsD
     # @see https://github.com/Shopify/statsd-instrument#statsdmeasure
     #
@@ -34,7 +36,7 @@ module Benchmark
       check_for_metric! metric
 
       stats_d_key = "#{FE}.#{PAGE_PERFORMANCE}.#{metric}"
-      track(stats_d_key, duration, tags: [page_id])
+      track(stats_d_key, duration, tags: ["page_id:#{page_id}"])
     end
 
     # Calls StatsD.measure for a given page, for a given set of metrics and durations.
