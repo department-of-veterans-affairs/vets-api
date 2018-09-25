@@ -48,9 +48,10 @@ describe EVSS::Dependents::Service do
     it 'should save the form' do
       VCR.use_cassette(
         'evss/dependents/save',
-        record: :once
+        VCR::MATCH_EVERYTHING
       ) do
         res = service.save(get_fixture('dependents/clean_form'))
+        expect(res.body['formId']).to eq(380682)
       end
     end
   end
