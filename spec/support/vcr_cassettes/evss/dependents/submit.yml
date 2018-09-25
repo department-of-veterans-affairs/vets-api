@@ -13,11 +13,11 @@ http_interactions:
               <acceptWarnings type="boolean">false</acceptWarnings>
               <appStatus>Open</appStatus>
               <bnftClaimType>EBENDEPENDENCY686c</bnftClaimType>
-              <createdDate>2018-09-21T20:53:10+00:00</createdDate>
+              <createdDate>2018-09-21T20:53:10Z</createdDate>
               <documents type="array"/>
-              <expirationDate>2019-09-21T20:53:10+00:00</expirationDate>
+              <expirationDate>2019-09-21T20:53:10Z</expirationDate>
               <has30Percent type="boolean">true</has30Percent>
-              <modifiedDate>2018-09-21T20:53:13+00:00</modifiedDate>
+              <modifiedDate>2018-09-21T20:53:13Z</modifiedDate>
               <validUser type="boolean">true</validUser>
               <draftFormId type="integer">380682</draftFormId>
             </application>
@@ -69,7 +69,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2018-08-02T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2018-08-02T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -106,7 +106,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2018-08-02T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2018-08-02T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -143,7 +143,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2017-08-02T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2017-08-02T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -180,7 +180,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2017-08-02T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2017-08-02T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -217,7 +217,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2016-08-02T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2016-08-02T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -254,7 +254,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2015-08-02T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2015-08-02T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -291,7 +291,7 @@ http_interactions:
                     <dropDownCountry></dropDownCountry>
                     <textCountry></textCountry>
                   </countryOfBirth>
-                  <dateOfBirth>2018-08-07T05:00:00+00:00</dateOfBirth>
+                  <dateOfBirth>2018-08-07T05:00:00Z</dateOfBirth>
                   <dateOfBirthFromCorp type="boolean">true</dateOfBirthFromCorp>
                   <dependentStatus>NOTONAWARD</dependentStatus>
                   <disabled type="boolean">false</disabled>
@@ -326,7 +326,7 @@ http_interactions:
                 <dropDownCountry></dropDownCountry>
                 <textCountry></textCountry>
               </countryOfBirth>
-              <dateOfBirth>1986-05-06T05:00:00+00:00</dateOfBirth>
+              <dateOfBirth>1986-05-06T05:00:00Z</dateOfBirth>
               <dateOfBirthFromCorp type="boolean">false</dateOfBirthFromCorp>
               <edipi>1007697216</edipi>
               <emailAddress>evssvsotest@gmail.com</emailAddress>
@@ -400,15 +400,19 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Tue, 25 Sep 2018 18:25:11 GMT
+      - Tue, 25 Sep 2018 18:41:21 GMT
       Server:
       - Apache
       Content-Type:
       - application/xml
       X-Wily-Servlet:
-      - Encrypt1 hR/KG2GOR16aRfvv3/q1AW0eXDaeERIVopFkOCXDj8aBMFJ3Yx6n3JU460kEeiDI+f7tx96uM7rd6Q66kG1F39P6i0yFbLkRdKHGjbpTJYZWuOEHQv/uhZujkIqLFL9FTl97UpWQepUHAsieOLF49LUyt1m+dbrT1Xddri8SWIowa9zGo+qm4P46oAHW3OdcBP4JO8Ap9+4nWPkosd29Xw==
+      - Encrypt1 hR/KG2GOR16aRfvv3/q1AW0eXDaeERIVopFkOCXDj8aBMFJ3Yx6n3JU460kEeiDI+f7tx96uM7rd6Q66kG1F39P6i0yFbLkRdKHGjbpTJYZWuOEHQv/uhZujkIqLFL9FRwZ35E5nAUv4txJcpBMvDggogO7HfLCbVffmL26CSzqQUxo7cel/uR3laY2RqWLi3WMJNq2N2Jq2hDXUcJ7wUw==
       X-Wily-Info:
-      - Clear guid=11FA587D0AE153E006C0C11E362664CD
+      - Clear guid=120924AC0AE153E006C0C11E1895DE81
+      Set-Cookie:
+      - PINT_EBN_ROUTEID_PRIMARY=.1_600_1; path=/
+      - WSS-686-SERVICES_JSESSIONID=cjESCSSsHT_jl7yMf7-u_Us7iU5w5PIvqe7PTC0BE53kEsv2vRNA!1517736833;
+        path=/; HttpOnly
       Via:
       - 1.1 pint.ebenefits.va.gov:444
       Vary:
@@ -417,9 +421,11 @@ http_interactions:
       - IE=Edge
       Content-Length:
       - '128'
+      Connection:
+      - close
     body:
       encoding: ASCII-8BIT
-      string: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><submit686Response><confirmationNumber>600138358</confirmationNumber></submit686Response>
+      string: <?xml version="1.0" encoding="UTF-8" standalone="yes"?><submit686Response><confirmationNumber>600138364</confirmationNumber></submit686Response>
     http_version: 
-  recorded_at: Tue, 25 Sep 2018 18:25:25 GMT
+  recorded_at: Tue, 25 Sep 2018 18:41:27 GMT
 recorded_with: VCR 3.0.3
