@@ -37,10 +37,8 @@ Rails.application.routes.draw do
 
     resource :upload_supporting_evidence, only: :create
 
-    resource :sessions, only: :destroy do
-      get :authn_urls, on: :collection
-      get :multifactor, on: :member
-      get :identity_proof, on: :member
+    resource :sessions, only: [] do
+      get  :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
@@ -207,6 +205,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :search, only: :index
+
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
@@ -245,6 +245,7 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount VaFacilities::Engine, at: '/va_facilities'
+    mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

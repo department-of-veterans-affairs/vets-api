@@ -245,6 +245,33 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     xit 'sets error status for unexpected attachment part names' do
     end
 
+    it 'sets error status for downstream zip code validation' do
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive(:status).and_return(412)
+      allow(faraday_response).to receive(:body).and_return(
+        "Metadata Field Error - Missing zipCode [uuid: #{upload.guid}] "
+      )
+      allow(faraday_response).to receive(:success?).and_return(false)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+      described_class.new.perform(upload.guid)
+      expect(capture_body).to be_a(Hash)
+      expect(capture_body).to have_key('metadata')
+      expect(capture_body).to have_key('document')
+      metadata = JSON.parse(capture_body['metadata'])
+      expect(metadata['uuid']).to eq(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC104')
+      expect(updated.detail).to eq('Downstream status: 412 - Missing ZIP Code. ' \
+                                   'ZIP Code must be 5 digits, or 9 digits in XXXXX-XXXX format. ' \
+                                   'Specify \'00000\' for non-US addresses.')
+    end
+
     it 'sets error status for downstream server error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }

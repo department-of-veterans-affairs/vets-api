@@ -4,7 +4,7 @@ binaries:
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-hostname: www.example.com
+hostname: localhost:3000
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
@@ -17,8 +17,12 @@ relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
 
-set_sso_cookie: false
-sso_cookie_key: '$\xBB\xDA\xFD\xB9c;\x05@|w\xEB\x81\xC7\x0EPZ\xEA\xF6\xC2\xD1\x1C\xDCrl;\xDD\x10v\x99\x16\x1D'
+# Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
+sso:
+  cookie_enabled: false
+  cookie_name: vagov_session_dev
+  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
+  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
 
 review_instance_slug: ~
 
@@ -117,6 +121,7 @@ evss:
     key: fake_key
   reference_data_service:
     enabled: false
+  all_claims_submission: 'config/evss/all_claims_submission.json'
 
 # Settings for GI Bill Data Service
 gids:
@@ -181,7 +186,7 @@ mvi:
 # The certs used here can be obtained from the DevOps team. A different set is required for
 # each environment when connecting to the service.
 emis:
-  mock: false
+  mock: true
   host: https://vaausvrsapp81.aac.va.gov
   veteran_status_url: /VIERSService/eMIS/v1/VeteranStatusService
   payment_url: /VIERSService/eMIS/v1/PaymentService
@@ -271,9 +276,13 @@ saml:
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
   relays:
     vetsgov: http://localhost:3001/auth/login/callback
-    vagov: ~
+    vagov: http://local.vagov/auth/login/callback
     preview_vagov: ~
   logout_relay: http://localhost:3001/logout
+  logout_relays:
+    vetsgov: http://localhost:3001/logout
+    vagov: http://local.vagov:3001/logout
+    preview_vagov: ~
 
 sentry:
   dsn: ~
@@ -312,3 +321,9 @@ google_analytics_tracking_id: ~
 
 account:
   enabled: false
+
+# Settings for search
+search:
+  access_key: SEARCH_GOV_ACCESS_KEY
+  affiliate: va
+  url: https://search.usa.gov/api/v2

@@ -13,6 +13,19 @@ module EMISRedis
       'K' => 'dishonorable'
     }.freeze
 
+    EXTERNAL_DISCHARGE_TYPES = {
+      'A' => 'honorable',
+      'B' => 'general',
+      'D' => 'bad-conduct',
+      'E' => 'other-than-honorable',
+      'F' => 'dishonorable',
+      'H' => 'honorable-absence-of-negative-report',
+      'J' => 'honorable-for-va-purposes',
+      'K' => 'dishonorable-for-va-purposes',
+      'Y' => 'uncharacterized',
+      'Z' => 'unknown'
+    }.freeze
+
     PREFILL_METHODS = %i[
       hca_last_service_branch
       last_service_branch
