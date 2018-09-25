@@ -66,7 +66,7 @@ module V0
     def translate_form4142(form_content)
       EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
     end
-    
+
     def all_claims_integration(form)
       form['form526'] = form.delete('form526AllClaims')
 
