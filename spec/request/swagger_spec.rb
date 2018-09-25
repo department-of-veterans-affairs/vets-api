@@ -42,27 +42,37 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   context 'has valid paths' do
     let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
 
+    context 'for authentication' do
+      it 'supports session mhv url' do
+        expect(subject).to validate(:get, '/sessions/mhv/new', 200)
+      end
+
+      it 'supports session dslogon urs' do
+        expect(subject).to validate(:get, '/sessions/dslogon/new', 200)
+      end
+
+      it 'supports session idme url' do
+        expect(subject).to validate(:get, '/sessions/idme/new', 200)
+      end
+
+      it 'supports session mfa url' do
+        expect(subject).to validate(:get, '/sessions/mfa/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/mfa/new', 401)
+      end
+
+      it 'supports session verify url' do
+        expect(subject).to validate(:get, '/sessions/verify/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/verify/new', 401)
+      end
+
+      it 'supports session slo url' do
+        expect(subject).to validate(:get, '/sessions/slo/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/slo/new', 401)
+      end
+    end
+
     it 'supports getting backend service status' do
       expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, auth_options.merge('service' => 'gibs'))
-    end
-
-    it 'supports fetching authentication urls' do
-      expect(subject).to validate(:get, '/v0/sessions/authn_urls', 200)
-    end
-
-    it 'supports invoking multifactor policy' do
-      expect(subject).to validate(:get, '/v0/sessions/multifactor', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/sessions/multifactor', 401)
-    end
-
-    it 'supports fetching identity verification url' do
-      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 401)
-    end
-
-    it 'supports session deletion' do
-      expect(subject).to validate(:delete, '/v0/sessions', 202, auth_options)
-      expect(subject).to validate(:delete, '/v0/sessions', 401)
     end
 
     it 'supports listing in-progress forms' do
@@ -332,6 +342,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports getting suggested conditions' do
+        create(:disability_contention_arrhythmia)
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          401,
+          'params' => '?name_part=arr'
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          200,
+          auth_options.merge('params' => '?name_part=arr')
+        )
+      end
+
       it 'supports submitting the form' do
         allow(EVSS::DisabilityCompensationForm::SubmitForm526)
           .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
@@ -352,6 +378,26 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
         end
+      end
+
+      it 'supports getting submission status' do
+        job_id = SecureRandom.uuid
+        create(:va526ez_submit_transaction,
+               transaction_id: job_id,
+               transaction_status: 'submitted',
+               metadata: {})
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          401,
+          'job_id' => job_id
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          200,
+          auth_options.merge('job_id' => job_id)
+        )
       end
     end
 
@@ -1599,6 +1645,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
 
         expect(subject).to validate(:get, '/v0/profile/service_history', 502, auth_options)
+      end
+    end
+
+    describe 'search' do
+      context 'when successful' do
+        it 'supports getting search results data' do
+          VCR.use_cassette('search/success') do
+            expect(subject).to validate(:get, '/v0/search', 200, '_query_string' => 'query=benefits')
+          end
+        end
+      end
+
+      context 'with an empty search query' do
+        it 'returns a 400 with error details' do
+          VCR.use_cassette('search/empty_query') do
+            expect(subject).to validate(:get, '/v0/search', 400, '_query_string' => 'query=')
+          end
+        end
       end
     end
   end

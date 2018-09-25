@@ -3,6 +3,7 @@
 module V0
   class DisabilityCompensationFormsController < ApplicationController
     before_action { authorize :evss, :access? }
+    before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
       response = service.get_rated_disabilities
@@ -10,9 +11,21 @@ module V0
              serializer: RatedDisabilitiesSerializer
     end
 
+    def suggested_conditions
+      results = DisabilityContention.suggested(params[:name_part])
+      render json: results, each_serializer: DisabilityContentionSerializer
+    end
+
     def submit
       form_content = JSON.parse(request.body.string)
 
+      # TODO: While testing `all claims` submissions we will be merging the submission
+      # with a hard coded "completed" form which will gap fill any missing data. This should
+      # be removed before `all claims` goes live.
+      form_content = all_claims_integration(form_content) if form_content.key?('form526AllClaims')
+
+      # TODO: Once `all_claims` is finalized and the test form is removed, the form assignment will
+      # need to be normalized from `form526` to whatever the finalized form id is
       claim = SavedClaim::DisabilityCompensation.new(form: form_content['form526'].to_json)
       unless claim.save
         StatsD.increment("#{stats_key}.failure")
@@ -27,7 +40,7 @@ module V0
       ).translate
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
-        @current_user.uuid, converted_form_content, uploads
+        @current_user.uuid, auth_headers, claim.id, converted_form_content, uploads
       )
 
       render json: { data: { attributes: { job_id: jid } } },
@@ -42,8 +55,26 @@ module V0
 
     private
 
+    def all_claims_integration(form)
+      form['form526'] = form.delete('form526AllClaims')
+
+      test_form = JSON.parse(File.read(Settings.evss.all_claims_submission))
+
+      # `deep_merge` will recursively replace any key values that have been included
+      # in the submitted form
+      test_form.deep_merge(form)
+    end
+
+    def validate_name_part
+      raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
+    end
+
     def service
-      EVSS::DisabilityCompensationForm::Service.new(@current_user)
+      EVSS::DisabilityCompensationForm::Service.new(auth_headers)
+    end
+
+    def auth_headers
+      EVSS::DisabilityCompensationAuthHeaders.new(@current_user).add_headers(EVSS::AuthHeaders.new(@current_user).to_h)
     end
 
     def stats_key

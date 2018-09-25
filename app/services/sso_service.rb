@@ -32,12 +32,6 @@ class SSOService
 
   validate :composite_validations
 
-  def self.extend_session!(session, user)
-    session.expire(Session.redis_namespace_ttl)
-    user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    user&.expire(User.redis_namespace_ttl)
-  end
-
   def persist_authentication!
     if new_login?
       # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
@@ -61,7 +55,7 @@ class SSOService
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
     # TODO: Do we want to pull in DS Logon attributes here as well??
-    %w[mhv_correlation_id mhv_icn]
+    %w[mhv_correlation_id mhv_icn dslogon_edipi]
   end
 
   def new_login?

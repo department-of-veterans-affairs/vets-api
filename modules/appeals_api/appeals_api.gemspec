@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://api.vets.gov/services/appeals/docs/v0'
   s.summary     = 'Caseflow appeals status'
   s.description = 'Caseflow appeals status API'
-  s.license     = 'MIT'
+  s.license     = 'CC0'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
   s.test_files = Dir['spec/**/*']

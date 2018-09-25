@@ -69,7 +69,12 @@ RSpec.describe EducationForm::Forms::VA5490 do
     end
   end
 
-  %w[kitchen_sink simple].each do |test_application|
+  %w[
+    simple_chapter_33_child
+    kitchen_sink_chapter_35_spouse
+    kitchen_sink_chapter_33_spouse
+    kitchen_sink_chapter_35_child
+  ].each do |test_application|
     test_spool_file('5490', test_application)
   end
 end
