@@ -21,8 +21,33 @@ module EVSS
         perform(:post, 'inflightform/saveForm', form.to_json, headers)
       end
 
-      def submit(form)
+      def submit(form, form_id)
+        form['submitProcess']['application']['draftFormId'] = form_id
+        change_evss_times!(form)
         perform(:post, 'form686submission/submit', form.to_xml(root: 'submit686Request'), { 'Content-Type' => 'application/xml' })
+      end
+
+      private
+
+      def change_evss_times!(object)
+        if object.is_a?(Hash)
+          object.each do |k, v|
+            if k.downcase.include?('date') && v.is_a?(Numeric)
+              object[k] = convert_evss_time(v)
+            else
+              change_evss_times(v)
+            end
+          end
+        elsif object.is_a?(Array)
+          object.each do |item|
+            change_evss_times(item)
+          end
+        end
+      end
+
+      def convert_evss_time(time)
+        time_string = time.to_s
+        Time.at(BigDecimal.new(time_string.insert(time_string.size - 3, '.'))).iso8601
       end
     end
   end

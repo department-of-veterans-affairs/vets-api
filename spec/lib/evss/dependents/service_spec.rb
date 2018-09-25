@@ -55,4 +55,15 @@ describe EVSS::Dependents::Service do
       end
     end
   end
+
+  describe '#submit' do
+    it 'should submit the form' do
+      VCR.use_cassette(
+        'evss/dependents/submit',
+        record: :once
+      ) do
+        res = service.submit(get_fixture('dependents/clean_form'), 380682)
+      end
+    end
+  end
 end
