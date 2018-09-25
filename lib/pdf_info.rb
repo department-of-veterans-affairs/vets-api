@@ -21,7 +21,7 @@ module PdfInfo
       Open3.popen2e([bin, 'argv0'], path) do |_stdin, stdout, wait|
         @exit_status = wait.value
         stdout.each_line do |line|
-          @stdout.push(line)
+          @stdout.push(force_utf8_encoding(line))
         end
       end
       init_error unless @exit_status.success?
@@ -44,6 +44,12 @@ module PdfInfo
 
     def init_error
       raise PdfInfo::MetadataReadError.new(@exit_status.exitstatus, @stdout.join('\n'))
+    end
+
+    def force_utf8_encoding(str)
+      return str if str.valid_encoding?
+      reencoded_str = str.encode(Encoding::UTF_16, invalid: :replace, undef: :replace, replace: '')
+      reencoded_str.encode!(Encoding::UTF_8)
     end
 
     def parse_result
