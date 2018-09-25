@@ -121,6 +121,7 @@ evss:
     key: fake_key
   reference_data_service:
     enabled: false
+  all_claims_submission: 'config/evss/all_claims_submission.json'
 
 # Settings for GI Bill Data Service
 gids:
@@ -274,9 +275,13 @@ saml:
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
   relays:
     vetsgov: http://localhost:3001/auth/login/callback
-    vagov: ~
+    vagov: http://local.vagov/auth/login/callback
     preview_vagov: ~
   logout_relay: http://localhost:3001/logout
+  logout_relays:
+    vetsgov: http://localhost:3001/logout
+    vagov: http://local.vagov:3001/logout
+    preview_vagov: ~
 
 sentry:
   dsn: ~
