@@ -48,7 +48,7 @@ module EVSS
 
       def convert_evss_time(time)
         time_string = time.to_s
-        Time.at(BigDecimal.new(time_string.insert(time_string.size - 3, '.'))).iso8601
+        Time.at(BigDecimal.new(time_string.insert(time_string.size - 3, '.'))).utc.iso8601
       end
     end
   end
