@@ -20,7 +20,6 @@ module CentralMail
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     sidekiq_retries_exhausted do |msg, _ex|
-      transaction_class.update_transaction(jid, :exhausted)
       log_message_to_sentry(
         "Failed all retries on Form4142 submit, last error: #{msg['error_message']}",
         :error
@@ -30,22 +29,18 @@ module CentralMail
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
     # @param user_uuid [String] The user's UUID that's associated with the form
-    # @param auth_headers [Hash] The VAAFI headers for the user
+    # @param _auth_headers [Hash] The VAAFI headers for the user
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     # @param evss_claim_id [String] EVSS Claim id received from 526 submission to generate unique PDF file path
     # @param saved_claim_created_at [DateTime] Saved Claim receive date time set as 4142 Metadata in ICMHS submission
     #
-    def perform(user_uuid, auth_headers, form_content, evss_claim_id, saved_claim_created_at)
-      associate_transaction(auth_headers, user_uuid) if transaction_class.find_transaction(jid).blank?
-
+    def perform(user_uuid, _auth_headers, form_content, evss_claim_id, saved_claim_created_at)
       @parsed_form = process_form(form_content)
 
       # generate and stamp PDF
       @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
 
       response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
-
-      transaction_class.update_transaction(jid, :received, response.body)
 
       Rails.logger.info('Form4142 Submission',
                         'user_uuid' => user_uuid,
@@ -65,11 +60,6 @@ module CentralMail
     end
 
     private
-
-    def associate_transaction(auth_headers, user_uuid)
-      transaction_class.start(user_uuid,
-                              auth_headers['va_eauth_dodedipnid'], jid)
-    end
 
     def create_request_body(saved_claim_created_at)
       body = {
@@ -150,18 +140,12 @@ module CentralMail
       @parsed_form ||= JSON.parse(form_content)
     end
 
-    def transaction_class
-      AsyncTransaction::CentralMail::VA4142SubmitTransaction
-    end
-
     def handle_service_exception(response)
       # create service error with CentralMailResponseError
       error = create_service_error(nil, self.class, response)
       if response.status.between?(500, 600)
-        transaction_class.update_transaction(jid, :retrying, response.body)
         raise error
       else
-        transaction_class.update_transaction(jid, :non_retryable_error, response.body)
         extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
         Rails.logger.error('Error Message' => error.message)
         log_exception_to_sentry(error, extra_content)
@@ -169,12 +153,10 @@ module CentralMail
     end
 
     def handle_gateway_timeout_exception(error)
-      transaction_class.update_transaction(jid, :retrying, error.message)
       raise error
     end
 
     def handle_standard_error(error)
-      transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
       extra_content = { status: :non_retryable_error, jid: jid }
       log_exception_to_sentry(error, extra_content)
     end

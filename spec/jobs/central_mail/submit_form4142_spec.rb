@@ -18,8 +18,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
   describe '.perform_async' do
     let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/form_4142.json' }
-    let(:transaction_class) { AsyncTransaction::CentralMail::VA4142SubmitTransaction }
-    let(:last_transaction) { transaction_class.last }
     let(:claim) { FactoryBot.build(:va526ez) }
 
     before do
@@ -40,26 +38,9 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           subject.perform_async(user.uuid, auth_headers,
                                 valid_form_content, claim.id,
                                 Time.now.in_time_zone('Central Time (US & Canada)'))
-          described_class.drain
-          expect(last_transaction.transaction_status).to eq 'received'
-        end
-      end
-    end
-
-    context 'when retrying a job' do
-      it 'doesnt recreate the transaction' do
-        VCR.use_cassette('central_mail/submit_4142') do
-          subject.perform_async(user.uuid, auth_headers,
-                                valid_form_content, claim.id,
-                                Time.now.in_time_zone('Central Time (US & Canada)'))
-
           jid = subject.jobs.last['jid']
-          transaction_class.start(user, auth_headers['va_eauth_dodedipnid'], jid)
-          transaction_class.update_transaction(jid, :retrying, 'Test retry')
-
           described_class.drain
-          expect(last_transaction.transaction_status).to eq 'received'
-          expect(transaction_class.count).to eq 1
+          expect(jid).not_to be_empty
         end
       end
     end
@@ -69,11 +50,10 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
       end
 
-      it 'sets the transaction to "retrying"' do
+      it 'raises a gateway timeout error' do
         subject.perform_async(user.uuid, auth_headers,
                               valid_form_content, claim.id, nil)
         expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
-        expect(last_transaction.transaction_status).to eq 'retrying'
       end
     end
 
@@ -85,19 +65,17 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                                 valid_form_content, claim.id,
                                 Time.now.in_time_zone('Central Time (US & Canada)'))
           described_class.drain
-          expect(last_transaction.transaction_status).to eq 'non_retryable_error'
         end
       end
     end
 
-    context 'with a server error' do
+    context 'raises a central mail response error' do
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('central_mail/submit_4142_500') do
           subject.perform_async(user.uuid, auth_headers,
                                 valid_form_content, claim.id,
                                 Time.now.in_time_zone('Central Time (US & Canada)'))
           expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
-          expect(last_transaction.transaction_status).to eq 'retrying'
         end
       end
     end
@@ -113,7 +91,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
                               valid_form_content, claim.id,
                               Time.now.in_time_zone('Central Time (US & Canada)'))
         described_class.drain
-        expect(last_transaction.transaction_status).to eq 'non_retryable_error'
       end
     end
   end

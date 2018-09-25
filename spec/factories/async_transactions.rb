@@ -27,9 +27,5 @@ FactoryBot.define do
     factory :va526ez_submit_transaction, class: AsyncTransaction::EVSS::VA526ezSubmitTransaction do
       transaction_status 'submitted'
     end
-
-    factory :va4142_submit_transaction, class: AsyncTransaction::CentralMail::VA4142SubmitTransaction do
-      transaction_status 'submitted'
-    end
   end
 end
