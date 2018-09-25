@@ -11,7 +11,7 @@ module V0
     private
 
     def performance_params
-      params.permit(:page_id, metrics: [:metric, :duration])
+      params.permit(:page_id, metrics: %i[metric duration])
     end
 
     def page_id
