@@ -14,10 +14,10 @@ describe EVSS::DisabilityCompensationForm::WorkflowSteps do
   end
 
   describe '#set_has_uploads' do
-    it 'marks the submission as having a 4142 form' do
-      subject.set_has_form_4142(saved_claim.id)
+    it 'marks the submission as having uploads' do
+      subject.set_has_uploads(saved_claim.id)
       saved_claim.reload
-      expect(saved_claim.disability_compensation_submission.has_form_4142?).to be_truthy
+      expect(saved_claim.disability_compensation_submission.has_uploads?).to be_truthy
     end
   end
 
