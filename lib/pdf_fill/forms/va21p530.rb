@@ -4,6 +4,8 @@
 module PdfFill
   module Forms
     class Va21p530 < FormBase
+      include FormHelper
+
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
       PLACE_OF_DEATH_KEY = {
@@ -328,22 +330,6 @@ module PdfFill
       }.freeze
       # rubocop:enable Metrics/LineLength
 
-      def split_ssn
-        ssn = @form_data['veteranSocialSecurityNumber']
-        return if ssn.blank?
-        split_ssn = {
-          'first' => ssn[0..2],
-          'second' => ssn[3..4],
-          'third' => ssn[5..8]
-        }
-
-        ['', '2'].each do |suffix|
-          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn
-        end
-
-        split_ssn
-      end
-
       def split_phone(hash, key)
         phone = hash[key]
         return if phone.blank?
@@ -353,26 +339,6 @@ module PdfFill
           'second' => phone[3..5],
           'third' => phone[6..9]
         }
-      end
-
-      def extract_middle_i(hash, key)
-        full_name = hash[key]
-        return if full_name.blank?
-
-        middle_name = full_name['middle']
-        return if middle_name.blank?
-        full_name['middleInitial'] = middle_name[0]
-
-        hash[key]
-      end
-
-      # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
-      # 7-9 digits. The file number field on the 530 form has space for 9 characters so trim the
-      # potential leading 'c' to ensure the file number will fit into the form without overflow.
-      def extract_va_file_number(va_file_number)
-        return va_file_number if va_file_number.blank? || va_file_number.length < 10
-
-        va_file_number.sub(/^[Cc]/, '')
       end
 
       def expand_checkbox_as_hash(hash, key)
@@ -448,6 +414,14 @@ module PdfFill
         ]
       end
 
+      # VA file number can be up to 10 digits long; An optional leading 'c' or 'C' followed by
+      # 7-9 digits. The file number field on the 4142 form has space for 9 characters so trim the
+      # potential leading 'c' to ensure the file number will fit into the form without overflow.
+      def extract_va_file_number(va_file_number)
+        return va_file_number if va_file_number.blank? || va_file_number.length < 10
+        va_file_number.sub(/^[Cc]/, '')
+      end
+
       # rubocop:disable Metrics/MethodLength
       def merge_fields
         expand_signature(@form_data['claimantFullName'])
@@ -456,7 +430,10 @@ module PdfFill
           extract_middle_i(@form_data, attr)
         end
 
-        split_ssn
+        ssn = @form_data['veteranSocialSecurityNumber']
+        ['', '2'].each do |suffix|
+          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
+        end
 
         split_phone(@form_data, 'claimantPhone')
 

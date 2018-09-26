@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
-
 module Preneeds
   class Address < Preneeds::Base
     attribute :street, String
@@ -15,7 +13,7 @@ module Preneeds
     def as_eoas
       hash = {
         address1: street, address2: street2, city: city,
-        countryCode: country, postalZip: postal_code, state: state
+        countryCode: country, postalZip: postal_code, state: state || ''
       }
 
       hash.delete(:address2) if hash[:address2].blank?
