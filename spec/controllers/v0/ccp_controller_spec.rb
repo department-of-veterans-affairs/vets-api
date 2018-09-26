@@ -40,8 +40,8 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
       get 'specialties'
       expect(response).to have_http_status(:ok)
       bod = JSON.parse(response.body)
-      expect(bod.length).to_be > 0
-      expect(bod[0]['SpecialtyCode'].length).to_be > 0
+      expect(bod.length).to be > 0
+      expect(bod[0]['SpecialtyCode'].length).to be > 0
     end
   end
 end
