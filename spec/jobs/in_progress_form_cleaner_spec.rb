@@ -43,7 +43,7 @@ RSpec.describe InProgressFormCleaner do
         Timecop.return
       end
 
-      it 'does not delete the record' do
+      it 'deletes the record' do
         expect { subject.perform }.to change { InProgressForm.count }.by(-1)
         expect { @form526_expired.reload }.to raise_exception(ActiveRecord::RecordNotFound)
       end
