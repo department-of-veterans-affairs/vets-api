@@ -8,5 +8,10 @@ RSpec.describe DependentsApplication, type: :model do
       dependents_application = DependentsApplication.new(user: create(:user))
       expect_attr_invalid(dependents_application, :user, 'must have evss access')
     end
+
+    it 'should allow evss users' do
+      dependents_application = DependentsApplication.new(user: create(:evss_user))
+      expect_attr_valid(dependents_application, :user)
+    end
   end
 end
