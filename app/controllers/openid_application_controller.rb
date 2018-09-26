@@ -37,25 +37,6 @@ class OpenidApplicationController < ApplicationController
     nil
   end
 
-#  [{"ver"=>1, 
-#    "jti"=>"AT.7mXMI34GeSB7uR5RRRsLqUTwbmDAlwV8TshqmOU25JI", 
-#    "iss"=>"https://deptva-vetsgov-eval.okta.com/oauth2/default", 
-#    "aud"=>"api://default", 
-#    "iat"=>1529553926, 
-#    "exp"=>1529557526, 
-#    "cid"=>"0oa1c01m77heEXUZt2p7", 
-#    "uid"=>"00u1clhg0pZWZuQhm2p7", 
-#    "scp"=>["openid", "profile", "email", "va_profile"], 
-#    "sub"=>"vets.gov.user+32@gmail.com", 
-#    "gender"=>"F", 
-#    "dob"=>"19670619", 
-#    "fn"=>"Tamara", 
-#    "ln"=>"Ellis",
-#    "ssn"=>"796130115", 
-#    "loa"=>3}, 
-#    {"kid"=>"M_Ucsb9dMgr0L3nIZYArsYfaHy3sY7W7ubwUh_Np0uw", 
-#     "alg"=>"RS256"}]
-
   def establish_session(token)
     begin
       pubkey = expected_key(token)
