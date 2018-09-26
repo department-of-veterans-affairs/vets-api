@@ -24,7 +24,9 @@ RSpec.describe 'Dependents Application Integration', type: %i[request serializer
     context 'with valid params' do
       let(:params) do
         {
-          form: test_form.to_json
+          dependents_application: {
+            form: test_form.to_json
+          }
         }
       end
 
@@ -37,7 +39,9 @@ RSpec.describe 'Dependents Application Integration', type: %i[request serializer
     context 'with invalid params' do
       let(:params) do
         {
-          form: test_form.except('privacyAgreementAccepted').to_json
+          dependents_application: {
+            form: test_form.except('privacyAgreementAccepted').to_json
+          }
         }
       end
 
