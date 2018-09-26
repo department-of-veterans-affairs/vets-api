@@ -9,12 +9,12 @@ module EVSS
       end
 
       def workflow_complete?
-        form_526_success = form_526_success?(@submission.disability_compensation_job)
+        form_526_success = @submission.disability_compensation_job.transaction_status == 'received'
 
-        return form_526_success if no_ancillary_submission_items?
+        return form_526_success if no_ancillary_items?
         return form_526_success && @submission.uploads_success? if only_includes_uploads?
         return form_526_success && @submission.form_4142_success? if only_includes_4142_form?
-        form_526_success? && @submission.uploads_success? && @submission.form_4142_success?
+        form_526_success && @submission.uploads_success? && @submission.form_4142_success?
       end
 
       def set_has_uploads
@@ -40,15 +40,15 @@ module EVSS
         async_job.transaction_status == 'received'
       end
 
-      def no_ancillary_submission_items?(submission)
+      def no_ancillary_items?
         !@submission.has_uploads? && !@submission.has_form_4142?
       end
 
-      def only_includes_uploads(submission)
+      def only_includes_uploads?
         @submission.has_uploads? && !@submission.has_form_4142?
       end
 
-      def only_includes_4142_form(submssion)
+      def only_includes_4142_form?
         !@submission.has_uploads? && @submission.has_form_4142?
       end
 
