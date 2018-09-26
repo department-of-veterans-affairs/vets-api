@@ -275,13 +275,9 @@ saml:
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
   relays:
     vetsgov: http://localhost:3001/auth/login/callback
-    vagov: http://local.vagov/auth/login/callback
+    vagov: ~
     preview_vagov: ~
   logout_relay: http://localhost:3001/logout
-  logout_relays:
-    vetsgov: http://localhost:3001/logout
-    vagov: http://local.vagov:3001/logout
-    preview_vagov: ~
 
 sentry:
   dsn: ~
