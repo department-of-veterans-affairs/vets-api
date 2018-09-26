@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# :nocov:
 module DataMigrations
   module InProgressFormInitialExpiration
     module_function
@@ -17,3 +18,4 @@ module DataMigrations
     end
   end
 end
+# :nocov:
