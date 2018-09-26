@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# :nocov:
 module DataMigrations
   module InProgressFormInitialExpiration
     module_function
 
+    # :nocov:
     def run
       rows_affected = 0
 
@@ -16,6 +16,6 @@ module DataMigrations
 
       rows_affected
     end
+    # :nocov:
   end
 end
-# :nocov:
