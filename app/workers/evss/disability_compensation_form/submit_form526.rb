@@ -30,11 +30,14 @@ module EVSS
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param claim_id [String] The claim id for the claim that will be associated with the async transaction
       # @param form_content [Hash] The form content that is to be submitted
+      # @param form4142 [Hash] The form content for 4142 that is to be submitted
       # @param uploads [Hash] The users ancillary uploads that will be submitted separately
       #
-      def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
+      # rubocop:disable Metrics/ParameterLists
+      def perform(user_uuid, auth_headers, claim_id, form_content, form4142, uploads)
         associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
         response = service(auth_headers).submit_form526(form_content)
+        submit_4142(form4142, user_uuid, auth_headers, response.claim_id, saved_claim(claim_id).created_at) if form4142
         handle_success(user_uuid, auth_headers, response, uploads)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         handle_service_exception(e)
@@ -45,6 +48,7 @@ module EVSS
       ensure
         StatsD.increment("#{STATSD_KEY_PREFIX}.try", tags: ["job_id:#{jid}"])
       end
+      # rubocop:enable Metrics/MethodLength, Metrics/ParameterLists
 
       private
 
@@ -68,6 +72,12 @@ module EVSS
       def associate_transaction(auth_headers, claim_id, user_uuid)
         saved_claim(claim_id).async_transaction = transaction_class.start(
           user_uuid, auth_headers['va_eauth_dodedipnid'], jid
+        )
+      end
+
+      def submit_4142(form_content, user_uuid, auth_headers, evss_claim_id, saved_claim_created_at)
+        CentralMail::SubmitForm4142Job.perform_async(
+          user_uuid, auth_headers, form_content, evss_claim_id, saved_claim_created_at
         )
       end
 

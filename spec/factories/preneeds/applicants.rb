@@ -10,4 +10,8 @@ FactoryBot.define do
     name { attributes_for :full_name }
     mailing_address { attributes_for :address }
   end
+
+  factory :applicant_foreign_address, parent: :applicant do
+    mailing_address { attributes_for :foreign_address }
+  end
 end

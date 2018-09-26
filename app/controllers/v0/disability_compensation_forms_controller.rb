@@ -27,20 +27,18 @@ module V0
       # TODO: Once `all_claims` is finalized and the test form is removed, the form assignment will
       # need to be normalized from `form526` to whatever the finalized form id is
       claim = SavedClaim::DisabilityCompensation.new(form: form_content['form526'].to_json)
-      unless claim.save
-        StatsD.increment("#{stats_key}.failure")
-        raise Common::Exceptions::ValidationErrors, claim
-      end
-      StatsD.increment("#{stats_key}.success")
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+      claim.save ? log_success(claim) : log_failure(claim)
 
       uploads = form_content['form526'].delete('attachments')
+
+      form4142 = translate_form4142(form_content) if form_content['form526']['form4142'].present?
+
       converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
         @current_user, form_content
       ).translate
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
-        @current_user.uuid, auth_headers, claim.id, converted_form_content, uploads
+        @current_user.uuid, auth_headers, claim.id, converted_form_content, form4142, uploads
       )
 
       render json: { data: { attributes: { job_id: jid } } },
@@ -54,6 +52,20 @@ module V0
     end
 
     private
+
+    def log_failure(claim)
+      StatsD.increment("#{stats_key}.failure")
+      raise Common::Exceptions::ValidationErrors, claim
+    end
+
+    def log_success(claim)
+      StatsD.increment("#{stats_key}.success")
+      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.class::FORM}"
+    end
+
+    def translate_form4142(form_content)
+      EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
+    end
 
     def all_claims_integration(form)
       form['form526'] = form.delete('form526AllClaims')
