@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DependentsForm < Common::RedisStore
+class DependentsApplication < Common::RedisStore
   include RedisForm
 
   FORM_ID = '21-686C'
