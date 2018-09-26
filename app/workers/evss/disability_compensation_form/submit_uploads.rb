@@ -9,12 +9,12 @@ module EVSS
       FORM_TYPE = '21-526EZ'
 
       def self.start(auth_headers, saved_claim_id, claim_id, uploads)
-        Reporting.new(saved_claim_id).set_has_uploads
+        WorkflowSteps.new.set_has_uploads(saved_claim_id)
 
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
-          'EVSS::DisabilityCompensationForm::Reporting#uploads_success_handler',
+          'EVSS::DisabilityCompensationForm::WorkflowSteps#uploads_success_handler',
           'saved_claim_id' => saved_claim_id
         )
         batch.jobs do
