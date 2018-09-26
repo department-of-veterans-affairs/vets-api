@@ -26,7 +26,7 @@ describe EVSS::DisabilityCompensationForm::Reporting do
 
   describe '#uploads_success_handler' do
     it 'reports that the submission uploads have succeeded' do
-      subject.uploads_success_handler(nil, { 'saved_claim_id' => saved_claim.id })
+      subject.uploads_success_handler(nil, 'saved_claim_id' => saved_claim.id)
       saved_claim.reload
       expect(saved_claim.disability_compensation_submission.uploads_success?).to be_truthy
     end
@@ -68,7 +68,7 @@ describe EVSS::DisabilityCompensationForm::Reporting do
           end
 
           context 'and they have completed' do
-            before { report.uploads_success_handler(nil, { 'saved_claim_id' => saved_claim.id }) }
+            before { report.uploads_success_handler(nil, 'saved_claim_id' => saved_claim.id) }
             it { is_expected.to be_truthy }
           end
         end
@@ -97,7 +97,7 @@ describe EVSS::DisabilityCompensationForm::Reporting do
           end
 
           context 'and only uploads have completed' do
-            before { report.uploads_success_handler(nil, { 'saved_claim_id' => saved_claim.id }) }
+            before { report.uploads_success_handler(nil, 'saved_claim_id' => saved_claim.id) }
             it { is_expected.to be_falsey }
           end
 
@@ -108,7 +108,7 @@ describe EVSS::DisabilityCompensationForm::Reporting do
 
           context 'and both have completed' do
             before do
-              report.uploads_success_handler(nil, { 'saved_claim_id' => saved_claim.id })
+              report.uploads_success_handler(nil, 'saved_claim_id' => saved_claim.id)
               report.form_4142_success_handler
             end
             it { is_expected.to be_truthy }
