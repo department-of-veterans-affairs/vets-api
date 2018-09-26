@@ -151,8 +151,14 @@ class ApplicationController < ActionController::API
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
       expires: @session.ttl_in_time,
-      httponly: true
+      secure: true,
+      httponly: true,
+      domain: cookie_domain
     }
+  end
+
+  def cookie_domain
+    Rails.env.production? ? '*.va.gov' : nil
   end
 
   def extend_session!
@@ -163,7 +169,7 @@ class ApplicationController < ActionController::API
   end
 
   def destroy_sso_cookie!
-    cookies.delete(Settings.sso.cookie_name)
+    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain)
   end
 
   attr_reader :current_user, :session
