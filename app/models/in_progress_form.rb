@@ -34,7 +34,7 @@ class InProgressForm < ActiveRecord::Base
     data = super || {}
     expires = updated_at || Time.current
     data.merge(
-      'expires_at' => self.expires_at.to_i || (expires + expires_after).to_i,
+      'expires_at' => expires_at.to_i || (expires + expires_after).to_i,
       'last_updated' => updated_at.to_i
     )
   end
@@ -60,6 +60,6 @@ class InProgressForm < ActiveRecord::Base
   end
 
   def expires_after
-    EXPIRES_AFTER[self.id] || 60.days
+    EXPIRES_AFTER[form_id]&.days || 60.days
   end
 end
