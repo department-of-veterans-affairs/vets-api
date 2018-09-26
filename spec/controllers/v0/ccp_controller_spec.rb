@@ -34,4 +34,14 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
                          gender: 'c', network: nil, specialty: ['l']
                        })
   end
+
+  it 'should return some specialties' do
+    VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+      get 'specialties'
+      expect(response).to have_http_status(:ok)
+      bod = JSON.parse(response.body)
+      expect(bod.length).to_be > 0
+      expect(bod[0]['SpecialtyCode'].length).to_be > 0
+    end
+  end
 end
