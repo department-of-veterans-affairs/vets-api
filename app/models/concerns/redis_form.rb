@@ -1,18 +1,20 @@
 module RedisForm
   extend ActiveSupport::Concern
 
-  included do
+  included do |base|
+    # i tried to make this module a class but it didn't work because of how RedisStore was defined
+    unless base < Common::RedisStore
+      raise 'must be a subclass of Common::RedisStore'
+    end
+
     include SetGuid
     include AsyncRequest
 
     attr_accessor(:user)
     attr_accessor(:form)
 
-    name.underscore.tap do |class_name|
-      redis_store REDIS_CONFIG[class_name]['namespace']
-      redis_ttl REDIS_CONFIG[class_name]['each_ttl']
-    end
-
+    redis_store(name.underscore)
+    redis_ttl(86400)
     redis_key(:guid)
 
     attribute(:state, String, default: 'pending')
