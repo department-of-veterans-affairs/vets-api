@@ -36,6 +36,7 @@ module MVI
     #
     # @param user [User] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
+    # rubocop:disable Metrics/MethodLength
     def find_profile(user)
       with_monitoring do
         Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) do
@@ -43,6 +44,9 @@ module MVI
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
       end
+    rescue Breakers::OutageException => e
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      MVI::Responses::FindProfileResponse.with_server_error
     rescue Faraday::ConnectionFailed => e
       log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
       MVI::Responses::FindProfileResponse.with_server_error
@@ -57,6 +61,7 @@ module MVI
         MVI::Responses::FindProfileResponse.with_server_error
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 
