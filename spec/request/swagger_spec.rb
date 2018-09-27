@@ -1260,8 +1260,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports posting performance monitoring data' do
         expect(subject).to validate(:post, '/v0/performance_monitorings', 401)
 
+        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
         body = {
-          page_id: 'some_unique_page_identifier',
+          page_id: whitelisted_path,
           metrics: [
             { metric: 'initial_page_load', duration: 1234.56 },
             { metric: 'time_to_paint', duration: 123.45 }

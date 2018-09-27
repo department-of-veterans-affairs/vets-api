@@ -10,6 +10,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user, :loa3) }
+  let(:whitelisted_path) { Benchmark::Whitelist::WHITELIST.first }
 
   before do
     Session.create(uuid: user.uuid, token: token)
@@ -20,7 +21,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
   describe 'POST /v0/performance_monitorings' do
     let(:body) do
       {
-        page_id: 'some_unique_page_identifier',
+        page_id: whitelisted_path,
         metrics: [
           { metric: 'initial_page_load', duration: 1234.56 },
           { metric: 'time_to_paint', duration: 123.45 }
@@ -46,7 +47,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
     context 'with a missing parameter' do
       let(:body_missing_param) do
         {
-          page_id: 'some_unique_page_identifier',
+          page_id: whitelisted_path,
           metrics: [
             { metric: 'initial_page_load', duration: 1234.56 },
             { metric: 'time_to_paint', duration: nil }
@@ -68,6 +69,32 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
 
         expect(response).to have_http_status(:bad_request)
         expect(error_keys).to include 'title', 'detail', 'code', 'status'
+      end
+    end
+
+    context 'with a non-whitelisted tag' do
+      let(:non_whitelisted_tag) { 'some_random_tag' }
+      let(:non_whitelisted_body) do
+        {
+          page_id: non_whitelisted_tag,
+          metrics: [
+            { metric: 'initial_page_load', duration: 1234.56 },
+            { metric: 'time_to_paint', duration: 123.45 }
+          ]
+        }
+      end
+
+      it 'should match the errors schema', :aggregate_failures do
+        post(
+          '/v0/performance_monitorings',
+          non_whitelisted_body.to_json,
+          auth_header.update(
+            'Content-Type' => 'application/json', 'Accept' => 'application/json'
+          )
+        )
+
+        expect(response).to have_http_status(:forbidden)
+        expect(response).to match_response_schema('errors')
       end
     end
   end
