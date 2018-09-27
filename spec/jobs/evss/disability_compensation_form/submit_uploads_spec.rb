@@ -29,7 +29,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'with four uploads' do
       it 'queues four submit upload jobs' do
         expect do
-          subject.start(user.uuid, auth_headers, claim_id, uploads)
+          subject.start(auth_headers, claim_id, uploads)
         end.to change(subject.jobs, :size).by(4)
       end
     end
@@ -39,7 +39,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'queues no submit upload jobs' do
         expect do
-          subject.start(user.uuid, auth_headers, claim_id, uploads)
+          subject.start(auth_headers, claim_id, uploads)
         end.to_not change(subject.jobs, :size)
       end
     end
