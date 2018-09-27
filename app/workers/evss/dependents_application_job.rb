@@ -10,6 +10,7 @@ module EVSS
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)
       form = service.retrieve
+      # todo merge form
     end
   end
 end

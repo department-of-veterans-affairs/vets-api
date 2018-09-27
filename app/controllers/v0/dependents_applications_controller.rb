@@ -20,5 +20,9 @@ module V0
 
       render(json: dependents_application)
     end
+
+    def show
+      render(json: DependentsApplication.find(params[:id]))
+    end
   end
 end
