@@ -21,11 +21,13 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
   describe 'POST /v0/performance_monitorings' do
     let(:body) do
       {
-        page_id: whitelisted_path,
-        metrics: [
-          { metric: 'initial_page_load', duration: 1234.56 },
-          { metric: 'time_to_paint', duration: 123.45 }
-        ]
+        data: {
+          page_id: whitelisted_path,
+          metrics: [
+            { metric: 'initial_page_load', duration: 1234.56 },
+            { metric: 'time_to_paint', duration: 123.45 }
+          ]
+        }.to_json
       }
     end
 
@@ -47,11 +49,13 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
     context 'with a missing parameter' do
       let(:body_missing_param) do
         {
-          page_id: whitelisted_path,
-          metrics: [
-            { metric: 'initial_page_load', duration: 1234.56 },
-            { metric: 'time_to_paint', duration: nil }
-          ]
+          data: {
+            page_id: whitelisted_path,
+            metrics: [
+              { metric: 'initial_page_load', duration: 1234.56 },
+              { metric: 'time_to_paint', duration: nil }
+            ]
+          }.to_json
         }
       end
 
@@ -76,11 +80,13 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
       let(:non_whitelisted_tag) { 'some_random_tag' }
       let(:non_whitelisted_body) do
         {
-          page_id: non_whitelisted_tag,
-          metrics: [
-            { metric: 'initial_page_load', duration: 1234.56 },
-            { metric: 'time_to_paint', duration: 123.45 }
-          ]
+          data: {
+            page_id: non_whitelisted_tag,
+            metrics: [
+              { metric: 'initial_page_load', duration: 1234.56 },
+              { metric: 'time_to_paint', duration: 123.45 }
+            ]
+          }.to_json
         }
       end
 

@@ -1262,11 +1262,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
         whitelisted_path = Benchmark::Whitelist::WHITELIST.first
         body = {
-          page_id: whitelisted_path,
-          metrics: [
-            { metric: 'initial_page_load', duration: 1234.56 },
-            { metric: 'time_to_paint', duration: 123.45 }
-          ]
+          data: {
+            page_id: whitelisted_path,
+            metrics: [
+              { metric: 'initial_page_load', duration: 1234.56 },
+              { metric: 'time_to_paint', duration: 123.45 }
+            ]
+          }.to_json
         }
 
         expect(subject).to validate(

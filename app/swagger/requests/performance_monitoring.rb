@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/LineLength
+# rubocop:disable Layout/EmptyLinesAroundArguments
 module Swagger
   module Requests
     class PerformanceMonitoring
@@ -24,26 +26,31 @@ module Swagger
             key :required, true
 
             schema do
-              key :required, %i[page_id metrics]
-              property :page_id,
+              property :data,
                        type: :string,
-                       example: 'some_unique_page_indentifier',
-                       description: 'A unique identifier for the frontend page being benchmarked'
-              property :metrics do
-                key :type, :array
-                key :description, 'A collection of benchmark metrics and durations for a given page'
-                items do
-                  key :required, %i[metric duration]
-                  property :metric,
-                           type: :string,
-                           example: 'initial_page_load',
-                           description: 'Creates a namespace/bucket for what is being measured.'
-                  property :duration,
-                           type: :number,
-                           example: 100.1,
-                           description: 'Duration of benchmark measurement in milliseconds'
-                end
-              end
+                       example: '{\"page_id\":\"/\",\"metrics\":[{\"metric\":\"initial_page_load\",\"duration\":1234.56},{\"metric\":\"time_to_paint\",\"duration\":123.45}]}',
+                       description: '
+ A JSON string of metrics data.  The required structure is an object with two properties: page_id (string) and metrics (array).
+
+ page_id is a whitelisted path. See vets-api/lib/benchmark/whitelist.rb.
+
+ The metrics property should contain an array of hashes, with each hash containing two properties: metric (string) and duration (float).
+
+ For example
+  {
+    "page_id": "/disability",
+    "metrics": [
+      {
+        "metric": "initial_page_load",
+        "duration": 1234.56
+      },
+      {
+        "metric": "time_to_paint",
+        "duration": 123.45
+      }
+    ]
+  }
+'
             end
           end
 
@@ -60,7 +67,7 @@ module Swagger
                   key :required, %i[page_id metrics]
                   property :page_id,
                            type: :string,
-                           example: 'some_unique_page_indentifier',
+                           example: '/disability',
                            description: 'A unique identifier for the frontend page being benchmarked'
                   property :metrics do
                     key :type, :array
@@ -72,8 +79,7 @@ module Swagger
                                example: 'frontend.page_performance.initial_page_load',
                                description: 'Creates a namespace/bucket for what is being measured.'
                       property :duration,
-                               type: :string,
-                               example: '100.1',
+                               example: 100.1,
                                description: 'Duration of benchmark measurement in milliseconds'
                     end
                   end
@@ -86,3 +92,5 @@ module Swagger
     end
   end
 end
+# rubocop:enable Metrics/LineLength
+# rubocop:enable Layout/EmptyLinesAroundArguments
