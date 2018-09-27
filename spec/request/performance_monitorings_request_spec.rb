@@ -7,16 +7,8 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
   include SchemaMatchers
   include ErrorDetails
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:user, :loa3) }
+  let(:header) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:whitelisted_path) { Benchmark::Whitelist::WHITELIST.first }
-
-  before do
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
-    allow_any_instance_of(User).to receive(:icn).and_return('1234')
-  end
 
   describe 'POST /v0/performance_monitorings' do
     let(:body) do
@@ -36,9 +28,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
         post(
           '/v0/performance_monitorings',
           body.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          header
         )
 
         expect(response).to have_http_status(:ok)
@@ -63,9 +53,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
         post(
           '/v0/performance_monitorings',
           body_missing_param.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          header
         )
 
         body = JSON.parse(response.body)
@@ -94,9 +82,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
         post(
           '/v0/performance_monitorings',
           non_whitelisted_body.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          header
         )
 
         expect(response).to have_http_status(:forbidden)

@@ -1258,8 +1258,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
     describe 'performance monitoring' do
       it 'supports posting performance monitoring data' do
-        expect(subject).to validate(:post, '/v0/performance_monitorings', 401)
-
         whitelisted_path = Benchmark::Whitelist::WHITELIST.first
         body = {
           data: {

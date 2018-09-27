@@ -3,6 +3,8 @@
 # rubocop:disable Metrics/LineLength
 module V0
   class PerformanceMonitoringsController < ApplicationController
+    skip_before_action :authenticate
+
     # Calls StatsD.measure for a given whitelisted path, and set of metrics data.
     #
     # Params require a :data attribute that contain a JSON string of metrics data.

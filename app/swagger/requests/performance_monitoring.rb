@@ -9,15 +9,11 @@ module Swagger
 
       swagger_path '/v0/performance_monitorings' do
         operation :post do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Call StatsD.measure with the passed page performance benchmarking data.'
           key :operationId, 'postPerformanceMonitoring'
           key :tags, %w[
             performance_monitoring
           ]
-
-          parameter :authorization
 
           parameter do
             key :name, :body
