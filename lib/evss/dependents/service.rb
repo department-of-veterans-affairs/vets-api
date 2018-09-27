@@ -6,19 +6,19 @@ module EVSS
       configuration EVSS::Dependents::Configuration
 
       def retrieve
-        perform(:get, 'load/retrieve')
+        perform(:get, 'load/retrieve').body
       end
 
       def clean_form(form)
-        perform(:post, 'inflightform/cleanForm', form.to_json, headers)
+        perform(:post, 'inflightform/cleanForm', form.to_json, headers).body
       end
 
       def validate(form)
-        perform(:post, 'inflightform/validateForm', form.to_json, headers)
+        perform(:post, 'inflightform/validateForm', form.to_json, headers).body
       end
 
       def save(form)
-        perform(:post, 'inflightform/saveForm', form.to_json, headers)
+        perform(:post, 'inflightform/saveForm', form.to_json, headers).body
       end
 
       def submit(form, form_id)

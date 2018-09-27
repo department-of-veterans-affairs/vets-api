@@ -9,6 +9,7 @@ module EVSS
       dependents_application = DependentsApplication.find(id)
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)
+      form = service.retrieve
     end
   end
 end

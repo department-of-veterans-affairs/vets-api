@@ -7,7 +7,7 @@ describe EVSS::Dependents::Service do
   let(:service) { described_class.new(user) }
 
   def returns_form(response)
-    expect(response.body['submitProcess'].present?).to eq(true)
+    expect(response['submitProcess'].present?).to eq(true)
   end
 
   describe '#retrieve' do
@@ -39,7 +39,7 @@ describe EVSS::Dependents::Service do
         VCR::MATCH_EVERYTHING
       ) do
         res = service.validate(get_fixture('dependents/clean_form'))
-        expect(res.body['errors']).to eq([])
+        expect(res['errors']).to eq([])
       end
     end
   end
@@ -51,7 +51,7 @@ describe EVSS::Dependents::Service do
         VCR::MATCH_EVERYTHING
       ) do
         res = service.save(get_fixture('dependents/clean_form'))
-        expect(res.body['formId']).to eq(380682)
+        expect(res['formId']).to eq(380682)
       end
     end
   end
