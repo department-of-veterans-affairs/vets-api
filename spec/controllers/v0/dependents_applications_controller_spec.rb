@@ -22,9 +22,9 @@ RSpec.describe V0::DependentsApplicationsController do
     let(:dependents_application) { create(:dependents_application) }
 
     it 'should return a dependents application' do
-      binding.pry; fail
-      get(:show, id: dependents_application.id)
-      binding.pry; fail
+      id = dependents_application.id
+      get(:show, id: id)
+      expect(JSON.parse(response.body)['data']['id']).to eq id
     end
   end
 

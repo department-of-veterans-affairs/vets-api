@@ -3,6 +3,10 @@
 FactoryBot.define do
   factory :dependents_application do
     state('pending')
+    user do
+      build(:evss_user)
+    end
+
     form(
       {
         privacyAgreementAccepted: true,
