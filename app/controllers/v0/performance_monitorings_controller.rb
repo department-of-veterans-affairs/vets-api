@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/LineLength
 module V0
   class PerformanceMonitoringsController < ApplicationController
     # Calls StatsD.measure for a given whitelisted path, and set of metrics data.
@@ -43,3 +44,4 @@ module V0
     end
   end
 end
+# rubocop:enable Metrics/LineLength
