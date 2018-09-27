@@ -60,6 +60,7 @@ module EVSS
 
         Rails.logger.info('Form526 Submission',
                           'user_uuid' => user_uuid,
+                          'saved_claim_id' => saved_claim_id,
                           'job_id' => jid,
                           'job_status' => 'received')
 
@@ -67,7 +68,7 @@ module EVSS
 
         if uploads.present?
           EVSS::DisabilityCompensationForm::SubmitUploads.start(
-            auth_headers, saved_claim_id, response.claim_id, uploads
+            auth_headers, response.claim_id, uploads
           )
         end
       end
