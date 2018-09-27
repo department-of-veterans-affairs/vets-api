@@ -22,13 +22,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       { confirmationCode: SecureRandom.uuid }
     ]
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
-
-  before(:each) do
-    saved_claim.async_transaction = AsyncTransaction::EVSS::VA526ezSubmitTransaction.start(
-      user.uuid, auth_headers['va_eauth_dodedipnid'], SecureRandom.uuid
-    )
-  end
 
   subject { described_class }
 
