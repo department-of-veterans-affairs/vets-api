@@ -17,6 +17,7 @@ module Benchmark
     # @see https://github.com/Shopify/statsd-instrument#statsdmeasure
     #
     def self.track(key, duration, tags:)
+      Whitelist.new(tags).authorize!
       StatsD.measure(key, duration, tags: tags)
     rescue ArgumentError => error
       raise Common::Exceptions::ParameterMissing.new('Missing parameter', detail: error&.message)

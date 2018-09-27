@@ -5,7 +5,7 @@ require 'rails_helper'
 describe Benchmark::Performance do
   let(:metric) { 'initial_page_load' }
   let(:stats_d_key) { "#{Benchmark::Performance::FE}.#{Benchmark::Performance::PAGE_PERFORMANCE}.#{metric}" }
-  let(:page_id) { 'some_unique_page_identifier' }
+  let(:page_id) { Benchmark::Whitelist::WHITELIST.first }
 
   describe '.track' do
     it 'calls StatsD.measure with the passed benchmarking data' do
@@ -37,6 +37,18 @@ describe Benchmark::Performance do
             expect(error.message).to eq 'Missing parameter'
             expect(error.status_code).to eq 400
           end
+        end
+      end
+    end
+
+    context 'with a non-whitelisted tag' do
+      it 'raises a Common::Exceptions::Forbidden error', :aggregate_failures do
+        bad_tag = 'some_random_tag'
+
+        expect { Benchmark::Performance.track(stats_d_key, 100, tags: [bad_tag]) }.to raise_error do |error|
+          expect(error).to be_a Common::Exceptions::Forbidden
+          expect(error.message).to eq 'Forbidden'
+          expect(error.status_code).to eq 403
         end
       end
     end
