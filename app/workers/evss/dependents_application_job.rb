@@ -8,6 +8,7 @@ module EVSS
       Sentry::TagRainbows.tag
       dependents_application = DependentsApplication.find(id)
       user = User.find(user_uuid)
+      service = Dependents::Service.new(user)
     end
   end
 end
