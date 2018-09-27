@@ -34,6 +34,24 @@ class Session < Common::RedisStore
     super(ttl)
   end
 
+  def user
+    User.find(uuid)
+  end
+
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
+  def cookie_data
+    return nil if user.blank?
+    {
+      'patientIcn' => user.icn,
+      'mhvCorrelationId' => user.mhv_correlation_id,
+      'expirationTime' => ttl_in_time.iso8601(0)
+    }
+  end
+
+  def ttl_in_time
+    Time.current.utc + ttl
+  end
+
   private
 
   def secure_random_token(length = DEFAULT_TOKEN_LENGTH)
@@ -56,7 +74,7 @@ class Session < Common::RedisStore
       log_message_to_sentry(
         'Maximum Session Duration Reached', :info, {}, session_token: self.class.obscure_token(@token)
       )
-      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] ago. Session is too old")
+      errors.add(:created_at, "is more than the max of [#{MAX_SESSION_LIFETIME}] seconds. Session is too old")
     end
   end
 end

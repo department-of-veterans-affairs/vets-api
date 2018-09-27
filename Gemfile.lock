@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: ba39bd58651ada365824bc22b0ef9e659702b104
+  revision: de7453dc550f390b4225a7574596ac4cbe00c575
   branch: master
   specs:
-    vets_json_schema (3.86.0)
+    vets_json_schema (3.97.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -44,6 +44,12 @@ PATH
       aws-sdk-s3 (~> 1)
       rails (~> 4.2.7.1)
       sidekiq
+
+PATH
+  remote: modules/veteran_verification
+  specs:
+    veteran_verification (0.0.1)
+      rails (~> 4.2.7.1)
 
 GEM
   remote: https://rubygems.org/
@@ -1163,6 +1169,7 @@ DEPENDENCIES
   va_facilities!
   vba_documents!
   vcr
+  veteran_verification!
   vets_json_schema!
   virtus
   web-console (~> 2.0)

@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/form'
-
 module Preneeds
   class DateRange < Preneeds::Base
     attribute :from, String

@@ -26,13 +26,22 @@ FactoryBot.define do
           from: '2000-01-01',
           to: '2000-01-02'
         },
+        socialSecurityNumberLastFour: '1234',
         anonymousEmail: 'foo@foo.com',
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
-            name: 'school'
+            name: 'UNIVERSITY OF LOUISVILLE',
+            address: {
+              country: 'United States',
+              street: 'Office of Military and Veteran',
+              street2: 'Student Records',
+              street3: 'street 3',
+              city: 'LOUISVILLE',
+              state: 'KY',
+              postalCode: '40292'
+            }
           },
-          facilityCode: '20606313',
           programs: {
             'MGIB-AD Ch 30': true
           },

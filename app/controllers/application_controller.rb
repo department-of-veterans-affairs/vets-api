@@ -5,6 +5,7 @@ require 'common/exceptions'
 require 'common/client/errors'
 require 'saml/settings_service'
 require 'sentry_logging'
+require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -136,8 +137,39 @@ class ApplicationController < ActionController::API
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      SSOService.extend_session!(@session, @current_user)
+      extend_session!
+      return true if @current_user.present?
     end
+  end
+
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
+  def set_sso_cookie!
+    return unless Settings.sso.cookie_enabled
+    encryptor = SSOEncryptor
+    contents = ActiveSupport::JSON.encode(@session.cookie_data)
+    encrypted_value = encryptor.encrypt(contents)
+    cookies[Settings.sso.cookie_name] = {
+      value: encrypted_value,
+      expires: @session.ttl_in_time,
+      secure: true,
+      httponly: true,
+      domain: cookie_domain
+    }
+  end
+
+  def cookie_domain
+    Rails.env.production? ? '*.va.gov' : nil
+  end
+
+  def extend_session!
+    session.expire(Session.redis_namespace_ttl)
+    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    current_user&.expire(User.redis_namespace_ttl)
+    set_sso_cookie!
+  end
+
+  def destroy_sso_cookie!
+    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain)
   end
 
   attr_reader :current_user, :session
