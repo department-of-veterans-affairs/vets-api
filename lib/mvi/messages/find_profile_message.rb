@@ -56,6 +56,14 @@ module MVI
         el << build_living_subject_birth_time
         el << build_living_subject_id
         el << build_living_subject_name
+        el << build_vba_orchestration if Settings.mvi.vba_orchestration
+        el
+      end
+
+      def build_vba_orchestration
+        el = element('otherIDsScopingOrganization')
+        el << element('value', extension: 'VBA', root: '2.16.840.1.113883.4.349')
+        el << element('semanticsText', text!: 'MVI.ORCHESTRATION')
         el
       end
 
