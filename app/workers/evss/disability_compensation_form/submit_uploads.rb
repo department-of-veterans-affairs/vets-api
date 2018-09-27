@@ -8,12 +8,14 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(user_uuid, auth_headers, claim_id, uploads)
+      def self.start(auth_headers, saved_claim_id, claim_id, uploads)
+        WorkflowSteps.new.set_has_uploads(saved_claim_id)
+
         batch = Sidekiq::Batch.new
         batch.on(
           :success,
-          self,
-          'uuid' => user_uuid
+          'EVSS::DisabilityCompensationForm::WorkflowSteps#uploads_success_handler',
+          'saved_claim_id' => saved_claim_id
         )
         batch.jobs do
           uploads.each do |upload_data|
