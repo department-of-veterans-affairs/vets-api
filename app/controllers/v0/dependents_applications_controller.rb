@@ -2,12 +2,13 @@
 
 module V0
   class DependentsApplicationsController < ApplicationController
-    skip_before_action(:authenticate)
     before_action(:tag_rainbows)
 
     def create
       dependents_application = DependentsApplication.new(
-        params.require(:dependents_application).permit(:form)
+        params.require(:dependents_application).permit(:form).merge(
+          user: current_user
+        )
       )
 
       unless dependents_application.save

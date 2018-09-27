@@ -2,7 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Dependents Application Integration', type: %i[request serializer] do
+RSpec.describe V0::DependentsApplicationsController do
+  include AuthenticatedSessionHelper
+  let(:user) { create(:evss_user) }
+
+  before do
+    use_authenticated_current_user(current_user: user)
+  end
+
   let(:test_form) do
     JSON.parse(
       File.read(
@@ -11,14 +18,19 @@ RSpec.describe 'Dependents Application Integration', type: %i[request serializer
     )
   end
 
+  describe '#show' do
+    let(:dependents_application) { create(:dependents_application) }
+
+    it 'should return a dependents application' do
+      binding.pry; fail
+      get(:show, id: dependents_application.id)
+      binding.pry; fail
+    end
+  end
+
   describe 'POST create' do
     subject do
-      post(
-        v0_dependents_applications_path,
-        params.to_json,
-        'CONTENT_TYPE' => 'application/json',
-        'HTTP_X_KEY_INFLECTION' => 'camel'
-      )
+      post(:create, params)
     end
 
     context 'with valid params' do
