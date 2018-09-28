@@ -158,7 +158,7 @@ class ApplicationController < ActionController::API
   end
 
   def cookie_domain
-    %w[.va.gov]
+    '.va.gov'
   end
 
   def extend_session!
