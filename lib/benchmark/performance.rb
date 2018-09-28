@@ -8,6 +8,8 @@ module Benchmark
     # Calls StatsD.measure with the passed benchmarking data. StatsD.measure lets
     # you benchmark how long the execution of a specific task/method takes.
     #
+    # The StatsD gem will raise ArgumentErrors if the correct params are not supplied.
+    #
     # @param key [String] A StatsD key. See https://github.com/Shopify/statsd-instrument#statsd-keys
     # @param duration [Float] Duration of benchmark measurement in milliseconds
     # @param tags [Array<String>] An array of string tag names. Tags must be in the key:value
