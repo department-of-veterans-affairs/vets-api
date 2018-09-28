@@ -8,13 +8,8 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(user_uuid, auth_headers, claim_id, uploads)
+      def self.start(auth_headers, claim_id, uploads)
         batch = Sidekiq::Batch.new
-        batch.on(
-          :success,
-          self,
-          'uuid' => user_uuid
-        )
         batch.jobs do
           uploads.each do |upload_data|
             perform_async(upload_data, claim_id, auth_headers)
