@@ -5,7 +5,6 @@ module EVSS
     class SubmitForm526
       include Sidekiq::Worker
       include SentryLogging
-      include StepTracking
 
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
@@ -36,12 +35,10 @@ module EVSS
       #
       # rubocop:disable Metrics/ParameterLists
       def perform(user_uuid, auth_headers, saved_claim_id, form_content, form4142, uploads)
-        with_tracking(saved_claim_id) do
-          associate_transaction(auth_headers, saved_claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
-          response = service(auth_headers).submit_form526(form_content)
-          submit_4142(form4142, user_uuid, auth_headers, response.claim_id, saved_claim_id) if form4142
-          success_handler(user_uuid, auth_headers, saved_claim_id, response, uploads)
-        end
+        associate_transaction(auth_headers, saved_claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
+        response = service(auth_headers).submit_form526(form_content)
+        submit_4142(form4142, user_uuid, auth_headers, response.claim_id, saved_claim_id) if form4142
+        success_handler(user_uuid, auth_headers, saved_claim_id, response, uploads)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         retryable_error_handler(e) if e.status_code.between?(500, 600)
         non_retryable_error_handler(e)
@@ -52,6 +49,7 @@ module EVSS
       ensure
         metrics.increment_try
       end
+
       # rubocop:enable Metrics/ParameterLists
 
       private
@@ -62,10 +60,10 @@ module EVSS
         transaction_class.update_transaction(jid, :received, response.attributes)
 
         Rails.logger.info('Form526 Submission',
-                          'user_uuid' => user_uuid,
-                          'saved_claim_id' => saved_claim_id,
-                          'job_id' => jid,
-                          'job_status' => 'received')
+          'user_uuid' => user_uuid,
+          'saved_claim_id' => saved_claim_id,
+          'job_id' => jid,
+          'job_status' => 'received')
 
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
 
