@@ -192,7 +192,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme])
+            expect(cookies['vagov_session_dev']).to be_nil
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
@@ -224,6 +224,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'cannot find a session' do
         it 'raises a Forbidden exception' do
           get(:logout, session: Base64.urlsafe_encode64('invalid_token'))
+
           expect(JSON.parse(response.body))
             .to eq('errors' => [{
                      'title' => 'Forbidden',
@@ -245,6 +246,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
+
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
           expect(response.location).to include("RelayState=#{CGI.escape(Settings.saml.logout_relays.vetsgov)}")
           # these should be destroyed.
@@ -258,6 +260,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'contains the proper success_relay' do
           with_settings(Settings.saml.logout_relays, vagov: fake_vagov_relay) do
             get(:logout, session: Base64.urlsafe_encode64(token), success_relay: 'vagov')
+
             expect(response.location).to include("RelayState=#{CGI.escape(fake_vagov_relay)}")
           end
         end
@@ -353,7 +356,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect { post(:saml_callback) }
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
-
         expect(response.location).to start_with(Settings.saml.relays.vetsgov + '?token=')
 
         new_user = User.find(uuid)
@@ -364,7 +366,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
         expect(cookies['vagov_session_dev']).not_to be_nil
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-          .to eq('patientIcn' => loa3_user.icn,
+          .to eq('vagovToken' => response.location.split('token=').last,
+                 'patientIcn' => loa3_user.icn,
                  'mhvCorrelationId' => loa3_user.mhv_correlation_id,
                  'expirationTime' => expire_at.iso8601(0))
       end
@@ -375,14 +378,18 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(existing_user.ssn).to eq('796111863')
         expect_any_instance_of(SSOService).not_to receive(:log_message_to_sentry)
         post :saml_callback
+
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).to eq('796111863')
         expect(cookies['vagov_session_dev']).not_to be_nil
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-          .to eq('patientIcn' => loa3_user.icn,
-                 'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-                 'expirationTime' => expire_at.iso8601(0))
+          .to eq(
+            'vagovToken' => response.location.split('token=').last,
+             'patientIcn' => loa3_user.icn,
+             'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+             'expirationTime' => expire_at.iso8601(0)
+          )
       end
 
       context 'changing multifactor' do
@@ -405,9 +412,15 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
           post :saml_callback
+
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
+            .to eq(
+              'vagovToken' => response.location.split('token=').last,
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'expirationTime' => expire_at.iso8601(0)
+            )
         end
       end
 
@@ -429,11 +442,18 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
-          expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
+
+          expect(response.location).to start_with('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
           expect(cookies['vagov_session_dev']).not_to be_nil
+
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
+            .to eq(
+              'vagovToken' => response.location.split('token=').last,
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'expirationTime' => expire_at.iso8601(0)
+            )
         end
       end
 
@@ -447,10 +467,16 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'handles NoMethodError - and redirects to saml.relay with success token' do
           expect(controller).to receive(:log_message_to_sentry).with('ID.me did not provide LOA.highest!', :error)
           post :saml_callback
+
           expect(response.location).to start_with(Settings.saml.relays.vetsgov + '?token=')
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
+            .to eq(
+              'vagovToken' => response.location.split('token=').last,
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'expirationTime' => expire_at.iso8601(0)
+            )
         end
       end
 
