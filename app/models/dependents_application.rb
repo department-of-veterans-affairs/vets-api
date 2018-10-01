@@ -20,27 +20,39 @@ class DependentsApplication < Common::RedisStore
     end
   end
 
+  def self.set_child_attrs!(dependent, child = {})
+    dependent['fullName'].tap do |full_name|
+      next if full_name.blank?
+      %w[first middle last].each do |type|
+        child["#{type}Name"] = full_name[type] if full_name[type].present?
+      end
+    end
+
+    dependent['childDateOfBirth'].tap do |dob|
+      next if dob.blank?
+
+      child['dateOfBirth'] = Date.parse(dob).to_time(:utc).iso8601
+    end
+  end
+
   def self.transform_form(parsed_form, evss_form)
     dependents = parsed_form['dependents'] || []
 
-    evss_form['submitProcess']['veteran']['children'] = filter_children(
+    children = filter_children(
       dependents,
       evss_form['submitProcess']['veteran']['children']
     )
 
-    parsed_form['dependents'].map do |dependent|
-      child = {}
-
-      dependent['fullName'].tap do |full_name|
-        next if full_name.blank?
-        child['firstName'] = full_name['first']
-        child['middleName'] = full_name['middle']
-        child['lastName'] = full_name['last']
+    parsed_form['dependents'].each do |dependent|
+      child = children.find do |c|
+        c['ssn'] == dependent['childSocialSecurityNumber']
       end
 
-      child parsed_form['childDateOfBirth']  = evss_form
-
-      child
+      if child
+        set_child_attrs!(dependent, child)
+      else
+        children << set_child_attrs!(dependent)
+      end
     end
   end
 
