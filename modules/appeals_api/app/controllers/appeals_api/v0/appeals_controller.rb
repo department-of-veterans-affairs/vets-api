@@ -43,9 +43,8 @@ module AppealsApi
       end
 
       def ssn
-        ssn = @current_user.ssn
-        # ssn = request.headers['X-VA-SSN']
-        # raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
+        ssn = request.headers['X-VA-SSN']
+        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
         ssn
       end
 
