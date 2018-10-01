@@ -33,6 +33,23 @@ class DependentsApplication < Common::RedisStore
 
       child['dateOfBirth'] = Date.parse(dob).to_time(:utc).iso8601
     end
+
+    dependent['childAddress'].tap do |address|
+      next if address.blank?
+
+      child['address'] = {
+        'addressLine1' => address['street'],
+        'addressLine2' => address['street2'],
+        'city' => address['city'],
+        'country' => {
+          'dropDownCountry' => address['country']
+        },
+        'state' => address['state'],
+        'zipCode' => address['postalCode']
+      }
+    end
+
+    
   end
 
   def self.transform_form(parsed_form, evss_form)
