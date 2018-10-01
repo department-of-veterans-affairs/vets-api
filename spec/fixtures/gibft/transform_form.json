@@ -45,9 +45,6 @@
   "entered_duty": "2000-01-01",
   "release_from_duty": "2000-01-02",
   "profile_data": {
-    "active_ICN": null,
-    "historical_ICN": null,
-    "sec_ID": null,
     "SSN": "1234"
   },
   "email": "foo@foo.com"
