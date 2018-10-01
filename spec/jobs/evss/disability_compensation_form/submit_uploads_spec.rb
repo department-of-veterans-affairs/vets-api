@@ -29,7 +29,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'with four uploads' do
       it 'queues four submit upload jobs' do
         expect do
-          subject.start(user.uuid, auth_headers, claim_id, uploads)
+          subject.start(auth_headers, claim_id, uploads)
         end.to change(subject.jobs, :size).by(4)
       end
     end
@@ -39,7 +39,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'queues no submit upload jobs' do
         expect do
-          subject.start(user.uuid, auth_headers, claim_id, uploads)
+          subject.start(auth_headers, claim_id, uploads)
         end.to_not change(subject.jobs, :size)
       end
     end
@@ -66,7 +66,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     end
 
     context 'when file_data exists' do
-      let(:attachment) { double(:attachment, file_data: '%PDF-1.3\n') }
+      let(:attachment) { double(:attachment, get_file: file) }
+      let(:file) { double(:file, read: 'file') }
 
       it 'calls the documents service api with file body and document data' do
         expect(EVSSClaimDocument)
@@ -79,13 +80,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           )
           .and_return(document_data)
 
-        expect(client).to receive(:upload).with(attachment.file_data, document_data)
+        expect(client).to receive(:upload).with(file.read, document_data)
         subject.new.perform(upload_data, claim_id, auth_headers)
       end
     end
 
-    context 'when file_data is nil' do
-      let(:attachment) { double(:attachment, file_data: nil) }
+    context 'when get_file is nil' do
+      let(:attachment) { double(:attachment, get_file: nil) }
 
       it 'raises an ArgumentError' do
         expect do

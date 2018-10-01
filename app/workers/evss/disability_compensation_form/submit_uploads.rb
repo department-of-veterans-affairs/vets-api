@@ -8,13 +8,8 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(user_uuid, auth_headers, claim_id, uploads)
+      def self.start(auth_headers, claim_id, uploads)
         batch = Sidekiq::Batch.new
-        batch.on(
-          :success,
-          self,
-          'uuid' => user_uuid
-        )
         batch.jobs do
           uploads.each do |upload_data|
             perform_async(upload_data, claim_id, auth_headers)
@@ -25,7 +20,7 @@ module EVSS
       def perform(upload_data, claim_id, auth_headers)
         client = EVSS::DocumentsService.new(auth_headers)
         code = upload_data['confirmationCode']
-        file_body = SupportingEvidenceAttachment.find_by(guid: code)&.file_data
+        file_body = SupportingEvidenceAttachment.find_by(guid: code)&.get_file&.read
         raise ArgumentError, "supporting evidence attachment with guid #{code} has no file data" if file_body.nil?
         document_data = EVSSClaimDocument.new(
           evss_claim_id: claim_id,

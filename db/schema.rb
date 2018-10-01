@@ -212,6 +212,7 @@ ActiveRecord::Schema.define(version: 20180905180210) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.json     "metadata"
+    t.datetime "expires_at"
   end
 
   add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
