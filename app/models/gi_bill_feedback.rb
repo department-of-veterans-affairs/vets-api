@@ -70,7 +70,10 @@ class GIBillFeedback < Common::RedisStore
 
     transformed['issue'] = transform_keys_into_array(transformed['issue'])
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
-    Common::HashHelpers.deep_compact(transformed)
+    transformed = Common::HashHelpers.deep_compact(transformed)
+    transformed.delete('profile_data') if transformed['profile_data'].blank?
+
+    transformed
   end
 
   def save
