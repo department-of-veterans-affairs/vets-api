@@ -95,12 +95,8 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-    rescue NoMethodError => e
-      Raven.extra_context(
-        base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s),
-        message: e.message,
-        backtrace: e.backtrace
-      )
+    rescue NoMethodError
+      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
       raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)

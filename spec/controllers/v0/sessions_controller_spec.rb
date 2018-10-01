@@ -386,9 +386,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
           .to eq(
             'vagovToken' => response.location.split('token=').last,
-             'patientIcn' => loa3_user.icn,
-             'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-             'expirationTime' => expire_at.iso8601(0)
+            'patientIcn' => loa3_user.icn,
+            'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+            'expirationTime' => expire_at.iso8601(0)
           )
       end
 
