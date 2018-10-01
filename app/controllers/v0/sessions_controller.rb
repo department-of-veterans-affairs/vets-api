@@ -7,6 +7,7 @@ module V0
     include Accountable
 
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
+    skip_before_action :extend_session!
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
 
@@ -83,6 +84,7 @@ module V0
         @session = @sso_service.new_session
 
         after_login_actions
+
         redirect_to saml_login_relay_url + '?token=' + @session.token
 
         log_persisted_session_and_warnings
@@ -93,8 +95,12 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-    rescue NoMethodError
-      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
+    rescue NoMethodError => e
+      Raven.extra_context(
+        base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s),
+        message: e.message,
+        backtrace: e.backtrace
+      )
       raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)

@@ -22,9 +22,9 @@ class ApplicationController < ActionController::API
   ].freeze
 
   before_action :authenticate
+  before_action :extend_session! # Don't skip this outside of sessions_controller. Required.
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
-  before_action :extend_session! # don't skip this!
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
   def tag_rainbows
