@@ -48,6 +48,7 @@ class GIBillFeedback < Common::RedisStore
 
   def transform_form
     transformed = parsed_form.deep_transform_keys(&:underscore)
+    transformed.delete('privacy_agreement_accepted')
     transformed['affiliation'] = transformed.delete('service_affiliation')
     transformed.delete('service_date_range').tap do |service_date_range|
       next if service_date_range.blank?
@@ -69,7 +70,7 @@ class GIBillFeedback < Common::RedisStore
 
     transformed['issue'] = transform_keys_into_array(transformed['issue'])
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
-    transformed
+    Common::HashHelpers.deep_compact(transformed)
   end
 
   def save
