@@ -41,23 +41,3 @@ module EVSS
     end
   end
 end
-
-
-# DisabilityCompensationJobStatus.upsert(
-#   { job_id: SecureRandom.uuid },
-#   disability_compensation_submission_id: 123,
-#   job_class: 'Foo',
-#   status: 'success',
-#   updated_at: Time.now.utc
-# )
-#
-#
-# DisabilityCompensationJobStatus.upsert(
-#   { job_id: 'c5695425-c7f6-4ceb-a44e-c959cba9f4d3' },
-#   disability_compensation_submission_id: 123,
-#   job_class: 'Foo',
-#   status: 'exhausted',
-#   error_message: 'ArgumentError',
-#   args: 'foobar',
-#   updated_at: Time.now.utc
-# )
