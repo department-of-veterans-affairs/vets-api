@@ -5,7 +5,6 @@ module EVSS
     module JobTracking
       extend ActiveSupport::Concern
 
-
       def with_tracking(submission_id)
         yield
         job_success(submission_id)
