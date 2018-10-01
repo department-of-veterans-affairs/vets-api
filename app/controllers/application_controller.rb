@@ -24,6 +24,7 @@ class ApplicationController < ActionController::API
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
+  before_action :extend_session! # don't skip this!
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
 
   def tag_rainbows
@@ -133,11 +134,21 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_token
+    cookie_token_authentication || header_token_authentication
+  end
+
+  def cookie_token_authentication
+    @session = Session.find(cookie_object['vagovToken'])
+    return false if @session.nil?
+    @current_user = User.find(@session.uuid)
+    return true if @current_user.present?
+  end
+
+  def header_token_authentication
     authenticate_with_http_token do |token, _options|
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      extend_session!
       return true if @current_user.present?
     end
   end
@@ -157,11 +168,24 @@ class ApplicationController < ActionController::API
     }
   end
 
+  def cookie_object
+    return {} unless cookies[Settings.sso.cookie_name].present?
+    encryptor = SSOEncryptor
+    decrypted_value = encryptor.decrypt(cookies[Settings.sso.cookie_name])
+    cookie_object = JSON.parse(decrypted_value)
+    return {} if Time.parse(cookie_object['expirationTime']) < Time.current
+    cookie_object
+  end
+
   def cookie_domain
     '.va.gov'
   end
 
   def extend_session!
+    @session ||= Session.find(cookie_object['vagovToken'])
+    return unless session.present?
+    @current_user ||= User.find(@session.uuid)
+    return unless current_user.present?
     session.expire(Session.redis_namespace_ttl)
     current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     current_user&.expire(User.redis_namespace_ttl)
