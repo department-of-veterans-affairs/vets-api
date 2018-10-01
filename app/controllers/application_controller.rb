@@ -169,11 +169,11 @@ class ApplicationController < ActionController::API
   end
 
   def cookie_object
-    return {} unless cookies[Settings.sso.cookie_name].present?
+    return {} if cookies[Settings.sso.cookie_name].blank?
     encryptor = SSOEncryptor
     decrypted_value = encryptor.decrypt(cookies[Settings.sso.cookie_name])
     cookie_object = JSON.parse(decrypted_value)
-    return {} if Time.parse(cookie_object['expirationTime']) < Time.current
+    return {} if Time.zone.parse(cookie_object['expirationTime']) < Time.current
     cookie_object
   end
 
@@ -183,9 +183,9 @@ class ApplicationController < ActionController::API
 
   def extend_session!
     @session ||= Session.find(cookie_object['vagovToken'])
-    return unless session.present?
+    return if session.blank?
     @current_user ||= User.find(@session.uuid)
-    return unless current_user.present?
+    return if current_user.blank?
     session.expire(Session.redis_namespace_ttl)
     current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     current_user&.expire(User.redis_namespace_ttl)
