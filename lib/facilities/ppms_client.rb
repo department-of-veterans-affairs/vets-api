@@ -4,9 +4,14 @@ require 'common/client/base'
 
 module Facilities
   # Core class responsible for api interface operations
+  # Web forum and documentation (latest version of the ICD) located at:
+  # https://vaww.oed.portal.va.gov/pm/iehr/vista_evolution/RA/CCP_PPMS/PPMS_DWS/SitePages/Home.aspx
+  # Dev swagger site for testing endpoints
+  # https://dev.dws.ppms.va.gov/swagger
   class PPMSClient < Common::Client::Base
     configuration Facilities::PPMSConfiguration
 
+    # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
     def provider_locator(params)
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
@@ -18,12 +23,14 @@ module Facilities
       response.body
     end
 
+    # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
     def provider_info(identifier)
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
       response.body[0]
     end
 
+    # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
     def specialties
       response = perform(:get, 'v1.0/Specialties', {})
       response.body

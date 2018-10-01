@@ -2,7 +2,6 @@
 
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
-require 'common/client/middleware/response/facility_validator'
 require 'common/client/middleware/response/ppms_parser'
 
 module Facilities
@@ -20,7 +19,6 @@ module Facilities
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
-        # conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
