@@ -20,7 +20,6 @@ module CentralMail
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     sidekiq_retries_exhausted do |msg, _ex|
-      transaction_class.update_transaction(jid, :exhausted)
       log_message_to_sentry(
         "Failed all retries on Form4142 submit, last error: #{msg['error_message']}",
         :error
@@ -30,29 +29,21 @@ module CentralMail
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
     # @param user_uuid [String] The user's UUID that's associated with the form
+    # @param _auth_headers [Hash] The VAAFI headers for the user
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
-    # @param claim_id [String] Claim id received from EVSS 526 submission to generate unique PDF file path
-    # @param saved_claim_created_at [DateTime] Claim receive date time for 526 form
+    # @param evss_claim_id [String] EVSS Claim id received from 526 submission to generate unique PDF file path
+    # @param saved_claim_created_at [DateTime] Saved Claim receive date time set as 4142 Metadata in ICMHS submission
     #
-    def perform(user_uuid, form_content, claim_id, saved_claim_created_at)
-      # find user using uuid
-      user = User.find(user_uuid)
-
-      transaction_class.start(user, jid) if transaction_class.find_transaction(jid).blank?
-
-      format_saved_claim_created_at(saved_claim_created_at)
-
+    def perform(user_uuid, _auth_headers, form_content, evss_claim_id, saved_claim_created_at)
       @parsed_form = process_form(form_content)
 
-      # process record to create PDF
-      @pdf_path = process_record(@parsed_form, claim_id)
+      # generate and stamp PDF
+      @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
 
-      response = CentralMail::Service.new.upload(create_request_body)
-
-      transaction_class.update_transaction(jid, :received, response.body)
+      response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
 
       Rails.logger.info('Form4142 Submission',
-                        'user_uuid' => user.uuid,
+                        'user_uuid' => user_uuid,
                         'job_id' => jid,
                         'job_status' => 'received')
 
@@ -68,9 +59,11 @@ module CentralMail
       File.delete(@pdf_path) if @pdf_path.present?
     end
 
-    def create_request_body
+    private
+
+    def create_request_body(saved_claim_created_at)
       body = {
-        'metadata' => generate_metadata.to_json
+        'metadata' => generate_metadata(saved_claim_created_at).to_json
       }
 
       body['document'] = to_faraday_upload(@pdf_path)
@@ -85,8 +78,12 @@ module CentralMail
       )
     end
 
-    def process_record(form_content, claim_id)
-      pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, claim_id, FORM_ID)
+    # Invokes Filler ancillary form method to generate PDF document
+    # Then calls method CentralMail::DatestampPdf to stamp the document.
+    # Its called twice, once to stamp with text "VETS.GOV" at the bottom of each page
+    # and second time to stamp with text "FDC Reviewed - Vets.gov Submission" at the top of each page
+    def generate_stamp_pdf(form_content, evss_claim_id)
+      pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, FORM_ID)
       stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
       CentralMail::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - Vets.gov Submission',
@@ -103,23 +100,22 @@ module CentralMail
       }
     end
 
-    def generate_metadata
+    def generate_metadata(saved_claim_created_at)
       form = @parsed_form
       form_pdf_metadata = get_hash_and_pages(@pdf_path)
-      number_attachments = 0
       veteran_full_name = form['veteranFullName']
-      address = form['claimantAddress'] || form['veteranAddress']
+      address = form['veteranAddress']
 
       metadata = {
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'receiveDt' => @saved_claim_created_at.strftime('%Y-%m-%d %H:%M:%S'),
+        'receiveDt' =>  format_saved_claim_created_at(saved_claim_created_at).strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => jid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => 'Vets.gov',
         'hashV' => form_pdf_metadata[:hash],
-        'numberAttachments' => number_attachments,
+        'numberAttachments' => 0,
         'docType' => FORM_ID,
         'numberPages' => form_pdf_metadata[:pages]
       }
@@ -128,13 +124,13 @@ module CentralMail
     end
 
     def format_saved_claim_created_at(saved_claim_created_at)
-      @saved_claim_created_at = saved_claim_created_at
-      if @saved_claim_created_at.blank?
-        @saved_claim_created_at = Time.now.in_time_zone('Central Time (US & Canada)')
+      if saved_claim_created_at.blank?
+        saved_claim_created_at = Time.now.in_time_zone('Central Time (US & Canada)')
       else
-        @saved_claim_created_at = Date.parse(@saved_claim_created_at) if @saved_claim_created_at.is_a?(String)
-        @saved_claim_created_at = @saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
+        saved_claim_created_at = Date.parse(saved_claim_created_at) if saved_claim_created_at.is_a?(String)
+        saved_claim_created_at = saved_claim_created_at.in_time_zone('Central Time (US & Canada)')
       end
+      saved_claim_created_at
     end
 
     def process_form(form_content)
@@ -144,18 +140,12 @@ module CentralMail
       @parsed_form ||= JSON.parse(form_content)
     end
 
-    def transaction_class
-      AsyncTransaction::CentralMail::VA4142SubmitTransaction
-    end
-
     def handle_service_exception(response)
       # create service error with CentralMailResponseError
       error = create_service_error(nil, self.class, response)
       if response.status.between?(500, 600)
-        transaction_class.update_transaction(jid, :retrying, response.body)
         raise error
       else
-        transaction_class.update_transaction(jid, :non_retryable_error, response.body)
         extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
         Rails.logger.error('Error Message' => error.message)
         log_exception_to_sentry(error, extra_content)
@@ -163,12 +153,10 @@ module CentralMail
     end
 
     def handle_gateway_timeout_exception(error)
-      transaction_class.update_transaction(jid, :retrying, error.message)
       raise error
     end
 
     def handle_standard_error(error)
-      transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
       extra_content = { status: :non_retryable_error, jid: jid }
       log_exception_to_sentry(error, extra_content)
     end
