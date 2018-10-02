@@ -42,7 +42,6 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
         profile_api_token: 'token'
       ) do
         VCR.use_cassette('okta/metadata') do
-          
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
             get '/services/veteran_verification/v0/disability_rating', nil, auth_header
             expect(response).to have_http_status(:ok)
@@ -65,7 +64,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
       ) do
         VCR.use_cassette('okta/metadata') do
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-            get '/v0/disability_compensation_form/rated_disabilities', nil, auth_header
+            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
             expect(response).to have_http_status(:bad_gateway)
             expect(response).to match_response_schema('evss_errors', strict: false)
           end
@@ -85,7 +84,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
       ) do
         VCR.use_cassette('okta/metadata') do
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-            get '/v0/disability_compensation_form/rated_disabilities', nil, auth_header
+            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
             expect(response).to have_http_status(:forbidden)
             expect(response).to match_response_schema('evss_errors', strict: false)
           end
@@ -105,7 +104,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
       ) do
         VCR.use_cassette('okta/metadata') do
           VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-            get '/v0/disability_compensation_form/rated_disabilities', nil, auth_header
+            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
             expect(response).to have_http_status(:bad_request)
             expect(response).to match_response_schema('evss_errors', strict: false)
           end

@@ -44,6 +44,7 @@ class OpenidApplicationController < ApplicationController
     @session = session_from_claims(token, payload, ttl)
     @session.save && user_identity.save && @current_user.save
   rescue StandardError => e
+    p e.message
     Rails.logger.warn(e)
   end
 
