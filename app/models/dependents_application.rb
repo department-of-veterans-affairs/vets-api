@@ -21,6 +21,7 @@ class DependentsApplication < Common::RedisStore
   end
 
   def self.hyphenate_ssn(ssn)
+    return if ssn.blank?
   end
 
   def self.set_child_attrs!(dependent, child = {})
