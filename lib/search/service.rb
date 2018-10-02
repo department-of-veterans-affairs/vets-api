@@ -4,11 +4,11 @@ require 'common/client/base'
 require 'search/response'
 
 module Search
-    # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
-    # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
-    #
-    # @see https://search.usa.gov/sites/7378/api_instructions
-    #
+  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
+  # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
+  #
+  # @see https://search.usa.gov/sites/7378/api_instructions
+  #
   class Service < Common::Client::Base
     include Common::Client::Monitoring
 
