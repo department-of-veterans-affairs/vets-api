@@ -63,7 +63,11 @@ class GIBillFeedback < Common::RedisStore
     end
 
     transformed['education_details'].tap do |education_details|
-      transform_school_address(education_details['school']['address'])
+      school = education_details['school']
+
+      transformed['facility_code'] = school.delete('facility_code')
+
+      transform_school_address(school['address'])
       %w[programs assistance].each do |key|
         education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
       end
