@@ -67,6 +67,8 @@ class DependentsApplication < Common::RedisStore
       next if val.nil?
       child[attrs[0]] = val
     end
+
+    child
   end
 
   def self.transform_form(parsed_form, evss_form)
@@ -88,6 +90,10 @@ class DependentsApplication < Common::RedisStore
         children << set_child_attrs!(dependent)
       end
     end
+
+    evss_form['submitProcess']['veteran']['children'] = children
+
+    evss_form
   end
 
   private

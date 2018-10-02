@@ -1,0 +1,120 @@
+{
+  "submitProcess": {
+    "application": {
+      "acceptWarnings": false,
+      "appStatus": "Open",
+      "bnftClaimType": "EBENDEPENDENCY686c",
+      "createdDate": 1537563190485,
+      "documents": [
+
+      ],
+      "expirationDate": 1569099190485,
+      "has30Percent": true,
+      "modifiedDate": 1537563193768,
+      "validUser": true
+    },
+    "rbps": true,
+    "vaFaxNumber": "540-597-1792",
+    "vaOffice": {
+      "addressLine1": "Regional Office",
+      "addressLine2": "116 N Jefferson Street",
+      "addressLine3": "",
+      "addressLocality": "DOMESTIC",
+      "city": "Roanoke",
+      "country": {
+        "dropDownCountry": "USA",
+        "textCountry": ""
+      },
+      "postOffice": "NONE",
+      "postalType": "NONE",
+      "sharedAddrsInd": "N",
+      "state": "",
+      "zipCode": "24016",
+      "zipLastFour": ""
+    },
+    "vaOfficeCode": "314",
+    "vaOfficeName": "Roanoke",
+    "veteran": {
+      "address": {
+        "addressLine1": "3001 PARK CENTER DR",
+        "addressLine2": "APT 212",
+        "addressLine3": "",
+        "addressLocality": "DOMESTIC",
+        "city": "ALEXANDRIA",
+        "country": {
+          "dropDownCountry": "USA",
+          "textCountry": ""
+        },
+        "postOffice": "NONE",
+        "postalType": "NONE",
+        "sharedAddrsInd": "N",
+        "state": "VA",
+        "zipCode": "22302",
+        "zipLastFour": ""
+      },
+      "children": [
+        {
+          "firstName": "Test",
+          "lastName": "User",
+          "dateOfBirth": "2016-12-15T00:00:00Z",
+          "address": {
+            "addressLine1": "Office of Military and Veteran",
+            "addressLine2": "Student Records",
+            "city": "LOUISVILLE",
+            "country": {
+              "dropDownCountry": "United States"
+            },
+            "state": "KY",
+            "zipCode": "40292"
+          },
+          "countryOfBirth": {
+            "dropDownCountry": "usa"
+          },
+          "ssn": "111-22-3333",
+          "attendedSchool": true,
+          "disabled": true,
+          "married": true
+        }
+      ],
+      "corpPtcnpntId": 600061742,
+      "countryOfBirth": {
+        "dropDownCountry": "",
+        "textCountry": ""
+      },
+      "dateOfBirth": 515739600000,
+      "dateOfBirthFromCorp": false,
+      "edipi": "1007697216",
+      "emailAddress": "evssvsotest@gmail.com",
+      "firstName": "WESLEY",
+      "hasNoFileNumber": false,
+      "hasNoSsn": false,
+      "lastName": "FORD",
+      "marriageType": "NEVERMARRIED",
+      "married": false,
+      "middleName": "Watson",
+      "personTypeNm": "Veteran",
+      "previousMarriages": [
+
+      ],
+      "primaryPhone": {
+        "areaNbr": "202",
+        "phoneNbr": "461-9724",
+        "phoneType": "DAYTIME"
+      },
+      "rlsnIds": [
+
+      ],
+      "secondaryPhone": {
+        "areaNbr": "789",
+        "phoneNbr": "325-6545",
+        "phoneType": "NIGHTTIME"
+      },
+      "ssn": "796-04-3735",
+      "ssnFromCorp": false,
+      "tempDataId": {
+      },
+      "uniqueIdentifier": "235759727",
+      "vaFileNumber": "796-04-3735"
+    }
+  }
+}

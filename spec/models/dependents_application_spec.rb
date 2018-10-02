@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe DependentsApplication, type: :model do
+  let(:dependents_application) { create(:dependents_application) }
+
   describe '.filter_children' do
     it 'should filter children to match dependents' do
       dependents = [
@@ -22,6 +24,13 @@ RSpec.describe DependentsApplication, type: :model do
       expect(described_class.filter_children(dependents, children)).to eq(
         [{"ssn"=>"111-22-3333"}]
       )
+    end
+  end
+
+  describe '.transform_form' do
+    it 'should merge the evss and submitted forms' do
+      form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
+      expect(form).to eq(get_fixture('dependents/transform_form'))
     end
   end
 
