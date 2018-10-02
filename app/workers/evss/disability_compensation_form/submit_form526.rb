@@ -53,11 +53,6 @@ module EVSS
       ensure
         metrics.increment_try
       end
-<<<<<<< HEAD
-
-      # rubocop:enable Metrics/ParameterLists
-=======
->>>>>>> refactor-526-controller
 
       private
 
