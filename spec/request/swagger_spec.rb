@@ -1263,8 +1263,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           data: {
             page_id: whitelisted_path,
             metrics: [
-              { metric: 'initial_page_load', duration: 1234.56 },
-              { metric: 'time_to_paint', duration: 123.45 }
+              { metric: 'totalPageLoad', duration: 1234.56 },
+              { metric: 'firstContentfulPaint', duration: 123.45 }
             ]
           }.to_json
         }
