@@ -239,6 +239,8 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
+
+    resource :preference, only: %i[index show]
   end
 
   root 'v0/example#index', module: 'v0'
