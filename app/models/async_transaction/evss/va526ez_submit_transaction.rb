@@ -15,6 +15,8 @@ module AsyncTransaction
         source: :disability_compensation_claim
       )
 
+      alias_attribute :submission, :disability_compensation_submission
+
       JOB_STATUS = {
         submitted: 'submitted',
         received: 'received',

@@ -22,7 +22,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     let(:transaction_class) { AsyncTransaction::EVSS::VA526ezSubmitTransaction }
     let(:last_transaction) { transaction_class.last }
     let(:claim) { FactoryBot.build(:va526ez) }
-    let(:submission_data) do
+    let(:submission) do
       {
         'form_526' => valid_form_content,
         'form_526_uploads' => [{

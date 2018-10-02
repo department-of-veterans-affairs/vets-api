@@ -27,11 +27,11 @@ module EVSS
         client.upload(file_body, document_data)
 
         Rails.logger.info('Form526 Upload',
-          'user_uuid' => user_uuid,
-          'guid' => guid,
-          'saved_claim_id' => saved_claim_id,
-          'job_id' => jid,
-          'job_status' => 'received')
+                          'user_uuid' => user_uuid,
+                          'guid' => guid,
+                          'saved_claim_id' => saved_claim_id,
+                          'job_id' => jid,
+                          'job_status' => 'received')
       end
 
       private

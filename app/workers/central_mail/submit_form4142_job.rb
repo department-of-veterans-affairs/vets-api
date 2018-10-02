@@ -43,10 +43,10 @@ module CentralMail
       response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
 
       Rails.logger.info('Form4142 Submission',
-        'user_uuid' => user_uuid,
-        'saved_claim_id' => saved_claim_id,
-        'job_id' => jid,
-        'job_status' => 'received')
+                        'user_uuid' => user_uuid,
+                        'saved_claim_id' => saved_claim_id,
+                        'job_id' => jid,
+                        'job_status' => 'received')
 
       handle_service_exception(response) if response.present? && response.status.between?(201, 600)
     rescue CentralMailResponseError => e

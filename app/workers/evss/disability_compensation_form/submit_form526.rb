@@ -36,7 +36,7 @@ module EVSS
         @auth_headers = auth_headers
         @saved_claim_id = saved_claim_id
         @submission_data = submission_data
-        @submission_id = associated_transaction.disability_compensation_id if transaction_class.find_transaction(jid).blank?
+        associate_transaction if transaction_class.find_transaction(jid).blank?
         response = service(@auth_headers).submit_form526(@submission_data['form_526'])
         success_handler(response)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
