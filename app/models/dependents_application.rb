@@ -57,6 +57,16 @@ class DependentsApplication < Common::RedisStore
 
       child['ssn'] = StringHelpers.hyphenated_ssn(ssn)
     end
+
+    [
+      ['attendedSchool', 'attendingCollege'],
+      ['disabled', 'disabled'],
+      ['married', 'married']
+    ].each do |attrs|
+      val = dependent[attrs[1]]
+      next if val.nil?
+      child[attrs[0]] = val
+    end
   end
 
   def self.transform_form(parsed_form, evss_form)
