@@ -14,4 +14,22 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   )
 
   add_form_and_validation('21-526EZ')
+
+  attr_writer :form_hash
+
+  def self.from_hash(hash)
+    saved_claim = new(form: hash['form526'].to_json)
+    saved_claim.form_hash = hash
+    saved_claim
+  end
+
+  def to_submission(user)
+    {
+      'form_526' => EVSS::DisabilityCompensationForm::DataTranslation.new(
+        user, @form_hash.except('attachments')
+      ).translate,
+      'form_526_uploads' => @form_hash.dig('form526', 'attachments'),
+      'form_4142' => EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash).translate
+    }
+  end
 end
