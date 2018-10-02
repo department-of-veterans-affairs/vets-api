@@ -70,10 +70,10 @@ module EVSS
         metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
         Rails.logger.info('Form526 Submission',
-          'user_uuid' => @user_uuid,
-          'saved_claim_id' => @saved_claim_id,
-          'job_id' => jid,
-          'job_status' => 'received')
+                          'user_uuid' => @user_uuid,
+                          'saved_claim_id' => @saved_claim_id,
+                          'job_id' => jid,
+                          'job_status' => 'received')
       end
 
       def perform_submit_uploads(response)
