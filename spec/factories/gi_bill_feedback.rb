@@ -5,6 +5,7 @@ FactoryBot.define do
     state('pending')
     form(
       {
+        privacyAgreementAccepted: true,
         address: {
           street: 'street',
           street2: 'street2',
