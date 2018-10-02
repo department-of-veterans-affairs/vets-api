@@ -44,8 +44,5 @@
   "affiliation": "Veteran",
   "entered_duty": "2000-01-01",
   "release_from_duty": "2000-01-02",
-  "profile_data": {
-    "SSN": "1234"
-  },
   "email": "foo@foo.com"
 }
