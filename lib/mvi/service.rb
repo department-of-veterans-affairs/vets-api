@@ -98,12 +98,17 @@ module MVI
 
     def create_profile_message(user)
       return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
+      return message_edipi(user) if user.dslogon_edipi.present?
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
       message_user_attributes(user)
     end
 
     def message_icn(user)
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
+    end
+
+    def message_edipi(user)
+      MVI::Messages::FindProfileMessageEdipi.new(user.dslogon_edipi).to_xml
     end
 
     def message_user_attributes(user)
