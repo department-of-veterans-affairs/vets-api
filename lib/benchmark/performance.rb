@@ -10,6 +10,8 @@ module Benchmark
     #
     # The StatsD gem will raise ArgumentErrors if the correct params are not supplied.
     #
+    # Snake_cases the passed key for the call to StatsD.
+    #
     # @param key [String] A StatsD key. See https://github.com/Shopify/statsd-instrument#statsd-keys
     # @param duration [Float] Duration of benchmark measurement in milliseconds
     # @param tags [Array<String>] An array of string tag names. Tags must be in the key:value
@@ -20,7 +22,7 @@ module Benchmark
     #
     def self.track(key, duration, tags:)
       Whitelist.new(tags).authorize!
-      StatsD.measure(key, duration, tags: tags)
+      StatsD.measure(key&.underscore, duration, tags: tags)
     rescue ArgumentError => error
       raise Common::Exceptions::ParameterMissing.new('Missing parameter', detail: error&.message)
     end

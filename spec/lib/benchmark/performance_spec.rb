@@ -3,8 +3,9 @@
 require 'rails_helper'
 
 describe Benchmark::Performance do
-  let(:metric) { 'initial_page_load' }
+  let(:metric) { 'totalPageLoad' }
   let(:stats_d_key) { "#{Benchmark::Performance::FE}.#{Benchmark::Performance::PAGE_PERFORMANCE}.#{metric}" }
+  let(:snake_cased_key) { stats_d_key.underscore }
   let(:page_id) { Benchmark::Whitelist::WHITELIST.first }
 
   describe '.track' do
@@ -12,7 +13,7 @@ describe Benchmark::Performance do
       expect do
         Benchmark::Performance.track(stats_d_key, 100, tags: [page_id])
       end.to trigger_statsd_measure(
-        stats_d_key,
+        snake_cased_key,
         tags: [page_id],
         times: 1,
         value: 100
@@ -59,7 +60,7 @@ describe Benchmark::Performance do
       expect do
         Benchmark::Performance.by_page_and_metric(metric, 100, page_id)
       end.to trigger_statsd_measure(
-        stats_d_key,
+        snake_cased_key,
         tags: ["page_id:#{page_id}"],
         times: 1,
         value: 100
@@ -95,7 +96,7 @@ describe Benchmark::Performance do
       expect do
         Benchmark::Performance.metrics_for_page(page_id, metrics_data)
       end.to trigger_statsd_measure(
-        stats_d_key,
+        snake_cased_key,
         tags: ["page_id:#{page_id}"],
         times: 1,
         value: 1234.56
