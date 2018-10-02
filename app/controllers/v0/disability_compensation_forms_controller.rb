@@ -28,10 +28,10 @@ module V0
       # need to be normalized from `form526` to whatever the finalized form id is
       saved_claim = SavedClaim::DisabilityCompensation.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = saved_claim.to_submission(@current_user)
+      submission_data = saved_claim.to_submission_data(@current_user)
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
-        @current_user.uuid, auth_headers, saved_claim.id, submission
+        @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
       render json: { data: { attributes: { job_id: jid } } },

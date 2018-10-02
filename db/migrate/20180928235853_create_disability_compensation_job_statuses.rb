@@ -6,7 +6,6 @@ class CreateDisabilityCompensationJobStatuses < ActiveRecord::Migration
       t.string :job_class, null: false
       t.string :status, null: false
       t.string :error_message
-      t.string :args
       t.column :updated_at, :datetime, null: false
     end
   end

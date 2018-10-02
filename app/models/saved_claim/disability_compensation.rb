@@ -22,7 +22,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
     saved_claim
   end
 
-  def to_submission(user)
+  def to_submission_data(user)
     {
       'form_526' => EVSS::DisabilityCompensationForm::DataTranslation.new(
         user, @form_hash.except('attachments')

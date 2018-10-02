@@ -33,12 +33,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         'form_4142' => form4142
       }
     end
-
-    before do
-      claim.save!
-    end
+    let(:disability_compensation_submission) { instance_double('DisabilityCompensationSubmission') }
 
     context 'with a successfull submission job' do
+      before do
+        claim.save!
+        allow_any_instance_of(
+          AsyncTransaction::EVSS::VA526ezSubmitTransaction
+        ).to receive(:submission).and_return(disability_compensation_submission)
+        allow(disability_compensation_submission).to receive(:id).and_return(123)
+      end
+
       it 'queues a job for submit' do
         expect do
           subject.perform_async(user.uuid, auth_headers, submission)
@@ -64,6 +69,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
             .to receive(:find_transaction).and_return(transaction)
           allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
             .to receive(:update_transaction).and_return(transaction)
+          allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
+
 
           expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
           subject.new.perform(user.uuid, auth_headers, claim.id, submission)
@@ -98,6 +105,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     context 'with a submission timeout' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+        transaction = double(:transaction)
+        allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
+          .to receive(:find_transaction).and_return(transaction)
+        allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
+        allow(disability_compensation_submission).to receive(:id).and_return(123)
       end
 
       it 'sets the transaction to "retrying"' do

@@ -5,6 +5,7 @@ module EVSS
     class SubmitForm526
       include Sidekiq::Worker
       include SentryLogging
+      include JobStatus
 
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
@@ -40,9 +41,10 @@ module EVSS
         transaction = find_or_create_transaction
         @submission_id = transaction.submission.id
 
-        log_try
-        response = service(@auth_headers).submit_form526(@submission_data['form_526'])
-        success_handler(response)
+        with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
+          response = service(@auth_headers).submit_form526(@submission_data['form_526'])
+          success_handler(response)
+        end
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         retryable_error_handler(e) if e.status_code.between?(500, 600)
         non_retryable_error_handler(e)
@@ -50,8 +52,6 @@ module EVSS
         gateway_timeout_handler(e)
       rescue StandardError => e
         standard_error_handler(e)
-      ensure
-        metrics.increment_try
       end
 
       private
@@ -65,29 +65,12 @@ module EVSS
       end
 
       def success_handler(response)
-        log_success(response)
+        submission_rate_limiter.increment
+        transaction_class.update_transaction(jid, :received, response.attributes)
+
         perform_submit_uploads(response) if @submission_data['form_526_uploads'].present?
         perform_submit_form_4142(response) if @submission_data['form_4142'].present?
         perform_cleanup
-      end
-
-      def log_try
-        Rails.logger.info('Form526 Submission',
-                          'saved_claim_id' => @saved_claim_id,
-                          'submission_id' => @submission_id,
-                          'job_id' => jid,
-                          'event' => 'try')
-      end
-
-      def log_success(response)
-        submission_rate_limiter.increment
-        metrics.increment_success
-        transaction_class.update_transaction(jid, :received, response.attributes)
-        Rails.logger.info('Form526 Submission',
-                          'saved_claim_id' => @saved_claim_id,
-                          'submission_id' => @submission_id,
-                          'job_id' => jid,
-                          'event' => 'success')
       end
 
       def perform_submit_uploads(response)
@@ -108,29 +91,16 @@ module EVSS
 
       def non_retryable_error_handler(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
-        Rails.logger.error('Form526 Submission',
-                           'saved_claim_id' => @saved_claim_id,
-                           'submission_id' => @submission_id,
-                           'job_id' => jid,
-                           'event' => 'non_retryable_error')
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
-        metrics.increment_non_retryable(error)
       end
 
       def retryable_error_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.messages)
-        Rails.logger.warn('Form526 Submission',
-                          'saved_claim_id' => @saved_claim_id,
-                          'submission_id' => @submission_id,
-                          'job_id' => jid,
-                          'event' => 'retryable_error')
-        metrics.increment_retryable(error)
         raise error
       end
 
       def gateway_timeout_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
-        metrics.increment_retryable(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
@@ -138,7 +108,6 @@ module EVSS
         transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
         extra_content = { status: :non_retryable_error, jid: jid }
         log_exception_to_sentry(error, extra_content)
-        metrics.increment_non_retryable(error)
       end
 
       def service(auth_headers)
@@ -157,10 +126,6 @@ module EVSS
 
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
-      end
-
-      def metrics
-        @metrics ||= Metrics.new(STATSD_KEY_PREFIX, jid)
       end
     end
   end

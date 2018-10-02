@@ -94,7 +94,6 @@ ActiveRecord::Schema.define(version: 20180929002139) do
     t.string   "job_class",                             null: false
     t.string   "status",                                null: false
     t.string   "error_message"
-    t.string   "args"
     t.datetime "updated_at",                            null: false
   end
 
