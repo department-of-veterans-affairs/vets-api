@@ -5,7 +5,7 @@ require_dependency 'appeals_api/application_controller'
 module AppealsApi
   module V0
     class AppealsController < ApplicationController
-      # skip_before_action(:authenticate)
+      skip_before_action(:authenticate)
 
       def index
         log_request

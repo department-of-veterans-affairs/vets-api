@@ -29,11 +29,8 @@ class OpenidApplicationController < ApplicationController
 
   def token_from_request
     auth_request = request.authorization.to_s
-    if auth_request[TOKEN_REGEX]
-      auth_request = auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
-      return auth_request
-    end
-    nil
+    return unless auth_request[TOKEN_REGEX]
+    auth_request.sub(TOKEN_REGEX, '').gsub(/^"|"$/, '')
   end
 
   def establish_session(token)
@@ -61,12 +58,12 @@ class OpenidApplicationController < ApplicationController
     end
     # TODO: handle failure
     profile = JSON.parse(profile_response.body)['profile']
-    user_identity = UserIdentity.new(profile_to_attributes(profile))
+    user_identity = UserIdentity.new(profile_to_attributes(payload, profile))
     user_identity.expire(ttl)
     user_identity
   end
 
-  def profile_to_attribute(profile)
+  def profile_to_attributes(payload, profile)
     {
       uuid: payload['uid'],
       email: profile['email'],
