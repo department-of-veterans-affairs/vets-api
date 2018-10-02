@@ -40,6 +40,7 @@ module EVSS
         transaction = find_or_create_transaction
         @submission_id = transaction.submission.id
 
+        log_try
         response = service(@auth_headers).submit_form526(@submission_data['form_526'])
         success_handler(response)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
@@ -70,16 +71,23 @@ module EVSS
         perform_cleanup
       end
 
+      def log_try
+        Rails.logger.info('Form526 Submission',
+                          'saved_claim_id' => @saved_claim_id,
+                          'submission_id' => @submission_id,
+                          'job_id' => jid,
+                          'event' => 'try')
+      end
+
       def log_success(response)
         submission_rate_limiter.increment
         metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
         Rails.logger.info('Form526 Submission',
-                          'user_uuid' => @user_uuid,
                           'saved_claim_id' => @saved_claim_id,
                           'submission_id' => @submission_id,
                           'job_id' => jid,
-                          'job_status' => 'received')
+                          'event' => 'success')
       end
 
       def perform_submit_uploads(response)
@@ -101,12 +109,10 @@ module EVSS
       def non_retryable_error_handler(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
         Rails.logger.error('Form526 Submission',
-                           'user_uuid' => @user_uuid,
                            'saved_claim_id' => @saved_claim_id,
                            'submission_id' => @submission_id,
                            'job_id' => jid,
-                           'job_status' => 'non_retryable_error')
-        # above is to trace the workflow, below logs error details to sentry and rails logger
+                           'event' => 'non_retryable_error')
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
         metrics.increment_non_retryable(error)
       end
@@ -114,11 +120,10 @@ module EVSS
       def retryable_error_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.messages)
         Rails.logger.warn('Form526 Submission',
-                          'user_uuid' => @user_uuid,
                           'saved_claim_id' => @saved_claim_id,
                           'submission_id' => @submission_id,
                           'job_id' => jid,
-                          'job_status' => 'retrying')
+                          'event' => 'retryable_error')
         metrics.increment_retryable(error)
         raise error
       end

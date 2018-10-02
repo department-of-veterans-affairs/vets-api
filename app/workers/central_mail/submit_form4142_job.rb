@@ -28,12 +28,11 @@ module CentralMail
 
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
-    # @param user_uuid [String] The user's UUID that's associated with the form
     # @param evss_claim_id [String] EVSS Claim id received from 526 submission to generate unique PDF file path
     # @param saved_claim_id [Integer] Saved Claim id
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     #
-    def perform(user_uuid, evss_claim_id, saved_claim_id, submission_id, form_content)
+    def perform(_user_uuid, evss_claim_id, saved_claim_id, submission_id, form_content)
       saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
       @parsed_form = process_form(form_content)
 
@@ -41,15 +40,13 @@ module CentralMail
       @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
 
       response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
+      handle_service_exception(response) if response.present? && response.status.between?(201, 600)
 
       Rails.logger.info('Form4142 Submission',
-                        'user_uuid' => user_uuid,
                         'saved_claim_id' => saved_claim_id,
                         'submission_id' => submission_id,
                         'job_id' => jid,
-                        'job_status' => 'received')
-
-      handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+                        'event' => 'success')
     rescue CentralMailResponseError => e
       raise(e)
     rescue Common::Exceptions::GatewayTimeout => e

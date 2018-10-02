@@ -18,12 +18,12 @@ module EVSS
       end
 
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
-        client = EVSS::DocumentsService.new(auth_headers)
-        guid = upload_data['confirmationCode']
+        guid = upload_data&.dig('confirmationCode')
         file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
         raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
         document_data = create_document_data(evss_claim_id, upload_data)
 
+        client = EVSS::DocumentsService.new(auth_headers)
         client.upload(file_body, document_data)
 
         Rails.logger.info('Form526 Upload',
@@ -31,7 +31,7 @@ module EVSS
                           'saved_claim_id' => saved_claim_id,
                           'submission_id' => submission_id,
                           'job_id' => jid,
-                          'job_status' => 'received')
+                          'event' => 'success')
       end
 
       private
