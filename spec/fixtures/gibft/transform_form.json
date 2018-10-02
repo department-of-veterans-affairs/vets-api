@@ -18,14 +18,14 @@
   "on_behalf_of": "Myself",
   "education_details": {
     "school": {
-      "name": "ZURICH NORTH AMERICA",
+      "name": "UNIVERSITY OF LOUISVILLE",
       "address": {
-        "street": "1400 AMERICAN LN",
-        "street2": null,
-        "city": "SCHAUMBURG",
-        "postal_code": "60196",
-        "state": "IL",
-        "country": "USA"
+        "country": "United States",
+        "street": "Office of Military and Veteran, Student Records",
+        "street2": "street 3",
+        "city": "LOUISVILLE",
+        "state": "KY",
+        "postal_code": "40292"
       }
     },
     "programs": [
@@ -48,7 +48,7 @@
     "active_ICN": null,
     "historical_ICN": null,
     "sec_ID": null,
-    "SSN": "796111863"
+    "SSN": "1234"
   },
   "email": "foo@foo.com"
 }

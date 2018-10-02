@@ -342,6 +342,22 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports getting suggested conditions' do
+        create(:disability_contention_arrhythmia)
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          401,
+          'params' => '?name_part=arr'
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          200,
+          auth_options.merge('params' => '?name_part=arr')
+        )
+      end
+
       it 'supports submitting the form' do
         allow(EVSS::DisabilityCompensationForm::SubmitForm526)
           .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
@@ -362,6 +378,26 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
         end
+      end
+
+      it 'supports getting submission status' do
+        job_id = SecureRandom.uuid
+        create(:va526ez_submit_transaction,
+               transaction_id: job_id,
+               transaction_status: 'submitted',
+               metadata: {})
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          401,
+          'job_id' => job_id
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          200,
+          auth_options.merge('job_id' => job_id)
+        )
       end
     end
 
@@ -1220,6 +1256,28 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'performance monitoring' do
+      it 'supports posting performance monitoring data' do
+        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
+        body = {
+          data: {
+            page_id: whitelisted_path,
+            metrics: [
+              { metric: 'initial_page_load', duration: 1234.56 },
+              { metric: 'time_to_paint', duration: 123.45 }
+            ]
+          }.to_json
+        }
+
+        expect(subject).to validate(
+          :post,
+          '/v0/performance_monitorings',
+          200,
+          auth_options.merge('_data' => body.as_json)
+        )
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
@@ -1609,6 +1667,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
 
         expect(subject).to validate(:get, '/v0/profile/service_history', 502, auth_options)
+      end
+    end
+
+    describe 'search' do
+      context 'when successful' do
+        it 'supports getting search results data' do
+          VCR.use_cassette('search/success') do
+            expect(subject).to validate(:get, '/v0/search', 200, '_query_string' => 'query=benefits')
+          end
+        end
+      end
+
+      context 'with an empty search query' do
+        it 'returns a 400 with error details' do
+          VCR.use_cassette('search/empty_query') do
+            expect(subject).to validate(:get, '/v0/search', 400, '_query_string' => 'query=')
+          end
+        end
       end
     end
   end

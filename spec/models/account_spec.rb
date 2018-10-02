@@ -19,16 +19,18 @@ RSpec.describe Account, type: :model do
 
       user = create(:user, :loa3)
 
-      Account.create_if_needed!(user)
-      expect(Account.count).to eq 1
+      expect do
+        Account.create_if_needed!(user)
+      end.to change { Account.count }.by(1)
     end
 
     it 'should not create a second Account' do
       user = create(:user, :accountable)
       expect(Account.count).to eq 1
 
-      Account.create_if_needed!(user)
-      expect(Account.count).to eq 1
+      expect do
+        Account.create_if_needed!(user)
+      end.not_to change { Account.count }
     end
   end
 

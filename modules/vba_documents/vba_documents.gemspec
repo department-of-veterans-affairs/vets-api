@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://api.vets.gov/services/vba_documents/docs/v0'
   s.summary     = 'VBA Documents Upload'
   s.description = 'VBA Documents Upload API'
-  s.license     = 'MIT'
+  s.license     = 'CC0'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'Rakefile']
   s.test_files = Dir['spec/**/*']
