@@ -158,7 +158,7 @@ class ApplicationController < ActionController::API
   end
 
   def cookie_domain
-    Rails.env.production? ? '*.va.gov' : nil
+    '.va.gov'
   end
 
   def extend_session!

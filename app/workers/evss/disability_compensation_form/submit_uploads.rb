@@ -8,27 +8,41 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(auth_headers, claim_id, uploads)
+      def self.start(auth_headers, evss_claim_id, saved_claim_id, submission_id, uploads)
         batch = Sidekiq::Batch.new
         batch.jobs do
           uploads.each do |upload_data|
-            perform_async(upload_data, claim_id, auth_headers)
+            perform_async(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
           end
         end
       end
 
-      def perform(upload_data, claim_id, auth_headers)
+      def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
+        guid = upload_data&.dig('confirmationCode')
+        file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
+        raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
+        document_data = create_document_data(evss_claim_id, upload_data)
+
         client = EVSS::DocumentsService.new(auth_headers)
-        code = upload_data['confirmationCode']
-        file_body = SupportingEvidenceAttachment.find_by(guid: code)&.file_data
-        raise ArgumentError, "supporting evidence attachment with guid #{code} has no file data" if file_body.nil?
-        document_data = EVSSClaimDocument.new(
-          evss_claim_id: claim_id,
+        client.upload(file_body, document_data)
+
+        Rails.logger.info('Form526 Upload',
+                          'guid' => guid,
+                          'saved_claim_id' => saved_claim_id,
+                          'submission_id' => submission_id,
+                          'job_id' => jid,
+                          'event' => 'success')
+      end
+
+      private
+
+      def create_document_data(evss_claim_id, upload_data)
+        EVSSClaimDocument.new(
+          evss_claim_id: evss_claim_id,
           file_name: upload_data['name'],
           tracked_item_id: nil,
           document_type: upload_data['attachmentId']
         )
-        client.upload(file_body, document_data)
       end
     end
   end

@@ -29,16 +29,20 @@ module EVSS
       # @param user_uuid [String] The user's uuid thats associated with the form
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param form_content [Hash] The form content that is to be submitted
-      # @param form4142 [Hash] The form content for 4142 that is to be submitted
-      # @param uploads [Hash] The users ancillary uploads that will be submitted separately
+      # @param submission_data [Hash] The submission hash
       #
-      # rubocop:disable Metrics/ParameterLists
-      def perform(user_uuid, auth_headers, saved_claim_id, form_content, form4142, uploads)
-        associate_transaction(auth_headers, saved_claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
-        response = service(auth_headers).submit_form526(form_content)
-        submit_4142(form4142, user_uuid, auth_headers, response.claim_id, saved_claim_id) if form4142
-        success_handler(user_uuid, auth_headers, saved_claim_id, response, uploads)
+      def perform(user_uuid, auth_headers, saved_claim_id, submission_data)
+        @user_uuid = user_uuid
+        @auth_headers = auth_headers
+        @saved_claim_id = saved_claim_id
+        @submission_data = submission_data
+
+        transaction = find_or_create_transaction
+        @submission_id = transaction.submission.id
+
+        log_try
+        response = service(@auth_headers).submit_form526(@submission_data['form_526'])
+        success_handler(response)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         retryable_error_handler(e) if e.status_code.between?(500, 600)
         non_retryable_error_handler(e)
@@ -49,39 +53,82 @@ module EVSS
       ensure
         metrics.increment_try
       end
+<<<<<<< HEAD
 
       # rubocop:enable Metrics/ParameterLists
+=======
+>>>>>>> refactor-526-controller
 
       private
 
-      def success_handler(user_uuid, auth_headers, saved_claim_id, response, uploads)
+      def find_or_create_transaction
+        transaction = transaction_class.find_transaction(jid)
+        return transaction if transaction.present?
+        saved_claim(@saved_claim_id).async_transaction = transaction_class.start(
+          @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
+        )
+      end
+
+      def success_handler(response)
+        log_success(response)
+        perform_submit_uploads(response) if @submission_data['form_526_uploads'].present?
+        perform_submit_form_4142(response) if @submission_data['form_4142'].present?
+        perform_cleanup
+      end
+
+      def log_try
+        Rails.logger.info('Form526 Submission',
+                          'saved_claim_id' => @saved_claim_id,
+                          'submission_id' => @submission_id,
+                          'job_id' => jid,
+                          'event' => 'try')
+      end
+
+      def log_success(response)
         submission_rate_limiter.increment
         metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
-
         Rails.logger.info('Form526 Submission',
-          'user_uuid' => user_uuid,
-          'saved_claim_id' => saved_claim_id,
-          'job_id' => jid,
-          'job_status' => 'received')
+                          'saved_claim_id' => @saved_claim_id,
+                          'submission_id' => @submission_id,
+                          'job_id' => jid,
+                          'event' => 'success')
+      end
 
-        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
+      def perform_submit_uploads(response)
+        EVSS::DisabilityCompensationForm::SubmitUploads.start(
+          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_526_uploads']
+        )
+      end
 
-        if uploads.present?
-          EVSS::DisabilityCompensationForm::SubmitUploads.start(
-            auth_headers, response.claim_id, uploads
-          )
-        end
+      def perform_submit_form_4142(response)
+        CentralMail::SubmitForm4142Job.perform_async(
+          @user_uuid, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_4142']
+        )
+      end
+
+      def perform_cleanup
+        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(@user_uuid)
       end
 
       def non_retryable_error_handler(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
+        Rails.logger.error('Form526 Submission',
+                           'saved_claim_id' => @saved_claim_id,
+                           'submission_id' => @submission_id,
+                           'job_id' => jid,
+                           'event' => 'non_retryable_error')
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
         metrics.increment_non_retryable(error)
       end
 
       def retryable_error_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.messages)
+        Rails.logger.warn('Form526 Submission',
+                          'saved_claim_id' => @saved_claim_id,
+                          'submission_id' => @submission_id,
+                          'job_id' => jid,
+                          'event' => 'retryable_error')
         metrics.increment_retryable(error)
         raise error
       end
@@ -97,19 +144,6 @@ module EVSS
         extra_content = { status: :non_retryable_error, jid: jid }
         log_exception_to_sentry(error, extra_content)
         metrics.increment_non_retryable(error)
-      end
-
-      def associate_transaction(auth_headers, claim_id, user_uuid)
-        saved_claim(claim_id).async_transaction = transaction_class.start(
-          user_uuid, auth_headers['va_eauth_dodedipnid'], jid
-        )
-      end
-
-      def submit_4142(form_content, user_uuid, auth_headers, evss_claim_id, saved_claim_id)
-        saved_claim_created_at = saved_claim(saved_claim_id).created_at
-        CentralMail::SubmitForm4142Job.perform_async(
-          user_uuid, auth_headers, form_content, evss_claim_id, saved_claim_created_at
-        )
       end
 
       def service(auth_headers)
