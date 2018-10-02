@@ -71,7 +71,7 @@ class OpenidApplicationController < ApplicationController
       first_name: profile['firstName'],
       middle_name: profile['middleName'],
       last_name: profile['lastName'],
-      gender: profile['gender'],
+      gender: profile['gender']&.chars&.first&.upcase,
       birth_date: profile['dob'],
       ssn: profile['ssn'],
       loa: { current: profile['loa'], highest: profile['loa'] }
@@ -85,7 +85,7 @@ class OpenidApplicationController < ApplicationController
       first_name: payload['fn'],
       middle_name: payload['mn'],
       last_name: payload['ln'],
-      gender: payload['gender'],
+      gender: payload['gender']&.chars&.first&.upcase,
       birth_date: payload['dob'],
       ssn: payload['ssn'],
       loa: { current: payload['loa'], highest: payload['loa'] }
@@ -97,6 +97,7 @@ class OpenidApplicationController < ApplicationController
 
   def user_from_identity(user_identity, ttl)
     user = User.new(user_identity.attributes)
+    user.last_signed_in = Time.current.utc
     user.expire(ttl)
     user
   end
