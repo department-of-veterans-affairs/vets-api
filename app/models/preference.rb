@@ -9,4 +9,6 @@ class Preference < ActiveRecord::Base
 
   validates :code,  presence: true, uniqueness: true
   validates :title, presence: true
+
+  alias choices preference_choices
 end
