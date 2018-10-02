@@ -329,4 +329,5 @@ account:
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
+  mock_search: true
   url: https://search.usa.gov/api/v2
