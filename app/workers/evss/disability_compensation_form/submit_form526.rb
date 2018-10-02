@@ -29,15 +29,15 @@ module EVSS
       # @param user_uuid [String] The user's uuid thats associated with the form
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param submission [Hash] The submission hash
+      # @param submission_data [Hash] The submission hash
       #
-      def perform(user_uuid, auth_headers, saved_claim_id, submission)
+      def perform(user_uuid, auth_headers, saved_claim_id, submission_data)
         @user_uuid = user_uuid
         @auth_headers = auth_headers
         @saved_claim_id = saved_claim_id
-        @submission = submission
-        associate_transaction if transaction_class.find_transaction(jid).blank?
-        response = service(@auth_headers).submit_form526(@submission['form_526'])
+        @submission_data = submission_data
+        @submission_id = associated_transaction.disability_compensation_id if transaction_class.find_transaction(jid).blank?
+        response = service(@auth_headers).submit_form526(@submission_data['form_526'])
         success_handler(response)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
         retryable_error_handler(e) if e.status_code.between?(500, 600)
@@ -60,8 +60,8 @@ module EVSS
 
       def success_handler(response)
         log_success(response)
-        perform_submit_uploads(response) if @submission['form_526_uploads'].present?
-        perform_submit_form_4142(response) if @submission['form_4142'].present?
+        perform_submit_uploads(response) if @submission_data['form_526_uploads'].present?
+        perform_submit_form_4142(response) if @submission_data['form_4142'].present?
         perform_cleanup
       end
 
@@ -78,13 +78,13 @@ module EVSS
 
       def perform_submit_uploads(response)
         EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @user_uuid, @auth_headers, response.claim_id, @saved_claim_id, @submission['form_526_uploads']
+          @user_uuid, @auth_headers, response.claim_id, @saved_claim_id, @submission_data['form_526_uploads']
         )
       end
 
       def perform_submit_form_4142(response)
         CentralMail::SubmitForm4142Job.perform_async(
-          @user_uuid, response.claim_id, @saved_claim_id, @submission['form_4142']
+          @user_uuid, response.claim_id, @saved_claim_id, @submission_data['form_4142']
         )
       end
 
