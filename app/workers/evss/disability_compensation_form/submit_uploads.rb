@@ -8,16 +8,16 @@ module EVSS
 
       FORM_TYPE = '21-526EZ'
 
-      def self.start(user_uuid, auth_headers, evss_claim_id, saved_claim_id, uploads)
+      def self.start(auth_headers, evss_claim_id, saved_claim_id, submission_id, uploads)
         batch = Sidekiq::Batch.new
         batch.jobs do
           uploads.each do |upload_data|
-            perform_async(user_uuid, auth_headers, evss_claim_id, saved_claim_id, upload_data)
+            perform_async(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
           end
         end
       end
 
-      def perform(user_uuid, auth_headers, evss_claim_id, saved_claim_id, upload_data)
+      def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
         client = EVSS::DocumentsService.new(auth_headers)
         guid = upload_data['confirmationCode']
         file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
@@ -27,9 +27,9 @@ module EVSS
         client.upload(file_body, document_data)
 
         Rails.logger.info('Form526 Upload',
-                          'user_uuid' => user_uuid,
                           'guid' => guid,
                           'saved_claim_id' => saved_claim_id,
+                          'submission_id' => submission_id,
                           'job_id' => jid,
                           'job_status' => 'received')
       end

@@ -33,7 +33,7 @@ module CentralMail
     # @param saved_claim_id [Integer] Saved Claim id
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     #
-    def perform(user_uuid, evss_claim_id, saved_claim_id, form_content)
+    def perform(user_uuid, evss_claim_id, saved_claim_id, submission_id, form_content)
       saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
       @parsed_form = process_form(form_content)
 
@@ -45,6 +45,7 @@ module CentralMail
       Rails.logger.info('Form4142 Submission',
                         'user_uuid' => user_uuid,
                         'saved_claim_id' => saved_claim_id,
+                        'submission_id' => submission_id,
                         'job_id' => jid,
                         'job_status' => 'received')
 

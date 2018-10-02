@@ -36,7 +36,10 @@ module EVSS
         @auth_headers = auth_headers
         @saved_claim_id = saved_claim_id
         @submission_data = submission_data
-        associate_transaction if transaction_class.find_transaction(jid).blank?
+
+        transaction = find_or_create_transaction
+        @submission_id = transaction.submission.id
+
         response = service(@auth_headers).submit_form526(@submission_data['form_526'])
         success_handler(response)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
@@ -52,7 +55,9 @@ module EVSS
 
       private
 
-      def associate_transaction
+      def find_or_create_transaction
+        transaction = transaction_class.find_transaction(jid)
+        return transaction if transaction.present?
         saved_claim(@saved_claim_id).async_transaction = transaction_class.start(
           @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
         )
@@ -72,19 +77,20 @@ module EVSS
         Rails.logger.info('Form526 Submission',
                           'user_uuid' => @user_uuid,
                           'saved_claim_id' => @saved_claim_id,
+                          'submission_id' => @submission_id,
                           'job_id' => jid,
                           'job_status' => 'received')
       end
 
       def perform_submit_uploads(response)
         EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @user_uuid, @auth_headers, response.claim_id, @saved_claim_id, @submission_data['form_526_uploads']
+          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_526_uploads']
         )
       end
 
       def perform_submit_form_4142(response)
         CentralMail::SubmitForm4142Job.perform_async(
-          @user_uuid, response.claim_id, @saved_claim_id, @submission_data['form_4142']
+          @user_uuid, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_4142']
         )
       end
 
@@ -94,12 +100,25 @@ module EVSS
 
       def non_retryable_error_handler(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
+        Rails.logger.error('Form526 Submission',
+                           'user_uuid' => @user_uuid,
+                           'saved_claim_id' => @saved_claim_id,
+                           'submission_id' => @submission_id,
+                           'job_id' => jid,
+                           'job_status' => 'non_retryable_error')
+        # above is to trace the workflow, below logs error details to sentry and rails logger
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
         metrics.increment_non_retryable(error)
       end
 
       def retryable_error_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.messages)
+        Rails.logger.warn('Form526 Submission',
+                          'user_uuid' => @user_uuid,
+                          'saved_claim_id' => @saved_claim_id,
+                          'submission_id' => @submission_id,
+                          'job_id' => jid,
+                          'job_status' => 'retrying')
         metrics.increment_retryable(error)
         raise error
       end
