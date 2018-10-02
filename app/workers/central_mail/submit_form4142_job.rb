@@ -29,12 +29,12 @@ module CentralMail
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
     # @param user_uuid [String] The user's UUID that's associated with the form
-    # @param _auth_headers [Hash] The VAAFI headers for the user
-    # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     # @param evss_claim_id [String] EVSS Claim id received from 526 submission to generate unique PDF file path
-    # @param saved_claim_created_at [DateTime] Saved Claim receive date time set as 4142 Metadata in ICMHS submission
+    # @param saved_claim_id [Integer] Saved Claim id
+    # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     #
-    def perform(user_uuid, _auth_headers, form_content, evss_claim_id, saved_claim_created_at)
+    def perform(user_uuid, evss_claim_id, saved_claim_id, form_content)
+      saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
       @parsed_form = process_form(form_content)
 
       # generate and stamp PDF
@@ -43,9 +43,10 @@ module CentralMail
       response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
 
       Rails.logger.info('Form4142 Submission',
-                        'user_uuid' => user_uuid,
-                        'job_id' => jid,
-                        'job_status' => 'received')
+        'user_uuid' => user_uuid,
+        'saved_claim_id' => saved_claim_id,
+        'job_id' => jid,
+        'job_status' => 'received')
 
       handle_service_exception(response) if response.present? && response.status.between?(201, 600)
     rescue CentralMailResponseError => e
@@ -110,7 +111,7 @@ module CentralMail
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'receiveDt' =>  format_saved_claim_created_at(saved_claim_created_at).strftime('%Y-%m-%d %H:%M:%S'),
+        'receiveDt' => format_saved_claim_created_at(saved_claim_created_at).strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => jid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
         'source' => 'Vets.gov',
@@ -170,7 +171,7 @@ module CentralMail
       {
         status: status,
         detail: detail,
-        code:   key,
+        code: key,
         source: source.to_s
       }
     end

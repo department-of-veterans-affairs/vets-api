@@ -70,22 +70,21 @@ module EVSS
         metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
         Rails.logger.info('Form526 Submission',
-                          'user_uuid' => @user_uuid,
-                          'saved_claim_id' => @saved_claim_id,
-                          'job_id' => jid,
-                          'job_status' => 'received')
+          'user_uuid' => @user_uuid,
+          'saved_claim_id' => @saved_claim_id,
+          'job_id' => jid,
+          'job_status' => 'received')
       end
 
       def perform_submit_uploads(response)
         EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @auth_headers, response.claim_id, @submission['form_526_uploads']
+          @user_uuid, @auth_headers, response.claim_id, @saved_claim_id, @submission['form_526_uploads']
         )
       end
 
       def perform_submit_form_4142(response)
-        saved_claim_created_at = saved_claim(@saved_claim_id).created_at
         CentralMail::SubmitForm4142Job.perform_async(
-          @user_uuid, @auth_headers, @submission['form_4142'], response.claim_id, saved_claim_created_at
+          @user_uuid, response.claim_id, @saved_claim_id, @submission['form_4142']
         )
       end
 
