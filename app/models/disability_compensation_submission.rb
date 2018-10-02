@@ -11,4 +11,8 @@ class DisabilityCompensationSubmission < ActiveRecord::Base
     class_name: 'AsyncTransaction::EVSS::VA526ezSubmitTransaction',
     foreign_key: 'va526ez_submit_transaction_id'
   )
+
+	def complete
+		self["complete"] ||= false
+	end
 end
