@@ -8,20 +8,20 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
   let(:token) { 'token' }
   let(:jwt) do
     [{
-       'ver' => 1,
-       'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
-       'iss' => 'https://deptva-vetsgov-eval.okta.com/oauth2/default',
-       'aud' => 'api://default',
-       'iat' => 1_538_509_491,
-       'exp' => 1_538_513_091,
-       'cid' => '0oa1c01m77heEXUZt2p7',
-       'uid' => '00u1zlqhuo3yLa2Xs2p7',
-       'scp' => %w[profile email openid va_profile],
-       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
-     }, {
-       'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
-       'alg' => 'RS256'
-     }]
+      'ver' => 1,
+      'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+      'iss' => 'https://deptva-vetsgov-eval.okta.com/oauth2/default',
+      'aud' => 'api://default',
+      'iat' => 1_538_509_491,
+      'exp' => 1_538_513_091,
+      'cid' => '0oa1c01m77heEXUZt2p7',
+      'uid' => '00u1zlqhuo3yLa2Xs2p7',
+      'scp' => %w[profile email openid va_profile],
+      'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
+    }, {
+      'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
+      'alg' => 'RS256'
+    }]
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { build(:user, :loa3) }
