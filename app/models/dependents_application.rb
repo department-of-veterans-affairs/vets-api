@@ -20,6 +20,9 @@ class DependentsApplication < Common::RedisStore
     end
   end
 
+  def self.hyphenate_ssn(ssn)
+  end
+
   def self.set_child_attrs!(dependent, child = {})
     dependent['fullName'].tap do |full_name|
       next if full_name.blank?
@@ -49,7 +52,10 @@ class DependentsApplication < Common::RedisStore
       }
     end
 
-    
+    child['countryOfBirth'] ||= {}
+    child['countryOfBirth']['dropDownCountry'] = dependent['childPlaceOfBirth'] if dependent['childPlaceOfBirth'].present?
+
+    child['ssn'] = dependent['childSocialSecurityNumber']
   end
 
   def self.transform_form(parsed_form, evss_form)
