@@ -8,6 +8,12 @@ describe Gibft::Service, type: :model do
 
   describe '#submit' do
     before do
+      VCR.config do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+      gi_bill_feedback = create(:gi_bill_feedback)
+      res = Gibft::Service.new.submit(gi_bill_feedback.transform_form)
+      binding.pry; fail
       expect(service).to receive(:get_oauth_token).and_return('token')
 
       expect(Restforce).to receive(:new).with(
