@@ -136,6 +136,7 @@ module V0
       Swagger::Requests::Messages::MessageDrafts,
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::PensionClaims,
+      Swagger::Requests::PerformanceMonitoring,
       Swagger::Requests::Post911GiBillStatuses,
       Swagger::Requests::PPIU,
       Swagger::Requests::Prescriptions::Prescriptions,
