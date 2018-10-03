@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://deptva-vetsgov-eval.okta.com/oauth2/default/.well-known/oauth-authorization-server
+    uri: https://example.com/oauth2/default/.well-known/oauth-authorization-server
     body:
       encoding: US-ASCII
       string: ''
@@ -55,13 +55,13 @@ http_interactions:
       - chunked
     body:
       encoding: UTF-8
-      string: '{"issuer":"https://deptva-vetsgov-eval.okta.com/oauth2/default","authorization_endpoint":"https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/authorize","token_endpoint":"https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/token","registration_endpoint":"https://deptva-vetsgov-eval.okta.com/oauth2/v1/clients","jwks_uri":"https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/keys","response_types_supported":["code","token","code
-        token"],"response_modes_supported":["query","fragment","form_post","okta_post_message"],"grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials"],"subject_types_supported":["public"],"scopes_supported":["openid","profile","email","address","phone","offline_access"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"claims_supported":["ver","jti","iss","aud","iat","exp","cid","uid","scp","sub"],"code_challenge_methods_supported":["S256"],"introspection_endpoint":"https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/introspect","introspection_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"revocation_endpoint":"https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/revoke","revocation_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"end_session_endpoint":"https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/logout","request_parameter_supported":true,"request_object_signing_alg_values_supported":["HS256","HS384","HS512","RS256","RS384","RS512","ES256","ES384","ES512"]}'
+      string: '{"issuer":"https://example.com/oauth2/default","authorization_endpoint":"https://example.com/oauth2/default/v1/authorize","token_endpoint":"https://example.com/oauth2/default/v1/token","registration_endpoint":"https://example.com/oauth2/v1/clients","jwks_uri":"https://example.com/oauth2/default/v1/keys","response_types_supported":["code","token","code
+        token"],"response_modes_supported":["query","fragment","form_post","okta_post_message"],"grant_types_supported":["authorization_code","implicit","refresh_token","password","client_credentials"],"subject_types_supported":["public"],"scopes_supported":["openid","profile","email","address","phone","offline_access"],"token_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"claims_supported":["ver","jti","iss","aud","iat","exp","cid","uid","scp","sub"],"code_challenge_methods_supported":["S256"],"introspection_endpoint":"https://example.com/oauth2/default/v1/introspect","introspection_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"revocation_endpoint":"https://example.com/oauth2/default/v1/revoke","revocation_endpoint_auth_methods_supported":["client_secret_basic","client_secret_post","client_secret_jwt","private_key_jwt","none"],"end_session_endpoint":"https://example.com/oauth2/default/v1/logout","request_parameter_supported":true,"request_object_signing_alg_values_supported":["HS256","HS384","HS512","RS256","RS384","RS512","ES256","ES384","ES512"]}'
     http_version: 
   recorded_at: Tue, 02 Oct 2018 19:58:54 GMT
 - request:
     method: get
-    uri: https://deptva-vetsgov-eval.okta.com/oauth2/default/v1/keys
+    uri: https://example.com/oauth2/default/v1/keys
     body:
       encoding: US-ASCII
       string: ''
