@@ -3,7 +3,7 @@
 class V0::Facilities::CcpController < FacilitiesController
   def show
     ppms = Facilities::PPMSClient.new
-    #id passed in like ccp_XXXXXXXX. API call requires XXXXXXX
+    # id passed in like ccp_XXXXXXXX. API call requires XXXXXXX
     id = params[:id][4..-1]
     result = ppms.provider_info(id)
     render json: format_details(result)
