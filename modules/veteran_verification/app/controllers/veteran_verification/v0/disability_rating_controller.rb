@@ -6,6 +6,7 @@ module VeteranVerification
   module V0
     class DisabilityRatingController < ApplicationController
       before_action { authorize :evss, :access? }
+      before_action { permit_scopes 'disability_rating' }
 
       def index
         response = service.get_rated_disabilities

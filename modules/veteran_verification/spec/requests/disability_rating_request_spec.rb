@@ -16,7 +16,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
       'exp' => 1_538_513_091,
       'cid' => '0oa1c01m77heEXUZt2p7',
       'uid' => '00u1zlqhuo3yLa2Xs2p7',
-      'scp' => %w[profile email openid va_profile],
+      'scp' => %w[profile email openid va_profile disability_rating],
       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
     }, {
       'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
@@ -34,20 +34,12 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
 
   context 'with valid emis responses' do
     it 'should return the current users service history with one episode' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
-            expect(response).to have_http_status(:ok)
-            expect(response.body).to be_a(String)
-            expect(response).to match_response_schema('disability_rating_response')
-          end
+      with_okta_configured do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('disability_rating_response')
         end
       end
     end
@@ -55,19 +47,11 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
 
   context 'with a 500 response' do
     it 'should return a bad gateway response' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
-            expect(response).to have_http_status(:bad_gateway)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
+      with_okta_configured do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
+          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          expect(response).to have_http_status(:bad_gateway)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -75,19 +59,11 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
 
   context 'with a 403 unauthorized response' do
     it 'should return a not authorized response' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
-            expect(response).to have_http_status(:forbidden)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
+      with_okta_configured do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
+          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          expect(response).to have_http_status(:forbidden)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end
@@ -95,19 +71,11 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
 
   context 'with a generic 400 response' do
     it 'should return a bad request response' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-            get '/services/veteran_verification/v0/disability_rating', nil, auth_header
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_response_schema('evss_errors', strict: false)
-          end
+      with_okta_configured do
+        VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
+          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          expect(response).to have_http_status(:bad_request)
+          expect(response).to match_response_schema('evss_errors', strict: false)
         end
       end
     end

@@ -34,43 +34,27 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
   context 'with valid emis responses' do
     it 'should return the current users service history with one episode' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('emis/get_deployment/valid') do
-            VCR.use_cassette('emis/get_military_service_episodes/valid') do
-              get '/services/veteran_verification/v0/service_history', nil, auth_header
-              expect(response).to have_http_status(:ok)
-              expect(response.body).to be_a(String)
-              expect(response).to match_response_schema('service_and_deployment_history_response')
-            end
+      with_okta_configured do
+        VCR.use_cassette('emis/get_deployment/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes/valid') do
+            get '/services/veteran_verification/v0/service_history', nil, auth_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(response).to match_response_schema('service_and_deployment_history_response')
           end
         end
       end
     end
 
     it 'should return the current users service history with multiple episodes' do
-      with_settings(
-        Settings.oidc,
-        auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-        issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
-      ) do
-        VCR.use_cassette('okta/metadata') do
-          VCR.use_cassette('emis/get_deployment/valid') do
-            VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
-              get '/services/veteran_verification/v0/service_history', nil, auth_header
-              expect(response).to have_http_status(:ok)
-              expect(response.body).to be_a(String)
-              expect(JSON.parse(response.body)['data'].length).to eq(2)
-              expect(response).to match_response_schema('service_and_deployment_history_response')
-            end
+      with_okta_configured do
+        VCR.use_cassette('emis/get_deployment/valid') do
+          VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
+            get '/services/veteran_verification/v0/service_history', nil, auth_header
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to be_a(String)
+            expect(JSON.parse(response.body)['data'].length).to eq(2)
+            expect(response).to match_response_schema('service_and_deployment_history_response')
           end
         end
       end
@@ -83,7 +67,9 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
     end
 
     it 'should match the errors schema', :aggregate_failures do
-      get '/services/veteran_verification/v0/service_history', nil, auth_header
+      with_okta_configured do
+        get '/services/veteran_verification/v0/service_history', nil, auth_header
+      end
 
       expect(response).to have_http_status(:bad_gateway)
       expect(response).to match_response_schema('errors')
