@@ -4,6 +4,7 @@ module CentralMail
   class SubmitForm4142Job
     include Sidekiq::Worker
     include SentryLogging
+    include EVSS::DisabilityCompensationForm::JobStatus
 
     FORM_ID = '21-4142'
 
@@ -33,22 +34,18 @@ module CentralMail
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     #
     def perform(_user_uuid, evss_claim_id, saved_claim_id, submission_id, form_content)
-      saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
-      @parsed_form = process_form(form_content)
+      with_tracking('Form4142 Submission', saved_claim_id, submission_id) do
+        saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
+        @parsed_form = process_form(form_content)
 
-      # generate and stamp PDF
-      @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
+        # generate and stamp PDF
+        @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
 
-      response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
-      handle_service_exception(response) if response.present? && response.status.between?(201, 600)
-
-      Rails.logger.info('Form4142 Submission',
-                        'saved_claim_id' => saved_claim_id,
-                        'submission_id' => submission_id,
-                        'job_id' => jid,
-                        'event' => 'success')
+        response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
+        handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+      end
     rescue CentralMailResponseError => e
-      raise(e)
+      raise e if e.response_values[:status].between?(500, 600)
     rescue Common::Exceptions::GatewayTimeout => e
       handle_gateway_timeout_exception(e)
     rescue StandardError => e
@@ -142,13 +139,12 @@ module CentralMail
     def handle_service_exception(response)
       # create service error with CentralMailResponseError
       error = create_service_error(nil, self.class, response)
-      if response.status.between?(500, 600)
-        raise error
-      else
+      unless response.status.between?(500, 600)
         extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
         Rails.logger.error('Error Message' => error.message)
         log_exception_to_sentry(error, extra_content)
       end
+      raise error
     end
 
     def handle_gateway_timeout_exception(error)

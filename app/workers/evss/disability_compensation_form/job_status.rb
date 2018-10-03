@@ -25,7 +25,7 @@ module EVSS
 
       def job_success(job_title, saved_claim_id, submission_id)
         DisabilityCompensationJobStatus.upsert(
-          { job_id: SecureRandom.uuid },
+          { job_id: jid },
           disability_compensation_submission_id: submission_id,
           job_class: klass,
           status: 'success',
