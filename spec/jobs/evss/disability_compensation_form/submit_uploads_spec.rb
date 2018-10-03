@@ -91,9 +91,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let(:attachment) { double(:attachment, get_file: nil) }
 
       it 'raises an ArgumentError' do
-        expect do
-          subject.new.perform(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
-        end.to raise_error(
+        subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
+        expect { described_class.drain }.to raise_error(
           ArgumentError,
           'supporting evidence attachment with guid d44d6f52-2e85-43d4-a5a3-1d9cb4e482a0 has no file data'
         )

@@ -21,7 +21,6 @@ module EVSS
 
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
         guid = upload_data&.dig('confirmationCode')
-        binding.pry
         with_tracking("Form526 Upload: #{guid}", saved_claim_id, submission_id) do
           file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?

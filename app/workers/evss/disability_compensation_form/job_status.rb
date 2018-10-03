@@ -46,15 +46,16 @@ module EVSS
           job_id: jid,
           job_class: klass,
           status: 'error',
-          error_message: error.message
+          error_message: error.message,
+          updated_at: Time.now.utc
         )
 
         Rails.logger.error(job_title,
-                          'saved_claim_id' => saved_claim_id,
-                          'submission_id' => submission_id,
-                          'job_id' => jid,
-                          'event' => 'error',
-                          'error_message' => error.message)
+                           'saved_claim_id' => saved_claim_id,
+                           'submission_id' => submission_id,
+                           'job_id' => jid,
+                           'event' => 'error',
+                           'error_message' => error.message)
       end
 
       def klass

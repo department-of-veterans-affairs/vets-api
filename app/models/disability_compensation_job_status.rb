@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'upsert/active_record_upsert'
 
 class DisabilityCompensationJobStatus < ActiveRecord::Base

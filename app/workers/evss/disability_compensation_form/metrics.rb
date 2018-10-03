@@ -20,7 +20,6 @@ module EVSS
         tags = ["error:#{error.class}"]
         tags << "status:#{error.status_code}" if error.try(:status_code)
         tags << "message:#{error.message}" if error.try(:message)
-        tags
         StatsD.increment("#{@prefix}.error", tags: tags)
       end
 

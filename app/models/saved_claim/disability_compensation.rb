@@ -2,13 +2,13 @@
 
 class SavedClaim::DisabilityCompensation < SavedClaim
   has_one :disability_compensation_submission,
-    class_name: 'DisabilityCompensationSubmission',
-    inverse_of: :disability_compensation_claim,
-    dependent: :destroy
+          class_name: 'DisabilityCompensationSubmission',
+          inverse_of: :disability_compensation_claim,
+          dependent: :destroy
 
   has_one :async_transaction,
-    through: :disability_compensation_submission,
-    source: :disability_compensation_job
+          through: :disability_compensation_submission,
+          source: :disability_compensation_job
 
   alias_attribute :submission, :disability_compensation_submission
 

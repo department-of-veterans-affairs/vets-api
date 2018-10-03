@@ -90,7 +90,7 @@ ActiveRecord::Schema.define(version: 20180929002139) do
 
   create_table "disability_compensation_job_statuses", force: :cascade do |t|
     t.integer  "disability_compensation_submission_id", null: false
-    t.uuid     "job_id",                                null: false
+    t.string   "job_id",                                null: false
     t.string   "job_class",                             null: false
     t.string   "status",                                null: false
     t.string   "error_message"
