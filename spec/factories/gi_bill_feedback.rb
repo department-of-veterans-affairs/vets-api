@@ -33,6 +33,7 @@ FactoryBot.define do
         educationDetails: {
           school: {
             name: 'UNIVERSITY OF LOUISVILLE',
+            facilityCode: '46123438',
             address: {
               country: 'United States',
               street: 'Office of Military and Veteran',
