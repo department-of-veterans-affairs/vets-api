@@ -15,7 +15,7 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        transaction_class.update_transaction(jid, :exhausted)
+        transaction_class.update_transaction(msg['jid'], :exhausted)
         log_message_to_sentry(
           "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
           :error
