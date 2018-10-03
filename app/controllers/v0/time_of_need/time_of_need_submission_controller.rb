@@ -6,10 +6,10 @@ module V0
       def create
         form = ::TimeOfNeed::TimeOfNeedSubmission.new(time_of_need_form_params)
         json = JSON.parse(form.to_json.camelize(:lower))
-        json.delete_if {|k, v| v.nil?}
+        json.delete_if { |k, v| v.nil? }
         response = Hash.new
-        response["newCase"] = json
-        response["salesforce_id"] = client.create(response)
+        response[:newCase] = json
+        response[:salesforce_id] = client.create(response)
         render json: response
       end
 
@@ -17,7 +17,7 @@ module V0
 
       # need to restrict params
       def time_of_need_form_params
-        params.require('new_case').permit(
+        params.require(:new_case).permit(
           :burial_activity_type,
           :remains_type,
           :emblem_code,

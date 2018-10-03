@@ -1,0 +1,105 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://va--mbmssit.cs33.my.salesforce.com/services/oauth2/token
+    body:
+      encoding: UTF-8
+      string: client_secret=6150175763295809569&client_id=3MVG9Zdl7Yn6QDKPHMwHadV4iFddvfNHNDYs18l_CHPw5JkdgIjR0trqqefjrP4jbfu5AHnCbxyEg60Tz3KWW&username=mbms_integration@bah.com.mbmssit&password=littlekyle2spCL3xcR7dbcUrrSwcgoUrDQ&grant_type=password
+    headers:
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 03 Oct 2018 14:11:55 GMT
+      Strict-Transport-Security:
+      - max-age=31536004; includeSubDomains
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="9n0izTnSRF+W4W4JTq51avSXkWhQB8duS2bxVLfzXsY="; pin-sha256="5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=";
+        pin-sha256="njN4rRG+22dNXAi+yb8e3UMypgzPUPHlv4+foULwl1g="; max-age=86400;
+        includeSubDomains; report-uri="https://calm-dawn-26291.herokuapp.com/hpkp-report/00D350000000iOBm";
+      Expect-Ct:
+      - max-age=0; report-uri="https://calm-dawn-26291.herokuapp.com/Expect-CT-report/00D350000000iOBm";
+      X-Robots-Tag:
+      - none
+      Cache-Control:
+      - no-cache,must-revalidate,max-age=0,no-store,private
+      Set-Cookie:
+      - BrowserId=whgCdjaITXC8YhhwrCoQSw;Path=/;Domain=.salesforce.com;Expires=Sun,
+        02-Dec-2018 14:11:55 GMT;Max-Age=5184000
+      Expires:
+      - Thu, 01 Jan 1970 00:00:00 GMT
+      X-Readonlymode:
+      - 'false'
+      Content-Type:
+      - application/json;charset=UTF-8
+      Vary:
+      - Accept-Encoding
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"access_token":"00D350000000iOB!AQEAQLjKwM6evFRUToH0gnJ58TIuvg2M7w8xFMfBPGgJEUzJEGI1e1gmoeSvBh18j2J9u7cb79ULID_g7UIo8ejXCn4Jw593","instance_url":"https://va--MBMSSit.cs33.my.salesforce.com","id":"https://test.salesforce.com/id/00D350000000iOBEAY/00535000000nPkSAAU","token_type":"Bearer","issued_at":"1538575915848","signature":"yABnZaGOO4trAkmlQxCkGMdylpPFtDLbinKZ9U4+qFc="}'
+    http_version: 
+  recorded_at: Wed, 03 Oct 2018 14:11:55 GMT
+- request:
+    method: post
+    uri: https://va--mbmssit.cs33.my.salesforce.com/services/apexrest/MBMS/Case
+    body:
+      encoding: UTF-8
+      string: '{"newCase":{"burialActivityType":"D","remainsType":"M","emblemCode":"55","cremainsType":"I"}}'
+    headers:
+      Content-Type:
+      - application/json
+      Authorization:
+      - OAuth 00D350000000iOB!AQEAQLjKwM6evFRUToH0gnJ58TIuvg2M7w8xFMfBPGgJEUzJEGI1e1gmoeSvBh18j2J9u7cb79ULID_g7UIo8ejXCn4Jw593
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Wed, 03 Oct 2018 14:11:56 GMT
+      Strict-Transport-Security:
+      - max-age=31536004; includeSubDomains
+      Public-Key-Pins-Report-Only:
+      - pin-sha256="9n0izTnSRF+W4W4JTq51avSXkWhQB8duS2bxVLfzXsY="; pin-sha256="5kJvNEMw0KjrCAu7eXY5HZdvyCS13BbA0VJG1RSP91w=";
+        pin-sha256="njN4rRG+22dNXAi+yb8e3UMypgzPUPHlv4+foULwl1g="; max-age=86400;
+        includeSubDomains; report-uri="https://calm-dawn-26291.herokuapp.com/hpkp-report/00D350000000iOBm";
+      Expect-Ct:
+      - max-age=0; report-uri="https://calm-dawn-26291.herokuapp.com/Expect-CT-report/00D350000000iOBm";
+      X-Robots-Tag:
+      - none
+      Cache-Control:
+      - no-cache,must-revalidate,max-age=0,no-store,private
+      Set-Cookie:
+      - BrowserId=MYCHuTbbReuwXCJ5V-HnKA;Path=/;Domain=.salesforce.com;Expires=Sun,
+        02-Dec-2018 14:11:56 GMT;Max-Age=5184000
+      Expires:
+      - Thu, 01 Jan 1970 00:00:00 GMT
+      Content-Type:
+      - application/octetstream
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '"50035000001SoqCAAS"'
+    http_version: 
+  recorded_at: Wed, 03 Oct 2018 14:11:57 GMT
+recorded_with: VCR 3.0.3
