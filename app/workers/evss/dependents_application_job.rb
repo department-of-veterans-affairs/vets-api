@@ -16,15 +16,23 @@ module EVSS
       evss_form = service.retrieve
       merged_form = DependentsApplication.transform_form(form, evss_form)
       merged_form = service.clean_form(merged_form)
-      res = service.validate(merged_form)
 
-      if res['errors'].present?
-        return dependents_application.update_attributes!(
-          state: 'failed',
-          response: res.to_json
-        )
+      service.validate(merged_form).tap do |res|
+        if res['errors'].present?
+          return dependents_application.update_attributes!(
+            state: 'failed',
+            response: res.to_json
+          )
+        end
       end
 
+      form_id = service.save(merged_form)['formId']
+      res = service.submit(merged_form, form_id)
+
+      dependents_application.update_attributes!(
+        state: 'success',
+        response: res.to_json
+      )
     end
   end
 end
