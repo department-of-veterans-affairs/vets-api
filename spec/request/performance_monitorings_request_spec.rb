@@ -16,8 +16,8 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
         data: {
           page_id: whitelisted_path,
           metrics: [
-            { metric: 'initial_page_load', duration: 1234.56 },
-            { metric: 'time_to_paint', duration: 123.45 }
+            { metric: 'totalPageLoad', duration: 1234.56 },
+            { metric: 'firstContentfulPaint', duration: 123.45 }
           ]
         }.to_json
       }
@@ -42,8 +42,8 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
           data: {
             page_id: whitelisted_path,
             metrics: [
-              { metric: 'initial_page_load', duration: 1234.56 },
-              { metric: 'time_to_paint', duration: nil }
+              { metric: 'totalPageLoad', duration: 1234.56 },
+              { metric: 'firstContentfulPaint', duration: nil }
             ]
           }.to_json
         }
@@ -71,8 +71,8 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
           data: {
             page_id: non_whitelisted_tag,
             metrics: [
-              { metric: 'initial_page_load', duration: 1234.56 },
-              { metric: 'time_to_paint', duration: 123.45 }
+              { metric: 'totalPageLoad', duration: 1234.56 },
+              { metric: 'firstContentfulPaint', duration: 123.45 }
             ]
           }.to_json
         }
