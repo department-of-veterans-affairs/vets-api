@@ -327,3 +327,15 @@ search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
   url: https://search.usa.gov/api/v2
+
+# Time of need
+time_of_need:
+  username: mbms_integration@bah.com.mbmssit
+  password: <%= ENV['SALESFORCE_PASSWORD'] %>
+  grant_type: password
+  client_secret: <%= ENV['SALESFORCE_CLIENT_KEY'] %>
+  client_id: <%= ENV['CLIENT_ID'] %>
+  instance_url: va--MBMSSit.cs33.my.salesforce.com
+  faraday_url: https://va--mbmssit.cs33.my.salesforce.com/services/oauth2/token
+
+

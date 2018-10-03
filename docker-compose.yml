@@ -32,6 +32,10 @@ services:
       POSTGRES_PORT: "${POSTGRES_PORT:-5432}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
+      SALESFORCE_CLIENT_KEY: "${SALESFORCE_CLIENT_KEY}"
+      SALESFORCE_PASSWORD: "${SALESFORCE_PASSWORD}"
+      CLIENT_ID: "${CLIENT_ID}"
+
     depends_on:
       - postgres
       - redis

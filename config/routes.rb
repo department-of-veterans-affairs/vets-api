@@ -159,6 +159,10 @@ Rails.application.routes.draw do
       resources :preneed_attachments, only: :create
     end
 
+    namespace :time_of_need do
+      resources :time_of_need_submission, only: %i[new create], defaults: { format: :json }
+    end
+
     namespace :vic do
       resources :profile_photo_attachments, only: %i[create show]
       resources :supporting_documentation_attachments, only: :create

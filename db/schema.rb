@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180905180210) do
+ActiveRecord::Schema.define(version: 20180927182404) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -342,6 +342,19 @@ ActiveRecord::Schema.define(version: 20180905180210) do
   end
 
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
+
+  create_table "time_of_need_submissions", force: :cascade do |t|
+    t.string   "burial_activity_type"
+    t.string   "remains_type"
+    t.string   "emblem_code"
+    t.string   "subsequent_indicator"
+    t.string   "liner_type"
+    t.string   "liner_size"
+    t.string   "cremains_type"
+    t.string   "cemetery_type"
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
 
   create_table "user_preferences", force: :cascade do |t|
     t.integer  "account_id",           null: false
