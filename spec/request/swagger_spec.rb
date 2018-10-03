@@ -1278,6 +1278,12 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'preferences' do
+      it 'supports getting preference data' do
+        expect(subject).to validate(:get, '/v0/preferences', 401)
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
