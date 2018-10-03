@@ -32,8 +32,8 @@ FactoryBot.define do
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
-            name: 'UNIVERSITY OF LOUISVILLE',
-            facilityCode: '46123438',
+            name: 'school of psychology',
+            facilityCode: '45678934',
             address: {
               country: 'United States',
               street: 'Office of Military and Veteran',
