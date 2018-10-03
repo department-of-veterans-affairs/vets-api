@@ -14,7 +14,7 @@ module Benchmark
 
     # @param tags [Array<String>] An array of string tag names. Tags must be in the key:value
     #   format in the string.  For example:
-    #   ['page_id:/disability', 'page_id:/facilities']
+    #   ['page_id:/disability/', 'page_id:/facilities/']
     #
     def initialize(tags)
       @tags = tags
