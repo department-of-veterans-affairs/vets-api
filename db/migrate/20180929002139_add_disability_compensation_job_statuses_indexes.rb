@@ -5,7 +5,7 @@ class AddDisabilityCompensationJobStatusesIndexes < ActiveRecord::Migration
     add_index(
       :disability_compensation_job_statuses,
       :disability_compensation_submission_id,
-      algorithm: :concurrently, name: 'index_disability_compensation_job_statuses_on_dsc_id'
+      algorithm: :concurrently, name: 'index_disability_compensation_job_statuses_on_dcs_id'
     )
     add_index(:disability_compensation_job_statuses, :job_id, unique: true, algorithm: :concurrently)
   end
