@@ -246,7 +246,7 @@ Rails.application.routes.draw do
       )
     end
 
-    resource :preference, only: %i[index show]
+    resource :preferences, only: :show
   end
 
   root 'v0/example#index', module: 'v0'
