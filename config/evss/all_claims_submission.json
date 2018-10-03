@@ -1,0 +1,49 @@
+{
+    "form526": {
+        "attachments": [],
+        "disabilities": [
+            {
+                "diagnosticCode": 9411,
+                "disabilityActionType": "INCREASE",
+                "name": "PTSD (post traumatic stress disorder)",
+                "ratedDisabilityId": "1100583",
+                "ratingDecisionId": "105949"
+            },
+            {
+                "diagnosticCode": 7101,
+                "disabilityActionType": "INCREASE",
+                "name": "Hypertension",
+                "ratedDisabilityId": "1087093",
+                "ratingDecisionId": "105950"
+            }
+        ],
+        "privacyAgreementAccepted": true,
+        "serviceInformation": {
+            "servicePeriods": [
+                {
+                    "dateRange": {
+                        "from": "2001-06-27",
+                        "to": "2007-10-14"
+                    },
+                    "serviceBranch": "Marine Corps"
+                }
+            ]
+        },
+        "standardClaim": false,
+        "treatments": [],
+        "veteran": {
+            "emailAddress": "pintseptester@gmail.com",
+            "homelessness": {
+                "isHomeless": false
+            },
+            "mailingAddress": {
+                "addressLine1": "23195 WRATHALL DR",
+                "city": "ASHBURN",
+                "country": "USA",
+                "state": "VA",
+                "zipCode": "20148"
+            },
+            "primaryPhone": "7045551212"
+        }
+    }
+}

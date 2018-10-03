@@ -4,9 +4,10 @@ module Preneeds
   class PreneedAttachmentHash < Preneeds::Base
     attribute :confirmation_code, String
     attribute :attachment_id, String
+    attribute :name, String
 
     def self.permitted_params
-      %i[confirmation_code attachment_id]
+      %i[confirmation_code attachment_id name]
     end
 
     def get_file

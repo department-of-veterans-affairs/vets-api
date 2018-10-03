@@ -1256,6 +1256,28 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'performance monitoring' do
+      it 'supports posting performance monitoring data' do
+        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
+        body = {
+          data: {
+            page_id: whitelisted_path,
+            metrics: [
+              { metric: 'totalPageLoad', duration: 1234.56 },
+              { metric: 'firstContentfulPaint', duration: 123.45 }
+            ]
+          }.to_json
+        }
+
+        expect(subject).to validate(
+          :post,
+          '/v0/performance_monitorings',
+          200,
+          auth_options.merge('_data' => body.as_json)
+        )
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)

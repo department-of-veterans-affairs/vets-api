@@ -58,7 +58,6 @@ module PdfFill
       i = nil if key_data[:skip_index]
       v = "$#{v}" if key_data[:dollar]
       v = v.extras_value if v.is_a?(PdfFill::FormValue)
-
       @extras_generator.add_text(
         v,
         key_data.slice(:question_num, :question_suffix, :question_text).merge(
@@ -70,7 +69,6 @@ module PdfFill
     def add_array_to_extras(arr, pdftk_keys)
       arr.each_with_index do |v, i|
         i = nil if pdftk_keys[:always_overflow]
-
         if v.is_a?(Hash)
           v.each do |key, val|
             add_to_extras(pdftk_keys[key], convert_val_as_string(val), i)
