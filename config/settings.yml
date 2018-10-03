@@ -336,6 +336,7 @@ time_of_need:
   client_secret: <%= ENV['SALESFORCE_CLIENT_KEY'] %>
   client_id: <%= ENV['CLIENT_ID'] %>
   instance_url: va--MBMSSit.cs33.my.salesforce.com
-  faraday_url: https://va--mbmssit.cs33.my.salesforce.com/services/oauth2/token
+  salesforce_url: /services/oauth2/token
+
 
 

@@ -7,6 +7,6 @@ class TimeOfNeedController < ApplicationController
   protected
 
   def client
-    @client = ::TimeOfNeed::TimeOfNeedService.new
+    @client = ::TimeOfNeedService.new
   end
 end
