@@ -24,7 +24,11 @@ RSpec.describe Sentry::Processor::PIISanitizer do
         gender: 'M',
         phone: '5035551234',
         va_eauth_birthdate: '1945-02-13T00:00:00+00:00',
-        va_eauth_pnid: '796375555'
+        va_eauth_pnid: '796375555',
+        accountType: 'SAVINGS',
+        accountNumber: '6456456456456464',
+        routingNumber: '122239982',
+        bankName: 'PACIFIC PREMIER BANK'
       }
     end
 
@@ -46,6 +50,22 @@ RSpec.describe Sentry::Processor::PIISanitizer do
 
     it 'should filter phone data' do
       expect(result[:phone]).to eq('FILTERED')
+    end
+
+    it 'should filter accountType' do
+      expect(result[:accountType]).to eq('FILTERED')
+    end
+
+    it 'should filter accountNumber' do
+      expect(result[:accountNumber]).to eq('FILTERED')
+    end
+
+    it 'should filter routingNumber' do
+      expect(result[:routingNumber]).to eq('FILTERED')
+    end
+
+    it 'should filter bankName' do
+      expect(result[:bankName]).to eq('FILTERED')
     end
 
     it 'should filter json blobs' do
