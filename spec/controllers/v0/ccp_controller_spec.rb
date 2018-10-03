@@ -27,11 +27,11 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
     @controller = V0::Facilities::CcpController.new
     form = @controller.send :format_details, prov_info
     expect(form).to eq(id: 'ccp_a', type: 'cc_provider', attributes: {
-                         unique_id: 'a', name: 'b', orgName: nil, address: {
+                         unique_id: 'a', name: 'b', address: {
                            street: 'e', city: 'f', state: 'g', zip: 'h'
                          },
-                         phone: 'i', fax: 'j', website: nil, prefContact: 'k', accNewPatients: true,
-                         gender: 'c', network: nil, specialty: ['l']
+                         phone: 'i', fax: 'j', prefContact: 'k', accNewPatients: true,
+                         gender: 'c', specialty: ['l']
                        })
   end
 
