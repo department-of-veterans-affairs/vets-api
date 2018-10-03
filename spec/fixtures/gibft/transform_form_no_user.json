@@ -39,6 +39,7 @@
     "student_loans"
   ],
   "phone": "5551110000",
+  "facility_code": "46123438",
   "issue_description": "issueDescription",
   "issue_resolution": "issueResolution",
   "affiliation": "Veteran",
