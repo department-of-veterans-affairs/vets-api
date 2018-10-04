@@ -81,7 +81,7 @@ module EVSS
 
       def perform_submit_form_4142(response)
         CentralMail::SubmitForm4142Job.perform_async(
-          @user_uuid, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_4142']
+          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_4142']
         )
       end
 

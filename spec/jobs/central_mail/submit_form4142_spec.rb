@@ -9,11 +9,6 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     Sidekiq::Worker.clear_all
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:auth_headers) do
-    EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-  end
-
   subject { described_class }
 
   describe '.perform_async' do
@@ -28,13 +23,13 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
-          subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
+          subject.perform_async(evss_claim_id, saved_claim.id, submission_id, valid_form_content)
         end.to change(subject.jobs, :size).by(1)
       end
 
       it 'submits successfully' do
         VCR.use_cassette('central_mail/submit_4142') do
-          subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
+          subject.perform_async(evss_claim_id, saved_claim.id, submission_id, valid_form_content)
           jid = subject.jobs.last['jid']
           described_class.drain
           expect(jid).not_to be_empty
@@ -48,7 +43,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
 
       it 'raises a gateway timeout error' do
-        subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
+        subject.perform_async(evss_claim_id, saved_claim.id, submission_id, valid_form_content)
         expect { described_class.drain }.to raise_error(Common::Exceptions::GatewayTimeout)
       end
     end
@@ -57,7 +52,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       it 'raises a central mail response error' do
         VCR.use_cassette('central_mail/submit_4142_400') do
           subject.perform_async(
-            user.uuid, evss_claim_id, saved_claim.id, submission_id, missing_postalcode_form_content
+            evss_claim_id, saved_claim.id, submission_id, missing_postalcode_form_content
           )
           expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
         end
@@ -70,7 +65,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       end
 
       it 'raises a standard error' do
-        subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
+        subject.perform_async(evss_claim_id, saved_claim.id, submission_id, valid_form_content)
         expect { described_class.drain }.to raise_error(StandardError)
       end
     end

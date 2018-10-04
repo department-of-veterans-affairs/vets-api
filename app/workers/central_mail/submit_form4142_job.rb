@@ -35,7 +35,7 @@ module CentralMail
     # @param saved_claim_id [Integer] Saved Claim id
     # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     #
-    def perform(_user_uuid, evss_claim_id, saved_claim_id, submission_id, form_content)
+    def perform(evss_claim_id, saved_claim_id, submission_id, form_content)
       with_tracking('Form4142 Submission', saved_claim_id, submission_id) do
         saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
         @parsed_form = process_form(form_content)
