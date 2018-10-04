@@ -12,38 +12,25 @@ RSpec.describe SentryJob do
     end
 
     context 'with an event that raises an error' do
-      let(:event) { instance_double(Raven::Event) }
-      let(:culprit) { 'app/controllers/facilities_controller.rb in Float at line 9' }
-      let(:extra) do
-        { 'request_uuid' => 'c9043fb4-1696-4816-8a73-b780a76a973e',
-          'errors' => [
-            { 'title' => 'Invalid field value',
-              'detail' => "\"['\u0000\u0001\u0000\u0000\u0000\xFF', '41.15', '-86.88', '42.65']\" " \
-'is not a valid value for "bbox"',
-              'code' => '103',
-              'status' => '400' }
-          ] }
+      let(:event) do
+        {
+          'extra' => {
+            'detail' => '\u0000'
+          },
+          'backtrace' => '/srv/vets-api/src/vendor/bundle/ruby/2.3/gems/puma-2.16.0/lib/puma/thread_pool.rb...'
+        }
       end
-      let(:backtrace) { '/srv/vets-api/src/vendor/bundle/ruby/2.3/gems/puma-2.16.0/lib/puma/thread_pool.rb...' }
 
       it 'logs an error with original event details' do
         allow(Raven).to receive(:send_event).and_raise(ArgumentError, 'string for Float contains null byte')
-        allow(event).to receive(:culprit).and_return(culprit)
-        allow(event).to receive(:extra).and_return(extra)
-        allow(event).to receive(:backtrace).and_return(backtrace)
-
-        SentryJob.new.perform(event)
-
         expect(Rails.logger).to receive(:error).with(
           'Error performing SentryJob: string for Float contains null byte',
-          original_event: {
-            culprit: culprit,
-            extra: extra,
-            backtrace: backtrace
-          }
+          original_event: event
         )
+        expect(StatsD).to receive(:increment).with(SentryJob::STATSD_ERROR_KEY).once
         SentryJob.new.perform(event)
       end
     end
   end
 end
+
