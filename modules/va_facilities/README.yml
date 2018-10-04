@@ -78,6 +78,9 @@ paths:
         a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
+        Either the ids parameter or the bbox parameter is *required* to query this API. Requests
+        without one or the other will return `400 Bad Request`.
+
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
         information in the "Link" header.
