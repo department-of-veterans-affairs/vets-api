@@ -6,20 +6,21 @@ RSpec.describe V0::PreferencesController, type: :controller do
   include RequestHelper
 
   describe '#show' do
+    let(:preference) { create(:preference, :with_choices) }
+
     context 'when not logged in' do
       it 'returns unauthorized' do
-        get :show
+        get :show, code: preference.code
         expect(response).to have_http_status(:unauthorized)
       end
     end
 
     context 'when logged in as an LOA1 user' do
       include_context 'login_as_loa1'
-      let(:preference) { create(:preference, :with_choices) }
 
       before(:each) do
         login_as_loa1
-        get :show, preference: preference.code
+        get :show, code: preference.code
       end
 
       it 'returns successful http status' do
@@ -27,8 +28,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'returns a single Preference' do
-        get :show, preference: preference.code
-
+        get :show, code: preference.code
         preference_code = json_body_for(response)['attributes']['code']
         expect(preference_code).to eq preference.code
       end
