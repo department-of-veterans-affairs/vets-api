@@ -10,9 +10,11 @@ module CentralMail
 
     FOREIGN_POSTALCODE = '00000'
 
-    # Sidekiq has built in exponential back-off functionality for retry's
-    # A max retry attempt of 13 will result in a run time of ~25 hours
-    RETRY = 13
+    # Sidekiq has built in exponential back-off functionality for retrys
+    # A max retry attempt of 10 will result in a run time of ~8 hours
+    # This job is invoked from 526 background job, ICMHS is reliable
+    # and hence this value is set at a lower value
+    RETRY = 10
 
     sidekiq_options retry: RETRY
 
@@ -44,8 +46,11 @@ module CentralMail
         response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
         handle_service_exception(response) if response.present? && response.status.between?(201, 600)
       end
+    # Cannot move job straight to dead queue dynamically within an executing job
+    # raising error for all the exceptions as sidekiq will then move into dead queue
+    # after all retries are exhausted
     rescue CentralMailResponseError => e
-      raise e if e.response_values[:status].between?(500, 600)
+      raise e
     rescue Common::Exceptions::GatewayTimeout => e
       handle_gateway_timeout_exception(e)
     rescue StandardError => e
@@ -136,14 +141,14 @@ module CentralMail
       @parsed_form ||= JSON.parse(form_content)
     end
 
+    # Cannot move job straight to dead queue dynamically within an executing job
+    # raising error for all the exceptions as sidekiq will then move into dead queue
+    # after all retries are exhausted
     def handle_service_exception(response)
       # create service error with CentralMailResponseError
       error = create_service_error(nil, self.class, response)
-      unless response.status.between?(500, 600)
-        extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
-        Rails.logger.error('Error Message' => error.message)
-        log_exception_to_sentry(error, extra_content)
-      end
+      extra_content = { response: response.body, status: response.status, jid: jid }
+      log_exception_to_sentry(error, extra_content)
       raise error
     end
 
@@ -151,9 +156,13 @@ module CentralMail
       raise error
     end
 
+    # Cannot move job straight to dead queue dynamically within an executing job
+    # raising error for all the exceptions as sidekiq will then move into dead queue
+    # after all retries are exhausted
     def handle_standard_error(error)
       extra_content = { status: :non_retryable_error, jid: jid }
       log_exception_to_sentry(error, extra_content)
+      raise error
     end
 
     def create_service_error(key, source, response, _error = nil)

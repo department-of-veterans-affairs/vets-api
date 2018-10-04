@@ -18,6 +18,9 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
   describe '.perform_async' do
     let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/form_4142.json' }
+    let(:missing_postalcode_form_content) do
+      File.read 'spec/support/disability_compensation_form/form_4142_missing_postalcode.json'
+    end
     let(:evss_claim_id) { 123_456_789 }
     let(:submission_id) { 123_456_790 }
     let(:saved_claim) { FactoryBot.create(:va526ez) }
@@ -51,19 +54,11 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
     end
 
     context 'with a client error' do
-      it 'sets the transaction to "non_retryable_error"' do
+      it 'raises a central mail response error' do
         VCR.use_cassette('central_mail/submit_4142_400') do
-          expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
-          subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
-          described_class.drain
-        end
-      end
-    end
-
-    context 'raises a central mail response error' do
-      it 'sets the transaction to "retrying"' do
-        VCR.use_cassette('central_mail/submit_4142_500') do
-          subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
+          subject.perform_async(
+            user.uuid, evss_claim_id, saved_claim.id, submission_id, missing_postalcode_form_content
+          )
           expect { described_class.drain }.to raise_error(CentralMail::SubmitForm4142Job::CentralMailResponseError)
         end
       end
@@ -74,10 +69,9 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(StandardError.new('foo'))
       end
 
-      it 'sets the transaction to "non_retryable_error"' do
-        expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
+      it 'raises a standard error' do
         subject.perform_async(user.uuid, evss_claim_id, saved_claim.id, submission_id, valid_form_content)
-        described_class.drain
+        expect { described_class.drain }.to raise_error(StandardError)
       end
     end
   end
