@@ -24,7 +24,7 @@ module Swagger
             schema do
               property :data,
                        type: :string,
-                       example: '{\"page_id\":\"/\",\"metrics\":[{\"metric\":\"initial_page_load\",\"duration\":1234.56},{\"metric\":\"time_to_paint\",\"duration\":123.45}]}',
+                       example: '{\"page_id\":\"/\",\"metrics\":[{\"metric\":\"totalPageLoad\",\"duration\":1234.56},{\"metric\":\"firstContentfulPaint\",\"duration\":123.45}]}',
                        description: '
  A JSON string of metrics data.  The required structure is an object with two properties: page_id (string) and metrics (array).
 
@@ -34,14 +34,14 @@ module Swagger
 
  For example
   {
-    "page_id": "/disability",
+    "page_id": "/disability/",
     "metrics": [
       {
-        "metric": "initial_page_load",
+        "metric": "totalPageLoad",
         "duration": 1234.56
       },
       {
-        "metric": "time_to_paint",
+        "metric": "firstContentfulPaint",
         "duration": 123.45
       }
     ]
@@ -63,7 +63,7 @@ module Swagger
                   key :required, %i[page_id metrics]
                   property :page_id,
                            type: :string,
-                           example: '/disability',
+                           example: '/disability/',
                            description: 'A unique identifier for the frontend page being benchmarked'
                   property :metrics do
                     key :type, :array
@@ -72,7 +72,7 @@ module Swagger
                       key :required, %i[metric duration]
                       property :metric,
                                type: :string,
-                               example: 'frontend.page_performance.initial_page_load',
+                               example: 'frontend.page_performance.total_page_load',
                                description: 'Creates a namespace/bucket for what is being measured.'
                       property :duration,
                                example: 100.1,

@@ -16,7 +16,7 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        transaction_class.update_transaction(jid, :exhausted)
+        transaction_class.update_transaction(msg['jid'], :exhausted)
         log_message_to_sentry(
           "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
           :error
@@ -46,7 +46,6 @@ module EVSS
           success_handler(response)
         end
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        retryable_error_handler(e) if e.status_code.between?(500, 600)
         non_retryable_error_handler(e)
       rescue Common::Exceptions::GatewayTimeout => e
         gateway_timeout_handler(e)
@@ -92,11 +91,6 @@ module EVSS
       def non_retryable_error_handler(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
-      end
-
-      def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error.messages)
-        raise error
       end
 
       def gateway_timeout_handler(error)
