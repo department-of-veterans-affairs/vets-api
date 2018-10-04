@@ -11,4 +11,8 @@ class Preference < ActiveRecord::Base
   validates :title, presence: true
 
   alias choices preference_choices
+
+  def to_param
+    code
+  end
 end

@@ -246,7 +246,7 @@ Rails.application.routes.draw do
       )
     end
 
-    resource :preferences, only: :show
+    resources :preferences, param: :code, only: :show
   end
 
   root 'v0/example#index', module: 'v0'

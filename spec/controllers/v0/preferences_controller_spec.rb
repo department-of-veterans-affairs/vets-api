@@ -38,6 +38,11 @@ RSpec.describe V0::PreferencesController, type: :controller do
         preference_choice_ids = preference_choices.map { |pc| pc['id'] }
         expect(preference_choice_ids).to match_array preference.choices.ids
       end
+
+      it 'raises a 404 if preference cannot be found' do
+        get :show, code: 'wrong'
+        expect(response).to have_http_status(:not_found)
+      end
     end
   end
 end
