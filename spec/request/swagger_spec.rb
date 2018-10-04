@@ -1284,6 +1284,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       it 'supports getting preference data' do
         expect(subject).to validate(:get, '/v0/preferences/{code}', 200, auth_options.merge('code' => preference.code))
         expect(subject).to validate(:get, '/v0/preferences/{code}', 401, 'code' => preference.code)
+        expect(subject).to validate(:get, '/v0/preferences/{code}', 404, auth_options.merge('code' => 'wrong'))
       end
     end
 
