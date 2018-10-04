@@ -31,21 +31,21 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url(success_relay: params[:success_relay])
+              SAML::SettingsService.mhv_url(relay_state)
             when 'dslogon'
-              SAML::SettingsService.dslogon_url(success_relay: params[:success_relay])
+              SAML::SettingsService.dslogon_url(relay_state)
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url(success_relay: params[:success_relay]) + query
+              SAML::SettingsService.idme_loa1_url(relay_state) + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user, success_relay: params[:success_relay])
+              SAML::SettingsService.mfa_url(current_user, relay_state)
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user, success_relay: params[:success_relay])
+              SAML::SettingsService.idme_loa3_url(current_user, relay_state)
             when 'slo'
               authenticate
-              SAML::SettingsService.logout_url(session)
+              SAML::SettingsService.logout_url(session, relay_state)
             end
       render json: { url: url }
     end
@@ -55,7 +55,7 @@ module V0
       session = Session.find(Base64.urlsafe_decode64(params[:session]))
       raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
       destroy_user_session!(User.find(session.uuid), session)
-      redirect_to SAML::SettingsService.slo_url(session)
+      redirect_to SAML::SettingsService.slo_url(session, relay_state)
     end
 
     def saml_logout_callback
@@ -72,7 +72,7 @@ module V0
       # in the future the FE shouldnt count on ?success=true
     ensure
       logout_request&.destroy
-      redirect_to Settings.saml.logout_relay + '?success=true'
+      redirect_to relay_state.logout_url + '?success=true'
     end
 
     def saml_callback
@@ -102,6 +102,21 @@ module V0
 
     private
 
+    def saml_login_relay_url
+      return relay_state.default_login_url if current_user.nil?
+      # TODO: this validation should happen when we create the user, not here
+      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
+        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
+        return relay_state.default_login_url
+      end
+
+      if current_user.loa[:current] < current_user.loa[:highest]
+        SAML::SettingsService.idme_loa3_url(current_user, relay_state)
+      else
+        relay_state.login_url
+      end
+    end
+
     def after_login_actions
       set_sso_cookie!
       async_create_evss_account
@@ -120,7 +135,7 @@ module V0
     end
 
     def async_create_evss_account
-      return unless @current_user.authorize :evss, :access?
+      return unless @current_user&.authorize :evss, :access?
       auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
@@ -142,35 +157,6 @@ module V0
       errors
     end
 
-    def default_relay_url
-      Settings.saml.relays.vetsgov
-    end
-
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
-    def saml_login_relay_url
-      return default_relay_url if current_user.nil?
-      # TODO: this validation should happen when we create the user, not here
-      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
-        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
-        return default_relay_url
-      end
-
-      if current_user.loa[:current] < current_user.loa[:highest] && valid_relay_state?
-        SAML::SettingsService.idme_loa3_url(current_user, success_relay_url: params['RelayState'])
-      elsif current_user.loa[:current] < current_user.loa[:highest]
-        SAML::SettingsService.idme_loa3_url(current_user, success_relay: params['RelayState'])
-      elsif valid_relay_state?
-        params['RelayState']
-      else
-        default_relay_url
-      end
-    end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
-
-    def valid_relay_state?
-      params['RelayState'].present? && Settings.saml.relays&.to_h&.values&.include?(params['RelayState'])
-    end
-
     def benchmark_tags(*tags)
       tags << "context:#{context_key}"
       tags << "loa:#{current_user&.identity ? current_user.loa[:current] : 'none'}"
@@ -182,6 +168,10 @@ module V0
       STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
+    end
+
+    def relay_state
+      @relay_state ||= RelayState.new(relay_enum: params[:success_relay], url: params[:RelayState])
     end
   end
 end

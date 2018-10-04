@@ -39,16 +39,17 @@ class GIBillFeedback < Common::RedisStore
       profile_data = {
         'active_ICN' => user.icn,
         'historical_ICN' => va_profile&.historical_icns,
-        'sec_ID' => va_profile&.sec_id,
-        'SSN' => user.ssn
+        'sec_ID' => va_profile&.sec_id
       }
     end
 
     { 'profile_data' => profile_data }
   end
 
+  # rubocop:disable Metrics/MethodLength
   def transform_form
     transformed = parsed_form.deep_transform_keys(&:underscore)
+    transformed.delete('privacy_agreement_accepted')
     transformed['affiliation'] = transformed.delete('service_affiliation')
     transformed.delete('service_date_range').tap do |service_date_range|
       next if service_date_range.blank?
@@ -57,9 +58,16 @@ class GIBillFeedback < Common::RedisStore
     end
 
     transformed.merge!(get_user_details)
+    if transformed['social_security_number_last_four'].present?
+      transformed['profile_data']['SSN'] = transformed.delete('social_security_number_last_four')
+    end
 
     transformed['education_details'].tap do |education_details|
-      transform_school_address(education_details['school']['address'])
+      school = education_details['school']
+
+      transformed['facility_code'] = school.delete('facility_code')
+
+      transform_school_address(school['address'])
       %w[programs assistance].each do |key|
         education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
       end
@@ -67,8 +75,12 @@ class GIBillFeedback < Common::RedisStore
 
     transformed['issue'] = transform_keys_into_array(transformed['issue'])
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
+    transformed = Common::HashHelpers.deep_compact(transformed)
+    transformed.delete('profile_data') if transformed['profile_data'].blank?
+
     transformed
   end
+  # rubocop:enable Metrics/MethodLength
 
   def save
     originally_persisted = @persisted

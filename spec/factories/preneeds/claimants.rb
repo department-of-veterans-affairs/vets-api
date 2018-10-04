@@ -12,4 +12,8 @@ FactoryBot.define do
     name { attributes_for :full_name }
     address { attributes_for :address }
   end
+
+  factory :claimant_foreign_address, parent: :claimant do
+    address { attributes_for :foreign_address }
+  end
 end

@@ -119,7 +119,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
         end
 
-        describe 'GET ?success_relay=vagov' do
+        describe '#new' do
           context 'with a non-nil relay setting' do
             let(:fake_vagov_url) { 'http://fake-vagov' }
             before do
@@ -140,9 +140,21 @@ RSpec.describe V0::SessionsController, type: :controller do
               end
             end
 
-            it 'does not contain a RelayState' do
+            it 'returns a default RelayState' do
               expect(response).to have_http_status(:ok)
-              expect(JSON.parse(response.body)['url']).to_not include('RelayState')
+              expect(JSON.parse(response.body)['url'])
+                .to include("RelayState=#{CGI.escape(Settings.saml.relays.vetsgov)}")
+            end
+          end
+
+          context 'with an invalid relay setting' do
+            before do
+              get(:new, type: :idme, success_relay: 'notvalid')
+            end
+            it 'returns a default RelayState' do
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body)['url'])
+                .to include("RelayState=#{CGI.escape(Settings.saml.relays.vetsgov)}")
             end
           end
         end
@@ -223,6 +235,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'can find an active session' do
+        let(:fake_vagov_relay) { 'https://fake-vagov' }
         it 'destroys the user, session, and cookie, persists logout_request object, redirects to SLO url' do
           # these should have been destroyed yet
           expect(Session.find(token)).to_not be_nil
@@ -233,12 +246,20 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
+          expect(response.location).to include("RelayState=#{CGI.escape(Settings.saml.logout_relays.vetsgov)}")
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(User.find(uuid)).to be_nil
           expect(cookies['vagov_session_dev']).to be_nil
           # this should be created in redis
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
+        end
+
+        it 'contains the proper success_relay' do
+          with_settings(Settings.saml.logout_relays, vagov: fake_vagov_relay) do
+            get(:logout, session: Base64.urlsafe_encode64(token), success_relay: 'vagov')
+            expect(response.location).to include("RelayState=#{CGI.escape(fake_vagov_relay)}")
+          end
         end
       end
     end
@@ -279,6 +300,22 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this should be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
         end
+
+        it 'redirects to the specified RelayState' do
+          expect(post(:saml_logout_callback, SAMLResponse: '-', RelayState: Settings.saml.logout_relays.vagov))
+            .to redirect_to(redirect_to(Settings.saml.logout_relays.vagov + '?success=true'))
+        end
+
+        it 'defaults with an invalid RelayState' do
+          expect(post(:saml_logout_callback, SAMLResponse: '-', RelayState: 'https://blah.com'))
+            .to redirect_to(redirect_to(Settings.saml.logout_relays.vetsgov + '?success=true'))
+        end
+      end
+    end
+
+    describe '#async_create_evss_account' do
+      it 'should return if current_user is nil' do
+        expect(described_class.new.send(:async_create_evss_account)).to eq(nil)
       end
     end
 
@@ -387,6 +424,16 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
         end
 
+        it 'redirects to idme for up-level' do
+          expect(post(:saml_callback, RelayState: Settings.saml.relays.vetsgov))
+            .to redirect_to(/api.idmelabs.com/)
+        end
+
+        it 'includes RelayState when up-leveling' do
+          expect(post(:saml_callback, RelayState: Settings.saml.relays.vagov))
+            .to redirect_to(/RelayState=#{CGI.escape(Settings.saml.relays.vagov)}/)
+        end
+
         it 'redirects to identity proof URL', :aggregate_failures do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
@@ -437,7 +484,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when too much time passed to consume the SAML Assertion' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_too_late) }
 
-        it 'redirects to an auth failure page', :aggregate_failures do
+        it 'redirects to an auth failure page' do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)

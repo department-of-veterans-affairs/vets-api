@@ -121,6 +121,7 @@ evss:
     key: fake_key
   reference_data_service:
     enabled: false
+  all_claims_submission: 'config/evss/all_claims_submission.json'
 
 # Settings for GI Bill Data Service
 gids:
@@ -148,6 +149,9 @@ locators:
   vha_access_satisfaction: https://www.accesstoshep.va.gov/
   vha_access_waittime: https://www.accesstopwt.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
+
+ppms:
+  url: https://some.fakesite.com
 
 # Settings for MyHealthEVet
 mhv:
@@ -179,6 +183,7 @@ mvi:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   pii_logging: false
+  vba_orchestration: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
@@ -274,9 +279,13 @@ saml:
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
   relays:
     vetsgov: http://localhost:3001/auth/login/callback
-    vagov: ~
+    vagov: http://local.vagov/auth/login/callback
     preview_vagov: ~
   logout_relay: http://localhost:3001/logout
+  logout_relays:
+    vetsgov: http://localhost:3001/logout
+    vagov: http://local.vagov:3001/logout
+    preview_vagov: ~
 
 sentry:
   dsn: ~
@@ -320,4 +329,5 @@ account:
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
+  mock_search: true
   url: https://search.usa.gov/api/v2
