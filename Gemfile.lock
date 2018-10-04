@@ -45,6 +45,12 @@ PATH
       rails (~> 4.2.7.1)
       sidekiq
 
+PATH
+  remote: modules/veteran_verification
+  specs:
+    veteran_verification (0.0.1)
+      rails (~> 4.2.7.1)
+
 GEM
   remote: https://rubygems.org/
   remote: https://enterprise.contribsys.com/
@@ -1163,6 +1169,7 @@ DEPENDENCIES
   va_facilities!
   vba_documents!
   vcr
+  veteran_verification!
   vets_json_schema!
   virtus
   web-console (~> 2.0)
