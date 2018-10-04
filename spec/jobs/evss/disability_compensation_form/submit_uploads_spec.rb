@@ -82,8 +82,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           )
           .and_return(document_data)
 
+        subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
         expect(client).to receive(:upload).with(file.read, document_data)
-        subject.new.perform(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
+        described_class.drain
       end
     end
 
