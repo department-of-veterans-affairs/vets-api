@@ -40,7 +40,6 @@ module EVSS
         submit_4142(form4142, user_uuid, auth_headers, response.claim_id, saved_claim_id) if form4142
         success_handler(user_uuid, auth_headers, saved_claim_id, response, uploads)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        retryable_error_handler(e) if e.status_code.between?(500, 600)
         non_retryable_error_handler(e)
       rescue Common::Exceptions::GatewayTimeout => e
         gateway_timeout_handler(e)
@@ -77,12 +76,6 @@ module EVSS
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
         metrics.increment_non_retryable(error)
-      end
-
-      def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error.messages)
-        metrics.increment_retryable(error)
-        raise error
       end
 
       def gateway_timeout_handler(error)
