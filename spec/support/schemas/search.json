@@ -132,3 +132,39 @@
   },
   "type": "object"
 }
+{
+    "data": {
+                "id": "",
+              "type": "preferences",
+        "attributes": {
+                          "code": "preference_1",
+                         "title": "Title of Preference 1",
+            "preference_choices": [
+                [0] {
+                               "id": 609,
+                             "code": "choice_1",
+                      "description": "Description of Choice 1",
+                    "preference_id": 243,
+                       "created_at": "2018-10-04T18:19:10.502Z",
+                       "updated_at": "2018-10-04T18:19:10.502Z"
+                },
+                [1] {
+                               "id": 610,
+                             "code": "choice_2",
+                      "description": "Description of Choice 2",
+                    "preference_id": 243,
+                       "created_at": "2018-10-04T18:19:10.507Z",
+                       "updated_at": "2018-10-04T18:19:10.507Z"
+                },
+                [2] {
+                               "id": 611,
+                             "code": "choice_3",
+                      "description": "Description of Choice 3",
+                    "preference_id": 243,
+                       "created_at": "2018-10-04T18:19:10.511Z",
+                       "updated_at": "2018-10-04T18:19:10.511Z"
+                }
+            ]
+        }
+    }
+}
