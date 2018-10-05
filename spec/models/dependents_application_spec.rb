@@ -6,6 +6,7 @@ RSpec.describe DependentsApplication, type: :model do
   let(:dependents_application) { create(:dependents_application) }
 
   it 'test' do
+    user = create(:evss_user)
     VCR.configure do |c|
       c.allow_http_connections_when_no_cassette = true
     end
