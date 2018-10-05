@@ -56,7 +56,6 @@
         {
           "firstName": "Test",
           "lastName": "User",
-          "dateOfBirth": "2016-12-15T00:00:00Z",
           "address": {
             "addressLine1": "street1",
             "addressLine2": "Student Records",
@@ -76,7 +75,9 @@
           "ssn": "111-22-3333",
           "attendedSchool": true,
           "disabled": true,
-          "married": true
+          "married": true,
+          "dateOfBirth": "2016-12-15T00:00:00Z",
+          "marriedDate": "2016-12-16T00:00:00Z"
         }
       ],
       "corpPtcnpntId": 600061742,

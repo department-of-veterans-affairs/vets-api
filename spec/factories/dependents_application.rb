@@ -46,6 +46,7 @@ FactoryBot.define do
             attendingCollege: true,
             disabled: true,
             married: true,
+            marriedDate: '2016-12-16',
             previouslyMarried: true
           }
         ]

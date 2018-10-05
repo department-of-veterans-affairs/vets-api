@@ -20,18 +20,16 @@ class DependentsApplication < Common::RedisStore
     end
   end
 
+  def self.convert_evss_date(date)
+    Date.parse(date).to_time(:utc).iso8601
+  end
+
   def self.set_child_attrs!(dependent, child = {})
     dependent['fullName'].tap do |full_name|
       next if full_name.blank?
       %w[first middle last].each do |type|
         child["#{type}Name"] = full_name[type] if full_name[type].present?
       end
-    end
-
-    dependent['childDateOfBirth'].tap do |dob|
-      next if dob.blank?
-
-      child['dateOfBirth'] = Date.parse(dob).to_time(:utc).iso8601
     end
 
     dependent['childAddress'].tap do |address|
@@ -78,6 +76,15 @@ class DependentsApplication < Common::RedisStore
       val = dependent[attrs[1]]
       next if val.nil?
       child[attrs[0]] = val
+    end
+
+    [
+      ['dateOfBirth', 'childDateOfBirth'],
+      ['marriedDate', 'marriedDate']
+    ].each do |attrs|
+      val = dependent[attrs[1]]
+      next if val.blank?
+      child[attrs[0]] = convert_evss_date(val)
     end
 
     child
