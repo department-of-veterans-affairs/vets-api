@@ -10,7 +10,7 @@ FactoryBot.define do
     form(
       {
         privacyAgreementAccepted: true,
-        claimantEmail: 'foo@foo.com',
+        veteranEmail: 'foo@foo.com',
         spouseIsVeteran: true,
         liveWithSpouse: true,
         monthlySpousePayment: 1,
