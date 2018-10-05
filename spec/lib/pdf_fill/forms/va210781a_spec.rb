@@ -26,4 +26,73 @@ describe PdfFill::Forms::Va210781a do
       )
     end
   end
+
+  describe '#expand_ssn' do
+    context 'ssn is not blank' do
+      let(:form_data) do
+        {
+          'veteranSocialSecurityNumber' => '123456789'
+        }
+      end
+      it 'should expand the ssn correctly' do
+        new_form_class.expand_ssn
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'veteranSocialSecurityNumber' => { 'first' => '123', 'second' => '45', 'third' => '6789' },
+          'veteranSocialSecurityNumber1' => { 'first' => '123', 'second' => '45', 'third' => '6789' },
+          'veteranSocialSecurityNumber2' => { 'first' => '123', 'second' => '45', 'third' => '6789' }
+        )
+      end
+    end
+  end
+
+  describe '#expand_veteran_full_name' do
+    context 'contains middle initial' do
+      let :form_data do
+        {
+          'veteranFullName' => {
+            'first' => 'Testy',
+            'middle' => 'Tester',
+            'last' => 'Testerson'
+          }
+        }
+      end
+      it 'should expand veteran full name correctly' do
+        new_form_class.expand_veteran_full_name
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'veteranFullName' => {
+            'first' => 'Testy',
+            'middle' => 'Tester',
+            'last' => 'Testerson',
+            'middleInitial' => 'T'
+          }
+        )
+      end
+    end
+  end
+
+  describe '#expand_veteran_dob' do
+    context 'dob is not blank' do
+      let :form_data do
+        {
+          'veteranDateOfBirth' => '1981-11-05'
+        }
+      end
+      it 'should expand the birth date correctly' do
+        new_form_class.expand_veteran_dob
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'veteranDateOfBirth' => {
+            'year' => '1981',
+            'month' => '11',
+            'day' => '05'
+          }
+        )
+      end
+    end
+  end
 end
