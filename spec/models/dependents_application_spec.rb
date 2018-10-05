@@ -5,6 +5,15 @@ require 'rails_helper'
 RSpec.describe DependentsApplication, type: :model do
   let(:dependents_application) { create(:dependents_application) }
 
+  it 'test' do
+    VCR.configure do |c|
+      c.allow_http_connections_when_no_cassette = true
+    end
+    dependents_application = create(:dependents_application)
+    EVSS::DependentsApplicationJob.new.perform(dependents_application.id, dependents_application.parsed_form, user.uuid)
+    binding.pry; fail
+  end
+
   describe '.filter_children' do
     it 'should filter children to match dependents' do
       dependents = [
