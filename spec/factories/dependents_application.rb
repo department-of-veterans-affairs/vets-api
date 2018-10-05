@@ -24,8 +24,9 @@ FactoryBot.define do
             childDateOfBirth: '2016-12-15',
             childInHousehold: true,
             childAddress: {
-              country: 'United States',
-              street: 'Office of Military and Veteran',
+              country: 'USA',
+              addressType: 'DOMESTIC',
+              street: 'street1',
               street2: 'Student Records',
               city: 'LOUISVILLE',
               state: 'KY',
@@ -35,7 +36,11 @@ FactoryBot.define do
               first: 'Test',
               last: 'User'
             },
-            childPlaceOfBirth: 'usa',
+            childPlaceOfBirth: {
+              childCountryOfBirthDropdown: 'USA',
+              childCityOfBirth: 'new york',
+              childStateOfBirth: 'NY'
+            },
             childSocialSecurityNumber: '111223333',
             childRelationship: 'biological',
             attendingCollege: true,

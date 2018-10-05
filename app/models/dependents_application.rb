@@ -40,6 +40,7 @@ class DependentsApplication < Common::RedisStore
       child['address'] = {
         'addressLine1' => address['street'],
         'addressLine2' => address['street2'],
+        'addressLocality' => address['addressType'],
         'city' => address['city'],
         'country' => {
           'dropDownCountry' => address['country']
@@ -49,8 +50,19 @@ class DependentsApplication < Common::RedisStore
       }
     end
 
-    child['countryOfBirth'] ||= {}
-    child['countryOfBirth']['dropDownCountry'] = dependent['childPlaceOfBirth'] if dependent['childPlaceOfBirth'].present?
+    dependent['childPlaceOfBirth'].tap do |place_of_birth|
+      next if place_of_birth.blank?
+
+      place_of_birth['childCountryOfBirthDropdown'].tap do |country|
+        next if country.blank?
+        child['countryOfBirth'] = {
+          'dropDownCountry' => country
+        }
+      end
+
+      child['cityOfBirth'] = place_of_birth['childCityOfBirth'] if place_of_birth['childCityOfBirth'].present?
+      child['stateOfBirth'] = place_of_birth['childStateOfBirth'] if place_of_birth['childStateOfBirth'].present?
+    end
 
     dependent['childSocialSecurityNumber'].tap do |ssn|
       next if ssn.blank?

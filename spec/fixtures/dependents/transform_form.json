@@ -58,18 +58,21 @@
           "lastName": "User",
           "dateOfBirth": "2016-12-15T00:00:00Z",
           "address": {
-            "addressLine1": "Office of Military and Veteran",
+            "addressLine1": "street1",
             "addressLine2": "Student Records",
+            "addressLocality": "DOMESTIC",
             "city": "LOUISVILLE",
             "country": {
-              "dropDownCountry": "United States"
+              "dropDownCountry": "USA"
             },
             "state": "KY",
             "zipCode": "40292"
           },
           "countryOfBirth": {
-            "dropDownCountry": "usa"
+            "dropDownCountry": "USA"
           },
+          "cityOfBirth": "new york",
+          "stateOfBirth": "NY",
           "ssn": "111-22-3333",
           "attendedSchool": true,
           "disabled": true,
