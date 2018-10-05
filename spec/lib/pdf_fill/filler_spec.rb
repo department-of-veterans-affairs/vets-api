@@ -114,7 +114,7 @@ describe PdfFill::Filler do
         %w[simple].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
-            get_fixture("pdf_fill/#{form_id}/#{type}")
+              get_fixture("pdf_fill/#{form_id}/#{type}")
             end
 
             it 'should fill the form correctly' do
@@ -122,8 +122,8 @@ describe PdfFill::Filler do
                 # compare_pdfs only compares based on filled fields, it doesn't read the extras page
                 the_extras_generator = nil
                 expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
-                the_extras_generator = extras_generator
-                old_file_path
+                  the_extras_generator = extras_generator
+                  old_file_path
                 end
               end
 
@@ -140,10 +140,10 @@ describe PdfFill::Filler do
               end
 
               expect(
-              compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
-             # File.delete(file_path)
+              File.delete(file_path)
             end
           end
         end

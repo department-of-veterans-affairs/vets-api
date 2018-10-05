@@ -54,7 +54,7 @@ module PdfFill
         new_hash,
         flatten: Rails.env.production?
       )
-      
+
       combine_extras(file_path, hash_converter.extras_generator)
     end
   end

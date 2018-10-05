@@ -26,7 +26,4 @@ describe PdfFill::Forms::Va210781a do
       )
     end
   end
-
-
-
 end

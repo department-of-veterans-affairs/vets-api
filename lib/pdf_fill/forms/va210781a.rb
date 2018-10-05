@@ -112,7 +112,6 @@ module PdfFill
       end
 
       def merge_fields
-
         expand_veteran_full_name
         expand_ssn
         expand_veteran_dob
@@ -122,7 +121,6 @@ module PdfFill
 
         @form_data
       end
-
     end
   end
 end
