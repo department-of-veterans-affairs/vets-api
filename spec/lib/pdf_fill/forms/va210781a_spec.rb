@@ -3,6 +3,8 @@
 require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
+PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+
 def basic_class
   PdfFill::Forms::Va210781a.new({})
 end
