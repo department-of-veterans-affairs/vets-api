@@ -51,6 +51,8 @@ module EVSS
         gateway_timeout_handler(e)
       rescue StandardError => e
         standard_error_handler(e)
+      ensure
+        metrics.increment_try
       end
 
       private
@@ -65,6 +67,7 @@ module EVSS
 
       def success_handler(response)
         submission_rate_limiter.increment
+        metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
 
         perform_submit_uploads(response) if @submission_data['form_526_uploads'].present?
@@ -91,10 +94,12 @@ module EVSS
       def non_retryable_error_handler(error)
         transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
+        metrics.increment_non_retryable(error)
       end
 
       def gateway_timeout_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
+        metrics.increment_retryable(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
@@ -120,6 +125,10 @@ module EVSS
 
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
+      end
+
+      def metrics
+        @metrics ||= Metrics.new(STATSD_KEY_PREFIX, jid)
       end
     end
   end

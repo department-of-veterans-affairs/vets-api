@@ -122,6 +122,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
           anything, :retrying, 'Gateway timeout'
         )
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
         expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
       end
     end
@@ -154,6 +155,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
@@ -176,6 +178,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
@@ -199,6 +202,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
@@ -222,6 +226,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
