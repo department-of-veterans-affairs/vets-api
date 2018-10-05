@@ -24,10 +24,10 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   def to_submission_data(user)
     {
-      'form_4142' => EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash).translate,
       'form_526' => EVSS::DisabilityCompensationForm::DataTranslation.new(
-        user, @form_hash.except('attachments')
+        user, @form_hash.deep_dup.except('attachments')
       ).translate,
+      'form_4142' => EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate,
       'form_526_uploads' => @form_hash.dig('form526', 'attachments')
     }
   end
