@@ -18,7 +18,6 @@ module EVSS
       merged_form = service.clean_form(merged_form)
 
       service.validate(merged_form).tap do |res|
-        binding.pry; fail
         if res['errors'].present?
           return dependents_application.update_attributes!(
             state: 'failed',
