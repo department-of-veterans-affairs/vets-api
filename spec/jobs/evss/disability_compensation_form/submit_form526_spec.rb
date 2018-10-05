@@ -108,11 +108,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     end
 
     context 'with a server error' do
-      it 'sets the transaction to "retrying"' do
+      it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
           subject.perform_async(user.uuid, auth_headers, claim.id, valid_form_content, nil, nil)
-          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::ServiceException)
-          expect(last_transaction.transaction_status).to eq 'retrying'
+          described_class.drain
+          expect(last_transaction.transaction_status).to eq 'non_retryable_error'
         end
       end
     end
