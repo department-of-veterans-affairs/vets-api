@@ -92,6 +92,7 @@ class DependentsApplication < Common::RedisStore
 
   def self.transform_form(parsed_form, evss_form)
     dependents = parsed_form['dependents'] || []
+    # TODO spouse information
 
     children = filter_children(
       dependents,
