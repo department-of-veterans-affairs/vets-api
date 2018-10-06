@@ -24,13 +24,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     let(:claim) { FactoryBot.create(:va526ez) }
     let(:submission) do
       {
-        'form_526' => valid_form_content,
-        'form_526_uploads' => [{
+        'form526' => valid_form_content,
+        'form526_uploads' => [{
           'guid' => 'foo',
           'file_name' => 'bar.pdf',
           'doctype' => 'L023'
         }],
-        'form_4142' => form4142
+        'form4142' => form4142
       }
     end
     let(:disability_compensation_submission) { instance_double('DisabilityCompensationSubmission') }

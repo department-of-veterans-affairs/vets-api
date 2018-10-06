@@ -23,12 +23,13 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   end
 
   def to_submission_data(user)
+    form526 = @form_hash.deep_dup
+    form526_uploads = form526['form526'].delete('attachments')
+    form4142 = @form_hash.deep_dup
     {
-      'form_526' => EVSS::DisabilityCompensationForm::DataTranslation.new(
-        user, @form_hash.deep_dup.except('attachments')
-      ).translate,
-      'form_4142' => EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate,
-      'form_526_uploads' => @form_hash.dig('form526', 'attachments')
+      'form526' => EVSS::DisabilityCompensationForm::DataTranslation.new(user, form526).translate,
+      'form526_uploads' => form526_uploads,
+      'form4142' => EVSS::DisabilityCompensationForm::Form4142.new(user, form4142).translate
     }
   end
 end

@@ -42,7 +42,7 @@ module EVSS
         @submission_id = transaction.submission.id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
-          response = service(@auth_headers).submit_form526(@submission_data['form_526'])
+          response = service(@auth_headers).submit_form526(@submission_data['form526'])
           success_handler(response)
         end
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
@@ -70,20 +70,20 @@ module EVSS
         metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
 
-        perform_submit_uploads(response) if @submission_data['form_526_uploads'].present?
-        perform_submit_form_4142(response) if @submission_data['form_4142'].present?
+        perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
+        perform_submit_form_4142(response) if @submission_data['form4142'].present?
         perform_cleanup
       end
 
       def perform_submit_uploads(response)
         EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_526_uploads']
+          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form526_uploads']
         )
       end
 
       def perform_submit_form_4142(response)
         CentralMail::SubmitForm4142Job.perform_async(
-          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_4142']
+          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
         )
       end
 
