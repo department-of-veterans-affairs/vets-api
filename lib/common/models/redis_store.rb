@@ -89,6 +89,9 @@ module Common
     end
 
     def save!
+      unless valid?
+        binding.pry; fail
+      end
       raise Common::Exceptions::ValidationErrors, self unless save
     end
 
