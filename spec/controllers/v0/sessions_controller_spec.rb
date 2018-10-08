@@ -610,13 +610,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      describe 'after login job' do
-        it 'should launch the after login job' do
-          expect(AfterLoginJob).to receive(:perform_async).with(uuid)
-          post(:saml_callback)
-        end
-      end
-
       context 'when creating a user account' do
         context 'and the current user does not yet have an Account record' do
           before do
@@ -646,21 +639,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   context 'when not logged in' do
     describe 'POST saml_callback' do
-      context 'loa1_user' do
-        let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
-
-        it 'does not create a job to create an evss user' do
-          allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
-        end
-      end
-
       context 'loa3_user' do
         let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
 
-        it 'creates a job to create an evss user' do
+        it 'creates an after login job' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
     end

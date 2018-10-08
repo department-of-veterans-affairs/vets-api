@@ -4,11 +4,22 @@ require 'rails_helper'
 
 RSpec.describe AfterLoginJob do
   describe '#perform' do
-    let(:user) { create(:evss_user) }
+    context 'with a user that has evss access' do
+      let(:user) { create(:evss_user) }
 
-    it 'should launch CreateUserAccountJob' do
-      expect(EVSS::CreateUserAccountJob).to receive(:perform_async).with(EVSS::AuthHeaders.new(user).to_h)
-      described_class.new.perform(user.uuid)
+      it 'should launch CreateUserAccountJob' do
+        expect(EVSS::CreateUserAccountJob).to receive(:perform_async).with(EVSS::AuthHeaders.new(user).to_h)
+        described_class.new.perform(user.uuid)
+      end
+    end
+
+    context 'with a user that doesnt have evss access' do
+      let(:user) { create(:user) }
+
+      it 'shouldnt launch CreateUserAccountJob' do
+        expect(EVSS::CreateUserAccountJob).to_not receive(:perform_async)
+        described_class.new.perform(user.uuid)
+      end
     end
   end
 end
