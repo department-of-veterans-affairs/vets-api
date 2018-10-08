@@ -82,7 +82,6 @@ module V0
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
 
-        AfterLoginJob.perform_async(@current_user&.uuid)
         after_login_actions
         redirect_to saml_login_relay_url + '?token=' + @session.token
 
@@ -120,6 +119,7 @@ module V0
 
     def after_login_actions
       set_sso_cookie!
+      AfterLoginJob.perform_async(@current_user&.uuid)
       create_user_account
     end
 
