@@ -24,7 +24,7 @@ info:
     ### Response Formats
     
     Clients may request several response formats by setting the `Accept` header. 
-    - application/json - The default JSON response format complies with JSON API.
+    - application/json - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`. .
     - application/vnd.geo+json - GeoJSON-compliant format, representing each facility as a Feature with a Point geometry.
     - text/csv - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.
           
@@ -77,6 +77,9 @@ paths:
         ids where there is no match. It will not return an HTTP error code if it is unable to match
         a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
+
+        Either the ids parameter or the bbox parameter is *required* to query this API. Requests
+        without one or the other will return `400 Bad Request`.
 
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
@@ -269,6 +272,13 @@ paths:
       security:
         - api_key: []
       parameters:
+        in: header
+        name: Accept
+        schema:
+          enum:
+            - application/vnd.geo+json
+            - text/csv
+          required: true
       responses:
         '200':
           description: Success
