@@ -40,7 +40,7 @@ info:
 
     ## Reference
 
-    - [Raw VA Facilities Open API Spec](http://dev-api.vets.gov/services/va_facilities/docs/v0/api)
+    - [Raw VA Facilities Open API Spec](http://dev-api.va.gov/services/va_facilities/docs/v0/api)
     - [GeoJSON Format](https://tools.ietf.org/html/rfc7946)
     - [JSON API Format](http://jsonapi.org/format/)
 
@@ -50,9 +50,19 @@ info:
 tags:
   - name: facilities
     description: VA Facilities API
-servers: 
-  - url: https://dev-api.vets.gov/services/va_facilities/{version}
-    description: Vets.gov API development environment
+servers:
+  - url: dev-api.va.gov/services/appeals/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: staging-api.va.gov/services/appeals/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: api.va.gov/services/appeals/{version}
+    description: VA.gov API production environment
     variables:
       version:
         default: v0
@@ -178,7 +188,7 @@ paths:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
               schema:
                 type: string
-                example: '<https://dev-api.vets.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.vets.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.vets.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.vets.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.vets.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+                example: '<https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
         '401':
           description: Missing API token
           content:
