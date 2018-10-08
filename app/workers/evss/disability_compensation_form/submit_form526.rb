@@ -29,7 +29,7 @@ module EVSS
       # @param user_uuid [String] The user's uuid thats associated with the form
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param submission_data [Hash] The submission hash
+      # @param submission_data [Hash] The submission hash of 526, uploads, and 4142 data
       #
       def perform(user_uuid, auth_headers, saved_claim_id, submission_data)
         @user_uuid = user_uuid
