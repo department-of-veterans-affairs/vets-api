@@ -14,4 +14,18 @@ describe Preference do
       expect(preference.to_param).to eq(preference.code)
     end
   end
+
+  describe '.cached!' do
+    let(:preference) { create(:preference) }
+
+    it 'first attempts to fetch the Preference record from the Redis cache' do
+      expect(Preference).to receive(:do_cached_with)
+      Preference.cached? preference
+      pending
+    end
+
+    it 'returns the db Preference record', :aggregate_failures do
+      pending
+    end
+  end
 end
