@@ -68,6 +68,9 @@ development: &defaults
   evss_dependents_retrieve_response:
     namespace: evss-dependents-retrieve-response
     each_ttl: 86400
+  preferences:
+    namespace: preferences
+    each_ttl: 1296000 # 15 days
 
 test:
   <<: *defaults
