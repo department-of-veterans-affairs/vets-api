@@ -24,13 +24,19 @@ class DependentsApplication < Common::RedisStore
     Date.parse(date).to_time(:utc).iso8601
   end
 
-  def self.set_child_attrs!(dependent, child = {})
-    dependent['fullName'].tap do |full_name|
-      next if full_name.blank?
-      %w[first middle last].each do |type|
-        child["#{type}Name"] = full_name[type] if full_name[type].present?
-      end
+  def self.convert_name(full_name)
+    converted = {}
+    return converted if full_name.blank?
+
+    %w[first middle last].each do |type|
+      converted["#{type}Name"] = full_name[type] if full_name[type].present?
     end
+
+    converted
+  end
+
+  def self.set_child_attrs!(dependent, child = {})
+    child.merge!(convert_name(dependent['fullName']))
 
     dependent['childAddress'].tap do |address|
       next if address.blank?
