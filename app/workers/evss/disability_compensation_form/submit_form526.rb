@@ -4,7 +4,6 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526
       include Sidekiq::Worker
-      include SentryLogging
       include JobStatus
 
       # Sidekiq has built in exponential back-off functionality for retrys
@@ -45,14 +44,10 @@ module EVSS
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
           success_handler(response)
         end
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        non_retryable_error_handler(e)
       rescue Common::Exceptions::GatewayTimeout => e
-        gateway_timeout_handler(e)
+        retryable_error_handler(e)
       rescue StandardError => e
-        standard_error_handler(e)
-      ensure
-        metrics.increment_try
+        non_retryable_error_handler(e)
       end
 
       private
@@ -67,7 +62,6 @@ module EVSS
 
       def success_handler(response)
         submission_rate_limiter.increment
-        metrics.increment_success
         transaction_class.update_transaction(jid, :received, response.attributes)
 
         perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
@@ -92,21 +86,15 @@ module EVSS
       end
 
       def non_retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
-        log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
-        metrics.increment_non_retryable(error)
+        message = error.try(:messages) || error.message
+        transaction_class.update_transaction(jid, :non_retryable_error, message)
+        super(error)
       end
 
-      def gateway_timeout_handler(error)
+      def retryable_error_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
-        metrics.increment_retryable(error)
+        super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
-      end
-
-      def standard_error_handler(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(error, extra_content)
       end
 
       def service(auth_headers)
@@ -125,10 +113,6 @@ module EVSS
 
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
-      end
-
-      def metrics
-        @metrics ||= Metrics.new(STATSD_KEY_PREFIX, jid)
       end
     end
   end

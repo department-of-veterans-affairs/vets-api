@@ -71,7 +71,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
 
           expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
-          subject.new.perform(user.uuid, auth_headers, claim.id, submission)
+          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
+          described_class.drain
         end
       end
 

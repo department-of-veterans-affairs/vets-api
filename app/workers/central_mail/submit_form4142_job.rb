@@ -7,8 +7,8 @@ module CentralMail
     include EVSS::DisabilityCompensationForm::JobStatus
 
     FORM_ID = '21-4142'
-
     FOREIGN_POSTALCODE = '00000'
+    STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
 
     # Sidekiq has built in exponential back-off functionality for retrys
     # A max retry attempt of 10 will result in a run time of ~8 hours
