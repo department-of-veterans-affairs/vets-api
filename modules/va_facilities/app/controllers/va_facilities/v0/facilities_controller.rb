@@ -17,6 +17,7 @@ module VaFacilities
       before_action :validate_params, only: [:index]
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
+      BBOX_OR_ID_ERR = 'Must supply either a bbox or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -67,9 +68,16 @@ module VaFacilities
       private
 
       def validate_params
+        validate_bbox_or_ids
         validate_bbox
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
+      end
+
+      def validate_bbox_or_ids
+        unless params.key?(:bbox) || params.key?(:ids)
+          raise Common::Exceptions::ParameterMissing.new('bbox', detail: BBOX_OR_ID_ERR)
+        end
       end
 
       def validate_bbox
