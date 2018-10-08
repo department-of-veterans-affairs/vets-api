@@ -82,6 +82,7 @@ module V0
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
 
+        AfterLoginJob.perform_async(@current_user&.uuid)
         after_login_actions
         redirect_to saml_login_relay_url + '?token=' + @session.token
 
@@ -119,7 +120,6 @@ module V0
 
     def after_login_actions
       set_sso_cookie!
-      async_create_evss_account
       create_user_account
     end
 
@@ -132,12 +132,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    def async_create_evss_account
-      return unless @current_user&.authorize :evss, :access?
-      auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
-      EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
     def destroy_user_session!(user, session)
