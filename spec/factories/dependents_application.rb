@@ -12,6 +12,21 @@ FactoryBot.define do
         privacyAgreementAccepted: true,
         veteranEmail: 'foo@foo.com',
         spouseIsVeteran: true,
+        veteranFullName: {
+          first: 'first',
+          last: 'last'
+        },
+        veteranAddress: {
+          country: 'USA',
+          addressType: 'DOMESTIC',
+          street: 'street1',
+          street2: 'Student Records',
+          city: 'LOUISVILLE',
+          state: 'KY',
+          postalCode: '40292'
+        },
+        veteranSocialSecurityNumber: '111223333',
+        maritalStatus: 'Never Married',
         liveWithSpouse: true,
         monthlySpousePayment: 1,
         remarks: 'remarks',
