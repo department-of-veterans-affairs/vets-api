@@ -10,10 +10,9 @@ module EVSS
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
         @status_submission_id = submission_id
+        job_try
         yield
         job_success
-      ensure
-        job_try
       end
 
       def job_try

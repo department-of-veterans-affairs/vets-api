@@ -1041,6 +1041,7 @@ GEM
     tzinfo (1.2.5)
       thread_safe (~> 0.1)
     unicode-display_width (1.3.0)
+    upsert (2.2.1)
     vcr (3.0.3)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -1166,6 +1167,7 @@ DEPENDENCIES
   timecop
   typhoeus
   tzinfo-data
+  upsert
   va_facilities!
   vba_documents!
   vcr

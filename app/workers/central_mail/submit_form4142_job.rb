@@ -46,15 +46,12 @@ module CentralMail
         response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
         handle_service_exception(response) if response.present? && response.status.between?(201, 600)
       end
-    # Cannot move job straight to dead queue dynamically within an executing job
-    # raising error for all the exceptions as sidekiq will then move into dead queue
-    # after all retries are exhausted
-    rescue CentralMailResponseError => e
-      raise e
-    rescue Common::Exceptions::GatewayTimeout => e
-      handle_gateway_timeout_exception(e)
-    rescue StandardError => e
-      handle_standard_error(e)
+    rescue StandardError => error
+      # Cannot move job straight to dead queue dynamically within an executing job
+      # raising error for all the exceptions as sidekiq will then move into dead queue
+      # after all retries are exhausted
+      retryable_error_handler(error)
+      raise error
     ensure
       # Delete the temporary PDF file
       File.delete(@pdf_path) if @pdf_path.present?
@@ -147,21 +144,6 @@ module CentralMail
     def handle_service_exception(response)
       # create service error with CentralMailResponseError
       error = create_service_error(nil, self.class, response)
-      extra_content = { response: response.body, status: response.status, jid: jid }
-      log_exception_to_sentry(error, extra_content)
-      raise error
-    end
-
-    def handle_gateway_timeout_exception(error)
-      raise error
-    end
-
-    # Cannot move job straight to dead queue dynamically within an executing job
-    # raising error for all the exceptions as sidekiq will then move into dead queue
-    # after all retries are exhausted
-    def handle_standard_error(error)
-      extra_content = { status: :non_retryable_error, jid: jid }
-      log_exception_to_sentry(error, extra_content)
       raise error
     end
 
