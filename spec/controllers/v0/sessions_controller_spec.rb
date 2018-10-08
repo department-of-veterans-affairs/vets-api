@@ -313,15 +313,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe '#async_create_evss_account' do
-      it 'should return if current_user is nil' do
-        expect(described_class.new.send(:async_create_evss_account)).to eq(nil)
-      end
-    end
-
     describe 'POST saml_callback' do
       before(:each) do
-        allow(controller).to receive(:async_create_evss_account)
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
@@ -614,6 +607,13 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+      end
+
+      describe 'after login job' do
+        it 'should launch the after login job' do
+          expect(AfterLoginJob).to receive(:perform_async).with(uuid)
+          post(:saml_callback)
         end
       end
 
