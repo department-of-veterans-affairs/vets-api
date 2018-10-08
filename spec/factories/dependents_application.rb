@@ -37,9 +37,9 @@ FactoryBot.define do
               last: 'User'
             },
             childPlaceOfBirth: {
-              childCountryOfBirthDropdown: 'USA',
-              childCityOfBirth: 'new york',
-              childStateOfBirth: 'NY'
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
             },
             childSocialSecurityNumber: '111223333',
             childRelationship: 'biological',
