@@ -6,6 +6,13 @@ class AfterLoginJob
 
   sidekiq_options(retry: false)
 
+  def evss_create_account
+    if @current_user.authorize(:evss, :access?)
+      auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
+      EVSS::CreateUserAccountJob.perform_async(auth_headers)
+    end
+  end
+
   def perform(opt)
     Sentry::TagRainbows.tag
     user_uuid = opt['user_uuid']
@@ -13,11 +20,7 @@ class AfterLoginJob
     @current_user = User.find(user_uuid)
     return if @current_user.blank?
 
-    if @current_user.authorize(:evss, :access?)
-      auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
-      EVSS::CreateUserAccountJob.perform_async(auth_headers)
-    end
-
+    evss_create_account
     create_user_account
   end
 end
