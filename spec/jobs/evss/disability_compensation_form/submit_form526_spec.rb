@@ -24,13 +24,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
     let(:claim) { FactoryBot.create(:va526ez) }
     let(:submission) do
       {
-        'form_526' => valid_form_content,
-        'form_526_uploads' => [{
+        'form526' => valid_form_content,
+        'form526_uploads' => [{
           'guid' => 'foo',
           'file_name' => 'bar.pdf',
           'doctype' => 'L023'
         }],
-        'form_4142' => form4142
+        'form4142' => form4142
       }
     end
     let(:disability_compensation_submission) { instance_double('DisabilityCompensationSubmission') }
@@ -71,7 +71,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
 
           expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
-          subject.new.perform(user.uuid, auth_headers, claim.id, submission)
+          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
+          described_class.drain
         end
       end
 
@@ -122,6 +123,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
           anything, :retrying, 'Gateway timeout'
         )
+        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
         expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
       end
     end
@@ -154,6 +156,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
@@ -176,6 +179,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
@@ -199,6 +203,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end
@@ -222,6 +227,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
           expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
             anything, :non_retryable_error, expected_errors
           )
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
         end
       end

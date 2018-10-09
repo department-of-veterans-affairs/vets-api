@@ -4,7 +4,6 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526
       include Sidekiq::Worker
-      include SentryLogging
       include JobStatus
 
       # Sidekiq has built in exponential back-off functionality for retrys
@@ -30,7 +29,7 @@ module EVSS
       # @param user_uuid [String] The user's uuid thats associated with the form
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param submission_data [Hash] The submission hash
+      # @param submission_data [Hash] The submission hash of 526, uploads, and 4142 data
       #
       def perform(user_uuid, auth_headers, saved_claim_id, submission_data)
         @user_uuid = user_uuid
@@ -42,15 +41,13 @@ module EVSS
         @submission_id = transaction.submission.id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
-          response = service(@auth_headers).submit_form526(@submission_data['form_526'])
+          response = service(@auth_headers).submit_form526(@submission_data['form526'])
           success_handler(response)
         end
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        non_retryable_error_handler(e)
       rescue Common::Exceptions::GatewayTimeout => e
-        gateway_timeout_handler(e)
+        retryable_error_handler(e)
       rescue StandardError => e
-        standard_error_handler(e)
+        non_retryable_error_handler(e)
       end
 
       private
@@ -67,20 +64,20 @@ module EVSS
         submission_rate_limiter.increment
         transaction_class.update_transaction(jid, :received, response.attributes)
 
-        perform_submit_uploads(response) if @submission_data['form_526_uploads'].present?
-        perform_submit_form_4142(response) if @submission_data['form_4142'].present?
+        perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
+        perform_submit_form_4142(response) if @submission_data['form4142'].present?
         perform_cleanup
       end
 
       def perform_submit_uploads(response)
         EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_526_uploads']
+          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form526_uploads']
         )
       end
 
       def perform_submit_form_4142(response)
         CentralMail::SubmitForm4142Job.perform_async(
-          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form_4142']
+          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
         )
       end
 
@@ -89,19 +86,15 @@ module EVSS
       end
 
       def non_retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
-        log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
+        message = error.try(:messages) || error.message
+        transaction_class.update_transaction(jid, :non_retryable_error, message)
+        super(error)
       end
 
-      def gateway_timeout_handler(error)
+      def retryable_error_handler(error)
         transaction_class.update_transaction(jid, :retrying, error.message)
+        super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
-      end
-
-      def standard_error_handler(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(error, extra_content)
       end
 
       def service(auth_headers)

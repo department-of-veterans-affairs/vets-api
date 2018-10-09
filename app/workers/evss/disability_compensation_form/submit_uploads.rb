@@ -5,10 +5,12 @@ module EVSS
     class SubmitUploads
       include Sidekiq::Worker
       include JobStatus
-      sidekiq_options dead: false
 
+      RETRY = 10
       FORM_TYPE = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
+
+      sidekiq_options retry: RETRY
 
       def self.start(auth_headers, evss_claim_id, saved_claim_id, submission_id, uploads)
         batch = Sidekiq::Batch.new
