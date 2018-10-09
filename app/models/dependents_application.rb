@@ -35,24 +35,29 @@ class DependentsApplication < Common::RedisStore
     converted
   end
 
+  def self.convert_address(address)
+    converted = {}
+    return converted if address.blank?
+
+    converted['address'] = {
+      'addressLine1' => address['street'],
+      'addressLine2' => address['street2'],
+      'addressLocality' => address['addressType'],
+      'city' => address['city'],
+      'country' => {
+        'dropDownCountry' => address['country']
+      },
+      'state' => address['state'],
+      'zipCode' => address['postalCode']
+    }
+
+    converted
+  end
+
   def self.set_child_attrs!(dependent, child = {})
     child.merge!(convert_name(dependent['fullName']))
 
-    dependent['childAddress'].tap do |address|
-      next if address.blank?
-
-      child['address'] = {
-        'addressLine1' => address['street'],
-        'addressLine2' => address['street2'],
-        'addressLocality' => address['addressType'],
-        'city' => address['city'],
-        'country' => {
-          'dropDownCountry' => address['country']
-        },
-        'state' => address['state'],
-        'zipCode' => address['postalCode']
-      }
-    end
+    child.merge!(convert_address(dependent['childAddress']))
 
     dependent['childPlaceOfBirth'].tap do |place_of_birth|
       next if place_of_birth.blank?
