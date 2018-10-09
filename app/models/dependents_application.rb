@@ -35,6 +35,14 @@ class DependentsApplication < Common::RedisStore
     converted
   end
 
+  def self.convert_ssn(ssn)
+    return {} if ssn.blank?
+
+    {
+      'ssn' => StringHelpers.hyphenated_ssn(ssn)
+    }
+  end
+
   def self.convert_address(address)
     converted = {}
     return converted if address.blank?
@@ -74,11 +82,7 @@ class DependentsApplication < Common::RedisStore
       child['stateOfBirth'] = place_of_birth['childStateOfBirth'] if place_of_birth['childStateOfBirth'].present?
     end
 
-    dependent['childSocialSecurityNumber'].tap do |ssn|
-      next if ssn.blank?
-
-      child['ssn'] = StringHelpers.hyphenated_ssn(ssn)
-    end
+    child.merge!(convert_ssn(dependent['childSocialSecurityNumber']))
 
     [
       ['attendedSchool', 'attendingCollege'],
@@ -106,6 +110,8 @@ class DependentsApplication < Common::RedisStore
     dependents = parsed_form['dependents'] || []
     transformed = {}
     transformed.merge!(convert_name(parsed_form['veteranFullName']))
+    transformed.merge!(convert_address(parsed_form['veteranAddress']))
+    transformed.merge!(convert_ssn(parsed_form['veteranSocialSecurityNumber']))
     # TODO spouse information
 
     children = filter_children(
