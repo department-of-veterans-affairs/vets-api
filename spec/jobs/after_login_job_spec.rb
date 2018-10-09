@@ -9,7 +9,7 @@ RSpec.describe AfterLoginJob do
 
       it 'should launch CreateUserAccountJob' do
         expect(EVSS::CreateUserAccountJob).to receive(:perform_async).with(EVSS::AuthHeaders.new(user).to_h)
-        described_class.new.perform(user.uuid)
+        described_class.new.perform('user_uuid' => user.uuid)
       end
     end
 
@@ -18,7 +18,7 @@ RSpec.describe AfterLoginJob do
 
       it 'shouldnt launch CreateUserAccountJob' do
         expect(EVSS::CreateUserAccountJob).to_not receive(:perform_async)
-        described_class.new.perform(user.uuid)
+        described_class.new.perform('user_uuid' => user.uuid)
       end
     end
   end

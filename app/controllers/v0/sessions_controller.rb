@@ -4,8 +4,6 @@ require 'base64'
 
 module V0
   class SessionsController < ApplicationController
-    include Accountable
-
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -119,8 +117,7 @@ module V0
 
     def after_login_actions
       set_sso_cookie!
-      AfterLoginJob.perform_async(@current_user&.uuid)
-      create_user_account
+      AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
     end
 
     def log_persisted_session_and_warnings

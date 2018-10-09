@@ -618,6 +618,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           it 'creates an Account record for the user' do
             post :saml_callback
+            AfterLoginJob.drain
 
             expect(Account.first.idme_uuid).to eq uuid
           end
@@ -628,6 +629,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           it 'does not create a new Account record for the user', :aggregate_failures do
             post :saml_callback
+            AfterLoginJob.drain
 
             expect(Account.count).to eq 1
             expect(Account.first.idme_uuid).to eq account.idme_uuid
