@@ -19,7 +19,7 @@ RSpec.describe SavedClaim::DisabilityCompensation do
         VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
             VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              expect(subject.to_submission_data(user)).to eq evss_submission
+              expect(subject.to_submission_data(user)).to eq submission_data
             end
           end
         end
@@ -32,14 +32,14 @@ RSpec.describe SavedClaim::DisabilityCompensation do
           File.read('spec/support/disability_compensation_form/front_end_submission_with_4142.json')
         )
       end
-      let(:submission_data_with_4142) { JSON.parse(File.read('spec/support/disability_compensation_form/evss_submission_with_4142.json')) }
+      let(:submission_data_with_4142) { JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim_with_4142.json')) }
       subject { described_class.from_hash(form_content_with_4142) }
 
       it 'returns a hash of submission data including 4142 and overflow text' do
         VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
             VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              expect(subject.to_submission_data(user)).to eq evss_submission_with_4142
+              expect(subject.to_submission_data(user)).to eq submission_data_with_4142
             end
           end
         end
