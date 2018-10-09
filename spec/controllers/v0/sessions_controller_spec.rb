@@ -316,6 +316,12 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
+    describe '#async_create_evss_account' do
+      it 'should return if current_user is nil' do
+        expect(described_class.new.send(:async_create_evss_account)).to eq(nil)
+      end
+    end
+
     describe 'POST saml_callback' do
       before(:each) do
         allow(controller).to receive(:async_create_evss_account)

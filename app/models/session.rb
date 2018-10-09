@@ -43,7 +43,7 @@ class Session < Common::RedisStore
     return nil if user.blank?
     {
       'vagovToken' => token,
-      'patientIcn' => user.icn,
+      'patientIcn' => user.mhv_icn || user.icn,
       'mhvCorrelationId' => user.mhv_correlation_id,
       'expirationTime' => ttl_in_time.iso8601(0)
     }

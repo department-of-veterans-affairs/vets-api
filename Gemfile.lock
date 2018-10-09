@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: de7453dc550f390b4225a7574596ac4cbe00c575
+  revision: 6490dc3ffe58717846dc45697d3fb59a2b5fba3c
   branch: master
   specs:
-    vets_json_schema (3.97.0)
+    vets_json_schema (3.99.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -824,7 +824,7 @@ GEM
     net-sftp (2.1.2)
       net-ssh (>= 2.6.5)
     net-ssh (4.1.0)
-    nokogiri (1.8.4)
+    nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     nori (2.6.0)
     notiffany (0.0.8)
@@ -1114,7 +1114,7 @@ DEPENDENCIES
   memoist
   mini_magick
   net-sftp
-  nokogiri
+  nokogiri (= 1.8.5)
   octokit
   oj
   olive_branch

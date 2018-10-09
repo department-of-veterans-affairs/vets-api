@@ -19,7 +19,7 @@ module Search
     end
 
     def mock_enabled?
-      false
+      Settings.search.mock_search || false
     end
 
     def base_path

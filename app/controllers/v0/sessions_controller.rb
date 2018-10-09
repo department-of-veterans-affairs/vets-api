@@ -137,7 +137,7 @@ module V0
     end
 
     def async_create_evss_account
-      return unless @current_user.authorize :evss, :access?
+      return unless @current_user&.authorize :evss, :access?
       auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
       EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
