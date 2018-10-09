@@ -22,7 +22,8 @@ class ApplicationController < ActionController::API
   ].freeze
 
   before_action :authenticate
-  before_action :extend_session! # Don't skip this outside of sessions_controller. Required.
+  before_action :determine_session_for_non_authed_resource # See method description before skipping
+  before_action :extend_session! # See method description before skipping (there should be no reason)
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -50,6 +51,8 @@ class ApplicationController < ActionController::API
   # end
 
   private
+
+  attr_reader :current_user, :session
 
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
@@ -137,7 +140,12 @@ class ApplicationController < ActionController::API
     cookie_token_authentication || header_token_authentication
   end
 
+  def render_unauthorized
+    raise Common::Exceptions::Unauthorized
+  end
+
   def cookie_token_authentication
+    return unless Settings.sso.cookie_enabled
     @session = Session.find(cookie_object['vagovToken'])
     return false if @session.nil?
     @current_user = User.find(@session.uuid)
@@ -151,6 +159,25 @@ class ApplicationController < ActionController::API
       @current_user = User.find(@session.uuid)
       return true if @current_user.present?
     end
+  end
+
+  # If cookies are enabled, we can extend sessions and log better errors by knowing the current_user
+  # even if the resource does not pass or require authentication headers.
+  def determine_session_for_non_authed_resource
+    return unless Settings.sso.cookie_enabled
+    @session ||= Session.find(cookie_object['vagovToken'])
+    @current_user ||= User.find(@session.uuid)
+  end
+
+  # As long as a current_user and session are known, we should extend their session.
+  # If cookies are disabled, the only way we can know the session is via authentication headers
+  # These headers are never provided by FE for resources that do not require it.
+  def extend_session!
+    return if session.blank? || current_user.blank?
+    session.expire(Session.redis_namespace_ttl)
+    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    current_user&.expire(User.redis_namespace_ttl)
+    set_sso_cookie!
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
@@ -168,38 +195,8 @@ class ApplicationController < ActionController::API
     }
   end
 
-  def cookie_object
-    return {} if cookies[Settings.sso.cookie_name].blank?
-    encryptor = SSOEncryptor
-    decrypted_value = encryptor.decrypt(cookies[Settings.sso.cookie_name])
-    cookie_object = JSON.parse(decrypted_value)
-    return {} if Time.zone.parse(cookie_object['expirationTime']) < Time.current
-    cookie_object
-  end
-
-  def cookie_domain
-    '.va.gov'
-  end
-
-  def extend_session!
-    @session ||= Session.find(cookie_object['vagovToken'])
-    return if session.blank?
-    @current_user ||= User.find(@session.uuid)
-    return if current_user.blank?
-    session.expire(Session.redis_namespace_ttl)
-    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    current_user&.expire(User.redis_namespace_ttl)
-    set_sso_cookie!
-  end
-
   def destroy_sso_cookie!
     cookies.delete(Settings.sso.cookie_name, domain: cookie_domain)
-  end
-
-  attr_reader :current_user, :session
-
-  def render_unauthorized
-    raise Common::Exceptions::Unauthorized
   end
 
   def saml_settings(options = {})
@@ -215,5 +212,18 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def cookie_object
+    return @cookie_object unless @cookie_object.nil?
+    return {} if cookies[Settings.sso.cookie_name].blank?
+    encryptor = SSOEncryptor
+    decrypted_value = encryptor.decrypt(cookies[Settings.sso.cookie_name])
+    cookie_object = JSON.parse(decrypted_value)
+    @cookie_object = cookie_object
+  end
+
+  def cookie_domain
+    '.va.gov'
   end
 end
