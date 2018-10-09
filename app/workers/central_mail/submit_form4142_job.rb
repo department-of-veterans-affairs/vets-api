@@ -111,7 +111,7 @@ module CentralMail
         'receiveDt' => format_saved_claim_created_at(saved_claim_created_at).strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => jid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        'source' => 'Vets.gov',
+        'source' => 'VA Forms Group B',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => 0,
         'docType' => FORM_ID,
