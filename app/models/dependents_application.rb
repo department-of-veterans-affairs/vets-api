@@ -87,7 +87,7 @@ class DependentsApplication < Common::RedisStore
     [
       ['attendedSchool', 'attendingCollege'],
       ['disabled', 'disabled'],
-      ['married', 'married']
+      ['married', 'previouslyMarried']
     ].each do |attrs|
       val = dependent[attrs[1]]
       next if val.nil?
