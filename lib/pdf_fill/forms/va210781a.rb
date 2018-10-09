@@ -4,6 +4,8 @@ module PdfFill
   module Forms
     class Va210781a < FormBase
       include FormHelper
+      
+      INCIDENT_ITERATOR = PdfFill::HashConverter::ITERATOR
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -81,6 +83,40 @@ module PdfFill
         'veteranSecondaryPhone' => {
           key: 'F[0].Page_1[0].PreferredEmail[2]'
         },
+        'incident' => {
+          limit: 2,
+          'incidentDate' => {
+            'month' => {
+              key: "incidentDateMonth[#{INCIDENT_ITERATOR}]"
+            },
+            'day' => {
+              key: "incidentDateDay[#{INCIDENT_ITERATOR}]"
+            },
+            'year' => {
+              key: "incidentDateYear[#{INCIDENT_ITERATOR}]"
+            }
+          },
+          'unitAssignmentDates' => {
+            'fromMonth' => {
+              key: "unitAssignmentDateFromMonth[#{INCIDENT_ITERATOR}]"
+            },
+            'fromDay' => {
+              key: "unitAssignmentDateFromDay[#{INCIDENT_ITERATOR}]"
+            },
+            'fromYear' => {
+              key: "unitAssignmentDateFromYear[#{INCIDENT_ITERATOR}]"
+            },
+            'toMonth' => {
+              key: "unitAssignmentDateToMonth[#{INCIDENT_ITERATOR}]"
+            },
+            'toDay' => {
+              key: "unitAssignmentDateToDay[#{INCIDENT_ITERATOR}]"
+            },
+            'toYear' => {
+              key: "unitAssignmentDateToYear[#{INCIDENT_ITERATOR}]"
+            }
+          }
+        },
         'otherInformation' => {
           key: 'F[0].Page_3[0].OtherInformation[0]',
           question_num: 12
@@ -111,10 +147,46 @@ module PdfFill
         @form_data['veteranDateOfBirth'] = split_date(veteran_date_of_birth)
       end
 
+      def expand_incident_date(incident)
+        incident_date = incident['incidentDate']
+        return if incident_date.blank?
+        incident['incidentDate'] = split_date(incident_date)
+      end
+
+      def expand_unit_assignment_dates(incident)
+        incidentUnitAssignedDates = incident['unitAssignedDates']
+        return if incidentUnitAssignedDates.blank?
+        fromDates = split_date(incidentUnitAssignedDates['from'])
+        toDates = split_date(incidentUnitAssignedDates['to'])
+
+        unitAssignmentDates = {
+          'fromMonth' => fromDates['month'],
+          'fromDay' => fromDates['day'],
+          'fromYear' => fromDates['year'],
+          'toMonth' => toDates['month'], 
+          'toDay' => toDates['day'],
+          'toYear' => toDates['year']
+        }
+
+        incidentUnitAssignedDates.except!('to')
+        incidentUnitAssignedDates.except!('from')
+        incidentUnitAssignedDates.merge!(unitAssignmentDates)
+      end
+
+      def expand_incidents(incidents)
+        return if incidents.blank?
+        incidents.each do |incident|
+          expand_incident_date(incident)
+          expand_unit_assignment_dates(incident)
+        end
+      end
+
       def merge_fields
         expand_veteran_full_name
         expand_ssn
         expand_veteran_dob
+        expand_incidents(@form_data['incident'])
+
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
 
