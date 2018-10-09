@@ -98,6 +98,8 @@ class DependentsApplication < Common::RedisStore
 
   def self.transform_form(parsed_form, evss_form)
     dependents = parsed_form['dependents'] || []
+    transformed = {}
+    transformed.merge!(convert_name(parsed_form['veteranFullName']))
     # TODO spouse information
 
     children = filter_children(
@@ -116,8 +118,9 @@ class DependentsApplication < Common::RedisStore
         children << set_child_attrs!(dependent)
       end
     end
+    transformed['children'] = children
 
-    evss_form['submitProcess']['veteran']['children'] = children
+    evss_form['submitProcess']['veteran'] = transformed
 
     evss_form
   end
