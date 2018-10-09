@@ -42,6 +42,7 @@ class DependentsApplication < Common::RedisStore
     converted['address'] = {
       'addressLine1' => address['street'],
       'addressLine2' => address['street2'],
+      'addressLine3' => '',
       'addressLocality' => address['addressType'],
       'city' => address['city'],
       'country' => {
