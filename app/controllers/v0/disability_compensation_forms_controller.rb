@@ -26,19 +26,12 @@ module V0
 
       # TODO: Once `all_claims` is finalized and the test form is removed, the form assignment will
       # need to be normalized from `form526` to whatever the finalized form id is
-      claim = SavedClaim::DisabilityCompensation.new(form: form_content['form526'].to_json)
-      claim.save ? log_success(claim) : log_failure(claim)
-
-      uploads = form_content['form526'].delete('attachments')
-
-      form4142 = translate_form4142(form_content) if form_content['form526']['form4142'].present?
-
-      converted_form_content = EVSS::DisabilityCompensationForm::DataTranslation.new(
-        @current_user, form_content
-      ).translate
+      saved_claim = SavedClaim::DisabilityCompensation.from_hash(form_content)
+      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      submission_data = saved_claim.to_submission_data(@current_user)
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
-        @current_user.uuid, auth_headers, claim.id, converted_form_content, form4142, uploads
+        @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
       render json: { data: { attributes: { job_id: jid } } },
