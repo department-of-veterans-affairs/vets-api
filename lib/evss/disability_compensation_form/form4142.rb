@@ -5,11 +5,12 @@ module EVSS
     class Form4142
       def initialize(user, form_content)
         @user = user
-        @veteran_data = form_content['form526']['veteran']
-        @final_output = form_content['form526']['form4142']
+        @veteran_data = form_content.dig('form526', 'veteran')
+        @final_output = form_content.dig('form526', 'form4142')
       end
 
       def translate
+        return nil unless @veteran_data && @final_output
         @final_output['vaFileNumber'] = @user.ssn
         @final_output['veteranSocialSecurityNumber'] = @user.ssn
         @final_output['veteranServiceNumber'] = @veteran_data['serviceNumber']
