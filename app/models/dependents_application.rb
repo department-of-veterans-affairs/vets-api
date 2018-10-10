@@ -50,7 +50,6 @@ class DependentsApplication < Common::RedisStore
     converted['address'] = {
       'addressLine1' => address['street'],
       'addressLine2' => address['street2'],
-      'addressLine3' => '',
       'addressLocality' => address['addressType'],
       'city' => address['city'],
       'country' => {
@@ -63,6 +62,15 @@ class DependentsApplication < Common::RedisStore
     converted
   end
 
+  def self.convert_country(location)
+    return {} if location.blank?
+
+    {
+      'dropDownCountry' => location['countryDropdown'],
+      'textCountry' => location['countryText']
+    }
+  end
+
   def self.set_child_attrs!(dependent, child = {})
     child.merge!(convert_name(dependent['fullName']))
 
@@ -71,15 +79,9 @@ class DependentsApplication < Common::RedisStore
     dependent['childPlaceOfBirth'].tap do |place_of_birth|
       next if place_of_birth.blank?
 
-      place_of_birth['childCountryOfBirthDropdown'].tap do |country|
-        next if country.blank?
-        child['countryOfBirth'] = {
-          'dropDownCountry' => country
-        }
-      end
-
-      child['cityOfBirth'] = place_of_birth['childCityOfBirth'] if place_of_birth['childCityOfBirth'].present?
-      child['stateOfBirth'] = place_of_birth['childStateOfBirth'] if place_of_birth['childStateOfBirth'].present?
+      child['countryOfBirth'] = convert_country(place_of_birth)
+      child['cityOfBirth'] = place_of_birth['city']
+      child['stateOfBirth'] = place_of_birth['state']
     end
 
     child.merge!(convert_ssn(dependent['childSocialSecurityNumber']))
@@ -132,7 +134,7 @@ class DependentsApplication < Common::RedisStore
     end
     transformed['children'] = children
 
-    evss_form['submitProcess']['veteran'] = transformed
+    evss_form['submitProcess']['veteran'].merge!(transformed)
 
     evss_form
   end

@@ -36,21 +36,15 @@
     "vaOfficeName": "Roanoke",
     "veteran": {
       "address": {
-        "addressLine1": "3001 PARK CENTER DR",
-        "addressLine2": "APT 212",
-        "addressLine3": "",
+        "addressLine1": "street1",
+        "addressLine2": "Student Records",
         "addressLocality": "DOMESTIC",
-        "city": "ALEXANDRIA",
+        "city": "LOUISVILLE",
         "country": {
-          "dropDownCountry": "USA",
-          "textCountry": ""
+          "dropDownCountry": "USA"
         },
-        "postOffice": "NONE",
-        "postalType": "NONE",
-        "sharedAddrsInd": "N",
-        "state": "VA",
-        "zipCode": "22302",
-        "zipLastFour": ""
+        "state": "KY",
+        "zipCode": "40292"
       },
       "children": [
         {
@@ -67,17 +61,12 @@
             "state": "KY",
             "zipCode": "40292"
           },
-          "countryOfBirth": {
-            "dropDownCountry": "USA"
-          },
-          "cityOfBirth": "new york",
-          "stateOfBirth": "NY",
           "ssn": "111-22-3333",
           "attendedSchool": true,
           "disabled": true,
           "married": true,
           "dateOfBirth": "2016-12-15T00:00:00Z",
-          "marriedDate": "2016-12-16T00:00:00Z"
+          "marriedDate": "2016-12-15T00:00:00Z"
         }
       ],
       "corpPtcnpntId": 600061742,
@@ -89,10 +78,10 @@
       "dateOfBirthFromCorp": false,
       "edipi": "1007697216",
       "emailAddress": "evssvsotest@gmail.com",
-      "firstName": "WESLEY",
+      "firstName": "first",
       "hasNoFileNumber": false,
       "hasNoSsn": false,
-      "lastName": "FORD",
+      "lastName": "last",
       "marriageType": "NEVERMARRIED",
       "married": false,
       "middleName": "Watson",
@@ -113,7 +102,7 @@
         "phoneNbr": "325-6545",
         "phoneType": "NIGHTTIME"
       },
-      "ssn": "796-04-3735",
+      "ssn": "111-22-3333",
       "ssnFromCorp": false,
       "tempDataId": {
       },

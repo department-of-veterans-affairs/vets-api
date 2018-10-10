@@ -12,7 +12,6 @@ RSpec.describe DependentsApplication, type: :model do
     end
     dependents_application = create(:dependents_application)
     EVSS::DependentsApplicationJob.new.perform(dependents_application.id, dependents_application.parsed_form, user.uuid)
-    binding.pry; fail
   end
 
   describe '.filter_children' do
