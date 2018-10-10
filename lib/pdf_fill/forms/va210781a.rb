@@ -96,7 +96,7 @@ module PdfFill
               key: "incidentDateYear[#{INCIDENT_ITERATOR}]"
             }
           },
-          'unitAssignmentDates' => {
+          'unitAssignedDates' => {
             'fromMonth' => {
               key: "unitAssignmentDateFromMonth[#{INCIDENT_ITERATOR}]"
             },
@@ -114,6 +114,21 @@ module PdfFill
             },
             'toYear' => {
               key: "unitAssignmentDateToYear[#{INCIDENT_ITERATOR}]"
+            }
+          }, 
+          'incidentLocation' => {
+            limit: 90,
+            'firstRow' => {
+              key: "incidentLocationFirstRow[#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'secondRow' => {
+              key: "incidentLocationSecondRow[#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'thirdRow' => {
+              key: "incidentLocationThirdRow[#{INCIDENT_ITERATOR}]",
+              limit: 30
             }
           }
         },
@@ -173,11 +188,53 @@ module PdfFill
         incidentUnitAssignedDates.merge!(unitAssignmentDates)
       end
 
+      def expand_incident_location(incident)
+        incident_location = incident['incidentLocation']
+        return if incident_location.blank?
+
+        if(incident_location.length <= 90)
+          s_location = incident_location.split(" ")
+          lineCharacterCount = 0
+          line_arr = Array.new
+          finished_lines = Array.new
+  
+          binding.pry
+          s_location.each_with_index do |word, index|
+            lineIsFull = lineCharacterCount + word.length < 30 ? false : true
+            # if line is full, create a finished line, clear the collection, and start a new line collection
+            if lineIsFull
+              line = line_arr.join(" ")
+              finished_lines.push(line)
+              line_arr.clear
+              line_arr.push(word)
+              lineCharacterCount = word.length + 1
+              
+            else
+              line_arr.push(word)
+              lineCharacterCount += word.length + 1
+            end
+
+            if index == s_location.size - 1
+              final_line = line_arr.join(" ")
+              finished_lines.push(final_line)
+            end
+          end
+        end
+
+        split_incident_location = {
+          'firstRow' => finished_lines.length > 0 ? finished_lines[0] : "",
+          'secondRow' => finished_lines.length > 1 ? finished_lines[1] : "",
+          'thirdRow' => finished_lines.length > 2 ? finished_lines[2] : ""
+        }
+
+        incident['incidentLocation'] = split_incident_location
+      end
+
       def expand_incidents(incidents)
         return if incidents.blank?
         incidents.each do |incident|
           expand_incident_date(incident)
-          expand_unit_assignment_dates(incident)
+       #   expand_unit_assignment_dates(incident)
         end
       end
 
