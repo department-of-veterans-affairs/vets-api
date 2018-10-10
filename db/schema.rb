@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180905180210) do
+ActiveRecord::Schema.define(version: 20180929002139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -87,6 +87,18 @@ ActiveRecord::Schema.define(version: 20180905180210) do
 
   add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
+
+  create_table "disability_compensation_job_statuses", force: :cascade do |t|
+    t.integer  "disability_compensation_submission_id", null: false
+    t.string   "job_id",                                null: false
+    t.string   "job_class",                             null: false
+    t.string   "status",                                null: false
+    t.string   "error_message"
+    t.datetime "updated_at",                            null: false
+  end
+
+  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id", using: :btree
+  add_index "disability_compensation_job_statuses", ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true, using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
     t.datetime "created_at",                    null: false

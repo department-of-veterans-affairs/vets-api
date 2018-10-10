@@ -8,13 +8,13 @@ module Benchmark
     #
     # Any changes made must be made to both.
     #
-    WHITELIST = ['/', '/disability', '/facilities', '/disability/how-to-file-claim'].freeze
+    WHITELIST = ['/', '/disability/', '/facilities/', '/disability/how-to-file-claim/'].freeze
 
     attr_reader :tags
 
     # @param tags [Array<String>] An array of string tag names. Tags must be in the key:value
     #   format in the string.  For example:
-    #   ['page_id:/disability', 'page_id:/facilities']
+    #   ['page_id:/disability/', 'page_id:/facilities/']
     #
     def initialize(tags)
       @tags = tags
