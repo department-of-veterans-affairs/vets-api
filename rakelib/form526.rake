@@ -29,7 +29,7 @@ namespace :form526 do
     job = AsyncTransaction::EVSS::VA526ezSubmitTransaction.where(transaction_id: args[:job_id]).first
 
     form = JSON.parse(job.saved_claim.form)
-    form['form526']['veteran'] = 'OMITTED'
+    form['veteran'] = 'OMITTED'
 
     puts '----------------------------------------'
     puts 'Job Details:'
