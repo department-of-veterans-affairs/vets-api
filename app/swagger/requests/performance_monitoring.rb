@@ -34,7 +34,7 @@ module Swagger
 
  For example
   {
-    "page_id": "/disability",
+    "page_id": "/disability/",
     "metrics": [
       {
         "metric": "totalPageLoad",
@@ -63,7 +63,7 @@ module Swagger
                   key :required, %i[page_id metrics]
                   property :page_id,
                            type: :string,
-                           example: '/disability',
+                           example: '/disability/',
                            description: 'A unique identifier for the frontend page being benchmarked'
                   property :metrics do
                     key :type, :array

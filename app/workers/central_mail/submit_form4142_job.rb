@@ -4,14 +4,17 @@ module CentralMail
   class SubmitForm4142Job
     include Sidekiq::Worker
     include SentryLogging
+    include EVSS::DisabilityCompensationForm::JobStatus
 
     FORM_ID = '21-4142'
-
     FOREIGN_POSTALCODE = '00000'
+    STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
 
-    # Sidekiq has built in exponential back-off functionality for retry's
-    # A max retry attempt of 13 will result in a run time of ~25 hours
-    RETRY = 13
+    # Sidekiq has built in exponential back-off functionality for retrys
+    # A max retry attempt of 10 will result in a run time of ~8 hours
+    # This job is invoked from 526 background job, ICMHS is reliable
+    # and hence this value is set at a lower value
+    RETRY = 10
 
     sidekiq_options retry: RETRY
 
@@ -28,32 +31,27 @@ module CentralMail
 
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
-    # @param user_uuid [String] The user's UUID that's associated with the form
-    # @param _auth_headers [Hash] The VAAFI headers for the user
-    # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     # @param evss_claim_id [String] EVSS Claim id received from 526 submission to generate unique PDF file path
-    # @param saved_claim_created_at [DateTime] Saved Claim receive date time set as 4142 Metadata in ICMHS submission
+    # @param saved_claim_id [Integer] Saved Claim id
+    # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
     #
-    def perform(user_uuid, _auth_headers, form_content, evss_claim_id, saved_claim_created_at)
-      @parsed_form = process_form(form_content)
+    def perform(evss_claim_id, saved_claim_id, submission_id, form_content)
+      with_tracking('Form4142 Submission', saved_claim_id, submission_id) do
+        saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
+        @parsed_form = process_form(form_content)
 
-      # generate and stamp PDF
-      @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
+        # generate and stamp PDF
+        @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
 
-      response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
-
-      Rails.logger.info('Form4142 Submission',
-                        'user_uuid' => user_uuid,
-                        'job_id' => jid,
-                        'job_status' => 'received')
-
-      handle_service_exception(response) if response.present? && response.status.between?(201, 600)
-    rescue CentralMailResponseError => e
-      raise(e)
-    rescue Common::Exceptions::GatewayTimeout => e
-      handle_gateway_timeout_exception(e)
-    rescue StandardError => e
-      handle_standard_error(e)
+        response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
+        handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+      end
+    rescue StandardError => error
+      # Cannot move job straight to dead queue dynamically within an executing job
+      # raising error for all the exceptions as sidekiq will then move into dead queue
+      # after all retries are exhausted
+      retryable_error_handler(error)
+      raise error
     ensure
       # Delete the temporary PDF file
       File.delete(@pdf_path) if @pdf_path.present?
@@ -110,10 +108,10 @@ module CentralMail
         'veteranFirstName' => veteran_full_name['first'],
         'veteranLastName' => veteran_full_name['last'],
         'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'receiveDt' =>  format_saved_claim_created_at(saved_claim_created_at).strftime('%Y-%m-%d %H:%M:%S'),
+        'receiveDt' => format_saved_claim_created_at(saved_claim_created_at).strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => jid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        'source' => 'Vets.gov',
+        'source' => 'VA Forms Group B',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => 0,
         'docType' => FORM_ID,
@@ -140,25 +138,13 @@ module CentralMail
       @parsed_form ||= JSON.parse(form_content)
     end
 
+    # Cannot move job straight to dead queue dynamically within an executing job
+    # raising error for all the exceptions as sidekiq will then move into dead queue
+    # after all retries are exhausted
     def handle_service_exception(response)
       # create service error with CentralMailResponseError
       error = create_service_error(nil, self.class, response)
-      if response.status.between?(500, 600)
-        raise error
-      else
-        extra_content = { response: response.body, status: :non_retryable_error, jid: jid }
-        Rails.logger.error('Error Message' => error.message)
-        log_exception_to_sentry(error, extra_content)
-      end
-    end
-
-    def handle_gateway_timeout_exception(error)
       raise error
-    end
-
-    def handle_standard_error(error)
-      extra_content = { status: :non_retryable_error, jid: jid }
-      log_exception_to_sentry(error, extra_content)
     end
 
     def create_service_error(key, source, response, _error = nil)
@@ -170,7 +156,7 @@ module CentralMail
       {
         status: status,
         detail: detail,
-        code:   key,
+        code: key,
         source: source.to_s
       }
     end

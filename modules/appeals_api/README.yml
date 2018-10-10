@@ -24,7 +24,7 @@ info:
     
     Allows a client to check benefit appeals status
 
-    1. Client Request: GET https://api.vets.gov/services/appeals/v0/appeals
+    1. Client Request: GET https://dev-api.va.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the appeals status as the X-VA-User header
     
@@ -32,7 +32,7 @@ info:
           
       ## Reference
 
-      Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+      Raw Open API Spec: http://dev-api.va.gov/services/appeals/docs/v0/api
 
   termsOfService: ''
   contact:
@@ -41,8 +41,18 @@ tags:
   - name: appeals
     description: Caseflow appeals status API
 servers: 
-  - url: dev-api.vets.gov/services/appeals/{version}
-    description: Vets.gov API development environment
+  - url: dev-api.va.gov/services/appeals/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: staging-api.va.gov/services/appeals/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: api.va.gov/services/appeals/{version}
+    description: VA.gov API production environment
     variables:
       version:
         default: v0

@@ -29,24 +29,34 @@ info:
     Allows a third-party application to request service history with the authorization
     of a Veteran.
 
-    1. Client Request: GET https://api.vets.gov/services/veteran_verification/v0/service_history
+    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/service_history
        * Provide the Bearer token as a header: `Authorization: Bearer <token>`
 
     2. Service Response: A JSON API object with the Veteran's complete service history
 
     ## Reference
 
-    Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+    Raw Open API Spec: http://dev-api.va.gov/services/appeals/docs/v0/api
 
   termsOfService: ''
   contact:
-    name: Vets.gov
+    name: va.gov
 tags:
   - name: service_history
     description: Veteran Verification - Service History
 servers:
-  - url: https://dev-api.vets.gov/services/veteran_verification/{version}
-    description: Vets.gov API development environment
+  - url: dev-api.va.gov/services/appeals/{version}
+    description: VA.gov API development environment
+    variables:
+      version:
+        default: v0
+  - url: staging-api.va.gov/services/appeals/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: api.va.gov/services/appeals/{version}
+    description: VA.gov API production environment
     variables:
       version:
         default: v0
