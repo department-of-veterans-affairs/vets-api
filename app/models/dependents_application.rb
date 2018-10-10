@@ -125,6 +125,7 @@ class DependentsApplication < Common::RedisStore
     transformed.merge!(convert_name(parsed_form['veteranFullName']))
     transformed.merge!(convert_address(parsed_form['veteranAddress']))
     transformed.merge!(convert_ssn(parsed_form['veteranSocialSecurityNumber']))
+    # TODO add no ssn fields
     # TODO spouse information
 
     children = filter_children(

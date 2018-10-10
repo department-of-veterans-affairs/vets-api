@@ -25,6 +25,19 @@ FactoryBot.define do
           state: 'KY',
           postalCode: '40292'
         },
+        currentMarriage: {
+          dateOfMarriage: '2016-12-15',
+          locationOfMarriage: {
+            countryDropdown: 'USA',
+            city: 'new york',
+            state: 'NY'
+          },
+          spouseFullName: {
+            first: 'spouse',
+            last: 'last'
+          },
+          spouseSocialSecurityNumber: '111223333'
+        },
         veteranSocialSecurityNumber: '111223333',
         maritalStatus: 'Never Married',
         liveWithSpouse: true,
