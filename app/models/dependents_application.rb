@@ -7,6 +7,13 @@ class DependentsApplication < Common::RedisStore
   validate(:user_can_access_evss, unless: :persisted?)
 
   FORM_ID = '21-686C'
+  MARRIAGE_TYPES = {
+    'Married' => 'MARRIED',
+    'Never Married' => 'NEVERMARRIED',
+    'Separated' => 'SEPARATED',
+    'Widowed' => 'WIDOWED',
+    'Divorced' => 'DIVORCED'
+  }
 
   def self.filter_children(dependents, evss_children)
     return [] if evss_children.blank? || dependents.blank?
@@ -18,6 +25,10 @@ class DependentsApplication < Common::RedisStore
         dependent['childSocialSecurityNumber'] == ssn
       end
     end
+  end
+
+  def self.convert_marriage_status(marital_status)
+    MARRIAGE_TYPES[marital_status]
   end
 
   def self.convert_evss_date(date)
@@ -133,6 +144,8 @@ class DependentsApplication < Common::RedisStore
       end
     end
     transformed['children'] = children
+
+    transformed['marriageType'] = convert_marriage_status(parsed_form['maritalStatus']) if parsed_form['maritalStatus'].present?
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
