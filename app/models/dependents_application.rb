@@ -136,7 +136,7 @@ class DependentsApplication < Common::RedisStore
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
-    evss_form
+    Common::HashHelpers.deep_compact(evss_form)
   end
 
   private

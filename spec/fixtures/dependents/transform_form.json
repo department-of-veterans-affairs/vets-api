@@ -61,6 +61,11 @@
             "state": "KY",
             "zipCode": "40292"
           },
+          "countryOfBirth": {
+            "dropDownCountry": "USA"
+          },
+          "cityOfBirth": "new york",
+          "stateOfBirth": "NY",
           "ssn": "111-22-3333",
           "attendedSchool": true,
           "disabled": true,
