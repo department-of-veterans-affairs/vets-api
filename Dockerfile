@@ -23,3 +23,4 @@ ADD Gemfile.lock $APP_PATH
 ADD . /src/vets-api
 
 RUN bundle install
+RUN bundle lock --add-platform mingw, mswin, x64_mingw, jruby
