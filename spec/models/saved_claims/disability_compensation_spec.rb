@@ -11,7 +11,9 @@ RSpec.describe SavedClaim::DisabilityCompensation do
 
   describe '#to_submission_data' do
     context 'without a 4142 submission' do
-      let(:form_content) { JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json')) }
+      let(:form_content) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json'))
+      end
       let(:submission_data) { JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim.json')) }
       subject { described_class.from_hash(form_content) }
 
@@ -32,7 +34,9 @@ RSpec.describe SavedClaim::DisabilityCompensation do
           File.read('spec/support/disability_compensation_form/front_end_submission_with_4142.json')
         )
       end
-      let(:submission_data_with_4142) { JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim_with_4142.json')) }
+      let(:submission_data_with_4142) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim_with_4142.json'))
+      end
       subject { described_class.from_hash(form_content_with_4142) }
 
       it 'returns a hash of submission data including 4142 and overflow text' do
