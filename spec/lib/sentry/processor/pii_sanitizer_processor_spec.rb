@@ -17,6 +17,12 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           street: '1234 Street St.',
           state: 'NV'
         },
+        directDeposit: {
+          accountType: 'SAVINGS',
+          accountNumber: '6456456456456464',
+          routingNumber: '122239982',
+          bankName: 'PACIFIC PREMIER BANK'
+        },
         zipCode: '12345',
         fileNumber: '123456789',
         json: '{"phone": "5035551234", "postalCode": 97850}',
@@ -38,6 +44,10 @@ RSpec.describe Sentry::Processor::PIISanitizer do
 
     it 'should filter address data' do
       result[:veteran_address].each_value { |v| expect(v).to eq('FILTERED') }
+    end
+
+    it 'should filter direct deposit data' do
+      result[:directDeposit].each_value { |v| expect(v).to eq('FILTERED') }
     end
 
     it 'should filter gender data' do
