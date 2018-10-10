@@ -33,17 +33,17 @@ class SSOService
   validate :composite_validations
 
   def persist_authentication!
-    if new_login?
-      # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
-      # merged? MHV LOA1 -> IDME LOA3 is ok, DS Logon LOA1 -> IDME LOA3 is ok, everything else is not.
-      # because user, session, user_identity all have the same TTL, this is probably not a problem.
-      mergable_identity_attributes.each do |attribute|
-        new_user_identity.send(attribute + '=', existing_user.identity.send(attribute))
-      end
-      existing_user.destroy
-    end
-
     if valid?
+      if new_login?
+        # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
+        # merged? MHV LOA1 -> IDME LOA3 is ok, DS Logon LOA1 -> IDME LOA3 is ok, everything else is not.
+        # because user, session, user_identity all have the same TTL, this is probably not a problem.
+        mergable_identity_attributes.each do |attribute|
+          new_user_identity.send(attribute + '=', existing_user.identity.send(attribute))
+        end
+        existing_user.destroy
+      end
+      
       new_session.save && new_user.save && new_user_identity.save
     else
       handle_error_reporting_and_instrumentation
