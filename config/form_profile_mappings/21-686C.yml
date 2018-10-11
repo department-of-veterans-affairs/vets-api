@@ -4,4 +4,7 @@ veteranFullName: [identity_information, full_name]
 dayPhone: [contact_information, us_phone]
 claimantSocialSecurityNumber: [identity_information, ssn]
 veteranSocialSecurityNumber: [identity_information, ssn]
-claimantAddress: [contact_information, address]
+claimantAddress: [contact_information, claimant_address]
+dependents: [contact_information, dependents]
+# TODO: spouse info
+
