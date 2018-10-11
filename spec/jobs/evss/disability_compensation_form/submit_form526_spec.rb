@@ -121,7 +121,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
       it 'sets the transaction to "retrying"' do
         subject.perform_async(user.uuid, auth_headers, claim.id, submission)
         expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-          anything, :retrying, { error: 'Gateway timeout' }
+          anything, :retrying, error: 'Gateway timeout'
         )
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
         expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
@@ -264,7 +264,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
         subject.perform_async(user.uuid, auth_headers, claim.id, submission)
         expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-          anything, :non_retryable_error, { error: 'foo' }
+          anything, :non_retryable_error, error: 'foo'
         )
         described_class.drain
       end

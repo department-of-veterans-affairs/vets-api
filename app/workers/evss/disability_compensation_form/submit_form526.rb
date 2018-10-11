@@ -92,7 +92,7 @@ module EVSS
       end
 
       def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, { error: error.message })
+        transaction_class.update_transaction(jid, :retrying, error: error.message)
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
