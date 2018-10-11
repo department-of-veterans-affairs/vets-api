@@ -73,19 +73,19 @@ module EVSS
       end
 
       def non_retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
+        update_transaction_error(error.messages, :non_retryable_error)
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)
         metrics.increment_non_retryable(error)
       end
 
       def gateway_timeout_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error.message)
+        update_transaction_error(error.message, :retrying)
         metrics.increment_retryable(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
       def standard_error_handler(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
+        update_transaction_error(error.message, :non_retryable_error)
         extra_content = { status: :non_retryable_error, jid: jid }
         log_exception_to_sentry(error, extra_content)
         metrics.increment_non_retryable(error)
@@ -95,6 +95,11 @@ module EVSS
         saved_claim(claim_id).async_transaction = transaction_class.start(
           user_uuid, auth_headers['va_eauth_dodedipnid'], jid
         )
+      end
+
+      def update_transaction_error(error_message, type)
+        json = { error: error_message }.to_json
+        transaction_class.update_transaction(jid, type, json)
       end
 
       def submit_4142(form_content, user_uuid, auth_headers, evss_claim_id, saved_claim_id)
