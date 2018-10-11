@@ -98,47 +98,46 @@ describe PdfFill::Forms::Va210781a do
 
   describe '#expand_incident_date' do
     incident = {
-      'incidentDate' => '2000-01-01',
+      'incidentDate' => '2000-01-01'
     }
     it 'should expand the incident date correctly' do
       expect(new_form_class.expand_incident_date(incident)).to eq(
-          {
-            'month' => '01', 
-            'day' => '01', 
-            'year' => '2000'
-          }
+        'month' => '01',
+        'day' => '01',
+        'year' => '2000'
       )
     end
   end
 
   describe '#expand_incident_location' do
-    incident = {
-      'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz',
-    }
-    it 'should expand the incident location into three lines' do
-      expect(new_form_class.expand_incident_location(incident)).to eq(
-        {
-          'firstRow' => 'abcdefghijklmnopqrs', 
-          'secondRow' => 'xxxxxxxxxxxxxxxxxx', 
-          'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
-        }
+    it 'should expand the incident location into three lines one word each' do
+      expect(new_form_class.expand_incident_location(
+               'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
+      )).to eq(
+        'firstRow' => 'abcdefghijklmnopqrs',
+        'secondRow' => 'xxxxxxxxxxxxxxxxxx',
+        'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
       )
     end
 
-    incident = {
-      'incidentLocation' => 'abc defg hijk lmno pqrs xxxx xxxx xxxx xxxx xx zzzz zzzz zzzz zzzz zzz',
-    }
-    it 'should expand the incident location into three lines' do
-      expect(new_form_class.expand_incident_location(incident)).to eq(
-        {
-          'firstRow' => 'abc defg hijk lmno pqrs xxxx ', 
-          'secondRow' => 'xxxxxxxxxxxxxxxxxx', 
-          'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
-        }
+    it 'should expand the incident location into three lines multiple words' do
+      expect(new_form_class.expand_incident_location(
+               'incidentLocation' => 'abc defg hijk lmno pqrs xxxx xxxx xxxx xxxx xx zzzz zzzz zzzz zzzz zzz'
+      )).to eq(
+        'firstRow' => 'abc defg hijk lmno pqrs xxxx',
+        'secondRow' => 'xxxx xxxx xxxx xx zzzz zzzz',
+        'thirdRow' => 'zzzz zzzz zzz'
       )
     end
 
-
+    it 'should ignore more than 90 characters' do
+      expect(new_form_class.expand_incident_location(
+               'incidentLocation' => 'abcd efgh ijkl mnop qrst uvwxyz1 234abcd efghijklmn efghijklmnop qrstuvw xyz1234'
+      )).to eq(
+        'firstRow' => '',
+        'secondRow' => '',
+        'thirdRow' => ''
+      )
+    end
   end
- 
 end

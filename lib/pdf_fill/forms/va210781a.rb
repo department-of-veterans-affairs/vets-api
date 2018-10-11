@@ -4,7 +4,7 @@ module PdfFill
   module Forms
     class Va210781a < FormBase
       include FormHelper
-      
+
       INCIDENT_ITERATOR = PdfFill::HashConverter::ITERATOR
       KEY = {
         'veteranFullName' => {
@@ -115,9 +115,10 @@ module PdfFill
             'toYear' => {
               key: "unitAssignmentDateToYear[#{INCIDENT_ITERATOR}]"
             }
-          }, 
+          },
           'incidentLocation' => {
             limit: 90,
+            question_num: 8,
             'firstRow' => {
               key: "incidentLocationFirstRow[#{INCIDENT_ITERATOR}]",
               limit: 30
@@ -129,6 +130,12 @@ module PdfFill
             'thirdRow' => {
               key: "incidentLocationThirdRow[#{INCIDENT_ITERATOR}]",
               limit: 30
+            },
+            'incidentLocationOverflow' => {
+              key: '',
+              question_text: 'INCIDENT LOCATION',
+              question_num: 8,
+              question_suffix: 'C'
             }
           }
         },
@@ -169,63 +176,41 @@ module PdfFill
       end
 
       def expand_unit_assignment_dates(incident)
-        incidentUnitAssignedDates = incident['unitAssignedDates']
-        return if incidentUnitAssignedDates.blank?
-        fromDates = split_date(incidentUnitAssignedDates['from'])
-        toDates = split_date(incidentUnitAssignedDates['to'])
+        incident_unit_assigned_dates = incident['unitAssignedDates']
+        return if incident_unit_assigned_dates.blank?
+        from_dates = split_date(incident_unit_assigned_dates['from'])
+        to_dates = split_date(incident_unit_assigned_dates['to'])
 
-        unitAssignmentDates = {
-          'fromMonth' => fromDates['month'],
-          'fromDay' => fromDates['day'],
-          'fromYear' => fromDates['year'],
-          'toMonth' => toDates['month'], 
-          'toDay' => toDates['day'],
-          'toYear' => toDates['year']
+        unit_assignment_dates = {
+          'fromMonth' => from_dates['month'],
+          'fromDay' => from_dates['day'],
+          'fromYear' => from_dates['year'],
+          'toMonth' => to_dates['month'],
+          'toDay' => to_dates['day'],
+          'toYear' => to_dates['year']
         }
 
-        incidentUnitAssignedDates.except!('to')
-        incidentUnitAssignedDates.except!('from')
-        incidentUnitAssignedDates.merge!(unitAssignmentDates)
+        incident_unit_assigned_dates.except!('to')
+        incident_unit_assigned_dates.except!('from')
+        incident_unit_assigned_dates.merge!(unit_assignment_dates)
       end
 
       def expand_incident_location(incident)
         incident_location = incident['incidentLocation']
         return if incident_location.blank?
 
-        if(incident_location.length <= 90)
-          s_location = incident_location.split(" ")
-          lineCharacterCount = 0
-          line_arr = Array.new
-          finished_lines = Array.new
-  
-          binding.pry
-          s_location.each_with_index do |word, index|
-            lineIsFull = lineCharacterCount + word.length < 30 ? false : true
-            # if line is full, create a finished line, clear the collection, and start a new line collection
-            if lineIsFull
-              line = line_arr.join(" ")
-              finished_lines.push(line)
-              line_arr.clear
-              line_arr.push(word)
-              lineCharacterCount = word.length + 1
-              
-            else
-              line_arr.push(word)
-              lineCharacterCount += word.length + 1
-            end
+        split_incident_location = {}
 
-            if index == s_location.size - 1
-              final_line = line_arr.join(" ")
-              finished_lines.push(final_line)
-            end
-          end
+        if incident_location.length <= 90
+          s_location = incident_location.scan(30)
+          split_incident_location = {
+            'firstRow' => s_location.positive? ? s_location[0] : '',
+            'secondRow' => s_location.length > 1 ? s_location[1] : '',
+            'thirdRow' => s_location.length > 2 ? s_location[2] : ''
+          }
+        else
+          provider['incidentLocationOverflow'] = PdfFill::FormValue.new('', incident_location)
         end
-
-        split_incident_location = {
-          'firstRow' => finished_lines.length > 0 ? finished_lines[0] : "",
-          'secondRow' => finished_lines.length > 1 ? finished_lines[1] : "",
-          'thirdRow' => finished_lines.length > 2 ? finished_lines[2] : ""
-        }
 
         incident['incidentLocation'] = split_incident_location
       end
@@ -234,7 +219,7 @@ module PdfFill
         return if incidents.blank?
         incidents.each do |incident|
           expand_incident_date(incident)
-       #   expand_unit_assignment_dates(incident)
+          #   expand_unit_assignment_dates(incident)
         end
       end
 
