@@ -43,7 +43,7 @@ class SSOService
         end
         existing_user.destroy
       end
-      
+
       new_session.save && new_user.save && new_user_identity.save
     else
       handle_error_reporting_and_instrumentation
