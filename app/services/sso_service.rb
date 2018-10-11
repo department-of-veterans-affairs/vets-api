@@ -33,9 +33,7 @@ class SSOService
   validate :composite_validations
 
   def persist_authentication!
-    if new_login?
-      existing_user.destroy
-    end
+    existing_user.destroy if new_login?
 
     if valid?
       if new_login?
