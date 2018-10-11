@@ -66,6 +66,8 @@ class DependentsApplication < Common::RedisStore
       'country' => {
         'dropDownCountry' => address['country']
       },
+      'postOffice' => address['postOffice'],
+      'postalType' => address['postalType'],
       'state' => address['state'],
       'zipCode' => address['postalCode']
     }
@@ -80,6 +82,11 @@ class DependentsApplication < Common::RedisStore
       'dropDownCountry' => location['countryDropdown'],
       'textCountry' => location['countryText']
     }
+  end
+
+  def self.convert_marriage(parsed_form)
+    converted = {}
+    converted.merge!(convert_address(parsed_form['spouseAddress']))
   end
 
   def self.set_child_attrs!(dependent, child = {})
