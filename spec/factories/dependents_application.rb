@@ -58,6 +58,7 @@ FactoryBot.define do
             },
             reasonForSeparation: 'Other',
             explainSeparation: 'other'
+          }
         ],
         previousMarriages: [
           {
@@ -79,6 +80,7 @@ FactoryBot.define do
             },
             reasonForSeparation: 'Other',
             explainSeparation: 'other'
+          }
         ],
         veteranSocialSecurityNumber: '111223333',
         vaFileNumber: '111223333',
@@ -128,7 +130,7 @@ FactoryBot.define do
             childRelationship: 'biological',
             attendingCollege: true,
             disabled: true,
-            marriedDate: "2016-12-15",
+            marriedDate: '2016-12-15',
             previouslyMarried: true
           }
         ]
