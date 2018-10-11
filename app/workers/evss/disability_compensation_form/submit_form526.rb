@@ -87,14 +87,19 @@ module EVSS
 
       def non_retryable_error_handler(error)
         message = error.try(:messages) || error.message
-        transaction_class.update_transaction(jid, :non_retryable_error, message)
+        update_transaction_error(message, :non_retryable_error)
         super(error)
       end
 
       def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error.message)
+        update_transaction_error(error.message, :retrying)
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
+      end
+
+      def update_transaction_error(error_message, type)
+        json = { error: error_message }.to_json
+        transaction_class.update_transaction(jid, type, json)
       end
 
       def service(auth_headers)
