@@ -20,9 +20,9 @@ module SAML
     end
 
     def idme_loa3_url(current_user, relay_state)
-      build_sso_url(
-        authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, relay_state: relay_state
-      )
+      policy = current_user.authn_context
+      authn_context = policy.present? ? "#{policy}_loa3" : LOA::MAPPING.invert[3]
+      build_sso_url(authn_context: authn_context, connect: policy, relay_state: relay_state)
     end
 
     def mfa_url(current_user, relay_state)
