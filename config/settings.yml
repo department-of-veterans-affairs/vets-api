@@ -290,6 +290,7 @@ saml:
 oidc:
   auth_server_metadata_url: ~
   issuer: ~
+  audience: ~
   profile_api_url: ~
   profile_api_token: ~
 

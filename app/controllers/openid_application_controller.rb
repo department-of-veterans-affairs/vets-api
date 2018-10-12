@@ -41,9 +41,9 @@ class OpenidApplicationController < ApplicationController
 
   def establish_session
     return false unless token_payload
-    ttl = Time.current.utc.to_i - token_payload['iat']
-    # TODO: add validation options - issuer, audience, cid
-    user_identity = user_identity_from_profile(token_payload, ttl)
+    validate_token(token_payload)
+    ttl = token_payload['exp'] - Time.current.utc.to_i
+    user_identity = user_identity_from_profile(ttl)
     @current_user = user_from_identity(user_identity, ttl)
     @session = session_from_claims(ttl)
     @session.save && user_identity.save && @current_user.save
@@ -63,7 +63,13 @@ class OpenidApplicationController < ApplicationController
                        end
   end
 
-  def user_identity_from_profile(_payload, ttl)
+  def validate_token(payload)
+    raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
+    raise 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
+    raise 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
+  end
+
+  def user_identity_from_profile(ttl)
     uid = token_payload['uid']
     conn = Faraday.new(Settings.oidc.profile_api_url)
     profile_response = conn.get do |req|
@@ -72,11 +78,16 @@ class OpenidApplicationController < ApplicationController
       req.headers['Accept'] = 'application/json'
       req.headers['Authorization'] = "SSWS #{Settings.oidc.profile_api_token}"
     end
-    # TODO: handle failure
-    profile = JSON.parse(profile_response.body)['profile']
-    user_identity = UserIdentity.new(profile_to_attributes(token_payload, profile))
-    user_identity.expire(ttl)
-    user_identity
+    if profile_response.success?
+      profile = JSON.parse(profile_response.body)['profile']
+      user_identity = UserIdentity.new(profile_to_attributes(token_payload, profile))
+      user_identity.expire(ttl)
+      user_identity
+    else
+      log_message_to_sentry('Error retrieving profile for OIDC token', :error,
+                            body: profile_response.body)
+      raise 'Unable to retrieve user profile'
+    end
   end
 
   def profile_to_attributes(token_payload, profile)
