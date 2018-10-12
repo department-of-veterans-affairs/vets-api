@@ -2,6 +2,7 @@
 
 module Accountable
   extend ActiveSupport::Concern
+  include SentryLogging
 
   # Creates a user's one Account record. By doing so, it initializes
   # a unique account#uuid for the user, through a callback on
