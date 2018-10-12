@@ -14,6 +14,11 @@ class DependentsApplication < Common::RedisStore
     'Widowed' => 'WIDOWED',
     'Divorced' => 'DIVORCED'
   }
+  SEPARATION_TYPES = {
+    'Death' => 'DEATH',
+    'Divorce' => 'DIVORCED',
+    'Other' => 'OTHER'
+  }
 
   def self.filter_children(dependents, evss_children)
     return [] if evss_children.blank? || dependents.blank?
@@ -84,9 +89,48 @@ class DependentsApplication < Common::RedisStore
     }
   end
 
+  def self.convert_previous_marriages(previous_marriages)
+    return [] if previous_marriages.blank?
+
+    previous_marriages.map do |previous_marriage|
+      {
+        'marriedDate' => previous_marriage['dateOfMarriage'],
+        'city' => previous_marriage['locationOfMarriage']['city'],
+        'country' => convert_country(previous_marriage['locationOfMarriage']),
+        'terminatedDate' => convert_evss_date(previous_marriage['dateOfSeparation']),
+        'marriageTerminationReasonType' => SEPARATION_TYPES[previous_marriage['reasonForSeparation']],
+        'explainTermination' => previous_marriage['explainSeparation'],
+        'state' => previous_marriage['locationOfMarriage']['state']
+      }.merge(
+        convert_name(previous_marriage['spouseFullName'])
+      )
+
+    end
+  end
+
   def self.convert_marriage(parsed_form)
     converted = {}
+    current_marriage = parsed_form['currentMarriage']
+    # TOOD handle current marriage nil
+    # TODO handle liveWithSpouse
     converted.merge!(convert_address(parsed_form['spouseAddress']))
+    converted.merge!(convert_name(parsed_form['spouseFullName']))
+    converted.merge!(convert_ssn(parsed_form['spouseSocialSecurityNumber']))
+
+    converted['dateOfBirth'] = convert_evss_date(parsed_form['spouseDateOfBirth'])
+
+    converted['currentMarriage'] = {
+      'marriageDate' => convert_evss_date(current_marriage['dateOfMarriage']),
+      'city' => current_marriage['locationOfMarriage']['city'],
+      'country' => convert_country(current_marriage['locationOfMarriage']),
+      'state' => current_marriage['locationOfMarriage']['state']
+    }
+
+    converted['vaFileNumber'] = convert_ssn(parsed_form['spouseVaFileNumber'])
+    converted['veteran'] = parsed_form['spouseIsVeteran']
+    converted['previousMarriages'] = convert_previous_marriages(parsed_form['spouseMarriages'])
+
+    converted
   end
 
   def self.set_child_attrs!(dependent, child = {})
@@ -129,11 +173,15 @@ class DependentsApplication < Common::RedisStore
   def self.transform_form(parsed_form, evss_form)
     dependents = parsed_form['dependents'] || []
     transformed = {}
+    transformed['emailAddress'] = parsed_form['veteranEmail']
     transformed.merge!(convert_name(parsed_form['veteranFullName']))
     transformed.merge!(convert_address(parsed_form['veteranAddress']))
     transformed.merge!(convert_ssn(parsed_form['veteranSocialSecurityNumber']))
+    transformed['vaFileNumber'] = convert_ssn(parsed_form['vaFileNumber'])
+
+    transformed['spouse'] = convert_marriage(parsed_form)
     # TODO add no ssn fields
-    # TODO spouse information
+
 
     children = filter_children(
       dependents,
@@ -154,6 +202,8 @@ class DependentsApplication < Common::RedisStore
     transformed['children'] = children
 
     transformed['marriageType'] = convert_marriage_status(parsed_form['maritalStatus']) if parsed_form['maritalStatus'].present?
+
+    transformed['previousMarriages'] = convert_previous_marriages(parsed_form['previousMarriages'])
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
