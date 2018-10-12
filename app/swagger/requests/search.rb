@@ -32,6 +32,16 @@ module Swagger
                   key :required, [:body]
                   property :body, type: :object do
                     property :query, type: :string, description: 'The term used to generate these search results'
+                    property :pagination, type: :object do
+                      property :previous,
+                               type: %i[integer null],
+                               description: "The offset from first result, in order to return the previous page's results set. Null indicates the response is the first page of results.",
+                               example: 20
+                      property :next,
+                               type: %i[integer null],
+                               description: "The offset from first result, in order to return the next page's results set. Null indicates the response is the last page of results.",
+                               example: 60
+                    end
                     property :web, type: :object do
                       property :total, type: :integer, description: 'Total number of results available.'
                       property :next_offset, type: :integer, description: 'Offset for the subsequent results.'
