@@ -1,7 +1,7 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: Service History
+  title: Veteran Confirmation
   description: |
     Veteran Verification - Veteran Confirmation
 
@@ -101,7 +101,7 @@ components:
           example: "833c6ffc-efef-4775-9355-f836b4f57501"
         type:
           type: string
-          example: veteran-status-confirmations
+          example: veteran_status_confirmations
         attributes:
           type: object
           properties:
