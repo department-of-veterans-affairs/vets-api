@@ -64,8 +64,7 @@ paths:
   /status:
     get:
       tags:
-        - name: veteran_confirmation_status
-          description: Veteran Verification - Veteran Status
+        - veteran_confirmation_status
       summary: Get confirmation about an individual's Veteran status according to the VA
       operationId: getVeteranStatus
       security:
@@ -80,7 +79,7 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: '#/components/schemas/
+                    $ref: '#/components/schemas/VeteranStatusConfirmation'
         '403':
           description: Provided Access Token Does not have the required scopes to access
 components:
