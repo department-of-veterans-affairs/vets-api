@@ -112,7 +112,6 @@ class DependentsApplication < Common::RedisStore
     converted = {}
     current_marriage = parsed_form['currentMarriage']
     # TOOD handle current marriage nil
-    # TODO handle liveWithSpouse
     converted.merge!(convert_address(parsed_form['spouseAddress']))
     converted.merge!(convert_name(parsed_form['spouseFullName']))
     converted.merge!(convert_ssn(parsed_form['spouseSocialSecurityNumber']))
@@ -131,6 +130,15 @@ class DependentsApplication < Common::RedisStore
     converted['previousMarriages'] = convert_previous_marriages(parsed_form['spouseMarriages'])
 
     converted
+  end
+
+  def self.convert_phone(phone)
+    return {} if phone.blank?
+
+    {
+      'areaNbr' => phone[0..2],
+      'phoneNbr' => "#{phone[3..5]}-#{phone[6..9]}"
+    }
   end
 
   def self.set_child_attrs!(dependent, child = {})
@@ -180,8 +188,8 @@ class DependentsApplication < Common::RedisStore
     transformed['vaFileNumber'] = convert_ssn(parsed_form['vaFileNumber'])
 
     transformed['spouse'] = convert_marriage(parsed_form)
+    transformed['spouse']['address'] = transformed['address'] if parsed_form['liveWithSpouse']
     # TODO add no ssn fields
-
 
     children = filter_children(
       dependents,

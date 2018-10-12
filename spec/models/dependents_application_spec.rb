@@ -14,6 +14,17 @@ RSpec.describe DependentsApplication, type: :model do
     EVSS::DependentsApplicationJob.new.perform(dependents_application.id, dependents_application.parsed_form, user.uuid)
   end
 
+  describe '.convert_phone' do
+    it 'should convert a phone to the evss format' do
+      expect(described_class.convert_phone('1234567890')).to eq(
+        {
+          'areaNbr' => '123',
+          'phoneNbr' => '456-7890'
+        }
+      )
+    end
+  end
+
   describe '.filter_children' do
     it 'should filter children to match dependents' do
       dependents = [

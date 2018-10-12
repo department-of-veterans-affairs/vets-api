@@ -97,7 +97,7 @@ FactoryBot.define do
           state: 'KY',
           postalCode: '40292'
         },
-        monthlySpousePayment: 1,
+        monthlySpousePayment: 1, # remove this field
         dayPhone: '5551110000',
         nightPhone: '5551110001',
         dependents: [
