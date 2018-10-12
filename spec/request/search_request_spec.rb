@@ -56,5 +56,73 @@ describe 'search', type: :request do
         end
       end
     end
+
+    # TODO: update the cassettes once service object branch is pushed
+    context 'with pagination' do
+      context "the endpoint's response" do
+        it 'should return pagination offsets for previous and next page results', :aggregate_failures do
+          VCR.use_cassette('search/search_pagination_p3') do
+            get '/v0/search', query: 'benefits'
+
+            pagination = pagination_for(response)
+
+            expect(pagination['next']).to be_present
+            expect(pagination['previous']).to be_present
+          end
+        end
+
+        context 'on the first page of the search results' do
+          it 'previous should be null', :aggregate_failures do
+            VCR.use_cassette('search/search_pagination_p1') do
+              get '/v0/search', query: 'benefits'
+
+              pagination = pagination_for(response)
+
+              expect(pagination.keys).to include 'previous'
+              expect(pagination['previous']).to_not be_present
+              expect(pagination['next']).to be_present
+            end
+          end
+        end
+
+        context 'on the last page of the search results' do
+          it 'next should be null', :aggregate_failures do
+            VCR.use_cassette('search/search_pagination_last_page') do
+              get '/v0/search', query: 'benefits'
+
+              pagination = pagination_for(response)
+
+              expect(pagination.keys).to include 'next'
+              expect(pagination['next']).to_not be_present
+              expect(pagination['previous']).to be_present
+            end
+          end
+        end
+      end
+
+      context 'when the endpoint is being called' do
+        context 'with an offset' do
+          it 'should pass the offset request to the search service object' do
+            expect(Search::Service).to receive(:new).with('benefits', '20')
+
+            get '/v0/search', query: 'benefits', offset: 20
+          end
+        end
+
+        context 'with no offset present' do
+          it 'should pass offset=nil to the search service object' do
+            expect(Search::Service).to receive(:new).with('benefits', nil)
+
+            get '/v0/search', query: 'benefits'
+          end
+        end
+      end
+    end
   end
+end
+
+def pagination_for(response)
+  body = JSON.parse response.body
+
+  body.dig('data', 'attributes', 'body', 'pagination')
 end
