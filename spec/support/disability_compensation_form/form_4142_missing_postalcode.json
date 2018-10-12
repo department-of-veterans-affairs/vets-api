@@ -1,25 +1,25 @@
 {
   "privacyAgreementAccepted": true,
-  "vaFileNumber": "12345678",
-  "veteranSocialSecurityNumber": "123456789",
-  "veteranServiceNumber": "987654321",
+  "vaFileNumber": "796068949",
+  "veteranSocialSecurityNumber": "796068949",
+  "veteranServiceNumber": "string",
   "veteranFullName": {
-    "first": "Testy",
-    "middle": "Tester",
-    "last": "Testerson"
+    "first": "Beyonce",
+    "middle": null,
+    "last": "Knowles"
   },
-  "veteranDateOfBirth": "1981-11-05",
+  "veteranDateOfBirth": "1809-02-12",
   "veteranAddress": {
-    "city": "Baltimore",
-    "country": "USA",
-    "postalCode": "21231-1234",
-    "street": "street",
-    "street2": "1B",
-    "state": "MD"
+    "city": "Quaint Town", 
+    "country": "USA", 
+    "postalCode": "", 
+    "street": "1234 Classy Street", 
+    "street2": "Apartment 567", 
+    "state": "OR"
   },
-  "email": "testy.testerson@gmail.com",
-  "veteranPhone": "2123456789",
-  "limitedConsent": "limit1 limit2 limit3 limit4 limit1 limit2 limit3 limit4 limit1 limit2 limit3 limit4",
+  "email": "test@email.com",
+  "veteranPhone": "2024561111",
+  "limitedConsent": "true",
   "providerFacility": [
     {
       "providerFacilityName": "provider 1",

@@ -14,6 +14,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:claim_id) { 123_456_789 }
+  let(:submission_id) { 123_456_790 }
+  let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:uploads) do
     [
       { confirmationCode: SecureRandom.uuid },
@@ -29,7 +31,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'with four uploads' do
       it 'queues four submit upload jobs' do
         expect do
-          subject.start(auth_headers, claim_id, uploads)
+          subject.start(auth_headers, claim_id, saved_claim.id, submission_id, uploads)
         end.to change(subject.jobs, :size).by(4)
       end
     end
@@ -39,7 +41,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'queues no submit upload jobs' do
         expect do
-          subject.start(auth_headers, claim_id, uploads)
+          subject.start(auth_headers, claim_id, saved_claim.id, submission_id, uploads)
         end.to_not change(subject.jobs, :size)
       end
     end
@@ -80,8 +82,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           )
           .and_return(document_data)
 
+        subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
         expect(client).to receive(:upload).with(file.read, document_data)
-        subject.new.perform(upload_data, claim_id, auth_headers)
+        described_class.drain
       end
     end
 
@@ -89,9 +92,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let(:attachment) { double(:attachment, get_file: nil) }
 
       it 'raises an ArgumentError' do
-        expect do
-          subject.new.perform(upload_data, claim_id, auth_headers)
-        end.to raise_error(
+        subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
+        expect { described_class.drain }.to raise_error(
           ArgumentError,
           'supporting evidence attachment with guid d44d6f52-2e85-43d4-a5a3-1d9cb4e482a0 has no file data'
         )
