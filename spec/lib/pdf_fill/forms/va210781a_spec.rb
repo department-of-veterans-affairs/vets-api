@@ -109,6 +109,7 @@ describe PdfFill::Forms::Va210781a do
     end
   end
 
+  # rubocop:disable Metrics/LineLength
   describe '#expand_incident_location' do
     it 'should expand the incident location into three lines one word each' do
       expect(new_form_class.expand_incident_location(
@@ -131,16 +132,20 @@ describe PdfFill::Forms::Va210781a do
     end
 
     it 'should ignore more than 90 characters' do
-      expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-      )).to eq({})
+      expect(JSON.parse(new_form_class.expand_incident_location(
+        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      ).to_json)).to eq(
+        'value' => '',
+        'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      )
     end
   end
+  # rubocop:enable Metrics/LineLength
 
   describe '#expand incident_unit_assignment' do
     it 'should expand the incident unit assignment into three lines one word each' do
       expect(new_form_class.expand_incident_unit_assignment(
-             'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
+               'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
       )).to eq(
         'firstRow' => 'abcdefghijklmnopqrs',
         'secondRow' => 'xxxxxxxxxxxxxxxxxx',
@@ -159,44 +164,189 @@ describe PdfFill::Forms::Va210781a do
     end
 
     it 'should ignore more than 90 characters' do
-      expect(new_form_class.expand_incident_unit_assignment(
-               'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-      )).to eq({})
+      expect(JSON.parse(new_form_class.expand_incident_unit_assignment(
+        'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      ).to_json)).to eq(
+        'value' => '',
+        'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      )
     end
   end
 
+  describe '#expand_other_sources' do
+    it 'should expand sources correctly' do
+      incident = {
+        'source' => [{
+          'name' => {
+            'first' => 'Testy',
+            'middle' => 'T',
+            'last' => 'Testerson'
+          },
+          'address' => {
+            'street' => '123 Main Street',
+            'street2' => '1B',
+            'city' => 'Baltimore',
+            'state' => 'MD',
+            'country' => 'USA',
+            'postalCode' => '21200-1111'
+          }
+        }]
+      }
+
+      expect(new_form_class.expand_other_sources(incident)).to eq(
+        'combinedName0' => 'Testy T Testerson',
+        'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
+      )
+    end
+
+    it 'should expand multiple sources correctly' do
+      incident = {
+        'source' => [{
+          'name' => {
+            'first' => 'Testy',
+            'middle' => 'T',
+            'last' => 'Testerson'
+          },
+          'address' => {
+            'street' => '123 Main Street',
+            'street2' => '1B',
+            'city' => 'Baltimore',
+            'state' => 'MD',
+            'country' => 'USA',
+            'postalCode' => '21200-1111'
+          }
+        },
+                     {
+                       'name' => {
+                         'first' => 'Besty',
+                         'middle' => 'B',
+                         'last' => 'Besterson'
+                       },
+                       'address' => {
+                         'street' => '456 Main Street',
+                         'street2' => '1B',
+                         'city' => 'Baltimore',
+                         'state' => 'MD',
+                         'country' => 'USA',
+                         'postalCode' => '21200-1111'
+                       }
+                     }]
+      }
+
+      expect(new_form_class.expand_other_sources(incident)).to eq(
+        'combinedName0' => 'Testy T Testerson',
+        'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA',
+        'combinedName1' => 'Besty B Besterson',
+        'combinedAddress1' => '456 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
+      )
+    end
+  end
+
+  # rubocop:disable Metrics/LineLength
   describe '#expand_incidents' do
     it 'incident location should go to overflow' do
       incidents = [{
-        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234', 
-        'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234', 
+        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234',
+        'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234',
         'unitAssignedDates' => {
           'from' => '2000-01-01',
           'to' => '2005-02-02'
-        }
+        },
+        'source' => [
+          {
+            'name' => {
+              'first' => 'Testy',
+              'middle' => 'T',
+              'last' => 'Testerson'
+            },
+            'address' => {
+              'street' => '123 Main Street',
+              'street2' => '1B',
+              'city' => 'Baltimore',
+              'state' => 'MD',
+              'country' => 'USA',
+              'postalCode' => '21200-1111'
+            }
+          },
+          {
+            'name' => {
+              'first' => 'Besty',
+              'middle' => 'B',
+              'last' => 'Besterson'
+            },
+            'address' => {
+              'street' => '456 Main Street',
+              'street2' => '1B',
+              'city' => 'Baltimore',
+              'state' => 'MD',
+              'country' => 'USA',
+              'postalCode' => '21200-1111'
+            }
+          },
+          {
+            'name' => {
+              'first' => 'Dusty',
+              'middle' => 'D',
+              'last' => 'Dusterson'
+            },
+            'address' => {
+              'street' => '789 Main Street',
+              'street2' => '1B',
+              'city' => 'Baltimore',
+              'state' => 'MD',
+              'country' => 'USA',
+              'postalCode' => '21200-1111'
+            }
+          },
+          {
+            'name' => {
+              'first' => 'Fussy',
+              'middle' => 'F',
+              'last' => 'Fusserson'
+            },
+            'address' => {
+              'street' => '1111 Main Street',
+              'street2' => '1B',
+              'city' => 'Baltimore',
+              'state' => 'MD',
+              'country' => 'USA',
+              'postalCode' => '21200-1111'
+            }
+          }
+        ]
       }]
+
       expect(JSON.parse(new_form_class.expand_incidents(incidents).to_json)).to eq(
         [{
-          'incidentLocation' => {},
-          'unitAssigned' => {}, 
+          'incidentLocation' => {
+            'incidentLocationOverflow' => {
+              'value' => '',
+              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+            }
+          },
+          'unitAssigned' => {
+            'unitAssignedOverflow' => {
+              'value' => '',
+              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+            }
+          },
           'unitAssignedDates' => {
             'fromMonth' => '01',
             'fromDay' => '01',
             'fromYear' => '2000',
             'toMonth' => '02',
-            'toDay' => '02', 
+            'toDay' => '02',
             'toYear' => '2005'
           },
-          'incidentLocationOverflow' => {
-            'value' => '',
-              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-          }, 
-          'unitAssignedOverflow' => {
-            'value' => '',
-              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-          } 
+          'source' => {
+            'sourceOverflow' => {
+              'value' => '',
+              'extras_value' => 'Testy T Testerson\n123 Main Street, 1B, Baltimore, MD, 21200-1111, USA\n\nBesty B Besterson\n456 Main Street, 1B, Baltimore, MD, 21200-1111, USA\n\nDusty D Dusterson\n789 Main Street, 1B, Baltimore, MD, 21200-1111, USA\n\nFussy F Fusserson\n1111 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
+            }
+          }
         }]
       )
     end
   end
+  # rubocop:enable Metrics/LineLength
 end

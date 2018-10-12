@@ -138,9 +138,8 @@ module PdfFill
               question_num: 8,
               question_suffix: 'C'
             }
-          }, 
+          },
           'unitAssigned' => {
-            limit: 90, 
             question_num: 8,
             'firstRow' => {
               key: "unitAssignmentFirstRow[#{INCIDENT_ITERATOR}]",
@@ -155,16 +154,42 @@ module PdfFill
               limit: 30
             },
             'unitAssignedOverflow' => {
-              key: '', 
+              key: '',
               question_text: 'UNIT ASSIGNED DURING INCIDENT',
-              question_num: 9, 
+              question_num: 9,
               question_suffix: 'D'
             }
-          }, 
+          },
           'incidentDescription' => {
-            key: "incidentDescription[#{INCIDENT_ITERATOR}]", 
-            question_num: 8, 
+            key: "incidentDescription[#{INCIDENT_ITERATOR}]",
+            question_num: 8,
             question_suffix: 'E'
+          },
+          'source' => {
+            'combinedName0' => {
+              key: "incident_source_name[#{INCIDENT_ITERATOR}][0]"
+            },
+            'combinedAddress0' => {
+              key: "incident_source_address[#{INCIDENT_ITERATOR}][0]"
+            },
+            'combinedName1' => {
+              key: "incident_source_name[#{INCIDENT_ITERATOR}][1]"
+            },
+            'combinedAddress1' => {
+              key: "incident_source_address[#{INCIDENT_ITERATOR}][1]"
+            },
+            'combinedName2' => {
+              key: "incident_source_name[#{INCIDENT_ITERATOR}][2]"
+            },
+            'combinedAddress2' => {
+              key: "incident_source_address[#{INCIDENT_ITERATOR}][2]"
+            },
+            'sourceOverflow' => {
+              key: '',
+              question_num: 9,
+              question_suffix: 'A',
+              question_text: 'OTHER SOURCES OF INFORMATION ABOUT INCIDENT'
+            }
           }
         },
         'otherInformation' => {
@@ -227,8 +252,6 @@ module PdfFill
         incident_location = incident['incidentLocation']
         return if incident_location.blank?
 
-        split_incident_location = {}
-
         if incident_location.length <= 90
           s_location = incident_location.scan(/(.{1,30})(\s+|$)/)
           split_incident_location = {
@@ -236,18 +259,17 @@ module PdfFill
             'secondRow' => s_location.length > 1 ? s_location[1][0] : '',
             'thirdRow' => s_location.length > 2 ? s_location[2][0] : ''
           }
-        else
-          incident['incidentLocationOverflow'] = PdfFill::FormValue.new('', incident_location)
-        end
+          incident['incidentLocation'] = split_incident_location
 
-        incident['incidentLocation'] = split_incident_location
+        else
+          incident['incidentLocation'] = {}
+          incident['incidentLocation']['incidentLocationOverflow'] = PdfFill::FormValue.new('', incident_location)
+        end
       end
 
       def expand_incident_unit_assignment(incident)
         incident_unit_assignment = incident['unitAssigned']
         return if incident_unit_assignment.blank?
-
-        split_incident_unit_assignment = {}
 
         if incident_unit_assignment.length <= 90
           s_incident_unit_assignment = incident_unit_assignment.scan(/(.{1,30})(\s+|$)/)
@@ -256,14 +278,39 @@ module PdfFill
             'secondRow' => s_incident_unit_assignment.length > 1 ? s_incident_unit_assignment[1][0] : '',
             'thirdRow' => s_incident_unit_assignment.length > 2 ? s_incident_unit_assignment[2][0] : ''
           }
+          incident['unitAssigned'] = split_incident_unit_assignment
         else
-          incident['unitAssignedOverflow'] = PdfFill::FormValue.new('', incident_unit_assignment)
+          incident['unitAssigned'] = {}
+          incident['unitAssigned']['unitAssignedOverflow'] = PdfFill::FormValue.new('', incident_unit_assignment)
         end
-
-        incident['unitAssigned'] = split_incident_unit_assignment
       end
 
+      def expand_other_sources(incident)
+        return if incident.blank?
 
+        incident_sources = incident['source']
+        combined_sources = {}
+        overflow_sources = []
+
+        incident_sources.each_with_index do |source, index|
+          combined_source_name = combine_full_name(source['name'])
+          combined_source_address = combine_full_address(source['address'])
+
+          combined_sources["combinedName#{index}"] = combined_source_name
+          combined_sources["combinedAddress#{index}"] = combined_source_address
+
+          overflow = combined_source_name + '\n' + combined_source_address
+          overflow_sources.push(overflow)
+        end
+
+        if incident_sources.length > 3
+          incident['source'] = {}
+          overflow = overflow_sources.join('\n\n')
+          incident['source']['sourceOverflow'] = PdfFill::FormValue.new('', overflow)
+        else
+          incident['source'] = combined_sources
+        end
+      end
 
       def expand_incidents(incidents)
         return if incidents.blank?
@@ -272,6 +319,7 @@ module PdfFill
           expand_unit_assigned_dates(incident)
           expand_incident_location(incident)
           expand_incident_unit_assignment(incident)
+          expand_other_sources(incident)
         end
       end
 
