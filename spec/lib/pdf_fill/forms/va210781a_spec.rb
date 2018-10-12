@@ -122,21 +122,80 @@ describe PdfFill::Forms::Va210781a do
 
     it 'should expand the incident location into three lines multiple words' do
       expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abc defg hijk lmno pqrs xxxx xxxx xxxx xxxx xx zzzz zzzz zzzz zzzz zzz'
+               'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
       )).to eq(
-        'firstRow' => 'abc defg hijk lmno pqrs xxxx',
-        'secondRow' => 'xxxx xxxx xxxx xx zzzz zzzz',
-        'thirdRow' => 'zzzz zzzz zzz'
+        'firstRow' => 'abcd defg hijk lmno pqrs xxxx',
+        'secondRow' => 'yyyy zzzz aaaa bb cccc dddd',
+        'thirdRow' => 'eeee ffff ggg'
       )
     end
 
     it 'should ignore more than 90 characters' do
       expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abcd efgh ijkl mnop qrst uvwxyz1 234abcd efghijklmn efghijklmnop qrstuvw xyz1234'
+               'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      )).to eq({})
+    end
+  end
+
+  describe '#expand incident_unit_assignment' do
+    it 'should expand the incident unit assignment into three lines one word each' do
+      expect(new_form_class.expand_incident_unit_assignment(
+             'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
       )).to eq(
-        'firstRow' => '',
-        'secondRow' => '',
-        'thirdRow' => ''
+        'firstRow' => 'abcdefghijklmnopqrs',
+        'secondRow' => 'xxxxxxxxxxxxxxxxxx',
+        'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
+      )
+    end
+
+    it 'should expand the incident unit assignment into three lines multiple words' do
+      expect(new_form_class.expand_incident_unit_assignment(
+               'unitAssigned' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
+      )).to eq(
+        'firstRow' => 'abcd defg hijk lmno pqrs xxxx',
+        'secondRow' => 'yyyy zzzz aaaa bb cccc dddd',
+        'thirdRow' => 'eeee ffff ggg'
+      )
+    end
+
+    it 'should ignore more than 90 characters' do
+      expect(new_form_class.expand_incident_unit_assignment(
+               'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      )).to eq({})
+    end
+  end
+
+  describe '#expand_incidents' do
+    it 'incident location should go to overflow' do
+      incidents = [{
+        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234', 
+        'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234', 
+        'unitAssignedDates' => {
+          'from' => '2000-01-01',
+          'to' => '2005-02-02'
+        }
+      }]
+      expect(JSON.parse(new_form_class.expand_incidents(incidents).to_json)).to eq(
+        [{
+          'incidentLocation' => {},
+          'unitAssigned' => {}, 
+          'unitAssignedDates' => {
+            'fromMonth' => '01',
+            'fromDay' => '01',
+            'fromYear' => '2000',
+            'toMonth' => '02',
+            'toDay' => '02', 
+            'toYear' => '2005'
+          },
+          'incidentLocationOverflow' => {
+            'value' => '',
+              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+          }, 
+          'unitAssignedOverflow' => {
+            'value' => '',
+              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghijklmnopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+          } 
+        }]
       )
     end
   end

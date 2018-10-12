@@ -18,9 +18,9 @@
       "from": "2001-01-01",
       "to": "2002-02-02"
     },
-    "incidentLocation": "abcdefghijklmnopqrstuvwxyz1234a", 
-    "unitAssigned": "",
-    "incidentDescription": "",
+    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
+    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+    "incidentDescription": "Lorem ipsum dolor sit amet.",
     "source": [{
       "name": {
         "first": "Testy",

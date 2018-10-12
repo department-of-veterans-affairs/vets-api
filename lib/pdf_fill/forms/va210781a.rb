@@ -85,6 +85,7 @@ module PdfFill
         },
         'incident' => {
           limit: 2,
+          first_key: 'incidentLocation',
           'incidentDate' => {
             'month' => {
               key: "incidentDateMonth[#{INCIDENT_ITERATOR}]"
@@ -137,6 +138,33 @@ module PdfFill
               question_num: 8,
               question_suffix: 'C'
             }
+          }, 
+          'unitAssigned' => {
+            limit: 90, 
+            question_num: 8,
+            'firstRow' => {
+              key: "unitAssignmentFirstRow[#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'secondRow' => {
+              key: "unitAssignmentSecondRow[#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'thirdRow' => {
+              key: "unitAssignmentThirdRow[#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'unitAssignedOverflow' => {
+              key: '', 
+              question_text: 'UNIT ASSIGNED DURING INCIDENT',
+              question_num: 9, 
+              question_suffix: 'D'
+            }
+          }, 
+          'incidentDescription' => {
+            key: "incidentDescription[#{INCIDENT_ITERATOR}]", 
+            question_num: 8, 
+            question_suffix: 'E'
           }
         },
         'otherInformation' => {
@@ -175,7 +203,7 @@ module PdfFill
         incident['incidentDate'] = split_date(incident_date)
       end
 
-      def expand_unit_assignment_dates(incident)
+      def expand_unit_assigned_dates(incident)
         incident_unit_assigned_dates = incident['unitAssignedDates']
         return if incident_unit_assigned_dates.blank?
         from_dates = split_date(incident_unit_assigned_dates['from'])
@@ -202,24 +230,48 @@ module PdfFill
         split_incident_location = {}
 
         if incident_location.length <= 90
-          s_location = incident_location.scan(30)
+          s_location = incident_location.scan(/(.{1,30})(\s+|$)/)
           split_incident_location = {
-            'firstRow' => s_location.positive? ? s_location[0] : '',
-            'secondRow' => s_location.length > 1 ? s_location[1] : '',
-            'thirdRow' => s_location.length > 2 ? s_location[2] : ''
+            'firstRow' => s_location.length.positive? ? s_location[0][0] : '',
+            'secondRow' => s_location.length > 1 ? s_location[1][0] : '',
+            'thirdRow' => s_location.length > 2 ? s_location[2][0] : ''
           }
         else
-          provider['incidentLocationOverflow'] = PdfFill::FormValue.new('', incident_location)
+          incident['incidentLocationOverflow'] = PdfFill::FormValue.new('', incident_location)
         end
 
         incident['incidentLocation'] = split_incident_location
       end
 
+      def expand_incident_unit_assignment(incident)
+        incident_unit_assignment = incident['unitAssigned']
+        return if incident_unit_assignment.blank?
+
+        split_incident_unit_assignment = {}
+
+        if incident_unit_assignment.length <= 90
+          s_incident_unit_assignment = incident_unit_assignment.scan(/(.{1,30})(\s+|$)/)
+          split_incident_unit_assignment = {
+            'firstRow' => s_incident_unit_assignment.length.positive? ? s_incident_unit_assignment[0][0] : '',
+            'secondRow' => s_incident_unit_assignment.length > 1 ? s_incident_unit_assignment[1][0] : '',
+            'thirdRow' => s_incident_unit_assignment.length > 2 ? s_incident_unit_assignment[2][0] : ''
+          }
+        else
+          incident['unitAssignedOverflow'] = PdfFill::FormValue.new('', incident_unit_assignment)
+        end
+
+        incident['unitAssigned'] = split_incident_unit_assignment
+      end
+
+
+
       def expand_incidents(incidents)
         return if incidents.blank?
         incidents.each do |incident|
           expand_incident_date(incident)
-          #   expand_unit_assignment_dates(incident)
+          expand_unit_assigned_dates(incident)
+          expand_incident_location(incident)
+          expand_incident_unit_assignment(incident)
         end
       end
 
