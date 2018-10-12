@@ -192,37 +192,6 @@ describe PdfFill::Forms::Va214142 do
     end
   end
 
-  describe '#expand_limited_consent' do
-    context 'limited consent is true' do
-      let :form_data do
-        {
-          'limitedConsent' => 'true'
-        }
-      end
-      it 'should convert limited consent value to yes' do
-        new_form_class.expand_limited_consent
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq(
-          'limitedConsent' => 'yes'
-        )
-      end
-    end
-    context 'limited consent is blank' do
-      let :form_data do
-        {}
-      end
-      it 'should convert limited consent value to no' do
-        new_form_class.expand_limited_consent
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq(
-          'limitedConsent' => 'no'
-        )
-      end
-    end
-  end
-
   describe '#combine_extra_date_ranges' do
     it 'should combine multiple date ranges correctly' do
       date_ranges = [
