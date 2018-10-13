@@ -21,7 +21,7 @@ describe Search::Service do
         end
       end
 
-      it 'returns an array of search result data' do
+      it 'returns an array of search result data', :aggregate_failures do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
 
@@ -29,6 +29,61 @@ describe Search::Service do
           total = response.body['web']['total']
 
           expect([query, total]).to eq [query, total]
+        end
+      end
+    end
+
+    context 'with an offset' do
+      let(:query) { 'test' }
+
+      it 'returns the correct segment of results', :aggregate_failures do
+        VCR.use_cassette('search/offset') do
+          response = subject.results
+
+          next_offset = response.body['pagination']['next']
+          prev_offset = response.body['pagination']['previous']
+
+          expect(next_offset).to eq 20
+          expect(prev_offset).to eq nil
+        end
+      end
+
+      it 'returns the correct pagination offsets', :aggregate_failures do
+        VCR.use_cassette('search/offset_20') do
+          subject = described_class.new(query, '20')
+          response = subject.results
+
+          next_offset = response.body['pagination']['next']
+          prev_offset = response.body['pagination']['previous']
+
+          expect(next_offset).to eq 40
+          expect(prev_offset).to eq nil
+        end
+      end
+
+      it 'returns the correct pagination offsets', :aggregate_failures do
+        VCR.use_cassette('search/offset_40') do
+          subject = described_class.new(query, '40')
+          response = subject.results
+
+          next_offset = response.body['pagination']['next']
+          prev_offset = response.body['pagination']['previous']
+
+          expect(next_offset).to eq 60
+          expect(prev_offset).to eq 20
+        end
+      end
+
+      it 'returns the correct pagination offsets', :aggregate_failures do
+        VCR.use_cassette('search/offset_60') do
+          subject = described_class.new(query, '60')
+          response = subject.results
+
+          next_offset = response.body['pagination']['next']
+          prev_offset = response.body['pagination']['previous']
+
+          expect(next_offset).to eq nil
+          expect(prev_offset).to eq 40
         end
       end
     end
