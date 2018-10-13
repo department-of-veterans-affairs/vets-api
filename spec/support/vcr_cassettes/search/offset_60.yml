@@ -1,0 +1,99 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&offset=60&query=test
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      Content-Type:
+      - application/json; charset=utf-8
+      Date:
+      - Fri, 12 Oct 2018 19:54:55 GMT
+      Etag:
+      - W/"c2254ed1719a71eee2c71db91cc1f4a5"
+      Server:
+      - Apache
+      Status:
+      - 200 OK
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubdomains; preload
+      - max-age=31536000; includeSubdomains; preload
+      Via:
+      - 1.1 proxy1.us-east-1.prod.infr.search.usa.gov:8443
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Request-Id:
+      - 24d63c55-38ed-4cc3-acf3-58678c0f8f90
+      X-Xss-Protection:
+      - 1; mode=block
+      Content-Length:
+      - '1799'
+      Connection:
+      - keep-alive
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        eyJxdWVyeSI6InRlc3QiLCJ3ZWIiOnsidG90YWwiOjY2LCJuZXh0X29mZnNl
+        dCI6bnVsbCwic3BlbGxpbmdfY29ycmVjdGlvbiI6bnVsbCwicmVzdWx0cyI6
+        W3sidGl0bGUiOiJQb3N0LTkvMTEgR0kgQmlsbCIsInVybCI6Imh0dHBzOi8v
+        d3d3LnZldHMuZ292L2VkdWNhdGlvbi9naS1iaWxsL3Bvc3QtOS0xMS8iLCJz
+        bmlwcGV0IjoiLi4ubm9uLWNvbGxlZ2UgZGVncmVlIHByb2dyYW1zIE5hdGlv
+        bmFsIO6AgHRlc3RpbmfugIEgcmVpbWJ1cnNlbWVudCBPbi10aGUtam9iIHRy
+        YWluaW5nIiwicHVibGljYXRpb25fZGF0ZSI6bnVsbH0seyJ0aXRsZSI6Ik1v
+        bnRnb21lcnkgR0kgQmlsbCBBY3RpdmUgRHV0eSAoTUdJQi1BRCkiLCJ1cmwi
+        OiJodHRwczovL3d3dy52ZXRzLmdvdi9lZHVjYXRpb24vZ2ktYmlsbC9tb250
+        Z29tZXJ5LWFjdGl2ZS1kdXR5LyIsInNuaXBwZXQiOiIuLi4odGVjaG5pY2Fs
+        IG9yIHZvY2F0aW9uYWwgY291cnNlcykgTmF0aW9uYWwg7oCAdGVzdGluZ+6A
+        gSByZWltYnVyc2VtZW50IE9uLXRoZS1qb2IgdHJhaW5pbmciLCJwdWJsaWNh
+        dGlvbl9kYXRlIjpudWxsfSx7InRpdGxlIjoiUG9zdHRyYXVtYXRpYyBTdHJl
+        c3MgRGlzb3JkZXIgKFBUU0QpIiwidXJsIjoiaHR0cHM6Ly93d3cudmV0cy5n
+        b3YvaGVhbHRoLWNhcmUvaGVhbHRoLWNvbmRpdGlvbnMvbWVudGFsLWhlYWx0
+        aC9wdHNkLyIsInNuaXBwZXQiOiIuLi4xLXRvLTEgbWVudGFsIGhlYWx0aCBh
+        c3Nlc3NtZW50IGFuZCDugIB0ZXN0aW5n7oCBIHRvIGZpZ3VyZSBvdXQgaWYg
+        eW91IGhhdmUgUFRTRCBNZWRpY2luZSIsInB1YmxpY2F0aW9uX2RhdGUiOm51
+        bGx9LHsidGl0bGUiOiJDaGVtaWNhbCBvciBIYXphcmRvdXMgTWF0ZXJpYWwg
+        RXhwb3N1cmUiLCJ1cmwiOiJodHRwczovL3d3dy52ZXRzLmdvdi9oZWFsdGgt
+        Y2FyZS9oZWFsdGgtY29uZGl0aW9ucy9leHBvc3VyZS10by1oYXphcmRvdXMt
+        bWF0ZXJpYWxzLyIsInNuaXBwZXQiOiJUYWxrIHRvIHlvdXIgcHJvdmlkZXIg
+        YWJvdXQgZ2V0dGluZyDugIB0ZXN0ZWTugIEuIExlYXJuIG1vcmUgYWJvdXQg
+        SGVwYXRpdGlzIEMuIExlYXJuIiwicHVibGljYXRpb25fZGF0ZSI6bnVsbH0s
+        eyJ0aXRsZSI6IkhlYWx0aCBDYXJlIEJlbmVmaXRzIEVsaWdpYmlsaXR5Iiwi
+        dXJsIjoiaHR0cHM6Ly93d3cudmV0cy5nb3YvaGVhbHRoLWNhcmUvZWxpZ2li
+        aWxpdHkvIiwic25pcHBldCI6Ii4uLmNvdmVyIHJvdXRpbmUgZXllIGV4YW1z
+        IGFuZCBwcmV2ZW50aXZlIO6AgHRlc3Rz7oCBIHVuZGVyIFZBIGhlYWx0aCBj
+        YXJlIGJlbmVmaXRzLiBJbiBzb21lIiwicHVibGljYXRpb25fZGF0ZSI6bnVs
+        bH0seyJ0aXRsZSI6IlZvaWNlcyBvZiBWZXRlcmFucyIsInVybCI6Imh0dHBz
+        Oi8vd3d3LnZldHMuZ292L3BsYXlib29rL2Rvd25sb2Fkcy9Wb2ljZXNfT2Zf
+        VmV0ZXJhbnMucGRmIiwic25pcHBldCI6Ii4uLjIwMTEsIFZBQ0kgaGFzIHdv
+        cmtlZCB0byBpZGVudGlmeSwg7oCAdGVzdO6AgSwgYW5kIGV2YWx1YXRlIG5l
+        dyBhcHByb2FjaGVzIHRvIFZB4oCZcy4uLmZhbWlsaWVzLiBXaGlsZSB0aGUg
+        aW5pdGlhbCBwaWxvdCBhaW1lZCB0byDugIB0ZXN07oCBIHRoZSBIQ0QgbWV0
+        aG9kb2xvZ3kgYW5kIGJldHRlciB1bmRlcnN0YW5kIiwicHVibGljYXRpb25f
+        ZGF0ZSI6IjIwMTQtMTEtMTkifV19LCJ0ZXh0X2Jlc3RfYmV0cyI6W10sImdy
+        YXBoaWNfYmVzdF9iZXRzIjpbXSwiaGVhbHRoX3RvcGljcyI6W10sImpvYl9v
+        cGVuaW5ncyI6W10sInJlY2VudF90d2VldHMiOltdLCJmZWRlcmFsX3JlZ2lz
+        dGVyX2RvY3VtZW50cyI6W10sInJlbGF0ZWRfc2VhcmNoX3Rlcm1zIjpbXX0=
+    http_version:
+  recorded_at: Mon, 15 Oct 2018 11:54:56 GMT
+recorded_with: VCR 3.0.3
