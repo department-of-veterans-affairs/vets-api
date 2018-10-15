@@ -111,6 +111,9 @@ module PdfFill
           }
         },
         'limitedConsent' => {
+          limit: 83,
+          question_num: 12,
+          question_text: 'Limited Consent',
           key: 'F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]'
         },
         'signature' => {
@@ -284,10 +287,6 @@ module PdfFill
         end
       end
 
-      def expand_limited_consent
-        @form_data['limitedConsent'] = @form_data['limitedConsent'] == 'true' ? 'yes' : 'no'
-      end
-
       def combine_extra_date_ranges(date_range_array)
         extras_ranges = []
         date_range_array.each do |range|
@@ -358,8 +357,6 @@ module PdfFill
         expand_veteran_dob
 
         expand_veteran_service_number
-
-        expand_limited_consent
 
         @form_data['providerFacility'] = expand_providers(@form_data['providerFacility'])
 

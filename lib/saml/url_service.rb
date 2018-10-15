@@ -8,11 +8,11 @@ module SAML
 
     # SSO URLS
     def mhv_url(relay_state)
-      build_sso_url(authn_context: 'myhealthevet', connect: 'myhealthevet', relay_state: relay_state)
+      build_sso_url(authn_context: 'myhealthevet', relay_state: relay_state)
     end
 
     def dslogon_url(relay_state)
-      build_sso_url(authn_context: 'dslogon', connect: 'dslogon', relay_state: relay_state)
+      build_sso_url(authn_context: 'dslogon', relay_state: relay_state)
     end
 
     def idme_loa1_url(relay_state)
@@ -20,15 +20,15 @@ module SAML
     end
 
     def idme_loa3_url(current_user, relay_state)
-      build_sso_url(
-        authn_context: LOA::MAPPING.invert[3], connect: current_user.authn_context, relay_state: relay_state
-      )
+      policy = current_user.authn_context
+      authn_context = policy.present? ? "#{policy}_loa3" : LOA::MAPPING.invert[3]
+      build_sso_url(authn_context: authn_context, relay_state: relay_state)
     end
 
     def mfa_url(current_user, relay_state)
       policy = current_user.authn_context
       authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
-      build_sso_url(authn_context: authn_context, connect: policy, relay_state: relay_state)
+      build_sso_url(authn_context: authn_context, relay_state: relay_state)
     end
 
     # This is the internal vets-api url that first gets invoked, it should redirect without authentication
@@ -50,12 +50,10 @@ module SAML
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # nil authn_context and nil connect will always default to idme level 1
     # authn_context is the policy, connect represents the ID.me specific flow.
-    def build_sso_url(authn_context: LOA::MAPPING.invert[1], connect: nil, session: nil, relay_state: nil)
+    def build_sso_url(authn_context: LOA::MAPPING.invert[1], session: nil, relay_state: nil)
       url_settings = url_settings(authn_context: authn_context, name_identifier_value: session&.uuid)
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      connect_param = "&connect=#{connect}"
-      link = saml_auth_request.create(url_settings, RelayState: relay_state.login_url)
-      connect.present? ? link + connect_param : link
+      saml_auth_request.create(url_settings, RelayState: relay_state.login_url)
     end
 
     # Builds the url to trigger SLO, caching the request
