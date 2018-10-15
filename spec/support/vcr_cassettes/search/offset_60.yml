@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&offset=60&query=test
+    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&limit=20&offset=60&query=test
     body:
       encoding: US-ASCII
       string: ''
@@ -95,5 +95,5 @@ http_interactions:
         cGVuaW5ncyI6W10sInJlY2VudF90d2VldHMiOltdLCJmZWRlcmFsX3JlZ2lz
         dGVyX2RvY3VtZW50cyI6W10sInJlbGF0ZWRfc2VhcmNoX3Rlcm1zIjpbXX0=
     http_version:
-  recorded_at: Mon, 15 Oct 2018 11:54:56 GMT
+  recorded_at: Fri, 12 Oct 2018 19:54:55 GMT
 recorded_with: VCR 3.0.3
