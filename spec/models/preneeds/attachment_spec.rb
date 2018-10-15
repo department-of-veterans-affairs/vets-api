@@ -24,7 +24,7 @@ RSpec.describe Preneeds::Attachment do
             }
           }
         },
-        description: 'ad214.pdf',
+        description: 'dd214a.pdf',
         sendingName: 'vets.gov',
         sendingSource: 'vets.gov'
       )
