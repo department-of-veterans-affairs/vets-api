@@ -8,7 +8,7 @@ task :lint do
   require 'rainbow'
 
   opts = if ENV['CI']
-           "-r rubocop/formatter/junit_formatter.rb \ 
+           "-r rubocop/formatter/junit_formatter.rb \
            --format RuboCop::Formatter::JUnitFormatter --out log/rubocop.xml \
            --format clang"
          else
