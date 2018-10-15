@@ -81,7 +81,9 @@ paths:
                   data:
                     $ref: '#/components/schemas/VeteranStatusConfirmation'
         '403':
-          description: Provided Access Token Does not have the required scopes to access
+          description: Provided Access Token Does not have the required scopes to access.
+        '502':
+          description: eMIS failed to respond or responded in a way we cannot handle. 
 components:
   securitySchemes:
     bearer_token:

@@ -15,7 +15,7 @@ module VeteranVerification
 
       def raise_error!
         raise Common::Exceptions::BackendServiceException.new(
-          'EMIS_HIST502',
+          'EMIS_STATUS502',
           source: self.class.to_s
         )
       end
