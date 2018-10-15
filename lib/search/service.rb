@@ -52,7 +52,8 @@ module Search
         affiliate:  affiliate,
         access_key: access_key,
         query:      query,
-        offset:     offset
+        offset:     offset,
+        limit:      Search::Pagination::OFFSET_LIMIT
       }
     end
 
