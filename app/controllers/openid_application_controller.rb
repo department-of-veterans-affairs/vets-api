@@ -41,7 +41,7 @@ class OpenidApplicationController < ApplicationController
 
   def establish_session
     return false unless token_payload
-    validate_token(token_payload)
+    validate_token
     ttl = token_payload['exp'] - Time.current.utc.to_i
     user_identity = user_identity_from_profile(ttl)
     @current_user = user_from_identity(user_identity, ttl)
@@ -63,7 +63,7 @@ class OpenidApplicationController < ApplicationController
                        end
   end
 
-  def validate_token(payload)
+  def validate_token
     raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
     raise 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
     raise 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
