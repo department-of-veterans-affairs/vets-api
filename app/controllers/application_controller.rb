@@ -144,7 +144,7 @@ class ApplicationController < ActionController::API
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
-    return unless Settings.sso.cookie_enabled
+    return unless Settings.sso.cookie_enabled && @session
     encryptor = SSOEncryptor
     contents = ActiveSupport::JSON.encode(@session.cookie_data)
     encrypted_value = encryptor.encrypt(contents)
