@@ -55,7 +55,7 @@ http_interactions:
       encoding: ASCII-8BIT
       string: '{
         "query": "benefits",
-        "web":
+        "web": {
           "total": 34820,
           "next_offset": 20,
           "spelling_correction": null,
