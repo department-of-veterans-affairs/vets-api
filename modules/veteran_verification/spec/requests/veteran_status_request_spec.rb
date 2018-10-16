@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'support/error_details'
 
 RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
   include SchemaMatchers
@@ -45,7 +44,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
       expect(response).to have_http_status(:bad_gateway)
       expect(response).to match_response_schema('errors')
-      expect(error_details_for(response, key: 'code')).to eq 'EMIS_STATUS502'
+      expect(JSON.parse(response.body)['errors'].first['code']).to eq 'EMIS_STATUS502'
     end
   end
 end
