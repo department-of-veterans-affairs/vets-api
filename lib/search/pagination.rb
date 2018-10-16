@@ -30,6 +30,8 @@ module Search
       pagination_object
     end
 
+    private
+
     # Calculate the previous_offset value for the given raw_body object
     #
     # @return [Integer, nil] offset returns the previous_offset for the current request, or nil if first page

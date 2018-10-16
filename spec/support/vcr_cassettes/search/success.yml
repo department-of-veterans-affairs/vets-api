@@ -55,10 +55,6 @@ http_interactions:
       encoding: ASCII-8BIT
       string: '{
         "query": "benefits",
-        "pagination": {
-            "next": 20,
-            "previous": nil
-        },
         "web":
           "total": 34820,
           "next_offset": 20,
