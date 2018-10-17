@@ -128,6 +128,24 @@ describe MVI::Service do
     end
   end
 
+  describe '.find_profile with edipi', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+    before(:each) do
+      expect(MVI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
+    end
+
+    context 'valid requests' do
+      it 'fetches profile when no mhv_icn exists but dslogon_edipi is present' do
+        allow(user).to receive(:dslogon_edipi).and_return('111222333444')
+
+        VCR.use_cassette('mvi/find_candidate/edipi_present') do
+          response = subject.find_profile(user)
+          expect(response.status).to eq('OK')
+          expect(response.profile).to have_deep_attributes(mvi_profile)
+        end
+      end
+    end
+  end
+
   describe '.find_profile without icn' do
     context 'valid request' do
       before(:each) do
@@ -285,7 +303,8 @@ describe MVI::Service do
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          expect { subject.find_profile(user) }.to raise_error(Breakers::OutageException)
+          expect(subject.find_profile(user))
+            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
         end
       end
     end

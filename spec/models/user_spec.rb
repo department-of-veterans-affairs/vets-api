@@ -107,6 +107,11 @@ RSpec.describe User, type: :model do
     it 'has a persisted attribute of false' do
       expect(subject.persisted?).to be_falsey
     end
+
+    it 'has nil edipi locally and from IDENTITY' do
+      expect(subject.identity.dslogon_edipi).to be_nil
+      expect(subject.edipi).to be_nil
+    end
   end
 
   it 'has a persisted attribute of false' do
@@ -186,6 +191,15 @@ RSpec.describe User, type: :model do
 
         it 'fetches ssn from IDENTITY' do
           expect(user.ssn).to be(user.identity.ssn)
+        end
+
+        it 'fetches edipi from mvi when identity.dslogon_edipi is empty' do
+          expect(user.edipi).to be(user.mvi.edipi)
+        end
+
+        it 'fetches edipi from identity.dslogon_edipi when available' do
+          user.identity.dslogon_edipi = '001001999'
+          expect(user.edipi).to be(user.identity.dslogon_edipi)
         end
 
         it 'has a vet360 id if one exists' do

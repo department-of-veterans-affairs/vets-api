@@ -199,5 +199,39 @@ FactoryBot.define do
         }.to_json
       end
     end
+
+    factory :in_progress_526_form do
+      user_uuid { SecureRandom.uuid }
+      form_id '21-526EZ'
+      metadata(
+        version: 1,
+        return_url: 'foo.com'
+      )
+      form_data do
+        {
+          'veteran' => {
+            'phone_email_card' => {
+              'primary_phone' => '7779998888',
+              'email_address' => 'me@foo.com'
+            },
+            'mailing_address' => {
+              'country' => 'USA',
+              'address_line1' => '123 Main St.',
+              'city' => 'Costa Mesa',
+              'state' => 'CA',
+              'zip_code' => '92626'
+            },
+            'view:contact_info_description' => {},
+            'homelessness' => {}
+          },
+          'privacy_agreement_accepted' => false,
+          'view:military_history_note' => {},
+          'obligation_term_of_service_date_range' => {},
+          'view:disabilities_clarification' => {},
+          'standard_claim' => false,
+          'view:fdc_warning' => {}
+        }.to_json
+      end
+    end
   end
 end
