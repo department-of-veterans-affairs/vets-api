@@ -5,6 +5,7 @@ require 'common/exceptions'
 require 'common/client/errors'
 require 'saml/settings_service'
 require 'sentry_logging'
+require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -136,43 +137,39 @@ class ApplicationController < ActionController::API
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      extend_sso_cookie!
-      SSOService.extend_session!(@session, @current_user)
+      extend_session!
+      return true if @current_user.present?
     end
   end
 
-  # FIXME: methods starting here through encrypt, really ought to live in SSOService, but its complicated,
-  # Those methods should probably not be abstracted to class otherwise we'll be stuck doing:
-  # controller.send(:cookies) etc.
-  # In a future refactor consider moving some of these methods into a module for some pseudo abstraction
-  #  since classes and service objects don't play so nice with controller methods.
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
-    return unless Settings.set_sso_cookie && Settings.sso_cookie_key
-    contents = ActiveSupport::JSON.encode(cookie_value)
-    cookies[:va_session] = {
-      value: encrypt(contents, Settings.sso_cookie_key),
-      expires: 30.minutes.from_now,
-      httponly: true
+    return unless Settings.sso.cookie_enabled
+    encryptor = SSOEncryptor
+    contents = ActiveSupport::JSON.encode(@session.cookie_data)
+    encrypted_value = encryptor.encrypt(contents)
+    cookies[Settings.sso.cookie_name] = {
+      value: encrypted_value,
+      expires: @session.ttl_in_time,
+      secure: true,
+      httponly: true,
+      domain: cookie_domain
     }
   end
 
-  def extend_sso_cookie!
+  def cookie_domain
+    '.va.gov'
+  end
+
+  def extend_session!
+    session.expire(Session.redis_namespace_ttl)
+    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    current_user&.expire(User.redis_namespace_ttl)
     set_sso_cookie!
   end
 
   def destroy_sso_cookie!
-    cookies.delete(:va_session)
-  end
-
-  def cookie_value
-    {
-      icn: (@current_user.mhv_icn || @current_user.icn),
-      mhv_correlation_id: @current_user.mhv_correlation_id
-    }
-  end
-
-  def encrypt(message, key)
-    ActiveSupport::MessageEncryptor.new(key).encrypt_and_sign(message)
+    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain)
   end
 
   attr_reader :current_user, :session

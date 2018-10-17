@@ -66,6 +66,34 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
   end
 
+  describe 'Post /v0/disability_compensation_form/suggested_conditions/:name_part' do
+    before(:each) do
+      create(:disability_contention_arrhythmia)
+      create(:disability_contention_arteriosclerosis)
+      create(:disability_contention_arthritis)
+    end
+
+    let(:conditions) { JSON.parse(response.body)['data'] }
+
+    it 'returns matching conditions', :aggregate_failures do
+      get '/v0/disability_compensation_form/suggested_conditions?name_part=art', nil, auth_header
+      expect(response).to have_http_status(:ok)
+      expect(response).to match_response_schema('suggested_conditions')
+      expect(conditions.count).to eq 3
+    end
+
+    it 'returns an empty array when no conditions match', :aggregate_failures do
+      get '/v0/disability_compensation_form/suggested_conditions?name_part=xyz', nil, auth_header
+      expect(response).to have_http_status(:ok)
+      expect(conditions.count).to eq 0
+    end
+
+    it 'returns a 500 when name_part is missing' do
+      get '/v0/disability_compensation_form/suggested_conditions', nil, auth_header
+      expect(response).to have_http_status(:bad_request)
+    end
+  end
+
   describe 'Post /v0/disability_compensation_form/submit' do
     before(:each) do
       VCR.insert_cassette('emis/get_military_service_episodes/valid')
@@ -80,7 +108,6 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a valid 200 evss response' do
-      let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
       let(:jid) { "JID-#{SecureRandom.base64}" }
 
       before(:each) do
@@ -91,18 +118,34 @@ RSpec.describe 'Disability compensation form', type: :request do
         create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
       end
 
-      it 'should match the rated disabilities schema' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
-          expect(response).to have_http_status(:ok)
-          expect(response).to match_response_schema('submit_disability_form')
+      context 'with an `increase only` claim' do
+        let(:valid_increase_form) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
+
+        it 'should match the rated disabilities schema' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            post '/v0/disability_compensation_form/submit', valid_increase_form, auth_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+          end
+        end
+
+        it 'should start the submit job' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            expect(EVSS::DisabilityCompensationForm::SubmitForm526).to receive(:perform_async).once
+            post '/v0/disability_compensation_form/submit', valid_increase_form, auth_header
+          end
         end
       end
 
-      it 'should start the submit job' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect(EVSS::DisabilityCompensationForm::SubmitForm526).to receive(:perform_async).once
-          post '/v0/disability_compensation_form/submit', valid_form_content, auth_header
+      context 'with an `all claims` claim' do
+        let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
+
+        it 'should match the rated disabilites schema' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            post '/v0/disability_compensation_form/submit', all_claims_form, auth_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+          end
         end
       end
     end

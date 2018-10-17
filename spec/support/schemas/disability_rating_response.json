@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {
+  },
+  "properties": {
+    "data": {
+      "items": {
+        "properties": {
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "decision": {
+                "type": "string"
+              },
+              "rating_percentage": {
+                "type": "number"
+              },
+              "effective_date": {
+                "type": "string"
+              }
+            }
+          },
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "type": "array"
+    }
+  }
+}

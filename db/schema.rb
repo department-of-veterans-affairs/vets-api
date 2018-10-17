@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180831155019) do
+ActiveRecord::Schema.define(version: 20180929002139) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -88,17 +88,24 @@ ActiveRecord::Schema.define(version: 20180831155019) do
   add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
-  create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",                        null: false
-    t.string   "form_type",                        null: false
-    t.datetime "created_at",                       null: false
-    t.datetime "updated_at",                       null: false
-    t.string   "status",     default: "submitted"
-    t.uuid     "job_id"
-    t.json     "response"
+  create_table "disability_compensation_job_statuses", force: :cascade do |t|
+    t.integer  "disability_compensation_submission_id", null: false
+    t.string   "job_id",                                null: false
+    t.string   "job_class",                             null: false
+    t.string   "status",                                null: false
+    t.string   "error_message"
+    t.datetime "updated_at",                            null: false
   end
 
-  add_index "disability_compensation_submissions", ["user_uuid", "form_type"], name: "index_disability_compensation_submissions_on_uuid_and_form_type", unique: true, using: :btree
+  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id", using: :btree
+  add_index "disability_compensation_job_statuses", ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true, using: :btree
+
+  create_table "disability_compensation_submissions", force: :cascade do |t|
+    t.datetime "created_at",                    null: false
+    t.datetime "updated_at",                    null: false
+    t.integer  "disability_compensation_id"
+    t.integer  "va526ez_submit_transaction_id"
+  end
 
   create_table "disability_contentions", force: :cascade do |t|
     t.integer  "code",         null: false
@@ -217,6 +224,7 @@ ActiveRecord::Schema.define(version: 20180831155019) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.json     "metadata"
+    t.datetime "expires_at"
   end
 
   add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree
@@ -280,6 +288,23 @@ ActiveRecord::Schema.define(version: 20180831155019) do
   add_index "personal_information_logs", ["created_at"], name: "index_personal_information_logs_on_created_at", using: :btree
   add_index "personal_information_logs", ["error_class"], name: "index_personal_information_logs_on_error_class", using: :btree
 
+  create_table "preference_choices", force: :cascade do |t|
+    t.string   "code"
+    t.string   "description"
+    t.integer  "preference_id"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
+
+  add_index "preference_choices", ["preference_id"], name: "index_preference_choices_on_preference_id", using: :btree
+
+  create_table "preferences", force: :cascade do |t|
+    t.string   "code"
+    t.string   "title"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
     t.string   "application_uuid"
@@ -329,6 +354,18 @@ ActiveRecord::Schema.define(version: 20180831155019) do
   end
 
   add_index "terms_and_conditions_acceptances", ["user_uuid"], name: "index_terms_and_conditions_acceptances_on_user_uuid", using: :btree
+
+  create_table "user_preferences", force: :cascade do |t|
+    t.integer  "account_id",           null: false
+    t.integer  "preference_id",        null: false
+    t.integer  "preference_choice_id", null: false
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "user_preferences", ["account_id"], name: "index_user_preferences_on_account_id", unique: true, using: :btree
+  add_index "user_preferences", ["preference_choice_id"], name: "index_user_preferences_on_preference_choice_id", unique: true, using: :btree
+  add_index "user_preferences", ["preference_id"], name: "index_user_preferences_on_preference_id", unique: true, using: :btree
 
   create_table "vba_documents_upload_submissions", force: :cascade do |t|
     t.uuid     "guid",                              null: false

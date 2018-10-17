@@ -18,4 +18,8 @@ FactoryBot.define do
     address { attributes_for :address }
     service_records { [attributes_for(:service_record)] }
   end
+
+  factory :veteran_foreign_address, parent: :veteran do
+    address { attributes_for :foreign_address }
+  end
 end

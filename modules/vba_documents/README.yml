@@ -11,6 +11,8 @@ info:
 
     The Document Upload API passes data through to ICMHS aka Benefits Intake API. Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document, attachments, and identifies the person that the document relates to. This payload is encoded as multipart/form-data. A unique identifier supplied with the payload can be used to subsequently request the processing status of the uploaded document package.
 
+    API consumers are encouraged to validate the zipCode and fileNumber fields before submission according to their description in the DocumentUploadMetadata model. 
+
     ## Design
     
     ### Authorization
@@ -22,7 +24,7 @@ info:
     
     Allows a client to upload a document package (form + attachments + metadata).
 
-    1. Client Request: POST https://api.vets.gov/services/vba_documents/v0/
+    1. Client Request: POST https://dev-api.va.gov/services/vba_documents/v0/
         * No request body or parameters required
     
     2. Service Response: A JSON API object with the following attributes:
@@ -46,21 +48,30 @@ info:
 
     ## Reference
 
-    Raw Open API Spec: http://dev-api.vets.gov/services/vba_documents/docs/v0/api
+    Raw Open API Spec: http://dev-api.va.gov/services/vba_documents/docs/v0/api
 
   termsOfService: ''
   contact:
-    name: Vets.gov
+    name: va.gov
 tags:
   - name: document_uploads
     description: VA Benefits document upload functionality
 servers: 
-  - url: dev-api.vets.gov/services/vba_benefits/{version}
-    description: Vets.gov API development environment
+  - url: dev-api.va.gov/services/appeals/{version}
+    description: VA.gov API development environment
     variables:
       version:
         default: v0
-
+  - url: staging-api.va.gov/services/appeals/{version}
+    description: VA.gov API staging environment
+    variables:
+      version:
+        default: v0
+  - url: api.va.gov/services/appeals/{version}
+    description: VA.gov API production environment
+    variables:
+      version:
+        default: v0
 paths:
   /uploads:
     post:
@@ -132,7 +143,11 @@ paths:
         "metadata", "content", "attachment1"..."attachmentN"
 
       servers:
-        - url: https://dev-api.vets.gov/services_user_content/vba_benefits/
+        - url: https://dev-api.va.gov/services_user_content/vba_benefits/
+          description: Override base path for all operations with the /files path
+        - url: https://staging-api.va.gov/services_user_content/vba_benefits/
+          description: Override base path for all operations with the /files path
+        - url: https://api.va.gov/services_user_content/vba_benefits/
           description: Override base path for all operations with the /files path
       parameters:
         - name: Content-MD5
@@ -294,7 +309,7 @@ components:
         zipCode:
           type: string
           example: '20571'
-          description: Veteran zip code
+          description: Veteran zip code. Either five digits (XXXXX) or five digits then four digits separated by a hyphen (XXXXX-XXXX). Use '00000' for Veterans with non-US addresses. 
         source:
           type: string
           example: MyVSO
@@ -405,7 +420,7 @@ components:
             location:
               type: string
               format: uri
-              example: https://dev-api.vets.gov/services_content/idpath
+              example: https://dev-api.va.gov/services_content/idpath
               description: Location to which to PUT document payload
     DocumentUploadStatusGuidList:
       required:

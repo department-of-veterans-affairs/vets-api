@@ -6,6 +6,7 @@ require 'evss/disability_compensation_form/special_issue'
 module EVSS
   module DisabilityCompensationForm
     class RatedDisability
+      include ActiveModel::Serialization
       include Virtus.model
 
       attribute :decision_code, String
@@ -24,6 +25,10 @@ module EVSS
       def initialize(attrs)
         super(attrs)
         self.name = attrs['diagnostic_text']
+      end
+
+      def id
+        rated_disability_id
       end
     end
   end
