@@ -5,13 +5,15 @@ module PdfFill
     class Va210781a < FormBase
       include FormHelper
 
-      INCIDENT_ITERATOR = PdfFill::HashConverter::ITERATOR
+      ITERATOR = PdfFill::HashConverter::ITERATOR
+
       KEY = {
         'veteranFullName' => {
           'first' => {
             key: 'F[0].Page_1[0].ClaimantsFirstName[0]',
             limit: 12,
             question_num: 1,
+            question_suffix: 'A',
             question_text: "VETERAN/BENEFICIARY'S FIRST NAME"
           },
           'middleInitial' => {
@@ -21,6 +23,7 @@ module PdfFill
             key: 'F[0].Page_1[0].ClaimantsLastName[0]',
             limit: 18,
             question_num: 1,
+            question_suffix: 'B',
             question_text: "VETERAN/BENEFICIARY'S LAST NAME"
           }
         },
@@ -84,112 +87,106 @@ module PdfFill
           key: 'F[0].Page_1[0].PreferredEmail[2]'
         },
         'incident' => {
-          limit: 2,
-          first_key: 'incidentLocation',
+          limit: 2, 
+          first_key: 'incidentDescription',
+          question_text: 'INCIDENTS',
+          question_num: 8,
           'incidentDate' => {
             'month' => {
-              key: "incidentDateMonth[#{INCIDENT_ITERATOR}]"
+              key: "incidentDateMonth[#{ITERATOR}]"
             },
             'day' => {
-              key: "incidentDateDay[#{INCIDENT_ITERATOR}]"
+              key: "incidentDateDay[#{ITERATOR}]"
             },
             'year' => {
-              key: "incidentDateYear[#{INCIDENT_ITERATOR}]"
+              key: "incidentDateYear[#{ITERATOR}]"
             }
           },
           'unitAssignedDates' => {
             'fromMonth' => {
-              key: "unitAssignmentDateFromMonth[#{INCIDENT_ITERATOR}]"
+              key: "unitAssignmentDateFromMonth[#{ITERATOR}]"
             },
             'fromDay' => {
-              key: "unitAssignmentDateFromDay[#{INCIDENT_ITERATOR}]"
+              key: "unitAssignmentDateFromDay[#{ITERATOR}]"
             },
             'fromYear' => {
-              key: "unitAssignmentDateFromYear[#{INCIDENT_ITERATOR}]"
+              key: "unitAssignmentDateFromYear[#{ITERATOR}]"
             },
             'toMonth' => {
-              key: "unitAssignmentDateToMonth[#{INCIDENT_ITERATOR}]"
+              key: "unitAssignmentDateToMonth[#{ITERATOR}]"
             },
             'toDay' => {
-              key: "unitAssignmentDateToDay[#{INCIDENT_ITERATOR}]"
+              key: "unitAssignmentDateToDay[#{ITERATOR}]"
             },
             'toYear' => {
-              key: "unitAssignmentDateToYear[#{INCIDENT_ITERATOR}]"
+              key: "unitAssignmentDateToYear[#{ITERATOR}]"
             }
           },
           'incidentLocation' => {
-            limit: 90,
             question_num: 8,
-            'firstRow' => {
-              key: "incidentLocationFirstRow[#{INCIDENT_ITERATOR}]",
-              limit: 30
+            limit: 3,
+            first_key: 'row0',
+            'row0' => {
+              key: "incidentLocationFirstRow[#{ITERATOR}]",
             },
-            'secondRow' => {
-              key: "incidentLocationSecondRow[#{INCIDENT_ITERATOR}]",
-              limit: 30
+            'row1' => {
+              key: "incidentLocationSecondRow[#{ITERATOR}]",
             },
-            'thirdRow' => {
-              key: "incidentLocationThirdRow[#{INCIDENT_ITERATOR}]",
-              limit: 30
-            },
-            'incidentLocationOverflow' => {
-              key: '',
-              question_text: 'INCIDENT LOCATION',
-              question_num: 8,
-              question_suffix: 'C'
+            'row2' => {
+              key: "incidentLocationThirdRow[#{ITERATOR}]",
             }
           },
           'unitAssigned' => {
             question_num: 8,
             'firstRow' => {
-              key: "unitAssignmentFirstRow[#{INCIDENT_ITERATOR}]",
+              key: "unitAssignmentFirstRow[#{ITERATOR}]",
               limit: 30
             },
             'secondRow' => {
-              key: "unitAssignmentSecondRow[#{INCIDENT_ITERATOR}]",
+              key: "unitAssignmentSecondRow[#{ITERATOR}]",
               limit: 30
             },
             'thirdRow' => {
-              key: "unitAssignmentThirdRow[#{INCIDENT_ITERATOR}]",
+              key: "unitAssignmentThirdRow[#{ITERATOR}]",
               limit: 30
             },
             'unitAssignedOverflow' => {
               key: '',
               question_text: 'UNIT ASSIGNED DURING INCIDENT',
-              question_num: 9,
+              question_num: 8,
               question_suffix: 'D'
             }
           },
           'incidentDescription' => {
-            key: "incidentDescription[#{INCIDENT_ITERATOR}]",
-            question_num: 8,
-            question_suffix: 'E'
+            key: "incidentDescription[#{ITERATOR}]"
           },
-          'source' => {
+          "source" => {
+            limit:6,
+            first_key: 'combinedName0',
             'combinedName0' => {
-              key: "incident_source_name[#{INCIDENT_ITERATOR}][0]"
+                key: "incident_source_name[#{ITERATOR}][0]"
             },
-            'combinedAddress0' => {
-              key: "incident_source_address[#{INCIDENT_ITERATOR}][0]"
+            "combinedAddress0" => {
+              key: "incident_source_address[#{ITERATOR}][0]"
             },
-            'combinedName1' => {
-              key: "incident_source_name[#{INCIDENT_ITERATOR}][1]"
+            "combinedName1" => {
+                key: "incident_source_name[#{ITERATOR}][1]"
             },
-            'combinedAddress1' => {
-              key: "incident_source_address[#{INCIDENT_ITERATOR}][1]"
+            "combinedAddress1" => {
+              key: "incident_source_address[#{ITERATOR}][1]"
             },
-            'combinedName2' => {
-              key: "incident_source_name[#{INCIDENT_ITERATOR}][2]"
+            "combinedName2" => {
+              key: "incident_source_name[#{ITERATOR}][2]"
             },
-            'combinedAddress2' => {
-              key: "incident_source_address[#{INCIDENT_ITERATOR}][2]"
-            },
-            'sourceOverflow' => {
-              key: '',
-              question_num: 9,
-              question_suffix: 'A',
-              question_text: 'OTHER SOURCES OF INFORMATION ABOUT INCIDENT'
+            "combinedAddress2" => {
+              key: "incident_source_address[#{ITERATOR}][2]"
             }
+          },
+          'incidentOverflow' => {
+            key: '', 
+            question_text: 'INCIDENTS', 
+            question_num: 8,
+            question_suffix: 'A'
           }
         },
         'otherInformation' => {
@@ -252,25 +249,21 @@ module PdfFill
         incident_location = incident['incidentLocation']
         return if incident_location.blank?
 
-        if incident_location.length <= 90
-          s_location = incident_location.scan(/(.{1,30})(\s+|$)/)
-          split_incident_location = {
-            'firstRow' => s_location.length.positive? ? s_location[0][0] : '',
-            'secondRow' => s_location.length > 1 ? s_location[1][0] : '',
-            'thirdRow' => s_location.length > 2 ? s_location[2][0] : ''
-          }
-          incident['incidentLocation'] = split_incident_location
+        split_incident_location = {}        
+        s_location = incident_location.scan(/(.{1,30})(\s+|$)/)
 
-        else
-          incident['incidentLocation'] = {}
-          incident['incidentLocation']['incidentLocationOverflow'] = PdfFill::FormValue.new('', incident_location)
+        s_location.each_with_index do |row, index|
+          split_incident_location["row#{index}"] = s_location.length.positive? ? s_location[index][0] : ''
         end
+
+        incident['incidentLocation'] = split_incident_location
       end
 
       def expand_incident_unit_assignment(incident)
         incident_unit_assignment = incident['unitAssigned']
         return if incident_unit_assignment.blank?
 
+        split_incident_unit_assignment = {}
         if incident_unit_assignment.length <= 90
           s_incident_unit_assignment = incident_unit_assignment.scan(/(.{1,30})(\s+|$)/)
           split_incident_unit_assignment = {
@@ -278,11 +271,9 @@ module PdfFill
             'secondRow' => s_incident_unit_assignment.length > 1 ? s_incident_unit_assignment[1][0] : '',
             'thirdRow' => s_incident_unit_assignment.length > 2 ? s_incident_unit_assignment[2][0] : ''
           }
-          incident['unitAssigned'] = split_incident_unit_assignment
-        else
-          incident['unitAssigned'] = {}
-          incident['unitAssigned']['unitAssignedOverflow'] = PdfFill::FormValue.new('', incident_unit_assignment)
         end
+
+        incident['unitAssigned'] = split_incident_unit_assignment
       end
 
       def expand_other_sources(incident)
@@ -290,7 +281,6 @@ module PdfFill
 
         incident_sources = incident['source']
         combined_sources = {}
-        overflow_sources = []
 
         incident_sources.each_with_index do |source, index|
           combined_source_name = combine_full_name(source['name'])
@@ -298,23 +288,50 @@ module PdfFill
 
           combined_sources["combinedName#{index}"] = combined_source_name
           combined_sources["combinedAddress#{index}"] = combined_source_address
-
-          overflow = combined_source_name + '\n' + combined_source_address
-          overflow_sources.push(overflow)
         end
 
-        if incident_sources.length > 3
-          incident['source'] = {}
-          overflow = overflow_sources.join('\n\n')
-          incident['source']['sourceOverflow'] = PdfFill::FormValue.new('', overflow)
-        else
-          incident['source'] = combined_sources
+        incident['source'] = combined_sources
+
+      end
+
+      def combine_other_sources_extras(incident)
+        return if incident.blank? || incident['source'].blank?
+          
+        sources = incident['source']
+        overflow_sources = []
+
+        sources.each do |source|
+          overflow = combine_full_name(source['name']) + " \n " + combine_full_address(source['address'])
+          overflow_sources.push(overflow)          
         end
+
+        overflow = overflow_sources.join(" \n\n ")
+      end
+
+      def expand_incident_extras(incident, index)
+        return if incident.blank? 
+
+          incident_overflow = ["Incident Number: #{index}"]
+          incident_overflow.push('Incident Date: ' + incident['incidentDate'])
+
+          unit_assigned_dates_overflow = combine_extra_date_ranges([incident['unitAssignedDates']])
+          incident_overflow.push('Dates of Unit Assignment: ' + unit_assigned_dates_overflow)
+
+          incident_overflow.push("Incident Location: \n\n" + incident['incidentLocation'])
+          incident_overflow.push("Unit Assignment During Incident: \n\n" + incident['unitAssigned'])
+          incident_overflow.push("Description of Incident: \n\n" + incident['incidentDescription'])
+
+          otherSourcesOverflowText = combine_other_sources_extras(incident)
+          incident_overflow.push("Other Sources of Information: \n\n" + otherSourcesOverflowText)
+
+          incident['incidentOverflow'] = PdfFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
       end
 
       def expand_incidents(incidents)
         return if incidents.blank?
-        incidents.each do |incident|
+
+        incidents.each_with_index do |incident, index|
+          expand_incident_extras(incident, index+1)
           expand_incident_date(incident)
           expand_unit_assigned_dates(incident)
           expand_incident_location(incident)
