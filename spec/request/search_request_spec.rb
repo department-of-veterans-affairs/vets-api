@@ -74,8 +74,8 @@ describe 'search', type: :request do
 
         context 'on the first page of the search results' do
           it 'previous should be null', :aggregate_failures do
-            VCR.use_cassette('search/offset_20') do
-              get '/v0/search', query: query_term, offset: 20
+            VCR.use_cassette('search/offset_0') do
+              get '/v0/search', query: query_term, offset: 0
 
               pagination = pagination_for(response)
 
