@@ -17,9 +17,11 @@ module Search
     configuration Search::Configuration
 
     attr_reader :query
+    attr_reader :offset
 
-    def initialize(query)
+    def initialize(query, offset = 0)
       @query = query
+      @offset = offset.to_i
     end
 
     # GETs a list of search results from Search.gov web results API
@@ -49,7 +51,9 @@ module Search
       {
         affiliate:  affiliate,
         access_key: access_key,
-        query:      query
+        query:      query,
+        offset:     offset,
+        limit:      Search::Pagination::OFFSET_LIMIT
       }
     end
 
