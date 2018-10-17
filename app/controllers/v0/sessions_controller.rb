@@ -76,7 +76,8 @@ module V0
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
-      if @sso_service.persist_authentication!
+      authentication_persisted = @sso_service.persist_authentication!
+      if @sso_service.new_session && authentication_persisted
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
 
@@ -84,12 +85,11 @@ module V0
         redirect_to saml_login_relay_url + '?token=' + @session.token
 
         log_persisted_session_and_warnings
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
+        increment_statsd_success
       else
         redirect_to saml_login_relay_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+        log_saml_response_for_nil_session(authentication_persisted)
+        increment_statsd_failure
       end
     rescue NoMethodError
       Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
@@ -99,6 +99,24 @@ module V0
     end
 
     private
+
+    def increment_statsd_success
+      StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
+      StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
+    end
+
+    def increment_statsd_failure
+      StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
+      StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+    end
+
+    def log_saml_response_for_nil_session(authentication_persisted)
+      # capturing details for a logic error
+      if authentication_persisted && !@sso_service.new_session
+        log_message_to_sentry('Auth persisted but no session', :error,
+                              base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
+      end
+    end
 
     def saml_login_relay_url
       return relay_state.default_login_url if current_user.nil?
