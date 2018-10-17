@@ -22,7 +22,7 @@ module Swagger
             key :description, 'Pre-need burial eligibility form data'
             key :required, true
 
-            # TODO add `required` designations
+            # TODO: add `required` designations
 
             schema do
               property :applicationStatus, type: :string, example: 'example needed' # TODO: not in schema.  remove?
@@ -31,7 +31,7 @@ module Swagger
               property :preneedAttachments, type: :array, description: 'data about uploaded attachments' do
                 items do
                   property :confirmationCode, type: :string, description: 'uuid',
-                  example: '9b3ae0e1-fd58-4074-bf81-d58fb18fa86'
+                                              example: '9b3ae0e1-fd58-4074-bf81-d58fb18fa86'
                   property :attachmentId, type: :string, example: '1'
                 end
               end
@@ -43,9 +43,9 @@ module Swagger
                   property :street, type: :string, example: '140 Rock Creek Church Rd NW'
                   property :street2, type: :string, example: ''
                   property :city, type: :string, example: 'Washington'
-                  property :country, type :string, example: 'USA'
+                  property :country, type: :string, example: 'USA'
                   property :state, type: :string, example: 'DC'
-                  property :postal_code, type: :string, example: '20011'
+                  property :postalCode, type: :string, example: '20011'
                 end
               end
             end
