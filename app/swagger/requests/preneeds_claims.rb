@@ -40,10 +40,12 @@ module Swagger
                 property :applicantPhoneNumber, type: :string, example: '5551235454'
                 property :applicantRelationshipToClaimant, type: :string, example: 'Authorized Agent/Rep'
                 property :mailingAddress, type: :object do
-                  # TODO: create `address` object in app/swagger/schemas that corresponds to 
-                  # `address` definition in schema definitions:
-                  # https://github.com/department-of-veterans-affairs/vets-json-schema/blob/master/dist/definitions.json#L49
-                  # reference it here
+                  property :street, type: :string, example: '140 Rock Creek Church Rd NW'
+                  property :street2, type: :string, example: ''
+                  property :city, type: :string, example: 'Washington'
+                  property :country, type :string, example: 'USA'
+                  property :state, type: :string, example: 'DC'
+                  property :postal_code, type: :string, example: '20011'
                 end
               end
             end
