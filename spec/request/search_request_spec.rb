@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/error_details'
 
-RSpec.describe 'search', type: :request do
+describe 'search', type: :request do
   include SchemaMatchers
   include ErrorDetails
 

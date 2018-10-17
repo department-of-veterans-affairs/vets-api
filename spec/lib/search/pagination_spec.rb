@@ -13,18 +13,18 @@ describe Search::Pagination do
       end
       subject { described_class.new(raw_body) }
 
-      it 'calculates the correct previous offset' do
+      it 'calculates the correct previous offset', :aggregate_failures do
         prev_offset = case next_offset
                       when 20 # Cursor on first page
                         nil
                       when 40 # Cursor on second page
-                        nil
+                        0
                       when 60 # Cursor on third page
                         20
                       when 80 # Cursor on fourth page
                         40
                       when nil # Cursor on last page
-                        60 # Expect to be (total - (remainder + (2 * OFFSET_LIMIT)))
+                        60 # Expect to be (total - (remainder + OFFSET_LIMIT))
                       end
         expect(subject.object).to include('previous' => prev_offset)
         expect(subject.object).to include('next' => next_offset)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lib/search/shared_examples_for_pagination'
 
 describe Search::Service do
   let(:query) { 'benefits' }
@@ -21,7 +22,7 @@ describe Search::Service do
         end
       end
 
-      it 'returns an array of search result data', :aggregate_failures do
+      it 'returns an array of search result data' do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
 
@@ -34,98 +35,51 @@ describe Search::Service do
     end
 
     context 'with an offset' do
-      let(:query) { 'test' }
-
-      it 'returns the correct segment of results', :aggregate_failures do
-        VCR.use_cassette('search/offset') do
-          response = subject.results
-
-          next_offset = response.body['pagination']['next']
-          prev_offset = response.body['pagination']['previous']
-
-          expect(next_offset).to eq 20
-          expect(prev_offset).to eq nil
-        end
-      end
-
-      it 'returns the correct pagination offsets', :aggregate_failures do
-        VCR.use_cassette('search/offset_20') do
-          subject = described_class.new(query, '20')
-          response = subject.results
-
-          next_offset = response.body['pagination']['next']
-          prev_offset = response.body['pagination']['previous']
-
-          expect(next_offset).to eq 40
-          expect(prev_offset).to eq nil
-        end
-      end
-
-      it 'returns the correct pagination offsets', :aggregate_failures do
-        VCR.use_cassette('search/offset_40') do
-          subject = described_class.new(query, '40')
-          response = subject.results
-
-          next_offset = response.body['pagination']['next']
-          prev_offset = response.body['pagination']['previous']
-
-          expect(next_offset).to eq 60
-          expect(prev_offset).to eq 20
-        end
-      end
-
-      it 'returns the correct pagination offsets', :aggregate_failures do
-        VCR.use_cassette('search/offset_60') do
-          subject = described_class.new(query, '60')
-          response = subject.results
-
-          next_offset = response.body['pagination']['next']
-          prev_offset = response.body['pagination']['previous']
-
-          expect(next_offset).to eq nil
-          expect(prev_offset).to eq 40
+      [0, 20, 40, 60].each do |current_offset|
+        context "with a current offset of #{current_offset}" do
+          it_behaves_like 'pagination data', current_offset
         end
       end
     end
-  end
 
-  context 'with an empty search query' do
-    let(:query) { '' }
+    context 'with an empty search query' do
+      let(:query) { '' }
 
-    it 'raises an exception', :aggregate_failures do
-      VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
-        expect { subject.results }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('SEARCH_400')
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('SEARCH_400')
+          end
         end
       end
     end
-  end
 
-  context 'with an invalid API access key' do
-    it 'raises an exception', :aggregate_failures do
-      VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
-        allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
+    context 'with an invalid API access key' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
+          allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
 
-        expect { subject.results }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('SEARCH_400')
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('SEARCH_400')
+          end
         end
       end
     end
-  end
 
-  context 'with an invalid affiliate' do
-    it 'raises an exception', :aggregate_failures do
-      VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
-        allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
+    context 'with an invalid affiliate' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
+          allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
 
-        expect { subject.results }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('SEARCH_400')
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('SEARCH_400')
+          end
         end
       end
     end

@@ -32,19 +32,20 @@ module Search
 
     private
 
-    # Calculate the previous_offset value for the given raw_body object
+    # Calculate the previous_offset value for the instance's given raw_body object
     #
     # @return [Integer, nil] offset returns the previous_offset for the current request, or nil if first page
     #
     def get_previous_offset
-      # If next_offset is blank we're at the last page of results
-      if next_offset.blank?
+      return nil if next_offset == OFFSET_LIMIT # We're on the first page
+
+      if next_offset.blank? && total > OFFSET_LIMIT # We're at the last page of results
         remainder = total % OFFSET_LIMIT
         return total - (remainder + OFFSET_LIMIT)
       end
 
       offset = next_offset - (2 * OFFSET_LIMIT)
-      return offset if offset.positive?
+      [offset, 0].max
     end
 
     def pagination_object
