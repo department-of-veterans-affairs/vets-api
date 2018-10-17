@@ -16,7 +16,8 @@ module Search
     end
 
     def self.from(response)
-      body = response.body
+      web = response.body.dig('web')
+      body = response.body.merge('pagination' => pagination_object(web))
       new(response.status, body: body)
     end
 
@@ -39,6 +40,10 @@ module Search
       else
         RESPONSE_STATUS[:server_error]
       end
+    end
+
+    def self.pagination_object(body)
+      Search::Pagination.new(body).object
     end
   end
 end
