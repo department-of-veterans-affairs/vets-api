@@ -82,7 +82,7 @@
       "dateOfBirth": 515739600000,
       "dateOfBirthFromCorp": false,
       "edipi": "1007697216",
-      "emailAddress": "evssvsotest@gmail.com",
+      "emailAddress": "foo@foo.com",
       "firstName": "first",
       "hasNoFileNumber": false,
       "hasNoSsn": false,
@@ -92,27 +92,81 @@
       "middleName": "Watson",
       "personTypeNm": "Veteran",
       "previousMarriages": [
-
+        {
+          "marriedDate": "2015-12-15",
+          "city": "new york",
+          "country": {
+            "dropDownCountry": "USA"
+          },
+          "terminatedDate": "2015-12-16T00:00:00Z",
+          "marriageTerminationReasonType": "OTHER",
+          "explainTermination": "other",
+          "state": "NY",
+          "firstName": "spouse",
+          "lastName": "last"
+        }
       ],
       "primaryPhone": {
-        "areaNbr": "202",
-        "phoneNbr": "461-9724",
-        "phoneType": "DAYTIME"
+        "areaNbr": "555",
+        "phoneType": "DAYTIME",
+        "phoneNbr": "111-0000"
       },
       "rlsnIds": [
 
       ],
       "secondaryPhone": {
-        "areaNbr": "789",
-        "phoneNbr": "325-6545",
-        "phoneType": "NIGHTTIME"
+        "areaNbr": "555",
+        "phoneType": "NIGHTTIME",
+        "phoneNbr": "111-0001"
       },
       "ssn": "111-22-3333",
       "ssnFromCorp": false,
       "tempDataId": {
       },
       "uniqueIdentifier": "235759727",
-      "vaFileNumber": "796-04-3735"
+      "vaFileNumber": "111-22-3333",
+      "spouse": {
+        "address": {
+          "addressLine1": "street1",
+          "addressLine2": "Student Records",
+          "addressLocality": "DOMESTIC",
+          "city": "LOUISVILLE",
+          "country": {
+            "dropDownCountry": "USA"
+          },
+          "state": "KY",
+          "zipCode": "40292"
+        },
+        "firstName": "spouse",
+        "lastName": "last",
+        "ssn": "111-22-3333",
+        "dateOfBirth": "2016-12-15T00:00:00Z",
+        "currentMarriage": {
+          "marriageDate": "2016-12-15T00:00:00Z",
+          "city": "new york",
+          "country": {
+            "dropDownCountry": "USA"
+          },
+          "state": "NY"
+        },
+        "vaFileNumber": "111-22-3333",
+        "veteran": true,
+        "previousMarriages": [
+          {
+            "marriedDate": "2015-12-15",
+            "city": "new york",
+            "country": {
+              "dropDownCountry": "USA"
+            },
+            "terminatedDate": "2015-12-16T00:00:00Z",
+            "marriageTerminationReasonType": "OTHER",
+            "explainTermination": "other",
+            "state": "NY",
+            "firstName": "spouse",
+            "lastName": "last"
+          }
+        ]
+      }
     }
   }
 }

@@ -113,8 +113,8 @@ class DependentsApplication < Common::RedisStore
     current_marriage = parsed_form['currentMarriage']
     # TOOD handle current marriage nil
     converted.merge!(convert_address(parsed_form['spouseAddress']))
-    converted.merge!(convert_name(parsed_form['spouseFullName']))
-    converted.merge!(convert_ssn(parsed_form['spouseSocialSecurityNumber']))
+    converted.merge!(convert_name(current_marriage['spouseFullName']))
+    converted.merge!(convert_ssn(current_marriage['spouseSocialSecurityNumber']))
 
     converted['dateOfBirth'] = convert_evss_date(parsed_form['spouseDateOfBirth'])
 
@@ -125,7 +125,7 @@ class DependentsApplication < Common::RedisStore
       'state' => current_marriage['locationOfMarriage']['state']
     }
 
-    converted['vaFileNumber'] = convert_ssn(parsed_form['spouseVaFileNumber'])
+    converted['vaFileNumber'] = convert_ssn(parsed_form['spouseVaFileNumber'])['ssn']
     converted['veteran'] = parsed_form['spouseIsVeteran']
     converted['previousMarriages'] = convert_previous_marriages(parsed_form['spouseMarriages'])
 
@@ -142,10 +142,14 @@ class DependentsApplication < Common::RedisStore
     }
   end
 
-  def self.set_child_attrs!(dependent, child = {})
+  def self.set_child_attrs!(dependent, home_address, child = {})
     child.merge!(convert_name(dependent['fullName']))
 
-    child.merge!(convert_address(dependent['childAddress']))
+    if dependent['childInHousehold']
+      child.merge!(home_address)
+    else
+      child.merge!(convert_address(dependent['childAddress']))
+    end
 
     dependent['childPlaceOfBirth'].tap do |place_of_birth|
       next if place_of_birth.blank?
@@ -184,9 +188,10 @@ class DependentsApplication < Common::RedisStore
     transformed = {}
     transformed['emailAddress'] = parsed_form['veteranEmail']
     transformed.merge!(convert_name(parsed_form['veteranFullName']))
-    transformed.merge!(convert_address(parsed_form['veteranAddress']))
+    home_address = convert_address(parsed_form['veteranAddress'])
+    transformed.merge!(home_address)
     transformed.merge!(convert_ssn(parsed_form['veteranSocialSecurityNumber']))
-    transformed['vaFileNumber'] = convert_ssn(parsed_form['vaFileNumber'])
+    transformed['vaFileNumber'] = convert_ssn(parsed_form['vaFileNumber'])['ssn']
 
     transformed['spouse'] = convert_marriage(parsed_form)
     transformed['spouse']['address'] = transformed['address'] if parsed_form['liveWithSpouse']
@@ -203,9 +208,9 @@ class DependentsApplication < Common::RedisStore
       end
 
       if child
-        set_child_attrs!(dependent, child)
+        set_child_attrs!(dependent, home_address, child)
       else
-        children << set_child_attrs!(dependent)
+        children << set_child_attrs!(dependent, home_address)
       end
     end
     transformed['children'] = children
