@@ -15,6 +15,7 @@ module EVSS
       # TODO: used cached method
       evss_form = service.retrieve
       merged_form = DependentsApplication.transform_form(form, evss_form)
+      binding.pry; fail
       merged_form = service.clean_form(merged_form)
 
       service.validate(merged_form).tap do |res|

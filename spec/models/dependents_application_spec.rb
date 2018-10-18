@@ -11,7 +11,6 @@ RSpec.describe DependentsApplication, type: :model do
       c.allow_http_connections_when_no_cassette = true
     end
     dependents_application = create(:dependents_application)
-    binding.pry; fail
     EVSS::DependentsApplicationJob.new.perform(dependents_application.id, dependents_application.parsed_form, user.uuid)
   end
 
