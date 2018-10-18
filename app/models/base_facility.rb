@@ -155,6 +155,34 @@ class BaseFacility < ActiveRecord::Base
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
     end
 
+    def radial_query(params)
+      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
+      return BaseFacility.none unless params[:lat] && params[:long]
+      # check for radial limiter if so grab all where distance < distance_query
+      limit = Float(params[:radial_limit]) if params[:radial_limit]
+      build_distance_result_set(
+        Float(params[:lat]),
+        Float(params[:long]),
+        params[:type],
+        params[:services],
+        limit
+      )
+    end
+    
+    def build_distance_result_set(lat, long, type, services, limit=nil)
+      additional_data = "base_facilities.*, ST_Distance(base_facilities.location, ST_MakePoint(#{lat},#{long})::geography) AS distance"
+      conditions = limit.nil? ? {} : "where distance < #{limit}"
+      TYPES.map do |facility_type|
+        get_facility_data(
+          conditions, 
+          type, 
+          facility_type, 
+          services,
+          additional_data
+        ).order('distance')
+      end.flatten
+    end
+
     def build_result_set(bbox_num, type, services)
       lats = bbox_num.values_at(1, 3)
       longs = bbox_num.values_at(2, 0)
@@ -176,9 +204,10 @@ class BaseFacility < ActiveRecord::Base
       end
     end
 
-    def get_facility_data(conditions, type, facility_type, services)
+    def get_facility_data(conditions, type, facility_type, services, additional_data=nil)
       klass = TYPE_MAP[facility_type].constantize
       return klass.none unless type.blank? || type == facility_type
+      klass = klass.select(additional_data) if additional_data
       facilities = klass.where(conditions)
       service_conditions = services&.map do |service|
         service_condition(type, service)
