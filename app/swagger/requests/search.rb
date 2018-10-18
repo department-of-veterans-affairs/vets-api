@@ -22,6 +22,14 @@ module Swagger
             key :type, :string
           end
 
+          parameter do
+            key :name, 'offset'
+            key :in, :query
+            key :description, 'The offset from first result, in order to return the expected page of results'
+            key :required, false
+            key :type, :integer
+          end
+
           response 200 do
             key :description, 'Response is OK'
             schema do
