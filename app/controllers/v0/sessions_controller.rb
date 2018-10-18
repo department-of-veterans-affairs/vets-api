@@ -113,8 +113,7 @@ module V0
     def log_saml_response_for_nil_session(authentication_persisted)
       # capturing details for a logic error
       if authentication_persisted && !@sso_service.new_session
-        log_message_to_sentry('Auth persisted but no session', :error,
-                              base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
+        log_message_to_sentry('Auth persisted but no session', :error)
       end
     end
 
