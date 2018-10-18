@@ -151,14 +151,14 @@ class ApplicationController < ActionController::API
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
       expires: @session.ttl_in_time,
-      secure: true,
+      secure: Rails.env.production?,
       httponly: true,
       domain: cookie_domain
     }
   end
 
   def cookie_domain
-    '.va.gov'
+    Rails.env.production? ? '.va.gov' : '127.0.0.1'
   end
 
   def extend_session!
