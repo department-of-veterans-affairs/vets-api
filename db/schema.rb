@@ -52,24 +52,26 @@ ActiveRecord::Schema.define(version: 20181017123903) do
   add_index "async_transactions", ["user_uuid"], name: "index_async_transactions_on_user_uuid", using: :btree
 
   create_table "base_facilities", id: false, force: :cascade do |t|
-    t.string   "unique_id",      null: false
-    t.string   "name",           null: false
-    t.string   "facility_type",  null: false
-    t.string   "classification"
-    t.string   "website"
-    t.float    "lat",            null: false
-    t.float    "long",           null: false
-    t.jsonb    "address"
-    t.jsonb    "phone"
-    t.jsonb    "hours"
-    t.jsonb    "services"
-    t.jsonb    "feedback"
-    t.jsonb    "access"
-    t.string   "fingerprint"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.string    "unique_id",                                                                  null: false
+    t.string    "name",                                                                       null: false
+    t.string    "facility_type",                                                              null: false
+    t.string    "classification"
+    t.string    "website"
+    t.float     "lat",                                                                        null: false
+    t.float     "long",                                                                       null: false
+    t.jsonb     "address"
+    t.jsonb     "phone"
+    t.jsonb     "hours"
+    t.jsonb     "services"
+    t.jsonb     "feedback"
+    t.jsonb     "access"
+    t.string    "fingerprint"
+    t.datetime  "created_at",                                                                 null: false
+    t.datetime  "updated_at",                                                                 null: false
+    t.geography "location",       limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
   end
 
+  add_index "base_facilities", ["location"], name: "index_base_facilities_on_location", using: :gist
   add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
