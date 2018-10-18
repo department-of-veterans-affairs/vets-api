@@ -192,7 +192,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme])
+            expect(cookies['vagov_session_local']).not_to be_nil unless type.in?(%w[mhv dslogon idme])
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
@@ -212,7 +212,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
-        request.cookies['vagov_session_dev'] = 'bar'
+        request.cookies['vagov_session_local'] = 'bar'
       end
 
       around(:each) do |example|
@@ -243,14 +243,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
           # it has the cookie set
-          expect(cookies['vagov_session_dev']).to_not be_nil
+          expect(cookies['vagov_session_local']).to_not be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
           expect(response.location).to include("RelayState=#{CGI.escape(Settings.saml.logout_relays.vetsgov)}")
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
           expect(User.find(uuid)).to be_nil
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_local']).to be_nil
           # this should be created in redis
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
         end
@@ -361,8 +361,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
         expect(new_user.multifactor).to be_falsey
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
-        expect(cookies['vagov_session_dev']).not_to be_nil
-        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+        expect(cookies['vagov_session_local']).not_to be_nil
+        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_local'])))
           .to eq('patientIcn' => loa3_user.icn,
                  'mhvCorrelationId' => loa3_user.mhv_correlation_id,
                  'expirationTime' => expire_at.iso8601(0))
@@ -377,8 +377,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).to eq('796111863')
-        expect(cookies['vagov_session_dev']).not_to be_nil
-        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+        expect(cookies['vagov_session_local']).not_to be_nil
+        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_local'])))
           .to eq('patientIcn' => loa3_user.icn,
                  'mhvCorrelationId' => loa3_user.mhv_correlation_id,
                  'expirationTime' => expire_at.iso8601(0))
@@ -404,8 +404,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
           post :saml_callback
-          expect(cookies['vagov_session_dev']).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+          expect(cookies['vagov_session_local']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_local'])))
             .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
         end
       end
@@ -430,8 +430,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to identity proof URL', :aggregate_failures do
           expect(SAML::SettingsService).to receive(:idme_loa3_url)
           post :saml_callback
-          expect(cookies['vagov_session_dev']).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+          expect(cookies['vagov_session_local']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_local'])))
             .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
         end
       end
@@ -447,8 +447,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(controller).to receive(:log_message_to_sentry).with('ID.me did not provide LOA.highest!', :error)
           post :saml_callback
           expect(response.location).to start_with(Settings.saml.relays.vetsgov + '?token=')
-          expect(cookies['vagov_session_dev']).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+          expect(cookies['vagov_session_local']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_local'])))
             .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
         end
       end
@@ -481,7 +481,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=002')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_local']).to be_nil
         end
       end
 
@@ -492,7 +492,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=003')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_local']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -524,7 +524,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=007')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_local']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -556,7 +556,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=001')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_local']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
@@ -595,7 +595,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             )
           expect(post(:saml_callback)).to redirect_to(Settings.saml.relays.vetsgov + '?auth=fail&code=')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_local']).to be_nil
         end
 
         it 'increments the failed and total statsd counters' do
