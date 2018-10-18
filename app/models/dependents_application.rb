@@ -213,7 +213,8 @@ class DependentsApplication < Common::RedisStore
     transformed['marriageType'] = convert_marriage_status(parsed_form['maritalStatus']) if parsed_form['maritalStatus'].present?
 
     transformed['previousMarriages'] = convert_previous_marriages(parsed_form['previousMarriages'])
-    transformed['primaryPhone'] = convert_phone(parsed_form['dayPhone'])
+    transformed['primaryPhone'] = convert_phone(parsed_form['dayPhone'], 'DAYTIME')
+    transformed['secondaryPhone'] = convert_phone(parsed_form['nightPhone'], 'NIGHTTIME')
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
