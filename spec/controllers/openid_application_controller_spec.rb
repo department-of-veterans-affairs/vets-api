@@ -7,10 +7,10 @@ RSpec.describe OpenidApplicationController, type: :controller do
     [{
       'ver' => 1,
       'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
-      'iss' => 'https://deptva-vetsgov-eval.okta.com/oauth2/default',
+      'iss' => 'https://example.com/oauth2/default',
       'aud' => 'api://default',
-      'iat' => 1_538_509_491,
-      'exp' => 1_538_513_091,
+      'iat' => Time.current.utc.to_i,
+      'exp' => Time.current.utc.to_i + 3600,
       'cid' => '0oa1c01m77heEXUZt2p7',
       'uid' => '00u1zlqhuo3yLa2Xs2p7',
       'scp' => %w[profile email openid va_profile],
