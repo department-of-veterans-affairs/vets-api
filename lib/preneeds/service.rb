@@ -115,7 +115,7 @@ module Preneeds
         file = attachment.file
 
         multipart.add_file(
-          filename: file.filename,
+          filename: attachment.name,
           content: file.read
         )
 
