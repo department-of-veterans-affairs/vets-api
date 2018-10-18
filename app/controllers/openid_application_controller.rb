@@ -63,6 +63,7 @@ class OpenidApplicationController < ApplicationController
                        end
   end
 
+  # rubocop:disable all
   def validate_token
     puts 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
     raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
