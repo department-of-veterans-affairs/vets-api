@@ -6,7 +6,7 @@ module VeteranVerification
   module V0
     class ServiceHistoryController < ApplicationController
       before_action { authorize :emis, :access? }
-      before_action { permit_scopes 'va_profile' }
+      before_action { permit_scopes %w[service_history.read] }
 
       def index
         response = ServiceHistoryEpisode.for_user(@current_user)
