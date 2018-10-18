@@ -20,7 +20,7 @@ secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
   cookie_enabled: false
-  cookie_name: vagov_session_dev
+  cookie_name: vagov_session_local
   cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
 
