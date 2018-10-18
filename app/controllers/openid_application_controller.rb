@@ -64,8 +64,11 @@ class OpenidApplicationController < ApplicationController
   end
 
   def validate_token
+    puts 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
     raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
+    puts 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
     raise 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
+    puts 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
     raise 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
   end
 
