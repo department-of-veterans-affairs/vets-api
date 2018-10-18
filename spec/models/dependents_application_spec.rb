@@ -51,7 +51,6 @@ RSpec.describe DependentsApplication, type: :model do
   describe '.transform_form' do
     it 'should merge the evss and submitted forms' do
       form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
-      binding.pry; fail
       expect(form).to eq(get_fixture('dependents/transform_form'))
     end
   end
