@@ -132,11 +132,12 @@ class DependentsApplication < Common::RedisStore
     converted
   end
 
-  def self.convert_phone(phone)
+  def self.convert_phone(phone, phone_type)
     return {} if phone.blank?
 
     {
       'areaNbr' => phone[0..2],
+      'phoneType' => phone_type,
       'phoneNbr' => "#{phone[3..5]}-#{phone[6..9]}"
     }
   end
@@ -212,6 +213,7 @@ class DependentsApplication < Common::RedisStore
     transformed['marriageType'] = convert_marriage_status(parsed_form['maritalStatus']) if parsed_form['maritalStatus'].present?
 
     transformed['previousMarriages'] = convert_previous_marriages(parsed_form['previousMarriages'])
+    transformed['primaryPhone'] = convert_phone(parsed_form['dayPhone'])
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
