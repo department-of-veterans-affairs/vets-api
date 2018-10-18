@@ -70,6 +70,7 @@ module V0
       # in the future the FE shouldnt count on ?success=true
     ensure
       logout_request&.destroy
+      destroy_sso_cookie!
       redirect_to relay_state.logout_url + '?success=true'
     end
 
