@@ -16,9 +16,10 @@ RSpec.describe DependentsApplication, type: :model do
 
   describe '.convert_phone' do
     it 'should convert a phone to the evss format' do
-      expect(described_class.convert_phone('1234567890')).to eq(
+      expect(described_class.convert_phone('1234567890', 'DAYTIME')).to eq(
         {
           'areaNbr' => '123',
+          'phoneType' => 'DAYTIME',
           'phoneNbr' => '456-7890'
         }
       )
