@@ -17,7 +17,7 @@ module VaFacilities
       before_action :validate_params, only: [:index]
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
-      BBOX_OR_ID_ERR = 'Must supply either a bbox or ids parameter to query facilities data.'
+      LAT_AND_LONG_OR_ID_ERR = 'Must supply either lat and long or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -32,7 +32,7 @@ module VaFacilities
       end
 
       def index
-        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
+        resource = BaseFacility.radial_query(params).paginate(page: params[:page], per_page: params[:per_page])
         respond_to do |format|
           format.json do
             render json: resource,
@@ -68,16 +68,27 @@ module VaFacilities
       private
 
       def validate_params
-        validate_bbox_or_ids
-        validate_bbox
+        validate_lat_and_long_or_ids
+        %i[lat long].each{|param| verify_float(param)}
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def validate_bbox_or_ids
-        unless params.key?(:bbox) || params.key?(:ids)
-          raise Common::Exceptions::ParameterMissing.new('bbox', detail: BBOX_OR_ID_ERR)
+      def validate_lat_and_long_or_ids
+        lat_and_long = params.key?(:lat) && params.key?(:long)
+        ids = params.key? :ids
+
+        if !lat_and_long && !ids
+          %i[ long lat ids ].each do |param|
+            raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: LAT_AND_LONG_OR_ID_ERR) unless params.key? param
+          end
         end
+      end
+      
+      def verify_float(param)
+        Float(params[param])
+      rescue ArgumentError
+        raise Common::Exceptions::InvalidFieldValue.new(param.to_s, params[param])
       end
 
       def validate_bbox
