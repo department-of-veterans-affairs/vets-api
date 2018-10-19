@@ -45,8 +45,8 @@ module EVSS
           @parsed_form0781a = get_form_0781a
 
           # process 0781 and 0781a
-          process_0781(auth_headers, evss_claim_id) if @parsed_form0781.present?
-          process_0781a(auth_headers, evss_claim_id) if @parsed_form0781a.present?
+          process_0781(auth_headers, evss_claim_id, FORM_ID_0781, @parsed_form0781) if @parsed_form0781.present?
+          process_0781(auth_headers, evss_claim_id, FORM_ID_0781A, @parsed_form0781a) if @parsed_form0781a.present?
         end
       rescue StandardError => error
         # Cannot move job straight to dead queue dynamically within an executing job
@@ -54,9 +54,6 @@ module EVSS
         # after all retries are exhausted
         retryable_error_handler(error)
         raise error
-      ensure
-        # Delete the temporary PDF file
-        delete_temp_files
       end
 
       private
@@ -94,16 +91,10 @@ module EVSS
         end
       end
 
-      def process_0781(auth_headers, evss_claim_id)
+      def process_0781(auth_headers, evss_claim_id, form_id, form_content)
         # generate and stamp PDF file
-        @pdf_path0781 = generate_stamp_pdf(@parsed_form0781, evss_claim_id, FORM_ID_0781)
-        upload_to_vbms(auth_headers, evss_claim_id, @pdf_path0781, FORM_ID_0781) if @pdf_path0781.present?
-      end
-
-      def process_0781a(auth_headers, evss_claim_id)
-        # generate and stamp PDF file
-        @pdf_path0781a = generate_stamp_pdf(@parsed_form0781a, evss_claim_id, FORM_ID_0781A)
-        upload_to_vbms(auth_headers, evss_claim_id, @pdf_path0781a, FORM_ID_0781A) if @pdf_path0781a.present?
+        pdf_path0781 = generate_stamp_pdf(form_content, evss_claim_id, form_id) if form_content.present?
+        upload_to_vbms(auth_headers, evss_claim_id, pdf_path0781, form_id) if pdf_path0781.present?
       end
 
       # Invokes Filler ancillary form method to generate PDF document
@@ -144,11 +135,9 @@ module EVSS
         client = EVSS::DocumentsService.new(auth_headers)
         file_body = open(pdf_path).read
         client.upload(file_body, document_data)
-      end
-
-      def delete_temp_files
-        File.delete(@pdf_path0781) if @pdf_path0781.present?
-        File.delete(@pdf_path0781a) if @pdf_path0781a.present?
+      ensure
+        # Delete the temporary PDF file
+        File.delete(pdf_path) if pdf_path.present?
       end
     end
   end
