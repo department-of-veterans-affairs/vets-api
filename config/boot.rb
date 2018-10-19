@@ -9,7 +9,7 @@ if ARGV.first == 's' || ARGV.first == 'server'
 
   module Rails
     class Server
-      alias :default_options_bk :default_options
+      alias default_options_bk default_options
       def default_options
         default_options_bk.merge!(Host: '127.0.0.1')
       end
