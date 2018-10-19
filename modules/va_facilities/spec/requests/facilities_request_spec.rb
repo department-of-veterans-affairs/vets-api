@@ -55,14 +55,14 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
     end
-    
+
     it 'responds to GET #index with lat/long' do
-      # This is where I ended trying to get the data in the test DB to have location data.
-      ActiveRecord::Base.connection.execute("UPDATE base_facilities SET location=ST_GeogFromText('SRID=4326;POINT(' || long || ' ' || lat ||')')")
       setup_pdx
       get base_query_path + lat_long, nil, accept_json
-      binding.pry
       expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(10)
     end
 
     it 'responds to GET #index with ids' do
@@ -178,7 +178,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
-     expect(json['features'].length).to eq(10)
+      expect(json['features'].length).to eq(10)
       expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
     end
 

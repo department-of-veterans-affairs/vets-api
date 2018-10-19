@@ -150,14 +150,13 @@ class BaseFacility < ActiveRecord::Base
     def query(params)
       # TODO: Sort hours similar to `find_factility_by_id` method on line 146
       return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
+      return radial_query(params) if params[:lat] && params[:long]
       return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
     end
 
     def radial_query(params)
-      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
-      return BaseFacility.none unless params[:lat] && params[:long]
       # check for radial limiter if so grab all where distance < distance_query
       limit = Float(params[:radial_limit]) if params[:radial_limit]
       build_distance_result_set(
@@ -168,15 +167,19 @@ class BaseFacility < ActiveRecord::Base
         limit
       )
     end
-    
-    def build_distance_result_set(lat, long, type, services, limit=nil)
-      additional_data = "base_facilities.*, ST_Distance(base_facilities.location, ST_MakePoint(#{lat},#{long})::geography) AS distance"
+
+    def build_distance_result_set(lat, long, type, services, limit = nil)
+      additional_data = <<-SQL
+        base_facilities.*,
+        ST_Distance(base_facilities.location,
+        ST_MakePoint(#{lat},#{long})::geography) AS distance
+      SQL
       conditions = limit.nil? ? {} : "where distance < #{limit}"
       TYPES.map do |facility_type|
         get_facility_data(
-          conditions, 
-          type, 
-          facility_type, 
+          conditions,
+          type,
+          facility_type,
           services,
           additional_data
         ).order('distance')
@@ -204,7 +207,7 @@ class BaseFacility < ActiveRecord::Base
       end
     end
 
-    def get_facility_data(conditions, type, facility_type, services, additional_data=nil)
+    def get_facility_data(conditions, type, facility_type, services, additional_data = nil)
       klass = TYPE_MAP[facility_type].constantize
       return klass.none unless type.blank? || type == facility_type
       klass = klass.select(additional_data) if additional_data
