@@ -15,6 +15,11 @@ module VeteranVerification
           swagger = YAML.safe_load(File.read(VeteranVerification::Engine.root.join('DISABILITY_RATING.yml')))
           render json: swagger
         end
+
+        def status
+          swagger = YAML.safe_load(File.read(VeteranVerification::Engine.root.join('VETERAN_CONFIRMATION.yml')))
+          render json: swagger
+        end
       end
     end
   end

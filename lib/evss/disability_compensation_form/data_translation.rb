@@ -11,7 +11,8 @@ module EVSS
       def translate
         form['claimantCertification'] = true
         form['applicationExpirationDate'] = application_expiration_date
-        form['directDeposit'] = get_banking_info
+
+        set_banking_info
 
         translate_service_info
         translate_veteran
@@ -139,19 +140,30 @@ module EVSS
         { 'areaCode' => area_code, 'phoneNumber' => number }
       end
 
-      def get_banking_info
+      def set_banking_info
         service = EVSS::PPIU::Service.new(@user)
         response = service.get_payment_information
         account = response.responses.first.payment_account
 
-        if account
-          {
-            'accountType' => account&.account_type&.upcase,
-            'accountNumber' => account&.account_number,
-            'routingNumber' => account&.financial_institution_routing_number,
-            'bankName' => account&.financial_institution_name
+        if can_set_direct_deposit?(account)
+          form['directDeposit'] = {
+            'accountType' => account.account_type.upcase,
+            'accountNumber' => account.account_number,
+            'routingNumber' => account.financial_institution_routing_number,
+            'bankName' => account.financial_institution_name
           }
         end
+      end
+
+      # Direct Deposit cannot be set unless all these fields are set
+      # All claims will switch to including the direct deposit info in the payload
+      def can_set_direct_deposit?(account)
+        return unless account
+        return unless account.account_type
+        return unless account.account_number
+        return unless account.financial_institution_routing_number
+        return unless account.financial_institution_name
+        true
       end
 
       def translate_mailing_address(address)

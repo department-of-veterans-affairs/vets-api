@@ -313,15 +313,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    describe '#async_create_evss_account' do
-      it 'should return if current_user is nil' do
-        expect(described_class.new.send(:async_create_evss_account)).to eq(nil)
-      end
-    end
-
     describe 'POST saml_callback' do
       before(:each) do
-        allow(controller).to receive(:async_create_evss_account)
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
 
@@ -457,17 +450,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
-        end
-      end
-
-      context 'when NoMethodError is encountered elsewhere' do
-        it 'redirects to adds context and re-raises the exception', :aggregate_failures do
-          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
-          expect(Raven).to receive(:extra_context).twice
-          expect(Raven).not_to receive(:user_context)
-          expect(Raven).not_to receive(:tags_context).once
-          expect(controller).not_to receive(:log_message_to_sentry)
-          post :saml_callback
         end
       end
 
@@ -625,6 +607,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           it 'creates an Account record for the user' do
             post :saml_callback
+            AfterLoginJob.drain
 
             expect(Account.first.idme_uuid).to eq uuid
           end
@@ -635,6 +618,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           it 'does not create a new Account record for the user', :aggregate_failures do
             post :saml_callback
+            AfterLoginJob.drain
 
             expect(Account.count).to eq 1
             expect(Account.first.idme_uuid).to eq account.idme_uuid
@@ -646,21 +630,12 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   context 'when not logged in' do
     describe 'POST saml_callback' do
-      context 'loa1_user' do
-        let(:saml_user_attributes) { loa1_user.attributes.merge(loa1_user.identity.attributes) }
-
-        it 'does not create a job to create an evss user' do
-          allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to_not change(EVSS::CreateUserAccountJob.jobs, :size)
-        end
-      end
-
       context 'loa3_user' do
         let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
 
-        it 'creates a job to create an evss user' do
+        it 'creates an after login job' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to change(EVSS::CreateUserAccountJob.jobs, :size).by(1)
+          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
     end
