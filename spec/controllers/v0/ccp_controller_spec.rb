@@ -10,7 +10,6 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
   it 'should have a certain shape' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
       get 'show', id: 'ccp_12345'
-      puts(response.body)
       expect(response).to have_http_status(:ok)
       bod = JSON.parse(response.body)
       expect(bod['data']['id']).to include('ccp_')
@@ -28,7 +27,7 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
 
   it 'should return some specialties' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-      get 'specialties'
+      get 'services'
       expect(response).to have_http_status(:ok)
       bod = JSON.parse(response.body)
       expect(bod.length).to be > 0

@@ -27,6 +27,7 @@ module Facilities
     def provider_info(identifier)
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
+      return nil if response.body.nil?
       Provider.new response.body[0]
     end
 

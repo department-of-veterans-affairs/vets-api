@@ -24,6 +24,12 @@ module Swagger
               key :'$ref', :CCProvider
             end
           end
+          response 400 do
+            key :description, 'Invalid id provider lookup'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
           response 404 do
             key :description, 'Non-existent provider lookup'
             schema do
@@ -33,9 +39,9 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/facilities/specialties' do
+      swagger_path '/v0/facilities/services' do
         operation :get do
-          key :description, 'Get complete list of specialties from ppms'
+          key :description, 'Get complete list of specialties/services from ppms'
           key :operationId, 'specialties'
           key :tags, %w[facilities]
 

@@ -6,10 +6,11 @@ class V0::Facilities::CcpController < FacilitiesController
   def show
     ppms = Facilities::PPMSClient.new
     result = ppms.provider_info(params[:id])
+    raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
     render json: result, serializer: ProviderSerializer
   end
 
-  def specialties
+  def services
     ppms = Facilities::PPMSClient.new
     result = ppms.specialties
     render json: result

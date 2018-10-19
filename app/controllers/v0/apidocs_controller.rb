@@ -25,10 +25,6 @@ module V0
       # by the order they first appear in the swaggered_classes below, so
       # declare all tags here in desired order.
       tag do
-        key :name, 'facilities'
-        key :description, 'VA facilities, locations, hours of operation, available services'
-      end
-      tag do
         key :name, 'authentication'
         key :description, 'Authentication operations'
       end
@@ -71,6 +67,10 @@ module V0
       tag do
         key :name, 'terms_and_conditions'
         key :description, 'Terms and conditions acceptance for access to health tools'
+      end
+      tag do
+        key :name, 'facilities'
+        key :description, 'VA facilities, locations, hours of operation, available services'
       end
       tag do
         key :name, 'gi_bill_institutions'
