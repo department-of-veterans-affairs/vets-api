@@ -33,4 +33,3 @@ RSpec.describe SentryJob do
     end
   end
 end
-
