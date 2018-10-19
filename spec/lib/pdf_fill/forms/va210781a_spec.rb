@@ -33,7 +33,7 @@ describe PdfFill::Forms::Va210781a do
         }
       end
       it 'should expand the ssn correctly' do
-        new_form_class.expand_ssn
+        new_form_class.send(:expand_ssn)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -57,7 +57,7 @@ describe PdfFill::Forms::Va210781a do
         }
       end
       it 'should expand veteran full name correctly' do
-        new_form_class.expand_veteran_full_name
+        new_form_class.send(:expand_veteran_full_name)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -80,7 +80,7 @@ describe PdfFill::Forms::Va210781a do
         }
       end
       it 'should expand the birth date correctly' do
-        new_form_class.expand_veteran_dob
+        new_form_class.send(:expand_veteran_dob)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -99,7 +99,7 @@ describe PdfFill::Forms::Va210781a do
       'incidentDate' => '2000-01-01'
     }
     it 'should expand the incident date correctly' do
-      expect(new_form_class.expand_incident_date(incident)).to eq(
+      expect(new_form_class.send(:expand_incident_date, incident)).to eq(
         'month' => '01',
         'day' => '01',
         'year' => '2000'
@@ -110,60 +110,58 @@ describe PdfFill::Forms::Va210781a do
   # rubocop:disable Metrics/LineLength
   describe '#expand_incident_location' do
     it 'should expand the incident location into three lines one word each' do
-      expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
-      )).to eq(
-        'firstRow' => 'abcdefghijklmnopqrs',
-        'secondRow' => 'xxxxxxxxxxxxxxxxxx',
-        'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
-      )
+      expect(new_form_class.send(:expand_incident_location,
+                                 'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz')).to eq(
+                                   'firstRow' => 'abcdefghijklmnopqrs',
+                                   'secondRow' => 'xxxxxxxxxxxxxxxxxx',
+                                   'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
+                                 )
     end
 
     it 'should expand the incident location into three lines multiple words' do
-      expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
-      )).to eq(
-        'firstRow' => 'abcd defg hijk lmno pqrs xxxx',
-        'secondRow' => 'yyyy zzzz aaaa bb cccc dddd',
-        'thirdRow' => 'eeee ffff ggg'
-      )
+      expect(new_form_class.send(:expand_incident_location,
+                                 'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg')).to eq(
+                                   'firstRow' => 'abcd defg hijk lmno pqrs xxxx',
+                                   'secondRow' => 'yyyy zzzz aaaa bb cccc dddd',
+                                   'thirdRow' => 'eeee ffff ggg'
+                                 )
     end
 
     it 'should ignore more than 90 characters' do
-      expect(JSON.parse(new_form_class.expand_incident_location(
-        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-      ).to_json)).to eq(
-        'value' => '',
-        'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-      )
+      expect(JSON.parse(new_form_class.send(:expand_incident_location,
+                                            'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234').to_json)).to eq(
+                                              'value' => '',
+                                              'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+                                            )
     end
   end
   # rubocop:enable Metrics/LineLength
 
   describe '#expand incident_unit_assignment' do
     it 'should expand the incident unit assignment into three lines one word each' do
-      expect(new_form_class.expand_incident_unit_assignment(
-               'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
-      )).to eq(
-        'firstRow' => 'abcdefghijklmnopqrs',
-        'secondRow' => 'xxxxxxxxxxxxxxxxxx',
-        'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
-      )
+      expect(new_form_class.send(:expand_incident_unit_assignment,
+                                 'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz')).to eq(
+                                   'firstRow' => 'abcdefghijklmnopqrs',
+                                   'secondRow' => 'xxxxxxxxxxxxxxxxxx',
+                                   'thirdRow' => 'zzzzzzzzzzzzzzzzzzz'
+                                 )
     end
 
     it 'should expand the incident unit assignment into three lines multiple words' do
-      expect(new_form_class.expand_incident_unit_assignment(
-               'unitAssigned' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
-      )).to eq(
-        'firstRow' => 'abcd defg hijk lmno pqrs xxxx',
-        'secondRow' => 'yyyy zzzz aaaa bb cccc dddd',
-        'thirdRow' => 'eeee ffff ggg'
-      )
+      expect(new_form_class.send(:expand_incident_unit_assignment,
+                                 'unitAssigned' =>
+                                 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg')).to eq(
+                                   'firstRow' => 'abcd defg hijk lmno pqrs xxxx',
+                                   'secondRow' => 'yyyy zzzz aaaa bb cccc dddd',
+                                   'thirdRow' => 'eeee ffff ggg'
+                                 )
     end
 
     it 'should ignore more than 90 characters' do
-      expect(JSON.parse(new_form_class.expand_incident_unit_assignment(
-        'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      expect(JSON.parse(new_form_class.send(
+        :expand_incident_unit_assignment,
+        'unitAssigned' =>
+        'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
       ).to_json)).to eq(
         'value' => '',
         'extras_value' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
@@ -171,7 +169,7 @@ describe PdfFill::Forms::Va210781a do
     end
   end
 
-  describe '#expand_other_sources' do
+  describe '#combine_source_name_address' do
     it 'should expand sources correctly' do
       incident = {
         'source' => [{
@@ -191,7 +189,7 @@ describe PdfFill::Forms::Va210781a do
         }]
       }
 
-      expect(new_form_class.expand_other_sources(incident)).to eq(
+      expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
         'combinedName0' => 'Testy T Testerson',
         'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
       )
@@ -231,7 +229,7 @@ describe PdfFill::Forms::Va210781a do
                      }]
       }
 
-      expect(new_form_class.expand_other_sources(incident)).to eq(
+      expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
         'combinedName0' => 'Testy T Testerson',
         'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA',
         'combinedName1' => 'Besty B Besterson',
@@ -314,7 +312,7 @@ describe PdfFill::Forms::Va210781a do
         ]
       }]
 
-      expect(JSON.parse(new_form_class.expand_incidents(incidents).to_json)).to eq(
+      expect(JSON.parse(new_form_class.send(:expand_incidents, incidents).to_json)).to eq(
         [{
           'incidentLocation' => {
             'incidentLocationOverflow' => {
