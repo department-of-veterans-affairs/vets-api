@@ -299,7 +299,7 @@ module PdfFill
         end
       end
 
-      def expand_other_sources_info(incident)
+      def combine_source_name_address(incident)
         return if incident.blank?
 
         incident_sources = incident['source']
@@ -333,7 +333,7 @@ module PdfFill
           expand_unit_assigned_dates(incident)
           expand_incident_location(incident)
           expand_incident_unit_assignment(incident)
-          expand_other_sources_info(incident)
+          combine_source_name_address(incident)
         end
       end
     end

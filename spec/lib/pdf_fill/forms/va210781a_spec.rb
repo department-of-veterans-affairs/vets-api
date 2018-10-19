@@ -169,7 +169,7 @@ describe PdfFill::Forms::Va210781a do
     end
   end
 
-  describe '#expand_other_sources_info' do
+  describe '#combine_source_name_address' do
     it 'should expand sources correctly' do
       incident = {
         'source' => [{
@@ -189,7 +189,7 @@ describe PdfFill::Forms::Va210781a do
         }]
       }
 
-      expect(new_form_class.send(:expand_other_sources_info, incident)).to eq(
+      expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
         'combinedName0' => 'Testy T Testerson',
         'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
       )
@@ -229,7 +229,7 @@ describe PdfFill::Forms::Va210781a do
                      }]
       }
 
-      expect(new_form_class.send(:expand_other_sources_info, incident)).to eq(
+      expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
         'combinedName0' => 'Testy T Testerson',
         'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA',
         'combinedName1' => 'Besty B Besterson',
