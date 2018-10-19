@@ -4,8 +4,6 @@ require 'base64'
 
 module V0
   class SessionsController < ApplicationController
-    include Accountable
-
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -93,9 +91,6 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-    rescue NoMethodError
-      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
-      raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
@@ -119,8 +114,7 @@ module V0
 
     def after_login_actions
       set_sso_cookie!
-      async_create_evss_account
-      create_user_account
+      AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
     end
 
     def log_persisted_session_and_warnings
@@ -132,12 +126,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    def async_create_evss_account
-      return unless @current_user.authorize :evss, :access?
-      auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
-      EVSS::CreateUserAccountJob.perform_async(auth_headers)
     end
 
     def destroy_user_session!(user, session)
