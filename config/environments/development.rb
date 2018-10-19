@@ -5,7 +5,8 @@ require 'config_helper'
 Rails.application.configure do
   # Specify environment specific hostname and protocol
   config.hostname = Settings.hostname
-  config.protocol = 'http'
+  config.protocol = ENV['USE_LOCAL_SSL'] ? 'https' : 'http'
+  config.force_ssl = true if ENV['USE_LOCAL_SSL']
   routes.default_url_options = { host: config.hostname, protocol: config.protocol }
   # Settings specified here will take precedence over those in config/application.rb.
 
