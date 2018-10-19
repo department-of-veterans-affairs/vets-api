@@ -6,6 +6,7 @@ class BaseFacility < ActiveRecord::Base
   self.inheritance_column = 'facility_type'
   self.primary_key = 'unique_id'
   after_initialize :generate_fingerprint
+  after_initialize :generate_location
 
   YES = 'YES'
 
@@ -399,6 +400,10 @@ class BaseFacility < ActiveRecord::Base
   end
 
   private
+
+  def generate_location
+    self.location = "POINT(#{long} #{lat})" if new_record? && !location
+  end
 
   def generate_fingerprint
     self.fingerprint = Digest::SHA2.hexdigest(attributes.to_s) if new_record?
