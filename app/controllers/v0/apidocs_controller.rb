@@ -25,6 +25,10 @@ module V0
       # by the order they first appear in the swaggered_classes below, so
       # declare all tags here in desired order.
       tag do
+        key :name, 'facilities'
+        key :description, 'VA facilities, locations, hours of operation, available services'
+      end
+      tag do
         key :name, 'authentication'
         key :description, 'Authentication operations'
       end
@@ -67,10 +71,6 @@ module V0
       tag do
         key :name, 'terms_and_conditions'
         key :description, 'Terms and conditions acceptance for access to health tools'
-      end
-      tag do
-        key :name, 'facilities'
-        key :description, 'VA facilities, locations, hours of operation, available services'
       end
       tag do
         key :name, 'gi_bill_institutions'
@@ -148,6 +148,7 @@ module V0
       Swagger::Requests::UploadSupportingEvidence,
       Swagger::Requests::User,
       Swagger::Requests::VAFacilities,
+      Swagger::Requests::CCProviders,
       Swagger::Responses::AuthenticationError,
       Swagger::Responses::SavedForm,
       Swagger::Schemas::Address,
@@ -182,6 +183,7 @@ module V0
       Swagger::Schemas::TermsAndConditions,
       Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::VAFacilities,
+      Swagger::Schemas::CCProviders,
       Swagger::Schemas::Vet360::Address,
       Swagger::Schemas::Vet360::Email,
       Swagger::Schemas::Vet360::Telephone,

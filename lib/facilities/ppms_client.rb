@@ -27,7 +27,7 @@ module Facilities
     def provider_info(identifier)
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
-      response.body[0]
+      Provider.new response.body[0]
     end
 
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0

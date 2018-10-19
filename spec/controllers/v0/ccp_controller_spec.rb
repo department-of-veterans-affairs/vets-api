@@ -9,30 +9,21 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
 
   it 'should have a certain shape' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-      get 'show', id: 12_345
+      get 'show', id: 'ccp_12345'
       puts(response.body)
       expect(response).to have_http_status(:ok)
       bod = JSON.parse(response.body)
-      expect(bod['id']).to include('ccp_')
-      expect(bod['type']).to eq('cc_provider')
+      expect(bod['data']['id']).to include('ccp_')
+      expect(bod['data']['type']).to eq('cc_provider')
     end
   end
 
-  it 'should reformat some stuff' do
-    prov_info = { 'AddressStreet' => 'e', 'AddressCity' => 'f', 'AddressStateProvince' => 'g',
-                  'AddressPostalCode' => 'h', 'MainPhone' => 'i', 'OrganizationFax' => 'j',
-                  'ContactMethod' => 'k', 'ProviderIdentifier' => 'a', 'Name' => 'b',
-                  'IsAcceptingNewPatients' => true, 'ProviderGender' => 'c',
-                  'ProviderSpecialties' => [{ 'SpecialtyName' => 'l' }] }
-    @controller = V0::Facilities::CcpController.new
-    form = @controller.send :format_details, prov_info
-    expect(form).to eq(id: 'ccp_a', type: 'cc_provider', attributes: {
-                         unique_id: 'a', name: 'b', address: {
-                           street: 'e', city: 'f', state: 'g', zip: 'h'
-                         },
-                         phone: 'i', fax: 'j', prefContact: 'k', accNewPatients: true,
-                         gender: 'c', specialty: ['l']
-                       })
+  it 'should indicate an invalid parameter' do
+    get 'show', id: '12345'
+    expect(response).to have_http_status(400)
+    bod = JSON.parse(response.body)
+    expect(bod['errors'].length).to be > 0
+    expect(bod['errors'][0]['title']).to eq('Invalid field value')
   end
 
   it 'should return some specialties' do
