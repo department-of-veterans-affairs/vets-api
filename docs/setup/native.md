@@ -59,6 +59,7 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
 1. Install pdftk
   - `brew install
     https://gist.githubusercontent.com/lihanli/03ec8f17a6a1ff52e3a149be4cf7f2ae/raw/d18eff01396bbc25a928f756ff21edcc3521fc5e/pdftk.rb`
+1. Install nss `brew install nss`
 1. Install gem dependencies: `cd vets-api; bundle install`
 1. Install overcommit `overcommit --install --sign`
 1. Setup localhost certificates / keys:
@@ -69,6 +70,12 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
      commands will provide basic functionality, such as for running unit tests:
    - `touch ./config/certs/vetsgov-localhost.crt`
    - `touch ./config/certs/vetsgov-localhost.key`
+1. Install mkcert (optional, used for SSL)
+  -  `brew install mkcert`
+  -  `mkcert -install`
+  - create a certificate for local testing `mkcert localhost.ssl localhost 127.0.0.1 ::1`
+  - move the certificates `mv localhost.ssl+3.pem config/certs/localhost.crt` `mv localhost.ssl+3-key.pem config/certs/localhost.key`
+  - Remember that mkcert is meant for development purposes, not production, so it should not be used on end users' machines, and that you should not export or share rootCA-key.pem.
 1. Create dev database: `bundle exec rake db:setup`
 1. Go to the file `config/settings/development.yml` in your local vets-api. Switch the commented out lines pertaining to the cache_dir: uncomment out line 14 (what you use for running the app via Rails), and comment out line 15 (what you use for running the app via Docker).
 1. Make sure you have the [vets-api-mockdata](https://github.com/department-of-veterans-affairs/vets-api-mockdata) repo locally installed

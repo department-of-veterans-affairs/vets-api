@@ -127,8 +127,27 @@ else
   brew install https://gist.githubusercontent.com/lihanli/03ec8f17a6a1ff52e3a149be4cf7f2ae/raw/d18eff01396bbc25a928f756ff21edcc3521fc5e/pdftk.rb
 fi
 
-# Make vetsgov-localhost.crt and .key
+if command_exists mkcert ; then
+  echo "${GREEN} * mkcert already installed.${RESET}"
+else
+  echo "${RED} * Installing mkcert. ${RESET}"
+  brew install mkcert
+  mkcert -install
+  echo "Remember that mkcert is meant for development purposes, not production, so it should not be used on end users' machines, and that you should not export or share rootCA-key.pem."
+fi
 
+if [ ! -f config/certs/localhost.crt ]; then
+  echo "${RED} * Installing localhost.crt.${RESET}"
+  mkcert localhost.ssl localhost 127.0.0.1 ::1
+  # If/when https://github.com/FiloSottile/mkcert/pull/77 is merged/released we can specify the file path in mkcert.
+  # in the meantime, move the files. Puma doesn't like the + in the file name.
+  mv localhost.ssl+3-key.pem config/certs/localhost.key
+  mv localhost.ssl+3.pem config/certs/localhost.crt
+else
+  echo "${GREEN} * config/certs/localhost.crt  installed.${RESET}"
+fi
+
+# Make vetsgov-localhost.crt and .key
 CERT_INSTALL_REQUIRED=false
 if [ ! -d ~/.certs ]; then
   mkdir ~/.certs

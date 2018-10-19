@@ -12,7 +12,6 @@ To start, fetch this code:
 
 1. Install [Docker for Mac](https://docs.docker.com/docker-for-mac/install/). This will configure both `docker` and `docker-compose`.
 1. Setup localhost certificates / keys:
-   - Create a folder in your vets-api directory:  `mkdir config/certs`
    - Copy the [certificate][certificate] to `config/certs/vetsgov-localhost.crt`
    - Copy the [key][key] to `config/certs/vetsgov-localhost.key`
    - *NOTE:* using `touch` to create blank cert and key files no longer works. 
@@ -36,6 +35,8 @@ they would be when running rails directly.
 
 The [Makefile](https://github.com/department-of-veterans-affairs/vets-api/blob/master/Makefile) has shortcuts for many common development tasks. You can still run manual [docker-compose commands](https://docs.docker.com/compose/),
 but the following tasks have been aliased to speed developlment:
+
+If you'd like to develop with SSL, ensure you have config/certs/localhost.crt and start the server wiht `bundle exec puma` rather than `bundle exec rails server`
 
 ### Running tests
 - `make spec` - Run the entire test suite via the docker image (alias for `rspec spec`)
