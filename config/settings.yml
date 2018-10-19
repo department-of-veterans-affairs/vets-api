@@ -287,6 +287,13 @@ saml:
     vagov: http://localhost:3001/logout
     preview_vagov: ~
 
+oidc:
+  auth_server_metadata_url: ~
+  issuer: ~
+  audience: ~
+  profile_api_url: ~
+  profile_api_token: ~
+
 sentry:
   dsn: ~
 
