@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class IndexBaseFacilitiesOnLocation < ActiveRecord::Migration
   disable_ddl_transaction!
 
