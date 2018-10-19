@@ -43,7 +43,13 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user, relay_state)
             when 'slo'
               authenticate
-              SAML::SettingsService.logout_url(session, relay_state)
+              # HACK HACK HACK - should figure out why relay_state logic is not working.
+              logout_url = SAML::SettingsService.logout_url(session, relay_state)
+              if request.cookies[Settings.sso.cookie_name].present?
+                logout_url.gsub('vets.gov', 'va.gov')
+              else
+                logout_url
+              end
             end
       render json: { url: url }
     end
