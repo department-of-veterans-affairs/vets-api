@@ -453,17 +453,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context 'when NoMethodError is encountered elsewhere' do
-        it 'redirects to adds context and re-raises the exception', :aggregate_failures do
-          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
-          expect(Raven).to receive(:extra_context).twice
-          expect(Raven).not_to receive(:user_context)
-          expect(Raven).not_to receive(:tags_context).once
-          expect(controller).not_to receive(:log_message_to_sentry)
-          post :saml_callback
-        end
-      end
-
       context 'when user clicked DENY' do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
