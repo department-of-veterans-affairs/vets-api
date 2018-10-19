@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
+require_dependency 'veteran_verification/application_controller'
+
 module VeteranVerification
   module V0
     class VeteranStatusController < ApplicationController
       before_action { authorize :emis, :access? }
+      before_action { permit_scopes %w[veteran_status.read] }
 
       def index
         render json: @current_user, serializer: VeteranVerification::VeteranStatusSerializer
