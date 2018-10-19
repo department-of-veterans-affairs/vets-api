@@ -303,7 +303,9 @@ describe MVI::Service do
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          expect(subject.find_profile(user))
+          expect(Raven).to receive(:extra_context).once
+          profile = subject.find_profile(user)
+          expect(profile)
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
         end
       end
