@@ -33,7 +33,7 @@ describe PdfFill::Forms::Va210781a do
         }
       end
       it 'should expand the ssn correctly' do
-        new_form_class.expand_ssn
+        new_form_class.send(:expand_ssn)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -57,7 +57,7 @@ describe PdfFill::Forms::Va210781a do
         }
       end
       it 'should expand veteran full name correctly' do
-        new_form_class.expand_veteran_full_name
+        new_form_class.send(:expand_veteran_full_name)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -80,7 +80,7 @@ describe PdfFill::Forms::Va210781a do
         }
       end
       it 'should expand the birth date correctly' do
-        new_form_class.expand_veteran_dob
+        new_form_class.send(:expand_veteran_dob)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -99,7 +99,7 @@ describe PdfFill::Forms::Va210781a do
       'incidentDate' => '2000-01-01'
     }
     it 'should expand the incident date correctly' do
-      expect(new_form_class.expand_incident_date(incident)).to eq(
+      expect(new_form_class.send(:expand_incident_date, incident)).to eq(
         'month' => '01',
         'day' => '01',
         'year' => '2000'
@@ -110,34 +110,31 @@ describe PdfFill::Forms::Va210781a do
   # rubocop:disable Metrics/LineLength
   describe '#expand_incident_location' do
     it 'should expand the incident location into three lines one word each' do
-      expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
-      )).to eq(
-        'row0' => 'abcdefghijklmnopqrs',
-        'row1' => 'xxxxxxxxxxxxxxxxxx',
-        'row2' => 'zzzzzzzzzzzzzzzzzzz'
-      )
+      expect(new_form_class.send(:expand_incident_location,
+                                 'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz')).to eq(
+                                   'row0' => 'abcdefghijklmnopqrs',
+                                   'row1' => 'xxxxxxxxxxxxxxxxxx',
+                                   'row2' => 'zzzzzzzzzzzzzzzzzzz'
+                                 )
     end
 
     it 'should expand the incident location into three lines multiple words' do
-      expect(new_form_class.expand_incident_location(
-               'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
-      )).to eq(
-        'row0' => 'abcd defg hijk lmno pqrs xxxx',
-        'row1' => 'yyyy zzzz aaaa bb cccc dddd',
-        'row2' => 'eeee ffff ggg'
-      )
+      expect(new_form_class.send(:expand_incident_location,
+                                 'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg')).to eq(
+                                   'row0' => 'abcd defg hijk lmno pqrs xxxx',
+                                   'row1' => 'yyyy zzzz aaaa bb cccc dddd',
+                                   'row2' => 'eeee ffff ggg'
+                                 )
     end
 
-    it 'should parse more than 90 characters' do
-      expect(JSON.parse(new_form_class.expand_incident_location(
-        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
-      ).to_json)).to eq(
-        'row0' => 'abcdefghijklmno',
-        'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
-        'row2' => 'rstuvwxyz1234',
-        'row3' => 'abcdefghijklmnopqrst',
-        'row4' => 'uvwxyz1234'
+    it 'should ignore more than 90 characters' do
+      expect(JSON.parse(new_form_class.send(:expand_incident_location,
+        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234').to_json)).to eq(
+          'row0' => 'abcdefghijklmno',
+          'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
+          'row2' => 'rstuvwxyz1234',
+          'row3' => 'abcdefghijklmnopqrst',
+          'row4' => 'uvwxyz1234'
       )
     end
   end
@@ -145,28 +142,29 @@ describe PdfFill::Forms::Va210781a do
 
   describe '#expand incident_unit_assignment' do
     it 'should expand the incident unit assignment into three lines one word each' do
-      expect(new_form_class.expand_incident_unit_assignment(
-               'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
-      )).to eq(
-        'row0' => 'abcdefghijklmnopqrs',
-        'row1' => 'xxxxxxxxxxxxxxxxxx',
-        'row2' => 'zzzzzzzzzzzzzzzzzzz'
-      )
+      expect(new_form_class.send(:expand_incident_unit_assignment,
+                                 'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz')).to eq(
+                                   'row0' => 'abcdefghijklmnopqrs',
+                                   'row1' => 'xxxxxxxxxxxxxxxxxx',
+                                   'row2' => 'zzzzzzzzzzzzzzzzzzz'
+                                 )
     end
 
     it 'should expand the incident unit assignment into three lines multiple words' do
-      expect(new_form_class.expand_incident_unit_assignment(
-               'unitAssigned' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
-      )).to eq(
-        'row0' => 'abcd defg hijk lmno pqrs xxxx',
-        'row1' => 'yyyy zzzz aaaa bb cccc dddd',
-        'row2' => 'eeee ffff ggg'
-      )
+      expect(new_form_class.send(:expand_incident_unit_assignment,
+                                 'unitAssigned' =>
+                                 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg')).to eq(
+                                   'row0' => 'abcd defg hijk lmno pqrs xxxx',
+                                   'row1' => 'yyyy zzzz aaaa bb cccc dddd',
+                                   'row2' => 'eeee ffff ggg'
+                                 )
     end
 
-    it 'should parse more than 90 characters' do
-      expect(JSON.parse(new_form_class.expand_incident_unit_assignment(
-        'unitAssigned' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+    it 'should ignore more than 90 characters' do
+      expect(JSON.parse(new_form_class.send(
+        :expand_incident_unit_assignment,
+        'unitAssigned' =>
+        'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
       ).to_json)).to eq(
         'row0' => 'abcdefghijklmno',
         'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
@@ -177,7 +175,7 @@ describe PdfFill::Forms::Va210781a do
     end
   end
 
-  describe '#expand_other_sources' do
+  describe '#combine_source_name_address' do
     it 'should expand sources correctly' do
       incident = {
         'source' => [{
@@ -197,7 +195,7 @@ describe PdfFill::Forms::Va210781a do
         }]
       }
 
-      expect(new_form_class.expand_other_sources(incident)).to eq(
+      expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
         'combinedName0' => 'Testy T Testerson',
         'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
       )
@@ -237,7 +235,7 @@ describe PdfFill::Forms::Va210781a do
                      }]
       }
 
-      expect(new_form_class.expand_other_sources(incident)).to eq(
+      expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
         'combinedName0' => 'Testy T Testerson',
         'combinedAddress0' => '123 Main Street, 1B, Baltimore, MD, 21200-1111, USA',
         'combinedName1' => 'Besty B Besterson',
@@ -249,14 +247,7 @@ describe PdfFill::Forms::Va210781a do
   # rubocop:disable Metrics/LineLength
   describe '#expand_incident_extras' do
     it 'incident information should handle no data' do
-      incident = {
-        'incidentLocation' => 'abc'
-      }
-
-      expect(JSON.parse(new_form_class.expand_incident_extras(incident, 0).to_json)).to eq(
-        'value' => '',
-        'extras_value' => "Incident Number: 0\n\nIncident Date: \n\nDates of Unit Assignment: \n\nIncident Location: \n\nabc\n\nUnit Assignment During Incident: \n\n\n\nDescription of Incident: \n\n\n\nOther Sources of Information: \n\n"
-      )
+      expect(new_form_class.send(:expand_incident_extras, {}, 0)).to be_nil
     end
   end
   # rubocop:enable Metrics/LineLength

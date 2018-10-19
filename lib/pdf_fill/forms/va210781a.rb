@@ -196,6 +196,20 @@ module PdfFill
         }
       }.freeze
 
+      def merge_fields
+        expand_veteran_full_name
+        expand_ssn
+        expand_veteran_dob
+        expand_incidents(@form_data['incident'])
+
+        expand_signature(@form_data['veteranFullName'])
+        @form_data['signature'] = '/es/ ' + @form_data['signature']
+
+        @form_data
+      end
+
+      private
+
       def expand_veteran_full_name
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
       end
@@ -273,7 +287,7 @@ module PdfFill
         unit_assigned_dates_overflow.nil? ? '' : unit_assigned_dates_overflow
       end
 
-      def expand_other_sources(incident)
+      def combine_source_name_address(incident)
         return if incident.blank?
 
         incident_sources = incident['source']
@@ -312,7 +326,7 @@ module PdfFill
       def expand_incident_extras(incident, index)
         return if incident.blank?
         incident_overflow = ["Incident Number: #{index}"]
-
+binding.pry
         incident_date = incident['incidentDate'].nil? ? '' : incident['incidentDate']
         incident_overflow.push('Incident Date: ' + incident_date)
 
@@ -341,20 +355,8 @@ module PdfFill
           expand_unit_assigned_dates(incident)
           expand_incident_location(incident)
           expand_incident_unit_assignment(incident)
-          expand_other_sources(incident)
+          combine_source_name_address(incident)
         end
-      end
-
-      def merge_fields
-        expand_veteran_full_name
-        expand_ssn
-        expand_veteran_dob
-        expand_incidents(@form_data['incident'])
-
-        expand_signature(@form_data['veteranFullName'])
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
-
-        @form_data
       end
     end
   end
