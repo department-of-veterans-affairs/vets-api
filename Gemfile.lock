@@ -865,7 +865,7 @@ GEM
       slop (~> 3.4)
     pry-nav (0.2.4)
       pry (>= 0.9.10, < 0.11.0)
-    puma (2.16.0)
+    puma (3.12.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     rack (1.6.10)
@@ -1127,7 +1127,7 @@ DEPENDENCIES
   pg
   prawn
   pry-nav
-  puma (~> 2.16.0)
+  puma
   pundit
   rack-attack
   rack-cors
@@ -1181,4 +1181,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.16.1
+   1.16.5
