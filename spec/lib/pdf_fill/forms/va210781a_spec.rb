@@ -129,13 +129,13 @@ describe PdfFill::Forms::Va210781a do
 
     it 'should ignore more than 90 characters' do
       expect(JSON.parse(new_form_class.send(:expand_incident_location,
-        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234').to_json)).to eq(
-          'row0' => 'abcdefghijklmno',
-          'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
-          'row2' => 'rstuvwxyz1234',
-          'row3' => 'abcdefghijklmnopqrst',
-          'row4' => 'uvwxyz1234'
-      )
+                                            'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234').to_json)).to eq(
+                                              'row0' => 'abcdefghijklmno',
+                                              'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
+                                              'row2' => 'rstuvwxyz1234',
+                                              'row3' => 'abcdefghijklmnopqrst',
+                                              'row4' => 'uvwxyz1234'
+                                            )
     end
   end
   # rubocop:enable Metrics/LineLength
@@ -243,8 +243,6 @@ describe PdfFill::Forms::Va210781a do
       )
     end
   end
-
-  # rubocop:disable Metrics/LineLength
   describe '#expand_incident_extras' do
     it 'incident information should handle no data' do
       expect(new_form_class.send(:expand_incident_extras, {}, 0)).to be_nil
