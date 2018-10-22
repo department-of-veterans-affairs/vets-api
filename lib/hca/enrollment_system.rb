@@ -207,8 +207,8 @@ module HCA
     def income_collection_total(income_collection)
       return 0 if income_collection.blank?
 
-      income_collection['income'].reduce(0) do |sum, collection|
-        sum + collection['amount']
+      income_collection['income'].reduce(BigDecimal.new(0)) do |sum, collection|
+        sum + BigDecimal.new(collection['amount'].to_s)
       end
     end
 
