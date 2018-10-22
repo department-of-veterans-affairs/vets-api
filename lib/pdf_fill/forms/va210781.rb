@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PdfFill
   module Forms
     class Va210781 < FormBase
@@ -32,7 +34,7 @@ module PdfFill
           },
           'third' => {
             key: 'form1[0].#subform[0].ClaimantsSocialSecurityNumber_LastFourNumbers[0]'
-            }
+          }
         },
         'veteranSocialSecurityNumber1' => {
           'first' => {
@@ -117,9 +119,7 @@ module PdfFill
         @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         @form_data
-
       end
-
     end
   end
 end

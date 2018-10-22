@@ -1,10 +1,10 @@
-#frozen_string_literal: true
+# frozen_string_literal: true
 
 require 'rails_helper'
 require 'pdf_fill/hash_converter'
 
 def basic_class
- PdfFill::Forms::Va210781a.new({})
+  PdfFill::Forms::Va210781a.new({})
 end
 
 describe PdfFill::Forms::Va210781 do
@@ -93,3 +93,4 @@ describe PdfFill::Forms::Va210781 do
       end
     end
   end
+end
