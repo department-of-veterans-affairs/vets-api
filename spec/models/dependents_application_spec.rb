@@ -49,9 +49,39 @@ RSpec.describe DependentsApplication, type: :model do
   end
 
   describe '.transform_form' do
-    it 'should merge the evss and submitted forms' do
-      form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
-      expect(form).to eq(get_fixture('dependents/transform_form'))
+    context 'spouse and children have ssns' do
+      it 'should merge the evss and submitted forms' do
+        form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
+        expect(form).to eq(get_fixture('dependents/transform_form'))
+      end
+    end
+
+    context 'spouse and children dont have ssns' do
+      let(:dependents_application) { build(:dependents_application) }
+
+      before do
+        form = dependents_application.parsed_form
+        form['dependents'].each do |dependent|
+          dependent.delete('childSocialSecurityNumber')
+          dependent['childHasNoSsnReason'] = 'NONRESIDENTALIEN'
+          dependent['childHasNoSsn'] = true
+        end
+
+        form['currentMarriage'].tap do |current_marriage|
+          current_marriage.delete('spouseSocialSecurityNumber')
+          current_marriage['spouseHasNoSsnReason'] = 'NONRESIDENTALIEN'
+          current_marriage['spouseHasNoSsn'] = true
+        end
+
+        dependents_application.form = form.to_json
+        dependents_application.instance_variable_set(:@parsed_form, nil)
+        dependents_application.save!
+      end
+
+      it 'should merge the forms' do
+        binding.pry; fail
+
+      end
     end
   end
 
