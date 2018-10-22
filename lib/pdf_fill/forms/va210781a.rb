@@ -326,7 +326,7 @@ module PdfFill
       def expand_incident_extras(incident, index)
         return if incident.blank?
         incident_overflow = ["Incident Number: #{index}"]
-binding.pry
+
         incident_date = incident['incidentDate'].nil? ? '' : incident['incidentDate']
         incident_overflow.push('Incident Date: ' + incident_date)
 
