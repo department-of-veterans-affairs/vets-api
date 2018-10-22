@@ -1,0 +1,125 @@
+{
+  "vaFileNumber": "12345678",
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranFullName": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson"
+  },
+  "veteranDateOfBirth": "1981-11-05",
+  "veteranServiceNumber": "987654321",
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": "2123456789",
+  "veteranSecondaryPhone": "3133456789",
+  "incident": [{
+    "incidentDate": "2000-01-01",
+    "unitAssignedDates": {
+      "from": "2001-01-01",
+      "to": "2002-02-02"
+    },
+    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
+    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+    "incidentDescription": "Lorem ipsum dolor sit amet.",
+    "source": [{
+      "name": {
+        "first": "Testy",
+        "middle": "Tester",
+        "last": "Testerson"
+      },
+      "address": {
+        "street": "123 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    },
+    {
+      "name": {
+        "first": "Dusty",
+        "middle": "Tester",
+        "last": "Testerson"
+      },
+      "address": {
+        "street": "789 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    },
+    {
+      "name": {
+        "first": "Trusty",
+        "middle": "Tester",
+        "last": "Testerson"
+      },
+      "address": {
+        "street": "100 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    }]
+  },
+  {
+    "incidentDate": "2000-01-01",
+    "unitAssignedDates": {
+      "from": "2001-01-01",
+      "to": "2002-02-02"
+    },
+    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
+    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+    "incidentDescription": "Lorem ipsum dolor sit amet.",
+    "source": [{
+      "name": {
+        "first": "Testy",
+        "middle": "Tester",
+        "last": "Testerson"
+      },
+      "address": {
+        "street": "123 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    },
+    {
+      "name": {
+        "first": "Dusty",
+        "middle": "Tester",
+        "last": "Testerson"
+      },
+      "address": {
+        "street": "789 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    },
+    {
+      "name": {
+        "first": "Trusty",
+        "middle": "Tester",
+        "last": "Testerson"
+      },
+      "address": {
+        "street": "100 Main Street",
+        "street2": "1B",
+        "city": "Baltimore",
+        "state": "MD",
+        "country": "USA",
+        "postalCode": "21200-1111"
+      }
+    }]
+  }],
+  "otherInformation": "Lorem ipsum dolor sit amet."
+}
