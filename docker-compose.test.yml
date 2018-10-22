@@ -3,7 +3,7 @@ services:
   redis:
     image: redis:3.2-alpine
   postgres:
-    image: postgres:9.6-alpine
+    image: mdillon/postgis:9.6-alpine 
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
