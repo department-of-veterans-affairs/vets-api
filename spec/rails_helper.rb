@@ -50,6 +50,21 @@ def with_settings(settings, temp_values)
   end
 end
 
+def with_okta_configured(&block)
+  with_settings(
+    Settings.oidc,
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+    issuer: 'https://example.com/oauth2/default',
+    audience: 'api://default',
+    profile_api_url: 'https://example.com/api/v1/users/',
+    profile_api_token: 'token'
+  ) do
+    VCR.use_cassette('okta/metadata') do
+      yield block
+    end
+  end
+end
+
 VCR::MATCH_EVERYTHING = { match_requests_on: %i[method uri headers body] }.freeze
 
 VCR.configure do |c|
