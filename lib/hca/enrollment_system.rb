@@ -204,6 +204,14 @@ module HCA
       }.merge(convert_full_name_alt(veteran['spouseFullName']))
     end
 
+    def income_collection_total(income_collection)
+      return 0 if income_collection.blank?
+
+      income_collection['income'].reduce(0) do |sum, collection|
+        sum + collection['amount']
+      end
+    end
+
     def resource_to_income_collection(resource)
       income_collection = []
 
@@ -271,8 +279,10 @@ module HCA
     end
 
     def dependent_financials_info(dependent)
+      incomes = resource_to_income_collection(dependent)
+
       {
-        'incomes' => resource_to_income_collection(dependent),
+        'incomes' => incomes,
         'expenses' => resource_to_expense_collection(dependent),
         'dependentInfo' => dependent_info(dependent),
         'livedWithPatient' => dependent['cohabitedLastYear'].present?,

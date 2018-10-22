@@ -427,6 +427,36 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'income_collection_total',
+    [
+      [
+        [nil],
+        0
+      ],
+      [
+        {
+          'income' => [
+            {
+              'amount' => 991.9,
+              'type' => 7
+            },
+            {
+              'amount' => 981.2,
+              'type' => 13
+            },
+            {
+              'amount' => 91.9,
+              'type' => 10
+            }
+          ]
+        },
+        2065
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'resource_to_income_collection',
     [
       [
