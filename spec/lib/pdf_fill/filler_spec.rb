@@ -1,6 +1,8 @@
 require 'rails_helper'
 # frozen_string_literal: true
 
+PDF_FORMS = PdfForms.new(Settings.binaries.pdftk)
+
 describe PdfFill::Filler do
   include SchemaMatchers
 
@@ -107,40 +109,42 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142].each do |form_id|
-      %w[simple kitchen_sink overflow].each do |type|
-        context "with #{type} test data" do
-          let(:form_data) do
-            get_fixture("pdf_fill/#{form_id}/#{type}")
-          end
-
-          it 'should fill the form correctly' do
-            if type == 'overflow'
-              # compare_pdfs only compares based on filled fields, it doesn't read the extras page
-              the_extras_generator = nil
-              expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
-                the_extras_generator = extras_generator
-                old_file_path
-              end
+    %w[21-4142 21-0781a].each do |form_id|
+      context "form #{form_id}" do
+        %w[simple kitchen_sink].each do |type|
+          context "with #{type} test data" do
+            let(:form_data) do
+              get_fixture("pdf_fill/#{form_id}/#{type}")
             end
 
-            file_path = described_class.fill_ancillary_form(form_data, 1, form_id)
+            it 'should fill the form correctly' do
+              if type == 'overflow'
+                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+                the_extras_generator = nil
+                expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
+                  the_extras_generator = extras_generator
+                  old_file_path
+                end
+              end
 
-            if type == 'overflow'
-              extras_path = the_extras_generator.generate
+              file_path = described_class.fill_ancillary_form(form_data, 1, form_id)
+
+              if type == 'overflow'
+                extras_path = the_extras_generator.generate
+
+                expect(
+                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                ).to eq(true)
+
+                File.delete(extras_path)
+              end
 
               expect(
-                FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
-              File.delete(extras_path)
+              File.delete(file_path)
             end
-
-            expect(
-              compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-            ).to eq(true)
-
-            File.delete(file_path)
           end
         end
       end
