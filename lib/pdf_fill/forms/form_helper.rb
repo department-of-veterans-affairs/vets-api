@@ -76,6 +76,11 @@ module PdfFill
         }
         split_date
       end
+
+      def combine_date_ranges(date_range_array)
+        return if date_range_array.nil?
+        date_range_array.map { |r| 'from: ' + r['from'] + ' to: ' + r['to'] if r }.join("\n")
+      end
     end
   end
 end
