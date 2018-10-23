@@ -116,7 +116,7 @@ FactoryBot.define do
               state: 'KY',
               postalCode: '40292'
             },
-            personWhoLivesWithChild: { # TODO remove?
+            personWhoLivesWithChild: {
               first: 'Test',
               last: 'User'
             },
@@ -126,7 +126,7 @@ FactoryBot.define do
               state: 'NY'
             },
             childSocialSecurityNumber: '111223333',
-            childRelationship: 'biological', #TODO ask
+            childRelationship: 'biological',
             attendingCollege: true,
             disabled: true,
             marriedDate: '2016-12-15',
