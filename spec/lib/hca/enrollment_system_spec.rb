@@ -496,6 +496,23 @@ describe HCA::EnrollmentSystem do
             'educationExpense' => 200,
             'funeralExpense' => 200
           },
+          5000
+        ],
+        {
+          'expense' => [
+            {"amount"=>200, "expenseType"=>"3"},
+            {"amount"=>999.11, "expenseType"=>"16"},
+            {"amount"=>200, "expenseType"=>"19"}
+          ]
+        }
+      ],
+      [
+        [
+          {
+            'dependentEducationExpenses' => 999.11,
+            'educationExpense' => 200,
+            'funeralExpense' => 200
+          },
           1000
         ],
         {
