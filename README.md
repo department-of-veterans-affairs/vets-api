@@ -126,6 +126,23 @@ following command:
 
 - `make rebuild` - Rebuild the `vets_api` image.
 
+### Migrations fail to run
+
+```
+PG::UndefinedFile: ERROR:  could not open extension control file 
+"/usr/local/share/postgresql/extension/postgis.control": No such 
+file or directory
+```
+
+You need to install postgis. You can do that either by making sure your docker 
+setup is pulling the latest postgresql containers or by installing postgis 
+for your native postgresql setup.
+
+On OS X with homebrew it's a `brew install postgis` followed by a `brew 
+services restart postgresql`.
+
+On Ubuntu it should be `apt install postgis` then `systemctl restart postgresql`
+
 ### Authentication required for enterprise.contribsys.com
 
 ```
