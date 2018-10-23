@@ -30,50 +30,6 @@
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
-  "incident": [{
-    "incidentDate":{"month":"01", "day": "01", "year": "2000"}, 
-    "unitAssignedDates": {
-      "fromMonth": "01", "fromDay": "01", "fromYear": "2001", "toMonth": "02", "toDay": "02", "toYear": "2002"
-    }, 
-    "incidentLocation": {
-      "firstRow": "abcdefghijklmn", "secondRow": "opqrstuvwxyz1234a", "thirdRow": "bpqrstuvwxyz1234a"
-    }, 
-    "unitAssigned": {
-      "firstRow": "abcdefghijklmn", "secondRow": "opqrstuvwxyz1234a", "thirdRow": "bpqrstuvwxyz1234a"
-    }, 
-    "incidentDescription": "Lorem ipsum dolor sit amet.", 
-    "source": {
-      "combinedName0": "Testy Tester Testerson", 
-      "combinedAddress0": "123 Main Street, 1B, Baltimore, MD, 21200-1111, USA", 
-      "combinedName1": "Dusty Tester Testerson", 
-      "combinedAddress1": "789 Main Street, 1B, Baltimore, MD, 21200-1111, USA", 
-      "combinedName2": "Trusty Tester Testerson", 
-      "combinedAddress2": "100 Main Street, 1B, Baltimore, MD, 21200-1111, USA"
-    }
-  }, 
-  {
-    "incidentDate": {
-      "month": "01", "day": "01", "year": "2000"
-    }, 
-    "unitAssignedDates": {
-      "fromMonth": "01", "fromDay": "01", "fromYear": "2001", "toMonth": "02", "toDay": "02", "toYear": "2002"
-    }, 
-    "incidentLocation": {
-      "firstRow": "abcdefghijklmn", "secondRow": "opqrstuvwxyz1234a", "thirdRow": "bpqrstuvwxyz1234a"
-    }, 
-    "unitAssigned": {
-      "firstRow": "abcdefghijklmn", "secondRow": "opqrstuvwxyz1234a", "thirdRow": "bpqrstuvwxyz1234a"
-    }, 
-    "incidentDescription": "Lorem ipsum dolor sit amet.", 
-    "source": {
-      "combinedName0": "Testy Tester Testerson", 
-      "combinedAddress0": "123 Main Street, 1B, Baltimore, MD, 21200-1111, USA", 
-      "combinedName1": "Dusty Tester Testerson", 
-      "combinedAddress1": "789 Main Street, 1B, Baltimore, MD, 21200-1111, USA", 
-      "combinedName2": "Trusty Tester Testerson", 
-      "combinedAddress2": "100 Main Street, 1B, Baltimore, MD, 21200-1111, USA"
-    }
-  }],
   "otherInformation": "Lorem ipsum dolor sit amet.",
   "signature": "/es/ Testy Testerson",
   "signatureDate": "2016-12-31"
