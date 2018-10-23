@@ -282,8 +282,8 @@ module PdfFill
         incident['unitAssigned'] = split_incident_unit_assignment
       end
 
-      def get_unit_date_extras(unit_assigned_dates)
-        unit_assigned_dates_overflow = combine_extra_date_ranges(unit_assigned_dates)
+      def get_unit_date_overflow(unit_assigned_dates)
+        unit_assigned_dates_overflow = combine_date_ranges(unit_assigned_dates)
         unit_assigned_dates_overflow.nil? ? '' : unit_assigned_dates_overflow
       end
 
@@ -304,7 +304,7 @@ module PdfFill
         incident['source'] = combined_sources
       end
 
-      def combine_other_sources_extras(incident)
+      def combine_other_sources_overflow(incident)
         return if incident.blank? || incident['source'].blank?
 
         sources = incident['source']
@@ -318,19 +318,19 @@ module PdfFill
         overflow_sources.join(" \n\n ")
       end
 
-      def format_sources_extras(incident)
-        other_sources_overflow = combine_other_sources_extras(incident)
+      def format_sources_overflow(incident)
+        other_sources_overflow = combine_other_sources_overflow(incident)
         other_sources_overflow.nil? ? '' : other_sources_overflow
       end
 
-      def expand_incident_extras(incident, index)
+      def expand_incident_overflow(incident, index)
         return if incident.blank?
         incident_overflow = ["Incident Number: #{index}"]
 
         incident_date = incident['incidentDate'].nil? ? '' : incident['incidentDate']
         incident_overflow.push('Incident Date: ' + incident_date)
 
-        incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_extras([incident['unitAssignedDates']]))
+        incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_overflow([incident['unitAssignedDates']]))
 
         incident_location = incident['incidentLocation'].nil? ? '' : incident['incidentLocation']
         incident_overflow.push("Incident Location: \n\n" + incident_location)
@@ -341,7 +341,7 @@ module PdfFill
         incident_description = incident['incidentDescription'].nil? ? '' : incident['incidentDescription']
         incident_overflow.push("Description of Incident: \n\n" + incident_description)
 
-        incident_overflow.push("Other Sources of Information: \n\n" + format_sources_extras(incident))
+        incident_overflow.push("Other Sources of Information: \n\n" + format_sources_overflow(incident))
 
         incident['incidentOverflow'] = PdfFill::FormValue.new('', incident_overflow.compact.join("\n\n"))
       end
@@ -350,7 +350,7 @@ module PdfFill
         return if incidents.blank?
 
         incidents.each_with_index do |incident, index|
-          expand_incident_extras(incident, index + 1)
+          expand_incident_overflow(incident, index + 1)
           expand_incident_date(incident)
           expand_unit_assigned_dates(incident)
           expand_incident_location(incident)
