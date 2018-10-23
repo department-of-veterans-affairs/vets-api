@@ -321,7 +321,7 @@ module PdfFill
         providers.each do |provider|
           name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
           provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
-          dates_extras = combine_extra_date_ranges(provider['treatmentDateRange'])
+          dates_extras = combine_date_ranges(provider['treatmentDateRange'])
           provider['combinedTreatmentDates'] = PdfFill::FormValue.new('', dates_extras)
         end
       end

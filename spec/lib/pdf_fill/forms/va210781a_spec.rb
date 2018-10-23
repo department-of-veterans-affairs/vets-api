@@ -243,9 +243,9 @@ describe PdfFill::Forms::Va210781a do
       )
     end
   end
-  describe '#expand_incident_extras' do
+  describe '#expand_incident_overflow' do
     it 'incident information should handle no data' do
-      expect(new_form_class.send(:expand_incident_extras, {}, 0)).to be_nil
+      expect(new_form_class.send(:expand_incident_overflow, {}, 0)).to be_nil
     end
   end
   # rubocop:enable Metrics/LineLength

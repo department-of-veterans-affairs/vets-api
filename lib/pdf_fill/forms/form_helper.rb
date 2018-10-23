@@ -77,12 +77,12 @@ module PdfFill
         split_date
       end
 
-      def combine_extra_date_ranges(date_range_array)
+      def combine_date_ranges(date_range_array)
         return if date_range_array.nil?
         extras_ranges = []
-        date_range_array.each do |range|
-          next if range.nil?
-          extras_ranges.push('from: ' + range['from'] + ' to: ' + range['to'])
+
+        date_range_array.map do |range|
+          extras_ranges.push('from: ' + range['from'] + ' to: ' + range['to']) if range
         end
         extras_ranges.join("\n")
       end
