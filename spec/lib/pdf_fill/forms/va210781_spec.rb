@@ -33,7 +33,7 @@ describe PdfFill::Forms::Va210781 do
         }
       end
       it 'should expand the ssn correctly' do
-        new_form_class.expand_ssn
+        new_form_class.send(:expand_ssn)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -57,7 +57,7 @@ describe PdfFill::Forms::Va210781 do
         }
       end
       it 'should expand veteran full name correctly' do
-        new_form_class.expand_veteran_full_name
+        new_form_class.send(:expand_veteran_full_name)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -80,7 +80,7 @@ describe PdfFill::Forms::Va210781 do
         }
       end
       it 'should expand the birth date correctly' do
-        new_form_class.expand_veteran_dob
+        new_form_class.send(:expand_veteran_dob)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(

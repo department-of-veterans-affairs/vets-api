@@ -177,20 +177,41 @@ module EVSS
 
         case pciu_address['type']
         when 'DOMESTIC'
-          pciu_address['city'] = address['city']
-          pciu_address['state'] = address['state']
-          pciu_address['zipFirstFive'] = zip_code.first
-          pciu_address['zipLastFour'] = zip_code.last
+          pciu_address.merge!(set_domestic_address(address, zip_code))
         when 'MILITARY'
-          pciu_address['militaryPostOfficeTypeCode'] = address['city']
-          pciu_address['militaryStateCode'] = address['state']
-          pciu_address['zipFirstFive'] = zip_code.first
-          pciu_address['zipLastFour'] = zip_code.last
+          pciu_address.merge!(set_military_address(address, zip_code))
         when 'INTERNATIONAL'
-          pciu_address['city'] = address['city']
+          pciu_address.merge!(set_international_address(address))
         end
 
         pciu_address.compact
+      end
+
+      def set_domestic_address(address, zip_code)
+        {
+          'city' => address['city'],
+          'state' => address['state'],
+          'zipFirstFive' => zip_code.first,
+          'zipLastFour' => zip_code.last
+        }
+      end
+
+      def set_military_address(address, zip_code)
+        {
+          'militaryPostOfficeTypeCode' => address['city'],
+          'militaryStateCode' => address['state'],
+          'zipFirstFive' => zip_code.first,
+          'zipLastFour' => zip_code.last
+        }
+      end
+
+      def set_international_address(address)
+        postal_codes = JSON.parse(File.read(Settings.evss.international_postal_codes))
+
+        {
+          'internationalPostalCode' => postal_codes[address['country']],
+          'city' => address['city']
+        }
       end
 
       def get_address_type(address)

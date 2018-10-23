@@ -92,6 +92,19 @@ module PdfFill
         }
       }.freeze
 
+      def merge_fields
+        expand_veteran_full_name
+        expand_ssn
+        expand_veteran_dob
+
+        expand_signature(@form_data['veteranFullName'])
+        @form_data['signature'] = '/es/ ' + @form_data['signature']
+
+        @form_data
+      end
+
+      private
+
       def expand_veteran_full_name
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
       end
@@ -108,17 +121,6 @@ module PdfFill
         veteran_date_of_birth = @form_data['veteranDateOfBirth']
         return if veteran_date_of_birth.blank?
         @form_data['veteranDateOfBirth'] = split_date(veteran_date_of_birth)
-      end
-
-      def merge_fields
-        expand_veteran_full_name
-        expand_ssn
-        expand_veteran_dob
-
-        expand_signature(@form_data['veteranFullName'])
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
-
-        @form_data
       end
     end
   end
