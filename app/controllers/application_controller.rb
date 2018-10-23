@@ -22,7 +22,7 @@ class ApplicationController < ActionController::API
   ].freeze
 
   before_action :authenticate
-  before_action :set_api_cookie
+  before_action :set_api_cookie!
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]

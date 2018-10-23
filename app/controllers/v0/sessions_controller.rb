@@ -91,7 +91,6 @@ module V0
         # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
         set_sso_cookie!
 
-        binding.pry
         redirect_to saml_login_relay_url + '?token=' + @session_object.token
         after_login_actions
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
