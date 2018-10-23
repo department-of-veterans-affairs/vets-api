@@ -8,7 +8,8 @@ module PdfFill
     FORM_CLASSES = {
       '21P-527EZ' => PdfFill::Forms::Va21p527ez,
       '21P-530' => PdfFill::Forms::Va21p530,
-      '21-4142' => PdfFill::Forms::Va214142
+      '21-4142' => PdfFill::Forms::Va214142,
+      '21-0781a' => PdfFill::Forms::Va210781a
     }.freeze
 
     def combine_extras(old_file_path, extras_generator)
