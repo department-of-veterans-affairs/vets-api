@@ -18,11 +18,11 @@ module EVSS
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
         TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
-        log_message_to_sentry(
-          "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
-          :error
+        Rails.logger.send(
+          :error,
+          "Failed all retries on Form526 submit, last error: #{msg['error_message']}"
         )
-        Metrics.new(self.class::STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
+        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
