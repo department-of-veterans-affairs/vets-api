@@ -6,6 +6,8 @@ module EVSS
       include Sidekiq::Worker
       include JobStatus
 
+      TRANSACTION_CLASS = AsyncTransaction::EVSS::VA526ezSubmitTransaction
+
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
       RETRY = 13
@@ -15,12 +17,12 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        transaction_class.update_transaction(msg['jid'], :exhausted)
+        TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
         log_message_to_sentry(
           "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
           :error
         )
-        metrics.increment_exhausted
+        Metrics.new(self.class::STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -41,6 +43,9 @@ module EVSS
         @submission_id = transaction.submission.id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
+          # Subclass is expected to implement #service
+          # `increase only` and `all claims` will have separate EVSS services endpoints
+          # TODO: sub classed #service can be removed once `increase only` has been deprecated
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
           success_handler(response)
         end
@@ -53,16 +58,16 @@ module EVSS
       private
 
       def find_or_create_transaction
-        transaction = transaction_class.find_transaction(jid)
+        transaction = TRANSACTION_CLASS.find_transaction(jid)
         return transaction if transaction.present?
-        saved_claim(@saved_claim_id).async_transaction = transaction_class.start(
+        saved_claim(@saved_claim_id).async_transaction = TRANSACTION_CLASS.start(
           @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
         )
       end
 
       def success_handler(response)
         submission_rate_limiter.increment
-        transaction_class.update_transaction(jid, :received, response.attributes)
+        TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
 
         perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
         perform_submit_form_4142(response) if @submission_data['form4142'].present?
@@ -87,12 +92,12 @@ module EVSS
 
       def non_retryable_error_handler(error)
         message = error.try(:messages) || { error: error.message }
-        transaction_class.update_transaction(jid, :non_retryable_error, message)
+        TRANSACTION_CLASS.update_transaction(jid, :non_retryable_error, message)
         super(error)
       end
 
       def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error: error.message)
+        TRANSACTION_CLASS.update_transaction(jid, :retrying, error: error.message)
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
@@ -105,10 +110,6 @@ module EVSS
 
       def saved_claim(saved_claim_id)
         SavedClaim::DisabilityCompensation.find(saved_claim_id)
-      end
-
-      def transaction_class
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction
       end
 
       def submission_rate_limiter
