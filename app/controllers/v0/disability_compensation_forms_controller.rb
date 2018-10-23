@@ -34,6 +34,7 @@ module V0
              status: :ok
     end
 
+    # :nocov:
     def submit_all_claim
       # TODO: While testing `all claims` submissions we will be merging the submission
       # with a hard coded "completed" form which will gap fill any missing data. This should
@@ -51,6 +52,7 @@ module V0
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
     end
+    # :nocov:
 
     def submission_status
       submission = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(params[:job_id])
