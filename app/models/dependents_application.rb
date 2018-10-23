@@ -160,6 +160,7 @@ class DependentsApplication < Common::RedisStore
     end
 
     child.merge!(convert_ssn(dependent['childSocialSecurityNumber']))
+    child['childRelationshipType'] = dependent['childRelationship']&.upcase
 
     [
       ['attendedSchool', 'attendingCollege'],

@@ -67,6 +67,7 @@
           "cityOfBirth": "new york",
           "stateOfBirth": "NY",
           "ssn": "111-22-3333",
+          "childRelationshipType": "BIOLOGICAL",
           "attendedSchool": true,
           "disabled": true,
           "married": true,
