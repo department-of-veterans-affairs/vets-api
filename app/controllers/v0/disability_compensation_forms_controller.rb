@@ -16,21 +16,35 @@ module V0
       render json: results, each_serializer: DisabilityContentionSerializer
     end
 
+    # Submission path for `form526 increase only`
+    # TODO: This is getting deprecated in favor of `form526 all claims` (defined below)
+    #       and can eventually be removed completely
     def submit
       form_content = JSON.parse(request.body.string)
 
-      # TODO: While testing `all claims` submissions we will be merging the submission
-      # with a hard coded "completed" form which will gap fill any missing data. This should
-      # be removed before `all claims` goes live.
-      form_content = all_claims_integration(form_content) if form_content.key?('form526AllClaims')
-
-      # TODO: Once `all_claims` is finalized and the test form is removed, the form assignment will
-      # need to be normalized from `form526` to whatever the finalized form id is
-      saved_claim = SavedClaim::DisabilityCompensation.from_hash(form_content)
+      saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission_data = saved_claim.to_submission_data(@current_user)
 
-      jid = EVSS::DisabilityCompensationForm::SubmitForm526.perform_async(
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly.perform_async(
+        @current_user.uuid, auth_headers, saved_claim.id, submission_data
+      )
+
+      render json: { data: { attributes: { job_id: jid } } },
+             status: :ok
+    end
+
+    def submit_all_claim
+      # TODO: While testing `all claims` submissions we will be merging the submission
+      # with a hard coded "completed" form which will gap fill any missing data. This should
+      # be removed before `all claims` goes live.
+      form_content = all_claims_integration(JSON.parse(request.body.string))
+
+      saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      submission_data = saved_claim.to_submission_data(@current_user)
+
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(
         @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
@@ -61,8 +75,6 @@ module V0
     end
 
     def all_claims_integration(form)
-      form['form526'] = form.delete('form526AllClaims')
-
       test_form = JSON.parse(File.read(Settings.evss.all_claims_submission))
 
       # `deep_merge` will recursively replace any key values that have been included
