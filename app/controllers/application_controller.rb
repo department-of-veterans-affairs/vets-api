@@ -150,7 +150,7 @@ class ApplicationController < ActionController::API
     encrypted_value = encryptor.encrypt(contents)
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
-      expires: @session.ttl_in_time,
+      expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
       secure: Rails.env.production?,
       httponly: true,
       domain: cookie_domain
