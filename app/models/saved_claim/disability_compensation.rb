@@ -12,8 +12,6 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   alias_attribute :submission, :disability_compensation_submission
 
-  add_form_and_validation('21-526EZ')
-
   attr_writer :form_hash
 
   def self.from_hash(hash)
@@ -30,8 +28,11 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
     form526_uploads = form526['form526'].delete('attachments')
 
+    # Subclass is expected to implement #translate_data
+    # data translations depends on which version of the form is used
+    # TODO: #translate_data can be removed once `increase only` has been deprecated
     {
-      'form526' => EVSS::DisabilityCompensationForm::DataTranslation.new(user, form526).translate,
+      'form526' => translate_data(user, form526),
       'form526_uploads' => form526_uploads,
       'form4142' => form4142
     }
