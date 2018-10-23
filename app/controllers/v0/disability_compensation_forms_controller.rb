@@ -76,6 +76,7 @@ module V0
       EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
     end
 
+    # :nocov:
     def all_claims_integration(form)
       test_form = JSON.parse(File.read(Settings.evss.all_claims_submission))
 
@@ -83,6 +84,7 @@ module V0
       # in the submitted form
       test_form.deep_merge(form)
     end
+    # :nocov:
 
     def validate_name_part
       raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
