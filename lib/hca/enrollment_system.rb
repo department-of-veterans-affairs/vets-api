@@ -237,6 +237,7 @@ module HCA
       }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def resource_to_expense_collection(resource, income_total)
       expense_collection = []
       expense_total = BigDecimal.new(0)
@@ -274,6 +275,7 @@ module HCA
         'expense' => expense_collection
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def dependent_relationship_to_sds_code(dependent_relationship)
       DEPENDENT_RELATIONSHIP_CODES[dependent_relationship]
@@ -488,6 +490,7 @@ module HCA
       }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def veteran_to_financials_info(veteran)
       return unless financial_flag?(veteran)
 
@@ -516,6 +519,7 @@ module HCA
         }
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def relationship_to_contact_type(relationship)
       RELATIONSHIP_CODES[relationship]
