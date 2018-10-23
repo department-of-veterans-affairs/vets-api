@@ -81,6 +81,7 @@ evss:
   prefill: true
   url: https://csraciapp6.evss.srarad.com
   service_name: "wss-form526-services-web"
+  alternate_service_name: "wss-form526-services-web-v2"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
