@@ -500,9 +500,9 @@ describe HCA::EnrollmentSystem do
         ],
         {
           'expense' => [
-            {"amount"=>200, "expenseType"=>"3"},
-            {"amount"=>999.11, "expenseType"=>"16"},
-            {"amount"=>200, "expenseType"=>"19"}
+            { 'amount' => 200, 'expenseType' => '3' },
+            { 'amount' => 999.11, 'expenseType' => '16' },
+            { 'amount' => 200, 'expenseType' => '19' }
           ]
         }
       ],
@@ -517,8 +517,8 @@ describe HCA::EnrollmentSystem do
         ],
         {
           'expense' => [
-            {"amount"=>200, "expenseType"=>"3"},
-            {"amount"=>800.0, "expenseType"=>"16"}
+            { 'amount' => 200, 'expenseType' => '3' },
+            { 'amount' => 800.0, 'expenseType' => '16' }
           ]
         }
       ]
