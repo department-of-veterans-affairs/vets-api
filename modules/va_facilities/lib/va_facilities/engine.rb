@@ -5,8 +5,7 @@ module VaFacilities
     isolate_namespace VaFacilities
 
     rake_tasks do
-      Dir[File.join(root.to_s, "/lib/tasks/", "**/*.rake")].each do |file|
-        p file
+      Dir[File.join(root.to_s, '/lib/tasks/', '**/*.rake')].each do |file|
         load file
       end
     end
