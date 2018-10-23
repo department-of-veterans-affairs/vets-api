@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       post 'submit'
+      post 'submit_all_claim'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
       get 'user_submissions'
       get 'suggested_conditions'
