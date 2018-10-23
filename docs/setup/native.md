@@ -6,6 +6,7 @@ If you can run docker, use the [Base Setup](/README.md#base-setup) instructions.
 
 Vets API requires:
 - PostgreSQL
+    - Including PostGIS
 - Redis
 - Ruby 2.3
 
