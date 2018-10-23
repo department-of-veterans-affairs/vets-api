@@ -66,6 +66,8 @@
           },
           "cityOfBirth": "new york",
           "stateOfBirth": "NY",
+          "guardianFirstName": "Test",
+          "guardianLastName": "User",
           "ssn": "111-22-3333",
           "childRelationshipType": "BIOLOGICAL",
           "attendedSchool": true,

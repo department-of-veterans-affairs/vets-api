@@ -159,6 +159,12 @@ class DependentsApplication < Common::RedisStore
       child['stateOfBirth'] = place_of_birth['state']
     end
 
+    (dependent['personWhoLivesWithChild'] || {}).tap do |guardian|
+      child['guardianFirstName'] = guardian['first']
+      child['guardianMiddleName'] = guardian['middle']
+      child['guardianLastName'] = guardian['last']
+    end
+
     child.merge!(convert_ssn(dependent['childSocialSecurityNumber']))
     child['childRelationshipType'] = dependent['childRelationship']&.upcase
 
