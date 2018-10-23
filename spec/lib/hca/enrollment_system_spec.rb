@@ -490,12 +490,19 @@ describe HCA::EnrollmentSystem do
     'resource_to_expense_collection',
     [
       [
-        { 'dependentEducationExpenses' => 1198.11 },
+        [
+          {
+            'dependentEducationExpenses' => 999.11,
+            'educationExpense' => 200,
+            'funeralExpense' => 200
+          },
+          1000
+        ],
         {
-          'expense' => [{
-            'amount' => 1198.11,
-            'expenseType' => '16'
-          }]
+          'expense' => [
+            {"amount"=>200, "expenseType"=>"3"},
+            {"amount"=>800.0, "expenseType"=>"16"}
+          ]
         }
       ]
     ]

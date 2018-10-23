@@ -237,8 +237,9 @@ module HCA
       }
     end
 
-    def resource_to_expense_collection(resource)
+    def resource_to_expense_collection(resource, income_total)
       expense_collection = []
+      expense_total = BigDecimal.new(0)
 
       [
         %w[educationExpense 3],
@@ -249,10 +250,21 @@ module HCA
         expense = resource[expense_type[0]]
 
         if expense.present?
+          new_expense_total = expense_total + BigDecimal.new(expense.to_s)
+          expenses_exceeded = new_expense_total > income_total
+
+          if expenses_exceeded
+            expense = (income_total - expense_total).to_f
+          else
+            expense_total = new_expense_total
+          end
+
           expense_collection << {
             'amount' => expense,
             'expenseType' => expense_type[1]
           }
+
+          break if expenses_exceeded
         end
       end
 
@@ -283,7 +295,7 @@ module HCA
 
       {
         'incomes' => incomes,
-        'expenses' => resource_to_expense_collection(dependent),
+        'expenses' => resource_to_expense_collection(dependent, income_collection_total(incomes)),
         'dependentInfo' => dependent_info(dependent),
         'livedWithPatient' => dependent['cohabitedLastYear'].present?,
         'incapableOfSelfSupport' => dependent['disabledBefore18'].present?,
@@ -479,19 +491,24 @@ module HCA
     def veteran_to_financials_info(veteran)
       return unless financial_flag?(veteran)
 
+      incomes = resource_to_income_collection(
+        'grossIncome' => veteran['veteranGrossIncome'],
+        'netIncome' => veteran['veteranNetIncome'],
+        'otherIncome' => veteran['veteranOtherIncome']
+      )
+
       {
         'incomeTest' => { 'discloseFinancialInformation' => true },
         'financialStatement' => {
           'expenses' => resource_to_expense_collection(
-            'educationExpense' => veteran['deductibleEducationExpenses'],
-            'funeralExpense' => veteran['deductibleFuneralExpenses'],
-            'medicalExpense' => veteran['deductibleMedicalExpenses']
+            {
+              'educationExpense' => veteran['deductibleEducationExpenses'],
+              'funeralExpense' => veteran['deductibleFuneralExpenses'],
+              'medicalExpense' => veteran['deductibleMedicalExpenses']
+            },
+            income_collection_total(incomes)
           ),
-          'incomes' => resource_to_income_collection(
-            'grossIncome' => veteran['veteranGrossIncome'],
-            'netIncome' => veteran['veteranNetIncome'],
-            'otherIncome' => veteran['veteranOtherIncome']
-          ),
+          'incomes' => incomes,
           'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
           'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
           'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
