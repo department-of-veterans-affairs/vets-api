@@ -28,6 +28,17 @@ module Swagger
               property :applicationStatus, type: :string, example: 'example needed' # TODO: not in schema.  remove?
               property :hasCurrentlyBuried, type: :string, example: '1', enum: %w[1 2 3]
               property :sendingCode, type: :string, example: 'abc' # TODO: not in schema.  remove?
+              property :currentlyBuriedPersons, type: :array, description: 'data about uploaded attachments' do
+                items do
+                  property :name, type: :object do
+                    property :first, type: :string, example: 'Jon'
+                    property :middle, type: :string, example: 'Bob'
+                    property :last, type: :string, example: 'Doe'
+                    property :suffix, type: :string, example: 'Jr.' 
+                  end
+                  property :cemeteryNumber, type: :string, example: '234'
+                end
+              end
               property :preneedAttachments, type: :array, description: 'data about uploaded attachments' do
                 items do
                   property :confirmationCode, type: :string, description: 'uuid',
