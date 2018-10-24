@@ -123,6 +123,7 @@ evss:
   reference_data_service:
     enabled: false
   all_claims_submission: 'config/evss/all_claims_submission.json'
+  international_postal_codes: 'config/evss/international_postal_codes.json'
 
 # Settings for GI Bill Data Service
 gids:

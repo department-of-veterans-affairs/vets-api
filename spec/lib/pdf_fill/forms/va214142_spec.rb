@@ -190,7 +190,7 @@ describe PdfFill::Forms::Va214142 do
     end
   end
 
-  describe '#combine_extra_date_ranges' do
+  describe '#combine_date_ranges' do
     it 'should combine multiple date ranges correctly' do
       date_ranges = [
         {
@@ -202,7 +202,7 @@ describe PdfFill::Forms::Va214142 do
           'to' => '1987-1-1'
         }
       ]
-      expect(new_form_class.combine_extra_date_ranges(date_ranges)).to eq(
+      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
         "from: 1980-1-1 to: 1985-1-1\nfrom: 1986-1-1 to: 1987-1-1"
       )
     end
@@ -213,13 +213,13 @@ describe PdfFill::Forms::Va214142 do
           'to' => '1985-1-1'
         }
       ]
-      expect(new_form_class.combine_extra_date_ranges(date_ranges)).to eq(
+      expect(new_form_class.combine_date_ranges(date_ranges)).to eq(
         'from: 1980-1-1 to: 1985-1-1'
       )
     end
     it 'should handle no date ranges' do
       date_ranges = []
-      expect(new_form_class.combine_extra_date_ranges(date_ranges)).to eq('')
+      expect(new_form_class.combine_date_ranges(date_ranges)).to eq('')
     end
   end
 
