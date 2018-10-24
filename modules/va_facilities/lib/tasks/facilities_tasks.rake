@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :va_facilities do
-  desc 'Creates postgis geospatial columns from exiting lat/lng'
+  desc 'Creates postgis geospatial columns from existing lat/lng'
   task :migrate_points_for_facilities do
     sql = <<-SQL
       UPDATE base_facilities
