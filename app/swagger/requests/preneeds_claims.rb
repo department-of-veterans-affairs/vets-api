@@ -33,6 +33,7 @@ module Swagger
                   property :confirmationCode, type: :string, description: 'uuid',
                                               example: '9b3ae0e1-fd58-4074-bf81-d58fb18fa86'
                   property :attachmentId, type: :string, example: '1'
+                  property :name, type: :string, example: 'my_file_name.pdf'
                 end
               end
               property :applicant, type: :object do

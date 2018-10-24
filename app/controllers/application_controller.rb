@@ -144,21 +144,21 @@ class ApplicationController < ActionController::API
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
-    return unless Settings.sso.cookie_enabled
+    return unless Settings.sso.cookie_enabled && @session.present?
     encryptor = SSOEncryptor
     contents = ActiveSupport::JSON.encode(@session.cookie_data)
     encrypted_value = encryptor.encrypt(contents)
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
-      expires: @session.ttl_in_time,
-      secure: true,
+      expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
+      secure: Rails.env.production?,
       httponly: true,
       domain: cookie_domain
     }
   end
 
   def cookie_domain
-    '.va.gov'
+    Rails.env.production? ? '.va.gov' : 'localhost'
   end
 
   def extend_session!
@@ -169,7 +169,7 @@ class ApplicationController < ActionController::API
   end
 
   def destroy_sso_cookie!
-    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain)
+    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain, secure: Rails.env.production?)
   end
 
   attr_reader :current_user, :session
