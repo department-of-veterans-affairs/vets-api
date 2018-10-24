@@ -47,9 +47,10 @@ module VetsAPI
     config.eager_load_paths << Rails.root.join('app')
 
     # CORS configuration; see also cors_preflight route
+    web_origin_regex = Regexp.new(Settings.web_origin_regex)
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
       allow do
-        origins { |source, _env| Settings.web_origin.split(',').include?(source) }
+        origins { |source, _env| Settings.web_origin.split(',').include?(source) || !web_origin_regex.match(source).nil? }
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,
