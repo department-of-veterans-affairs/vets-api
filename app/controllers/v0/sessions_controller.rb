@@ -44,7 +44,7 @@ module V0
             when 'slo'
               authenticate
               # HACK: should figure out why relay_state logic is not working.
-              logout_url = SAML::SettingsService.logout_url(session, relay_state)
+              logout_url = SAML::SettingsService.logout_url(@session_object, relay_state)
               if request.cookies[Settings.sso.cookie_name].present?
                 logout_url.gsub('vets.gov', 'va.gov')
               else
@@ -56,10 +56,10 @@ module V0
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def logout
-      session = Session.find(Base64.urlsafe_decode64(params[:session]))
-      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
-      destroy_user_session!(User.find(session.uuid), session)
-      redirect_to SAML::SettingsService.slo_url(session, relay_state)
+      session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
+      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
+      destroy_user_session!(User.find(session_object.uuid), session_object)
+      redirect_to SAML::SettingsService.slo_url(session_object, relay_state)
     end
 
     def saml_logout_callback
@@ -84,12 +84,15 @@ module V0
       @sso_service = SSOService.new(saml_response)
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
-        @session = @sso_service.new_session
+        @session_object = @sso_service.new_session
 
+        set_api_cookie!
+
+        # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
+        set_sso_cookie!
+
+        redirect_to saml_login_relay_url + '?token=' + @session_object.token
         after_login_actions
-        redirect_to saml_login_relay_url + '?token=' + @session.token
-
-        log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
@@ -119,13 +122,13 @@ module V0
     end
 
     def after_login_actions
-      set_sso_cookie!
       AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
+      log_persisted_session_and_warnings
     end
 
     def log_persisted_session_and_warnings
-      obscure_token = Session.obscure_token(session.token)
-      Rails.logger.info("Logged in user with id #{session.uuid}, token #{obscure_token}")
+      obscure_token = Session.obscure_token(@session_object.token)
+      Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frquently.
       if current_user.ssn_mismatch?
@@ -134,13 +137,14 @@ module V0
       end
     end
 
-    def destroy_user_session!(user, session)
+    def destroy_user_session!(user, session_object)
       # shouldn't return an error, but we'll put everything else in an ensure block just in case.
       MHVLoggingService.logout(user) if user
     ensure
       destroy_sso_cookie!
-      session&.destroy
+      session_object&.destroy
       user&.destroy
+      reset_session
     end
 
     def build_logout_errors(logout_response, logout_request)

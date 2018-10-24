@@ -22,6 +22,7 @@ class ApplicationController < ActionController::API
   ].freeze
 
   before_action :authenticate
+  before_action :set_api_cookie!
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -50,6 +51,8 @@ class ApplicationController < ActionController::API
 
   private
 
+  attr_reader :current_user
+
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
   end
@@ -64,9 +67,9 @@ class ApplicationController < ActionController::API
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
-        if current_user.present?
-          extra[:icn] = current_user.icn
-          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+        if @current_user.present?
+          extra[:icn] = @current_user.icn
+          extra[:mhv_correlation_id] = @current_user.mhv_correlation_id
         end
         # Warn about VA900 needing to be added to exception.en.yml
         if exception.generic_error?
@@ -134,19 +137,27 @@ class ApplicationController < ActionController::API
 
   def authenticate_token
     authenticate_with_http_token do |token, _options|
-      @session = Session.find(token)
-      return false if @session.nil?
-      @current_user = User.find(@session.uuid)
+      @session_object = Session.find(token)
+      return false if @session_object.nil?
+      @current_user = User.find(@session_object.uuid)
       extend_session!
       return true if @current_user.present?
     end
   end
 
+  def set_api_cookie!
+    return unless @session_object
+    # Sets a cookie "api_session" with all of the key/value pairs from session object.
+    @session_object.to_hash.each do |k, v|
+      session[k] = v
+    end
+  end
+
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
-    return unless Settings.sso.cookie_enabled && @session.present?
+    return unless Settings.sso.cookie_enabled && @session_object.present?
     encryptor = SSOEncryptor
-    contents = ActiveSupport::JSON.encode(@session.cookie_data)
+    contents = ActiveSupport::JSON.encode(@session_object.cookie_data)
     encrypted_value = encryptor.encrypt(contents)
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
@@ -162,17 +173,15 @@ class ApplicationController < ActionController::API
   end
 
   def extend_session!
-    session.expire(Session.redis_namespace_ttl)
-    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    current_user&.expire(User.redis_namespace_ttl)
+    @session_object.expire(Session.redis_namespace_ttl)
+    @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    @current_user&.expire(User.redis_namespace_ttl)
     set_sso_cookie!
   end
 
   def destroy_sso_cookie!
     cookies.delete(Settings.sso.cookie_name, domain: cookie_domain, secure: Rails.env.production?)
   end
-
-  attr_reader :current_user, :session
 
   def render_unauthorized
     raise Common::Exceptions::Unauthorized
