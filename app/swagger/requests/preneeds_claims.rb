@@ -57,6 +57,74 @@ module Swagger
                   property :suffix, type: :string, example: 'Jr.' 
                 end
               end
+              property :claimant, type: :object do
+                property :address, type: :object do
+                  property :street, type: :string, example: '140 Rock Creek Church Rd NW'
+                  property :street2, type: :string, example: ''
+                  property :city, type: :string, example: 'Washington'
+                  property :country, type: :string, example: 'USA'
+                  property :state, type: :string, example: 'DC'
+                  property :postalCode, type: :string, example: '20011'
+                end
+                property :dateOfBirth, type: :string, example: '1960-12-30'
+                property :desiredCemetery, type: :string, example: '234'
+                property :email, type: :string, example: 'jon.doe@example.com'
+                property :name, type: :object do
+                  property :first, type: :string, example: 'Jon'
+                  property :middle, type: :string, example: 'Bob'
+                  property :last, type: :string, example: 'Doe'
+                  property :maiden, type: :string, example: 'Smith'
+                  property :suffix, type: :string, example: 'Jr.' 
+                end
+                property :phoneNumber, type: :string, example: '5551235454'
+                property :relationshipToVet, type: :string, example: '2'
+                property :ssn, type: :string, example: '234234234'                
+              end
+              property :veteran, type: :object do
+                property :address, type: :object do
+                  property :street, type: :string, example: '140 Rock Creek Church Rd NW'
+                  property :street2, type: :string, example: ''
+                  property :city, type: :string, example: 'Washington'
+                  property :country, type: :string, example: 'USA'
+                  property :state, type: :string, example: 'DC'
+                  property :postalCode, type: :string, example: '20011'
+                end
+                property :currentName, type: :object do
+                  property :first, type: :string, example: 'Jon'
+                  property :middle, type: :string, example: 'Bob'
+                  property :last, type: :string, example: 'Doe'
+                  property :maiden, type: :string, example: 'Smith'
+                  property :suffix, type: :string, example: 'Jr.' 
+                end
+                property :dateOfBirth, type: :string, example: '1960-12-30'
+                property :dateOfDeath, type: :string, example: '1990-12-30'
+                property :gender, type: :string, example: 'Female'
+                property :isDeceased, type: :string, example: 'yes'                
+                property :maritalStatus, type: :string, example: 'Single'
+                property :militaryServiceNumber, type: :string, example: '234234234'
+                property :militaryStatus, type: :string, example: 'D'
+                property :placeOfBirth, type: :string, example: '140 Rock Creek Church Rd NW'
+                property :serviceName, type: :object do
+                  property :first, type: :string, example: 'Jon'
+                  property :middle, type: :string, example: 'Bob'
+                  property :last, type: :string, example: 'Doe'
+                  property :suffix, type: :string, example: 'Jr.' 
+                end
+                property :serviceRecords, type: :array, description: 'data about tours of duty' do
+                  items do
+                    property :dateRange, type: :object, do
+                      property :from, type: :string, example: '1960-12-30'
+                      property :to, type: :string, example: '1970-12-30'
+                    end
+                    property :serviceBranch, type: :string, example: 'AL'
+                    property :dischargeType, type: :string, example: '2'
+                    property :highestRank, type: :string, example: 'General'
+                    property :nationalGuardState, type: :string, example: 'PR'
+                  end
+                end
+                property :ssn, type: :string, example: '234234234' 
+                property :vaClaimNumber, type: :string, example: '234234234'     
+              end                            
             end
           end
         end
