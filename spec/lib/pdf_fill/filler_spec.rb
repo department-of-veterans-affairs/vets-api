@@ -109,9 +109,9 @@ describe PdfFill::Filler do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a].each do |form_id|
+    %w[21-4142 21-0781a 21-0781].each do |form_id|
       context "form #{form_id}" do
-        %w[simple kitchen_sink].each do |type|
+        %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
