@@ -28,8 +28,6 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
     form526_uploads = form526['form526'].delete('attachments')
 
-    # Subclass is expected to implement #translate_data
-    # data translations depends on which version of the form is used
     # TODO: #translate_data can be removed once `increase only` has been deprecated
     {
       'form526' => translate_data(user, form526),
@@ -39,6 +37,10 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   end
 
   private
+
+  def translate_data(_user, _form526)
+    raise NotImplementedError, 'Subclass of DisabilityCompensation must implement #translate_data'
+  end
 
   def append_overflow_text(form526)
     form526['form526']['overflowText'] = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \

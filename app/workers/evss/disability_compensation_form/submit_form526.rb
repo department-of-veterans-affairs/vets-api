@@ -43,8 +43,6 @@ module EVSS
         @submission_id = transaction.submission.id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
-          # Subclass is expected to implement #service
-          # `increase only` and `all claims` will have separate EVSS services endpoints
           # TODO: sub classed #service can be removed once `increase only` has been deprecated
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
           success_handler(response)
@@ -102,10 +100,8 @@ module EVSS
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
-      def service(auth_headers)
-        EVSS::DisabilityCompensationForm::Service.new(
-          auth_headers
-        )
+      def service(_auth_headers)
+        raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
 
       def saved_claim(saved_claim_id)
