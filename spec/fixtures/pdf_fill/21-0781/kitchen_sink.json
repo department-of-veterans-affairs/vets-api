@@ -12,26 +12,54 @@
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
   "remarks": "Lorem ipsum dolor sit amet",
-  "incident": [{
-    "incidentDate": "2000-01-01",
-    "unitAssignedDates": {
-      "from": "2001-01-01",
-      "to": "2002-02-02"
-    },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "incidentDescription": "Lorem ipsum dolor sit amet.",
-    "medalsCitations": "Lorem ipsum dolor sit amet.",
-    "personInvolved" : [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
+  "incident": [
+    {
+      "incidentDate": "2000-01-01",
+      "unitAssignedDates": {
+        "from": "2001-01-01",
+        "to": "2002-02-02"
       },
-      "rank": "TestRank",
-      "injuryDeath": "killedInAction",
-      "injuryDeathDate": "2000-01-01",
-      "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a"
-    }]
-  }]
+      "incidentLocation": "abc",
+      "unitAssigned": "abc",
+      "incidentDescription": "Lorem ipsum dolor sit amet.",
+      "medalsCitations": "Lorem ipsum dolor sit amet.",
+      "personInvolved": [
+        {
+          "name": {
+            "first": "Testy",
+            "middleInitial": "Tester",
+            "last": "Testerson"
+          },
+          "rank": "TestRank",
+          "injuryDeath": "killedInAction",
+          "injuryDeathDate": "2000-01-01",
+          "unitAssigned": "abc"
+        }
+      ]
+    },
+    {
+      "incidentDate": "2000-01-01",
+      "unitAssignedDates": {
+        "from": "2001-01-01",
+        "to": "2002-02-02"
+      },
+      "incidentLocation": "abc",
+      "unitAssigned": "abc",
+      "incidentDescription": "Lorem ipsum dolor sit amet.",
+      "medalsCitations": "Lorem ipsum dolor sit amet.",
+      "personInvolved": [
+        {
+          "name": {
+            "first": "Testy",
+            "middleInitial": "Tester",
+            "last": "Testerson"
+          },
+          "rank": "TestRank",
+          "injuryDeath": "killedInAction",
+          "injuryDeathDate": "2000-01-01",
+          "unitAssigned": "abc"
+        }
+      ]
+    }
+  ]
 }
