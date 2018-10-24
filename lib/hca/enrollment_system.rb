@@ -204,6 +204,14 @@ module HCA
       }.merge(convert_full_name_alt(veteran['spouseFullName']))
     end
 
+    def income_collection_total(income_collection)
+      return 0 if income_collection.blank?
+
+      income_collection['income'].reduce(BigDecimal.new(0)) do |sum, collection|
+        sum + BigDecimal.new(collection['amount'].to_s)
+      end
+    end
+
     def resource_to_income_collection(resource)
       income_collection = []
 
@@ -229,8 +237,10 @@ module HCA
       }
     end
 
-    def resource_to_expense_collection(resource)
+    # rubocop:disable Metrics/MethodLength
+    def resource_to_expense_collection(resource, income_total)
       expense_collection = []
+      expense_total = BigDecimal.new(0)
 
       [
         %w[educationExpense 3],
@@ -241,10 +251,21 @@ module HCA
         expense = resource[expense_type[0]]
 
         if expense.present?
+          new_expense_total = expense_total + BigDecimal.new(expense.to_s)
+          expenses_exceeded = new_expense_total > income_total
+
+          if expenses_exceeded
+            expense = (income_total - expense_total).to_f
+          else
+            expense_total = new_expense_total
+          end
+
           expense_collection << {
             'amount' => expense,
             'expenseType' => expense_type[1]
           }
+
+          break if expenses_exceeded
         end
       end
 
@@ -254,6 +275,7 @@ module HCA
         'expense' => expense_collection
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def dependent_relationship_to_sds_code(dependent_relationship)
       DEPENDENT_RELATIONSHIP_CODES[dependent_relationship]
@@ -271,9 +293,11 @@ module HCA
     end
 
     def dependent_financials_info(dependent)
+      incomes = resource_to_income_collection(dependent)
+
       {
-        'incomes' => resource_to_income_collection(dependent),
-        'expenses' => resource_to_expense_collection(dependent),
+        'incomes' => incomes,
+        'expenses' => resource_to_expense_collection(dependent, income_collection_total(incomes)),
         'dependentInfo' => dependent_info(dependent),
         'livedWithPatient' => dependent['cohabitedLastYear'].present?,
         'incapableOfSelfSupport' => dependent['disabledBefore18'].present?,
@@ -466,22 +490,28 @@ module HCA
       }
     end
 
+    # rubocop:disable Metrics/MethodLength
     def veteran_to_financials_info(veteran)
       return unless financial_flag?(veteran)
+
+      incomes = resource_to_income_collection(
+        'grossIncome' => veteran['veteranGrossIncome'],
+        'netIncome' => veteran['veteranNetIncome'],
+        'otherIncome' => veteran['veteranOtherIncome']
+      )
 
       {
         'incomeTest' => { 'discloseFinancialInformation' => true },
         'financialStatement' => {
           'expenses' => resource_to_expense_collection(
-            'educationExpense' => veteran['deductibleEducationExpenses'],
-            'funeralExpense' => veteran['deductibleFuneralExpenses'],
-            'medicalExpense' => veteran['deductibleMedicalExpenses']
+            {
+              'educationExpense' => veteran['deductibleEducationExpenses'],
+              'funeralExpense' => veteran['deductibleFuneralExpenses'],
+              'medicalExpense' => veteran['deductibleMedicalExpenses']
+            },
+            income_collection_total(incomes)
           ),
-          'incomes' => resource_to_income_collection(
-            'grossIncome' => veteran['veteranGrossIncome'],
-            'netIncome' => veteran['veteranNetIncome'],
-            'otherIncome' => veteran['veteranOtherIncome']
-          ),
+          'incomes' => incomes,
           'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
           'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
           'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
@@ -489,6 +519,7 @@ module HCA
         }
       }
     end
+    # rubocop:enable Metrics/MethodLength
 
     def relationship_to_contact_type(relationship)
       RELATIONSHIP_CODES[relationship]
