@@ -5,6 +5,9 @@ module PdfFill
     class Va210781 < FormBase
       include FormHelper
 
+      ITERATOR = PdfFill::HashConverter::ITERATOR
+
+
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -91,33 +94,33 @@ module PdfFill
           question_num: 8,
           'incidentDate' => {
             'month' => {
-              key: 'form1[0].#subform[0].DOBmonth[1]'
+              key: "incidentDateMonth[#{ITERATOR}]"
             },
             'day' => {
-              key: 'form1[0].#subform[0].DOBday[1]'
+              key: "incidentDateDay[#{ITERATOR}]"
             },
             'year' => {
-              key: 'form1[0].#subform[0].DOByear[1]'
+              key: "incidentDateYear[#{ITERATOR}]"
             }
           },
           'unitAssignedDates' => {
             'fromMonth' => {
-              key: 'form1[0].#subform[0].DOBmonth[2]'
+              key: "unitAssignmentDateFromMonth[#{ITERATOR}]"
             },
             'fromDay' => {
-              key: 'form1[0].#subform[0].DOBday[2]'
+              key: "unitAssignmentDateFromDay[#{ITERATOR}]"
             },
             'fromYear' => {
-              key: 'form1[0].#subform[0].DOByear[2]'
+              key: "unitAssignmentDateFromYear[#{ITERATOR}]"
             },
             'toMonth' => {
-              key: 'form1[0].#subform[0].DOBmonth[3]'
+              key: "unitAssignmentDateToMonth[#{ITERATOR}]"
             },
             'toDay' => {
-              key: 'form1[0].#subform[0].DOBday[3]'
+              key: "unitAssignmentDateToDay[#{ITERATOR}]"
             },
             'toYear' => {
-              key: 'form1[0].#subform[0].DOByear[3]'
+              key: "unitAssignmentDateToYear[#{ITERATOR}]"
             }
           },
           'incidentLocation' => {
@@ -125,36 +128,36 @@ module PdfFill
             limit: 3,
             first_key: 'row0',
             'row0' => {
-              key: 'form1[0].#subform[0].TextField1[0]'
+              key: "incidentLocationFirstRow[#{ITERATOR}]"
             },
             'row1' => {
-              key: 'form1[0].#subform[0].TextField1[1]'
+              key: "incidentLocationSecondRow[#{ITERATOR}]"
             },
             'row2' => {
-              key: 'form1[0].#subform[0].TextField1[2]'
+              key: "incidentLocationThirdRow[#{ITERATOR}]"
             }
           },
           'unitAssigned' => {
             question_num: 8,
             limit: 3,
             'row0' => {
-              key: 'form1[0].#subform[0].TextField1[3]',
+              key: "unitAssignmentFirstRow[#{ITERATOR}]",
               limit: 30
             },
             'row1' => {
-              key: 'form1[0].#subform[0].TextField1[4]',
+              key: "unitAssignmentSecondRow[#{ITERATOR}]",
               limit: 30
             },
             'row2' => {
-              key: 'form1[0].#subform[0].TextField1[5]',
+              key: "unitAssignmentThirdRow[#{ITERATOR}]",
               limit: 30
             }
           },
           'incidentDescription' => {
-            key: 'form1[0].#subform[0].Description[0]'
+            key: "incidentDescription[#{ITERATOR}]"
           },
           'medalsCitations' => {
-            key: 'form1[0].#subform[0].Medals[0]'
+            key: "medalsCitations[#{ITERATOR}]"
           },
           'personInvolved' => {
             limit: 2,
