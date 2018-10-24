@@ -41,12 +41,12 @@ module PdfFill
 
         split_postal_code = postal_code.scan(/.{1,5}/)
         if split_postal_code.length == 2
-          return {
+          {
             'firstFive' => split_postal_code.first,
             'lastFour' => split_postal_code.last
           }
         else
-          return {
+          {
             'firstFive' => split_postal_code.first,
             'lastFour' => ''
           }
@@ -69,12 +69,11 @@ module PdfFill
       def split_date(date)
         return unless validate_date(date)
         s_date = date.split('-')
-        split_date = {
+        {
           'month' => s_date[1],
           'day' => s_date.last,
           'year' => s_date.first
         }
-        split_date
       end
 
       def combine_date_ranges(date_range_array)
