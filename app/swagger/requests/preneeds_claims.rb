@@ -22,9 +22,8 @@ module Swagger
             key :description, 'Pre-need burial eligibility form data'
             key :required, true
 
-            # TODO: add `required` designations
-
             schema do
+              key :required, %i[applicant claimant hasCurrentlyBuried veteran]
               property :applicationStatus, type: :string, example: 'example needed' # TODO: not in schema.  remove?
               property :hasCurrentlyBuried, type: :string, example: '1', enum: %w[1 2 3]
               property :sendingCode, type: :string, example: 'abc' # TODO: not in schema.  remove?
@@ -123,7 +122,7 @@ module Swagger
                 end
                 property :serviceRecords, type: :array, description: 'data about tours of duty' do
                   items do
-                    property :dateRange, type: :object, do
+                    property :dateRange, type: :object do
                       property :from, type: :string, example: '1960-12-30'
                       property :to, type: :string, example: '1970-12-30'
                     end
