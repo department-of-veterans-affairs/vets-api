@@ -113,7 +113,7 @@ class DependentsApplication < Common::RedisStore
   def self.convert_marriage(parsed_form)
     converted = {}
     current_marriage = parsed_form['currentMarriage']
-    # TOOD handle current marriage nil
+    return converted if current_marriage.blank?
     converted.merge!(convert_address(parsed_form['spouseAddress']))
     converted.merge!(convert_name(current_marriage['spouseFullName']))
     converted.merge!(convert_no_ssn(current_marriage['spouseHasNoSsn'], current_marriage['spouseHasNoSsnReason']))
