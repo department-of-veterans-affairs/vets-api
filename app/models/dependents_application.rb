@@ -55,7 +55,9 @@ class DependentsApplication < Common::RedisStore
     return {} if ssn.blank?
 
     {
-      'ssn' => StringHelpers.hyphenated_ssn(ssn)
+      'ssn' => StringHelpers.hyphenated_ssn(ssn),
+      'hasNoSsn' => false,
+      'noSsnReasonType' => nil
     }
   end
 
@@ -114,6 +116,7 @@ class DependentsApplication < Common::RedisStore
     # TOOD handle current marriage nil
     converted.merge!(convert_address(parsed_form['spouseAddress']))
     converted.merge!(convert_name(current_marriage['spouseFullName']))
+    converted.merge!(convert_no_ssn(current_marriage['spouseHasNoSsn'], current_marriage['spouseHasNoSsnReason']))
     converted.merge!(convert_ssn(current_marriage['spouseSocialSecurityNumber']))
 
     converted['dateOfBirth'] = convert_evss_date(parsed_form['spouseDateOfBirth'])
@@ -142,6 +145,13 @@ class DependentsApplication < Common::RedisStore
     }
   end
 
+  def self.convert_no_ssn(no_ssn, reason_type)
+    {
+      'hasNoSsn' => no_ssn,
+      'noSsnReasonType' => reason_type
+    }
+  end
+
   def self.set_child_attrs!(dependent, home_address, child = {})
     child.merge!(convert_name(dependent['fullName']))
 
@@ -165,6 +175,7 @@ class DependentsApplication < Common::RedisStore
       child['guardianLastName'] = guardian['last']
     end
 
+    child.merge!(convert_no_ssn(dependent['childHasNoSsn'], dependent['childHasNoSsnReason']))
     child.merge!(convert_ssn(dependent['childSocialSecurityNumber']))
     child['childRelationshipType'] = dependent['childRelationship']&.upcase
 
@@ -202,7 +213,6 @@ class DependentsApplication < Common::RedisStore
 
     transformed['spouse'] = convert_marriage(parsed_form)
     transformed['spouse']['address'] = transformed['address'] if parsed_form['liveWithSpouse']
-    # TODO add no ssn fields
 
     children = filter_children(
       dependents,

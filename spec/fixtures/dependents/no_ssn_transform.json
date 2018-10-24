@@ -1,0 +1,177 @@
+{
+  "submitProcess": {
+    "application": {
+      "acceptWarnings": false,
+      "appStatus": "Open",
+      "bnftClaimType": "EBENDEPENDENCY686c",
+      "createdDate": 1537563190485,
+      "documents": [
+
+      ],
+      "expirationDate": 1569099190485,
+      "has30Percent": true,
+      "modifiedDate": 1537563193768,
+      "validUser": true
+    },
+    "rbps": true,
+    "vaFaxNumber": "540-597-1792",
+    "vaOffice": {
+      "addressLine1": "Regional Office",
+      "addressLine2": "116 N Jefferson Street",
+      "addressLine3": "",
+      "addressLocality": "DOMESTIC",
+      "city": "Roanoke",
+      "country": {
+        "dropDownCountry": "USA",
+        "textCountry": ""
+      },
+      "postOffice": "NONE",
+      "postalType": "NONE",
+      "sharedAddrsInd": "N",
+      "state": "",
+      "zipCode": "24016",
+      "zipLastFour": ""
+    },
+    "vaOfficeCode": "314",
+    "vaOfficeName": "Roanoke",
+    "veteran": {
+      "address": {
+        "addressLine1": "street1",
+        "addressLine2": "Student Records",
+        "addressLocality": "DOMESTIC",
+        "city": "LOUISVILLE",
+        "country": {
+          "dropDownCountry": "USA"
+        },
+        "state": "KY",
+        "zipCode": "40292"
+      },
+      "children": [
+        {
+          "firstName": "Test",
+          "lastName": "User",
+          "address": {
+            "addressLine1": "street1",
+            "addressLine2": "Student Records",
+            "addressLocality": "DOMESTIC",
+            "city": "LOUISVILLE",
+            "country": {
+              "dropDownCountry": "USA"
+            },
+            "state": "KY",
+            "zipCode": "40292"
+          },
+          "countryOfBirth": {
+            "dropDownCountry": "USA"
+          },
+          "cityOfBirth": "new york",
+          "stateOfBirth": "NY",
+          "guardianFirstName": "Test",
+          "guardianLastName": "User",
+          "hasNoSsn": true,
+          "noSsnReasonType": "NONRESIDENTALIEN",
+          "childRelationshipType": "BIOLOGICAL",
+          "attendedSchool": true,
+          "disabled": true,
+          "married": true,
+          "dateOfBirth": "2016-12-15T00:00:00Z",
+          "marriedDate": "2016-12-15T00:00:00Z"
+        }
+      ],
+      "corpPtcnpntId": 600061742,
+      "countryOfBirth": {
+        "dropDownCountry": "",
+        "textCountry": ""
+      },
+      "dateOfBirth": 515739600000,
+      "dateOfBirthFromCorp": false,
+      "edipi": "1007697216",
+      "emailAddress": "foo@foo.com",
+      "firstName": "first",
+      "hasNoFileNumber": false,
+      "hasNoSsn": false,
+      "lastName": "last",
+      "marriageType": "NEVERMARRIED",
+      "married": false,
+      "middleName": "Watson",
+      "personTypeNm": "Veteran",
+      "previousMarriages": [
+        {
+          "marriedDate": "2015-12-15",
+          "city": "new york",
+          "country": {
+            "dropDownCountry": "USA"
+          },
+          "terminatedDate": "2015-12-16T00:00:00Z",
+          "marriageTerminationReasonType": "OTHER",
+          "explainTermination": "other",
+          "state": "NY",
+          "firstName": "spouse",
+          "lastName": "last"
+        }
+      ],
+      "primaryPhone": {
+        "areaNbr": "555",
+        "phoneType": "DAYTIME",
+        "phoneNbr": "111-0000"
+      },
+      "rlsnIds": [
+
+      ],
+      "secondaryPhone": {
+        "areaNbr": "555",
+        "phoneType": "NIGHTTIME",
+        "phoneNbr": "111-0001"
+      },
+      "ssn": "111-22-3333",
+      "ssnFromCorp": false,
+      "tempDataId": {
+      },
+      "uniqueIdentifier": "235759727",
+      "vaFileNumber": "111-22-3333",
+      "spouse": {
+        "address": {
+          "addressLine1": "street1",
+          "addressLine2": "Student Records",
+          "addressLocality": "DOMESTIC",
+          "city": "LOUISVILLE",
+          "country": {
+            "dropDownCountry": "USA"
+          },
+          "state": "KY",
+          "zipCode": "40292"
+        },
+        "firstName": "spouse",
+        "lastName": "last",
+        "hasNoSsn": true,
+        "noSsnReasonType": "NONRESIDENTALIEN",
+        "dateOfBirth": "2016-12-15T00:00:00Z",
+        "currentMarriage": {
+          "marriageDate": "2016-12-15T00:00:00Z",
+          "city": "new york",
+          "country": {
+            "dropDownCountry": "USA"
+          },
+          "state": "NY"
+        },
+        "vaFileNumber": "111-22-3333",
+        "veteran": true,
+        "previousMarriages": [
+          {
+            "marriedDate": "2015-12-15",
+            "city": "new york",
+            "country": {
+              "dropDownCountry": "USA"
+            },
+            "terminatedDate": "2015-12-16T00:00:00Z",
+            "marriageTerminationReasonType": "OTHER",
+            "explainTermination": "other",
+            "state": "NY",
+            "firstName": "spouse",
+            "lastName": "last"
+          }
+        ]
+      }
+    }
+  }
+}

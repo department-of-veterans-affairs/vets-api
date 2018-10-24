@@ -85,7 +85,7 @@ FactoryBot.define do
         veteranSocialSecurityNumber: '111223333',
         vaFileNumber: '111223333',
         spouseVaFileNumber: '111223333',
-        maritalStatus: 'Never Married',
+        maritalStatus: 'Never Married', # change
         spouseDateOfBirth: '2016-12-15',
         liveWithSpouse: false,
         spouseAddress: {
