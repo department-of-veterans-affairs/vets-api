@@ -79,8 +79,8 @@ RSpec.describe DependentsApplication, type: :model do
       end
 
       it 'should merge the forms' do
-        binding.pry; fail
-
+        form = described_class.transform_form(dependents_application.parsed_form, get_fixture('dependents/retrieve'))
+        expect(form).to eq(get_fixture('dependents/no_ssn_transform'))
       end
     end
   end
