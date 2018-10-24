@@ -24,10 +24,11 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        log_message_to_sentry(
-          "Failed all retries on SubmitForm0781 submit, last error: #{msg['error_message']}",
-          :error
+        Rails.logger.send(
+          :error,
+          "Failed all retries on SubmitForm0781 submit, last error: #{msg['error_message']}"
         )
+        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
       # Performs an asynchronous job for generating and submitting 0781 + 0781A PDF documents to VBMS
@@ -41,12 +42,12 @@ module EVSS
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, form_content)
         with_tracking('Form0781 Submission', saved_claim_id, submission_id) do
           @parsed_form = parse_form(form_content)
-          @parsed_form0781 = get_form_0781
-          @parsed_form0781a = get_form_0781a
+          parsed_form0781 = get_form_0781(FORM_ID_0781)
+          parsed_form0781a = get_form_0781(FORM_ID_0781A)
 
           # process 0781 and 0781a
-          process_0781(auth_headers, evss_claim_id, FORM_ID_0781, @parsed_form0781) if @parsed_form0781.present?
-          process_0781(auth_headers, evss_claim_id, FORM_ID_0781A, @parsed_form0781a) if @parsed_form0781a.present?
+          process_0781(auth_headers, evss_claim_id, FORM_ID_0781, parsed_form0781) if parsed_form0781.present?
+          process_0781(auth_headers, evss_claim_id, FORM_ID_0781A, parsed_form0781a) if parsed_form0781a.present?
         end
       rescue StandardError => error
         # Cannot move job straight to dead queue dynamically within an executing job
@@ -60,35 +61,33 @@ module EVSS
 
       def parse_form(form_content)
         form_content = form_content.to_json if form_content.is_a?(Hash)
-
         # Parse form content to JSON
-        @parsed_form ||= JSON.parse(form_content)
+        @parsed_form = JSON.parse(form_content)
       end
 
-      def get_form_0781
-        @parsed_form0781 = @parsed_form.deep_dup
-        @parsed_form0781['incident'].delete_if do |incident|
-          true if incident['personalAssault']
+      def get_form_0781(form_id)
+        parsed_form0781 = @parsed_form.deep_dup
+
+        if FORM_ID_0781 == form_id
+          parsed_form0781['incident'].delete_if do |incident|
+            true if incident['personalAssault']
+          end
+        elsif FORM_ID_0781A == form_id
+          parsed_form0781['incident'].delete_if do |incident|
+            true unless incident['personalAssault']
+          end
         end
-        if @parsed_form0781['incident'].empty?
-          @parsed_form0781 = ''
-        else
-          @parsed_form0781.to_json if @parsed_form0781.is_a?(Hash)
-          @parsed_form0781 ||= JSON.parse(@parsed_form0781)
-        end
+        parse_0781(parsed_form0781)
       end
 
-      def get_form_0781a
-        @parsed_form0781a = @parsed_form.deep_dup
-        @parsed_form0781a['incident'].delete_if do |incident|
-          true unless incident['personalAssault']
-        end
-        if @parsed_form0781a['incident'].empty?
-          @parsed_form0781a = ''
+      def parse_0781(parsed_form0781)
+        if parsed_form0781['incident'].empty?
+          parsed_form0781 = ''
         else
-          @parsed_form0781a.to_json if @parsed_form0781a.is_a?(Hash)
-          @parsed_form0781a ||= JSON.parse(@parsed_form0781a)
+          parsed_form0781 = parsed_form0781.to_json if parsed_form0781.is_a?(Hash)
+          parsed_form0781 = JSON.parse(parsed_form0781)
         end
+        parsed_form0781
       end
 
       def process_0781(auth_headers, evss_claim_id, form_id, form_content)
