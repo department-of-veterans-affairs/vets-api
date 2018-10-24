@@ -287,14 +287,6 @@ module PdfFill
         end
       end
 
-      def combine_extra_date_ranges(date_range_array)
-        extras_ranges = []
-        date_range_array.each do |range|
-          extras_ranges.push('from: ' + range['from'] + ' to: ' + range['to'])
-        end
-        extras_ranges.join("\n")
-      end
-
       def expand_provider_date_range(providers)
         providers.each do |provider|
           dates_of_treatment = provider['treatmentDateRange']
@@ -329,7 +321,7 @@ module PdfFill
         providers.each do |provider|
           name_address_extras = combine_name_addr_extras(provider, 'providerFacilityName', 'providerFacilityAddress')
           provider['nameAndAddressOfProvider'] = PdfFill::FormValue.new('', name_address_extras)
-          dates_extras = combine_extra_date_ranges(provider['treatmentDateRange'])
+          dates_extras = combine_date_ranges(provider['treatmentDateRange'])
           provider['combinedTreatmentDates'] = PdfFill::FormValue.new('', dates_extras)
         end
       end
