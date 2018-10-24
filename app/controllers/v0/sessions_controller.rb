@@ -25,7 +25,7 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
       url = case params[:type]
             when 'mhv'
@@ -43,11 +43,17 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user, relay_state)
             when 'slo'
               authenticate
-              SAML::SettingsService.logout_url(session, relay_state)
+              # HACK: should figure out why relay_state logic is not working.
+              logout_url = SAML::SettingsService.logout_url(session, relay_state)
+              if request.cookies[Settings.sso.cookie_name].present?
+                logout_url.gsub('vets.gov', 'va.gov')
+              else
+                logout_url
+              end
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def logout
       session = Session.find(Base64.urlsafe_decode64(params[:session]))
@@ -91,9 +97,6 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-    rescue NoMethodError
-      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
-      raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
