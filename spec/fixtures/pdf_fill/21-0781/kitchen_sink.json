@@ -30,7 +30,7 @@
         "last": "Testerson"
       },
       "rank": "TestRank",
-      "injuryDeath": "TestDeath",
+      "injuryDeath": "killedInAction",
       "injuryDeathDate": "2000-01-01",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a"
     }]

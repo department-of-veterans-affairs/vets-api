@@ -84,6 +84,149 @@ module PdfFill
         'veteranSecondaryPhone' => {
           key: 'form1[0].#subform[0].PreferredEmail[2]'
         },
+        'incident' => {
+          limit: 2,
+          first_key: 'incidentDescription',
+          question_text: 'INCIDENTS',
+          question_num: 8,
+          'incidentDate' => {
+            'month' => {
+              key: 'form1[0].#subform[0].DOBmonth[1]'
+            },
+            'day' => {
+              key: 'form1[0].#subform[0].DOBday[1]'
+            },
+            'year' => {
+              key: 'form1[0].#subform[0].DOByear[1]'
+            }
+          },
+          'unitAssignedDates' => {
+            'fromMonth' => {
+              key: 'form1[0].#subform[0].DOBmonth[2]'
+            },
+            'fromDay' => {
+              key: 'form1[0].#subform[0].DOBday[2]'
+            },
+            'fromYear' => {
+              key: 'form1[0].#subform[0].DOByear[2]'
+            },
+            'toMonth' => {
+              key: 'form1[0].#subform[0].DOBmonth[3]'
+            },
+            'toDay' => {
+              key: 'form1[0].#subform[0].DOBday[3]'
+            },
+            'toYear' => {
+              key: 'form1[0].#subform[0].DOByear[3]'
+            }
+          },
+          'incidentLocation' => {
+            question_num: 8,
+            limit: 3,
+            first_key: 'row0',
+            'row0' => {
+              key: 'form1[0].#subform[0].TextField1[0]'
+            },
+            'row1' => {
+              key: 'form1[0].#subform[0].TextField1[1]'
+            },
+            'row2' => {
+              key: 'form1[0].#subform[0].TextField1[2]'
+            }
+          },
+          'unitAssigned' => {
+            question_num: 8,
+            limit: 3,
+            'row0' => {
+              key: 'form1[0].#subform[0].TextField1[3]',
+              limit: 30
+            },
+            'row1' => {
+              key: 'form1[0].#subform[0].TextField1[4]',
+              limit: 30
+            },
+            'row2' => {
+              key: 'form1[0].#subform[0].TextField1[5]',
+              limit: 30
+            }
+          },
+          'incidentDescription' => {
+            key: 'form1[0].#subform[0].Description[0]'
+          },
+          'medalsCitations' => {
+            key: 'form1[0].#subform[0].Medals[0]'
+          },
+          'personInvolved' => {
+            limit: 2,
+            'name' => {
+              'first' => {
+              key: 'form1[0].#subform[1].ClaimantsFirstName[1]',
+              limit: 12
+              },
+              'middleInitial' => {
+              key: 'form1[0].#subform[1].ClaimantsMiddleInitial1[1]'
+              },
+              'last' => {
+              key: 'form1[0].#subform[1].ClaimantsLastName[1]',
+              limit: 18
+              }
+            },
+            'rank' => {
+              key: 'form1[0].#subform[1].RANK4B[0]'
+            },
+            'injuryDeathDate' => {
+              'month' => {
+                key: 'form1[0].#subform[1].DOBmonth[4]'
+              },
+              'day' => {
+                key: 'form1[0].#subform[1].DOBday[4]'
+              },
+              'year' => {
+                key: 'form1[0].#subform[1].DOByear[4]'
+              }
+            },
+
+            'injuryDeath' => {
+              'checkbox' => {
+                'killedinAction' => {
+                  key: 'form1[0].#subform[1].KILLEDINACTION4[0]'
+                },
+                'killedInNonBattle' => {
+                  key: 'form1[0].#subform[1].KILLEDNONBATTLE4[0]'
+                },
+                'woundedInAction' => {
+                  key: 'form1[0].#subform[1].WOUNDEDINACTION4[0]'
+                },
+                'injuredNonBattle' => {
+                  key: 'form1[0].#subform[1].INJUREDNONBATTLE4[0]'
+                },
+                'Other' => {
+                  key: 'form1[0].#subform[1].WOUNDEDINACTION4[1]'
+                }
+              }
+            },
+            'unitAssigned' => {
+              question_num: 8,
+              limit: 3,
+              'row0' => {
+                key: 'form1[0].#subform[1].TextField1[6]',
+                limit: 30
+              },
+              'row1' => {
+                key: 'form1[0].#subform[1].TextField1[7]',
+                limit: 30
+              },
+              'row2' => {
+                key: 'form1[0].#subform[1].TextField1[8]',
+                limit: 30
+              }
+            }
+          }
+        },
+        'remarks' => {
+          key: 'form1[0].#subform[2].REMARKS[0]',
+          question_num: 14
+        },
         'signature' => {
           key: 'form1[0].#subform[2].Signature[0]'
         },
@@ -125,3 +268,12 @@ module PdfFill
     end
   end
 end
+
+
+# for enum killed in action stuff
+# translate.injury.death(injuryDate)
+# switch
+# 'Killled in Action'
+# case
+#
+#   return
