@@ -33,7 +33,7 @@ module Swagger
                     property :first, type: :string, example: 'Jon'
                     property :middle, type: :string, example: 'Bob'
                     property :last, type: :string, example: 'Doe'
-                    property :suffix, type: :string, example: 'Jr.' 
+                    property :suffix, type: :string, example: 'Jr.'
                   end
                   property :cemeteryNumber, type: :string, example: '234'
                 end
@@ -64,7 +64,7 @@ module Swagger
                   property :middle, type: :string, example: 'Bob'
                   property :last, type: :string, example: 'Doe'
                   property :maiden, type: :string, example: 'Smith'
-                  property :suffix, type: :string, example: 'Jr.' 
+                  property :suffix, type: :string, example: 'Jr.'
                 end
               end
               property :claimant, type: :object do
@@ -84,11 +84,11 @@ module Swagger
                   property :middle, type: :string, example: 'Bob'
                   property :last, type: :string, example: 'Doe'
                   property :maiden, type: :string, example: 'Smith'
-                  property :suffix, type: :string, example: 'Jr.' 
+                  property :suffix, type: :string, example: 'Jr.'
                 end
                 property :phoneNumber, type: :string, example: '5551235454'
                 property :relationshipToVet, type: :string, example: '2'
-                property :ssn, type: :string, example: '234234234'                
+                property :ssn, type: :string, example: '234234234'
               end
               property :veteran, type: :object do
                 property :address, type: :object do
@@ -104,12 +104,12 @@ module Swagger
                   property :middle, type: :string, example: 'Bob'
                   property :last, type: :string, example: 'Doe'
                   property :maiden, type: :string, example: 'Smith'
-                  property :suffix, type: :string, example: 'Jr.' 
+                  property :suffix, type: :string, example: 'Jr.'
                 end
                 property :dateOfBirth, type: :string, example: '1960-12-30'
                 property :dateOfDeath, type: :string, example: '1990-12-30'
                 property :gender, type: :string, example: 'Female'
-                property :isDeceased, type: :string, example: 'yes'                
+                property :isDeceased, type: :string, example: 'yes'
                 property :maritalStatus, type: :string, example: 'Single'
                 property :militaryServiceNumber, type: :string, example: '234234234'
                 property :militaryStatus, type: :string, example: 'D'
@@ -118,7 +118,7 @@ module Swagger
                   property :first, type: :string, example: 'Jon'
                   property :middle, type: :string, example: 'Bob'
                   property :last, type: :string, example: 'Doe'
-                  property :suffix, type: :string, example: 'Jr.' 
+                  property :suffix, type: :string, example: 'Jr.'
                 end
                 property :serviceRecords, type: :array, description: 'data about tours of duty' do
                   items do
@@ -132,9 +132,9 @@ module Swagger
                     property :nationalGuardState, type: :string, example: 'PR'
                   end
                 end
-                property :ssn, type: :string, example: '234234234' 
-                property :vaClaimNumber, type: :string, example: '234234234'     
-              end                            
+                property :ssn, type: :string, example: '234234234'
+                property :vaClaimNumber, type: :string, example: '234234234'
+              end
             end
           end
         end
