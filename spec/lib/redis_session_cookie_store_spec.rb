@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'redis_session_cookie_store'
 require 'json'
 
@@ -473,7 +475,7 @@ describe RedisSessionCookieStore do
   end
 
   describe 'validating custom handlers' do
-    %w(on_redis_down on_session_load_error).each do |h|
+    %w[on_redis_down on_session_load_error].each do |h|
       context 'when nil' do
         it 'does not explode at init' do
           expect { store }.to_not raise_error

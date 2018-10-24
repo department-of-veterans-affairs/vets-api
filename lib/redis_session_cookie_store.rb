@@ -1,13 +1,13 @@
+# frozen_string_literal: true
+
 require 'redis'
 require 'action_dispatch'
 require 'pry'
 
 class RedisSessionCookieStore < ActionDispatch::Session::AbstractStore
-  VERSION = '0.0.1'.freeze
+  VERSION = '0.0.1'
   # Rails 3.1 and beyond defines the constant elsewhere
-  unless defined?(ENV_SESSION_OPTIONS_KEY)
-    ENV_SESSION_OPTIONS_KEY = Rack::Session::Abstract::ENV_SESSION_OPTIONS_KEY
-  end
+  ENV_SESSION_OPTIONS_KEY = Rack::Session::Abstract::ENV_SESSION_OPTIONS_KEY unless defined?(ENV_SESSION_OPTIONS_KEY)
 
   # ==== Options
   # * +:key+ - Same as with the other cookie stores, key name
@@ -59,19 +59,14 @@ class RedisSessionCookieStore < ActionDispatch::Session::AbstractStore
   # other reason, and session was accessed only for reading.
   def session_exists?(env)
     value = current_session_id(env)
-
-    !!(
-      value && !value.empty? &&
-      redis.exists(prefixed(value))
-    )
+    value.present? && redis.exists(prefixed(value))
   rescue Errno::ECONNREFUSED, Redis::CannotConnectError => e
-    on_redis_down.call(e, env, value) if on_redis_down
-
+    on_redis_down&.call(e, env, value)
     true
   end
 
   def verify_handlers!
-    %w(on_redis_down on_session_load_error).each do |h|
+    %w[on_redis_down on_session_load_error].each do |h|
       next unless (handler = public_send(h)) && !handler.respond_to?(:call)
 
       raise ArgumentError, "#{h} handler is not callable"
@@ -89,7 +84,7 @@ class RedisSessionCookieStore < ActionDispatch::Session::AbstractStore
   def get_session(env, sid)
     sid && (session = load_session_from_redis(sid)) ? [sid, session] : session_default_values
   rescue Errno::ECONNREFUSED, Redis::CannotConnectError => e
-    on_redis_down.call(e, env, sid) if on_redis_down
+    on_redis_down&.call(e, env, sid)
     session_default_values
   end
   alias find_session get_session
@@ -100,7 +95,7 @@ class RedisSessionCookieStore < ActionDispatch::Session::AbstractStore
       data ? decode(data) : nil
     rescue StandardError => e
       destroy_session_from_sid(sid, drop: true)
-      on_session_load_error.call(e, sid) if on_session_load_error
+      on_session_load_error&.call(e, sid)
       nil
     end
   end
@@ -119,7 +114,7 @@ class RedisSessionCookieStore < ActionDispatch::Session::AbstractStore
     end
     sid
   rescue Errno::ECONNREFUSED, Redis::CannotConnectError => e
-    on_redis_down.call(e, env, sid) if on_redis_down
+    on_redis_down&.call(e, env, sid)
     false
   end
   alias write_session set_session
@@ -150,7 +145,7 @@ class RedisSessionCookieStore < ActionDispatch::Session::AbstractStore
     redis.del(prefixed(sid))
     (options || {})[:drop] ? nil : generate_sid
   rescue Errno::ECONNREFUSED, Redis::CannotConnectError => e
-    on_redis_down.call(e, options[:env] || {}, sid) if on_redis_down
+    on_redis_down&.call(e, options[:env] || {}, sid)
   end
 
   # Uses built-in JSON library to encode/decode session

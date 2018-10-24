@@ -66,10 +66,10 @@ module VetsAPI
     config.middleware.use 'StatsdMiddleware'
     config.middleware.use 'Rack::Attack'
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.insert_after ActionDispatch::Cookies, ActionDispatch::Session::CookieStore, {
-      key: 'api_session',
-      secure: Rails.env.production?,
-      http_only: true
-    }
+    config.middleware.insert_after ActionDispatch::Cookies,
+                                   ActionDispatch::Session::CookieStore,
+                                   key: 'api_session',
+                                   secure: Rails.env.production?,
+                                   http_only: true
   end
 end
