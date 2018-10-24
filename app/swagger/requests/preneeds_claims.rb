@@ -39,6 +39,7 @@ module Swagger
                 property :applicantEmail, type: :string, example: 'jon.doe@example.com'
                 property :applicantPhoneNumber, type: :string, example: '5551235454'
                 property :applicantRelationshipToClaimant, type: :string, example: 'Authorized Agent/Rep'
+                property :completingReason, type: :string, example: 'a reason'
                 property :mailingAddress, type: :object do
                   property :street, type: :string, example: '140 Rock Creek Church Rd NW'
                   property :street2, type: :string, example: ''
@@ -46,6 +47,13 @@ module Swagger
                   property :country, type: :string, example: 'USA'
                   property :state, type: :string, example: 'DC'
                   property :postalCode, type: :string, example: '20011'
+                end
+                property :name, type: :object do
+                  property :first, type: :string, example: 'Jon'
+                  property :middle, type: :string, example: 'Bob'
+                  property :last, type: :string, example: 'Doe'
+                  property :maiden, type: :string, example: 'Smith'
+                  property :suffix, type: :string, example: 'Jr.' 
                 end
               end
             end
