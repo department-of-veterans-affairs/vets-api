@@ -41,9 +41,9 @@ module EVSS
       #
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, form_content)
         with_tracking('Form0781 Submission', saved_claim_id, submission_id) do
-          @parsed_form = parse_form(form_content)
-          parsed_form0781 = get_form_0781(FORM_ID_0781)
-          parsed_form0781a = get_form_0781(FORM_ID_0781A)
+          parsed_form = parse_form(form_content)
+          parsed_form0781 = get_form_0781(parsed_form.deep_dup)
+          parsed_form0781a = get_form_0781a(parsed_form.deep_dup)
 
           # process 0781 and 0781a
           process_0781(auth_headers, evss_claim_id, FORM_ID_0781, parsed_form0781) if parsed_form0781.present?
@@ -60,34 +60,29 @@ module EVSS
       private
 
       def parse_form(form_content)
-        form_content = form_content.to_json if form_content.is_a?(Hash)
         # Parse form content to JSON
-        @parsed_form = JSON.parse(form_content)
+        parsed_form = JSON.parse(form_content)
+        parsed_form
       end
 
-      def get_form_0781(form_id)
-        parsed_form0781 = @parsed_form.deep_dup
-
-        if FORM_ID_0781 == form_id
-          parsed_form0781['incident'].delete_if do |incident|
-            true if incident['personalAssault']
-          end
-        elsif FORM_ID_0781A == form_id
-          parsed_form0781['incident'].delete_if do |incident|
-            true unless incident['personalAssault']
-          end
-        end
-        parse_0781(parsed_form0781)
+      def get_form_0781(parsed_form)
+        parsed_form['incident'].delete_if { |incident| true if incident['personalAssault'] }
+        parse_0781(parsed_form)
       end
 
-      def parse_0781(parsed_form0781)
-        if parsed_form0781['incident'].empty?
-          parsed_form0781 = ''
+      def get_form_0781a(parsed_form)
+        parsed_form['incident'].delete_if { |incident| true unless incident['personalAssault'] }
+        parse_0781(parsed_form)
+      end
+
+      def parse_0781(parsed_form)
+        if parsed_form['incident'].empty?
+          parsed_form = ''
         else
-          parsed_form0781 = parsed_form0781.to_json if parsed_form0781.is_a?(Hash)
-          parsed_form0781 = JSON.parse(parsed_form0781)
+          parsed_form = parsed_form.to_json if parsed_form.is_a?(Hash)
+          parsed_form = JSON.parse(parsed_form)
         end
-        parsed_form0781
+        parsed_form
       end
 
       def process_0781(auth_headers, evss_claim_id, form_id, form_content)
