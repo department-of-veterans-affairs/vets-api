@@ -1,16 +1,16 @@
 {
-  "vaFileNumber": "12345678",
-  "veteranSocialSecurityNumber": "123456789",
+  "vaFileNumber": "796068949",
+  "veteranSocialSecurityNumber": "796068949",
   "veteranFullName": {
-    "first": "Testy",
-    "middle": "Tester",
-    "last": "Testerson"
+    "first": "Beyonce",
+    "middle": null,
+    "last": "Knowles"
   },
-  "veteranDateOfBirth": "1981-11-05",
-  "veteranServiceNumber": "987654321",
-  "email": "testy.testerson@gmail.com",
-  "veteranPhone": "2123456789",
-  "veteranSecondaryPhone": "3133456789",
+  "veteranDateOfBirth": "1809-02-12",
+  "veteranServiceNumber": "string",
+  "email": "test@email.com",
+  "veteranPhone": "2024561111",
+  "veteranSecondaryPhone": "",
   "incident": [{
     "personalAssault": true,
     "incidentDate": "2000-01-01",
@@ -68,7 +68,7 @@
     }]
   },
   {
-    "personalAssault": true,
+    "personalAssault": false,
     "incidentDate": "2000-01-01",
     "unitAssignedDates": {
       "from": "2001-01-01",
@@ -122,6 +122,5 @@
         "postalCode": "21200-1111"
       }
     }]
-  }],
-  "otherInformation": "Lorem ipsum dolor sit amet."
+  }]
 }
