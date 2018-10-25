@@ -24,6 +24,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   def to_submission_data(user)
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
+    form0781 = EVSS::DisabilityCompensationForm::Form0781.new(user, @form_hash.deep_dup).translate
 
     form526 = @form_hash.deep_dup
     form526 = append_overflow_text(form526) if form4142
@@ -33,7 +34,8 @@ class SavedClaim::DisabilityCompensation < SavedClaim
     {
       'form526' => EVSS::DisabilityCompensationForm::DataTranslation.new(user, form526).translate,
       'form526_uploads' => form526_uploads,
-      'form4142' => form4142
+      'form4142' => form4142,
+      'form0781' => form0781
     }
   end
 
