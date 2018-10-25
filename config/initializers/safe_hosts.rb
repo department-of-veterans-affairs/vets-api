@@ -8,4 +8,4 @@ SAFE_HOSTS = Settings.web_origin.split(',').map do |url|
   rescue StandardError
     ''
   end
-end.uniq
+end.uniq.freeze
