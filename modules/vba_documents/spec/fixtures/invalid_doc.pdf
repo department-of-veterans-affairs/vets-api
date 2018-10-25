@@ -1,0 +1,12 @@
+--1669792f993
+Content-Disposition: form-data; name="metadata"
+Content-Type: application/json
+
+{"veteranLastName":"Test","veteranFirstName":"Test","docType":"21-526EZ","source":"test","fileNumber":"111111111","zipCode":"11111"}
+--1669792f993
+Content-Disposition: form-data; name="content";filename="21-526EZ Form NEW MAR 2018.pdf"
+Content-Type: application/pdf
+
+%PDF-1.6
+%����
+1 0 obj
