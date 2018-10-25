@@ -160,6 +160,15 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
+  # Set the host used in specs to test-api.vets.gov instead of www.example.com
+  config.before :each, type: :request do
+    host! 'test-api.vets.gov'
+  end
+
+  config.before :each, type: :controller do
+    request.host = 'test-api.vets.gov'
+  end
+
   config.before(:all) do
     unless defined?(Sidekiq::Batch)
       Sidekiq::Batch = Class.new do
