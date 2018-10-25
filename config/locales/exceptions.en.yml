@@ -78,6 +78,12 @@ en:
         title: Validation error
         code: 109
         status: 422
+      not_a_safe_host_error:
+        <<: *defaults
+        title: Bad Request
+        detail: "\"%{host}\" is not a safe host"
+        code: 110
+        status: 400
       unauthorized:
         <<: *defaults
         title: Not authorized

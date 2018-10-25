@@ -21,6 +21,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::SentryIgnoredGatewayTimeout
   ].freeze
 
+  before_action :block_unknown_hosts
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
@@ -49,6 +50,12 @@ class ApplicationController < ActionController::API
   # end
 
   private
+
+  def block_unknown_hosts
+    unless SafeHosts.include?(request.host)
+      raise Common::Exceptions::NotASafeHostError, request.host
+    end
+  end
 
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
