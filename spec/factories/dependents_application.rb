@@ -82,7 +82,7 @@ FactoryBot.define do
             explainSeparation: 'other'
           }
         ],
-        # veteranSocialSecurityNumber: '111223333',
+        veteranSocialSecurityNumber: '796043735',
         # vaFileNumber: '111223333',
         spouseVaFileNumber: '111223333',
         maritalStatus: 'Married',
