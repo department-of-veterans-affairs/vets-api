@@ -46,10 +46,13 @@ module VetsAPI
     config.public_send("#{paths_name}_paths") << Rails.root.join('lib')
     config.eager_load_paths << Rails.root.join('app')
 
+    # backward compatibility for when web_origin was a csv String, now an Array
+    web_origins = (Settings.web_origin.class == Array) ? Settings.web_origin : Settings.web_origin.split(',')
+    
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
       allow do
-        origins { |source, _env| Settings.web_origin.split(',').include?(source) }
+        origins { |source, _env| web_origins.include?(source) }
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,
