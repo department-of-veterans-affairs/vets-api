@@ -45,7 +45,8 @@ module MVI
         end
       end
     rescue Breakers::OutageException => e
-      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      Raven.extra_context(breakers_error_message: e.message)
+      log_console_and_sentry('MVI find_profile connection failed.', :error)
       MVI::Responses::FindProfileResponse.with_server_error
     rescue Faraday::ConnectionFailed => e
       log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
@@ -98,7 +99,7 @@ module MVI
 
     def create_profile_message(user)
       return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
-      return message_edipi(user) if user.dslogon_edipi.present?
+      return message_edipi(user) if user.dslogon_edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
       message_user_attributes(user)
     end

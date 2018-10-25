@@ -129,6 +129,12 @@ describe MVI::Service do
   end
 
   describe '.find_profile with edipi', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
+    around(:each) do |example|
+      Settings.mvi.edipi_search = true
+      example.run
+      Settings.mvi.edipi_search = false
+    end
+
     before(:each) do
       expect(MVI::Messages::FindProfileMessageEdipi).to receive(:new).once.and_call_original
     end
@@ -303,7 +309,9 @@ describe MVI::Service do
       context 'with an ongoing breakers outage' do
         it 'returns the correct thing' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          expect(subject.find_profile(user))
+          expect(Raven).to receive(:extra_context).once
+          profile = subject.find_profile(user)
+          expect(profile)
             .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
         end
       end

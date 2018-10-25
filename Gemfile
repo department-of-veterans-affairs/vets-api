@@ -8,7 +8,7 @@ gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 2.16.0'
+gem 'puma', '~> 3.12.0'
 gem 'rails', '4.2.7.1'
 
 # Gems with special version/repo needs
@@ -19,6 +19,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
+gem 'activerecord-postgis-adapter', '~> 3'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
