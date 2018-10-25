@@ -134,7 +134,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
       expect(response.body).to be_a(String)
     end
   end
-  
+
   it 'responds to GET #index with bbox and address' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
       setup_pdx
