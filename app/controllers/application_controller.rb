@@ -52,9 +52,7 @@ class ApplicationController < ActionController::API
   private
 
   def block_unknown_hosts
-    unless SafeHosts.include?(request.host)
-      raise Common::Exceptions::NotASafeHostError, request.host
-    end
+    raise Common::Exceptions::NotASafeHostError, request.host unless SafeHosts.include?(request.host)
   end
 
   def skip_sentry_exception_types
