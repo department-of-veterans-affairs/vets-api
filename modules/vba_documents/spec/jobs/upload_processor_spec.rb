@@ -99,7 +99,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
-    it 'validates the overall pdf is not malformed' do
+    it 'sets error if the file is malformed' do
       allow(Tempfile).to receive(:new).and_return(invalid_doc)
       described_class.new.perform(upload.guid)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
