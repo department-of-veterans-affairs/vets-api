@@ -66,6 +66,7 @@ module EVSS
 
         perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
         perform_submit_form_4142(response) if @submission_data['form4142'].present?
+        perform_submit_form_0781(response) if @submission_data['form0781'].present?
         perform_cleanup
       end
 
@@ -78,6 +79,12 @@ module EVSS
       def perform_submit_form_4142(response)
         CentralMail::SubmitForm4142Job.perform_async(
           response.claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
+        )
+      end
+
+      def perform_submit_form_0781(response)
+        EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
+          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
         )
       end
 

@@ -99,7 +99,7 @@ module MVI
 
     def create_profile_message(user)
       return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
-      return message_edipi(user) if user.dslogon_edipi.present?
+      return message_edipi(user) if user.dslogon_edipi.present? && Settings.mvi.edipi_search
       raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
       message_user_attributes(user)
     end
