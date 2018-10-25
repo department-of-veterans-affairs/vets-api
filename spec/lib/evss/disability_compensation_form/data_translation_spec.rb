@@ -129,7 +129,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     context 'when the address is INTERNATIONAL' do
       let(:address) do
         {
-          'country' => 'MEX',
+          'country' => 'Mexico',
           'addressLine1' => '123 Buena Vista St.',
           'city' => 'Mexico City'
         }
@@ -138,9 +138,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
       it 'should transform the address correctly' do
         result_hash = {
           'type' => 'INTERNATIONAL',
-          'country' => 'MEX',
+          'country' => 'Mexico',
           'addressLine1' => '123 Buena Vista St.',
-          'city' => 'Mexico City'
+          'city' => 'Mexico City',
+          'internationalPostalCode' => '773'
         }
         expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end

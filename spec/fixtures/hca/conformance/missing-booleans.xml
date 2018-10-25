@@ -98,16 +98,8 @@
         <eeSummary:financialStatement>
           <eeSummary:expenses>
             <eeSummary:expense>
-              <eeSummary:amount>13000</eeSummary:amount>
+              <eeSummary:amount>9000.0</eeSummary:amount>
               <eeSummary:expenseType>3</eeSummary:expenseType>
-            </eeSummary:expense>
-            <eeSummary:expense>
-              <eeSummary:amount>12000</eeSummary:amount>
-              <eeSummary:expenseType>19</eeSummary:expenseType>
-            </eeSummary:expense>
-            <eeSummary:expense>
-              <eeSummary:amount>11000</eeSummary:amount>
-              <eeSummary:expenseType>18</eeSummary:expenseType>
             </eeSummary:expense>
           </eeSummary:expenses>
           <eeSummary:incomes>

@@ -80,6 +80,7 @@ module EVSS
         workflow_batch.jobs do
           submit_uploads(response.claim_id) if @submission_data['form526_uploads'].present?
           submit_form_4142(response.claim_id) if @submission_data['form4142'].present?
+          submit_form_0781(response) if @submission_data['form0781'].present?
           cleanup
         end
       end
@@ -95,6 +96,12 @@ module EVSS
       def submit_form_4142(claim_id)
         CentralMail::SubmitForm4142Job.perform_async(
           claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
+        )
+      end
+
+      def submit_form_0781(response)
+        EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
+          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
         )
       end
 
