@@ -36,6 +36,8 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
 1. Install Postgres and enable on startup
    - `brew install postgres`
    - `brew services start postgres`
+1. Install PostGIS
+   - `brew install postgis`
 1. Install Redis
    - `brew install redis`
    - Follow post-install instructions to enable Redis on startup. Otherwise,
