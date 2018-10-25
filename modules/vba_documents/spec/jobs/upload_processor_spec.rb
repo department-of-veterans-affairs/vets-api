@@ -15,6 +15,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   let(:invalid_metadata_nonstring) { get_fixture('invalid_metadata_nonstring.json').read }
 
   let(:valid_doc) { get_fixture('valid_doc.pdf') }
+  let(:invalid_doc) { get_fixture('invalid_doc.pdf') }
   let(:non_pdf_doc) { get_fixture('valid_metadata.json') }
 
   let(:valid_parts) do
@@ -45,6 +46,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
     allow(objstore).to receive(:first_version).and_return(version)
     allow(objstore).to receive(:download)
+    allow(Tempfile).to receive(:new).and_return(valid_doc)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
   end
   # rubocop:enable Style/DateTime
@@ -95,6 +97,14 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(metadata['numberAttachments']).to eq(1)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
+    end
+
+    it 'validates the overall pdf is not malformed' do
+      allow(Tempfile).to receive(:new).and_return(invalid_doc)
+      described_class.new.perform(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('error')
+      expect(updated.code).to eq('DOC107')
     end
 
     it 'sets error for file part size exceeding 100MB' do

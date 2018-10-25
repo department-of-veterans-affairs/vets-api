@@ -26,6 +26,7 @@ module VBADocuments
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
       tempfile, timestamp = download_raw_file(guid)
       begin
+        validate_parent(tempfile.path)
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
@@ -128,6 +129,13 @@ module VBADocuments
       version = store.first_version(guid)
       store.download(version, tempfile.path)
       [tempfile, version.last_modified]
+    end
+
+    def validate_parent(path)
+      PdfInfo::Metadata.read(path)
+    rescue PdfInfo::MetadataReadError
+      raise VBADocuments::UploadError.new(code: 'DOC107',
+                                          detail: 'Unable to parse PDF')
     end
 
     def validate_parts(parts)

@@ -11,6 +11,8 @@ module VBADocuments
     DOC103 = 'Invalid content part'
     DOC104 = 'Upload rejected by downstream system'
     DOC105 = 'Invalid or unknown id'
+    DOC106 = 'File size exceeded'
+    DOC107 = 'Malformed PDF'
 
     # DOC2xx errors: server errors either local or downstream
     # not unambiguously related to submitted content
