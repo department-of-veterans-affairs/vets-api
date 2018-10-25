@@ -75,7 +75,7 @@ module EVSS
       end
 
       def metrics
-        @metrics ||= Metrics.new(self.class::STATSD_KEY_PREFIX, jid)
+        @metrics ||= Metrics.new(self.class::STATSD_KEY_PREFIX)
       end
     end
   end
