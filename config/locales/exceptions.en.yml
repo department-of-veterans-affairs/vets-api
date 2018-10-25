@@ -1165,6 +1165,12 @@ en:
         code: VET360_MVI204
         detail: MVI Service returned an existing Vet360 ID Identifier
         status: 400
+      VET360_MVI209:
+        <<: *external_defaults
+        title: MVIIdentifierPCE
+        code: VET360_MVI209
+        detail: PCE request identifier
+        status: 400
       VET360_MVI300:
         <<: *external_defaults
         title: MVI person deceased
