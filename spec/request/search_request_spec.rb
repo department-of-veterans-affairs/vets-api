@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/error_details'
 
-RSpec.describe 'search', type: :request do
+describe 'search', type: :request do
   include SchemaMatchers
   include ErrorDetails
 
@@ -50,11 +50,80 @@ RSpec.describe 'search', type: :request do
           dirty_params     = '<script>alert(document.cookie);</script>'
           sanitized_params = 'alert(document.cookie);'
 
-          expect(Search::Service).to receive(:new).with(sanitized_params)
+          expect(Search::Service).to receive(:new).with(sanitized_params, '20')
 
-          get '/v0/search', query: dirty_params
+          get '/v0/search', query: dirty_params, offset: 20
+        end
+      end
+    end
+
+    context 'with pagination' do
+      let(:query_term) { 'test' }
+
+      context "the endpoint's response" do
+        xit 'should return pagination offsets for previous and next page results', :aggregate_failures do
+          VCR.use_cassette('search/offset_40') do
+            get '/v0/search', query: query_term, offset: 40
+
+            pagination = pagination_for(response)
+
+            expect(pagination['next']).to be_present
+            expect(pagination['previous']).to be_present
+          end
+        end
+
+        context 'on the first page of the search results' do
+          xit 'previous should be null', :aggregate_failures do
+            VCR.use_cassette('search/offset_0') do
+              get '/v0/search', query: query_term, offset: 0
+
+              pagination = pagination_for(response)
+
+              expect(pagination.keys).to include 'previous'
+              expect(pagination['previous']).to_not be_present
+              expect(pagination['next']).to be_present
+            end
+          end
+        end
+
+        context 'on the last page of the search results' do
+          xit 'next should be null', :aggregate_failures do
+            VCR.use_cassette('search/offset_60') do
+              get '/v0/search', query: query_term, offset: 60
+
+              pagination = pagination_for(response)
+
+              expect(pagination.keys).to include 'next'
+              expect(pagination['next']).to_not be_present
+              expect(pagination['previous']).to be_present
+            end
+          end
+        end
+      end
+
+      context 'when the endpoint is being called' do
+        context 'with an offset' do
+          it 'should pass the offset request to the search service object' do
+            expect(Search::Service).to receive(:new).with(query_term, '20')
+
+            get '/v0/search', query: query_term, offset: 20
+          end
+        end
+
+        context 'with no offset present' do
+          it 'should pass offset=nil to the search service object' do
+            expect(Search::Service).to receive(:new).with(query_term, nil)
+
+            get '/v0/search', query: query_term
+          end
         end
       end
     end
   end
+end
+
+def pagination_for(response)
+  body = JSON.parse response.body
+
+  body.dig('data', 'attributes', 'body', 'pagination')
 end

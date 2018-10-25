@@ -40,5 +40,9 @@ module Search
         RESPONSE_STATUS[:server_error]
       end
     end
+
+    def self.pagination_object(body)
+      Search::Pagination.new(body).object
+    end
   end
 end

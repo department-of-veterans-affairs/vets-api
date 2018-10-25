@@ -4,12 +4,12 @@ require 'common/client/base'
 require 'search/response'
 
 module Search
+  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
+  # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
+  #
+  # @see https://search.usa.gov/sites/7378/api_instructions
+  #
   class Service < Common::Client::Base
-    # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
-    # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
-    #
-    # @see https://search.usa.gov/sites/7378/api_instructions
-    #
     include Common::Client::Monitoring
 
     STATSD_KEY_PREFIX = 'api.search'
@@ -17,9 +17,11 @@ module Search
     configuration Search::Configuration
 
     attr_reader :query
+    attr_reader :offset
 
-    def initialize(query)
+    def initialize(query, offset = 0)
       @query = query
+      @offset = offset.to_i
     end
 
     # GETs a list of search results from Search.gov web results API
@@ -49,7 +51,9 @@ module Search
       {
         affiliate:  affiliate,
         access_key: access_key,
-        query:      query
+        query:      query,
+        offset:     offset,
+        limit:      Search::Pagination::OFFSET_LIMIT
       }
     end
 

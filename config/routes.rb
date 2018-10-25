@@ -130,7 +130,9 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      resources :ccp, only: %i[show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
+      get 'services', to: 'ccp#services'
     end
 
     scope :gi, module: 'gi' do
@@ -178,6 +180,8 @@ Rails.application.routes.draw do
         end
       end
     end
+
+    resources :performance_monitorings, only: :create
 
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
@@ -245,6 +249,7 @@ Rails.application.routes.draw do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
     mount VaFacilities::Engine, at: '/va_facilities'
+    mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel

@@ -11,13 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180905180210) do
+ActiveRecord::Schema.define(version: 20181017120746) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "uuid-ossp"
   enable_extension "pg_trgm"
   enable_extension "btree_gin"
+  enable_extension "postgis"
 
   create_table "accounts", force: :cascade do |t|
     t.uuid     "uuid",       null: false
@@ -51,24 +52,26 @@ ActiveRecord::Schema.define(version: 20180905180210) do
   add_index "async_transactions", ["user_uuid"], name: "index_async_transactions_on_user_uuid", using: :btree
 
   create_table "base_facilities", id: false, force: :cascade do |t|
-    t.string   "unique_id",      null: false
-    t.string   "name",           null: false
-    t.string   "facility_type",  null: false
-    t.string   "classification"
-    t.string   "website"
-    t.float    "lat",            null: false
-    t.float    "long",           null: false
-    t.jsonb    "address"
-    t.jsonb    "phone"
-    t.jsonb    "hours"
-    t.jsonb    "services"
-    t.jsonb    "feedback"
-    t.jsonb    "access"
-    t.string   "fingerprint"
-    t.datetime "created_at",     null: false
-    t.datetime "updated_at",     null: false
+    t.string    "unique_id",                                                                  null: false
+    t.string    "name",                                                                       null: false
+    t.string    "facility_type",                                                              null: false
+    t.string    "classification"
+    t.string    "website"
+    t.float     "lat",                                                                        null: false
+    t.float     "long",                                                                       null: false
+    t.jsonb     "address"
+    t.jsonb     "phone"
+    t.jsonb     "hours"
+    t.jsonb     "services"
+    t.jsonb     "feedback"
+    t.jsonb     "access"
+    t.string    "fingerprint"
+    t.datetime  "created_at",                                                                 null: false
+    t.datetime  "updated_at",                                                                 null: false
+    t.geography "location",       limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
   end
 
+  add_index "base_facilities", ["location"], name: "index_base_facilities_on_location", using: :gist
   add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
@@ -88,11 +91,24 @@ ActiveRecord::Schema.define(version: 20180905180210) do
   add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
+  create_table "disability_compensation_job_statuses", force: :cascade do |t|
+    t.integer  "disability_compensation_submission_id", null: false
+    t.string   "job_id",                                null: false
+    t.string   "job_class",                             null: false
+    t.string   "status",                                null: false
+    t.string   "error_message"
+    t.datetime "updated_at",                            null: false
+  end
+
+  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id", using: :btree
+  add_index "disability_compensation_job_statuses", ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true, using: :btree
+
   create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.integer  "disability_compensation_id"
     t.integer  "va526ez_submit_transaction_id"
+    t.boolean  "complete",                      default: false
   end
 
   create_table "disability_contentions", force: :cascade do |t|
@@ -212,6 +228,7 @@ ActiveRecord::Schema.define(version: 20180905180210) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
     t.json     "metadata"
+    t.datetime "expires_at"
   end
 
   add_index "in_progress_forms", ["form_id", "user_uuid"], name: "index_in_progress_forms_on_form_id_and_user_uuid", unique: true, using: :btree

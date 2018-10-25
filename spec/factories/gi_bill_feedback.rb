@@ -5,6 +5,7 @@ FactoryBot.define do
     state('pending')
     form(
       {
+        privacyAgreementAccepted: true,
         address: {
           street: 'street',
           street2: 'street2',
@@ -26,11 +27,13 @@ FactoryBot.define do
           from: '2000-01-01',
           to: '2000-01-02'
         },
+        socialSecurityNumberLastFour: '1234',
         anonymousEmail: 'foo@foo.com',
         onBehalfOf: 'Myself',
         educationDetails: {
           school: {
             name: 'UNIVERSITY OF LOUISVILLE',
+            facilityCode: '46123438',
             address: {
               country: 'United States',
               street: 'Office of Military and Veteran',

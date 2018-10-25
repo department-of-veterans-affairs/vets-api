@@ -11,7 +11,8 @@ module EVSS
       def translate
         form['claimantCertification'] = true
         form['applicationExpirationDate'] = application_expiration_date
-        form['directDeposit'] = get_banking_info
+
+        set_banking_info
 
         translate_service_info
         translate_veteran
@@ -128,6 +129,7 @@ module EVSS
           'Army Reserve' => 'Army Reserves',
           'Coast Guard Reserve' => 'Coast Guard Reserves',
           'Marine Corps Reserve' => 'Marine Corps Reserves',
+          'Navy Reserve' => 'Navy Reserves',
           'NOAA' => 'National Oceanic & Atmospheric Administration'
         }
         return branch_map[service_branch] if branch_map.key? service_branch
@@ -139,19 +141,30 @@ module EVSS
         { 'areaCode' => area_code, 'phoneNumber' => number }
       end
 
-      def get_banking_info
+      def set_banking_info
         service = EVSS::PPIU::Service.new(@user)
         response = service.get_payment_information
         account = response.responses.first.payment_account
 
-        if account
-          {
-            'accountType' => account&.account_type&.upcase,
-            'accountNumber' => account&.account_number,
-            'routingNumber' => account&.financial_institution_routing_number,
-            'bankName' => account&.financial_institution_name
+        if can_set_direct_deposit?(account)
+          form['directDeposit'] = {
+            'accountType' => account.account_type.upcase,
+            'accountNumber' => account.account_number,
+            'routingNumber' => account.financial_institution_routing_number,
+            'bankName' => account.financial_institution_name
           }
         end
+      end
+
+      # Direct Deposit cannot be set unless all these fields are set
+      # All claims will switch to including the direct deposit info in the payload
+      def can_set_direct_deposit?(account)
+        return unless account
+        return unless account.account_type
+        return unless account.account_number
+        return unless account.financial_institution_routing_number
+        return unless account.financial_institution_name
+        true
       end
 
       def translate_mailing_address(address)
@@ -165,20 +178,41 @@ module EVSS
 
         case pciu_address['type']
         when 'DOMESTIC'
-          pciu_address['city'] = address['city']
-          pciu_address['state'] = address['state']
-          pciu_address['zipFirstFive'] = zip_code.first
-          pciu_address['zipLastFour'] = zip_code.last
+          pciu_address.merge!(set_domestic_address(address, zip_code))
         when 'MILITARY'
-          pciu_address['militaryPostOfficeTypeCode'] = address['city']
-          pciu_address['militaryStateCode'] = address['state']
-          pciu_address['zipFirstFive'] = zip_code.first
-          pciu_address['zipLastFour'] = zip_code.last
+          pciu_address.merge!(set_military_address(address, zip_code))
         when 'INTERNATIONAL'
-          pciu_address['city'] = address['city']
+          pciu_address.merge!(set_international_address(address))
         end
 
         pciu_address.compact
+      end
+
+      def set_domestic_address(address, zip_code)
+        {
+          'city' => address['city'],
+          'state' => address['state'],
+          'zipFirstFive' => zip_code.first,
+          'zipLastFour' => zip_code.last
+        }
+      end
+
+      def set_military_address(address, zip_code)
+        {
+          'militaryPostOfficeTypeCode' => address['city'],
+          'militaryStateCode' => address['state'],
+          'zipFirstFive' => zip_code.first,
+          'zipLastFour' => zip_code.last
+        }
+      end
+
+      def set_international_address(address)
+        postal_codes = JSON.parse(File.read(Settings.evss.international_postal_codes))
+
+        {
+          'internationalPostalCode' => postal_codes[address['country']],
+          'city' => address['city']
+        }
       end
 
       def get_address_type(address)

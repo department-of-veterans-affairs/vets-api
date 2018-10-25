@@ -1,0 +1,41 @@
+{
+    "form526AllClaims": {
+        "attachments": [],
+        "disabilities": [
+            {
+                "diagnosticCode": 9999,
+                "disabilityActionType": "NEW",
+                "name": "PTSD (post traumatic stress disorder)",
+                "ratedDisabilityId": "1100583",
+                "ratingDecisionId": "105949"
+            }
+        ],
+        "privacyAgreementAccepted": true,
+        "serviceInformation": {
+            "servicePeriods": [
+                {
+                    "dateRange": {
+                        "from": "2000-01-01",
+                        "to": "2010-12-31"
+                    },
+                    "serviceBranch": "Coast Guard"
+                }
+            ]
+        },
+        "standardClaim": false,
+        "treatments": [
+            {
+                "treatmentCenterName": "Loma Linda VA Clinic",
+                "treatmentDateRange": {
+                  "from": "2018-03-29",
+                  "to": "2018-03-29"
+                },
+                "treatmentCenterAddress": {
+                  "country": "USA",
+                  "city": "loma linda",
+                  "state": "CA"
+                }
+            }
+        ]
+    }
+}

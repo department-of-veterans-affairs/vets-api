@@ -71,7 +71,7 @@ http_interactions:
             {
               "key":  "form526.submit.save.draftForm.UnmappedError",
               "severity":  "FATAL",
-              "text":  "Claim could not be established. Contact the BDN team and have them run the WIPP process to delete Cancelled/Cleared PIFs"
+              "text":  "This is an unmapped error message"
             }
           ]
         }

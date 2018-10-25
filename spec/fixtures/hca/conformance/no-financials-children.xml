@@ -192,7 +192,7 @@
               </eeSummary:incomes>
               <eeSummary:expenses>
                 <eeSummary:expense>
-                  <eeSummary:amount>40</eeSummary:amount>
+                  <eeSummary:amount>0.0</eeSummary:amount>
                   <eeSummary:expenseType>16</eeSummary:expenseType>
                 </eeSummary:expense>
               </eeSummary:expenses>

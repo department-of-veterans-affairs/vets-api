@@ -5,9 +5,10 @@ source 'https://rubygems.org'
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
+gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
-gem 'puma', '~> 2.16.0'
+gem 'puma', '~> 3.12.0'
 gem 'rails', '4.2.7.1'
 
 # Gems with special version/repo needs
@@ -18,6 +19,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
+gem 'activerecord-postgis-adapter', '~> 3'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
@@ -44,7 +46,7 @@ gem 'liquid'
 gem 'memoist'
 gem 'mini_magick'
 gem 'net-sftp'
-gem 'nokogiri'
+gem 'nokogiri', '1.8.5'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
@@ -72,6 +74,7 @@ gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
 gem 'typhoeus'
+gem 'upsert'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
