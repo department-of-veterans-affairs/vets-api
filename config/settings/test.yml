@@ -1,4 +1,5 @@
-web_origin: http://test.host, http://www.example.com, http://localhost:3000, null
+hostname: test-api.vets.gov # possible fallback for unsafe request.host
+virtual_hosts: ["test-api.vets.gov"] # Safe host names
 
 secret_key_base: be8e6b6b16993e899c2c4fd08f7c6a6e5ad5f295b369d22f126d4569d2a0e44c4f04b13c02d65ab701452ef0a24ed2db7af441214ed5ae98c6113442f5846605
 

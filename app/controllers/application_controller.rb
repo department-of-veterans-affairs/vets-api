@@ -51,8 +51,9 @@ class ApplicationController < ActionController::API
 
   private
 
+  # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
-    raise Common::Exceptions::NotASafeHostError, request.host unless SAFE_HOSTS.include?(request.host)
+    raise Common::Exceptions::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
   end
 
   def skip_sentry_exception_types
