@@ -23,6 +23,14 @@ module EVSS
         metrics.increment_exhausted
       end
 
+      def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
+        workflow_batch = Sidekiq::Batch.new
+        workflow_batch.on(:success, 'SubmitForm526#complete', 'saved_claim_id' => saved_claim_id)
+        workflow_batch.jobs do
+          SubmitForm526.perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
+        end
+      end
+
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
@@ -50,6 +58,10 @@ module EVSS
         non_retryable_error_handler(e)
       end
 
+      def complete(status, options)
+        puts "COMPLETE!"
+      end
+
       private
 
       def find_or_create_transaction
@@ -64,24 +76,29 @@ module EVSS
         submission_rate_limiter.increment
         transaction_class.update_transaction(jid, :received, response.attributes)
 
-        perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
-        perform_submit_form_4142(response) if @submission_data['form4142'].present?
-        perform_cleanup
+        workflow_batch = Sidekiq::Batch.new(bid)
+        workflow_batch.jobs do
+          submit_uploads(response.claim_id) if @submission_data['form526_uploads'].present?
+          submit_form_4142(response.claim_id) if @submission_data['form4142'].present?
+          cleanup
+        end
       end
 
-      def perform_submit_uploads(response)
-        EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form526_uploads']
-        )
+      def submit_uploads(claim_id)
+        @submission_data['form526_uploads'].each do |upload_data|
+          EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(
+            @auth_headers, claim_id, @saved_claim_id, @submission_id, upload_data
+          )
+        end
       end
 
-      def perform_submit_form_4142(response)
+      def submit_form_4142(claim_id)
         CentralMail::SubmitForm4142Job.perform_async(
-          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
+          claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
         )
       end
 
-      def perform_cleanup
+      def cleanup
         EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(@user_uuid)
       end
 
