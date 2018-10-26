@@ -17,12 +17,9 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        transaction_class.update_transaction(msg['jid'], :exhausted)
-        log_message_to_sentry(
-          "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
-          :error
-        )
-        metrics.increment_exhausted
+        TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
+        Rails.logger.error('Form526 Exhausted', 'job_id' => msg['jid'], 'error_message' => msg['error_message'])
+        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
       def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
@@ -33,7 +30,7 @@ module EVSS
           'saved_claim_id' => saved_claim_id
         )
         jids = workflow_batch.jobs do
-          SubmitForm526.perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
+          perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
         end
         jids.first
       end
@@ -56,6 +53,7 @@ module EVSS
         @submission_id = transaction.submission.id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
+          # TODO: sub classed #service can be removed once `increase only` has been deprecated
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
           response_handler(response)
         end
@@ -104,10 +102,8 @@ module EVSS
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
-      def service(auth_headers)
-        EVSS::DisabilityCompensationForm::Service.new(
-          auth_headers
-        )
+      def service(_auth_headers)
+        raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
 
       def saved_claim(saved_claim_id)

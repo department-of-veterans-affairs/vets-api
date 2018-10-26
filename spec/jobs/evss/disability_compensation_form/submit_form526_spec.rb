@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
-RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
+RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type: :job do
   before(:each) do
     Sidekiq::Worker.clear_all
   end
