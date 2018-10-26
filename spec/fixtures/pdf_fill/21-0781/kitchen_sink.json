@@ -27,37 +27,24 @@
         {
           "name": {
             "first": "Testy",
-            "middleInitial": "Tester",
+            "middle": "Tester",
             "last": "Testerson"
           },
-          "rank": "TestRank",
+          "rank": "Inc 0 Rank 0",
           "injuryDeath": "killedInAction",
           "injuryDeathDate": "2000-01-01",
-          "unitAssigned": "abc"
-        }
-      ]
-    },
-    {
-      "incidentDate": "2000-01-01",
-      "unitAssignedDates": {
-        "from": "2001-01-01",
-        "to": "2002-02-02"
-      },
-      "incidentLocation": "abc",
-      "unitAssigned": "abc",
-      "incidentDescription": "Lorem ipsum dolor sit amet.",
-      "medalsCitations": "Lorem ipsum dolor sit amet.",
-      "personInvolved": [
+          "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
+        },
         {
           "name": {
-            "first": "Testy",
-            "middleInitial": "Tester",
-            "last": "Testerson"
+            "first": "Dusty",
+            "middle": "Tester",
+            "last": "Dusterson"
           },
-          "rank": "TestRank",
+          "rank": "Inc 0 Rank 1",
           "injuryDeath": "killedInAction",
           "injuryDeathDate": "2000-01-01",
-          "unitAssigned": "abc"
+          "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341"
         }
       ]
     }
