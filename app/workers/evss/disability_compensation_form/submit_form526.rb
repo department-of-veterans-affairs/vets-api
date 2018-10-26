@@ -6,6 +6,8 @@ module EVSS
       include Sidekiq::Worker
       include JobStatus
 
+      TRANSACTION_CLASS = AsyncTransaction::EVSS::VA526ezSubmitTransaction
+
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
       RETRY = 13
@@ -68,61 +70,32 @@ module EVSS
       private
 
       def find_or_create_transaction
-        transaction = transaction_class.find_transaction(jid)
+        transaction = TRANSACTION_CLASS.find_transaction(jid)
         return transaction if transaction.present?
-        saved_claim(@saved_claim_id).async_transaction = transaction_class.start(
+        saved_claim(@saved_claim_id).async_transaction = TRANSACTION_CLASS.start(
           @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
         )
       end
 
       def response_handler(response)
         submission_rate_limiter.increment
-        transaction_class.update_transaction(jid, :received, response.attributes)
+        TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
         perform_ancillary_jobs(response.claim_id)
       end
 
       def perform_ancillary_jobs(claim_id)
-        workflow_batch = Sidekiq::Batch.new(bid)
-        workflow_batch.jobs do
-          submit_uploads(claim_id) if @submission_data['form526_uploads'].present?
-          submit_form_4142(claim_id) if @submission_data['form4142'].present?
-          submit_form_0781(claim_id) if @submission_data['form0781'].present?
-          cleanup
-        end
-      end
-
-      def submit_uploads(claim_id)
-        @submission_data['form526_uploads'].each do |upload_data|
-          EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(
-            @auth_headers, claim_id, @saved_claim_id, @submission_id, upload_data
-          )
-        end
-      end
-
-      def submit_form_4142(claim_id)
-        CentralMail::SubmitForm4142Job.perform_async(
-          claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
-        )
-      end
-
-      def submit_form_0781(claim_id)
-        EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
-          @auth_headers, claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
-        )
-      end
-
-      def cleanup
-        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(@user_uuid)
+        ancillary_jobs = AncillaryJobs.new(@user_uuid, @auth_headers, @saved_claim_id, @submission_data)
+        ancillary_jobs.perform(bid, claim_id)
       end
 
       def non_retryable_error_handler(error)
         message = error.try(:messages) || { error: error.message }
-        transaction_class.update_transaction(jid, :non_retryable_error, message)
+        TRANSACTION_CLASS.update_transaction(jid, :non_retryable_error, message)
         super(error)
       end
 
       def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error: error.message)
+        TRANSACTION_CLASS.update_transaction(jid, :retrying, error: error.message)
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
@@ -135,10 +108,6 @@ module EVSS
 
       def saved_claim(saved_claim_id)
         SavedClaim::DisabilityCompensation.find(saved_claim_id)
-      end
-
-      def transaction_class
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction
       end
 
       def submission_rate_limiter

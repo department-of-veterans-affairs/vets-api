@@ -2,7 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class AncillaryJobLauncher
+    class AncillaryJobs
       def initialize(user_uuid, auth_headers, saved_claim_id, submission_data)
         @user_uuid = user_uuid
         @auth_headers = auth_headers
@@ -10,7 +10,7 @@ module EVSS
         @submission_data = submission_data
       end
 
-      def perform_ancillary_jobs(bid, claim_id)
+      def perform(bid, claim_id)
         workflow_batch = Sidekiq::Batch.new(bid)
         workflow_batch.jobs do
           submit_uploads(claim_id) if @submission_data['form526_uploads'].present?

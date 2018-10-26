@@ -17,7 +17,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
   subject { described_class }
 
   describe '.perform_async' do
-    let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/fe_submission_with_uploads.json' }
+    let(:valid_form_content) do
+      File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
+    end
     let(:form4142) { File.read 'spec/support/disability_compensation_form/form_4142.json' }
     let(:transaction_class) { AsyncTransaction::EVSS::VA526ezSubmitTransaction }
     let(:last_transaction) { transaction_class.last }
@@ -60,7 +62,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
       it 'kicks off 4142 job' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          response = double(:response, claim_id: SecureRandom.uuid, attributes: nil)
+          claim_id = SecureRandom.uuid
+          response = double(:response, claim_id: claim_id, attributes: nil)
           service = double(:service, submit_form526: response)
           transaction = double(:transaction)
           allow(EVSS::DisabilityCompensationForm::Service)
@@ -71,7 +74,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
             .to receive(:update_transaction).and_return(transaction)
           allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
 
-          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
           described_class.drain
         end
