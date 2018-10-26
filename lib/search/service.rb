@@ -79,7 +79,7 @@ module Search
     end
 
     def limit
-      Search::Pagination::RESULTS_PER_PAGE
+      Search::Pagination::ENTRIES_PER_PAGE
     end
 
     def handle_error(error)

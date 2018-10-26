@@ -12,16 +12,18 @@ module Search
     #
     # @see https://search.usa.gov/sites/6277/api_instructions
     #
-    RESULTS_PER_PAGE = 10
+    ENTRIES_PER_PAGE = 10
 
     attr_reader :next_offset
+    attr_reader :total_entries
     attr_reader :total_pages
 
     # @param [Hash] raw_body a Hash from the 'web' object found in the results response
     #
     def initialize(raw_body)
-      @next_offset = raw_body.dig('next_offset')
-      @total_pages = (raw_body.dig('total') / RESULTS_PER_PAGE.to_f).ceil
+      @next_offset = raw_body.dig('web', 'next_offset')
+      @total_entries = raw_body.dig('web', 'total')
+      @total_pages = (total_entries / ENTRIES_PER_PAGE.to_f).ceil
     end
 
     # @return [Hash] pagination_object a Hash including pagination details
@@ -37,15 +39,16 @@ module Search
       when nil
         total_pages.to_i
       else
-        (next_offset / RESULTS_PER_PAGE.to_f).floor
+        (next_offset / ENTRIES_PER_PAGE.to_f).floor
       end
     end
 
     def pagination_object
       {
         'current_page' => [current_page, total_pages].min,
+        'per_page' => ENTRIES_PER_PAGE,
         'total_pages' => total_pages,
-        'results_per_page' => RESULTS_PER_PAGE
+        'total_entries' => total_entries
       }
     end
   end
