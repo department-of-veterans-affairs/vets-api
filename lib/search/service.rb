@@ -17,11 +17,11 @@ module Search
     configuration Search::Configuration
 
     attr_reader :query
-    attr_reader :page_number
+    attr_reader :page
 
-    def initialize(query, page_number = 1)
+    def initialize(query, page = 1)
       @query = query
-      @page_number = page_number.to_i
+      @page = page.to_i
     end
 
     # GETs a list of search results from Search.gov web results API
@@ -74,7 +74,7 @@ module Search
       else
         # Max offset for search API is 999
         # If there are 20 results and the user requests page 3, there will be an empty result set
-        [((page_number - 1) * limit), 999].min
+        [((page - 1) * limit), 999].min
       end
     end
 
