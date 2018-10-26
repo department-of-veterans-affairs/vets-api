@@ -185,10 +185,10 @@ module PdfFill
             },
             'injuryDeath0' => {
               'checkbox' => {
-                'killedinAction' => {
+                'killedInAction' => {
                   key: 'form1[0].#subform[1].KILLEDINACTION4[0]'
                 },
-                'killedInNonBattle' => {
+                'killedNonBattle' => {
                   key: 'form1[0].#subform[1].KILLEDNONBATTLE4[0]'
                 },
                 'woundedInAction' => {
@@ -464,10 +464,18 @@ module PdfFill
         when 'Killed in Action'
           personInvolved["injuryDeath#{index}"]['killedInAction'] = true
         when 'Killed Non-Battle'
-          personInvolved["injuryDeath#{index}"]['killedInAction'] = true
-
+          personInvolved["injuryDeath#{index}"]['killedNonBattle'] = true
+        when 'Wounded in Action'
+          personInvolved["injuryDeath#{index}"]['woundedInAction'] = true
+        when 'Injured Non-Battle'
+          personInvolved["injuryDeath#{index}"]['injuredNonBattle'] = true
+        when 'Other'
+          personInvolved["injuryDeath#{index}"]['other'] = true
           personInvolved["injuryDeathOther#{index}"] = personInvolved['injuryDeathOther']
+
         end
+
+
       end
     end
   end
