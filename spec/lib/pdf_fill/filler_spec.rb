@@ -61,57 +61,57 @@ describe PdfFill::Filler do
     fields[0] == fields[1]
   end
 
-  describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21P-530 21P-527EZ].each do |form_id|
-      context "form #{form_id}" do
-        %w[simple kitchen_sink overflow].each do |type|
-          context "with #{type} test data" do
-            let(:form_data) do
-              get_fixture("pdf_fill/#{form_id}/#{type}")
-            end
+  # describe '#fill_form', run_at: '2017-07-25 00:00:00 -0400' do
+  #   %w[21P-530 21P-527EZ].each do |form_id|
+  #     context "form #{form_id}" do
+  #       %w[simple kitchen_sink overflow].each do |type|
+  #         context "with #{type} test data" do
+  #           let(:form_data) do
+  #             get_fixture("pdf_fill/#{form_id}/#{type}")
+  #           end
 
-            it 'should fill the form correctly' do
-              fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
-              saved_claim = create(fact_name, form: form_data.to_json)
+  #           it 'should fill the form correctly' do
+  #             fact_name = form_id == '21P-527EZ' ? :pension_claim : :burial_claim
+  #             saved_claim = create(fact_name, form: form_data.to_json)
 
-              if type == 'overflow'
-                # compare_pdfs only compares based on filled fields, it doesn't read the extras page
-                the_extras_generator = nil
+  #             if type == 'overflow'
+  #               # compare_pdfs only compares based on filled fields, it doesn't read the extras page
+  #               the_extras_generator = nil
 
-                expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
-                  the_extras_generator = extras_generator
-                  old_file_path
-                end
-              end
+  #               expect(described_class).to receive(:combine_extras).once do |old_file_path, extras_generator|
+  #                 the_extras_generator = extras_generator
+  #                 old_file_path
+  #               end
+  #             end
 
-              file_path = described_class.fill_form(saved_claim)
+  #             file_path = described_class.fill_form(saved_claim)
 
-              if type == 'overflow'
-                extras_path = the_extras_generator.generate
+  #             if type == 'overflow'
+  #               extras_path = the_extras_generator.generate
 
-                expect(
-                  FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
-                ).to eq(true)
+  #               expect(
+  #                 FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
+  #               ).to eq(true)
 
-                File.delete(extras_path)
-              end
+  #               File.delete(extras_path)
+  #             end
 
-              expect(
-                compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
-              ).to eq(true)
+  #             expect(
+  #               compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
+  #             ).to eq(true)
 
-              File.delete(file_path)
-            end
-          end
-        end
-      end
-    end
-  end
+  #             File.delete(file_path)
+  #           end
+  #         end
+  #       end
+  #     end
+  #   end
+  # end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a 21-0781].each do |form_id|
+    %w[21-0781].each do |form_id|
       context "form #{form_id}" do
-        %w[simple kitchen_sink].each do |type|
+        %w[kitchen_sink].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
