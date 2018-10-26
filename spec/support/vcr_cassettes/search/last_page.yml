@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&limit=10&offset=0&query=benefits
+    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&limit=10&offset=80&query=benefits
     body:
       encoding: US-ASCII
       string: ''
@@ -27,9 +27,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 13 Sep 2018 02:16:30 GMT
+      - Fri, 12 Oct 2018 19:54:55 GMT
       Etag:
-      - W/"c740cd937737ec25c05c833fee222c7f"
+      - W/"c2254ed1719a71eee2c71db91cc1f4a5"
       Server:
       - Apache
       Status:
@@ -38,17 +38,17 @@ http_interactions:
       - max-age=31536000; includeSubdomains; preload
       - max-age=31536000; includeSubdomains; preload
       Via:
-      - 1.1 proxy3.us-east-1.prod.infr.search.usa.gov:8443
+      - 1.1 proxy1.us-east-1.prod.infr.search.usa.gov:8443
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
       X-Request-Id:
-      - '09de91a6-945a-484d-ab8a-7fa0b4dfe678'
+      - 24d63c55-38ed-4cc3-acf3-58678c0f8f90
       X-Xss-Protection:
       - 1; mode=block
       Content-Length:
-      - '8720'
+      - '1799'
       Connection:
       - keep-alive
     body:
@@ -57,7 +57,7 @@ http_interactions:
         "query": "benefits",
         "web": {
           "total": 85,
-          "next_offset": 10,
+          "next_offset": null,
           "spelling_correction": null,
           "results":
             [{
@@ -86,36 +86,6 @@ http_interactions:
             },
             {
                             "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/5495/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990N/",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990/introduction",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990E",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
                               "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990E/",
                           "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
                 "publication_date": null
@@ -139,5 +109,5 @@ http_interactions:
         "related_search_terms": []
       }'
     http_version:
-  recorded_at: Thu, 13 Sep 2018 02:16:30 GMT
+  recorded_at: Fri, 12 Oct 2018 19:54:55 GMT
 recorded_with: VCR 3.0.3
