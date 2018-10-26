@@ -147,8 +147,8 @@ class ApplicationController < ActionController::API
         destroy_user_session!(@current_user, @session)
       else
         extend_session!
-        @current_user.present?
       end
+      @current_user.present?
     end
   end
 
@@ -156,6 +156,8 @@ class ApplicationController < ActionController::API
     destroy_sso_cookie!
     session&.destroy
     user&.destroy
+    @session = nil
+    @current_user = nil
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
