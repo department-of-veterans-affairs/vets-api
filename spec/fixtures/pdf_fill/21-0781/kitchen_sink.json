@@ -19,19 +19,19 @@
         "from": "2001-01-01",
         "to": "2002-02-02"
       },
-      "incidentLocation": "abc",
-      "unitAssigned": "abc",
+      "incidentLocation": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341",
+      "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
       "medalsCitations": "Lorem ipsum dolor sit amet.",
       "personInvolved": [
         {
           "name": {
-            "first": "Testy",
-            "middle": "Tester",
-            "last": "Testerson"
+            "first": "Festy",
+            "middle": "Fester",
+            "last": "Festerson"
           },
           "rank": "Inc 0 Rank 0",
-          "injuryDeath": "killedInAction",
+          "injuryDeath": "Killed in Action",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
         },
@@ -42,7 +42,43 @@
             "last": "Dusterson"
           },
           "rank": "Inc 0 Rank 1",
-          "injuryDeath": "killedInAction",
+          "injuryDeath": "Other",
+          "injuryDeathOther": "Natural Causes",
+          "injuryDeathDate": "2000-01-01",
+          "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341"
+        }
+      ]
+    },
+    {
+      "incidentDate": "2010-01-01",
+      "unitAssignedDates": {
+        "from": "2010-01-01",
+        "to": "2010-02-02"
+      },
+      "incidentLocation": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341",
+      "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341",
+      "incidentDescription": "Lorem ipsum dolor sit amet.",
+      "medalsCitations": "Lorem ipsum dolor sit amet.",
+      "personInvolved": [
+        {
+          "name": {
+            "first": "Besty",
+            "middle": "Bester",
+            "last": "Besterson"
+          },
+          "rank": "Inc 1 Rank 0",
+          "injuryDeath": "Killed Non-Battle",
+          "injuryDeathDate": "2000-01-01",
+          "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
+        },
+        {
+          "name": {
+            "first": "Musty",
+            "middle": "Mester",
+            "last": "Musterson"
+          },
+          "rank": "Inc 1 Rank 1",
+          "injuryDeath": "Wounded in Action",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341"
         }
