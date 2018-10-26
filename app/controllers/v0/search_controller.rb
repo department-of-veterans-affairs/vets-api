@@ -7,7 +7,7 @@ module V0
     skip_before_action :authenticate
 
     def index
-      response = Search::Service.new(query, offset).results
+      response = Search::Service.new(query, page).results
 
       render json: response, serializer: SearchSerializer
     end
@@ -15,7 +15,7 @@ module V0
     private
 
     def search_params
-      params.permit(:query, :offset)
+      params.permit(:query, :page)
     end
 
     # Returns a sanitized, permitted version of the passed query params.
@@ -27,19 +27,17 @@ module V0
       sanitize search_params['query']
     end
 
-    # The offset defines the number of results you want to skip from the first result.
-    # Search.gov's default is 0 and the maximum is 999.
+    # This is the page (number) of results the FE is requesting to have returned.
     #
-    # Returns a sanitized, permitted version of the passed offset params. If 'offset'
+    # Returns a sanitized, permitted version of the passed page params. If 'page'
     # is not supplied, it returns nil.
     #
     # @return [String]
     # @return [NilClass]
-    # @see https://search.usa.gov/sites/7378/api_instructions
     # @see https://api.rubyonrails.org/v4.2/classes/ActionView/Helpers/SanitizeHelper.html#method-i-sanitize
     #
-    def offset
-      sanitize search_params['offset']
+    def page
+      sanitize search_params['page']
     end
   end
 end

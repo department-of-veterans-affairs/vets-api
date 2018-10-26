@@ -23,9 +23,9 @@ module Swagger
           end
 
           parameter do
-            key :name, 'offset'
+            key :name, 'page'
             key :in, :query
-            key :description, 'The offset from first result, in order to return the expected page of results'
+            key :description, 'The page number for the page of results that is being requested'
             key :required, false
             key :type, :integer
           end

@@ -50,9 +50,9 @@ describe 'search', type: :request do
           dirty_params     = '<script>alert(document.cookie);</script>'
           sanitized_params = 'alert(document.cookie);'
 
-          expect(Search::Service).to receive(:new).with(sanitized_params, '20')
+          expect(Search::Service).to receive(:new).with(sanitized_params, '2')
 
-          get '/v0/search', query: dirty_params, offset: 20
+          get '/v0/search', query: dirty_params, page: 2
         end
       end
     end
@@ -63,7 +63,7 @@ describe 'search', type: :request do
       context "the endpoint's response" do
         xit 'should return pagination offsets for previous and next page results', :aggregate_failures do
           VCR.use_cassette('search/offset_40') do
-            get '/v0/search', query: query_term, offset: 40
+            get '/v0/search', query: query_term, page: 1
 
             pagination = pagination_for(response)
 
@@ -75,7 +75,7 @@ describe 'search', type: :request do
         context 'on the first page of the search results' do
           xit 'previous should be null', :aggregate_failures do
             VCR.use_cassette('search/offset_0') do
-              get '/v0/search', query: query_term, offset: 0
+              get '/v0/search', query: query_term, page: 2
 
               pagination = pagination_for(response)
 
@@ -102,16 +102,16 @@ describe 'search', type: :request do
       end
 
       context 'when the endpoint is being called' do
-        context 'with an offset' do
-          it 'should pass the offset request to the search service object' do
-            expect(Search::Service).to receive(:new).with(query_term, '20')
+        context 'with a page' do
+          it 'should pass the page request to the search service object' do
+            expect(Search::Service).to receive(:new).with(query_term, '2')
 
-            get '/v0/search', query: query_term, offset: 20
+            get '/v0/search', query: query_term, page: 2
           end
         end
 
-        context 'with no offset present' do
-          it 'should pass offset=nil to the search service object' do
+        context 'with no page present' do
+          it 'should pass page=nil to the search service object' do
             expect(Search::Service).to receive(:new).with(query_term, nil)
 
             get '/v0/search', query: query_term
