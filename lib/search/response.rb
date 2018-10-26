@@ -16,7 +16,8 @@ module Search
     end
 
     def self.from(response)
-      body = response.body
+      web = response.body.dig('web')
+      body = response.body.merge('pagination' => pagination_object(web))
       new(response.status, body: body)
     end
 
