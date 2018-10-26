@@ -13,6 +13,8 @@ describe Search::Service do
 
   describe '#results' do
     context 'when successful' do
+      it_behaves_like 'pagination data'
+
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
