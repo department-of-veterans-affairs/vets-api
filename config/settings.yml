@@ -1,10 +1,11 @@
+hostname: localhost:3000 # possible fallback for unsafe request.host
+virtual_hosts: ["localhost"] # Safe host names
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
-
-hostname: localhost:3000
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
@@ -337,6 +338,6 @@ account:
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
-  affiliate: vets.gov_test
+  affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
