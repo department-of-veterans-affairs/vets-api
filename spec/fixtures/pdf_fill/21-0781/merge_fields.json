@@ -30,31 +30,6 @@
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
-  "incident": [
-    {
-      "incidentDate": "2000-01-01",
-      "unitAssignedDates": {
-        "from": "2001-01-01",
-        "to": "2002-02-02"
-      },
-      "incidentLocation": "abc",
-      "unitAssigned": "abc",
-      "incidentDescription": "Lorem ipsum dolor sit amet.",
-      "medalsCitations": "Lorem ipsum dolor sit amet.",
-      "personInvolved": [
-        {
-          "first0": "Testy",
-          "middleInitial0": "Tester",
-          "last0": "Testerson",
-          "rank0": "TestRank",
-          "injuryDeath": "killedInAction",
-          "injuryDeathDateMonth0": "01", 
-          "injuryDeathDateDay0": "01", 
-          "injuryDeathDateYear0": "2000",
-          "unitAssigned0": "abc"
-        }
-      ]
-    }],
   "otherInformation": "Lorem ipsum dolor sit amet.",
   "signature": "/es/ Testy Testerson",
   "signatureDate": "2016-12-31"
