@@ -338,6 +338,6 @@ account:
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
-  affiliate: vets.gov_test
+  affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
