@@ -12,17 +12,6 @@
                 "query": {
                   "type": "string"
                 },
-                "pagination": {
-                  "description": "The offset in order to return the previous or next set of results",
-                  "properties": {
-                    "previous": {
-                      "type": ["integer", null]
-                    },
-                    "next": {
-                      "type": ["integer", null]
-                    }
-                  }
-                },
                 "web": {
                   "description": "Contains all of the search result related data for the query",
                   "properties": {

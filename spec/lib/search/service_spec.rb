@@ -34,14 +34,6 @@ describe Search::Service do
       end
     end
 
-    context 'with an offset' do
-      [0, 20, 40, 60].each do |current_offset|
-        context "with a current offset of #{current_offset}" do
-          it_behaves_like 'pagination data', current_offset
-        end
-      end
-    end
-
     context 'with an empty search query' do
       let(:query) { '' }
 
