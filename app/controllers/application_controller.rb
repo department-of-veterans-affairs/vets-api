@@ -21,6 +21,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::SentryIgnoredGatewayTimeout
   ].freeze
 
+  before_action :block_unknown_hosts
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
@@ -49,6 +50,11 @@ class ApplicationController < ActionController::API
   # end
 
   private
+
+  # returns a Bad Request if the incoming host header is unsafe.
+  def block_unknown_hosts
+    raise Common::Exceptions::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
+  end
 
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
