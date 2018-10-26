@@ -58,44 +58,30 @@ describe 'search', type: :request do
     end
 
     context 'with pagination' do
-      let(:query_term) { 'test' }
+      let(:query_term) { 'benefits' }
 
       context "the endpoint's response" do
-        xit 'should return pagination offsets for previous and next page results', :aggregate_failures do
-          VCR.use_cassette('search/offset_40') do
+        it 'should return pagination meta data', :aggregate_failures do
+          VCR.use_cassette('search/page_1') do
             get '/v0/search', query: query_term, page: 1
 
             pagination = pagination_for(response)
 
-            expect(pagination['next']).to be_present
-            expect(pagination['previous']).to be_present
+            expect(pagination['current_page']).to be_present
+            expect(pagination['per_page']).to be_present
+            expect(pagination['total_pages']).to be_present
+            expect(pagination['total_entries']).to be_present
           end
         end
 
-        context 'on the first page of the search results' do
-          xit 'previous should be null', :aggregate_failures do
-            VCR.use_cassette('search/offset_0') do
+        context 'when a specific page number is requested' do
+          it 'current_page should be equal to the requested page number' do
+            VCR.use_cassette('search/page_2') do
               get '/v0/search', query: query_term, page: 2
 
               pagination = pagination_for(response)
 
-              expect(pagination.keys).to include 'previous'
-              expect(pagination['previous']).to_not be_present
-              expect(pagination['next']).to be_present
-            end
-          end
-        end
-
-        context 'on the last page of the search results' do
-          xit 'next should be null', :aggregate_failures do
-            VCR.use_cassette('search/offset_60') do
-              get '/v0/search', query: query_term, offset: 60
-
-              pagination = pagination_for(response)
-
-              expect(pagination.keys).to include 'next'
-              expect(pagination['next']).to_not be_present
-              expect(pagination['previous']).to be_present
+              expect(pagination['current_page']).to eq 2
             end
           end
         end
@@ -125,5 +111,5 @@ end
 def pagination_for(response)
   body = JSON.parse response.body
 
-  body.dig('data', 'attributes', 'body', 'pagination')
+  body.dig('meta', 'pagination')
 end
