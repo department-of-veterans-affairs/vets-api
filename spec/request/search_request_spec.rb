@@ -61,7 +61,7 @@ describe 'search', type: :request do
       let(:query_term) { 'test' }
 
       context "the endpoint's response" do
-        it 'should return pagination offsets for previous and next page results', :aggregate_failures do
+        xit 'should return pagination offsets for previous and next page results', :aggregate_failures do
           VCR.use_cassette('search/offset_40') do
             get '/v0/search', query: query_term, offset: 40
 
@@ -73,7 +73,7 @@ describe 'search', type: :request do
         end
 
         context 'on the first page of the search results' do
-          it 'previous should be null', :aggregate_failures do
+          xit 'previous should be null', :aggregate_failures do
             VCR.use_cassette('search/offset_0') do
               get '/v0/search', query: query_term, offset: 0
 
@@ -87,7 +87,7 @@ describe 'search', type: :request do
         end
 
         context 'on the last page of the search results' do
-          it 'next should be null', :aggregate_failures do
+          xit 'next should be null', :aggregate_failures do
             VCR.use_cassette('search/offset_60') do
               get '/v0/search', query: query_term, offset: 60
 
