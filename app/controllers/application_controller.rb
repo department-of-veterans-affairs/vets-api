@@ -148,9 +148,7 @@ class ApplicationController < ActionController::API
   def set_api_cookie!
     return unless @session_object
     # Sets a cookie "api_session" with all of the key/value pairs from session object.
-    @session_object.to_hash.each do |k, v|
-      session[k] = v
-    end
+    @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx

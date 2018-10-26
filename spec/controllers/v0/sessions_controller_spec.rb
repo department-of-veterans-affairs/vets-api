@@ -95,6 +95,16 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
 
+  def verify_session_cookie
+    token = session[:token]
+    expect(token).to_not be_nil
+    session_object = Session.find(token)
+    expect(session_object).to_not be_nil
+    session_object.to_hash.each do |k, v|
+      expect(session[k]).to eq(v)
+    end
+  end
+
   before do
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(OneLogin::RubySaml::Response).to receive(:new).and_return(valid_saml_response)
@@ -212,6 +222,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
+        Session.find(token).to_hash.each { |k, v| session[k] = v }
         request.cookies['vagov_session_dev'] = 'bar'
       end
 
@@ -237,20 +248,25 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'can find an active session' do
         let(:fake_vagov_relay) { 'https://fake-vagov' }
         it 'destroys the user, session, and cookie, persists logout_request object, redirects to SLO url' do
-          # these should have been destroyed yet
-          expect(Session.find(token)).to_not be_nil
+          # these should not have been destroyed yet
+          verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
+
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
+
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
           expect(response.location).to include("RelayState=#{CGI.escape(Settings.saml.logout_relays.vetsgov)}")
+
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
+          expect(session).to be_empty
           expect(User.find(uuid)).to be_nil
           expect(cookies['vagov_session_dev']).to be_nil
+
           # this should be created in redis
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
         end
@@ -284,18 +300,19 @@ RSpec.describe V0::SessionsController, type: :controller do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
+          Session.find(token).to_hash.each { |k, v| session[k] = v }
         end
 
         it 'redirects to success and destroys only the logout request' do
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-          expect(Session.find(token)).to_not be_nil
+          verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
             .to redirect_to(redirect_to(Settings.saml.logout_relay + '?success=true'))
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-          expect(Session.find(token)).to_not be_nil
+          verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this should be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
@@ -327,6 +344,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         example.run
         Settings.sso.cookie_enabled = false
         Timecop.return
+      end
+
+      it 'sets the session cookie' do
+        Settings.sso.cookie_enabled = false
+        post :saml_callback
+        verify_session_cookie
       end
 
       it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
