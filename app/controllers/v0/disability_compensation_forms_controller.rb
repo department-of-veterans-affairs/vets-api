@@ -30,11 +30,11 @@ module V0
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission_data = saved_claim.to_submission_data(@current_user)
 
-      bid = EVSS::DisabilityCompensationForm::SubmitForm526.start(
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526.start(
         @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
-      render json: { data: { attributes: { job_id: bid } } },
+      render json: { data: { attributes: { job_id: jid } } },
              status: :ok
     end
 

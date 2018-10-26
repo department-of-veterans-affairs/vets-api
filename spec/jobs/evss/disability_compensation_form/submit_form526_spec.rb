@@ -60,7 +60,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         end
       end
 
-      it 'kicks off 4142 job' do
+      it 'kicks off the ancillary jobs with the response claim id' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           claim_id = SecureRandom.uuid
           response = double(:response, claim_id: claim_id, attributes: nil)

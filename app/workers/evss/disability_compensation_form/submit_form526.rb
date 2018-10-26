@@ -27,11 +27,15 @@ module EVSS
 
       def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
         workflow_batch = Sidekiq::Batch.new
-        workflow_batch.on(:success, 'SubmitForm526#workflow_complete_handler', 'saved_claim_id' => saved_claim_id)
-        workflow_batch.jobs do
+        workflow_batch.on(
+          :success,
+          'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
+          'saved_claim_id' => saved_claim_id
+        )
+        jids = workflow_batch.jobs do
           SubmitForm526.perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
         end
-        workflow_batch.bid
+        jids.first
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
