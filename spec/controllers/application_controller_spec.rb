@@ -268,11 +268,27 @@ RSpec.describe ApplicationController, type: :controller do
           let(:header_host_value) { 'localhost' }
           let(:sso_cookie_value)  { nil }
 
+          around(:each) do |example|
+            Settings.sso.cookie_signout_enabled = true
+            example.run
+            Settings.sso.cookie_signout_enabled = nil
+          end
+
           it 'returns json error' do
             get :test_authentication
             expect(response).to have_http_status(:unauthorized)
             expect(JSON.parse(response.body)['errors'].first)
               .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
+          end
+        end
+
+        context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed: disabled' do
+          let(:header_host_value) { 'localhost' }
+          let(:sso_cookie_value)  { nil }
+
+          it 'returns success' do
+            get :test_authentication
+            expect(response).to have_http_status(:success)
           end
         end
       end

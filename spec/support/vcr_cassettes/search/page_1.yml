@@ -27,9 +27,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 13 Sep 2018 02:16:30 GMT
+      - Mon, 15 Oct 2018 10:31:33 GMT
       Etag:
-      - W/"c740cd937737ec25c05c833fee222c7f"
+      - W/"bd8e7b1d03a42ed35caf97044e477593"
       Server:
       - Apache
       Status:
@@ -38,17 +38,17 @@ http_interactions:
       - max-age=31536000; includeSubdomains; preload
       - max-age=31536000; includeSubdomains; preload
       Via:
-      - 1.1 proxy3.us-east-1.prod.infr.search.usa.gov:8443
+      - 1.1 proxy2.us-east-1.prod.infr.search.usa.gov:8443
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
       X-Request-Id:
-      - '09de91a6-945a-484d-ab8a-7fa0b4dfe678'
+      - d7a4dc39-3eca-4005-97e1-8cd668fac5a6
       X-Xss-Protection:
       - 1; mode=block
       Content-Length:
-      - '8720'
+      - '6776'
       Connection:
       - keep-alive
     body:
@@ -139,5 +139,5 @@ http_interactions:
         "related_search_terms": []
       }'
     http_version:
-  recorded_at: Thu, 13 Sep 2018 02:16:30 GMT
+  recorded_at: Mon, 15 Oct 2018 10:31:33 GMT
 recorded_with: VCR 3.0.3

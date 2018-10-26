@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&limit=10&offset=0&query=benefits
+    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&limit=10&offset=10&query=benefits
     body:
       encoding: US-ASCII
       string: ''
@@ -27,9 +27,9 @@ http_interactions:
       Content-Type:
       - application/json; charset=utf-8
       Date:
-      - Thu, 13 Sep 2018 02:16:30 GMT
+      - Fri, 12 Oct 2018 19:43:11 GMT
       Etag:
-      - W/"c740cd937737ec25c05c833fee222c7f"
+      - W/"fcaa27d61a23cda72af15458e243d7cb"
       Server:
       - Apache
       Status:
@@ -38,17 +38,17 @@ http_interactions:
       - max-age=31536000; includeSubdomains; preload
       - max-age=31536000; includeSubdomains; preload
       Via:
-      - 1.1 proxy3.us-east-1.prod.infr.search.usa.gov:8443
+      - 1.1 proxy1.us-east-1.prod.infr.search.usa.gov:8443
       X-Content-Type-Options:
       - nosniff
       X-Frame-Options:
       - SAMEORIGIN
       X-Request-Id:
-      - '09de91a6-945a-484d-ab8a-7fa0b4dfe678'
+      - 04d4802d-5352-4f56-aa07-bbd64fa9c7a9
       X-Xss-Protection:
       - 1; mode=block
       Content-Length:
-      - '8720'
+      - '6463'
       Connection:
       - keep-alive
     body:
@@ -57,7 +57,7 @@ http_interactions:
         "query": "benefits",
         "web": {
           "total": 85,
-          "next_offset": 10,
+          "next_offset": 20,
           "spelling_correction": null,
           "results":
             [{
@@ -139,5 +139,5 @@ http_interactions:
         "related_search_terms": []
       }'
     http_version:
-  recorded_at: Thu, 13 Sep 2018 02:16:30 GMT
+  recorded_at: Fri, 12 Oct 2018 19:43:11 GMT
 recorded_with: VCR 3.0.3
