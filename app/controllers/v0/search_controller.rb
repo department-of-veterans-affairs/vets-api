@@ -6,6 +6,11 @@ module V0
 
     skip_before_action :authenticate
 
+    # Returns a page of search results from the Search.gov API, based on the passed query and page.
+    #
+    # Pagination schema follows precedence from other controllers that return pagination.
+    # For example, the prescriptions_controller.
+    #
     def index
       response = Search::Service.new(query, page).results
 
