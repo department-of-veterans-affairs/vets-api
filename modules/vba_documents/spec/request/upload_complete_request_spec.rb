@@ -12,7 +12,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'x-amz-sns-topic-arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic',
         'Content-Length' => '1336',
         'Content-Type' => 'text/plain; charset=UTF-8',
-        'Host' => 'example.com',
+        'Host' => 'www.example.com',
         'Connection' => 'Keep-Alive',
         'User-Agent' => 'Amazon Simple Notification Service Agent'
       }
@@ -100,7 +100,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         'x-amz-sns-subscription-arn' => 'arn:aws:sns:us-west-2:123456789012:MyTopic:2bcfbf39-05c3-41de-beaa-fcfcc21c8f55',
         'Content-Length' => '761',
         'Content-Type' => 'text/plain; charset=UTF-8',
-        'Host' => 'ec2-50-17-44-49.compute-1.amazonaws.com',
+        'Host' => 'www.example.com',
         'Connection' => 'Keep-Alive',
         'User-Agent' => 'Amazon Simple Notification Service Agent'
       }
