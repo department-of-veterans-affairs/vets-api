@@ -143,9 +143,22 @@ class ApplicationController < ActionController::API
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      extend_session!
-      return true if @current_user.present?
+      if should_signout_sso?
+        destroy_user_session!(@current_user, @session)
+      else
+        extend_session!
+        @current_user.present?
+      end
     end
+  end
+
+  def destroy_user_session!(user, session)
+    # shouldn't return an error, but we'll put everything else in an ensure block just in case.
+    MHVLoggingService.logout(user) if user
+  ensure
+    destroy_sso_cookie!
+    session&.destroy
+    user&.destroy
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
@@ -157,14 +170,10 @@ class ApplicationController < ActionController::API
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
       expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
-      secure: Rails.env.production?,
+      secure: Settings.sso.cookie_secure,
       httponly: true,
-      domain: cookie_domain
+      domain: Settings.sso.cookie_domain
     }
-  end
-
-  def cookie_domain
-    Rails.env.production? ? '.va.gov' : 'localhost'
   end
 
   def extend_session!
@@ -175,7 +184,12 @@ class ApplicationController < ActionController::API
   end
 
   def destroy_sso_cookie!
-    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain, secure: Rails.env.production?)
+    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
+  end
+
+  def should_signout_sso?
+    return false unless Settings.sso.cookie_enabled
+    cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
 
   attr_reader :current_user, :session
