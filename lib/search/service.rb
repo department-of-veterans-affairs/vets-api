@@ -68,7 +68,7 @@ module Search
     # Calculate the offset parameter based on the requested page number
     #
     def offset
-      if page_number <= 1
+      if page <= 1
         # We want first page of results
         0
       else
