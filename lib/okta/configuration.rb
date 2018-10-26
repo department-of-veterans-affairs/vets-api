@@ -14,5 +14,9 @@ module Okta
         faraday.adapter Faraday.default_adapter
       end
     end
+
+    def service_name
+      'OKTA'
+    end
   end
 end
