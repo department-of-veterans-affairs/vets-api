@@ -51,6 +51,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
       it 'submits successfully' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
           described_class.drain
           expect(last_transaction.transaction_status).to eq 'received'
@@ -70,7 +71,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
             .to receive(:update_transaction).and_return(transaction)
           allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
 
-          expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
           described_class.drain
         end
@@ -95,6 +96,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
       it 'doesnt recreate the transaction' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
 
           jid = subject.jobs.last['jid']

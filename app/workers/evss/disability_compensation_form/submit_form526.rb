@@ -25,10 +25,11 @@ module EVSS
 
       def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
         workflow_batch = Sidekiq::Batch.new
-        workflow_batch.on(:success, 'SubmitForm526#complete', 'saved_claim_id' => saved_claim_id)
+        workflow_batch.on(:success, 'SubmitForm526#workflow_complete_handler', 'saved_claim_id' => saved_claim_id)
         workflow_batch.jobs do
           SubmitForm526.perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
         end
+        workflow_batch.bid
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -50,7 +51,7 @@ module EVSS
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
-          success_handler(response)
+          response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
@@ -58,8 +59,10 @@ module EVSS
         non_retryable_error_handler(e)
       end
 
-      def complete(status, options)
-        puts "COMPLETE!"
+      def workflow_complete_handler(_status, options)
+        submission = saved_claim(options['saved_claim_id']).submission
+        submission.complete = true
+        submission.save
       end
 
       private
@@ -72,15 +75,18 @@ module EVSS
         )
       end
 
-      def success_handler(response)
+      def response_handler(response)
         submission_rate_limiter.increment
         transaction_class.update_transaction(jid, :received, response.attributes)
+        perform_ancillary_jobs(response.claim_id)
+      end
 
+      def perform_ancillary_jobs(claim_id)
         workflow_batch = Sidekiq::Batch.new(bid)
         workflow_batch.jobs do
-          submit_uploads(response.claim_id) if @submission_data['form526_uploads'].present?
-          submit_form_4142(response.claim_id) if @submission_data['form4142'].present?
-          submit_form_0781(response) if @submission_data['form0781'].present?
+          submit_uploads(claim_id) if @submission_data['form526_uploads'].present?
+          submit_form_4142(claim_id) if @submission_data['form4142'].present?
+          submit_form_0781(claim_id) if @submission_data['form0781'].present?
           cleanup
         end
       end
@@ -99,9 +105,9 @@ module EVSS
         )
       end
 
-      def submit_form_0781(response)
+      def submit_form_0781(claim_id)
         EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
+          @auth_headers, claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
         )
       end
 
