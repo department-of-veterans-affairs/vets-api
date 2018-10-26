@@ -33,7 +33,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :required, [:data, :meta]
+              key :required, %i[data meta]
               property :data, type: :object do
                 key :required, [:attributes]
                 property :attributes, type: :object do
