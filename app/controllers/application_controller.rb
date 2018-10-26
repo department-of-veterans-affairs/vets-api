@@ -153,9 +153,6 @@ class ApplicationController < ActionController::API
   end
 
   def destroy_user_session!(user, session)
-    # shouldn't return an error, but we'll put everything else in an ensure block just in case.
-    MHVLoggingService.logout(user) if user
-  ensure
     destroy_sso_cookie!
     session&.destroy
     user&.destroy
