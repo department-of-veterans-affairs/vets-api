@@ -186,10 +186,10 @@ module PdfFill
             },
             'injuryDeath0' => {
               'checkbox' => {
-                'killedinAction' => {
+                'killedInAction' => {
                   key: 'form1[0].#subform[1].KILLEDINACTION4[0]'
                 },
-                'killedInNonBattle' => {
+                'killedNonBattle' => {
                   key: 'form1[0].#subform[1].KILLEDNONBATTLE4[0]'
                 },
                 'woundedInAction' => {
@@ -462,34 +462,22 @@ module PdfFill
         
         cause = personInvolved['injuryDeath']
         personInvolved["injuryDeath#{index}"] = {}
-        
-        enum: [
-          ‘Killed in Action’,
-          ‘Killed Non-Battle’,
-          ‘Wounded in Action’,
-          ‘Injured Non-Battle’,
-          ‘Other’,
-
-          'killedInAction' => {
-          },
-          'killedNonBattle' => {
-          },
-          'woundedInAction' => {
-          },
-          'injuredNonBattle' => {
-          },
-          'Other' => {
-
 
         case cause
         when 'Killed in Action'
           personInvolved["injuryDeath#{index}"]['killedInAction'] = true
         when 'Killed Non-Battle'
-          personInvolved["injuryDeath#{index}"]['killedInAction'] = true
-
-
-
+          personInvolved["injuryDeath#{index}"]['killedNonBattle'] = true
+        when 'Wounded in Action'
+          personInvolved["injuryDeath#{index}"]['woundedInAction'] = true
+        when 'Injured Non-Battle'
+          personInvolved["injuryDeath#{index}"]['injuredNonBattle'] = true
+        when 'Other'
+          personInvolved["injuryDeath#{index}"]['other'] = true
           personInvolved["injuryDeathOther#{index}"] = personInvolved['injuryDeathOther']
+
+
+
 
       end
 
