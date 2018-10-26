@@ -5,7 +5,7 @@ module PdfFill
     class Va210781 < FormBase
       include FormHelper
 
-      ITERATOR = PdfFill::HashConverter::ITERATOR
+      INCIDENT_ITERATOR = PdfFill::HashConverter::ITERATOR
 
       KEY = {
         'veteranFullName' => {
@@ -93,33 +93,33 @@ module PdfFill
           question_num: 8,
           'incidentDate' => {
             'month' => {
-              key: "incidentDateMonth[#{ITERATOR}]"
+              key: "incidentDateMonth[#{INCIDENT_ITERATOR}]"
             },
             'day' => {
-              key: "incidentDateDay[#{ITERATOR}]"
+              key: "incidentDateDay[#{INCIDENT_ITERATOR}]"
             },
             'year' => {
-              key: "incidentDateYear[#{ITERATOR}]"
+              key: "incidentDateYear[#{INCIDENT_ITERATOR}]"
             }
           },
           'unitAssignedDates' => {
             'fromMonth' => {
-              key: "unitAssignmentDateFromMonth[#{ITERATOR}]"
+              key: "unitAssignmentDateFromMonth[#{INCIDENT_ITERATOR}]"
             },
             'fromDay' => {
-              key: "unitAssignmentDateFromDay[#{ITERATOR}]"
+              key: "unitAssignmentDateFromDay[#{INCIDENT_ITERATOR}]"
             },
             'fromYear' => {
-              key: "unitAssignmentDateFromYear[#{ITERATOR}]"
+              key: "unitAssignmentDateFromYear[#{INCIDENT_ITERATOR}]"
             },
             'toMonth' => {
-              key: "unitAssignmentDateToMonth[#{ITERATOR}]"
+              key: "unitAssignmentDateToMonth[#{INCIDENT_ITERATOR}]"
             },
             'toDay' => {
-              key: "unitAssignmentDateToDay[#{ITERATOR}]"
+              key: "unitAssignmentDateToDay[#{INCIDENT_ITERATOR}]"
             },
             'toYear' => {
-              key: "unitAssignmentDateToYear[#{ITERATOR}]"
+              key: "unitAssignmentDateToYear[#{INCIDENT_ITERATOR}]"
             }
           },
           'incidentLocation' => {
@@ -127,68 +127,63 @@ module PdfFill
             limit: 3,
             first_key: 'row0',
             'row0' => {
-              key: "incidentLocationFirstRow[#{ITERATOR}]"
+              key: "incidentLocationFirstRow[#{INCIDENT_ITERATOR}]"
             },
             'row1' => {
-              key: "incidentLocationSecondRow[#{ITERATOR}]"
+              key: "incidentLocationSecondRow[#{INCIDENT_ITERATOR}]"
             },
             'row2' => {
-              key: "incidentLocationThirdRow[#{ITERATOR}]"
+              key: "incidentLocationThirdRow[#{INCIDENT_ITERATOR}]"
             }
           },
           'unitAssigned' => {
             question_num: 8,
             limit: 3,
             'row0' => {
-              key: "unitAssignmentFirstRow[#{ITERATOR}]",
+              key: "unitAssignmentFirstRow[#{INCIDENT_ITERATOR}]",
               limit: 30
             },
             'row1' => {
-              key: "unitAssignmentSecondRow[#{ITERATOR}]",
+              key: "unitAssignmentSecondRow[#{INCIDENT_ITERATOR}]",
               limit: 30
             },
             'row2' => {
-              key: "unitAssignmentThirdRow[#{ITERATOR}]",
+              key: "unitAssignmentThirdRow[#{INCIDENT_ITERATOR}]",
               limit: 30
             }
           },
           'incidentDescription' => {
-            key: "incidentDescription[#{ITERATOR}]"
+            key: "incidentDescription[#{INCIDENT_ITERATOR}]"
           },
           'medalsCitations' => {
-            key: "medalsCitations[#{ITERATOR}]"
+            key: "medalsCitations[#{INCIDENT_ITERATOR}]"
           },
           'personInvolved' => {
-            limit: 2,
-            'name' => {
-              'first' => {
-                key: 'form1[0].#subform[1].ClaimantsFirstName[1]',
-                limit: 12
-              },
-              'middleInitial' => {
-                key: 'form1[0].#subform[1].ClaimantsMiddleInitial1[1]'
-              },
-              'last' => {
-                key: 'form1[0].#subform[1].ClaimantsLastName[1]',
-                limit: 18
-              }
+            limit: 22,
+            'first0' => {
+              key: "personInvolvedFirst[0][#{INCIDENT_ITERATOR}]",
+              limit: 12
             },
-            'rank' => {
-              key: 'form1[0].#subform[1].RANK4B[0]'
+            'middleInitial0' => {
+              key: "personInvolvedMiddleI[0][#{INCIDENT_ITERATOR}]"
             },
-            'injuryDeathDate' => {
-              'month' => {
-                key: 'form1[0].#subform[1].DOBmonth[4]'
-              },
-              'day' => {
-                key: 'form1[0].#subform[1].DOBday[4]'
-              },
-              'year' => {
-                key: 'form1[0].#subform[1].DOByear[4]'
-              }
+            'last0' => {
+              key: "personInvolvedLast[0][#{INCIDENT_ITERATOR}]",
+              limit: 18
             },
-
-            'injuryDeath' => {
+            'rank0' => {
+              key: "personInvolvedRank[0][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeathDateMonth0' => {
+              key: "injuryDeathDateMonth[0][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeathDateDay0' => {
+              key: "injuryDeathDateDay[0][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeathDateYear0' => {
+              key: "injuryDeathDateYear[0][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeath0' => {
               'checkbox' => {
                 'killedinAction' => {
                   key: 'form1[0].#subform[1].KILLEDINACTION4[0]'
@@ -207,21 +202,71 @@ module PdfFill
                 }
               }
             },
-            'unitAssigned' => {
-              question_num: 8,
-              limit: 3,
-              'row0' => {
-                key: 'form1[0].#subform[1].TextField1[6]',
-                limit: 30
-              },
-              'row1' => {
-                key: 'form1[0].#subform[1].TextField1[7]',
-                limit: 30
-              },
-              'row2' => {
-                key: 'form1[0].#subform[1].TextField1[8]',
-                limit: 30
+            'unitAssigned0Row0' => {
+              key: "personUnitAssignedRow0[0][#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'unitAssigned0Row1' => {
+              key: "personUnitAssignedRow1[0][#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'unitAssigned0Row2' => {
+              key: "personUnitAssignedRow2[0][#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'first1' => {
+              key: "personInvolvedFirst[1][#{INCIDENT_ITERATOR}]",
+              limit: 12
+            },
+            'middleInitial1' => {
+              key: "personInvolvedMiddleI[1][#{INCIDENT_ITERATOR}]"
+            },
+            'last1' => {
+              key: "personInvolvedLast[1][#{INCIDENT_ITERATOR}]",
+              limit: 18
+            },
+            'rank1' => {
+              key: "personInvolvedRank[1][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeathDateMonth1' => {
+              key: "injuryDeathDateMonth[1][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeathDateDay1' => {
+              key: "injuryDeathDateDay[1][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeathDateYear1' => {
+              key: "injuryDeathDateYear[1][#{INCIDENT_ITERATOR}]"
+            },
+            'injuryDeath1' => {
+              'checkbox' => {
+                'killedinAction' => {
+                  key: 'form1[0].#subform[1].KILLEDINACTION4[0]'
+                },
+                'killedInNonBattle' => {
+                  key: 'form1[0].#subform[1].KILLEDNONBATTLE4[0]'
+                },
+                'woundedInAction' => {
+                  key: 'form1[0].#subform[1].WOUNDEDINACTION4[0]'
+                },
+                'injuredNonBattle' => {
+                  key: 'form1[0].#subform[1].INJUREDNONBATTLE4[0]'
+                },
+                'Other' => {
+                  key: 'form1[0].#subform[1].WOUNDEDINACTION4[1]'
+                }
               }
+            },
+            'unitAssigned1Row0' => {
+              key: "personUnitAssignedRow0[1][#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'unitAssigned1Row1' => {
+              key: "personUnitAssignedRow1[1][#{INCIDENT_ITERATOR}]",
+              limit: 30
+            },
+            'unitAssigned1Row2' => {
+              key: "personUnitAssignedRow2[1][#{INCIDENT_ITERATOR}]",
+              limit: 30
             }
           }
         },
@@ -241,14 +286,13 @@ module PdfFill
         expand_veteran_full_name
         expand_ssn
         expand_veteran_dob
+        expand_incidents(@form_data['incident'])
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         @form_data
       end
-
-      private
 
       def expand_veteran_full_name
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
@@ -267,14 +311,164 @@ module PdfFill
         return if veteran_date_of_birth.blank?
         @form_data['veteranDateOfBirth'] = split_date(veteran_date_of_birth)
       end
+
+      def expand_incident_date(incident)
+        incident_date = incident['incidentDate']
+        return if incident_date.blank?
+        incident['incidentDate'] = split_date(incident_date)
+      end
+
+      def expand_unit_assigned_dates(incident)
+        incident_unit_assigned_dates = incident['unitAssignedDates']
+        return if incident_unit_assigned_dates.blank?
+        from_dates = split_date(incident_unit_assigned_dates['from'])
+        to_dates = split_date(incident_unit_assigned_dates['to'])
+
+        unit_assignment_dates = {
+          'fromMonth' => from_dates['month'],
+          'fromDay' => from_dates['day'],
+          'fromYear' => from_dates['year'],
+          'toMonth' => to_dates['month'],
+          'toDay' => to_dates['day'],
+          'toYear' => to_dates['year']
+        }
+
+        incident_unit_assigned_dates.except!('to')
+        incident_unit_assigned_dates.except!('from')
+        incident_unit_assigned_dates.merge!(unit_assignment_dates)
+      end
+
+      def expand_incident_location(incident)
+        incident_location = incident['incidentLocation']
+        return if incident_location.blank?
+
+        split_incident_location = {}
+        s_location = incident_location.scan(/(.{1,30})(\s+|$)/)
+
+        s_location.each_with_index do |row, index|
+          split_incident_location["row#{index}"] = row[0]
+        end
+
+        incident['incidentLocation'] = split_incident_location
+      end
+
+      def expand_incident_unit_assignment(incident)
+        incident_unit_assignment = incident['unitAssigned']
+        return if incident_unit_assignment.blank?
+
+        split_incident_unit_assignment = {}
+        s_incident_unit_assignment = incident_unit_assignment.scan(/(.{1,30})(\s+|$)/)
+
+        s_incident_unit_assignment.each_with_index do |row, index|
+          split_incident_unit_assignment["row#{index}"] = row[0]
+        end
+
+        incident['unitAssigned'] = split_incident_unit_assignment
+      end
+
+      def expand_unit_assigned_dates(incident)
+        incident_unit_assigned_dates = incident['unitAssignedDates']
+        return if incident_unit_assigned_dates.blank?
+        from_dates = split_date(incident_unit_assigned_dates['from'])
+        to_dates = split_date(incident_unit_assigned_dates['to'])
+
+        unit_assignment_dates = {
+          'fromMonth' => from_dates['month'],
+          'fromDay' => from_dates['day'],
+          'fromYear' => from_dates['year'],
+          'toMonth' => to_dates['month'],
+          'toDay' => to_dates['day'],
+          'toYear' => to_dates['year']
+        }
+
+        incident_unit_assigned_dates.except!('to')
+        incident_unit_assigned_dates.except!('from')
+        incident_unit_assigned_dates.merge!(unit_assignment_dates)
+      end
+
+      def expand_incidents(incidents)
+        return if incidents.blank?
+
+        incidents.each_with_index do |incident, _index|
+          # expand_incident_extras(incident, index + 1)
+          expand_incident_date(incident)
+          expand_unit_assigned_dates(incident)
+          expand_incident_location(incident)
+          expand_incident_unit_assignment(incident)
+          expand_persons_involved(incident)
+        end
+      end
+
+      def expand_persons_involved(incident)
+        return if incident.blank?
+        return if incident['personInvolved'].blank?
+
+        personsInvolved = incident['personInvolved']
+        personsInvolved.each_with_index do |personInvolved, index|
+          expand_injury_death_date(personInvolved, index)
+          split_person_unit_assignment(personInvolved, index)
+          flatten_person_identification(personInvolved, index)
+          resolve_cause_injury_death(personInvolved, index)
+        end
+
+        combined_persons_involved = {}
+        personsInvolved.each do |person|
+          person.each do |key, value|
+            combined_persons_involved[key] = value
+          end
+        end
+        incident['personInvolved'] = combined_persons_involved
+      end
+
+      def expand_injury_death_date(personInvolved, index)
+        injury_date = personInvolved['injuryDeathDate']
+        return if injury_date.blank?
+        s_date = split_date(injury_date)
+        personInvolved["injuryDeathDateMonth#{index}"] = s_date['month']
+        personInvolved["injuryDeathDateDay#{index}"] = s_date['day']
+        personInvolved["injuryDeathDateYear#{index}"] = s_date['year']
+        personInvolved.except!('injuryDeathDate')
+      end
+
+      def split_person_unit_assignment(personInvolved, index)
+        incident_unit_assignment = personInvolved['unitAssigned']
+        return if incident_unit_assignment.blank?
+
+        s_incident_unit_assignment = incident_unit_assignment.scan(/(.{1,30})(\s+|$)/)
+        s_incident_unit_assignment.each_with_index do |row, row_index|
+          personInvolved["unitAssigned#{index}Row#{row_index}"] = row[0]
+        end
+        personInvolved.except!('unitAssigned')
+      end
+
+      def flatten_person_identification(personInvolved, index)
+        return if personInvolved.blank?
+
+        extract_middle_i(personInvolved, 'name')
+        personInvolved["first#{index}"] = personInvolved['name']['first']
+        personInvolved["middleInitial#{index}"] = personInvolved['name']['middleInitial']
+        personInvolved["last#{index}"] = personInvolved['name']['last']
+        personInvolved.except!('name')
+
+        personInvolved["rank#{index}"] = personInvolved['rank']
+        personInvolved.except!('rank')
+      end
+
+      def resolve_cause_injury_death(personInvolved, index)
+        return if personInvolved.blank?
+
+        cause = personInvolved['injuryDeath']
+        personInvolved["injuryDeath#{index}"] = {}
+
+        case cause
+        when 'Killed in Action'
+          personInvolved["injuryDeath#{index}"]['killedInAction'] = true
+        when 'Killed Non-Battle'
+          personInvolved["injuryDeath#{index}"]['killedInAction'] = true
+
+          personInvolved["injuryDeathOther#{index}"] = personInvolved['injuryDeathOther']
+        end
+      end
     end
   end
 end
-
-# for enum killed in action stuff
-# translate.injury.death(injuryDate)
-# switch
-# 'Killled in Action'
-# case
-#
-#   return
