@@ -11,7 +11,7 @@ web_origin: http://localhost:3000,http://localhost:3001,null
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
 
-database_url: postgres:///vets-api
+database_url: postgis:///vets-api
 
 relative_url_root: /
 
@@ -122,6 +122,7 @@ evss:
   reference_data_service:
     enabled: false
   all_claims_submission: 'config/evss/all_claims_submission.json'
+  international_postal_codes: 'config/evss/international_postal_codes.json'
 
 # Settings for GI Bill Data Service
 gids:
@@ -184,6 +185,7 @@ mvi:
   client_key_path: /fake/client/key/path
   pii_logging: false
   vba_orchestration: false
+  edipi_search: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
@@ -335,6 +337,6 @@ account:
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
-  affiliate: va
+  affiliate: vets.gov_test
   mock_search: true
   url: https://search.usa.gov/api/v2

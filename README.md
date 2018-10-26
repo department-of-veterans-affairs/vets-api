@@ -70,10 +70,10 @@ Vets API is configured with [Config](https://github.com/railsconfig/config). The
 default configuration is contained in [settings.yml](config/settings.yml). To
 customize your setup, you can create a `config/settings.local.yml` file with
 configuration specific to your needs. For example, to configure Redis and
-PostgreSQL, place something like this in that file:
+PostgreSQL (PostGIS is required), place something like this in that file:
 
 ```yaml
-database_url: postgres://pg_host:9999/custom_db
+database_url: postgis://pg_host:9999/custom_db
 
 redis:
   host: redis_host
