@@ -48,7 +48,7 @@ RSpec.describe FormProfile, type: :model do
       'city' => user.va_profile[:address][:city],
       'state' => user.va_profile[:address][:state],
       'country' => user.va_profile[:address][:country],
-      'postal_code' => user.va_profile[:address][:postal_code]
+      'postal_code' => user.va_profile[:address][:postal_code][0..4]
     }
   end
 
@@ -103,7 +103,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -148,7 +148,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -171,7 +171,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'relativeFullName' => {
         'first' => user.first_name&.capitalize,
@@ -190,7 +190,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -260,7 +260,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'swAsiaCombat' => true,
       'lastServiceBranch' => 'air force',
@@ -300,7 +300,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'gender' => user.gender,
       'dayPhone' => us_phone,
@@ -322,7 +322,7 @@ RSpec.describe FormProfile, type: :model do
         'city' => user.va_profile[:address][:city],
         'state' => user.va_profile[:address][:state],
         'country' => user.va_profile[:address][:country],
-        'postal_code' => user.va_profile[:address][:postal_code]
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
       'claimantEmail' => user.pciu_email
@@ -339,13 +339,7 @@ RSpec.describe FormProfile, type: :model do
           'name' => 'Diabetes mellitus0',
           'ratedDisabilityId' => '0',
           'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100,
-          'specialIssues' => [
-            {
-              'code' => 'TRM',
-              'name' => 'Personal Trauma PTSD'
-            }
-          ]
+          'ratingPercentage' => 100
         },
         {
           'diagnosticCode' => 5238,
@@ -354,13 +348,7 @@ RSpec.describe FormProfile, type: :model do
           'name' => 'Diabetes mellitus1',
           'ratedDisabilityId' => '1',
           'ratingDecisionId' => '63655',
-          'ratingPercentage' => 100,
-          'specialIssues' => [
-            {
-              'code' => 'TRM',
-              'name' => 'Personal Trauma PTSD'
-            }
-          ]
+          'ratingPercentage' => 100
         }
       ],
       'servicePeriods' => [
@@ -388,6 +376,31 @@ RSpec.describe FormProfile, type: :model do
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
+      }
+    }
+  end
+
+  let(:vfeedback_tool_expected) do
+    {
+      'address' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => 'US',
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'serviceBranch' => 'Air Force',
+      'fullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'applicantEmail' => user.pciu_email,
+      'phone' => us_phone,
+      'serviceDateRange' => {
+        'from' => '2007-04-01',
+        'to' => '2007-04-02'
       }
     }
   end
@@ -467,8 +480,7 @@ RSpec.describe FormProfile, type: :model do
         can_prefill_emis(true)
         error = RuntimeError.new('foo')
         expect(Rails.env).to receive(:production?).and_return(true)
-        expect(user.military_information).to receive(:last_service_branch).and_return('air force').and_raise(error)
-
+        expect(user.military_information).to receive(:hca_last_service_branch).and_return('air force').and_raise(error)
         form_profile = described_class.for('1010ez')
         expect(form_profile).to receive(:log_exception_to_sentry).with(error, {}, backend_service: :emis)
         form_profile.prefill(user)
@@ -483,9 +495,11 @@ RSpec.describe FormProfile, type: :model do
     end
 
     context 'with emis data', skip_emis: true do
-      before do
+      # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
+      def stub_methods_for_emis_data
         military_information = user.military_information
-        expect(military_information).to receive(:last_service_branch).and_return('air force')
+        expect(military_information).to receive(:last_service_branch).and_return('Air Force')
+        expect(military_information).to receive(:hca_last_service_branch).and_return('air force')
         expect(military_information).to receive(:last_entry_date).and_return('2007-04-01')
         expect(military_information).to receive(:last_discharge_date).and_return('2007-04-02')
         expect(military_information).to receive(:discharge_type).and_return('honorable')
@@ -512,9 +526,11 @@ RSpec.describe FormProfile, type: :model do
           to: '2016-06-01'
         )
       end
+      # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
       context 'with vets360 prefill on' do
         before do
+          stub_methods_for_emis_data
           Settings.vet360.prefill = true
 
           v22_1990_expected['email'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
@@ -540,6 +556,7 @@ RSpec.describe FormProfile, type: :model do
 
       context 'with a user that can prefill emis' do
         before do
+          stub_methods_for_emis_data
           can_prefill_emis(true)
         end
 
@@ -555,6 +572,7 @@ RSpec.describe FormProfile, type: :model do
           21-686C
           1010ez
           22-0993
+          FEEDBACK-TOOL
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             expect_prefilled(form_id)

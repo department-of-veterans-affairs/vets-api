@@ -22,8 +22,7 @@ unless ENV['NOCOVERAGE']
 
   SimpleCov.start 'rails' do
     track_files '**/{app,lib}/**/*.rb'
-    # TODO: remove this filter after removing sentry logging
-    add_filter 'app/controllers/v0/profile'
+    add_filter 'app/controllers/concerns/accountable.rb'
     add_filter 'config/initializers/sidekiq.rb'
     add_filter 'config/initializers/statsd.rb'
     add_filter 'config/initializers/mvi_settings.rb'
@@ -36,17 +35,21 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/vic/configuration.rb'
     add_filter 'lib/salesforce/configuration.rb'
     add_filter 'lib/gibft/configuration.rb'
-    # TODO: Remove once Vet360 is ready to merge into master
-    add_filter 'lib/vet360'
+    add_filter 'lib/vet360/response.rb'
+    add_filter 'lib/vet360/exceptions/builder.rb'
     # TODO: Remove once IHub is ready to merge into master
     add_filter 'lib/ihub'
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/central_mail/service.rb'
+    add_filter 'lib/search/response.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'AppealsApi', 'modules/appeals_api/'
+    add_group 'VaFacilities', 'modules/va_facilities/'
+    add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_filter 'version.rb'
+    add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end

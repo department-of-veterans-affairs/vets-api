@@ -7,7 +7,7 @@ class GIBillFeedback < Common::RedisStore
   attr_accessor(:user)
   attr_accessor(:form)
 
-  FORM_ID = 'complaint-tool'
+  FORM_ID = 'FEEDBACK-TOOL'
 
   redis_store REDIS_CONFIG['gi_bill_feedback']['namespace']
   redis_ttl REDIS_CONFIG['gi_bill_feedback']['each_ttl']
@@ -31,40 +31,25 @@ class GIBillFeedback < Common::RedisStore
     @parsed_response ||= JSON.parse(response)
   end
 
-  def get_school_details(facility_code)
-    attributes = GI::Client.new.get_institution_details(id: facility_code)[:data][:attributes]
-
-    {
-      'name' => attributes[:name],
-      'address' => {
-        'street' => [attributes[:address_1], attributes[:address_2]].compact.join(' '),
-        'street2' => attributes[:address_3],
-        'city' => attributes[:city],
-        'postal_code' => attributes[:zip],
-        'state' => attributes[:state],
-        'country' => lambda do
-          IsoCountryCodes.find(attributes[:country]).alpha2 if attributes[:country].present?
-        end.call
-      }
-    }
-  end
-
   def get_user_details
-    return {} if user.blank?
-    va_profile = user.va_profile
+    profile_data = {}
 
-    {
-      'profile_data' => {
+    if user.present?
+      va_profile = user.va_profile
+      profile_data = {
         'active_ICN' => user.icn,
         'historical_ICN' => va_profile&.historical_icns,
-        'sec_ID' => va_profile&.sec_id,
-        'SSN' => user.ssn
+        'sec_ID' => va_profile&.sec_id
       }
-    }
+    end
+
+    { 'profile_data' => profile_data }
   end
 
+  # rubocop:disable Metrics/MethodLength
   def transform_form
     transformed = parsed_form.deep_transform_keys(&:underscore)
+    transformed.delete('privacy_agreement_accepted')
     transformed['affiliation'] = transformed.delete('service_affiliation')
     transformed.delete('service_date_range').tap do |service_date_range|
       next if service_date_range.blank?
@@ -73,11 +58,16 @@ class GIBillFeedback < Common::RedisStore
     end
 
     transformed.merge!(get_user_details)
+    if transformed['social_security_number_last_four'].present?
+      transformed['profile_data']['SSN'] = transformed.delete('social_security_number_last_four')
+    end
 
     transformed['education_details'].tap do |education_details|
-      next if education_details.blank?
-      facility_code = education_details.delete('facility_code')
-      education_details['school'] = get_school_details(facility_code) if facility_code.present?
+      school = education_details['school']
+
+      transformed['facility_code'] = school.delete('facility_code')
+
+      transform_school_address(school['address'])
       %w[programs assistance].each do |key|
         education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
       end
@@ -85,9 +75,12 @@ class GIBillFeedback < Common::RedisStore
 
     transformed['issue'] = transform_keys_into_array(transformed['issue'])
     transformed['email'] = transformed.delete('anonymous_email') || transformed.delete('applicant_email')
+    transformed = Common::HashHelpers.deep_compact(transformed)
+    transformed.delete('profile_data') if transformed['profile_data'].blank?
 
     transformed
   end
+  # rubocop:enable Metrics/MethodLength
 
   def save
     originally_persisted = @persisted
@@ -100,9 +93,18 @@ class GIBillFeedback < Common::RedisStore
 
   private
 
+  def transform_school_address(address)
+    return if address['street3'].blank?
+    address['street'] = [address['street'], address['street2']].compact.join(', ')
+    address['street2'] = address.delete('street3')
+  end
+
+  def anonymous?
+    parsed_form['onBehalfOf'] == 'Anonymous'
+  end
+
   def transform_keys_into_array(hash)
-    array = []
-    return array if hash.blank?
+    return [] if hash.blank?
 
     hash.keep_if { |_, v| v.present? }.keys
   end
@@ -114,6 +116,7 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def create_submission_job
-    GIBillFeedbackSubmissionJob.perform_async(id, form, user&.uuid)
+    user_uuid = anonymous? ? nil : user&.uuid
+    GIBillFeedbackSubmissionJob.perform_async(id, form, user_uuid)
   end
 end

@@ -78,6 +78,12 @@ en:
         title: Validation error
         code: 109
         status: 422
+      not_a_safe_host_error:
+        <<: *defaults
+        title: Bad Request
+        detail: "\"%{host}\" is not a safe host"
+        code: 110
+        status: 400
       unauthorized:
         <<: *defaults
         title: Not authorized
@@ -106,6 +112,12 @@ en:
         detail: "There are no routes matching your request: %{path}"
         code: 411
         status: 404
+      unknown_format:
+        <<: *defaults
+        title: Not acceptable
+        detail: "The resource could not be returned in the requested format"
+        code: 406
+        status: 406
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity
@@ -314,6 +326,12 @@ en:
         code: 'EMIS_HIST502'
         detail: EMIS service responded with something other than the expected array of service history hashes.
         status: 502
+      EMIS_STATUS502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'EMIS_STATUS502'
+        detail: EMIS service responded with something other than veteran status information
+        status: 502
       IHUB_101:
         <<: *external_defaults
         title: Error Occurred
@@ -332,6 +350,12 @@ en:
         code: 'MVI_BD502'
         detail: MVI service responded without a birthday or a gender.
         status: 502
+      SEARCH_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_400'
+        detail: 'Search.gov service responded with a Bad Request'
+        status: 400
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -1141,6 +1165,12 @@ en:
         code: VET360_MVI204
         detail: MVI Service returned an existing Vet360 ID Identifier
         status: 400
+      VET360_MVI209:
+        <<: *external_defaults
+        title: MVIIdentifierPCE
+        code: VET360_MVI209
+        detail: PCE request identifier
+        status: 400
       VET360_MVI300:
         <<: *external_defaults
         title: MVI person deceased
@@ -1480,10 +1510,10 @@ en:
         detail: 'EVSS GI Bill Status is not available outside of working hours'
         code: 114
         status: 503
-    526:
+    disability_compensation_form:
       not_eligible:
         <<: *defaults
-        title: Proxy error
+        title: Not eligible
         detail: 'Upstream server returned not eligible response'
         code: 120
         status: 502
@@ -1507,9 +1537,28 @@ en:
         status: 500
       start_batch_job_error:
         <<: *defaults
-        title: Cannot launch the 526 post submit batch job
+        title: Start batch error
+        detail: 'Cannot launch the 526 post submit batch job'
         code: 125
         status: 502
+      max_ep_code:
+        <<: *defaults
+        title: Max EP codes
+        detail: 'The Maximum number of EP codes have been reached for this benefit type claim code'
+        code: 126
+        status: 409
+      pif_in_use:
+        <<: *defaults
+        title: PIF in use
+        detail: 'Claim could not be established. Contact the BDN team and have them run the WIPP process to delete Cancelled/Cleared PIFs'
+        code: 127
+        status: 409
+    unmapped_service_exception:
+      <<: *defaults
+      title: Internal Server Error
+      detail: 'The upstream server returned an error code that is unmapped'
+      code: 128
+      status: 400
     ppiu:
       unprocessable_entity:
         <<: *defaults

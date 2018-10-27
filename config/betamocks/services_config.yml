@@ -362,3 +362,21 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+
+# IHUB
+- :name: 'IHub'
+  :base_uri: <%= "#{URI(Settings.ihub.url).host}:#{URI(Settings.ihub.url).port}" %>
+  :endpoints:
+  # Appointments
+  - :method: :get
+    :path: "/WebParts/DEV/api/Appointments/1.0/json/ftpCRM/*"
+    :file_path: "ihub/appointments/default"
+
+# Search
+- :name: 'Search'
+  :base_uri: <%= "#{URI(Settings.search.url).host}:#{URI(Settings.search.url).port}" %>
+  :endpoints:
+  # Search results
+  - :method: :get
+    :path: "/api/v2/search/i14y"
+    :file_path: "search/default"

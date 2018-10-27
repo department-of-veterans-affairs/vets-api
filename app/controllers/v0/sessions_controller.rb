@@ -4,7 +4,7 @@ require 'base64'
 
 module V0
   class SessionsController < ApplicationController
-    skip_before_action :authenticate, only: %i[new authn_urls saml_callback saml_logout_callback]
+    skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
 
@@ -22,79 +22,52 @@ module V0
       'myhealthevet_multifactor' => 'myhealthevet_multifactor'
     }.freeze
 
-    # Collection Action: no auth required
-    # Returns the sign-in urls for mhv, dslogon, and ID.me (LOA1 only)
-    # authn_context is the policy, connect represents the ID.me flow
-    # TODO: DEPRECATED
-    def authn_urls
-      render json: {
-        mhv: SAML::SettingsService.mhv_url,
-        dslogon: SAML::SettingsService.dslogon_url,
-        idme: SAML::SettingsService.idme_loa1_url
-      }
-    end
-
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # TODO: when deprecated routes can be removed this should be changed to use different method (ie. destroy)
-    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url
+              SAML::SettingsService.mhv_url(relay_state)
             when 'dslogon'
-              SAML::SettingsService.dslogon_url
+              SAML::SettingsService.dslogon_url(relay_state)
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url + query
+              SAML::SettingsService.idme_loa1_url(relay_state) + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user)
+              SAML::SettingsService.mfa_url(current_user, relay_state)
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user)
+              SAML::SettingsService.idme_loa3_url(current_user, relay_state)
             when 'slo'
               authenticate
-              destroy_sso_cookie!
-              SAML::SettingsService.slo_url(session)
+              # HACK: should figure out why relay_state logic is not working.
+              logout_url = SAML::SettingsService.logout_url(session, relay_state)
+              if request.cookies[Settings.sso.cookie_name].present?
+                logout_url.gsub('vets.gov', 'va.gov')
+              else
+                logout_url
+              end
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
-    # Member Action: auth token required
-    # method is to opt in to MFA for those users who opted out
-    # authn_context is the policy, connect represents the ID.me flow
-    # TODO: DEPRECATED
-    def multifactor
-      render json: { multifactor_url: SAML::SettingsService.mfa_url(current_user) }
-    end
-
-    # Member Action: auth token required
-    # method is to verify LOA3. It is not necessary to verify for DSLogon or MHV who are PREMIUM users.
-    # These sign-in users return LOA3 from the auth_url flow.
-    # TODO: DEPRECATED
-    def identity_proof
-      render json: {
-        identity_proof_url: SAML::SettingsService.idme_loa3_url(current_user)
-      }
-    end
-
-    # TODO: DEPRECATED
-    def destroy
-      render json: { logout_via_get: SAML::SettingsService.slo_url(session) }, status: 202
+    def logout
+      session = Session.find(Base64.urlsafe_decode64(params[:session]))
+      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
+      destroy_user_session!(User.find(session.uuid), session)
+      redirect_to SAML::SettingsService.slo_url(session, relay_state)
     end
 
     def saml_logout_callback
-      saml_settings = saml_settings(name_identifier_value: session&.uuid)
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
                                                                raw_get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
-      session         = Session.find(logout_request&.token)
-      user            = User.find(session&.uuid)
 
-      errors = build_logout_errors(logout_response, logout_request, session, user)
+      errors = build_logout_errors(logout_response, logout_request)
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
@@ -102,38 +75,53 @@ module V0
       end
       # in the future the FE shouldnt count on ?success=true
     ensure
-      destroy_user_session!(user, session, logout_request)
-      redirect_to Settings.saml.logout_relay + '?success=true'
+      logout_request&.destroy
+      redirect_to relay_state.logout_url + '?success=true'
     end
 
-    # rubocop:disable MethodLength
     def saml_callback
       saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
         @session = @sso_service.new_session
-        async_create_evss_account(current_user)
-        set_sso_cookie!
-        redirect_to saml_callback_success_url
+
+        after_login_actions
+        redirect_to saml_login_relay_url + '?token=' + @session.token
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to Settings.saml.relay + "?auth=fail&code=#{@sso_service.auth_error_code}"
+        redirect_to saml_login_relay_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-    rescue NoMethodError
-      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
-      raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
-    # rubocop:enable MethodLength
 
     private
+
+    def saml_login_relay_url
+      return relay_state.default_login_url if current_user.nil?
+      # TODO: this validation should happen when we create the user, not here
+      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
+        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
+        return relay_state.default_login_url
+      end
+
+      if current_user.loa[:current] < current_user.loa[:highest]
+        SAML::SettingsService.idme_loa3_url(current_user, relay_state)
+      else
+        relay_state.login_url
+      end
+    end
+
+    def after_login_actions
+      set_sso_cookie!
+      AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
+    end
 
     def log_persisted_session_and_warnings
       obscure_token = Session.obscure_token(session.token)
@@ -146,45 +134,12 @@ module V0
       end
     end
 
-    def async_create_evss_account(user)
-      return unless user.authorize :evss, :access?
-      auth_headers = EVSS::AuthHeaders.new(user).to_h
-      EVSS::CreateUserAccountJob.perform_async(auth_headers)
-    end
-
-    # FIXME: This is Phase 1 of 2 more details here:
-    # https://github.com/department-of-veterans-affairs/vets-api/pull/1750
-    # Eventually this call will happen when #destroy or 'sessions/slow/new' are first invoked.
-    def destroy_user_session!(user, session, logout_request)
-      # shouldn't return an error, but we'll put everything else in an ensure block just in case.
-      MHVLoggingService.logout(user) if user
-    ensure
-      logout_request&.destroy
-      session&.destroy
-      user&.destroy
-    end
-
-    def build_logout_errors(logout_response, logout_request, session, user)
+    def build_logout_errors(logout_response, logout_request)
       errors = []
       errors.concat(logout_response.errors) unless logout_response.validate(true)
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
-      errors << 'Session not found!' if session.nil?
-      errors << 'User not found!' if user.nil?
       errors
-    end
-
-    def saml_callback_success_url
-      if current_user.loa[:current] < current_user.loa[:highest]
-        SAML::SettingsService.idme_loa3_url(current_user)
-      else
-        Settings.saml.relay + '?token=' + @session.token
-      end
-    rescue NoMethodError
-      Raven.user_context(user_context)
-      Raven.tags_context(tags_context)
-      log_message_to_sentry('SSO Callback Success URL', :warn)
-      Settings.saml.relay + '?token=' + @session.token
     end
 
     def benchmark_tags(*tags)
@@ -198,6 +153,10 @@ module V0
       STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
+    end
+
+    def relay_state
+      @relay_state ||= RelayState.new(relay_enum: params[:success_relay], url: params[:RelayState])
     end
   end
 end

@@ -14,7 +14,6 @@ module VA526ez
     include Virtus.model
 
     attribute :name, String
-    attribute :special_issues, Array[FormSpecialIssue]
     attribute :rated_disability_id, String
     attribute :rating_decision_id, String
     attribute :diagnostic_code, Integer
@@ -95,8 +94,9 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_rated_disabilities_information(user)
     return {} unless user.authorize :evss, :access?
-
-    service = EVSS::DisabilityCompensationForm::Service.new(user)
+    service = EVSS::DisabilityCompensationForm::Service.new(
+      EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+    )
     response = service.get_rated_disabilities
 
     # Remap response object to schema fields

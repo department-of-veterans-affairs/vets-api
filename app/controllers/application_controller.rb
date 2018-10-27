@@ -5,6 +5,7 @@ require 'common/exceptions'
 require 'common/client/errors'
 require 'saml/settings_service'
 require 'sentry_logging'
+require 'aes_256_cbc_encryptor'
 
 class ApplicationController < ActionController::API
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -20,6 +21,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::SentryIgnoredGatewayTimeout
   ].freeze
 
+  before_action :block_unknown_hosts
   before_action :authenticate
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
@@ -48,6 +50,12 @@ class ApplicationController < ActionController::API
   # end
 
   private
+
+  # returns a Bad Request if the incoming host header is unsafe.
+  def block_unknown_hosts
+    return if controller_name == 'example'
+    raise Common::Exceptions::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
+  end
 
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
@@ -81,6 +89,8 @@ class ApplicationController < ActionController::API
         Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
       when ActionController::ParameterMissing
         Common::Exceptions::ParameterMissing.new(exception.param)
+      when ActionController::UnknownFormat
+        Common::Exceptions::UnknownFormat.new
       when Common::Exceptions::BaseError
         exception
       when Breakers::OutageException
@@ -134,43 +144,53 @@ class ApplicationController < ActionController::API
       @session = Session.find(token)
       return false if @session.nil?
       @current_user = User.find(@session.uuid)
-      extend_sso_cookie!
-      SSOService.extend_session!(@session, @current_user)
+      if should_signout_sso?
+        destroy_user_session!(@current_user, @session)
+      else
+        extend_session!
+      end
+      @current_user.present?
     end
   end
 
-  # FIXME: methods starting here through encrypt, really ought to live in SSOService, but its complicated,
-  # Those methods should probably not be abstracted to class otherwise we'll be stuck doing:
-  # controller.send(:cookies) etc.
-  # In a future refactor consider moving some of these methods into a module for some pseudo abstraction
-  #  since classes and service objects don't play so nice with controller methods.
+  def destroy_user_session!(user, session)
+    destroy_sso_cookie!
+    session&.destroy
+    user&.destroy
+    @session = nil
+    @current_user = nil
+  end
+
+  # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
-    return unless Settings.set_sso_cookie && Settings.sso_cookie_key
-    contents = ActiveSupport::JSON.encode(cookie_value)
-    cookies[:va_session] = {
-      value: encrypt(contents, Settings.sso_cookie_key),
-      expires: 30.minutes.from_now,
-      httponly: true
+    return unless Settings.sso.cookie_enabled && @session.present?
+    encryptor = SSOEncryptor
+    contents = ActiveSupport::JSON.encode(@session.cookie_data)
+    encrypted_value = encryptor.encrypt(contents)
+    cookies[Settings.sso.cookie_name] = {
+      value: encrypted_value,
+      expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
+      secure: Settings.sso.cookie_secure,
+      httponly: true,
+      domain: Settings.sso.cookie_domain
     }
   end
 
-  def extend_sso_cookie!
+  def extend_session!
+    session.expire(Session.redis_namespace_ttl)
+    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    current_user&.expire(User.redis_namespace_ttl)
     set_sso_cookie!
   end
 
   def destroy_sso_cookie!
-    cookies.delete(:va_session)
+    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
   end
 
-  def cookie_value
-    {
-      icn: (@current_user.mhv_icn || @current_user.icn),
-      mhv_correlation_id: @current_user.mhv_correlation_id
-    }
-  end
-
-  def encrypt(message, key)
-    ActiveSupport::MessageEncryptor.new(key).encrypt_and_sign(message)
+  def should_signout_sso?
+    return false unless Settings.sso.cookie_enabled
+    return false unless Settings.sso.cookie_signout_enabled
+    cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
 
   attr_reader :current_user, :session

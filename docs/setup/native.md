@@ -6,6 +6,7 @@ If you can run docker, use the [Base Setup](/README.md#base-setup) instructions.
 
 Vets API requires:
 - PostgreSQL
+    - Including PostGIS
 - Redis
 - Ruby 2.3
 
@@ -35,12 +36,16 @@ the `vets-api` directory, run `./bin/setup-osx && source ~/.bash_profile && cd
 1. Install Postgres and enable on startup
    - `brew install postgres`
    - `brew services start postgres`
+1. Install PostGIS
+   - `brew install postgis`
 1. Install Redis
    - `brew install redis`
    - Follow post-install instructions to enable Redis on startup. Otherwise,
     launch it manually with `brew services start redis`.
 1. Install ImageMagick
    - `brew install imagemagick`
+1. Install Poppler
+   -  `brew install poppler`
 1. Install ClamAV
   - `brew install clamav`
   - Take note of the the post-install instructions `To finish installation & run

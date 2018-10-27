@@ -6,8 +6,12 @@ module Gibft
 
     CONSUMER_KEY = Settings['salesforce-gibft'].consumer_key
     SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
-    # TODO: staging and prod username
-    SALESFORCE_USERNAME = 'vetsgov-devops-cl-feeedback@listserv.gsa.gov'
+    SALESFORCE_USERNAMES = {
+      'prod' => 'vetsgov-devops@listserv.gsa.gov',
+      'uat' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.uat',
+      'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.rdtcddev'
+    }.freeze
+    SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings['salesforce-gibft'].env]
 
     def submit(form)
       client = get_client

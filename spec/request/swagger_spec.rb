@@ -35,33 +35,44 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   before do
     Session.create(uuid: mhv_user.uuid, token: token)
     User.create(mhv_user)
+    create(:account, idme_uuid: mhv_user.uuid)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
   context 'has valid paths' do
     let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
 
+    context 'for authentication' do
+      it 'supports session mhv url' do
+        expect(subject).to validate(:get, '/sessions/mhv/new', 200)
+      end
+
+      it 'supports session dslogon urs' do
+        expect(subject).to validate(:get, '/sessions/dslogon/new', 200)
+      end
+
+      it 'supports session idme url' do
+        expect(subject).to validate(:get, '/sessions/idme/new', 200)
+      end
+
+      it 'supports session mfa url' do
+        expect(subject).to validate(:get, '/sessions/mfa/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/mfa/new', 401)
+      end
+
+      it 'supports session verify url' do
+        expect(subject).to validate(:get, '/sessions/verify/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/verify/new', 401)
+      end
+
+      it 'supports session slo url' do
+        expect(subject).to validate(:get, '/sessions/slo/new', 200, auth_options)
+        expect(subject).to validate(:get, '/sessions/slo/new', 401)
+      end
+    end
+
     it 'supports getting backend service status' do
       expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, auth_options.merge('service' => 'gibs'))
-    end
-
-    it 'supports fetching authentication urls' do
-      expect(subject).to validate(:get, '/v0/sessions/authn_urls', 200)
-    end
-
-    it 'supports invoking multifactor policy' do
-      expect(subject).to validate(:get, '/v0/sessions/multifactor', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/sessions/multifactor', 401)
-    end
-
-    it 'supports fetching identity verification url' do
-      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 200, auth_options)
-      expect(subject).to validate(:get, '/v0/sessions/identity_proof', 401)
-    end
-
-    it 'supports session deletion' do
-      expect(subject).to validate(:delete, '/v0/sessions', 202, auth_options)
-      expect(subject).to validate(:delete, '/v0/sessions', 401)
     end
 
     it 'supports listing in-progress forms' do
@@ -331,9 +342,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
+      it 'supports getting suggested conditions' do
+        create(:disability_contention_arrhythmia)
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          401,
+          'params' => '?name_part=arr'
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/suggested_conditions{params}',
+          200,
+          auth_options.merge('params' => '?name_part=arr')
+        )
+      end
+
       it 'supports submitting the form' do
-        allow(EVSS::DisabilityCompensationForm::SubmitUploads)
-          .to receive(:start).and_return("JID-#{SecureRandom.base64}")
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
+          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
         expect(subject).to validate(:post, '/v0/disability_compensation_form/submit', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
@@ -351,6 +378,26 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             end
           end
         end
+      end
+
+      it 'supports getting submission status' do
+        job_id = SecureRandom.uuid
+        create(:va526ez_submit_transaction,
+               transaction_id: job_id,
+               transaction_status: 'submitted',
+               metadata: {})
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          401,
+          'job_id' => job_id
+        )
+        expect(subject).to validate(
+          :get,
+          '/v0/disability_compensation_form/submission_status/{job_id}',
+          200,
+          auth_options.merge('job_id' => job_id)
+        )
       end
     end
 
@@ -1132,6 +1179,33 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
                                       '_query_string' => 'type[]=foo&name_part=por')
         end
+
+        regex_matcher = lambda { |r1, r2|
+          r1.uri.match(r2.uri)
+        }
+        it 'supports getting a provider by id' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_123123')
+          end
+        end
+
+        it '400s on improper id' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
+          end
+        end
+
+        it '404s if provider is missing' do
+          VCR.use_cassette('facilities/va/ppms_nonexistent', match_requests_on: [:method]) do
+            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 404, 'id' => 'ccp_123123')
+          end
+        end
+
+        it 'supports getting the services list' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_123123')
+          end
+        end
       end
     end
 
@@ -1206,6 +1280,28 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'returns a 502 with error details' do
           expect(subject).to validate(:get, '/v0/appointments', 502, auth_options)
         end
+      end
+    end
+
+    describe 'performance monitoring' do
+      it 'supports posting performance monitoring data' do
+        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
+        body = {
+          data: {
+            page_id: whitelisted_path,
+            metrics: [
+              { metric: 'totalPageLoad', duration: 1234.56 },
+              { metric: 'firstContentfulPaint', duration: 123.45 }
+            ]
+          }.to_json
+        }
+
+        expect(subject).to validate(
+          :post,
+          '/v0/performance_monitorings',
+          200,
+          auth_options.merge('_data' => body.as_json)
+        )
       end
     end
 
@@ -1598,6 +1694,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         allow(EMISRedis::MilitaryInformation).to receive_message_chain(:for_user, :service_history) { nil }
 
         expect(subject).to validate(:get, '/v0/profile/service_history', 502, auth_options)
+      end
+    end
+
+    describe 'search' do
+      context 'when successful' do
+        it 'supports getting search results data' do
+          VCR.use_cassette('search/success') do
+            expect(subject).to validate(:get, '/v0/search', 200, '_query_string' => 'query=benefits')
+          end
+        end
+      end
+
+      context 'with an empty search query' do
+        it 'returns a 400 with error details' do
+          VCR.use_cassette('search/empty_query') do
+            expect(subject).to validate(:get, '/v0/search', 400, '_query_string' => 'query=')
+          end
+        end
       end
     end
   end

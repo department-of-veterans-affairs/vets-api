@@ -70,10 +70,10 @@ Vets API is configured with [Config](https://github.com/railsconfig/config). The
 default configuration is contained in [settings.yml](config/settings.yml). To
 customize your setup, you can create a `config/settings.local.yml` file with
 configuration specific to your needs. For example, to configure Redis and
-PostgreSQL, place something like this in that file:
+PostgreSQL (PostGIS is required), place something like this in that file:
 
 ```yaml
-database_url: postgres://pg_host:9999/custom_db
+database_url: postgis://pg_host:9999/custom_db
 
 redis:
   host: redis_host
@@ -82,6 +82,16 @@ redis:
 
 This is also where you will place any other customizations, such as API tokens
 or certificate paths.
+
+Config settings that vary in value depending on the deployment environment will also need
+to be set appropriately for each environment in the relevant 
+[devops (Private Repo)](https://github.com/department-of-veterans-affairs/devops/blob/master/ansible/deployment/config/vets-api) configurations (dev-, staging-, and prod-settings.local.yml.j2). 
+
+Some examples of configuration that will need to be added to these files are:
+
+* API keys/tokens
+* 3rd party service hostnames, ports, and certificates/keys.
+* Betamocks settings
 
 ### Optional application configuration
 

@@ -63,6 +63,7 @@ Rails.application.configure do
     end,
     ref: ->(_request) { AppInfo::GIT_REVISION },
     consumer_id: ->(request) { request.headers['X-Consumer-ID'] },
+    consumer_username: ->(request) { request.headers['X-Consumer-Username'] },
     consumer_custom_id: ->(request) { request.headers['X-Consumer-Custom-ID'] },
     credential_username: ->(request) { request.headers['X-Credential-Username'] }
   }

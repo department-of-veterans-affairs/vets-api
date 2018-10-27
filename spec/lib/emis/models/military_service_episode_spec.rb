@@ -10,4 +10,12 @@ describe EMIS::Models::MilitaryServiceEpisode do
       )
     end
   end
+
+  describe '#hca_branch_of_service' do
+    it 'should convert the code into a branch name' do
+      expect(described_class.new(branch_of_service_code: 'F').hca_branch_of_service).to eq(
+        'air force'
+      )
+    end
+  end
 end

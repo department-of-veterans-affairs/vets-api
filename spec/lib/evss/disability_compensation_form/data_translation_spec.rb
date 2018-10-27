@@ -129,7 +129,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     context 'when the address is INTERNATIONAL' do
       let(:address) do
         {
-          'country' => 'MEX',
+          'country' => 'Mexico',
           'addressLine1' => '123 Buena Vista St.',
           'city' => 'Mexico City'
         }
@@ -138,9 +138,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
       it 'should transform the address correctly' do
         result_hash = {
           'type' => 'INTERNATIONAL',
-          'country' => 'MEX',
+          'country' => 'Mexico',
           'addressLine1' => '123 Buena Vista St.',
-          'city' => 'Mexico City'
+          'city' => 'Mexico City',
+          'internationalPostalCode' => '773'
         }
         expect(subject.send(:translate_mailing_address, address)).to eq result_hash
       end
@@ -317,8 +318,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     end
   end
 
-  describe '#get_banking_info' do
-    context 'when the account exists' do
+  describe '#set_banking_info' do
+    context 'when the payment information exists' do
       let(:payment_info) do
         {
           'accountType' => 'CHECKING',
@@ -328,10 +329,31 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
         }
       end
 
-      it 'should translate the payment information correctly' do
+      it 'should set the payment information correctly' do
         VCR.use_cassette('evss/ppiu/payment_information') do
-          expect(subject.send(:get_banking_info)).to eq payment_info
+          subject.send(:set_banking_info)
+          expect(
+            subject.instance_variable_get(:@form_content).dig('form526', 'directDeposit')
+          ).to eq payment_info
         end
+      end
+    end
+
+    context 'when the payment information does not exist' do
+      let(:response) do
+        OpenStruct.new(
+          get_payment_information: OpenStruct.new(
+            responses: [OpenStruct.new(payment_account: nil)]
+          )
+        )
+      end
+
+      it 'should not set payment information' do
+        expect(EVSS::PPIU::Service).to receive(:new).once.and_return(response)
+        subject.send(:set_banking_info)
+        expect(
+          subject.instance_variable_get(:@form_content).dig('form526', 'directDeposit')
+        ).to eq nil
       end
     end
   end

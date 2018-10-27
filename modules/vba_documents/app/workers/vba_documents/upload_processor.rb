@@ -15,6 +15,12 @@ module VBADocuments
     REQUIRED_KEYS = %w[veteranFirstName veteranLastName fileNumber zipCode].freeze
     FILE_NUMBER_REGEX = /^\d{8,9}$/
     MAX_PART_SIZE = 100_000_000 # 100MB
+    INVALID_ZIP_CODE_ERROR_REGEX = /Invalid zipCode/
+    MISSING_ZIP_CODE_ERROR_REGEX = /Missing zipCode/
+    INVALID_ZIP_CODE_ERROR_MSG = 'Invalid ZIP Code. ZIP Code must be 5 digits, ' \
+      'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
+    MISSING_ZIP_CODE_ERROR_MSG = 'Missing ZIP Code. ZIP Code must be 5 digits, ' \
+      'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
@@ -29,9 +35,7 @@ module VBADocuments
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
-        Rails.logger.info('VBADocuments: Submission failure',
-                          'uuid' => guid, 'source' => upload.consumer_name,
-                          'code' => e.code, 'detail' => e.detail)
+        log_error(e, upload)
       ensure
         tempfile.close
         close_part_files(parts) if parts.present?
@@ -40,12 +44,24 @@ module VBADocuments
 
     private
 
+    def log_error(e, upload)
+      Rails.logger.info('VBADocuments: Submission failure',
+                        'consumer_id' => upload.consumer_id,
+                        'consumer_username' => upload.consumer_name,
+                        'source' => upload.consumer_name,
+                        'uuid' => upload.guid,
+                        'code' => e.code,
+                        'detail' => e.detail)
+    end
+
     def log_submission(metadata, upload)
       page_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.reduce(0) { |sum, (_, v)| sum + v }
       pdf_total = metadata.select { |k, _| k.to_s.start_with?('numberPages') }.count
       Rails.logger.info('VBADocuments: Submission success',
                         'uuid' => metadata['uuid'],
                         'source' => upload.consumer_name,
+                        'consumer_id' => upload.consumer_id,
+                        'consumer_username' => upload.consumer_name,
                         'docType' => metadata['docType'],
                         'pageCount' => page_total,
                         'pdfCount' => pdf_total)
@@ -91,8 +107,14 @@ module VBADocuments
 
     def map_downstream_error(status, body)
       if status.between?(400, 499)
-        raise VBADocuments::UploadError.new(code: 'DOC104',
-                                            detail: "Downstream status: #{status} - #{body}")
+        detail = if body =~ INVALID_ZIP_CODE_ERROR_REGEX
+                   INVALID_ZIP_CODE_ERROR_MSG
+                 elsif body =~ MISSING_ZIP_CODE_ERROR_REGEX
+                   MISSING_ZIP_CODE_ERROR_MSG
+                 else
+                   body
+                 end
+        raise VBADocuments::UploadError.new(code: 'DOC104', detail: "Downstream status: #{status} - #{detail}")
       # Defined values: 500
       elsif status.between?(500, 599)
         raise VBADocuments::UploadError.new(code: 'DOC201',
@@ -119,7 +141,7 @@ module VBADocuments
       end
       unless parts.key?(DOC_PART_NAME)
         raise VBADocuments::UploadError.new(code: 'DOC103',
-                                            detail: 'No document part present')
+                                            detail: 'Submission did not include a document.')
       end
       if parts[DOC_PART_NAME].is_a?(String)
         raise VBADocuments::UploadError.new(code: 'DOC103',
@@ -179,9 +201,9 @@ module VBADocuments
     def get_hash_and_pages(file_path, part)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PDF::Reader.new(file_path).pages.size
+        pages: PdfInfo::Metadata.read(file_path).pages
       }
-    rescue PDF::Reader::MalformedPDFError
+    rescue PdfInfo::MetadataReadError
       raise VBADocuments::UploadError.new(code: 'DOC103',
                                           detail: "Invalid PDF content, part #{part}")
     end

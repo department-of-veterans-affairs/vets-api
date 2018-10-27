@@ -137,6 +137,20 @@ describe Preneeds::Service do
         expect(application).to be_a(Preneeds::ReceiveApplication)
       end
     end
+
+    context 'with foreign address' do
+      let(:burial_form_foreign_address) { build(:burial_form_foreign_address) }
+      it 'includes the <state> attribute in the request XML' do
+        client = Savon.client(wsdl: Settings.preneeds.wsdl)
+        soap = client.build_request(
+          :receive_pre_need_application,
+          message: {
+            pre_need_request: burial_form_foreign_address.as_eoas
+          }
+        )
+        expect(soap.body).to match(%r{<\/postalZip><state><\/state>})
+      end
+    end
   end
 
   describe 'build_multipart' do

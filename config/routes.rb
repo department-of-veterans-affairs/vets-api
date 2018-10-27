@@ -30,14 +30,16 @@ Rails.application.routes.draw do
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       post 'submit'
+      post 'submit_all_claim'
+      get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
+      get 'user_submissions'
+      get 'suggested_conditions'
     end
 
     resource :upload_supporting_evidence, only: :create
 
-    resource :sessions, only: :destroy do
-      get :authn_urls, on: :collection
-      get :multifactor, on: :member
-      get :identity_proof, on: :member
+    resource :sessions, only: [] do
+      get  :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
@@ -129,7 +131,9 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      resources :ccp, only: %i[show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
+      get 'services', to: 'ccp#services'
     end
 
     scope :gi, module: 'gi' do
@@ -178,6 +182,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :performance_monitorings, only: :create
+
     namespace :profile do
       resource :alternate_phone, only: %i[show create]
       resource :email, only: %i[show create]
@@ -204,6 +210,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resources :search, only: :index
+
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
@@ -216,12 +224,15 @@ Rails.application.routes.draw do
     get 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#latest_user_data'
     post 'terms_and_conditions/:name/versions/latest/user_data', to: 'terms_and_conditions#accept_latest'
 
-    resource :mhv_account, only: %i[show create]
+    resource :mhv_account, only: %i[show create] do
+      post :upgrade
+    end
 
     [
       'profile',
       'dashboard',
       'veteran_id_card',
+      'claim_increase',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
@@ -238,6 +249,8 @@ Rails.application.routes.draw do
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
+    mount VaFacilities::Engine, at: '/va_facilities'
+    mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
