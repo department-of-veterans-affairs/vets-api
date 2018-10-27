@@ -668,15 +668,15 @@ module HCA
       veteran
     end
 
-    def remove_unicode!(value)
+    def remove_ctrl_chars!(value)
       if value.is_a?(Hash)
         value.each do |k, v|
-          value[k] = remove_unicode!(v)
+          value[k] = remove_ctrl_chars!(v)
         end
       elsif value.is_a?(Array)
-        value.map! { |i| remove_unicode!(i) }
+        value.map! { |i| remove_ctrl_chars!(i) }
       else
-        Iconv.conv('ASCII//IGNORE', 'UTF8', value)
+        value.tr("\u0000-\u001f\u007f\u2028",'')
       end
     end
 
@@ -695,7 +695,7 @@ module HCA
       }
 
       convert_hash_values!(request)
-      remove_unicode!(request)
+      remove_ctrl_chars!(request)
       request
     end
   end
