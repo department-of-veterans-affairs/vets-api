@@ -27,6 +27,7 @@
   "isWhite": true,
   "veteranAddress": {
     "street": "123 NW 5th St",
+    "street2": "\u0010",
     "city": "Washington",
     "country": "USA",
     "state": "DC",
@@ -49,7 +50,7 @@
   "cohabitedLastYear": true,
   "provideSupportLastYear": false,
   "spouseAddress": {
-    "street": "10 PERIMETER PARK DRIVE UNIT",
+    "street": "10 Psdf",
     "city": "Dulles",
     "country": "USA",
     "state": "VA",
