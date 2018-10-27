@@ -668,6 +668,18 @@ module HCA
       veteran
     end
 
+    def remove_unicode!(value)
+      if value.is_a?(Hash)
+        value.each do |k, v|
+          value[k] = remove_unicode!(v)
+        end
+      elsif value.is_a?(Array)
+        value.map! { |i| remove_unicode!(i) }
+      else
+        Iconv.conv('ASCII//IGNORE', 'UTF8', value)
+      end
+    end
+
     def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
@@ -683,6 +695,7 @@ module HCA
       }
 
       convert_hash_values!(request)
+      remove_unicode!(request)
       request
     end
   end
