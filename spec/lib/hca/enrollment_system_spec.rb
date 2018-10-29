@@ -193,7 +193,7 @@ describe HCA::EnrollmentSystem do
           },
           c: "sdfsdf\u0010"
         },
-        {:a=>{:b=>["sdfsdf", "sdfsdf"]}, :c=>"sdfsdf"}
+        { a: { b: %w[sdfsdf sdfsdf] }, c: 'sdfsdf' }
       ]
     ]
   )
