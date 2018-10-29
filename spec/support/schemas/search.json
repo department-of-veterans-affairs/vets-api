@@ -111,6 +111,23 @@
         }
       },
       "type": "object"
+    },
+    "meta": {
+      "type": "object",
+      "required": ["pagination"],
+      "properties": {
+        "pagination": {
+          "type": "object",
+          "description": "The details around the page numbers and per page results",
+          "required": ["current_page", "per_page", "total_pages", "total_entries"],
+          "properties": {
+            "current_page": { "type": "integer" },
+            "per_page": { "type": "integer" },
+            "total_pages": { "type": "integer" },
+            "total_entries": { "type": "integer" }
+          }
+        }
+      }
     }
   },
   "type": "object"
