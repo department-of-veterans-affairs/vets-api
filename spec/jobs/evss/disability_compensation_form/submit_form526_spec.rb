@@ -275,4 +275,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
     end
   end
+
+  describe '#workflow_complete_handler' do
+    let(:saved_claim) { instance_double('SavedClaim::DisabilityCompensation') }
+    let(:submission) { create(:disability_compensation_submission) }
+
+    before do
+      allow_any_instance_of(subject).to receive(:saved_claim).and_return(saved_claim)
+      allow(saved_claim).to receive(:submission).and_return(submission)
+    end
+
+    it 'sets the submission.complete to true' do
+      expect(submission.complete).to be_falsey
+      subject.new.workflow_complete_handler(nil, 'saved_claim_id' => 123)
+      expect(submission.complete).to be_truthy
+    end
+  end
 end
