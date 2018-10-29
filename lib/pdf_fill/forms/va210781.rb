@@ -3,7 +3,7 @@
 module PdfFill
   module Forms
     class Va210781 < FormBase
-      include FormHelper
+      include CommonPtsd
 
       INCIDENT_ITERATOR = PdfFill::HashConverter::ITERATOR
 
@@ -287,9 +287,9 @@ module PdfFill
       }.freeze
 
       def merge_fields
-        expand_veteran_full_name
-        expand_ssn
-        expand_veteran_dob
+        @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
+        @form_data = expand_ssn(@form_data)
+        @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
         expand_incidents(@form_data['incident'])
 
         expand_signature(@form_data['veteranFullName'])
@@ -298,87 +298,14 @@ module PdfFill
         @form_data
       end
 
-      def expand_veteran_full_name
-        @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
-      end
-
-      def expand_ssn
-        ssn = @form_data['veteranSocialSecurityNumber']
-        return if ssn.blank?
-        ['', '1', '2'].each do |suffix|
-          @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
-        end
-      end
-
-      def expand_veteran_dob
-        veteran_date_of_birth = @form_data['veteranDateOfBirth']
-        return if veteran_date_of_birth.blank?
-        @form_data['veteranDateOfBirth'] = split_date(veteran_date_of_birth)
-      end
-
-      def expand_incident_date(incident)
-        incident_date = incident['incidentDate']
-        return if incident_date.blank?
-        incident['incidentDate'] = split_date(incident_date)
-      end
-
-      def expand_incident_location(incident)
-        incident_location = incident['incidentLocation']
-        return if incident_location.blank?
-
-        split_incident_location = {}
-        s_location = incident_location.scan(/(.{1,30})(\s+|$)/)
-
-        s_location.each_with_index do |row, index|
-          split_incident_location["row#{index}"] = row[0]
-        end
-
-        incident['incidentLocation'] = split_incident_location
-      end
-
-      def expand_incident_unit_assignment(incident)
-        incident_unit_assignment = incident['unitAssigned']
-        return if incident_unit_assignment.blank?
-
-        split_incident_unit_assignment = {}
-        s_incident_unit_assignment = incident_unit_assignment.scan(/(.{1,30})(\s+|$)/)
-
-        s_incident_unit_assignment.each_with_index do |row, index|
-          split_incident_unit_assignment["row#{index}"] = row[0]
-        end
-
-        incident['unitAssigned'] = split_incident_unit_assignment
-      end
-
-      def expand_unit_assigned_dates(incident)
-        incident_unit_assigned_dates = incident['unitAssignedDates']
-        return if incident_unit_assigned_dates.blank?
-        from_dates = split_date(incident_unit_assigned_dates['from'])
-        to_dates = split_date(incident_unit_assigned_dates['to'])
-
-        unit_assignment_dates = {
-          'fromMonth' => from_dates['month'],
-          'fromDay' => from_dates['day'],
-          'fromYear' => from_dates['year'],
-          'toMonth' => to_dates['month'],
-          'toDay' => to_dates['day'],
-          'toYear' => to_dates['year']
-        }
-
-        incident_unit_assigned_dates.except!('to')
-        incident_unit_assigned_dates.except!('from')
-        incident_unit_assigned_dates.merge!(unit_assignment_dates)
-      end
-
       def expand_incidents(incidents)
         return if incidents.blank?
-
         incidents.each_with_index do |incident, index|
-          expand_incident_overflow(incident, index + 1)
-          expand_incident_date(incident)
+          format_incident_overflow(incident, index + 1)
+          incident['incidentDate'] = expand_incident_date(incident)
           expand_unit_assigned_dates(incident)
-          expand_incident_location(incident)
-          expand_incident_unit_assignment(incident)
+          incident['incidentLocation'] = expand_incident_location(incident)
+          incident['unitAssigned'] = expand_incident_unit_assignment(incident)
           expand_persons_involved(incident)
         end
       end
@@ -440,48 +367,23 @@ module PdfFill
 
       def resolve_cause_injury_death(person_involved, index)
         return if person_involved.blank?
-
         cause = person_involved['injuryDeath']
-
-        case cause
-        when 'Killed in Action'
-          person_involved["killedInAction#{index}"] = true
-        when 'Killed Non-Battle'
-          person_involved["killedNonBattle#{index}"] = true
-        when 'Wounded in Action'
-          person_involved["woundedInAction#{index}"] = true
-        when 'Injured Non-Battle'
-          person_involved["injuredNonBattle#{index}"] = true
-        when 'Other'
-          person_involved["other#{index}"] = true
-          person_involved["otherText#{index}"] = person_involved['injuryDeathOther']
-        end
-
+        cause_map = {
+          'Killed in Action' => "killedInAction#{index}",
+          'Killed Non-Battle' => "killedNonBattle#{index}",
+          'Wounded in Action' => "woundedInAction#{index}",
+          'Injured Non-Battle' => "injuredNonBattle#{index}",
+          'Other' => "other#{index}"
+        }
+        person_involved[cause_map[cause]] = true
+        person_involved["otherText#{index}"] = person_involved['injuryDeathOther'] if cause == 'Other'
         person_involved.except!('injuryDeath')
       end
 
-      def get_unit_date_overflow(unit_assigned_dates)
-        unit_assigned_dates_overflow = combine_date_ranges(unit_assigned_dates)
-        unit_assigned_dates_overflow.nil? ? '' : unit_assigned_dates_overflow
-      end
+      def format_incident_overflow(incident, index)
+        incident_overflow = format_incident(incident, index)
 
-      def expand_incident_overflow(incident, index)
-        return if incident.blank?
-        incident_overflow = ["Incident Number: #{index}"]
-
-        incident_date = incident['incidentDate'].nil? ? '' : incident['incidentDate']
-        incident_overflow.push('Incident Date: ' + incident_date)
-
-        incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_overflow([incident['unitAssignedDates']]))
-
-        incident_location = incident['incidentLocation'].nil? ? '' : incident['incidentLocation']
-        incident_overflow.push("Incident Location: \n\n" + incident_location)
-
-        incident_unit_assigned = incident['unitAssigned'].nil? ? '' : incident['unitAssigned']
-        incident_overflow.push("Unit Assignment During Incident: \n\n" + incident_unit_assigned)
-
-        incident_description = incident['incidentDescription'].nil? ? '' : incident['incidentDescription']
-        incident_overflow.push("Description of Incident: \n\n" + incident_description)
+        return if incident_overflow.nil?
 
         incident_medals_citations = incident['medalsCitations'].nil? ? '' : incident['medalsCitations']
         incident_overflow.push("Medals Or Citations: \n\n" + incident_medals_citations)
@@ -495,7 +397,6 @@ module PdfFill
 
         persons_involved = incident['personInvolved']
         overflow_people = []
-
         persons_involved.each_with_index do |person, _index|
           overflow_person = []
           overflow_person.push(combine_full_name(person['name']))
