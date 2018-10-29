@@ -25,7 +25,6 @@ module Swagger
       swagger_path '/v0/preneeds/burial_forms' do
         operation :post do
           extend Swagger::Responses::ValidationError
-          extend Swagger::Responses::SavedForm
 
           key :description, 'Submit a pre-need burial eligibility claim'
           key :operationId, 'addPreneedsClaim'
@@ -118,6 +117,26 @@ module Swagger
                 end
                 property :ssn, type: :string, example: '234234234'
                 property :vaClaimNumber, type: :string, example: '234234234'
+              end
+            end
+          end
+
+          response 200 do
+            key :description, 'Application was submitted successfully'
+            schema do
+              key :required, [:data]
+              property :data, type: :object do
+                key :required, [:attributes, :id, :type]
+                property :id, type: :string, example: 'MQP6Tmqi44S1y5wEWGVG'
+                property :type, type: :string, example: 'preneeds_receive_applications'
+                property :attributes, type: :object do
+                  property :receive_application_id, type: :string, example: 'MQP6Tmqi44S1y5wEWGVG'
+                  property :tracking_number, type: :string, example: 'MQP6Tmqi44S1y5wEWGVG'
+                  property :return_code, type: :integer, example: 0
+                  property :application_uuid, type: :string, example: '8da5eb1a-26b4-48e3-99ca-089453472df7'
+                  property :return_description, type: :string, example: 'PreNeed Application Received Successfully.'
+                  property :submitted_at, type: :string, example: '2018-10-29T14:28:46.201Z'
+                end
               end
             end
           end
