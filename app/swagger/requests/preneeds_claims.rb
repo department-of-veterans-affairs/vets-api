@@ -5,6 +5,23 @@ module Swagger
     class PreneedsClaims
       include Swagger::Blocks
 
+      swagger_schema :PreneedAddress do
+        property :street, type: :string, example: '140 Rock Creek Church Rd NW'
+        property :street2, type: :string, example: ''
+        property :city, type: :string, example: 'Washington'
+        property :country, type: :string, example: 'USA'
+        property :state, type: :string, example: 'DC'
+        property :postalCode, type: :string, example: '20011'
+      end
+
+      swagger_schema :PreneedName do
+        property :first, type: :string, example: 'Jon'
+        property :middle, type: :string, example: 'Bob'
+        property :last, type: :string, example: 'Doe'
+        property :suffix, type: :string, example: 'Jr.'
+        property :maiden, type: :string, example: 'Smith'
+      end
+
       swagger_path '/v0/preneeds/burial_forms' do
         operation :post do
           extend Swagger::Responses::ValidationError
@@ -30,10 +47,7 @@ module Swagger
               property :currentlyBuriedPersons, type: :array, description: 'data about uploaded attachments' do
                 items do
                   property :name, type: :object do
-                    property :first, type: :string, example: 'Jon'
-                    property :middle, type: :string, example: 'Bob'
-                    property :last, type: :string, example: 'Doe'
-                    property :suffix, type: :string, example: 'Jr.'
+                    key :'$ref', :PreneedName
                   end
                   property :cemeteryNumber, type: :string, example: '234'
                 end
@@ -52,39 +66,21 @@ module Swagger
                 property :applicantRelationshipToClaimant, type: :string, example: 'Authorized Agent/Rep'
                 property :completingReason, type: :string, example: 'a reason'
                 property :mailingAddress, type: :object do
-                  property :street, type: :string, example: '140 Rock Creek Church Rd NW'
-                  property :street2, type: :string, example: ''
-                  property :city, type: :string, example: 'Washington'
-                  property :country, type: :string, example: 'USA'
-                  property :state, type: :string, example: 'DC'
-                  property :postalCode, type: :string, example: '20011'
+                  key :'$ref', :PreneedAddress
                 end
                 property :name, type: :object do
-                  property :first, type: :string, example: 'Jon'
-                  property :middle, type: :string, example: 'Bob'
-                  property :last, type: :string, example: 'Doe'
-                  property :maiden, type: :string, example: 'Smith'
-                  property :suffix, type: :string, example: 'Jr.'
+                  key :'$ref', :PreneedName
                 end
               end
               property :claimant, type: :object do
                 property :address, type: :object do
-                  property :street, type: :string, example: '140 Rock Creek Church Rd NW'
-                  property :street2, type: :string, example: ''
-                  property :city, type: :string, example: 'Washington'
-                  property :country, type: :string, example: 'USA'
-                  property :state, type: :string, example: 'DC'
-                  property :postalCode, type: :string, example: '20011'
+                  key :'$ref', :PreneedAddress
                 end
                 property :dateOfBirth, type: :string, example: '1960-12-30'
                 property :desiredCemetery, type: :string, example: '234'
                 property :email, type: :string, example: 'jon.doe@example.com'
                 property :name, type: :object do
-                  property :first, type: :string, example: 'Jon'
-                  property :middle, type: :string, example: 'Bob'
-                  property :last, type: :string, example: 'Doe'
-                  property :maiden, type: :string, example: 'Smith'
-                  property :suffix, type: :string, example: 'Jr.'
+                  key :'$ref', :PreneedName
                 end
                 property :phoneNumber, type: :string, example: '5551235454'
                 property :relationshipToVet, type: :string, example: '2'
@@ -92,19 +88,10 @@ module Swagger
               end
               property :veteran, type: :object do
                 property :address, type: :object do
-                  property :street, type: :string, example: '140 Rock Creek Church Rd NW'
-                  property :street2, type: :string, example: ''
-                  property :city, type: :string, example: 'Washington'
-                  property :country, type: :string, example: 'USA'
-                  property :state, type: :string, example: 'DC'
-                  property :postalCode, type: :string, example: '20011'
+                  key :'$ref', :PreneedAddress
                 end
                 property :currentName, type: :object do
-                  property :first, type: :string, example: 'Jon'
-                  property :middle, type: :string, example: 'Bob'
-                  property :last, type: :string, example: 'Doe'
-                  property :maiden, type: :string, example: 'Smith'
-                  property :suffix, type: :string, example: 'Jr.'
+                  key :'$ref', :PreneedName
                 end
                 property :dateOfBirth, type: :string, example: '1960-12-30'
                 property :dateOfDeath, type: :string, example: '1990-12-30'
@@ -115,10 +102,7 @@ module Swagger
                 property :militaryStatus, type: :string, example: 'D'
                 property :placeOfBirth, type: :string, example: '140 Rock Creek Church Rd NW'
                 property :serviceName, type: :object do
-                  property :first, type: :string, example: 'Jon'
-                  property :middle, type: :string, example: 'Bob'
-                  property :last, type: :string, example: 'Doe'
-                  property :suffix, type: :string, example: 'Jr.'
+                  key :'$ref', :PreneedName
                 end
                 property :serviceRecords, type: :array, description: 'data about tours of duty' do
                   items do
