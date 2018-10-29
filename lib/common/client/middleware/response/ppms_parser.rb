@@ -7,7 +7,6 @@ module Common
         class PPMSParser < Faraday::Response::Middleware
           def on_complete(env)
             env.body = parse_body(env)
-            env.body = [] if env.body.nil?
           end
 
           private

@@ -129,7 +129,6 @@ RSpec.describe 'VA GIS Integration', type: :request do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
       setup_pdx
       get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
-      puts(response.body)
       expect(response).to be_success
       expect(response.body).to be_a(String)
     end
@@ -139,6 +138,14 @@ RSpec.describe 'VA GIS Integration', type: :request do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
       setup_pdx
       get BASE_QUERY_PATH + PDX_BBOX + '&address=97089'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+    end
+  end
+
+  it 'responds to GET #index with success even if no providers are found' do
+    VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
+      get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
       expect(response).to be_success
       expect(response.body).to be_a(String)
     end
