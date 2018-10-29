@@ -42,7 +42,9 @@ describe EVSS::DisabilityCompensationForm::Service do
   end
 
   describe '#submit_form' do
-    let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/fe_submission_with_uploads.json' }
+    let(:valid_form_content) do
+      File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
+    end
     context 'with valid input' do
       it 'returns a form submit response object' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
