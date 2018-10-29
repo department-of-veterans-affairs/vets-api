@@ -71,7 +71,7 @@ class OpenidApplicationController < ApplicationController
 
   def user_identity_from_profile(ttl)
     uid = token_payload['uid']
-    conn = Faraday.new(Settings.oidc.profile_api_url)
+    conn = Okta::Service.new(Settings.oidc.profile_api_url)
     profile_response = conn.get do |req|
       req.url uid
       req.headers['Content-Type'] = 'application/json'
