@@ -126,7 +126,7 @@ module Swagger
             schema do
               key :required, [:data]
               property :data, type: :object do
-                key :required, [:attributes, :id, :type]
+                key :required, %i[attributes id type]
                 property :id, type: :string, example: 'MQP6Tmqi44S1y5wEWGVG'
                 property :type, type: :string, example: 'preneeds_receive_applications'
                 property :attributes, type: :object do
