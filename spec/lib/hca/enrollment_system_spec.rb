@@ -188,8 +188,12 @@ describe HCA::EnrollmentSystem do
     [
       [
         {
-          
-        }
+          a: {
+            b: ["sdfsdf\u0010", "sdfsdf\u0010"]
+          },
+          c: "sdfsdf\u0010"
+        },
+        {:a=>{:b=>["sdfsdf", "sdfsdf"]}, :c=>"sdfsdf"}
       ]
     ]
   )
