@@ -15,6 +15,7 @@ module Facilities
     def provider_locator(params)
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
+      return [] if response.body.nil?
       bbox_num = params[:bbox].map { |x| Float(x) }
       response.body.select! do |provider|
         provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
