@@ -71,15 +71,10 @@ class OpenidApplicationController < ApplicationController
 
   def user_identity_from_profile(ttl)
     uid = token_payload['uid']
-    conn = Okta::Service.new(Settings.oidc.profile_api_url)
-    profile_response = conn.get do |req|
-      req.url uid
-      req.headers['Content-Type'] = 'application/json'
-      req.headers['Accept'] = 'application/json'
-      req.headers['Authorization'] = "SSWS #{Settings.oidc.profile_api_token}"
-    end
+    okta = Okta::Profile::Service.new
+    profile_response = okta.get_with_token(uid)
     if profile_response.success?
-      profile = JSON.parse(profile_response.body)['profile']
+      profile = profile_response.body['profile']
       user_identity = UserIdentity.new(profile_to_attributes(token_payload, profile))
       user_identity.expire(ttl)
       user_identity

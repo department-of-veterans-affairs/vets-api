@@ -5,7 +5,7 @@ require 'common/client/configuration/rest'
 module Okta
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      @url || 'https://deptva-eval.okta.com'
+      'https://deptva-eval.okta.com/api/v1/'
     end
 
     def connection
