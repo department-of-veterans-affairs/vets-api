@@ -5,7 +5,7 @@ require 'common/client/configuration/rest'
 module Okta
   class Configuration < Common::Client::Configuration::REST
     def base_path
-      Settings.oidc.base_api_url
+      Settings.oidc.base_api_url || ''
     end
 
     def connection

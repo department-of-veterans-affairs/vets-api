@@ -10,8 +10,8 @@ RSpec.describe OIDC::KeyService do
         Settings.oidc,
         auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
         issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
+        base_api_url: 'https://example.com/api/v1/',
+        base_api_token: 'token'
       ) do
         VCR.use_cassette('okta/keys') do
           out = described_class.fetch_keys
