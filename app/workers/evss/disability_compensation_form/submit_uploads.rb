@@ -12,15 +12,6 @@ module EVSS
 
       sidekiq_options retry: RETRY
 
-      def self.start(auth_headers, evss_claim_id, saved_claim_id, submission_id, uploads)
-        batch = Sidekiq::Batch.new
-        batch.jobs do
-          uploads.each do |upload_data|
-            perform_async(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
-          end
-        end
-      end
-
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
         guid = upload_data&.dig('confirmationCode')
         with_tracking("Form526 Upload: #{guid}", saved_claim_id, submission_id) do
