@@ -3,10 +3,11 @@
 module EVSS
   module DisabilityCompensationForm
     class AncillaryJobs
-      def initialize(user_uuid, auth_headers, saved_claim_id, submission_data)
+      def initialize(user_uuid, auth_headers, saved_claim_id, submission_id, submission_data)
         @user_uuid = user_uuid
         @auth_headers = auth_headers
         @saved_claim_id = saved_claim_id
+        @submission_id = submission_id
         @submission_data = submission_data
       end
 

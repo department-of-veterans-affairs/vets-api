@@ -7,6 +7,7 @@ module EVSS
       include SentryLogging
 
       def with_tracking(job_title, saved_claim_id, submission_id)
+        raise ArgumentError unless
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
         @status_submission_id = submission_id
