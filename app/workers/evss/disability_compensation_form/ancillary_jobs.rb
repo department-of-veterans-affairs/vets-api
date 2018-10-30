@@ -4,7 +4,7 @@ module EVSS
   module DisabilityCompensationForm
     class AncillaryJobs
       def initialize(user_uuid, auth_headers, saved_claim_id, submission_id, submission_data)
-        unless [user_uuid, auth_headers, saved_claim_id, submission_id, submission_data].all?
+        unless [user_uuid, auth_headers, saved_claim_id, submission_id, submission_data].all?(&:present?)
           raise ArgumentError, 'missing required argument'
         end
 
