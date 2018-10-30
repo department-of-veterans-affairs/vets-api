@@ -22,10 +22,18 @@ module Swagger
             key :type, :string
           end
 
+          parameter do
+            key :name, 'page'
+            key :in, :query
+            key :description, 'The page number for the page of results that is being requested'
+            key :required, false
+            key :type, :integer
+          end
+
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :required, [:data]
+              key :required, %i[data meta]
               property :data, type: :object do
                 key :required, [:attributes]
                 property :attributes, type: :object do
@@ -192,6 +200,10 @@ module Swagger
                     end
                   end
                 end
+              end
+
+              property :meta do
+                property :pagination, '$ref': :Pagination
               end
             end
           end

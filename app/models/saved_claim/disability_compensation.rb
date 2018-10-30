@@ -12,8 +12,6 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   alias_attribute :submission, :disability_compensation_submission
 
-  add_form_and_validation('21-526EZ')
-
   attr_writer :form_hash
 
   def self.from_hash(hash)
@@ -24,20 +22,27 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   def to_submission_data(user)
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
+    form0781 = EVSS::DisabilityCompensationForm::Form0781.new(user, @form_hash.deep_dup).translate
 
     form526 = @form_hash.deep_dup
     form526 = append_overflow_text(form526) if form4142
 
     form526_uploads = form526['form526'].delete('attachments')
 
+    # TODO: #translate_data can be removed once `increase only` has been deprecated
     {
-      'form526' => EVSS::DisabilityCompensationForm::DataTranslation.new(user, form526).translate,
+      'form526' => translate_data(user, form526),
       'form526_uploads' => form526_uploads,
-      'form4142' => form4142
+      'form4142' => form4142,
+      'form0781' => form0781
     }
   end
 
   private
+
+  def translate_data(_user, _form526)
+    raise NotImplementedError, 'Subclass of DisabilityCompensation must implement #translate_data'
+  end
 
   def append_overflow_text(form526)
     form526['form526']['overflowText'] = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \

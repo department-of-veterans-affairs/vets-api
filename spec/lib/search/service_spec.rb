@@ -13,6 +13,8 @@ describe Search::Service do
 
   describe '#results' do
     context 'when successful' do
+      it_behaves_like 'pagination data'
+
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
@@ -30,14 +32,6 @@ describe Search::Service do
           total = response.body['web']['total']
 
           expect([query, total]).to eq [query, total]
-        end
-      end
-    end
-
-    context 'with an offset' do
-      [0, 20, 40, 60].each do |current_offset|
-        context "with a current offset of #{current_offset}" do
-          it_behaves_like 'pagination data', current_offset
         end
       end
     end

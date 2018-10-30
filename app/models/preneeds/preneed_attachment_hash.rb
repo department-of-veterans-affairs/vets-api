@@ -19,7 +19,8 @@ module Preneeds
         attachment_type: AttachmentType.new(
           attachment_type_id: attachment_id
         ),
-        file: get_file
+        file: get_file,
+        name: name
       )
     end
   end

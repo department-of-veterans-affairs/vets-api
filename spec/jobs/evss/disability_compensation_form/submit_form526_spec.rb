@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
-RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
+RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type: :job do
   before(:each) do
     Sidekiq::Worker.clear_all
   end
@@ -17,7 +17,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
   subject { described_class }
 
   describe '.perform_async' do
-    let(:valid_form_content) { File.read 'spec/support/disability_compensation_form/fe_submission_with_uploads.json' }
+    let(:valid_form_content) do
+      File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
+    end
     let(:form4142) { File.read 'spec/support/disability_compensation_form/form_4142.json' }
     let(:transaction_class) { AsyncTransaction::EVSS::VA526ezSubmitTransaction }
     let(:last_transaction) { transaction_class.last }
@@ -51,15 +53,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
       it 'submits successfully' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
           described_class.drain
           expect(last_transaction.transaction_status).to eq 'received'
         end
       end
 
-      it 'kicks off 4142 job' do
+      it 'kicks off the ancillary jobs with the response claim id' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          response = double(:response, claim_id: SecureRandom.uuid, attributes: nil)
+          claim_id = SecureRandom.uuid
+          response = double(:response, claim_id: claim_id, attributes: nil)
           service = double(:service, submit_form526: response)
           transaction = double(:transaction)
           allow(EVSS::DisabilityCompensationForm::Service)
@@ -70,7 +74,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
             .to receive(:update_transaction).and_return(transaction)
           allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
 
-          expect(CentralMail::SubmitForm4142Job).to receive(:perform_async)
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
           described_class.drain
         end
@@ -95,6 +99,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
 
       it 'doesnt recreate the transaction' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(user.uuid, auth_headers, claim.id, submission)
 
           jid = subject.jobs.last['jid']
@@ -268,6 +273,22 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         )
         described_class.drain
       end
+    end
+  end
+
+  describe '#workflow_complete_handler' do
+    let(:saved_claim) { instance_double('SavedClaim::DisabilityCompensation') }
+    let(:submission) { create(:disability_compensation_submission) }
+
+    before do
+      allow_any_instance_of(subject).to receive(:saved_claim).and_return(saved_claim)
+      allow(saved_claim).to receive(:submission).and_return(submission)
+    end
+
+    it 'sets the submission.complete to true' do
+      expect(submission.complete).to be_falsey
+      subject.new.workflow_complete_handler(nil, 'saved_claim_id' => 123)
+      expect(submission.complete).to be_truthy
     end
   end
 end

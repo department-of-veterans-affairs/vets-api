@@ -30,6 +30,7 @@ Rails.application.routes.draw do
     resource :disability_compensation_form, only: [] do
       get 'rated_disabilities'
       post 'submit'
+      post 'submit_all_claim'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
       get 'user_submissions'
       get 'suggested_conditions'
@@ -130,7 +131,9 @@ Rails.application.routes.draw do
 
     scope :facilities, module: 'facilities' do
       resources :va, only: %i[index show], defaults: { format: :json }
+      resources :ccp, only: %i[show], defaults: { format: :json }
       get 'suggested', to: 'va#suggested'
+      get 'services', to: 'ccp#services'
     end
 
     scope :gi, module: 'gi' do

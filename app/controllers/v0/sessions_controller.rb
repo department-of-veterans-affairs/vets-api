@@ -25,7 +25,7 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
       url = case params[:type]
             when 'mhv'
@@ -43,11 +43,17 @@ module V0
               SAML::SettingsService.idme_loa3_url(current_user, relay_state)
             when 'slo'
               authenticate
-              SAML::SettingsService.logout_url(session, relay_state)
+              # HACK: should figure out why relay_state logic is not working.
+              logout_url = SAML::SettingsService.logout_url(session, relay_state)
+              if request.cookies[Settings.sso.cookie_name].present?
+                logout_url.gsub('vets.gov', 'va.gov')
+              else
+                logout_url
+              end
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def logout
       session = Session.find(Base64.urlsafe_decode64(params[:session]))
@@ -91,9 +97,6 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-    rescue NoMethodError
-      Raven.extra_context(base64_params_saml_response: Base64.encode64(params[:SAMLResponse].to_s))
-      raise
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
@@ -129,15 +132,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    def destroy_user_session!(user, session)
-      # shouldn't return an error, but we'll put everything else in an ensure block just in case.
-      MHVLoggingService.logout(user) if user
-    ensure
-      destroy_sso_cookie!
-      session&.destroy
-      user&.destroy
     end
 
     def build_logout_errors(logout_response, logout_request)

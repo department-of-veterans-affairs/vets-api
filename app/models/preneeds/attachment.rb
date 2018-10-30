@@ -8,6 +8,7 @@ module Preneeds
     attribute :attachment_type, Preneeds::AttachmentType
     attribute :sending_source, String, default: VETS_GOV
     attribute :file, (Rails.env.production? ? CarrierWave::Storage::AWSFile : CarrierWave::SanitizedFile)
+    attribute :name, String
 
     attr_reader :data_handler
 
@@ -30,7 +31,7 @@ module Preneeds
             }
           }
         },
-        description: file.filename,
+        description: name,
         sendingName: VETS_GOV,
         sendingSource: sending_source
       }
