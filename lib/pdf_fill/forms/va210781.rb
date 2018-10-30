@@ -298,6 +298,8 @@ module PdfFill
         @form_data
       end
 
+      private
+
       def expand_incidents(incidents)
         return if incidents.blank?
         incidents.each_with_index do |incident, index|
@@ -367,6 +369,7 @@ module PdfFill
 
       def resolve_cause_injury_death(person_involved, index)
         return if person_involved.blank?
+
         cause = person_involved['injuryDeath']
         cause_map = {
           'Killed in Action' => "killedInAction#{index}",
@@ -376,7 +379,10 @@ module PdfFill
           'Other' => "other#{index}"
         }
         person_involved[cause_map[cause]] = true
-        person_involved["otherText#{index}"] = person_involved['injuryDeathOther'] if cause == 'Other'
+        if cause == 'Other'
+          person_involved["otherText#{index}"] = person_involved['injuryDeathOther']
+          person_involved.except!('injuryDeathOther')
+        end
         person_involved.except!('injuryDeath')
       end
 
@@ -396,20 +402,24 @@ module PdfFill
         return if incident.blank?
 
         persons_involved = incident['personInvolved']
-        overflow_people = []
-        persons_involved.each_with_index do |person, _index|
-          overflow_person = []
-          overflow_person.push(combine_full_name(person['name']))
-          overflow_person.push('Rank: ' + person['rank'])
-          overflow_person.push('Unit Assigned: ' + person['unitAssigned'])
-          overflow_person.push('Injury or Death Date: ' + person['injuryDeathDate'])
-          overflow_person.push('Injury or Death Cause: ' + person['injuryDeath'])
-          overflow = overflow_person.join("\n")
+        return '' if persons_involved.blank?
 
-          overflow_people.push(overflow)
+        overflow_people = []
+        persons_involved.each do |person|
+          overflow_people.push(format_one_person(person))
         end
 
         overflow_people.join("\n\n")
+      end
+
+      def format_one_person(person)
+        overflow_person = []
+        overflow_person.push(combine_full_name(person['name']))
+        overflow_person.push('Rank: ' + person['rank']) unless person['rank'].nil?
+        overflow_person.push('Unit Assigned: ' + person['unitAssigned']) unless person['unitAssigned'].nil?
+        overflow_person.push('Injury or Death Date: ' + person['injuryDeathDate']) unless person['injuryDeathDate'].nil?
+        overflow_person.push('Injury or Death Cause: ' + person['injuryDeath']) unless person['injuryDeath'].nil?
+        overflow_person.join("\n")
       end
     end
   end
