@@ -56,7 +56,7 @@ def with_okta_configured(&block)
     auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
     issuer: 'https://example.com/oauth2/default',
     audience: 'api://default',
-    base_api_url: 'https://example.com/api/v1/',
+    base_api_url: 'https://example.com/',
     base_api_token: 'token'
   ) do
     VCR.use_cassette('okta/metadata') do

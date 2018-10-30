@@ -72,7 +72,7 @@ class OpenidApplicationController < ApplicationController
   def user_identity_from_profile(ttl)
     uid = token_payload['uid']
     okta = Okta::Service.new
-    profile_response = okta.get_url_with_token(['users', uid].join('/'))
+    profile_response = okta.get_url_with_token(['api/v1/users', uid].join('/'))
     if profile_response.success?
       profile = profile_response.body['profile']
       user_identity = UserIdentity.new(profile_to_attributes(token_payload, profile))
