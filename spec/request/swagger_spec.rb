@@ -1179,6 +1179,33 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           expect(subject).to validate(:get, '/v0/facilities/suggested', 400,
                                       '_query_string' => 'type[]=foo&name_part=por')
         end
+
+        regex_matcher = lambda { |r1, r2|
+          r1.uri.match(r2.uri)
+        }
+        it 'supports getting a provider by id' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 200, 'id' => 'ccp_123123')
+          end
+        end
+
+        it '400s on improper id' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 400, 'id' => 'ccap_123123')
+          end
+        end
+
+        it '404s if provider is missing' do
+          VCR.use_cassette('facilities/va/ppms_nonexistent', match_requests_on: [:method]) do
+            expect(subject).to validate(:get, '/v0/facilities/ccp/{id}', 404, 'id' => 'ccp_123123')
+          end
+        end
+
+        it 'supports getting the services list' do
+          VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+            expect(subject).to validate(:get, '/v0/facilities/services', 200, 'id' => 'ccp_123123')
+          end
+        end
       end
     end
 
@@ -1253,6 +1280,28 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'returns a 502 with error details' do
           expect(subject).to validate(:get, '/v0/appointments', 502, auth_options)
         end
+      end
+    end
+
+    describe 'performance monitoring' do
+      it 'supports posting performance monitoring data' do
+        whitelisted_path = Benchmark::Whitelist::WHITELIST.first
+        body = {
+          data: {
+            page_id: whitelisted_path,
+            metrics: [
+              { metric: 'totalPageLoad', duration: 1234.56 },
+              { metric: 'firstContentfulPaint', duration: 123.45 }
+            ]
+          }.to_json
+        }
+
+        expect(subject).to validate(
+          :post,
+          '/v0/performance_monitorings',
+          200,
+          auth_options.merge('_data' => body.as_json)
+        )
       end
     end
 

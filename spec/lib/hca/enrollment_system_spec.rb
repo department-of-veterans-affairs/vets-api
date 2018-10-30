@@ -427,6 +427,36 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'income_collection_total',
+    [
+      [
+        [nil],
+        0
+      ],
+      [
+        {
+          'income' => [
+            {
+              'amount' => 991.9,
+              'type' => 7
+            },
+            {
+              'amount' => 981.2,
+              'type' => 13
+            },
+            {
+              'amount' => 91.9,
+              'type' => 10
+            }
+          ]
+        },
+        BigDecimal.new(2065)
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'resource_to_income_collection',
     [
       [
@@ -460,12 +490,36 @@ describe HCA::EnrollmentSystem do
     'resource_to_expense_collection',
     [
       [
-        { 'dependentEducationExpenses' => 1198.11 },
+        [
+          {
+            'dependentEducationExpenses' => 999.11,
+            'educationExpense' => 200,
+            'funeralExpense' => 200
+          },
+          5000
+        ],
         {
-          'expense' => [{
-            'amount' => 1198.11,
-            'expenseType' => '16'
-          }]
+          'expense' => [
+            { 'amount' => 200, 'expenseType' => '3' },
+            { 'amount' => 999.11, 'expenseType' => '16' },
+            { 'amount' => 200, 'expenseType' => '19' }
+          ]
+        }
+      ],
+      [
+        [
+          {
+            'dependentEducationExpenses' => 999.11,
+            'educationExpense' => 200,
+            'funeralExpense' => 200
+          },
+          1000
+        ],
+        {
+          'expense' => [
+            { 'amount' => 200, 'expenseType' => '3' },
+            { 'amount' => 800.0, 'expenseType' => '16' }
+          ]
         }
       ]
     ]

@@ -9,15 +9,17 @@ module Search
 
     attribute :status, Integer
     attribute :body, Hash
+    attribute :pagination, Search::Pagination
 
-    def initialize(status, attributes = nil)
+    def initialize(status, pagination, attributes = nil)
       super(attributes) if attributes
+      self.pagination = pagination
       self.status = status
     end
 
     def self.from(response)
-      body = response.body
-      new(response.status, body: body)
+      pagination = pagination_object(response.body)
+      new(response.status, pagination, body: response.body)
     end
 
     def cache?
@@ -39,6 +41,10 @@ module Search
       else
         RESPONSE_STATUS[:server_error]
       end
+    end
+
+    def self.pagination_object(body)
+      Search::Pagination.new(body).object
     end
   end
 end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&query=benefits
+    uri: https://search.usa.gov/api/v2/search/i14y?access_key=TESTKEY&affiliate=va&limit=10&offset=0&query=benefits
     body:
       encoding: US-ASCII
       string: ''
@@ -56,8 +56,8 @@ http_interactions:
       string: '{
         "query": "benefits",
         "web": {
-          "total": 34820,
-          "next_offset": 20,
+          "total": 85,
+          "next_offset": 10,
           "spelling_correction": null,
           "results":
             [{
@@ -118,66 +118,6 @@ http_interactions:
                             "title": "Apply for education benefits",
                               "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990E/",
                           "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/5490/introduction",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Apply for education benefits",
-                              "url": "https://www.vets.gov/education/apply-for-education-benefits/application/1990N",
-                          "snippet": "Use your VA education benefits to pay for college or training programs. Find...documents youll need to apply for benefits, and start your online application...Home Education Apply for Education Benefits Please wait while we load the application",
-                "publication_date": null
-            },
-            {
-                            "title": "Education Benefits Eligibility",
-                              "url": "https://www.vets.gov/education/eligibility/",
-                          "snippet": "...out if you qualify for VA education benefits through the GI Bill and other educational...Close this menu Education Benefits Eligibility Application Process After You...You Apply Compare GI Bill Benefits GI Bill Career Counseling Advanced Training",
-                "publication_date": null
-            },
-            {
-                            "title": "Education Benefits Application Process",
-                              "url": "https://www.vets.gov/education/apply/",
-                          "snippet": "Find the right VA education benefits for you, and apply to start getting help...Close this menu Education Benefits Eligibility Application Process After You...You Apply Compare GI Bill Benefits GI Bill Career Counseling Advanced Training",
-                "publication_date": null
-            },
-            {
-                            "title": "Education Benefits Application Process: Vets.gov",
-                              "url": "https://www.vets.gov/education/opt-out/",
-                          "snippet": "Find the right VA education benefits for you, and apply to start getting help...Process After You Apply Compare GI Bill Benefits GI Bill Career Counseling Advanced...Programs More in this section Education Benefits Application Process If youre a Servicemember",
-                "publication_date": null
-            },
-            {
-                            "title": "Disability Benefits",
-                              "url": "https://www.vets.gov/disability-benefits/",
-                          "snippet": "Disability Benefits If you have a disability that was caused byor got worse...you may be able to get disability benefits from VA. A disability can be a physical",
-                "publication_date": null
-            },
-            {
-                            "title": "Family and Caregiver Health Benefits: Vets.gov",
-                              "url": "https://www.vets.gov/health-care/family-caregiver-health-benefits/",
-                          "snippet": "Records Family and Caregiver Health Benefits CHAMPVA Comprehensive Assistance to...section Family and Caregiver Health Benefits If youre the spouse, surviving spouse",
-                "publication_date": null
-            },
-            {
-                            "title": "Pension Benefits",
-                              "url": "https://www.vets.gov/pension/",
-                          "snippet": "Pension Benefits If youre a wartime Veteran who meets certain age or disability...Find out if you can get this tax-free benefit. Eligibility Find out if you can get",
-                "publication_date": null
-            },
-            {
-                            "title": "Health Care Benefits Eligibility",
-                              "url": "https://www.vets.gov/health-care/eligibility/",
-                          "snippet": "More in this section Health Care Benefits Eligibility If you served in the active...you may qualify for VA health care benefits. Find out if you can get VA health",
-                "publication_date": null
-            },
-            {
-                            "title": "Disability Benefits Eligibility",
-                              "url": "https://www.vets.gov/disability-benefits/eligibility/",
-                          "snippet": "Close this menu Disability Benefits Eligibility How VA Assigns Disability Ratings...Appeals More in this section Disability Benefits Eligibility If you have a disability",
                 "publication_date": null
             }]
         },

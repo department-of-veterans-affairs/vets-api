@@ -4,12 +4,12 @@ require 'common/client/base'
 require 'search/response'
 
 module Search
+  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
+  # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
+  #
+  # @see https://search.usa.gov/sites/7378/api_instructions
+  #
   class Service < Common::Client::Base
-    # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
-    # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
-    #
-    # @see https://search.usa.gov/sites/7378/api_instructions
-    #
     include Common::Client::Monitoring
 
     STATSD_KEY_PREFIX = 'api.search'
@@ -17,9 +17,11 @@ module Search
     configuration Search::Configuration
 
     attr_reader :query
+    attr_reader :page
 
-    def initialize(query)
+    def initialize(query, page = 1)
       @query = query
+      @page = page.to_i
     end
 
     # GETs a list of search results from Search.gov web results API
@@ -49,7 +51,9 @@ module Search
       {
         affiliate:  affiliate,
         access_key: access_key,
-        query:      query
+        query:      query,
+        offset:     offset,
+        limit:      limit
       }
     end
 
@@ -59,6 +63,23 @@ module Search
 
     def access_key
       Settings.search.access_key
+    end
+
+    # Calculate the offset parameter based on the requested page number
+    #
+    def offset
+      if page <= 1
+        # We want first page of results
+        0
+      else
+        # Max offset for search API is 999
+        # If there are 20 results and the user requests page 3, there will be an empty result set
+        [((page - 1) * limit), 999].min
+      end
+    end
+
+    def limit
+      Search::Pagination::ENTRIES_PER_PAGE
     end
 
     def handle_error(error)

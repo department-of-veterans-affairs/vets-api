@@ -5,7 +5,7 @@ class InProgressFormCleaner
 
   def perform
     Sentry::TagRainbows.tag
-    forms = InProgressForm.where("updated_at < '#{InProgressForm::EXPIRES_AFTER.ago}'")
+    forms = InProgressForm.where('expires_at < ?', Time.now.utc)
     logger.info("Deleting #{forms.count} old saved forms")
     forms.delete_all
   end

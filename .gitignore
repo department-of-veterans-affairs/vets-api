@@ -58,3 +58,4 @@ rspec.xml
 config/certs
 
 dump.rdb
+/.project

@@ -97,6 +97,39 @@ STDOUT
       expect(metadata.encrypted?).to be false
     end
 
+    context 'when the document has invalid characters' do
+      let(:result) do
+        bad_str = (100..1000).to_a.pack('c*').force_encoding('utf-8')
+        <<~STDOUT
+          Title:
+          Subject:
+          Keywords:
+          Author:         CamScanner
+          Producer:       intsig.com pdf producer
+          ModDate:        #{bad_str}
+          Tagged:         no
+          UserProperties: no
+          Suspects:       no
+          Form:           none
+          JavaScript:     no
+          Pages:          1
+          Encrypted:      no
+          Page size:      595 x 842 pts (A4)
+          Page rot:       0
+          File size:      1411924 bytes
+          Optimized:      no
+          PDF version:    1.6
+          STDOUT
+      end
+
+      describe '#pages' do
+        it 'should return pages as an int' do
+          metadata = described_class.read('/tmp/file.pdf')
+          expect(metadata.pages).to eq(1)
+        end
+      end
+    end
+
     context 'when the document is encrypted' do
       let(:result) do
         <<~STDOUT
