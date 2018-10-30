@@ -22,7 +22,12 @@ module EVSS
       end
 
       def submit(form)
-        perform(:post, 'form686submission/submit', form.to_xml(root: 'submit686Request'), { 'Content-Type' => 'application/xml' })
+        perform(
+          :post,
+          'form686submission/submit',
+          form.to_xml(root: 'submit686Request'),
+          'Content-Type' => 'application/xml'
+        )
       end
     end
   end

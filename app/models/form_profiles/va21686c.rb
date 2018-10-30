@@ -169,7 +169,7 @@ class FormProfiles::VA21686c < FormProfile
     return unless marriage
     VA21686c::FormMarriage.new(
       {
-        date_of_marriage: convert_date(marriage['marriageDate']), # ???
+        date_of_marriage: convert_date(marriage['marriageDate']),
         location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
         spouse_full_name: prefill_name(marriage),
         reason_for_separation: marriage['marriageTerminationReasonType'],

@@ -583,7 +583,6 @@ RSpec.describe FormProfile, type: :model do
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
-        # binding.pry
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -591,7 +590,6 @@ RSpec.describe FormProfile, type: :model do
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
-      binding.pry
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
