@@ -86,7 +86,7 @@ describe Search::Pagination do
       {
         'web' =>
           {
-            'total' => 35123,
+            'total' => 35_123,
             'next_offset' => 20
           }
       }
@@ -103,7 +103,7 @@ describe Search::Pagination do
 
     context 'when the ENTRIES_PER_PAGE is set to its max of 50' do
       before do
-        stub_const("Search::Pagination::ENTRIES_PER_PAGE", 50)
+        stub_const('Search::Pagination::ENTRIES_PER_PAGE', 50)
       end
 
       it 'sets total_pages to the maximum viewable number of pages' do
