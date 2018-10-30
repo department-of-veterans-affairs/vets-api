@@ -356,6 +356,12 @@ en:
         code: 'SEARCH_400'
         detail: 'Search.gov service responded with a Bad Request'
         status: 400
+      SEARCH_429:
+        <<: *external_defaults
+        title: Exceeded rate limit
+        code: 'SEARCH_429'
+        detail: 'Exceeded Search.gov rate limit'
+        status: 429
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
