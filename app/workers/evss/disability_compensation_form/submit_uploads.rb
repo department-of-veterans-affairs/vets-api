@@ -24,7 +24,7 @@ module EVSS
       rescue Common::Exceptions::SentryIgnoredGatewayTimeout, EVSS::ErrorMiddleware::EVSSError => e
         retryable_error_handler(e)
         raise e
-      rescue => e
+      rescue StandardError => e
         non_retryable_error_handler(e)
       end
 
