@@ -26,7 +26,7 @@ module V0
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission_data = saved_claim.to_submission_data(@current_user)
 
-      jid = EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly.perform_async(
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly.start(
         @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
@@ -45,7 +45,7 @@ module V0
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission_data = saved_claim.to_submission_data(@current_user)
 
-      jid = EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.perform_async(
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526.start(
         @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
