@@ -36,8 +36,8 @@ RSpec.describe OIDC::KeyService do
         Settings.oidc,
         auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
         issuer: 'https://example.com/oauth2/default',
-        profile_api_url: 'https://example.com/api/v1/users/',
-        profile_api_token: 'token'
+        base_api_url: 'https://example.com/',
+        base_api_token: 'token'
       ) do
         VCR.use_cassette('okta/keys') do
           key = described_class.get_key('1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU')
