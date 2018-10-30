@@ -27,26 +27,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   subject { described_class }
 
-  describe '.start' do
-    context 'with four uploads' do
-      it 'queues four submit upload jobs' do
-        expect do
-          subject.start(auth_headers, claim_id, saved_claim.id, submission_id, uploads)
-        end.to change(subject.jobs, :size).by(4)
-      end
-    end
-
-    context 'with no uploads' do
-      let(:uploads) { [] }
-
-      it 'queues no submit upload jobs' do
-        expect do
-          subject.start(auth_headers, claim_id, saved_claim.id, submission_id, uploads)
-        end.to_not change(subject.jobs, :size)
-      end
-    end
-  end
-
   describe 'perform' do
     let(:upload_data) do
       {
