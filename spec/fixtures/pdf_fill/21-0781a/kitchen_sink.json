@@ -12,6 +12,7 @@
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
   "incident": [{
+    "personalAssault": true,
     "incidentDate": "2000-01-01",
     "unitAssignedDates": {
       "from": "2001-01-01",
@@ -67,6 +68,7 @@
     }]
   },
   {
+    "personalAssault": true,
     "incidentDate": "2000-01-01",
     "unitAssignedDates": {
       "from": "2001-01-01",

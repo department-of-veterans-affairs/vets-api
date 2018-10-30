@@ -11,6 +11,7 @@ require 'support/have_deep_attributes_matcher'
 require 'support/be_a_uuid'
 require 'support/impl_matchers'
 require 'support/negated_matchers'
+require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
@@ -49,6 +50,7 @@ unless ENV['NOCOVERAGE']
     add_group 'VaFacilities', 'modules/va_facilities/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_filter 'version.rb'
+    add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end

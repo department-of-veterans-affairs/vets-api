@@ -160,6 +160,10 @@ RSpec.configure do |config|
 
   config.include StatsD::Instrument::Matchers
 
+  config.before :each, type: :controller do
+    request.host = Settings.hostname
+  end
+
   config.before(:all) do
     unless defined?(Sidekiq::Batch)
       Sidekiq::Batch = Class.new do
