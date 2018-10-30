@@ -1,87 +1,103 @@
 # frozen_string_literal: true
 
+class ScrubbedString < Virtus::Attribute
+  def coerce(value)
+    # (value.nil? || ['NONE'].include?(value.to_s.upcase)) ? '' : value
+    ['NONE'].include?(value.to_s.upcase) ? '' : value
+  end
+end
+
 module VA21686c
   class FormAddress
     include Virtus.model
 
-    attribute :address_locality, String
-    attribute :street, String
-    attribute :street2, String
-    attribute :street3, String
-    attribute :city, String
-    attribute :state, String
-    attribute :country, String
-    attribute :postal_code, String
-    attribute :country_dropdown, String
-    attribute :country_test, String
-    attribute :post_office, String
-    attribute :postal_type, String
-    attribute :shared_address_ind, String
+    attribute :address_type, ScrubbedString
+    attribute :street, ScrubbedString
+    attribute :street2, ScrubbedString
+    attribute :street3, ScrubbedString
+    attribute :city, ScrubbedString
+    attribute :state, ScrubbedString
+    attribute :country, ScrubbedString
+    attribute :postal_code, ScrubbedString
+    attribute :country, ScrubbedString
+    attribute :country_text, ScrubbedString
+    attribute :post_office, ScrubbedString
+    attribute :postal_type, ScrubbedString
   end
 
   class FormFullName
     include Virtus.model
 
-    attribute :first, String
-    attribute :middle, String
-    attribute :last, String
+    attribute :first, ScrubbedString
+    attribute :middle, ScrubbedString
+    attribute :last, ScrubbedString
   end
 
-  class FormPlaceOfBirth
+  class FormLocation
     include Virtus.model
 
-    attribute :child_country_of_birth_dropdown, String
-    attribute :child_country_of_birth_text, String
-    attribute :child_city_of_birth, String
-    attribute :child_state_of_birth, String
+    attribute :country_dropdown, ScrubbedString
+    attribute :country_text, ScrubbedString
+    attribute :city, ScrubbedString
+    attribute :state, ScrubbedString
   end
 
   class FormDependent
     include Virtus.model
 
     attribute :full_name, VA21686c::FormFullName
-    attribute :child_date_of_birth, String
+    attribute :child_date_of_birth, ScrubbedString
     attribute :child_in_household, Boolean
     attribute :child_address, VA21686c::FormAddress
-    attribute :child_social_security_number, String
+    attribute :child_social_security_number, ScrubbedString
     attribute :attending_college, Boolean
     attribute :disabled, Boolean
     attribute :married, Boolean
-    attribute :place_of_birth, VA21686c::FormPlaceOfBirth
-  end
-
-  class FormContactInformation
-    include Virtus.model
-
-    attribute :claimant_address, VA21686c::FormAddress
-    attribute :claimant_full_name, VA21686c::FormFullName
-    attribute :claimant_email, String
-    attribute :phone, String
-    attribute :ssn, String
-    attribute :dependents, Array[VA21686c::FormDependent]
-  end
-
-  class FormLocation
-    include Virtus.model
-
-    attribute :country_dropdown, String
-    attribute :country_text, String
-    attribute :city, String
-    attribute :state, String
+    attribute :place_of_birth, VA21686c::FormLocation
   end
 
   class FormMarriage
     include Virtus.model
 
-    attribute :date_of_marriage, String # TODO parse this?
+    attribute :date_of_marriage, ScrubbedString # TODO parse this?
     attribute :location_of_marriage, VA21686c::FormLocation
     attribute :spouse_full_name, VA21686c::FormFullName
-    attribute :spouse_social_securty_number, String
+  end
+
+  class FormCurrentMarriage < FormMarriage
+    attribute :spouse_social_security_number, ScrubbedString
+    attribute :spouse_has_no_ssn_reason, ScrubbedString
+    attribute :spouse_has_no_ssn, Boolean
+    attribute :spouse_marriages, Array[VA21686c::FormMarriage]
+    attribute :spouse_address, VA21686c::FormAddress
+    attribute :spouse_is_veteran, Boolean
+    attribute :live_with_spouse, Boolean
+    attribute :spouse_date_of_birth, ScrubbedString
+    attribute :spouse_va_file_number, ScrubbedString 
+  end
+
+  # class FormPreviousMarriage < FormMarriage
+  # end
+
+  class FormContactInformation
+    include Virtus.model
+
+    attribute :veteran_address, VA21686c::FormAddress
+    attribute :veteran_full_name, VA21686c::FormFullName
+    attribute :veteran_email, ScrubbedString
+    attribute :day_phone, ScrubbedString
+    attribute :night_phone, ScrubbedString
+    attribute :veteran_social_security_number, ScrubbedString
+    attribute :current_marriage, VA21686c::FormMarriage
+    attribute :previous_marriages, Array[VA21686c::FormMarriage]
+    attribute :dependents, Array[VA21686c::FormDependent]
+    attribute :va_file_number, ScrubbedString
+    attribute :marital_status, ScrubbedString
   end
 end
 
 class FormProfiles::VA21686c < FormProfile
-  # attribute :veteran_information, VA21686c::FormContactInformation # TODO: remove?
+  attribute :veteran_information, VA21686c::FormContactInformation # TODO: remove?
 
   def metadata
     {
@@ -99,30 +115,80 @@ class FormProfiles::VA21686c < FormProfile
 
   def prefill(user)
     return {} unless user.authorize :evss, :access?
-    binding.pry
+    @veteran_information = initialize_veteran_information(user)
+    super(user)
+  end
+
+  # def prefill(user)
+  #   @identity_information = initialize_identity_information(user)
+  #   @contact_information = initialize_contact_information(user)
+  #   @military_information = initialize_military_information(user)
+  #   mappings = self.class.mappings_for_form(form_id)
+
+  #   form = form_id == '1010EZ' ? '1010ez' : form_id
+  #   form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
+
+  #   { form_data: form_data, metadata: metadata }
+  # end
+
+
+
+  private
+
+  def initialize_veteran_information(user)
     res = EVSS::Dependents::Service.new(user).retrieve
     veteran = res.body['submitProcess']['veteran']
-    spouse = veteran.deep_dup.fetch('spouse') { { 'previousMarriages' => [], 'address' => {} } }
-    VA21686c::FormContactInformation.new(
-      veteran_address: prefill_address(veteran['address']),
-      # veteran_full_name: prefill_name(veteran),
-      veteran_email: veteran['emailAddress'],
-      # phone: [veteran.dig('primaryPhone', 'areaNbr'), veteran.dig('primaryPhone', 'phoneNbr')].compact.join('-'),
-      # ssn: veteran['ssn'],
-      current_marriage: prefill_marriage(spouse.merge!(spouse.delete('currentMarriage') { {} })),
-      previous_marriages: veteran['previousMarriages'].map { |m| prefill_marriage(m) },
-      spouse_marriages: spouse['previousMarriages'].map { |m| prefill_marriage(m) },
-      spouse_address: prefill_address(spouse),
-      spouse_is_veteran: spouse['veteran'],
-      live_with_spouse: spouse['sameResidency'],
-      monthly_spouse_payment: nil, # TODO: I don't see this in any of my example data
+    binding.pry
+    # spouse = veteran.deep_dup.fetch('spouse') { { 'previousMarriages' => [], 'address' => {}, 'currentMarriage' => {} } }
+    # spouse.merge!(spouse.delete('currentMarriage') { {} })
 
-      # left off here
-      dependents: prefill_dependents(veteran['children'])
+    VA21686c::FormContactInformation.new(
+      {
+        veteran_address: prefill_address(veteran['address']),
+        veteran_full_name: prefill_name(veteran),
+        veteran_email: veteran['emailAddress'],
+        va_file_number: detect_file_number(veteran['vaFileNumber']),
+        marital_status: veteran['marriageType'],
+        day_phone: convert_phone(veteran['primaryPhone']),
+        night_phone: convert_phone(veteran['secondaryPhone']),
+        veteran_social_security_number: veteran['ssn'],
+        current_marriage: prefill_current_marriage(veteran['spouse']),
+        previous_marriages: veteran['previousMarriages'].map { |m| prefill_marriage(m) },
+        dependents: prefill_dependents(veteran['children'])
+      }.compact
     )
   end
 
-  private
+  def convert_phone(phone)
+    return unless phone
+    [phone['areaNbr'], phone['phoneNbr']].compact.join('-')
+  end
+
+  def prefill_current_marriage(spouse)
+    return unless spouse
+    marriage = spouse['currentMarriage']
+    VA21686c::FormCurrentMarriage.new(
+      {
+        date_of_marriage: convert_date(marriage['marriageDate']), # ???
+        location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
+        spouse_full_name: prefill_name(spouse),
+        spouse_social_security_number: spouse['ssn'],
+        spouse_has_no_ssn: spouse['hasNoSsn'],
+        spouse_has_no_ssn_reason: spouse['hasNoSsnReason'], # TODO: this is an assumption. need an example
+        spouse_marriages: spouse['previousMarriages'].map { |m| prefill_marriage(m) },
+        spouse_address: prefill_address(spouse['address']),
+        spouse_is_veteran: spouse['veteran'],
+        live_with_spouse: spouse['sameResidency'],
+        spouse_date_of_birth: convert_date(spouse['dateOfBirth']),
+        spouse_va_file_number: detect_file_number(spouse['vaFileNumber']), # TODO: this is an assumption. need an example
+      }.compact
+    )
+  end
+
+  def detect_file_number(file_number)
+    return nil if file_number.nil? || file_number.match(/^\d{3}-\d{2}-\d{4}$/)
+    file_number
+  end
 
   def prefill_marriage(marriage)
     return unless marriage
@@ -131,10 +197,9 @@ class FormProfiles::VA21686c < FormProfile
         date_of_marriage: convert_date(marriage['marriageDate']), # ???
         location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
         spouse_full_name: prefill_name(marriage),
-        spouse_social_securty_number: marriage['ssn'],
         reason_for_separation: marriage['marriageTerminationReasonType'],
         date_of_separation: convert_date(marriage['terminatedDate']),
-        location_of_separation: prefill_location(marriage['endCountry'], marraige['endCity'], marriage['endState'])
+        location_of_separation: prefill_location(marriage['endCountry'], marriage['endCity'], marriage['endState']),
       }.compact
     )
   end
@@ -143,8 +208,7 @@ class FormProfiles::VA21686c < FormProfile
   # place marriage terminated
   # child place of birth
   def prefill_location(country, city, state)
-    return unless location
-    # TODO: make this a `Form` model
+    country ||= {}
     VA21686c::FormLocation.new(
       {
         country_dropdown: country['dropDownCountry'],
@@ -172,27 +236,26 @@ class FormProfiles::VA21686c < FormProfile
   end
 
   def prefill_dependents(children)
-    binding.pry
+    # binding.pry
     return [] if children.blank?
     children.map do |child|
-      FormDependent.new(
+      # TODO should we use the following?
+      # dependentStatus, govtTuitionAssist (bool), hasNoFileNumber, hasNoSsn, primaryPhone (object),
+      # proofDepncyInd (bool), rlsnIds (array), schools (array),
+      # secondaryPhone (object), ssnFromCorp (bool), tempDataId (object), uniqueIdentifier, veteran (bool)
+      # binding.pry
+      VA21686c::FormDependent.new(
         {
-        #   full_name: prefill_name(child),
-        #   child_date_of_birth: convert_date(child['dateOfBirth']),
-        #   child_in_household: child['sameResidency'],
-        #   child_address: prefill_address(child['address']),
-        #   child_social_security_number: child['ssn'],
-        #   attending_college: child['attendedSchool'],
-        #   disabled: child['disabled'],
-        #   married: child['married'],
-        #   child_place_of_birth: FormPlaceOfBirth.new(
-        #     {
-        #       child_country_of_birth_dropdown: child['countryOfBirth']['dropDownCountry'],
-        #       child_country_of_birth_text: child['countryOfBirth']['textCountry'],
-        #       child_city_of_birth: child['cityOfBirth'],
-        #       child_state_of_birth: child['stateOfBirth']
-        #     }.compact
-        #   )
+          full_name: prefill_name(child),
+          child_date_of_birth: convert_date(child['dateOfBirth']),
+          child_in_household: child['sameResidency'],
+          child_address: prefill_address(child['address']),
+          child_social_security_number: child['ssn'],
+          attending_college: child['attendedSchool'],
+          disabled: child['disabled'],
+          married: child['married'],
+          child_place_of_birth: prefill_location(child['countryOfBirth'], child['cityOfBirth'], child['stateOfBirth']),
+          child_relationship_type: child['childRelationshipType'],
         }.compact
       )
     end
@@ -209,21 +272,23 @@ class FormProfiles::VA21686c < FormProfile
   end
 
   def prefill_address(address)
-    VA21686c::FormAddress.new(
+    return unless address
+    address = VA21686c::FormAddress.new(
       {
-        address_locality: address['addressLocality'],
+        address_type: address['addressLocality'],
         street: address['addressLine1'],
         street2: address['addressLine2'],
         street3: address['addressLine3'],
         city: address['city'],
         state: address['state'],
-        postal_code: "#{address['zipCode']}-#{address['zipLastFour']}",
-        country_dropdown: address.dig('country', 'dropDownCountry'),
+        postal_code: "#{address['zipCode']}#{"-#{address['zipLastFour']}" if address['zipLastFour'].present?}",
+        country: address.dig('country', 'dropDownCountry'),
         country_text: address.dig('country', 'textCountry'),
         post_office: address['postOffice'],
-        postal_type: address['postalType'],
-        shared_address_ind: address['sharedAddrsInd']
+        postal_type: address['postalType']
       }.compact
     )
+    return if address.attributes.values.uniq.all?{ |x| ['DOMESTIC', ''].include? x }
+    address
   end
 end

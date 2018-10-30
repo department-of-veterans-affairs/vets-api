@@ -1,10 +1,45 @@
-claimantEmail: [contact_information, email]
-claimantFullName: [identity_information, full_name]
-veteranFullName: [identity_information, full_name]
-dayPhone: [contact_information, us_phone]
-claimantSocialSecurityNumber: [identity_information, ssn]
-veteranSocialSecurityNumber: [identity_information, ssn]
-claimantAddress: [contact_information, claimant_address]
-dependents: [contact_information, dependents]
+veteranFullName: [veteran_information, veteran_full_name]
+veteranAddress: [veteran_information, veteran_address]
+veteranEmail: [veteran_information, veteran_email]
+veteranSocialSecurityNumber: [veteran_information, veteran_social_security_number]
+vaFileNumber: [veteran_information, va_file_number]
+maritalStatus: [veteran_information, marital_status]
+currentMarriage: [veteran_information, current_marriage]
+previousMarriages: [veteran_information, previous_marriages]
+dayPhone: [veteran_information, day_phone]
+nightPhone: [veteran_information, night_phone]
+# spouseMarriages: [veteran_information, spouse_marriages]
+# spouseAddress: [veteran_information, spouse_address]
+# spouseIsVeteran: [veteran_information, spouse_is_veteran]
+# spouseVaFileNumber: [veteran_information, spouse_va_file_number]
+# liveWithSpouse: [veteran_information, live_with_spouse]
+dependents: [veteran_information, dependents]
+
+
+# veteranAddress: [veteran_information, veteran_address]
+# veteranFullName: [veteran_information, full_name]
+# veteranFullName: [veteran_information, full_name]
+# dayPhone: [veteran_information, us_phone]
+# veteranSocialSecurityNumber: [veteran_information, ssn]
+# veteranSocialSecurityNumber: [veteran_information, ssn]
+# dependents: [veteran_information, dependents]
 # TODO: spouse info
 
+# ["dayPhone",
+#  "nightPhone",
+#  "veteranAddress",
+#  "veteranEmail",
+#  "veteranSocialSecurityNumber",
+#  "currentMarriage",
+#  "previousMarriages",
+#  "spouseMarriages",
+#  "spouseAddress",
+#  "spouseIsVeteran",
+#  "liveWithSpouse",
+#  "dependents",
+#  "privacyAgreementAccepted",
+#  "veteranFullName",
+#  "vaFileNumber",
+#  "spouseVaFileNumber",
+#  "maritalStatus",
+#  "spouseDateOfBirth"]

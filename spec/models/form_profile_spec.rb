@@ -75,13 +75,134 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v21_686_c_expected) do
     {
-      'claimantAddress' => address,
-      'claimantFullName' => full_name,
-      'dayPhone' => us_phone,
-      'claimantSocialSecurityNumber' => user.ssn,
-      'veteranSocialSecurityNumber' => user.ssn,
-      'claimantEmail' => user.pciu_email
-    }.merge(veteran_full_name)
+      'veteranFullName' => {
+        'first' => 'WESLEY',
+        'middle' => 'Watson',
+        'last' => 'FORD'
+      },
+      'veteranAddress' => {
+        'addressType' => 'DOMESTIC',
+        'street' => '3001 PARK CENTER DR',
+        'street2' => 'APT 212',
+        'city' => 'ALEXANDRIA',
+        'state' => 'VA',
+        'country' => 'USA',
+        'postalCode' => '22302'
+      },
+      'veteranEmail' => 'evssvsotest@gmail.com',
+      'veteranSocialSecurityNumber' => '796-04-3735',
+      'dayPhone' => '202-461-9724',
+      'maritalStatus' => 'NEVERMARRIED',
+      'nightPhone' => '789-325-6545',
+      'previousMarriages' => [
+        {
+          'dateOfMarriage' => '1979-02-01',
+          'locationOfMarriage' => {
+            'countryDropdown' => 'USA',
+            'city' => 'Washington',
+            'state' => 'DC'
+          },
+          'spouseFullName' => {
+            'first' => 'Dennis',
+            'last' => 'Menise'
+          }
+        }
+      ],
+      'currentMarriage' => {
+        'dateOfMarriage' => '2018-02-02',
+        'locationOfMarriage' => {
+          'countryDropdown' => 'USA',
+          'city' => 'Washington',
+          'state' => 'DC'
+        },
+        'spouseFullName' => {
+          'first' => 'Martha',
+          'last' => 'Stewart'
+        },
+        'spouseSocialSecurityNumber' => '579-00-9999',
+        'spouseMarriages' => [
+          {
+            'dateOfMarriage' => '1979-02-01',
+            'locationOfMarriage' => {
+              'countryDropdown' => 'USA',
+              'city' => 'Washington',
+              'state' => 'DC'
+            },
+            'spouseFullName' => {
+              'first' => 'Dennis',
+              'last'=>'Menise'
+            }
+          }
+        ],
+        'liveWithSpouse' => true,
+        'spouseDateOfBirth' => '1969-02-16'
+      },
+      'dependents' => [
+        {
+          'fullName' => {
+            'first' => 'ONE',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2018-08-02',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '092-12-0181'
+        },
+        {
+          'fullName' => {
+            'first' => 'TWO',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2018-08-02',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '092-12-0182'
+        },
+        {
+          'fullName' => {
+            'first' => 'THREE',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2017-08-02',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '092-12-0183'
+        },
+        {
+          'fullName' => {
+            'first' => 'FOUR',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2017-08-02',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '092-12-0184'
+        },
+        {
+          'fullName' => {
+            'first' => 'FIVE',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2016-08-02',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '092-12-0185'
+        },
+        {
+          'fullName' => {
+            'first' => 'SIX',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2015-08-02',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '092-12-0186'
+        },
+        {
+          'fullName' => {
+            'first' => 'TEST',
+            'last' => 'FORD'
+          },
+          'childDateOfBirth' => '2018-08-07',
+          'childInHousehold' => true,
+          'childSocialSecurityNumber' => '221-22-3524'
+        }
+      ]
+    }
   end
 
   let(:v22_1990_expected) do
@@ -462,7 +583,7 @@ RSpec.describe FormProfile, type: :model do
         schema_data = prefilled_data.deep_dup
 
         schema_data.except!('verified', 'serviceBranches') if schema_form_id == 'VIC'
-
+        # binding.pry
         errors = JSON::Validator.fully_validate(
           schema,
           schema_data.deep_transform_keys { |key| key.camelize(:lower) },
@@ -470,6 +591,7 @@ RSpec.describe FormProfile, type: :model do
         )
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
+      binding.pry
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )
@@ -580,7 +702,8 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with a user that can prefill evss' do
           before do
-            expect(user).to receive(:authorize).with(:evss, :access?).exactly(2).times.and_return(true)
+            # expect(user).to receive(:authorize).with(:evss, :access?).exactly(2).times.and_return(true)
+            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true)
           end
 
           it 'returns prefilled 21-526EZ' do
@@ -590,8 +713,9 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
-          it 'returns prefilled 21-686C' do
-            VCR.use_cassette('evss/dependents/retrieve') do
+          fit 'returns prefilled 21-686C' do
+            # VCR.use_cassette('evss/dependents/retrieve', allow_playback_repeats: true) do
+            VCR.use_cassette('evss/dependents/retrieve_kitchen_sink', allow_playback_repeats: true) do
               expect_prefilled('21-686C')
             end
           end
