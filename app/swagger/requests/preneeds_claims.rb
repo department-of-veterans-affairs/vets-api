@@ -43,7 +43,7 @@ module Swagger
               property :applicationStatus, type: :string, example: 'example needed' # TODO: not in schema.  remove?
               property :hasCurrentlyBuried, type: :string, example: '1', enum: %w[1 2 3]
               property :sendingCode, type: :string, example: 'abc' # TODO: not in schema.  remove?
-              property :currentlyBuriedPersons, type: :array, description: 'data about uploaded attachments' do
+              property :currentlyBuriedPersons, type: :array, description: 'data about persons currently buried under the veteran's eligibility' do
                 items do
                   property :name, type: :object do
                     key :'$ref', :PreneedName
