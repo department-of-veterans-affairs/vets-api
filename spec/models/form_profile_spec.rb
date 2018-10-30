@@ -90,10 +90,10 @@ RSpec.describe FormProfile, type: :model do
         'postalCode' => '22302'
       },
       'veteranEmail' => 'evssvsotest@gmail.com',
-      'veteranSocialSecurityNumber' => '796-04-3735',
-      'dayPhone' => '202-461-9724',
+      'veteranSocialSecurityNumber' => '796043735',
+      'dayPhone' => '2024619724',
       'maritalStatus' => 'NEVERMARRIED',
-      'nightPhone' => '789-325-6545',
+      'nightPhone' => '7893256545',
       'previousMarriages' => [
         {
           'dateOfMarriage' => '1979-02-01',
@@ -119,7 +119,7 @@ RSpec.describe FormProfile, type: :model do
           'first' => 'Martha',
           'last' => 'Stewart'
         },
-        'spouseSocialSecurityNumber' => '579-00-9999',
+        'spouseSocialSecurityNumber' => '579009999',
         'spouseMarriages' => [
           {
             'dateOfMarriage' => '1979-02-01',
@@ -130,7 +130,7 @@ RSpec.describe FormProfile, type: :model do
             },
             'spouseFullName' => {
               'first' => 'Dennis',
-              'last'=>'Menise'
+              'last' => 'Menise'
             }
           }
         ],
@@ -145,7 +145,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2018-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092-12-0181'
+          'childSocialSecurityNumber' => '092120181'
         },
         {
           'fullName' => {
@@ -154,7 +154,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2018-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092-12-0182'
+          'childSocialSecurityNumber' => '092120182'
         },
         {
           'fullName' => {
@@ -163,7 +163,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2017-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092-12-0183'
+          'childSocialSecurityNumber' => '092120183'
         },
         {
           'fullName' => {
@@ -172,7 +172,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2017-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092-12-0184'
+          'childSocialSecurityNumber' => '092120184'
         },
         {
           'fullName' => {
@@ -181,7 +181,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2016-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092-12-0185'
+          'childSocialSecurityNumber' => '092120185'
         },
         {
           'fullName' => {
@@ -190,7 +190,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2015-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092-12-0186'
+          'childSocialSecurityNumber' => '092120186'
         },
         {
           'fullName' => {
@@ -199,7 +199,7 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2018-08-07',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '221-22-3524'
+          'childSocialSecurityNumber' => '221223524'
         }
       ]
     }
@@ -702,8 +702,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with a user that can prefill evss' do
           before do
-            # expect(user).to receive(:authorize).with(:evss, :access?).exactly(2).times.and_return(true)
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true)
+            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           end
 
           it 'returns prefilled 21-526EZ' do
@@ -713,9 +712,8 @@ RSpec.describe FormProfile, type: :model do
               end
             end
           end
-          fit 'returns prefilled 21-686C' do
-            # VCR.use_cassette('evss/dependents/retrieve', allow_playback_repeats: true) do
-            VCR.use_cassette('evss/dependents/retrieve_kitchen_sink', allow_playback_repeats: true) do
+          it 'returns prefilled 21-686C' do
+            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes', allow_playback_repeats: true) do
               expect_prefilled('21-686C')
             end
           end

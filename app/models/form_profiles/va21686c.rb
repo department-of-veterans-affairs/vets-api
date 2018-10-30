@@ -2,7 +2,6 @@
 
 class ScrubbedString < Virtus::Attribute
   def coerce(value)
-    # (value.nil? || ['NONE'].include?(value.to_s.upcase)) ? '' : value
     ['NONE'].include?(value.to_s.upcase) ? '' : value
   end
 end
@@ -59,25 +58,22 @@ module VA21686c
   class FormMarriage
     include Virtus.model
 
-    attribute :date_of_marriage, ScrubbedString # TODO parse this?
+    attribute :date_of_marriage, ScrubbedString
     attribute :location_of_marriage, VA21686c::FormLocation
     attribute :spouse_full_name, VA21686c::FormFullName
   end
 
   class FormCurrentMarriage < FormMarriage
+    include Virtus.model
+
     attribute :spouse_social_security_number, ScrubbedString
-    attribute :spouse_has_no_ssn_reason, ScrubbedString
     attribute :spouse_has_no_ssn, Boolean
     attribute :spouse_marriages, Array[VA21686c::FormMarriage]
     attribute :spouse_address, VA21686c::FormAddress
     attribute :spouse_is_veteran, Boolean
     attribute :live_with_spouse, Boolean
     attribute :spouse_date_of_birth, ScrubbedString
-    attribute :spouse_va_file_number, ScrubbedString 
   end
-
-  # class FormPreviousMarriage < FormMarriage
-  # end
 
   class FormContactInformation
     include Virtus.model
@@ -97,7 +93,7 @@ module VA21686c
 end
 
 class FormProfiles::VA21686c < FormProfile
-  attribute :veteran_information, VA21686c::FormContactInformation # TODO: remove?
+  attribute :veteran_information, VA21686c::FormContactInformation
 
   def metadata
     {
@@ -107,41 +103,17 @@ class FormProfiles::VA21686c < FormProfile
     }
   end
 
-  # r["submitProcess"]["veteran"]["previousMarriages"][0].keys
-  # => ["city", "country", "dependentStatus", "endCity", "endCountry", "endState", "exSpouse", "firstName", "lastName", "marriageDate", "marriageTerminationReasonType", "state", "terminatedDate"]
-
-  # r["submitProcess"]["veteran"]["spouse"]["currentMarriage"].keys
-  # => ["city", "country", "dependentStatus", "endCountry", "exSpouse", "marriageDate", "marriageTerminationReasonType", "state"]
-
   def prefill(user)
     return {} unless user.authorize :evss, :access?
     @veteran_information = initialize_veteran_information(user)
     super(user)
   end
 
-  # def prefill(user)
-  #   @identity_information = initialize_identity_information(user)
-  #   @contact_information = initialize_contact_information(user)
-  #   @military_information = initialize_military_information(user)
-  #   mappings = self.class.mappings_for_form(form_id)
-
-  #   form = form_id == '1010EZ' ? '1010ez' : form_id
-  #   form_data = generate_prefill(mappings) if FormProfile.prefill_enabled_forms.include?(form)
-
-  #   { form_data: form_data, metadata: metadata }
-  # end
-
-
-
   private
 
   def initialize_veteran_information(user)
     res = EVSS::Dependents::Service.new(user).retrieve
     veteran = res.body['submitProcess']['veteran']
-    binding.pry
-    # spouse = veteran.deep_dup.fetch('spouse') { { 'previousMarriages' => [], 'address' => {}, 'currentMarriage' => {} } }
-    # spouse.merge!(spouse.delete('currentMarriage') { {} })
-
     VA21686c::FormContactInformation.new(
       {
         veteran_address: prefill_address(veteran['address']),
@@ -151,7 +123,7 @@ class FormProfiles::VA21686c < FormProfile
         marital_status: veteran['marriageType'],
         day_phone: convert_phone(veteran['primaryPhone']),
         night_phone: convert_phone(veteran['secondaryPhone']),
-        veteran_social_security_number: veteran['ssn'],
+        veteran_social_security_number: convert_ssn(veteran['ssn']),
         current_marriage: prefill_current_marriage(veteran['spouse']),
         previous_marriages: veteran['previousMarriages'].map { |m| prefill_marriage(m) },
         dependents: prefill_dependents(veteran['children'])
@@ -159,9 +131,14 @@ class FormProfiles::VA21686c < FormProfile
     )
   end
 
+  def convert_ssn(ssn)
+    return unless ssn
+    ssn.tr('^0-9', '')
+  end
+
   def convert_phone(phone)
     return unless phone
-    [phone['areaNbr'], phone['phoneNbr']].compact.join('-')
+    "#{phone['areaNbr']}#{phone['phoneNbr']}".tr('^0-9', '')
   end
 
   def prefill_current_marriage(spouse)
@@ -169,24 +146,22 @@ class FormProfiles::VA21686c < FormProfile
     marriage = spouse['currentMarriage']
     VA21686c::FormCurrentMarriage.new(
       {
-        date_of_marriage: convert_date(marriage['marriageDate']), # ???
+        date_of_marriage: convert_date(marriage['marriageDate']),
         location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
         spouse_full_name: prefill_name(spouse),
-        spouse_social_security_number: spouse['ssn'],
+        spouse_social_security_number: convert_ssn(spouse['ssn']),
         spouse_has_no_ssn: spouse['hasNoSsn'],
-        spouse_has_no_ssn_reason: spouse['hasNoSsnReason'], # TODO: this is an assumption. need an example
         spouse_marriages: spouse['previousMarriages'].map { |m| prefill_marriage(m) },
         spouse_address: prefill_address(spouse['address']),
         spouse_is_veteran: spouse['veteran'],
         live_with_spouse: spouse['sameResidency'],
-        spouse_date_of_birth: convert_date(spouse['dateOfBirth']),
-        spouse_va_file_number: detect_file_number(spouse['vaFileNumber']), # TODO: this is an assumption. need an example
+        spouse_date_of_birth: convert_date(spouse['dateOfBirth'])
       }.compact
     )
   end
 
   def detect_file_number(file_number)
-    return nil if file_number.nil? || file_number.match(/^\d{3}-\d{2}-\d{4}$/)
+    return if file_number.nil? || file_number.match(/^\d{3}-\d{2}-\d{4}$/)
     file_number
   end
 
@@ -199,14 +174,11 @@ class FormProfiles::VA21686c < FormProfile
         spouse_full_name: prefill_name(marriage),
         reason_for_separation: marriage['marriageTerminationReasonType'],
         date_of_separation: convert_date(marriage['terminatedDate']),
-        location_of_separation: prefill_location(marriage['endCountry'], marriage['endCity'], marriage['endState']),
+        location_of_separation: prefill_location(marriage['endCountry'], marriage['endCity'], marriage['endState'])
       }.compact
     )
   end
 
-  # place of marriage
-  # place marriage terminated
-  # child place of birth
   def prefill_location(country, city, state)
     country ||= {}
     VA21686c::FormLocation.new(
@@ -219,43 +191,26 @@ class FormProfiles::VA21686c < FormProfile
     )
   end
 
-  # def prefill_previous_marriage(spouse)
-  #   VA21686c::FormPreviousMarriage.new(
-  #     {
-  #       date_of_marriage: '', # ???
-  #       location_of_marriage: '', # ???
-  #       spouse_full_name: prefill_name(spouse),
-  #       reason_for_separatio: spouse[''],
-  #     }.compact
-  #   )
-  # end
-
   def convert_date(date)
     return unless date
     Date.strptime(date.to_s, '%Q').strftime('%Y-%m-%d')
   end
 
   def prefill_dependents(children)
-    # binding.pry
     return [] if children.blank?
     children.map do |child|
-      # TODO should we use the following?
-      # dependentStatus, govtTuitionAssist (bool), hasNoFileNumber, hasNoSsn, primaryPhone (object),
-      # proofDepncyInd (bool), rlsnIds (array), schools (array),
-      # secondaryPhone (object), ssnFromCorp (bool), tempDataId (object), uniqueIdentifier, veteran (bool)
-      # binding.pry
       VA21686c::FormDependent.new(
         {
           full_name: prefill_name(child),
           child_date_of_birth: convert_date(child['dateOfBirth']),
           child_in_household: child['sameResidency'],
           child_address: prefill_address(child['address']),
-          child_social_security_number: child['ssn'],
+          child_social_security_number: convert_ssn(child['ssn']),
           attending_college: child['attendedSchool'],
           disabled: child['disabled'],
           married: child['married'],
           child_place_of_birth: prefill_location(child['countryOfBirth'], child['cityOfBirth'], child['stateOfBirth']),
-          child_relationship_type: child['childRelationshipType'],
+          child_relationship_type: child['childRelationshipType']
         }.compact
       )
     end
@@ -288,7 +243,7 @@ class FormProfiles::VA21686c < FormProfile
         postal_type: address['postalType']
       }.compact
     )
-    return if address.attributes.values.uniq.all?{ |x| ['DOMESTIC', ''].include? x }
+    return if address.attributes.values.uniq.all? { |x| ['DOMESTIC', ''].include? x }
     address
   end
 end
