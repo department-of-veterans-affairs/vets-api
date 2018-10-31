@@ -77,5 +77,17 @@ describe Search::Service do
         end
       end
     end
+
+    context 'when exceeding the Search.gov rate limit' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(429)
+            expect(e.errors.first.code).to eq('SEARCH_429')
+          end
+        end
+      end
+    end
   end
 end
