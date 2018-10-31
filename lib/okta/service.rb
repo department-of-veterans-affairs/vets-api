@@ -9,6 +9,7 @@ module Okta
     STATSD_KEY_PREFIX = 'api.okta'
     API_BASE_PATH = '/api/v1'
     USER_API_BASE_PATH = "#{API_BASE_PATH}/users"
+    APP_API_BASE_PATH = "#{API_BASE_PATH}/apps"
 
     configuration Okta::Configuration
 
@@ -25,6 +26,10 @@ module Okta
       define_method("#{http_verb}_url_with_token".to_sym) do |url|
         call_with_token(http_verb, url)
       end
+    end
+
+    def app(app_id)
+      get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
     end
 
     def user(uid)
