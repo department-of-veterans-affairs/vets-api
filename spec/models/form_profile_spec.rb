@@ -145,7 +145,8 @@ RSpec.describe FormProfile, type: :model do
           },
           'childDateOfBirth' => '2018-08-02',
           'childInHousehold' => true,
-          'childSocialSecurityNumber' => '092120181'
+          'childHasNoSsn' => true,
+          'childHasNoSsnReason' => 'NOSSNASSIGNEDBYSSA'
         },
         {
           'fullName' => {

@@ -253,7 +253,8 @@ http_interactions:
                 "firstName" : "ONE",
                 "govtTuitionAssist" : false,
                 "hasNoFileNumber" : false,
-                "hasNoSsn" : false,
+                "hasNoSsn" : true,
+                "noSsnReasonType" : "NOSSNASSIGNEDBYSSA",
                 "lastName" : "FORD",
                 "married" : false,
                 "middleName" : "",
@@ -267,8 +268,7 @@ http_interactions:
                 "secondaryPhone" : {
                   "phoneType" : "DAYTIME"
                 },
-                "ssn" : "092-12-0181",
-                "ssnFromCorp" : true,
+                "ssnFromCorp" : false,
                 "stateOfBirth" : "FL",
                 "tempDataId" : {
                 },

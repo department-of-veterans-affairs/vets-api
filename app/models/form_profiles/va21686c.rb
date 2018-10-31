@@ -49,6 +49,8 @@ module VA21686c
     attribute :child_in_household, Boolean
     attribute :child_address, VA21686c::FormAddress
     attribute :child_social_security_number, ScrubbedString
+    attribute :child_has_no_ssn, Boolean
+    attribute :child_has_no_ssn_reason, ScrubbedString
     attribute :attending_college, Boolean
     attribute :disabled, Boolean
     attribute :married, Boolean
@@ -68,6 +70,7 @@ module VA21686c
 
     attribute :spouse_social_security_number, ScrubbedString
     attribute :spouse_has_no_ssn, Boolean
+    attribute :spouse_has_no_ssn_reason, ScrubbedString
     attribute :spouse_marriages, Array[VA21686c::FormMarriage]
     attribute :spouse_address, VA21686c::FormAddress
     attribute :spouse_is_veteran, Boolean
@@ -151,6 +154,7 @@ class FormProfiles::VA21686c < FormProfile
         spouse_full_name: prefill_name(spouse),
         spouse_social_security_number: convert_ssn(spouse['ssn']),
         spouse_has_no_ssn: spouse['hasNoSsn'],
+        spouse_has_no_ssn_reason: spouse['noSsnReasonType'],
         spouse_marriages: spouse['previousMarriages'].map { |m| prefill_marriage(m) },
         spouse_address: prefill_address(spouse['address']),
         spouse_is_veteran: spouse['veteran'],
@@ -206,6 +210,8 @@ class FormProfiles::VA21686c < FormProfile
           child_in_household: child['sameResidency'],
           child_address: prefill_address(child['address']),
           child_social_security_number: convert_ssn(child['ssn']),
+          child_has_no_ssn: child['hasNoSsn'],
+          child_has_no_ssn_reason: child['noSsnReasonType'],
           attending_college: child['attendedSchool'],
           disabled: child['disabled'],
           married: child['married'],
