@@ -29,27 +29,21 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url(relay_state)
+              SAML::SettingsService.mhv_url(options)
             when 'dslogon'
-              SAML::SettingsService.dslogon_url(relay_state)
+              SAML::SettingsService.dslogon_url(options)
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url(relay_state) + query
+              SAML::SettingsService.idme_loa1_url(options) + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user, relay_state)
+              SAML::SettingsService.mfa_url(current_user, options)
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user, relay_state)
+              SAML::SettingsService.idme_loa3_url(current_user, options)
             when 'slo'
               authenticate
-              # HACK: should figure out why relay_state logic is not working.
-              logout_url = SAML::SettingsService.logout_url(session, relay_state)
-              if request.cookies[Settings.sso.cookie_name].present?
-                logout_url.gsub('vets.gov', 'va.gov')
-              else
-                logout_url
-              end
+              SAML::SettingsService.logout_url(session, options)
             end
       render json: { url: url }
     end
