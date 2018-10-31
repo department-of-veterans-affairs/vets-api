@@ -4,7 +4,6 @@ module EVSS
   module Dependents
     class Service < EVSS::Service
       configuration EVSS::Dependents::Configuration
-
       def retrieve
         perform(:get, 'load/retrieve')
       end
