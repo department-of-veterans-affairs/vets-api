@@ -248,7 +248,7 @@ Rails.application.routes.draw do
 
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
-    mount VaFacilities::Engine, at: '/openid_auth'
+    mount OpenidAuth::Engine, at: '/openid_auth'
     mount AppealsApi::Engine, at: '/appeals'
     mount VaFacilities::Engine, at: '/va_facilities'
     mount VeteranVerification::Engine, at: '/veteran_verification'

@@ -32,6 +32,12 @@ PATH
       rails (~> 4.2.7.1)
 
 PATH
+  remote: modules/openid_auth
+  specs:
+    openid_auth (0.0.1)
+      rails (~> 4.2.7.1)
+
+PATH
   remote: modules/va_facilities
   specs:
     va_facilities (0.0.1)
@@ -1127,6 +1133,7 @@ DEPENDENCIES
   octokit
   oj
   olive_branch
+  openid_auth!
   overcommit
   ox
   pdf-forms
