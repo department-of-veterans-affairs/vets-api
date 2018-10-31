@@ -96,7 +96,7 @@ class DependentsApplication < Common::RedisStore
 
     previous_marriages.map do |previous_marriage|
       {
-        'marriedDate' => convert_evss_date(previous_marriage['dateOfMarriage']),
+        'marriageDate' => convert_evss_date(previous_marriage['dateOfMarriage']),
         'city' => previous_marriage['locationOfMarriage']['city'],
         'country' => convert_country(previous_marriage['locationOfMarriage']),
         'terminatedDate' => convert_evss_date(previous_marriage['dateOfSeparation']),
