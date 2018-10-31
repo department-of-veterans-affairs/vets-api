@@ -16,7 +16,7 @@ module V0
       end
 
       def destroy
-        delete_response = Okta::Service.new.delete_grant(@current_user.uid, grants_params[:id])       
+        delete_response = Okta::Service.new.delete_grant(@current_user.uid, grants_params[:id])
         if delete_response.success?
           head :no_content
         else
@@ -24,9 +24,8 @@ module V0
                                 body: delete_response.body)
           raise 'Unable to delete grant'
         end
-
       end
-      
+
       private
 
       def grants_params
