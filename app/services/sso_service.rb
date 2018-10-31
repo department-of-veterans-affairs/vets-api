@@ -45,9 +45,10 @@ class SSOService
         end
       end
 
-      new_session.save && new_user.save && new_user_identity.save
+      return new_session.save && new_user.save && new_user_identity.save
     else
       handle_error_reporting_and_instrumentation
+      return false
     end
   end
 
