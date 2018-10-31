@@ -17,98 +17,57 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
   subject { described_class }
 
   describe '.perform_async' do
-    let(:valid_form_content) do
-      File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
-    end
-    let(:form4142) { File.read 'spec/support/disability_compensation_form/form_4142.json' }
-    let(:transaction_class) { AsyncTransaction::EVSS::VA526ezSubmitTransaction }
-    let(:last_transaction) { transaction_class.last }
-    let(:claim) { FactoryBot.create(:va526ez) }
-    let(:submission) do
-      {
-        'form526' => valid_form_content,
-        'form526_uploads' => [{
-          'guid' => 'foo',
-          'file_name' => 'bar.pdf',
-          'doctype' => 'L023'
-        }],
-        'form4142' => form4142
-      }
-    end
-    let(:disability_compensation_submission) { instance_double('DisabilityCompensationSubmission') }
+    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:submission) { create(:form526_submission, user_uuid: user.uuid, saved_claim_id: saved_claim.id) }
 
     context 'with a successfull submission job' do
-      before do
-        allow_any_instance_of(
-          AsyncTransaction::EVSS::VA526ezSubmitTransaction
-        ).to receive(:submission).and_return(disability_compensation_submission)
-        allow(disability_compensation_submission).to receive(:id).and_return(123)
-      end
-
       it 'queues a job for submit' do
         expect do
-          subject.perform_async(user.uuid, auth_headers, submission)
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
         end.to change(subject.jobs, :size).by(1)
       end
 
       it 'submits successfully' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
           described_class.drain
-          expect(last_transaction.transaction_status).to eq 'received'
+          expect(Form526JobStatus.last.status).to eq 'success'
         end
       end
 
       it 'kicks off the ancillary jobs with the response claim id' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          claim_id = SecureRandom.uuid
-          response = double(:response, claim_id: claim_id, attributes: nil)
-          service = double(:service, submit_form526: response)
-          transaction = double(:transaction)
-          allow(EVSS::DisabilityCompensationForm::Service)
-            .to receive(:new).and_return(service)
-          allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
-            .to receive(:find_transaction).and_return(transaction)
-          allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
-            .to receive(:update_transaction).and_return(transaction)
-          allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
+        # can use casette?
+        claim_id = SecureRandom.uuid
+        response = double(:response, claim_id: claim_id, attributes: nil)
+        service = double(:service, submit_form526: response)
+        allow(EVSS::DisabilityCompensationForm::Service).to receive(:new).and_return(service)
 
-          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          described_class.drain
-        end
-      end
-
-      it 'assigns the saved claim via the xref table' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          described_class.drain
-          expect(last_transaction.saved_claim.id).to eq claim.id
-        end
+        expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
+        subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
+        described_class.drain
       end
     end
 
     context 'when retrying a job' do
-      before do
-        allow_any_instance_of(
-          AsyncTransaction::EVSS::VA526ezSubmitTransaction
-        ).to receive(:submission).and_return(disability_compensation_submission)
-        allow(disability_compensation_submission).to receive(:id).and_return(123)
-      end
-
-      it 'doesnt recreate the transaction' do
+      it 'doesnt recreate the job status' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
           expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
 
           jid = subject.jobs.last['jid']
-          transaction_class.start(user.uuid, auth_headers['va_eauth_dodedipnid'], jid)
-          transaction_class.update_transaction(jid, :retrying, 'Test retry')
+          values = {
+            form526_submission_id: submission.id,
+            job_id: jid,
+            job_class: subject.class,
+            status: Form526JobStatus::STATUS[:try],
+            updated_at: Time.now.utc
+          }
+          Form526JobStatus.upsert({ job_id: jid }, values)
 
           described_class.drain
-          expect(last_transaction.transaction_status).to eq 'received'
-          expect(transaction_class.count).to eq 1
+          expect(Form526JobStatus.last.status).to eq 'success'
+          expect(Form526JobStatus.count).to eq 1
         end
       end
     end
@@ -116,18 +75,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
     context 'with a submission timeout' do
       before do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-        transaction = double(:transaction)
-        allow(AsyncTransaction::EVSS::VA526ezSubmitTransaction)
-          .to receive(:find_transaction).and_return(transaction)
-        allow(transaction).to receive(:submission).and_return(disability_compensation_submission)
-        allow(disability_compensation_submission).to receive(:id).and_return(123)
       end
 
       it 'sets the transaction to "retrying"' do
-        subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-        expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-          anything, :retrying, error: 'Gateway timeout'
-        )
+        # can use casette?
+        claim_id = SecureRandom.uuid
+        response = double(:response, claim_id: claim_id, attributes: nil)
+        service = double(:service, submit_form526: response)
+        allow(EVSS::DisabilityCompensationForm::Service).to receive(:new).and_return(service)
+
+        subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
+        expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
         expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
         expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
       end

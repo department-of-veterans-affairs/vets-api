@@ -35,7 +35,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
       'form526_uploads' => form526_uploads,
       'form4142' => form4142,
       'form0781' => form0781
-    }
+    }.to_json
   end
 
   private

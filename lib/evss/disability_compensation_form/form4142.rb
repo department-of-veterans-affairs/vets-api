@@ -19,7 +19,7 @@ module EVSS
         @final_output['veteranAddress'] = address(@veteran_data['mailingAddress'])
         @final_output['email'] = @veteran_data['emailAddress']
         @final_output['veteranPhone'] = @veteran_data['primaryPhone']
-        @final_output.to_json
+        @final_output
       end
 
       private

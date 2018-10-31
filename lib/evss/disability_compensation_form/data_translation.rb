@@ -19,7 +19,7 @@ module EVSS
         translate_treatments
         translate_disabilities
 
-        @form_content.compact.to_json
+        @form_content.compact
       end
 
       private

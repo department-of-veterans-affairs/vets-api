@@ -24,10 +24,17 @@ module V0
 
       saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission_data = saved_claim.to_submission_data(@current_user)
+
+      submission = Form526Submission.create(
+        user_uuid: @current_user.uuid,
+        saved_claim_id: saved_claim.id,
+        data: saved_claim.to_submission_data(@current_user)
+      )
+      submission.save ? log_success(saved_claim) : log_failure(saved_claim)
+      puts submission.data
 
       jid = EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly.start(
-        @current_user.uuid, auth_headers, saved_claim.id, submission_data
+        @current_user.uuid, auth_headers, saved_claim.id, submission.id
       )
 
       render json: { data: { attributes: { job_id: jid } } },

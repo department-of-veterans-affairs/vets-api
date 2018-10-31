@@ -22,7 +22,7 @@ module EVSS
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
-      def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
+      def self.start(user_uuid, auth_headers, saved_claim_id, submission_id)
         workflow_batch = Sidekiq::Batch.new
         workflow_batch.on(
           :success,
@@ -30,7 +30,7 @@ module EVSS
           'saved_claim_id' => saved_claim_id
         )
         jids = workflow_batch.jobs do
-          perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
+          perform_async(user_uuid, auth_headers, saved_claim_id, submission_id)
         end
         jids.first
       end
@@ -41,25 +41,25 @@ module EVSS
       # @param user_uuid [String] The user's uuid thats associated with the form
       # @param auth_headers [Hash] The VAAFI headers for the user
       # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param submission_data [Hash] The submission hash of 526, uploads, and 4142 data
+      # @param submission_id [Hash] The submission hash of 526, uploads, and 4142 data
       #
-      def perform(user_uuid, auth_headers, saved_claim_id, submission_data)
+      def perform(user_uuid, auth_headers, saved_claim_id, submission_id)
         @user_uuid = user_uuid
         @auth_headers = auth_headers
         @saved_claim_id = saved_claim_id
-        @submission_data = submission_data
-
-        transaction = find_or_create_transaction
-        @submission_id = transaction.submission.id
+        @submission_id = submission_id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
           # TODO: sub classed #service can be removed once `increase only` has been deprecated
-          response = service(@auth_headers).submit_form526(@submission_data['form526'])
+          submission = Form526Submission.find(submission_id)
+          response = service(@auth_headers).submit_form526(submission.form526_to_json)
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
+        binding.pry
         retryable_error_handler(e)
       rescue StandardError => e
+        binding.pry
         non_retryable_error_handler(e)
       end
 
@@ -71,17 +71,8 @@ module EVSS
 
       private
 
-      def find_or_create_transaction
-        transaction = TRANSACTION_CLASS.find_transaction(jid)
-        return transaction if transaction.present?
-        saved_claim(@saved_claim_id).async_transaction = TRANSACTION_CLASS.start(
-          @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
-        )
-      end
-
       def response_handler(response)
         submission_rate_limiter.increment
-        TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
         perform_ancillary_jobs(response.claim_id)
       end
 
@@ -90,14 +81,7 @@ module EVSS
         ancillary_jobs.perform(bid, claim_id)
       end
 
-      def non_retryable_error_handler(error)
-        message = error.try(:messages) || { error: error.message }
-        TRANSACTION_CLASS.update_transaction(jid, :non_retryable_error, message)
-        super(error)
-      end
-
       def retryable_error_handler(error)
-        TRANSACTION_CLASS.update_transaction(jid, :retrying, error: error.message)
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
