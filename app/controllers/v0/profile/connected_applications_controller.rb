@@ -8,10 +8,11 @@ module V0
       end
 
       def destroy
-        app = grants_by_app(false)[grants_params[:id]]
+        app = grants_by_app(false)[connected_accounts_params[:id]]
         app[:grants].each do |grant|
-          unless okta_service.delete_grant(@current_user.uid, grant[:id]).success?
-            log_message_to_sentry("Error deleting grant #{grants_params[:id]}", :error,
+          delete_response = okta_service.delete_grant(@current_user.uuid, grant[:id])
+          unless delete_response.success?
+            log_message_to_sentry("Error deleting grant #{connected_accounts_params[:id]}", :error,
                                   body: delete_response.body)
             raise 'Unable to delete grant'
           end
@@ -37,32 +38,35 @@ module V0
         end
       end
 
+      def apps_from_grants(grants, with_logos = true)
+        apps = {}
+        grants.body.each do |grant|
+          links = grant['_links']
+          app_href = links['app']['href']
+          app_id = app_href.split('/').last
+
+          unless apps[app_id]
+            apps[app_id] = {
+              id: app_id,
+              href: app_href,
+              title: links['app']['title'],
+              created: grant['created'],
+              logo: get_logo(app_id),
+              grants: []
+            }
+            apps[app_id][:logo] = get_logo(app_id) if with_logos
+          end
+
+          apps[app_id][:grants] << { id: grant['id'], title: links['scope']['title'] }
+        end
+        apps
+      end
+
       def grants_by_app(with_logos = true)
         grants_response = okta_service.grants(@current_user.uuid)
 
         if grants_response.success?
-          grants = {}
-          grants_response.body.each do |grant|
-            links = grant['_links']
-            app_href = links['app']['href']
-            app_id = app_href.split('/').last
-
-            unless grants[app_id]
-              grants[app_id] = {
-                id: app_id,
-                href: app_href,
-                title: links['app']['title'],
-                created: grant['created'],
-                logo: get_logo(app_id),
-                grants: []
-              }
-              grants[app_id][:logo] = get_logo(app_id) if with_logos
-            end
-
-            grants[app_id][:grants] << { id: grant['id'], title: links['scope']['title'] }
-          end
-
-          grants
+          apps_from_grants(grants_response, with_logos)
         else
           log_message_to_sentry('Error retrieving grants for user', :error,
                                 body: profile_response.body)
@@ -71,7 +75,7 @@ module V0
       end
 
       def connected_accounts_params
-        params.require(:id)
+        params.permit(:id)
       end
     end
   end
