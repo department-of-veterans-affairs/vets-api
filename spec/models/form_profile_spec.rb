@@ -712,7 +712,7 @@ RSpec.describe FormProfile, type: :model do
             end
           end
           it 'returns prefilled 21-686C' do
-            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes', allow_playback_repeats: true) do
+            VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
               expect_prefilled('21-686C')
             end
           end
