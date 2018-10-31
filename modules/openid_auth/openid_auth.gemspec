@@ -9,9 +9,9 @@ Gem::Specification.new do |s|
   s.version     = OpenidAuth::VERSION
   s.authors     = ["Michael Bastos"]
   s.email       = ["bastosmichael@gmail.com"]
-  s.homepage    = "TODO"
-  s.summary     = "TODO: Summary of OpenidAuth."
-  s.description = "TODO: Description of OpenidAuth."
+  s.homepage    = "https://api.vets.gov/services/auth/docs/v0"
+  s.summary     = "OpenID Auth"
+  s.description = "OpenID Auth API"
   s.license     = "MIT"
 
   s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.rdoc"]
@@ -19,5 +19,5 @@ Gem::Specification.new do |s|
 
   s.add_dependency "rails", "~> 4.2.7.1"
 
-  s.add_development_dependency "sqlite3"
+  s.add_development_dependency 'rspec-rails'
 end

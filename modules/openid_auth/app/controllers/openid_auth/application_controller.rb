@@ -1,5 +1,5 @@
 module OpenidAuth
-  class ApplicationController < ActionController::Base
-    protect_from_forgery with: :exception
+  class ApplicationController < ::OpenidApplicationController
+    skip_before_action :set_tags_and_extra_content
   end
 end
