@@ -7,16 +7,36 @@ module Okta
     include Common::Client::Monitoring
 
     STATSD_KEY_PREFIX = 'api.okta'
+    API_BASE_PATH = '/api/v1'
+    USER_API_BASE_PATH =  "#{API_BASE_PATH}/users"
 
     configuration Okta::Configuration
 
-    def get_url_with_token(url)
-      connection.get do |req|
+    def call_with_token(action, url)
+      connection.send(action) do |req|
         req.url url
         req.headers['Content-Type'] = 'application/json'
         req.headers['Accept'] = 'application/json'
         req.headers['Authorization'] = "SSWS #{Settings.oidc.base_api_token}"
       end
+    end
+
+    %i[get post put delete].each do |http_verb|
+      define_method("#{http_verb}_url_with_token".to_sym) do |url|
+        call_with_token(http_verb, url)
+      end
+    end
+    
+    def user(uid)
+      get_url_with_token("#{USER_API_BASE_PATH}/#{uid}")
+    end
+
+    def grants(uid)
+      get_url_with_token("#{USER_API_BASE_PATH}/#{uid}/grants")
+    end
+
+    def delete_grant(uid, grant_id)
+      delete_url_with_token("#{USER_API_BASE_PATH}/#{uid}/grants/#{grant_id}")
     end
   end
 end
