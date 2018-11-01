@@ -193,7 +193,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'can find an active session' do
-
         it 'destroys the user, session, and cookie, persists logout_request object, redirects to SLO url' do
           # these should have been destroyed yet
           expect(Session.find(token)).to_not be_nil
