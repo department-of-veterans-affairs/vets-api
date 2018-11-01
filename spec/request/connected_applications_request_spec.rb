@@ -8,8 +8,8 @@ RSpec.describe 'Connected Applications API endpoint', type: :request do
   let(:user) { build(:user, :loa3) }
 
   before do
-    user[:uuid] = '00u2el40t6EF3DwEn2p7'
-    Session.create(uuid: '00u2el40t6EF3DwEn2p7', token: token)
+    user[:uuid] = '00u2fqgvbyT23TZNm2p7'
+    Session.create(uuid: '00u2fqgvbyT23TZNm2p7', token: token)
     User.create(user)
   end
 

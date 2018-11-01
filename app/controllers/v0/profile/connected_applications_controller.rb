@@ -62,9 +62,18 @@ module V0
         end
         apps
       end
+      
+      def get_user_id
+        user_response = okta_service.user(@current_user.uuid)
+        if user_response.success?
+          user_response.body['id']
+        else
+          raise Common::Exception::RecordNotFound, @current_user.uuid
+        end
+      end
 
       def grants_by_app(with_logos = true)
-        grants_response = okta_service.grants(@current_user.uuid)
+        grants_response = okta_service.grants(get_user_id)
         grants_response.success? ? apps_from_grants(grants_response, with_logos) : {}
       end
 
