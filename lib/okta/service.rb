@@ -32,16 +32,16 @@ module Okta
       get_url_with_token("#{APP_API_BASE_PATH}/#{app_id}")
     end
 
-    def user(uid)
-      get_url_with_token("#{USER_API_BASE_PATH}/#{uid}")
+    def user(user_id)
+      get_url_with_token("#{USER_API_BASE_PATH}/#{user_id}")
     end
 
-    def grants(uid)
-      get_url_with_token("#{USER_API_BASE_PATH}/#{uid}/grants")
+    def grants(user_id)
+      get_url_with_token("#{USER_API_BASE_PATH}/#{user_id}/grants")
     end
 
-    def delete_grant(uid, grant_id)
-      delete_url_with_token("#{USER_API_BASE_PATH}/#{uid}/grants/#{grant_id}")
+    def delete_grant(user_id, grant_id)
+      delete_url_with_token("#{USER_API_BASE_PATH}/#{user_id}/grants/#{grant_id}")
     end
   end
 end
