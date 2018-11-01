@@ -251,7 +251,11 @@
           }
         }
       ],
-      "remarks": "test remarks"
+      "remarks": "test remarks",
+      "trainingPreDisabledYes": true,
+      "trainingPreDisabledNo": false,
+      "otherTrainingPostUnEmployYes": true,
+      "otherTrainingPostUnEmployNo": false
     }
   }
 }
