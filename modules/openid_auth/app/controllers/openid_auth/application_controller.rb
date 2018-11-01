@@ -11,11 +11,5 @@ module OpenidAuth
                            JWT.decode(token, nil, false, algorithm: 'HS256')[0]['validated_token']
                          end
     end
-
-    def validate_token
-      raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
-      raise 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
-      # raise 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
-    end
   end
 end
