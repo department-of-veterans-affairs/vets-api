@@ -22,7 +22,7 @@ module SAML
     end
 
     def idme_loa1_url
-      build_sso_url(LOA::MAPPING.invert[3])
+      build_sso_url(LOA::MAPPING.invert[1])
     end
 
     def idme_loa3_url

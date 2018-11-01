@@ -93,6 +93,11 @@ class SSOService
     end
   end
 
+  if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
+    log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
+    return relay_state.default_login_url
+  end
+
   def handle_error_reporting_and_instrumentation
     if errors.keys.include?(:base)
       invalid_saml_response_handler

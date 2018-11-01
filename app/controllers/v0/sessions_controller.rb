@@ -54,7 +54,7 @@ module V0
       session = Session.find(Base64.urlsafe_decode64(params[:session]))
       raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
       destroy_user_session!(User.find(session.uuid), session)
-      redirect_to SAML::SettingsService.slo_url(session, relay_state)
+      redirect_to SAML::URLService.new(saml_settings, session).slo_url
     end
 
     def saml_logout_callback
@@ -71,7 +71,7 @@ module V0
       # in the future the FE shouldnt count on ?success=true
     ensure
       logout_request&.destroy
-      redirect_to relay_state.logout_url + '?success=true'
+      redirect_to "#{base_redirect_url}/logout?success=true"
     end
 
     def saml_callback
@@ -82,13 +82,13 @@ module V0
         @session = @sso_service.new_session
 
         after_login_actions
-        redirect_to saml_login_relay_url + '?token=' + @session.token
+        redirect_to saml_login_redirect_url
 
         log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to saml_login_relay_url + "?auth=fail&code=#{@sso_service.auth_error_code}"
+        redirect_to saml_login_redirect_url
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
@@ -100,18 +100,19 @@ module V0
 
     private
 
-    def saml_login_relay_url
-      return relay_state.default_login_url if current_user.nil?
-      # TODO: this validation should happen when we create the user, not here
-      if current_user.loa.key?(:highest) == false || current_user.loa[:highest].nil?
-        log_message_to_sentry('ID.me did not provide LOA.highest!', :error)
-        return relay_state.default_login_url
-      end
+    def base_redirect_url
+      "#{request.protocol}#{request.host}"
+    end
 
-      if current_user.loa[:current] < current_user.loa[:highest]
-        SAML::SettingsService.idme_loa3_url(current_user, relay_state)
+    def saml_login_redirect_url
+      if current_user.present?
+        if current_user.loa[:current] < current_user.loa[:highest]
+          SAML::URLService.new(saml_settings, session).idme_loa3_url
+        else
+          "#{base_redirect_url}/auth/login/callback?token=#{session.token}"
+        end
       else
-        relay_state.login_url
+        "#{base_redirect_url}/auth/login/callback?auth=fail&code=#{@sso_service.auth_error_code}"
       end
     end
 
@@ -150,10 +151,6 @@ module V0
       STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
-    end
-
-    def relay_state
-      @relay_state ||= RelayState.new(relay_enum: params[:success_relay], url: params[:RelayState])
     end
   end
 end
