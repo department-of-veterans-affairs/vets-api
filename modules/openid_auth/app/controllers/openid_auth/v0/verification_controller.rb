@@ -4,7 +4,7 @@ require_dependency 'openid_auth/application_controller'
 
 module OpenidAuth
   module V0
-    class AuthController < ApplicationController
+    class VerificationController < ApplicationController
       before_action { permit_scopes %w[veteran_status.read] }
 
       def index
