@@ -14,10 +14,19 @@ module EVSS
     def on_complete(env)
       case env[:status]
       when 200
-        resp = env.body
-        raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
-        if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
-          raise EVSSError.new(resp['messages'], resp['messages'])
+        if env.response_headers['content-type'].include?('xml')
+          # TODO test
+          resp = Hash.from_xml(env.body)
+          if %w[fatal error].include?(resp[resp.keys[0]]['messages'].try(:[], 'severity').downcase)
+            raise EVSSError.new(resp['messages']['text'], resp['messages']['text'])
+          end
+        else
+          resp = env.body
+          raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
+
+          if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
+            raise EVSSError.new(resp['messages'], resp['messages'])
+          end
         end
       when 503, 504
         resp = env.body
