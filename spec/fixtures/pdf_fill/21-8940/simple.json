@@ -34,5 +34,7 @@
   "treatments": [],
   "specialCircumstances": [],
   "standardClaim": false, 
-  "education": "college4"
+  "education": "college4",
+  "receivedOtherEducationTrainingPreUnemployability": true,
+  "otherEducationTrainingPostUnemployability": false
 }
