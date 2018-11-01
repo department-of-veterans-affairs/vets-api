@@ -841,6 +841,25 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/profile/connected_applications' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'GET OAuth Applications'
+          key :operationId, 'getConnectedApplications'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'List of OAuth applications you have connected'
+            schema do
+              key :'$ref', :ConnectedApplications
+            end
+          end
+        end
+      end
     end
   end
 end
