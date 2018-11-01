@@ -122,12 +122,25 @@ RSpec.describe 'Disability compensation form', type: :request do
       context 'with an `increase only` claim' do
         let(:valid_increase_form) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
 
-        it 'should match the rated disabilities schema' do
+        it 'should match the submit_disability_form schema' do
           VCR.use_cassette('evss/disability_compensation_form/submit_form') do
             post '/v0/disability_compensation_form/submit', valid_increase_form, auth_header
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('submit_disability_form')
           end
+        end
+
+        it 'should start the submit job' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            expect(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).once
+            post '/v0/disability_compensation_form/submit', valid_increase_form, auth_header
+          end
+        end
+      end
+
+      context 'with an `increase only` claim with uploads' do
+        let(:valid_increase_form) do
+          File.read 'spec/support/disability_compensation_form/front_end_submission_with_uploads.json'
         end
 
         it 'should start the submit job' do

@@ -18,6 +18,7 @@ class Form526Submission < ActiveRecord::Base
   FORM_0781 = 'form0781'
 
   def self.create_submission(user, auth_headers, saved_claim)
+    puts saved_claim.to_submission_data(user)
     Form526Submission.create(
       user_uuid: user.uuid,
       saved_claim_id: saved_claim.id,
@@ -37,6 +38,10 @@ class Form526Submission < ActiveRecord::Base
       klass.perform_async(id)
     end
     jids.first
+  end
+
+  def form
+    @form_hash ||= JSON.parse(form_json)
   end
 
   def form_to_json(item)
@@ -75,9 +80,5 @@ class Form526Submission < ActiveRecord::Base
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def form
-    @form_hash ||= JSON.parse(form_json)
   end
 end

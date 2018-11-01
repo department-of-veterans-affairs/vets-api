@@ -7,7 +7,13 @@ FactoryBot.define do
     submitted_claim_id nil
     auth_headers_json ''
     form_json do
-      File.read("#{::Rails.root}/spec/support/disability_compensation_form/front_end_submission_with_uploads.json")
+      File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/only_526.json")
+    end
+  end
+
+  trait :with_uploads do
+    form_json do
+      File.read("#{::Rails.root}/spec/support/disability_compensation_form/submissions/with_uploads.json")
     end
   end
 end

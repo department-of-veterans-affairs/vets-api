@@ -28,6 +28,8 @@ module V0
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
+    rescue => e
+      binding.pry
     end
 
     # :nocov:
