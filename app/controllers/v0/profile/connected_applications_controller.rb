@@ -70,7 +70,7 @@ module V0
           apps_from_grants(grants_response, with_logos)
         else
           log_message_to_sentry('Error retrieving grants for user', :error,
-                                body: profile_response.body)
+                                body: grants_response.body)
           raise 'Unable to retrieve grants for user'
         end
       end
