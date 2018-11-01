@@ -98,14 +98,14 @@
       "previousMarriages": [
         {
           "marriageDate": "2015-12-15T00:00:00Z",
-          "city": "new york",
-          "country": {
+          "endCity": "new york",
+          "endCountry": {
             "dropDownCountry": "USA"
           },
           "terminatedDate": "2015-12-16T00:00:00Z",
           "marriageTerminationReasonType": "OTHER",
           "explainTermination": "other",
-          "state": "NY",
+          "endState": "NY",
           "firstName": "spouse",
           "lastName": "last"
         }
@@ -159,14 +159,14 @@
         "previousMarriages": [
           {
             "marriageDate": "2015-12-15T00:00:00Z",
-            "city": "new york",
-            "country": {
+            "endCity": "new york",
+            "endCountry": {
               "dropDownCountry": "USA"
             },
             "terminatedDate": "2015-12-16T00:00:00Z",
             "marriageTerminationReasonType": "OTHER",
             "explainTermination": "other",
-            "state": "NY",
+            "endState": "NY",
             "firstName": "spouse",
             "lastName": "last"
           }
