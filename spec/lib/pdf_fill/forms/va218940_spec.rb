@@ -22,7 +22,7 @@ describe PdfFill::Forms::Va218940 do
 
   describe '#merge_fields' do
     it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(described_class.new(get_fixture('pdf_fill/21-8940/simple')).merge_fields).to eq(
+      expect(described_class.new(get_fixture('pdf_fill/21-8940/kitchen_sink')).merge_fields).to eq(
         get_fixture('pdf_fill/21-8940/merge_fields')
       )
     end
@@ -32,7 +32,7 @@ describe PdfFill::Forms::Va218940 do
     context 'ssn is not blank' do
       let(:form_data) do
         {
-          'veteranSocialSecurityNumber' => '123456789'
+          'veteran' => { 'socialSecurityNumber' => '123456789' }
         }
       end
       it 'should expand the ssn correctly' do
@@ -40,6 +40,7 @@ describe PdfFill::Forms::Va218940 do
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
+          'veteran' => { 'socialSecurityNumber' => '123456789' },
           'veteranSocialSecurityNumber' => { 'first' => '123', 'second' => '45', 'third' => '6789' },
           'veteranSocialSecurityNumber1' => { 'first' => '123', 'second' => '45', 'third' => '6789' },
           'veteranSocialSecurityNumber2' => { 'first' => '123', 'second' => '45', 'third' => '6789' }
@@ -52,10 +53,12 @@ describe PdfFill::Forms::Va218940 do
     context 'contains middle initial' do
       let :form_data do
         {
-          'veteranFullName' => {
-            'first' => 'Testy',
-            'middle' => 'Tester',
-            'last' => 'Testerson'
+          'veteran' => {
+            'fullName' => {
+              'first' => 'Testy',
+              'middle' => 'Tester',
+              'last' => 'Testerson'
+            }
           }
         }
       end
@@ -64,11 +67,13 @@ describe PdfFill::Forms::Va218940 do
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
-          'veteranFullName' => {
-            'first' => 'Testy',
-            'middle' => 'Tester',
-            'last' => 'Testerson',
-            'middleInitial' => 'T'
+          'veteran' => {
+            'fullName' => {
+              'first' => 'Testy',
+              'middle' => 'Tester',
+              'last' => 'Testerson',
+              'middleInitial' => 'T'
+            }
           }
         )
       end
@@ -79,7 +84,9 @@ describe PdfFill::Forms::Va218940 do
     context 'dob is not blank' do
       let :form_data do
         {
-          'veteranDateOfBirth' => '1981-11-05'
+          'veteran' => {
+            'dateOfBirth' => '1981-11-05'
+          }
         }
       end
       it 'should expand the birth date correctly' do
@@ -87,6 +94,9 @@ describe PdfFill::Forms::Va218940 do
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
+          'veteran' => {
+            'dateOfBirth' => '1981-11-05'
+          },
           'veteranDateOfBirth' => {
             'year' => '1981',
             'month' => '11',
@@ -97,32 +107,41 @@ describe PdfFill::Forms::Va218940 do
     end
   end
 
-  describe '#expand_va_file_number' do
-    context 'va file number is not blank' do
-      let(:form_data) do
+  describe '#expand_veteran_address' do
+    context 'contains address' do
+      let :form_data do
         {
-          'vaFileNumber' => '12345678'
+          'veteran' => {
+            'mailingAddress' => {
+              'addressLine1' => '23195 WRATHALL DR',
+              'addressLine2' => '4C',
+              'city' => 'ASHBURN',
+              'country' => 'USA',
+              'state' => 'VA',
+              'zipCode' => '20148-1234'
+            }
+          }
         }
       end
-      it 'should expand the va file number correctly' do
-        new_form_class.send(:expand_va_file_number)
+      it 'should expand veteran full name correctly' do
+        new_form_class.send(:expand_veteran_address)
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
-          'vaFileNumber' => '12345678',
-          'vaFileNumber1' => '12345678'
+          'veteran' => {
+            'mailingAddress' => {
+              'addressLine1' => '23195 WRATHALL DR',
+              'addressLine2' => '4C',
+              'city' => 'ASHBURN',
+              'country' => 'US',
+              'state' => 'VA',
+              'zipCode' => {
+                'firstFive' => '20148',
+                'lastFour' => '1234'
+              }
+            }
+          }
         )
-      end
-    end
-    context 'va file number is blank' do
-      let(:form_data) do
-        {}
-      end
-      it 'should return without doing anything' do
-        new_form_class.send(:expand_va_file_number)
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq({})
       end
     end
   end

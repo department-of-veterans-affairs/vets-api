@@ -260,7 +260,8 @@ module PdfFill
 
       def expand_claimant_address
         @form_data['veteranAddress']['country'] = extract_country(@form_data['veteranAddress'])
-        @form_data['veteranAddress']['postalCode'] = split_postal_code(@form_data['veteranAddress'])
+        @form_data['veteranAddress']['postalCode'] =
+          split_postal_code(@form_data['veteranAddress'], 'postalCode')
       end
 
       def expand_veteran_full_name
@@ -310,7 +311,7 @@ module PdfFill
             'city' => provider['providerFacilityAddress']['city'],
             'state' => provider['providerFacilityAddress']['state'],
             'country' => extract_country(provider['providerFacilityAddress']),
-            'postalCode' => split_postal_code(provider['providerFacilityAddress'])
+            'postalCode' => split_postal_code(provider['providerFacilityAddress'], 'postalCode')
           }
           provider.except!('providerFacilityAddress')
           provider.merge!(provider_address)

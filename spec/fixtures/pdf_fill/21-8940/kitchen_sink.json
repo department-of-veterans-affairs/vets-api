@@ -1,17 +1,26 @@
 {
   "veteran": {
     "emailAddress": "testy.testerson@gmail.com",
+    "alternateEmailAddress": "testy.testerson@hotmail.com",
     "homelessness": {
       "isHomeless": false
     },
     "mailingAddress": {
       "addressLine1": "23195 WRATHALL DR",
+      "addressLine2": "4C",
       "city": "ASHBURN",
       "country": "USA",
       "state": "VA",
-      "zipCode": "20148"
+      "zipCode": "20148-1234"
     },
-    "primaryPhone": "7045551212"
+    "primaryPhone": "7045551212",
+    "fullName": {
+      "first": "Test",
+      "middle": "Tester",
+      "last": "Testerson"
+    },
+    "socialSecurityNumber": "123456789",
+    "dateOfBirth": "1970-01-01"
   },
   "attachments": [],
   "privacyAgreementAccepted": true,
@@ -50,8 +59,8 @@
             "postalCode": "21200-1111"
           },
           "dates": {
-            "from": "1994-1-1",
-            "to": "1995-1-1"
+            "from": "1994-01-01",
+            "to": "1995-01-01"
           }
         },
         {
@@ -65,8 +74,8 @@
             "postalCode": "21200-1111"
           },
           "dates": {
-            "from": " 1997-1-1",
-            "to": "1998-1-1"
+            "from": " 1997-01-01",
+            "to": "1998-01-01"
           }
         }
       ],
@@ -82,8 +91,8 @@
             "postalCode": "21200-1111"
           },
           "dates": {
-            "from": "1996-1-1",
-            "to": "1997-1-1"
+            "from": "1996-01-01",
+            "to": "1997-01-01"
           }
         },
         {
@@ -97,14 +106,14 @@
             "postalCode": "21200-1111"
           },
           "dates": {
-            "from": "1999-1-1",
-            "to": "2000-1-1"
+            "from": "1999-01-01",
+            "to": "2000-01-01"
           }
         }
       ],
-      "disabilityAffectedEmploymentFullTimeDate": "1998-1-1",
-      "lastWorkedFullTimeDate": "1997-1-1",
-      "becameTooDisabledToWorkDate": "1993-1-1",
+      "disabilityAffectedEmploymentFullTimeDate": "1998-01-01",
+      "lastWorkedFullTimeDate": "1997-01-01",
+      "becameTooDisabledToWorkDate": "1993-01-01",
       "mostEarningsInAYear": "100,000",
       "yearOfMostEarnings": "1992",
       "occupationDuringMostEarnings": "Test",
@@ -122,8 +131,8 @@
           "workType": "work",
           "hoursPerWeek": "40",
           "dates": {
-            "from": "1991-1-1",
-            "to": "1992-1-1"
+            "from": "1991-01-01",
+            "to": "1992-01-01"
           },
           "timeLostFromIllness": "2 months",
           "mostEarningsInAMonth": "4000"
@@ -141,8 +150,8 @@
           "workType": "work",
           "hoursPerWeek": "40",
           "dates": {
-            "from": "1992-1-1",
-            "to": "1993-1-1"
+            "from": "1992-01-01",
+            "to": "1993-01-01"
           },
           "timeLostFromIllness": "1 months",
           "mostEarningsInAMonth": "2000"
@@ -167,7 +176,7 @@
             "postalCode": "21200-1111"
           },
           "workType": "work",
-          "date": "1997-1-1"
+          "date": "1997-01-01"
         },
         {
           "name": "Employer D",
@@ -180,7 +189,7 @@
             "postalCode": "21200-1111"
           },
           "workType": "work",
-          "date": "1997-1-1"
+          "date": "1997-01-01"
         }
       ],
       "education": "Test Education",
@@ -189,15 +198,15 @@
         {
           "name":"Other Education A", 
           "dates": {
-            "from": "1992-1-1",
-            "to": "1993-1-1"
+            "from": "1992-01-01",
+            "to": "1993-01-01"
           }
         },
         {
           "name":"Other Education B", 
           "dates": {
-            "from": "2001-1-1",
-            "to": "2002-1-1"
+            "from": "2001-01-01",
+            "to": "2002-01-01"
           }
         }
       ],
@@ -206,15 +215,15 @@
         {
           "name":"Other Education A", 
           "dates": {
-            "from": "1992-1-1",
-            "to": "1993-1-1"
+            "from": "1992-01-01",
+            "to": "1993-01-01"
           }
         },
         {
           "name":"Other Education B", 
           "dates": {
-            "from": "2001-1-1",
-            "to": "2002-1-1"
+            "from": "2001-01-01",
+            "to": "2002-01-01"
           }
         }
       ],
