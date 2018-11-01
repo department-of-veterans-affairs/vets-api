@@ -30,21 +30,20 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::URLService.new(saml_settings).mhv_url
+              url_service.mhv_url
             when 'dslogon'
-              SAML::URLService.new(saml_settings).dslogon_url
+              url_service.dslogon_url
             when 'idme'
-              query = params[:signup] ? '&op=signup' : ''
-              SAML::URLService.new(saml_settings).idme_loa1_url + query
+              url_service.idme_loa1_url + (params[:signup] ? '&op=signup' : '')
             when 'mfa'
               authenticate
-              SAML::URLService.new(saml_settings, session: session).mfa_url
+              url_service.mfa_url
             when 'verify'
               authenticate
-              SAML::URLService.new(saml_settings, session: session).idme_loa3_url
+              url_service.idme_loa3_url
             when 'slo'
               authenticate
-              SAML::URLService.new(saml_settings, session: session).logout_url
+              url_service.logout_url
             end
       render json: { url: url }
     end
@@ -73,7 +72,7 @@ module V0
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
-      redirect_to "#{base_redirect_url}/logout?success=true"
+      redirect_to url_service.logout_redirect_url(success: true)
     end
 
     def saml_callback
@@ -90,34 +89,24 @@ module V0
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
-        redirect_to saml_login_redirect_url
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     rescue NoMethodError
       Raven.extra_context(base64_params_saml_response: params[:SAMLResponse])
-      redirect_to "#{base_redirect_url}/auth/login/callback?auth=fail&code=7" unless performed?
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
 
     private
 
-    def base_redirect_url
-      return "#{request.protocol}#{request.host}:3001" if request.port == 3000
-      # TODO: also fix for review instances
-      "#{request.protocol}#{request.host.gsub(/(api)|(-api)/, '')}"
-    end
-
     def saml_login_redirect_url
-      if current_user.present?
-        if current_user.loa[:current] < current_user.loa[:highest]
-          SAML::URLService.new(saml_settings, session: session).idme_loa3_url
-        else
-          "#{base_redirect_url}/auth/login/callback?token=#{session.token}"
-        end
+      if current_user.loa[:current] < current_user.loa[:highest]
+        url_service.idme_loa3_url
       else
-        "#{base_redirect_url}/auth/login/callback?auth=fail&code=#{@sso_service.auth_error_code}"
+        url_service.login_redirect_url(token: session.token)
       end
     end
 
@@ -156,6 +145,10 @@ module V0
       STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
     rescue StandardError
       'unknown'
+    end
+
+    def url_service
+      SAML::URLService.new(saml_settings, session: session, user: current_user)
     end
   end
 end

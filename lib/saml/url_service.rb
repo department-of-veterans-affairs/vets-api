@@ -3,6 +3,20 @@
 module SAML
   # This class is responsible for providing the URLs for the various SSO and SLO endpoints
   class URLService
+    VIRTUAL_HOST_MAPPINGS = {
+      'https://api.vets.gov' => { base_redirect: 'https://www.vets.gov' },
+      'https://staging-api.vets.gov' => { base_redirect: 'https://staging.vets.gov' },
+      'https://dev-api.vets.gov' => { base_redirect: 'https://dev.vets.gov' },
+      'https://api.va.gov' => { base_redirect: 'https://www.va.gov' },
+      'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
+      'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
+      'http://localhost:3000' => { base_redirect: 'http://localhost:3001' },
+      'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
+    }.freeze
+
+    LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'.freeze
+    LOGOUT_REDIRECT_PARTIAL = '/logout'.freeze
+
     attr_reader :saml_settings, :session, :authn_context
 
     def initialize(saml_settings, session: nil, user: nil)
@@ -13,6 +27,20 @@ module SAML
       @saml_settings = saml_settings
     end
 
+    # REDIRECT_URLS
+    def base_redirect_url
+      VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
+    end
+
+    def login_redirect_url(params = {})
+      add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", params)
+    end
+
+    def logout_redirect_url(params = {})
+      add_query("#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}", params)
+    end
+
+    # SIGN ON URLS
     def mhv_url
       build_sso_url('myhealthevet')
     end
@@ -35,7 +63,7 @@ module SAML
       build_sso_url(link_authn_context)
     end
 
-    # SLO URLS
+    # SIGN OFF URLS
     # This is the internal vets-api url that first gets invoked, it should redirect without authentication
     # when this url gets invoked, the session should be destroyed, before the callback returns
     def logout_url
@@ -62,10 +90,20 @@ module SAML
       saml_auth_request.create(new_url_settings)
     end
 
+    def current_host
+      uri = URI.parse(saml_settings.assertion_consumer_service_url)
+      uri.to_s.gsub(uri.path.to_s + uri.query.to_s, '')
+    end
+
     def url_settings
       url_settings = saml_settings.dup
       url_settings.name_identifier_value = session&.uuid
       url_settings
+    end
+
+    def add_query(url, params)
+      punctuation = url.include?('?') ? '&' : '?'
+      url + (params.any? ? "#{punctuation}#{params.to_query}" : '')
     end
   end
 end

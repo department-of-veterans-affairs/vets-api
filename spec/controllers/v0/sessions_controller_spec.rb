@@ -17,8 +17,10 @@ RSpec.describe V0::SessionsController, type: :controller do
                     to_hash: saml_user_attributes)
   end
 
-  let(:settings_no_context) { build(:settings_no_context) }
-  let(:rubysaml_settings) { build(:rubysaml_settings) }
+  let(:request_host)        { '127.0.0.1:3000' }
+  let(:callback_url)        { "http://#{request_host}/auth/saml/callback"}
+  let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
+  let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
   let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
   let(:valid_saml_response) do
@@ -96,7 +98,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
 
   before(:each) do
-    request.host = '127.0.0.1:3000'
+    request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(OneLogin::RubySaml::Response).to receive(:new).and_return(valid_saml_response)
     Redis.current.set("benchmark_api.auth.login_#{uuid}", Time.now.to_f)
