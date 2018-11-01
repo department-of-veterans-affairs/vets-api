@@ -95,7 +95,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
 
-  before do
+  before(:each) do
+    request.host = '127.0.0.1:3000'
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
     allow(OneLogin::RubySaml::Response).to receive(:new).and_return(valid_saml_response)
     Redis.current.set("benchmark_api.auth.login_#{uuid}", Time.now.to_f)
