@@ -33,5 +33,6 @@
   "disabilities": [],
   "treatments": [],
   "specialCircumstances": [],
-  "standardClaim": false,
+  "standardClaim": false, 
+  "education": ""
 }
