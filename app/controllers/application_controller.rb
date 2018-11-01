@@ -21,6 +21,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::SentryIgnoredGatewayTimeout
   ].freeze
 
+  before_action :block_unknown_hosts
   before_action :authenticate
   before_action :set_api_cookie!
   before_action :set_app_info_headers
@@ -52,6 +53,12 @@ class ApplicationController < ActionController::API
   private
 
   attr_reader :current_user
+
+  # returns a Bad Request if the incoming host header is unsafe.
+  def block_unknown_hosts
+    return if controller_name == 'example'
+    raise Common::Exceptions::NotASafeHostError, request.host unless Settings.virtual_hosts.include?(request.host)
+  end
 
   def skip_sentry_exception_types
     SKIP_SENTRY_EXCEPTION_TYPES
@@ -140,8 +147,12 @@ class ApplicationController < ActionController::API
       @session_object = Session.find(token)
       return false if @session_object.nil?
       @current_user = User.find(@session_object.uuid)
-      extend_session!
-      return true if @current_user.present?
+      if should_signout_sso?
+        destroy_user_session!(@current_user, @session_object)
+      else
+        extend_session!
+      end
+      @current_user.present?
     end
   end
 
@@ -149,6 +160,15 @@ class ApplicationController < ActionController::API
     return unless @session_object
     # Sets a cookie "api_session" with all of the key/value pairs from session object.
     @session_object.to_hash.each { |k, v| session[k] = v }
+  end
+
+  def destroy_user_session!(user, session_object)
+    destroy_sso_cookie!
+    session_object&.destroy
+    user&.destroy
+    @session_object = nil
+    @current_user = nil
+    reset_session
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
@@ -160,14 +180,10 @@ class ApplicationController < ActionController::API
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
       expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.
-      secure: Rails.env.production?,
+      secure: Settings.sso.cookie_secure,
       httponly: true,
-      domain: cookie_domain
+      domain: Settings.sso.cookie_domain
     }
-  end
-
-  def cookie_domain
-    Rails.env.production? ? '.va.gov' : 'localhost'
   end
 
   def extend_session!
@@ -178,7 +194,13 @@ class ApplicationController < ActionController::API
   end
 
   def destroy_sso_cookie!
-    cookies.delete(Settings.sso.cookie_name, domain: cookie_domain, secure: Rails.env.production?)
+    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
+  end
+
+  def should_signout_sso?
+    return false unless Settings.sso.cookie_enabled
+    return false unless Settings.sso.cookie_signout_enabled
+    cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
 
   def render_unauthorized
@@ -186,6 +208,9 @@ class ApplicationController < ActionController::API
   end
 
   def saml_settings(options = {})
+    callback_url = URI.parse(Settings.saml.callback_url)
+    callback_url.host = request.host
+    options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
     SAML::SettingsService.saml_settings(options)
   end
 

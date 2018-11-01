@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SavedClaim::DisabilityCompensation do
+RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
   let(:user) { build(:disabilities_compensation_user) }
 
   before do

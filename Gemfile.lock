@@ -10,10 +10,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6490dc3ffe58717846dc45697d3fb59a2b5fba3c
+  revision: d6a8350b05f94c0971b7073c0d6b952162e116ba
   branch: master
   specs:
-    vets_json_schema (3.99.0)
+    vets_json_schema (3.109.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -712,7 +712,7 @@ GEM
     connection_pool (2.2.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    crass (1.0.3)
+    crass (1.0.4)
     date_validator (0.9.0)
       activemodel
       activesupport
@@ -806,7 +806,7 @@ GEM
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
