@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'base64'
+require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
