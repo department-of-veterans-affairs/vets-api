@@ -28,11 +28,12 @@ module EVSS
       # @param submission_id [Hash] The submission record
       #
       def perform(id)
-        submission = Form526Submission.find(id)
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id) do
+        @submission = Form526Submission.find(id)
+        with_tracking('Form526 Submission', @submission.saved_claim_id, @submission.id) do
           # TODO: sub classed #service can be removed once `increase only` has been deprecated
-          service = service(submission.auth_headers_hash)
-          response = service.submit_form526(submission.form_to_json[Form526Submission::ITEMS[:form526]])
+          service = service(@submission.auth_headers)
+          json = @submission.form_to_json(Form526Submission::FORM_526)
+          response = service.submit_form526(json)
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
@@ -42,8 +43,8 @@ module EVSS
       end
 
       def workflow_complete_handler(_status, options)
-        submission = saved_claim(options['saved_claim_id']).submission
-        submission.complete = true
+        submission = Form526Submission.find(options['submission_id'])
+        submission.workflow_complete = true
         submission.save
       end
 
@@ -51,9 +52,13 @@ module EVSS
 
       def response_handler(response)
         submission_rate_limiter.increment
-        submission.submitted_claim_id = response.claim_id
-        submission.save
-        EVSS::DisabilityCompensationForm::AncillaryJobs.new(submission).perform(bid)
+        @submission.submitted_claim_id = response.claim_id
+        @submission.save
+        perform_ancillary_jobs
+      end
+
+      def perform_ancillary_jobs
+        @submission.perform_ancillary_jobs(bid)
       end
 
       def retryable_error_handler(error)

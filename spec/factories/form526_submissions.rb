@@ -5,7 +5,8 @@ FactoryBot.define do
     user_uuid '123'
     saved_claim_id '123'
     submitted_claim_id nil
-    data do
+    auth_headers_json ''
+    form_json do
       File.read("#{::Rails.root}/spec/support/disability_compensation_form/front_end_submission_with_uploads.json")
     end
   end

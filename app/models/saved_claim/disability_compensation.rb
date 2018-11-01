@@ -14,12 +14,10 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   attr_accessor :form_hash
 
-  ITEMS = {
-    form526: 'form526',
-    form526_uploads: 'form526_uploads',
-    form4142: 'form4142',
-    form0781: 'form0781'
-  }.freeze
+  FORM_526 = 'form526'
+  FORM_526_UPLOADS = 'form526_uploads'
+  FORM_4142 = 'form4142'
+  FORM_0781 = 'form0781'
 
   def self.from_json(json)
     @form_hash = JSON.parse(json)
@@ -27,7 +25,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
     saved_claim
   end
 
-  # TODO(AJD): this should move to Form526Submission so it's not sharing the ITEMS constant
+  # TODO(AJD): this could move to Form526Submission so constants aren't duplicated
   def to_submission_data(user)
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
     form0781 = EVSS::DisabilityCompensationForm::Form0781.new(user, @form_hash.deep_dup).translate
@@ -39,10 +37,10 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
     # TODO: #translate_data can be removed once `increase only` has been deprecated
     {
-      ITEMS[:form526] => translate_data(user, form526),
-      ITEMS[:form526_uploads] => form526_uploads,
-      ITEMS[:form4142] => form4142,
-      ITEMS[:form0781] => form0781
+      FORM_526 => translate_data(user, form526),
+      FORM_526_UPLOADS => form526_uploads,
+      FORM_4142 => form4142,
+      FORM_0781 => form0781
     }.to_json
   end
 
