@@ -147,6 +147,70 @@ module PdfFill
         },
         'witness2Address' => {
           key: 'form1[0].#subform[2].AddressofWitness[0]'
+        },
+        'education' => {
+          'checkbox' => {
+            'gradeSchool1' => {
+              key: 'gradeSchool1'
+            },
+            'gradeSchool2' => {
+              key: 'gradeSchool2'
+            },
+            'gradeSchool3' => {
+              key: 'gradeSchool3'
+            },
+            'gradeSchool4' => {
+              key: 'gradeSchool4'
+            },
+            'gradeSchool5' => {
+              key: 'gradeSchool5'
+            },
+            'gradeSchool6' => {
+              key: 'gradeSchool6'
+            },
+            'gradeSchool7' => {
+              key: 'gradeSchool7'
+            },
+            'gradeSchool8' => {
+              key: 'gradeSchool8'
+            },
+            'highSchool1' => {
+              key: 'highSchool1'
+            },
+            'highSchool2' => {
+              key: 'highSchool2'
+            },
+            'highSchool3' => {
+              key: 'highSchool3'
+            },
+            'highSchool4' => {
+              key: 'highSchool4'
+            },
+            'college1' => {
+              key: 'college1'
+            },
+            'college2' => {
+              key: 'college2'
+            },
+            'college3' => {
+              key: 'college3'
+            },
+            'college4' => {
+              key: 'college4'
+            }
+          }
+        },
+        'trainingPreDisabledYes' => {
+          key: 'receivedOtherTrainingPreDisabled1'
+        },
+        'trainingPreDisabledNo' => {
+          key: 'receivedOtherTrainingPreDisabled0'
+        },
+        'otherTrainingPostUnEmployYes' => {
+          key: 'form1[0].#subform[1].CheckBoxYes[7]'
+        },
+        'otherTrainingPostUnEmployNo' => {
+          key: 'form1[0].#subform[1].CheckBoxNo[7]'
         }
       }.freeze
 
@@ -155,12 +219,19 @@ module PdfFill
         expand_veteran_dob
         expand_veteran_address
         expand_veteran_full_name
+        expand_education
 
         # expand_signature(@form_data['veteranFullName'])
         # @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         # @form_data['wasHospitalizedYes'] = @form_data['wasHospitalized'] == true
         # @form_data['wasHospitalizedNo'] = @form_data['wasHospitalized'] == false
+
+        @form_data['trainingPreDisabledYes'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == true
+        @form_data['trainingPreDisabledNo'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == false
+
+        @form_data['otherTrainingPostUnEmployYes'] = @form_data['otherEducationTrainingPostUnemployability'] == true
+        @form_data['otherTrainingPostUnEmployNo'] = @form_data['otherEducationTrainingPostUnemployability'] == false
 
         @form_data
       end
@@ -191,10 +262,20 @@ module PdfFill
           split_postal_code(@form_data['veteran']['mailingAddress'], 'zipCode')
       end
 
+      def expand_education
+        education = @form_data['education']
+        return if education.blank?
+        @form_data['education'] = {
+          'value' => education
+        }
+
+        expand_checkbox_as_hash(@form_data['education'], 'value')
+      end
+
       def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
-        return if value.blank?
 
+        return if value.blank?
         hash['checkbox'] = {
           value => true
         }
