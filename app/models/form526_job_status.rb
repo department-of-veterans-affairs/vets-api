@@ -10,7 +10,7 @@ class Form526JobStatus < ActiveRecord::Base
   STATUS = {
     try: 'try',
     success: 'success',
-    retrying: 'retrying',
+    retryable_error: 'retryable_error',
     non_retryable_error: 'non_retryable_error',
     exhausted: 'exhausted'
   }.freeze

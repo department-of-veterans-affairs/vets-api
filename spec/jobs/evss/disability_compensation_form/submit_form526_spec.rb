@@ -19,6 +19,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
   describe '.perform_async' do
     let(:saved_claim) { FactoryBot.create(:va526ez) }
     let(:submission) { create(:form526_submission, user_uuid: user.uuid, saved_claim_id: saved_claim.id) }
+    let(:expected_claim_id) { 600130094 }
 
     context 'with a successfull submission job' do
       it 'queues a job for submit' do
@@ -37,15 +38,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
 
       it 'kicks off the ancillary jobs with the response claim id' do
-        # can use casette?
-        claim_id = SecureRandom.uuid
-        response = double(:response, claim_id: claim_id, attributes: nil)
-        service = double(:service, submit_form526: response)
-        allow(EVSS::DisabilityCompensationForm::Service).to receive(:new).and_return(service)
-
-        expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
-        subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
-        described_class.drain
+        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(expected_claim_id)
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
+          described_class.drain
+        end
       end
     end
 
@@ -77,17 +74,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
       end
 
-      it 'sets the transaction to "retrying"' do
-        # can use casette?
-        claim_id = SecureRandom.uuid
-        response = double(:response, claim_id: claim_id, attributes: nil)
-        service = double(:service, submit_form526: response)
-        allow(EVSS::DisabilityCompensationForm::Service).to receive(:new).and_return(service)
-
-        subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
-        expect_any_instance_of(subject).to receive(:perform_ancillary_jobs).with(claim_id)
-        expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
-        expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+      it 'runs the retryable_error_handler and raises a EVSS::DisabilityCompensationForm::GatewayTimeout' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect(Form526JobStatus).to receive(:upsert).twice
+          expect(Rails.logger).to receive(:error).once
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
+        end
       end
     end
 
@@ -112,15 +106,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
         ]
       end
 
-      it 'sets the transaction to "non_retryable_error"' do
+      it 'sets the job_status to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_400') do
           expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-            anything, :non_retryable_error, expected_errors
-          )
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
       end
     end
@@ -136,14 +128,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
         ]
       end
 
-      it 'sets the transaction to non_retryable_error"' do
+      it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-            anything, :non_retryable_error, expected_errors
-          )
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
       end
     end
@@ -162,12 +152,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
 
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_max_ep_code') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-            anything, :non_retryable_error, expected_errors
-          )
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
       end
     end
@@ -186,12 +174,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
 
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_pif_in_use') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-            anything, :non_retryable_error, expected_errors
-          )
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
           expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
           described_class.drain
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
       end
     end
@@ -209,11 +195,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
 
       it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_unmapped') do
-          subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-          expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-            anything, :non_retryable_error, expected_errors
-          )
+          subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
           described_class.drain
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
         end
       end
     end
@@ -224,12 +208,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
 
       it 'sets the transaction to "non_retryable_error"' do
-        expect_any_instance_of(described_class).to receive(:log_exception_to_sentry)
-        subject.perform_async(user.uuid, auth_headers, claim.id, submission)
-        expect(AsyncTransaction::EVSS::VA526ezSubmitTransaction).to receive(:update_transaction).with(
-          anything, :non_retryable_error, error: 'foo'
-        )
+        subject.perform_async(user.uuid, auth_headers, saved_claim.id, submission.id)
         described_class.drain
+        expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
       end
     end
   end

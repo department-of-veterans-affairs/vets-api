@@ -56,10 +56,8 @@ module EVSS
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
-        binding.pry
         retryable_error_handler(e)
       rescue StandardError => e
-        binding.pry
         non_retryable_error_handler(e)
       end
 
