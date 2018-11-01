@@ -10,7 +10,7 @@ module V0
       def destroy
         app = grants_by_app(false)[connected_accounts_params[:id]]
         app[:attributes][:grants].each do |grant|
-          delete_response = okta_service.delete_grant(@current_user.uuid, grant[:id])
+          delete_response = okta_service.delete_grant(get_user_id, grant[:id])
           unless delete_response.success?
             log_message_to_sentry("Error deleting grant #{connected_accounts_params[:id]}", :error,
                                   body: delete_response.body)
@@ -64,12 +64,16 @@ module V0
       end
 
       def get_user_id
-        user_response = okta_service.user(@current_user.uuid)
-        if user_response.success?
-          user_response.body['id']
-        else
-          raise Common::Exception::RecordNotFound, @current_user.uuid
+        unless @user_id
+          user_response = okta_service.user(@current_user.uuid)
+          if user_response.success?
+            @user_id = user_response.body['id']
+          else
+            raise Common::Exception::RecordNotFound, @current_user.uuid
+          end
         end
+
+        @user_id
       end
 
       def grants_by_app(with_logos = true)
