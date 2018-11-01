@@ -1694,7 +1694,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           base_api_url: 'https://example.com/api/v1/',
           base_api_token: 'token'
         ) do
-          params = { "application_id" => '0oa2ey2m6kEL2897N2p7' }
+          params = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
           expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, params)
           VCR.use_cassette('okta/delete_grants') do
             expect(subject).to(
