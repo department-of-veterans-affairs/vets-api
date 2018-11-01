@@ -4,12 +4,12 @@ module V0
   module Profile
     class ConnectedApplicationsController < ApplicationController
       def index
-        render json: grants_by_app.values, serializers: ConnectedApplicationsSerializer
+        render json: { data: grants_by_app.values }
       end
 
       def destroy
         app = grants_by_app(false)[connected_accounts_params[:id]]
-        app[:grants].each do |grant|
+        app[:attributes][:grants].each do |grant|
           delete_response = okta_service.delete_grant(@current_user.uuid, grant[:id])
           unless delete_response.success?
             log_message_to_sentry("Error deleting grant #{connected_accounts_params[:id]}", :error,
@@ -48,16 +48,17 @@ module V0
           unless apps[app_id]
             apps[app_id] = {
               id: app_id,
-              href: app_href,
-              title: links['app']['title'],
-              created: grant['created'],
-              logo: get_logo(app_id),
-              grants: []
+              type: 'connectedApplication',
+              attributes: {
+                title: links['app']['title'],
+                created: grant['created'],
+                grants: []
+              }
             }
-            apps[app_id][:logo] = get_logo(app_id) if with_logos
+            apps[app_id][:attributes][:logo] = get_logo(app_id) if with_logos
           end
 
-          apps[app_id][:grants] << { id: grant['id'], title: links['scope']['title'] }
+          apps[app_id][:attributes][:grants] << { id: grant['id'], title: links['scope']['title'] }
         end
         apps
       end
