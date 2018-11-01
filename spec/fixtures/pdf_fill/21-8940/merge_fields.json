@@ -1,0 +1,26 @@
+{
+  "vaFileNumber": "12345678",
+  "veteranSocialSecurityNumber": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "veteranFullName": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson",
+    "middleInitial": "T"
+  },
+  "veteranDateOfBirth": {
+    "month": "11",
+    "day": "05",
+    "year": "1981"
+  },
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": "2123456789",
+  "signature": "/es/ Testy Testerson",
+  "signatureDate": "2016-12-31",
+  "wasHospitalizedYes": false,
+  "wasHospitalizedNo": true,
+  "wasHospitalized": false
+}
