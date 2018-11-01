@@ -62,7 +62,7 @@ module V0
         end
         apps
       end
-      
+
       def get_user_id
         user_response = okta_service.user(@current_user.uuid)
         if user_response.success?
