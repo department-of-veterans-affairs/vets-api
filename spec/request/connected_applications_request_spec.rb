@@ -19,7 +19,7 @@ RSpec.describe 'Connected Applications API endpoint', type: :request do
         get '/v0/profile/connected_applications', nil, auth_header
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)[0]['id']).to eq('0oa2ey2m6kEL2897N2p7')
+        expect(JSON.parse(response.body)['data'][0]['id']).to eq('0oa2ey2m6kEL2897N2p7')
       end
     end
 
