@@ -6,7 +6,7 @@ module OpenidAuth
   module V0
     class ValidationController < ApplicationController
       def index
-        render json: @current_user, serializer: OpenidAuth::UserSerializer
+        render json: token_payload
       rescue StandardError
         raise_error!
       end
@@ -18,6 +18,13 @@ module OpenidAuth
           'AUTH_STATUS502',
           source: self.class.to_s
         )
+      end
+
+      def validated_payload
+        @validated_payload ||= {
+          validated_token: token_payload,
+          va_identifiers: {}
+        }
       end
     end
   end
