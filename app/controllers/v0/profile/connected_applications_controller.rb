@@ -34,7 +34,7 @@ module V0
         else
           log_message_to_sentry('Error fetching app', :error,
                                 body: app_response.body)
-          raise 'Unable to fetch app'
+          nil
         end
       end
 
@@ -65,14 +65,7 @@ module V0
 
       def grants_by_app(with_logos = true)
         grants_response = okta_service.grants(@current_user.uuid)
-
-        if grants_response.success?
-          apps_from_grants(grants_response, with_logos)
-        else
-          log_message_to_sentry('Error retrieving grants for user', :error,
-                                body: grants_response.body)
-          raise 'Unable to retrieve grants for user'
-        end
+        grants_response.success? ? apps_from_grants(grants_response, with_logos) : {}
       end
 
       def connected_accounts_params
