@@ -35,11 +35,11 @@ module OIDC
     end
 
     def self.fetch_keys
-      # TODO: handle errors/timeouts/empty response
-      metadata_response = Faraday.get Settings.oidc.auth_server_metadata_url
-      metadata = JSON.parse(metadata_response.body)
-      key_response = Faraday.get(metadata['jwks_uri'])
-      JSON.parse(key_response.body)
+      okta = Okta::Service.new
+      metadata_response = okta.get_url_with_token Settings.oidc.auth_server_metadata_url
+      metadata = metadata_response.body
+      key_response = okta.get_url_with_token metadata['jwks_uri']
+      key_response.body
     end
 
     def self.build_key(jwks_object)

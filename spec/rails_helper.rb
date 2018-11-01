@@ -56,8 +56,8 @@ def with_okta_configured(&block)
     auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
     issuer: 'https://example.com/oauth2/default',
     audience: 'api://default',
-    profile_api_url: 'https://example.com/api/v1/users/',
-    profile_api_token: 'token'
+    base_api_url: 'https://example.com/',
+    base_api_token: 'token'
   ) do
     VCR.use_cassette('okta/metadata') do
       yield block
@@ -159,6 +159,10 @@ RSpec.configure do |config|
   config.include RequestHelper, type: :request
 
   config.include StatsD::Instrument::Matchers
+
+  config.before :each, type: :controller do
+    request.host = Settings.hostname
+  end
 
   config.before(:all) do
     unless defined?(Sidekiq::Batch)

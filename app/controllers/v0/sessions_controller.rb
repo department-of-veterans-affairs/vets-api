@@ -97,6 +97,8 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
+    rescue NoMethodError
+      Raven.extra_context(base64_params_saml_response: params[:SAMLResponse])
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
@@ -132,15 +134,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    def destroy_user_session!(user, session)
-      # shouldn't return an error, but we'll put everything else in an ensure block just in case.
-      MHVLoggingService.logout(user) if user
-    ensure
-      destroy_sso_cookie!
-      session&.destroy
-      user&.destroy
     end
 
     def build_logout_errors(logout_response, logout_request)

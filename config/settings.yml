@@ -1,10 +1,11 @@
+hostname: localhost:3000 # possible fallback for unsafe request.host
+virtual_hosts: ["localhost"] # Safe host names
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
-
-hostname: localhost:3000
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
@@ -23,6 +24,8 @@ sso:
   cookie_name: vagov_session_dev
   cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
+  cookie_secure: false
+  cookie_domain: localhost
 
 review_instance_slug: ~
 
@@ -81,6 +84,7 @@ evss:
   prefill: true
   url: https://csraciapp6.evss.srarad.com
   service_name: "wss-form526-services-web"
+  alternate_service_name: "wss-form526-services-web-v2"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -186,6 +190,7 @@ mvi:
   pii_logging: false
   vba_orchestration: false
   edipi_search: false
+  cache_all_profile_responses: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
@@ -293,8 +298,8 @@ oidc:
   auth_server_metadata_url: ~
   issuer: ~
   audience: ~
-  profile_api_url: ~
-  profile_api_token: ~
+  base_api_url: ~
+  base_api_token: ~
 
 sentry:
   dsn: ~
@@ -337,6 +342,6 @@ account:
 # Settings for search
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
-  affiliate: vets.gov_test
+  affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2

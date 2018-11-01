@@ -4,27 +4,38 @@ module Search
   # A Utility class encapsulating logic to calculate pagination offsets from a given results set.
   #
   # @attr_reader [Integer] total
-  # @attr_reader [Integer, nil] next_offset
-  # @attr_reader [Integer, nil] previous_offset
   # @param (see Pagination#initialize)
   #
   class Pagination
-    # Default size for offset is 20 per page, max is 50.
-    OFFSET_LIMIT = 20
+    # Default size for per-request results count is 20 per page, max is 50.
+    # Our design choice is to display 10 results per page.
+    #
+    # @see https://search.usa.gov/sites/6277/api_instructions
+    #
+    ENTRIES_PER_PAGE = 10
 
-    attr_reader :total
+    # Due to Search.gov's offset max of 999, we cannot view pages
+    # where the offset param exceeds 999.  This influences our:
+    #   - total_viewable_pages
+    #   - total_viewable_entries
+    #
+    # @see https://search.usa.gov/sites/7378/api_instructions under `offset`
+    #
+    OFFSET_LIMIT = 999
+
     attr_reader :next_offset
-    attr_reader :previous_offset
+    attr_reader :total_entries
+    attr_reader :total_pages
 
     # @param [Hash] raw_body a Hash from the 'web' object found in the results response
     #
     def initialize(raw_body)
-      @total = raw_body.dig('total')
-      @next_offset = raw_body.dig('next_offset')
-      @previous_offset = get_previous_offset
+      @next_offset = raw_body.dig('web', 'next_offset')
+      @total_entries = raw_body.dig('web', 'total')
+      @total_pages = (total_entries / ENTRIES_PER_PAGE.to_f).ceil
     end
 
-    # @return [Hash] pagination_object a Hash including next and previous offset
+    # @return [Hash] pagination_object a Hash including pagination details
     #
     def object
       pagination_object
@@ -32,27 +43,38 @@ module Search
 
     private
 
-    # Calculate the previous_offset value for the instance's given raw_body object
-    #
-    # @return [Integer, nil] offset returns the previous_offset for the current request, or nil if first page
-    #
-    def get_previous_offset
-      return nil if next_offset == OFFSET_LIMIT # We're on the first page
-
-      if next_offset.blank? && total > OFFSET_LIMIT # We're at the last page of results
-        remainder = total % OFFSET_LIMIT
-        return total - (remainder + OFFSET_LIMIT)
+    def current_page
+      case next_offset
+      when nil
+        total_pages.to_i
+      else
+        (next_offset / ENTRIES_PER_PAGE.to_f).floor
       end
-
-      offset = next_offset - (2 * OFFSET_LIMIT)
-      [offset, 0].max
     end
 
     def pagination_object
       {
-        'next' => next_offset,
-        'previous' => previous_offset
+        'current_page' => [current_page, total_pages].min,
+        'per_page' => ENTRIES_PER_PAGE,
+        'total_pages' => total_viewable_pages,
+        'total_entries' => total_viewable_entries
       }
+    end
+
+    def total_viewable_pages
+      [total_pages, maximum_viewable_pages].min
+    end
+
+    def maximum_viewable_pages
+      (OFFSET_LIMIT / ENTRIES_PER_PAGE.to_f).floor
+    end
+
+    def total_viewable_entries
+      [total_entries, maximum_viewable_entries].min
+    end
+
+    def maximum_viewable_entries
+      (ENTRIES_PER_PAGE * total_viewable_pages) + (ENTRIES_PER_PAGE - 1)
     end
   end
 end

@@ -23,9 +23,9 @@ module Swagger
           end
 
           parameter do
-            key :name, 'offset'
+            key :name, 'page'
             key :in, :query
-            key :description, 'The offset from first result, in order to return the expected page of results'
+            key :description, 'The page number for the page of results that is being requested'
             key :required, false
             key :type, :integer
           end
@@ -33,23 +33,13 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :required, [:data]
+              key :required, %i[data meta]
               property :data, type: :object do
                 key :required, [:attributes]
                 property :attributes, type: :object do
                   key :required, [:body]
                   property :body, type: :object do
                     property :query, type: :string, description: 'The term used to generate these search results'
-                    property :pagination, type: :object do
-                      property :previous,
-                               type: %i[integer null],
-                               description: "The offset from first result, in order to return the previous page's results set. Null indicates the response is the first page of results.",
-                               example: 20
-                      property :next,
-                               type: %i[integer null],
-                               description: "The offset from first result, in order to return the next page's results set. Null indicates the response is the last page of results.",
-                               example: 60
-                    end
                     property :web, type: :object do
                       property :total, type: :integer, description: 'Total number of results available.'
                       property :next_offset, type: :integer, description: 'Offset for the subsequent results.'
@@ -211,6 +201,10 @@ module Swagger
                   end
                 end
               end
+
+              property :meta do
+                property :pagination, '$ref': :Pagination
+              end
             end
           end
 
@@ -218,6 +212,27 @@ module Swagger
             key :description, 'Error Occurred'
             schema do
               key :'$ref', :Errors
+            end
+          end
+
+          response 429 do
+            key :description, 'Exceeded rate limit'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status source]
+                  property :title, type: :string, example: 'Exceeded rate limit'
+                  property :detail,
+                           type: :string,
+                           example: 'Exceeded Search.gov rate limit'
+                  property :code, type: :string, example: 'SEARCH_429'
+                  property :status, type: :string, example: '429'
+                  property :source, type: :string, example: 'Search::Service'
+                end
+              end
             end
           end
         end
