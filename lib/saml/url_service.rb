@@ -92,7 +92,7 @@ module SAML
 
     def current_host
       uri = URI.parse(saml_settings.assertion_consumer_service_url)
-      uri.to_s.gsub(uri.path.to_s + uri.query.to_s, '')
+      URI.join(uri, '/').to_s.chop
     end
 
     def url_settings
