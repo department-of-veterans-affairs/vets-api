@@ -14,6 +14,15 @@ module Search
     #
     ENTRIES_PER_PAGE = 10
 
+    # Due to Search.gov's offset max of 999, we cannot view pages
+    # where the offset param exceeds 999.  This influences our:
+    #   - total_viewable_pages
+    #   - total_viewable_entries
+    #
+    # @see https://search.usa.gov/sites/7378/api_instructions under `offset`
+    #
+    OFFSET_LIMIT = 999
+
     attr_reader :next_offset
     attr_reader :total_entries
     attr_reader :total_pages
@@ -47,9 +56,25 @@ module Search
       {
         'current_page' => [current_page, total_pages].min,
         'per_page' => ENTRIES_PER_PAGE,
-        'total_pages' => total_pages,
-        'total_entries' => total_entries
+        'total_pages' => total_viewable_pages,
+        'total_entries' => total_viewable_entries
       }
+    end
+
+    def total_viewable_pages
+      [total_pages, maximum_viewable_pages].min
+    end
+
+    def maximum_viewable_pages
+      (OFFSET_LIMIT / ENTRIES_PER_PAGE.to_f).floor
+    end
+
+    def total_viewable_entries
+      [total_entries, maximum_viewable_entries].min
+    end
+
+    def maximum_viewable_entries
+      (ENTRIES_PER_PAGE * total_viewable_pages) + (ENTRIES_PER_PAGE - 1)
     end
   end
 end
