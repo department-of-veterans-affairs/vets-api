@@ -214,15 +214,15 @@ module PdfFill
       }.freeze
 
       def merge_fields
-        expand_va_file_number
-        expand_ssn
-        expand_veteran_dob
-        expand_claimant_address
-        expand_veteran_full_name
+        # expand_va_file_number
+        # expand_ssn
+        # expand_veteran_dob
+        # expand_claimant_address
+        # expand_veteran_full_name
         expand_education
 
-        expand_signature(@form_data['veteranFullName'])
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
+        # expand_signature(@form_data['veteranFullName'])
+        # @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         @form_data['wasHospitalizedYes'] = @form_data['wasHospitalized'] == true
         @form_data['wasHospitalizedNo'] = @form_data['wasHospitalized'] == false
@@ -272,7 +272,6 @@ module PdfFill
       def expand_education
         education = @form_data['education']
         return if education.blank?
-
         @form_data['education'] = {
           'value' => education
         }
@@ -282,8 +281,8 @@ module PdfFill
 
       def expand_checkbox_as_hash(hash, key)
         value = hash.try(:[], key)
-        return if value.blank?
 
+        return if value.blank?
         hash['checkbox'] = {
           value => true
         }
