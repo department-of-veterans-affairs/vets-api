@@ -860,7 +860,7 @@ module Swagger
           end
         end
       end
-      swagger_path '/v0/profile/connected_applications/#{application_id}' do
+      swagger_path '/v0/profile/connected_applications/{application_id}' do
         operation :delete do
           extend Swagger::Responses::AuthenticationError
 
