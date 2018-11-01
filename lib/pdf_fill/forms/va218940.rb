@@ -6,7 +6,7 @@ module PdfFill
       include FormHelper
 
       KEY = {
-        'veteranFullName' => {
+        'fullName' => {
           'first' => {
             key: 'form1[0].#subform[0].VeteransFirstName[0]',
             limit: 12,
@@ -176,7 +176,7 @@ module PdfFill
       end
 
       def expand_veteran_full_name
-        @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
+        @form_data['fullName'] = extract_middle_i(@form_data, 'fullName')
       end
 
       def expand_ssn
