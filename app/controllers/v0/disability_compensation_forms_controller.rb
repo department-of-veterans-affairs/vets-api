@@ -22,7 +22,7 @@ module V0
     def submit
       form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
-      saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
+      saved_claim.save! #? log_success(saved_claim) : log_failure(saved_claim)
       submission = Form526Submission.create_submission(@current_user, auth_headers, saved_claim)
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly)
 

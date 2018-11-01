@@ -151,6 +151,19 @@ RSpec.describe 'Disability compensation form', type: :request do
         end
       end
 
+      context 'with an `increase only` claim with 4142' do
+        let(:valid_increase_form) do
+          File.read 'spec/support/disability_compensation_form/front_end_submission_with_4142.json'
+        end
+
+        it 'should start the submit job' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            expect(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly).to receive(:perform_async).once
+            post '/v0/disability_compensation_form/submit', valid_increase_form, auth_header
+          end
+        end
+      end
+
       # TODO: There is not vets-json-schema defined for all claims yet so this test cannot pass
       #       due to validation errors.
       # context 'with an `all claims` claim' do
