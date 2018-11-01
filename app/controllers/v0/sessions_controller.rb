@@ -30,21 +30,21 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              SAML::SettingsService.mhv_url(options)
+              SAML::URLService.new(saml_settings).mhv_url
             when 'dslogon'
-              SAML::SettingsService.dslogon_url(options)
+              SAML::URLService.new(saml_settings).dslogon_url
             when 'idme'
               query = params[:signup] ? '&op=signup' : ''
-              SAML::SettingsService.idme_loa1_url(options) + query
+              SAML::URLService.new(saml_settings).idme_loa1_url + query
             when 'mfa'
               authenticate
-              SAML::SettingsService.mfa_url(current_user, options)
+              SAML::URLService.new(saml_settings, session).mfa_url
             when 'verify'
               authenticate
-              SAML::SettingsService.idme_loa3_url(current_user, options)
+              SAML::URLService.new(saml_settings, session).idme_loa3_url
             when 'slo'
               authenticate
-              SAML::SettingsService.logout_url(session, options)
+              SAML::URLService.new(saml_settings, session).logout_url
             end
       render json: { url: url }
     end
