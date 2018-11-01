@@ -57,42 +57,52 @@ describe PdfFill::Forms::FormHelper do
 
   describe '#split_postal_code' do
     it 'should return nil with blank address' do
-      expect(including_class.new.split_postal_code({})).to eq(nil)
+      expect(including_class.new.split_postal_code({}, 'postalCode')).to eq(nil)
+    end
+
+    it 'should return nil with no key' do
+      address = {
+        'city' => 'Baltimore'
+      }
+      expect(including_class.new.split_postal_code(address, '')).to eq(nil)
     end
 
     it 'should return nil with no postal code' do
       address = {
         'city' => 'Baltimore'
       }
-      expect(including_class.new.split_postal_code(address)).to eq(nil)
+      expect(including_class.new.split_postal_code(address, 'postalCode')).to eq(nil)
     end
 
     it 'should return nil for blank postal code' do
       address = {
         'postalCode' => ''
       }
-      expect(including_class.new.split_postal_code(address)).to eq(nil)
+      expect(including_class.new.split_postal_code(address, 'postalCode')).to eq(nil)
     end
 
     it 'should split the code correctly with extra characters' do
       address = {
         'postalCode' => '12345-0000'
       }
-      expect(including_class.new.split_postal_code(address)).to eq('firstFive' => '12345', 'lastFour' => '0000')
+      expect(including_class.new.split_postal_code(address, 'postalCode'))
+        .to eq('firstFive' => '12345', 'lastFour' => '0000')
     end
 
     it 'should split the code correctly with 9 digits' do
       address = {
         'postalCode' => '123450000'
       }
-      expect(including_class.new.split_postal_code(address)).to eq('firstFive' => '12345', 'lastFour' => '0000')
+      expect(including_class.new.split_postal_code(address, 'postalCode'))
+        .to eq('firstFive' => '12345', 'lastFour' => '0000')
     end
 
     it 'should split the code correctly with 5 digits' do
       address = {
         'postalCode' => '12345'
       }
-      expect(including_class.new.split_postal_code(address)).to eq('firstFive' => '12345', 'lastFour' => '')
+      expect(including_class.new.split_postal_code(address, 'postalCode'))
+        .to eq('firstFive' => '12345', 'lastFour' => '')
     end
   end
 

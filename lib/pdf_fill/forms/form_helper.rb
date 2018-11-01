@@ -31,9 +31,10 @@ module PdfFill
         IsoCountryCodes.find(country).alpha2
       end
 
-      def split_postal_code(address)
+      def split_postal_code(address, key)
         return if address.blank?
-        postal_code = address['postalCode']
+        return if key.blank?
+        postal_code = address[key]
 
         return if postal_code.blank?
 
