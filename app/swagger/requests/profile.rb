@@ -878,7 +878,7 @@ module Swagger
             key :type, :string
           end
 
-          response 204
+          response 204, description: "the connected application's grant have been deleted"
         end
       end
     end
