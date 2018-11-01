@@ -101,7 +101,9 @@ module V0
     private
 
     def base_redirect_url
-      "#{request.protocol}#{request.host}"
+      return "#{request.protocol}#{request.host}:3001" if Rails.env.development?
+      # TODO: also fix for review instances
+      "#{request.protocol}#{request.host.gsub(/(api)|(-api)/, '')}"
     end
 
     def saml_login_redirect_url
