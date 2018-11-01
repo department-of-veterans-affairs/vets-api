@@ -28,7 +28,7 @@ FactoryBot.define do
           spouseIsVeteran: true,
           spouseDateOfBirth: '2016-12-15',
           liveWithSpouse: false,
-          dateOfMarriage: '2016-12-15',
+          dateOfMarriage: '2017-12-15',
           spouseVaFileNumber: '111223333',
           locationOfMarriage: {
             countryDropdown: 'USA',
