@@ -19,9 +19,9 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
 
-  def self.from_json(json)
-    @form_hash = JSON.parse(json)
-    saved_claim = new(form: @form_hash['form526'].to_json)
+  def self.from_hash(hash)
+    saved_claim = new(form: hash['form526'].to_json)
+    saved_claim.form_hash = hash
     saved_claim
   end
 

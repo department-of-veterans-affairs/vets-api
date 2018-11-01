@@ -21,8 +21,8 @@ class Form526Submission < ActiveRecord::Base
     Form526Submission.create(
       user_uuid: user.uuid,
       saved_claim_id: saved_claim.id,
-      auth_headers: auth_headers.to_json,
-      form: saved_claim.to_submission_data(user)
+      auth_headers_json: auth_headers.to_json,
+      form_json: saved_claim.to_submission_data(user)
     )
   end
 

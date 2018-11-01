@@ -20,7 +20,8 @@ module V0
     # TODO: This is getting deprecated in favor of `form526 all claims` (defined below)
     #       and can eventually be removed completely
     def submit
-      saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_json(request.body.string)
+      form_content = JSON.parse(request.body.string)
+      saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = Form526Submission.create_submission(@current_user, auth_headers, saved_claim)
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly)
@@ -34,7 +35,8 @@ module V0
       # TODO: While testing `all claims` submissions we will be merging the submission
       # with a hard coded "completed" form which will gap fill any missing data. This should
       # be removed before `all claims` goes live.
-      saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_json(request.body.string)
+      form_content = JSON.parse(request.body.string)
+      saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = Form526Submission.create_submission(@current_user, auth_headers, saved_claim)
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim)
