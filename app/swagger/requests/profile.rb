@@ -860,6 +860,27 @@ module Swagger
           end
         end
       end
+      swagger_path '/v0/profile/connected_applications/#{application_id}' do
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Delete grants for OAuth Applications'
+          key :operationId, 'deleteConnectedApplications'
+          key :tags, ['profile']
+
+          parameter :authorization
+
+          parameter do
+            key :name, :application_id
+            key :in, :path
+            key :description, 'ID of application'
+            key :required, true
+            key :type, :string
+          end
+
+          response 204
+        end
+      end
     end
   end
 end
