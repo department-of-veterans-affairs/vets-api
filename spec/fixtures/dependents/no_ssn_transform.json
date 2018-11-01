@@ -99,13 +99,18 @@
         {
           "marriageDate": "2015-12-15T00:00:00Z",
           "endCity": "new york",
+          "city": "new york",
           "endCountry": {
+            "dropDownCountry": "USA"
+          },
+          "country": {
             "dropDownCountry": "USA"
           },
           "terminatedDate": "2015-12-16T00:00:00Z",
           "marriageTerminationReasonType": "OTHER",
           "explainTermination": "other",
           "endState": "NY",
+          "state": "NY",
           "firstName": "spouse",
           "lastName": "last"
         }
@@ -160,13 +165,18 @@
           {
             "marriageDate": "2015-12-15T00:00:00Z",
             "endCity": "new york",
+            "city": "new york",
             "endCountry": {
+              "dropDownCountry": "USA"
+            },
+            "country": {
               "dropDownCountry": "USA"
             },
             "terminatedDate": "2015-12-16T00:00:00Z",
             "marriageTerminationReasonType": "OTHER",
             "explainTermination": "other",
             "endState": "NY",
+            "state": "NY",
             "firstName": "spouse",
             "lastName": "last"
           }

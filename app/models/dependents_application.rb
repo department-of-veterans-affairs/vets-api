@@ -84,14 +84,19 @@ class DependentsApplication < Common::RedisStore
     return [] if previous_marriages.blank?
 
     previous_marriages.map do |previous_marriage|
+      location_separation = previous_marriage['locationOfSeparation'] || {}
+
       {
         'marriageDate' => convert_evss_date(previous_marriage['dateOfMarriage']),
-        'endCity' => previous_marriage['locationOfMarriage']['city'],
-        'endCountry' => convert_country(previous_marriage['locationOfMarriage']),
+        'endCity' => location_separation['city'],
+        'city' => previous_marriage['locationOfMarriage']['city'],
+        'endCountry' => convert_country(location_separation),
+        'country' => convert_country(previous_marriage['locationOfMarriage']),
         'terminatedDate' => convert_evss_date(previous_marriage['dateOfSeparation']),
         'marriageTerminationReasonType' => SEPARATION_TYPES[previous_marriage['reasonForSeparation']],
         'explainTermination' => previous_marriage['explainSeparation'],
-        'endState' => previous_marriage['locationOfMarriage']['state']
+        'endState' => location_separation['state'],
+        'state' => previous_marriage['locationOfMarriage']['state']
       }.merge(
         convert_name(previous_marriage['spouseFullName'])
       )
