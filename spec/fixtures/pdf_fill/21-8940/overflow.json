@@ -1,0 +1,224 @@
+{
+  "veteran": {
+    "emailAddress": "testy.testerson@gmail.com",
+    "homelessness": {
+      "isHomeless": false
+    },
+    "mailingAddress": {
+      "addressLine1": "23195 WRATHALL DR",
+      "city": "ASHBURN",
+      "country": "USA",
+      "state": "VA",
+      "zipCode": "20148"
+    },
+    "primaryPhone": "7045551212"
+  },
+  "attachments": [],
+  "privacyAgreementAccepted": true,
+  "militaryPayments": {
+    "payments": [],
+    "receiveCompensationInLieuOfRetired": false
+  },
+  "serviceInformation": {
+    "servicePeriods": [
+      {
+        "dateRange": {
+          "from": "2001-06-27",
+          "to": "2007-10-14"
+        },
+        "serviceBranch": "Marine Corps"
+      }
+    ]
+  },
+  "disabilities": [],
+  "treatments": [],
+  "specialCircumstances": [],
+  "standardClaim": false,
+  "form8940": {
+    "unemployability": {
+      "disabilityPreventingEmployment": "Unemployability Disability",
+      "underDoctorHopitalCarePast12M": false,
+      "doctorProvidedCare": [
+        {
+          "name": "Doctor Care A",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "dates": {
+            "from": "1994-1-1",
+            "to": "1995-1-1"
+          }
+        },
+        {
+          "name": "Doctor Care B",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "dates": {
+            "from": " 1997-1-1",
+            "to": "1998-1-1"
+          }
+        }
+      ],
+      "hospitalProvidedCare": [
+        {
+          "name": "Hospital Care A",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "dates": {
+            "from": "1996-1-1",
+            "to": "1997-1-1"
+          }
+        },
+        {
+          "name": "Hospital Care B",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "dates": {
+            "from": "1999-1-1",
+            "to": "2000-1-1"
+          }
+        }
+      ],
+      "disabilityAffectedEmploymentFullTimeDate": "1998-1-1",
+      "lastWorkedFullTimeDate": "1997-1-1",
+      "becameTooDisabledToWorkDate": "1993-1-1",
+      "mostEarningsInAYear": "100,000",
+      "yearOfMostEarnings": "1992",
+      "occupationDuringMostEarnings": "Test",
+      "previousEmployers": [
+        {
+          "name": "Employer A",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "workType": "work",
+          "hoursPerWeek": "40",
+          "dates": {
+            "from": "1991-1-1",
+            "to": "1992-1-1"
+          },
+          "timeLostFromIllness": "2 months",
+          "mostEarningsInAMonth": "4000"
+        },
+        {
+          "name": "Employer B",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1C",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "workType": "work",
+          "hoursPerWeek": "40",
+          "dates": {
+            "from": "1992-1-1",
+            "to": "1993-1-1"
+          },
+          "timeLostFromIllness": "1 months",
+          "mostEarningsInAMonth": "2000"
+        }
+      ],
+      "disabilityPreventMilitaryDuties": true,
+      "past12MonthsEarnedIncome": "0",
+      "currentMonthlyEarnedIncome": "0",
+      "leftLastJobDueToDisability": true,
+      "receiveExpectDisabilityRetirement": false,
+      "receiveExpectWorkersCompensation": false,
+      "attemptedToObtainEmploymentSinceUnemployability": false,
+      "appliedEmployers": [
+        {
+          "name": "Employer C",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1D",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "workType": "work",
+          "date": "1997-1-1"
+        },
+        {
+          "name": "Employer D",
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1E",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          },
+          "workType": "work",
+          "date": "1997-1-1"
+        }
+      ],
+      "education": "Test Education",
+      "receivedOtherEducationTrainingPreUnemployability": true,
+      "otherEducationTrainingPreUnemployability": [
+        {
+          "name":"Other Education A", 
+          "dates": {
+            "from": "1992-1-1",
+            "to": "1993-1-1"
+          }
+        },
+        {
+          "name":"Other Education B", 
+          "dates": {
+            "from": "2001-1-1",
+            "to": "2002-1-1"
+          }
+        }
+      ],
+      "receivedOtherEducationTrainingPostUnemployability": true,
+      "otherEducationTrainingPostUnemployability": [
+        {
+          "name":"Other Education A", 
+          "dates": {
+            "from": "1992-1-1",
+            "to": "1993-1-1"
+          }
+        },
+        {
+          "name":"Other Education B", 
+          "dates": {
+            "from": "2001-1-1",
+            "to": "2002-1-1"
+          }
+        }
+      ],
+      "remarks": "test remarks"
+    }
+  }
+}
