@@ -239,6 +239,10 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   end
 
   context 'with invalid request parameters' do
+    it 'returns 400 for missing bbox or ids' do
+      get base_query_path
+      expect(response).to have_http_status(:bad_request)
+    end
     it 'returns 400 for nonsense bbox' do
       get base_query_path + '?bbox[]=everywhere'
       expect(response).to have_http_status(:bad_request)

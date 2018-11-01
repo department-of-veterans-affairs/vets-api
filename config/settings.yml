@@ -1,17 +1,18 @@
+hostname: localhost:3000 # possible fallback for unsafe request.host
+virtual_hosts: ["localhost"] # Safe host names
+
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-hostname: localhost:3000
-
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,null
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
 
-database_url: postgres:///vets-api
+database_url: postgis:///vets-api
 
 relative_url_root: /
 
@@ -23,6 +24,8 @@ sso:
   cookie_name: vagov_session_dev
   cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
   cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
+  cookie_secure: false
+  cookie_domain: localhost
 
 review_instance_slug: ~
 
@@ -81,6 +84,7 @@ evss:
   prefill: true
   url: https://csraciapp6.evss.srarad.com
   service_name: "wss-form526-services-web"
+  alternate_service_name: "wss-form526-services-web-v2"
   cert_path: ~
   key_path: ~
   root_cert_path: ~
@@ -121,6 +125,8 @@ evss:
     key: fake_key
   reference_data_service:
     enabled: false
+  all_claims_submission: 'config/evss/all_claims_submission.json'
+  international_postal_codes: 'config/evss/international_postal_codes.json'
 
 # Settings for GI Bill Data Service
 gids:
@@ -148,6 +154,9 @@ locators:
   vha_access_satisfaction: https://www.accesstoshep.va.gov/
   vha_access_waittime: https://www.accesstopwt.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
+
+ppms:
+  url: https://some.fakesite.com
 
 # Settings for MyHealthEVet
 mhv:
@@ -179,6 +188,8 @@ mvi:
   client_cert_path: /fake/client/cert/path
   client_key_path: /fake/client/key/path
   pii_logging: false
+  vba_orchestration: false
+  edipi_search: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
@@ -274,9 +285,20 @@ saml:
   # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
   relays:
     vetsgov: http://localhost:3001/auth/login/callback
-    vagov: ~
+    vagov: http://localhost:3001/auth/login/callback
     preview_vagov: ~
   logout_relay: http://localhost:3001/logout
+  logout_relays:
+    vetsgov: http://localhost:3001/logout
+    vagov: http://localhost:3001/logout
+    preview_vagov: ~
+
+oidc:
+  auth_server_metadata_url: ~
+  issuer: ~
+  audience: ~
+  base_api_url: ~
+  base_api_token: ~
 
 sentry:
   dsn: ~
@@ -320,4 +342,5 @@ account:
 search:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
+  mock_search: true
   url: https://search.usa.gov/api/v2

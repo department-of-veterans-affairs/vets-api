@@ -78,6 +78,12 @@ en:
         title: Validation error
         code: 109
         status: 422
+      not_a_safe_host_error:
+        <<: *defaults
+        title: Bad Request
+        detail: "\"%{host}\" is not a safe host"
+        code: 110
+        status: 400
       unauthorized:
         <<: *defaults
         title: Not authorized
@@ -320,6 +326,12 @@ en:
         code: 'EMIS_HIST502'
         detail: EMIS service responded with something other than the expected array of service history hashes.
         status: 502
+      EMIS_STATUS502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'EMIS_STATUS502'
+        detail: EMIS service responded with something other than veteran status information
+        status: 502
       IHUB_101:
         <<: *external_defaults
         title: Error Occurred
@@ -344,6 +356,12 @@ en:
         code: 'SEARCH_400'
         detail: 'Search.gov service responded with a Bad Request'
         status: 400
+      SEARCH_429:
+        <<: *external_defaults
+        title: Exceeded rate limit
+        code: 'SEARCH_429'
+        detail: 'Exceeded Search.gov rate limit'
+        status: 429
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
@@ -1152,6 +1170,12 @@ en:
         title: Vet360 ID already exists
         code: VET360_MVI204
         detail: MVI Service returned an existing Vet360 ID Identifier
+        status: 400
+      VET360_MVI209:
+        <<: *external_defaults
+        title: MVIIdentifierPCE
+        code: VET360_MVI209
+        detail: PCE request identifier
         status: 400
       VET360_MVI300:
         <<: *external_defaults

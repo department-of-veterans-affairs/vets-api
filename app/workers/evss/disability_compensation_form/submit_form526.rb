@@ -4,7 +4,9 @@ module EVSS
   module DisabilityCompensationForm
     class SubmitForm526
       include Sidekiq::Worker
-      include SentryLogging
+      include JobStatus
+
+      TRANSACTION_CLASS = AsyncTransaction::EVSS::VA526ezSubmitTransaction
 
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
@@ -15,12 +17,22 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        transaction_class.update_transaction(jid, :exhausted)
-        log_message_to_sentry(
-          "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
-          :error
+        TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
+        Rails.logger.error('Form526 Exhausted', 'job_id' => msg['jid'], 'error_message' => msg['error_message'])
+        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
+      end
+
+      def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
+        workflow_batch = Sidekiq::Batch.new
+        workflow_batch.on(
+          :success,
+          'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
+          'saved_claim_id' => saved_claim_id
         )
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted", tags: ["job_id:#{jid}"])
+        jids = workflow_batch.jobs do
+          perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
+        end
+        jids.first
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -28,108 +40,78 @@ module EVSS
       #
       # @param user_uuid [String] The user's uuid thats associated with the form
       # @param auth_headers [Hash] The VAAFI headers for the user
-      # @param claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param form_content [Hash] The form content that is to be submitted
-      # @param uploads [Hash] The users ancillary uploads that will be submitted separately
+      # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
+      # @param submission_data [Hash] The submission hash of 526, uploads, and 4142 data
       #
-      def perform(user_uuid, auth_headers, claim_id, form_content, uploads)
-        associate_transaction(auth_headers, claim_id, user_uuid) if transaction_class.find_transaction(jid).blank?
-        response = service(auth_headers).submit_form526(form_content)
-        handle_success(user_uuid, auth_headers, response, uploads)
-      rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        handle_service_exception(e)
+      def perform(user_uuid, auth_headers, saved_claim_id, submission_data)
+        @user_uuid = user_uuid
+        @auth_headers = auth_headers
+        @saved_claim_id = saved_claim_id
+        @submission_data = submission_data
+
+        transaction = find_or_create_transaction
+        @submission_id = transaction.submission.id
+
+        with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
+          # TODO: sub classed #service can be removed once `increase only` has been deprecated
+          response = service(@auth_headers).submit_form526(@submission_data['form526'])
+          response_handler(response)
+        end
       rescue Common::Exceptions::GatewayTimeout => e
-        handle_gateway_timeout_exception(e)
+        retryable_error_handler(e)
       rescue StandardError => e
-        handle_standard_error(e)
-      ensure
-        StatsD.increment("#{STATSD_KEY_PREFIX}.try", tags: ["job_id:#{jid}"])
+        non_retryable_error_handler(e)
+      end
+
+      def workflow_complete_handler(_status, options)
+        submission = saved_claim(options['saved_claim_id']).submission
+        submission.complete = true
+        submission.save
       end
 
       private
 
-      def handle_success(user_uuid, auth_headers, response, uploads)
-        transaction_class.update_transaction(jid, :received, response.attributes)
+      def find_or_create_transaction
+        transaction = TRANSACTION_CLASS.find_transaction(jid)
+        return transaction if transaction.present?
+        saved_claim(@saved_claim_id).async_transaction = TRANSACTION_CLASS.start(
+          @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
+        )
+      end
+
+      def response_handler(response)
         submission_rate_limiter.increment
-
-        Rails.logger.info('Form526 Submission',
-                          'user_uuid' => user_uuid,
-                          'job_id' => jid,
-                          'job_status' => 'received')
-        StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["job_id:#{jid}"])
-
-        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
-
-        if uploads.present?
-          EVSS::DisabilityCompensationForm::SubmitUploads.start(user_uuid, auth_headers, response.claim_id, uploads)
-        end
+        TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
+        perform_ancillary_jobs(response.claim_id)
       end
 
-      def associate_transaction(auth_headers, claim_id, user_uuid)
-        saved_claim(claim_id).async_transaction = transaction_class.start(
-          user_uuid, auth_headers['va_eauth_dodedipnid'], jid
-        )
+      def perform_ancillary_jobs(claim_id)
+        ancillary_jobs = AncillaryJobs.new(@user_uuid, @auth_headers, @saved_claim_id, @submission_data)
+        ancillary_jobs.perform(bid, claim_id)
       end
 
-      def service(auth_headers)
-        EVSS::DisabilityCompensationForm::Service.new(
-          auth_headers
-        )
+      def non_retryable_error_handler(error)
+        message = error.try(:messages) || { error: error.message }
+        TRANSACTION_CLASS.update_transaction(jid, :non_retryable_error, message)
+        super(error)
       end
 
-      def saved_claim(claim_id)
-        SavedClaim::DisabilityCompensation.find(claim_id)
-      end
-
-      def transaction_class
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction
-      end
-
-      def handle_service_exception(error)
-        if error.status_code.between?(500, 600)
-          transaction_class.update_transaction(jid, :retrying, error.messages)
-          increment_retryable(error)
-          raise error
-        end
-        transaction_class.update_transaction(jid, :non_retryable_error, error.messages)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(error, extra_content)
-        increment_non_retryable(error)
-      end
-
-      def handle_gateway_timeout_exception(error)
-        transaction_class.update_transaction(jid, :retrying, error.message)
-        increment_retryable(error)
+      def retryable_error_handler(error)
+        TRANSACTION_CLASS.update_transaction(jid, :retrying, error: error.message)
+        super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
-      def handle_standard_error(error)
-        transaction_class.update_transaction(jid, :non_retryable_error, error.to_s)
-        extra_content = { status: :non_retryable_error, jid: jid }
-        log_exception_to_sentry(error, extra_content)
-        increment_non_retryable(error)
+      def service(_auth_headers)
+        raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
+      end
+
+      def saved_claim(saved_claim_id)
+        SavedClaim::DisabilityCompensation.find(saved_claim_id)
       end
 
       def submission_rate_limiter
         Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
-      end
-
-      def increment_non_retryable(error)
-        tags = statsd_tags(error)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.non_retryable_error", tags: tags)
-      end
-
-      def increment_retryable(error)
-        tags = statsd_tags(error)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.retryable_error", tags: tags)
-      end
-
-      def statsd_tags(error)
-        tags = ["error:#{error.class}"]
-        tags << "job_id:#{jid}"
-        tags << "status:#{error.status_code}" if error.try(:status_code)
-        tags << "message:#{error.message}" if error.try(:message)
-        tags
       end
     end
   end

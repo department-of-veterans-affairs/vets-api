@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lib/search/shared_examples_for_pagination'
 
 describe Search::Service do
   let(:query) { 'benefits' }
@@ -12,6 +13,8 @@ describe Search::Service do
 
   describe '#results' do
     context 'when successful' do
+      it_behaves_like 'pagination data'
+
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('search/success', VCR::MATCH_EVERYTHING) do
           response = subject.results
@@ -32,45 +35,57 @@ describe Search::Service do
         end
       end
     end
-  end
 
-  context 'with an empty search query' do
-    let(:query) { '' }
+    context 'with an empty search query' do
+      let(:query) { '' }
 
-    it 'raises an exception', :aggregate_failures do
-      VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
-        expect { subject.results }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('SEARCH_400')
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/empty_query', VCR::MATCH_EVERYTHING) do
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('SEARCH_400')
+          end
         end
       end
     end
-  end
 
-  context 'with an invalid API access key' do
-    it 'raises an exception', :aggregate_failures do
-      VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
-        allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
+    context 'with an invalid API access key' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/invalid_access_key', VCR::MATCH_EVERYTHING) do
+          allow_any_instance_of(described_class).to receive(:access_key).and_return('INVALIDKEY')
 
-        expect { subject.results }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('SEARCH_400')
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('SEARCH_400')
+          end
         end
       end
     end
-  end
 
-  context 'with an invalid affiliate' do
-    it 'raises an exception', :aggregate_failures do
-      VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
-        allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
+    context 'with an invalid affiliate' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/invalid_affiliate', VCR::MATCH_EVERYTHING) do
+          allow_any_instance_of(described_class).to receive(:affiliate).and_return('INVALID')
 
-        expect { subject.results }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('SEARCH_400')
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(400)
+            expect(e.errors.first.code).to eq('SEARCH_400')
+          end
+        end
+      end
+    end
+
+    context 'when exceeding the Search.gov rate limit' do
+      it 'raises an exception', :aggregate_failures do
+        VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
+          expect { subject.results }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(429)
+            expect(e.errors.first.code).to eq('SEARCH_429')
+          end
         end
       end
     end

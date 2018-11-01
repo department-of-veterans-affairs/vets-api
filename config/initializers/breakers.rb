@@ -19,6 +19,8 @@ require 'mvi/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
+require 'search/configuration'
+require 'okta/configuration'
 
 require 'evss/claims_service'
 require 'evss/common_service'
@@ -52,7 +54,10 @@ services = [
   MVI::Configuration.instance.breakers_service,
   Preneeds::Configuration.instance.breakers_service,
   SM::Configuration.instance.breakers_service,
-  Vet360::ContactInformation::Configuration.instance.breakers_service
+  Vet360::ContactInformation::Configuration.instance.breakers_service,
+  Search::Configuration.instance.breakers_service,
+  Okta::Configuration.instance.breakers_service
+
 ]
 
 services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled
