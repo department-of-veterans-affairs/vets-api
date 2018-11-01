@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7
     body:
       encoding: US-ASCII
       string: ''
@@ -59,12 +59,12 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '{"id":"00u2fqgvbyT23TZNm2p7","status":"ACTIVE","created":"2018-10-31T16:57:53.000Z","activated":"2018-10-31T16:57:54.000Z","statusChanged":"2018-10-31T16:57:54.000Z","lastLogin":"2018-11-01T16:26:12.000Z","lastUpdated":"2018-11-01T16:26:12.000Z","passwordChanged":null,"profile":{"firstName":"Alex","lastName":"Teal","gender":"M","mobilePhone":null,"dob":"1989-11-02","secondEmail":null,"middleName":"R","login":"1847a3eb4b904102882e24e4ddf12ff3","email":"arteal@oddball.io","ssn":"111111111","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/suspend","method":"POST"},"resetPassword":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/reset_password","method":"POST"},"changeRecoveryQuestion":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7"},"deactivate":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/deactivate","method":"POST"}}}'
+      string: '{"id":"00u2fqgvbyT23TZNm2p7","status":"ACTIVE","created":"2018-10-31T16:57:53.000Z","activated":"2018-10-31T16:57:54.000Z","statusChanged":"2018-10-31T16:57:54.000Z","lastLogin":"2018-11-01T16:26:12.000Z","lastUpdated":"2018-11-01T16:26:12.000Z","passwordChanged":null,"profile":{"firstName":"Alex","lastName":"Teal","gender":"M","mobilePhone":null,"dob":"1989-11-02","secondEmail":null,"middleName":"R","login":"1847a3eb4b904102882e24e4ddf12ff3","email":"arteal@oddball.io","ssn":"111111111","loa":3},"credentials":{"provider":{"type":"FEDERATION","name":"FEDERATION"}},"_links":{"suspend":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/suspend","method":"POST"},"resetPassword":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/reset_password","method":"POST"},"changeRecoveryQuestion":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/credentials/change_recovery_question","method":"POST"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7"},"deactivate":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/lifecycle/deactivate","method":"POST"}}}'
     http_version: 
   recorded_at: Thu, 01 Nov 2018 16:33:17 GMT
 - request:
     method: get
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants
     body:
       encoding: US-ASCII
       string: ''
@@ -121,16 +121,16 @@ http_interactions:
       - chunked
     body:
       encoding: ASCII-8BIT
-      string: '[{"id":"oag3bn95nBoL2hm6q2p6","status":"ACTIVE","created":"2018-11-01T16:20:24.000Z","lastUpdated":"2018-11-01T16:20:24.000Z","issuer":"https://deptva-eval.okta.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy20aJcLgHy2p7","_links":{"app":{"href":"https://deptva-eval.okta.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/default/scopes/scp2bvhy20aJcLgHy2p7","title":"Disability
-        Rating"},"self":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95nBoL2hm6q2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://deptva-eval.okta.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
-        Teal"}}},{"id":"oag3bn95oSDV00FFI2p6","status":"ACTIVE","created":"2018-11-01T16:20:24.000Z","lastUpdated":"2018-11-01T16:20:24.000Z","issuer":"https://deptva-eval.okta.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy3jLMtDLif2p7","_links":{"app":{"href":"https://deptva-eval.okta.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://deptva-eval.okta.com/api/v1/authorizationServers/default/scopes/scp2bvhy3jLMtDLif2p7","title":"Military
-        Service History"},"self":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95oSDV00FFI2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://deptva-eval.okta.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
+      string: '[{"id":"oag3bn95nBoL2hm6q2p6","status":"ACTIVE","created":"2018-11-01T16:20:24.000Z","lastUpdated":"2018-11-01T16:20:24.000Z","issuer":"https://deptva-eval.okta.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy20aJcLgHy2p7","_links":{"app":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://example.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://example.com/api/v1/authorizationServers/default/scopes/scp2bvhy20aJcLgHy2p7","title":"Disability
+        Rating"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95nBoL2hm6q2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://deptva-eval.okta.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
+        Teal"}}},{"id":"oag3bn95oSDV00FFI2p6","status":"ACTIVE","created":"2018-11-01T16:20:24.000Z","lastUpdated":"2018-11-01T16:20:24.000Z","issuer":"https://deptva-eval.okta.com/oauth2/default","clientId":"0oa2ey2m6kEL2897N2p7","userId":"00u2fqgvbyT23TZNm2p7","scopeId":"scp2bvhy3jLMtDLif2p7","_links":{"app":{"href":"https://example.com/api/v1/apps/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"authorizationServer":{"href":"https://example.com/api/v1/authorizationServers/default","title":"default"},"scope":{"href":"https://example.com/api/v1/authorizationServers/default/scopes/scp2bvhy3jLMtDLif2p7","title":"Military
+        Service History"},"self":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95oSDV00FFI2p6","hints":{"allow":["GET","DELETE"]}},"client":{"href":"https://deptva-eval.okta.com/oauth2/v1/clients/0oa2ey2m6kEL2897N2p7","title":"TestGrantRevoke"},"user":{"href":"https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7","title":"Alex
         Teal"}}}]'
     http_version: 
   recorded_at: Thu, 01 Nov 2018 16:33:17 GMT
 - request:
     method: delete
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95nBoL2hm6q2p6
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95nBoL2hm6q2p6
     body:
       encoding: US-ASCII
       string: ''
@@ -189,7 +189,7 @@ http_interactions:
   recorded_at: Thu, 01 Nov 2018 16:33:17 GMT
 - request:
     method: delete
-    uri: https://deptva-eval.okta.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95oSDV00FFI2p6
+    uri: https://example.com/api/v1/users/00u2fqgvbyT23TZNm2p7/grants/oag3bn95oSDV00FFI2p6
     body:
       encoding: US-ASCII
       string: ''
