@@ -1,21 +1,37 @@
 {
-  "vaFileNumber": "12345678",
-  "veteranSocialSecurityNumber": "123456789",
-  "veteranFullName": {
-    "first": "Testy",
-    "middle": "Tester",
-    "last": "Testerson"
+  "veteran": {
+      "emailAddress": "testy.testerson@gmail.com",
+      "homelessness": {
+          "isHomeless": false
+      },
+      "mailingAddress": {
+          "addressLine1": "23195 WRATHALL DR",
+          "city": "ASHBURN",
+          "country": "USA",
+          "state": "VA",
+          "zipCode": "20148"
+      },
+      "primaryPhone": "7045551212"
   },
-  "veteranDateOfBirth": "1981-11-05",
-  "veteranAddress": {
-    "city": "Baltimore",
-    "country": "USA",
-    "postalCode": "21231-1234",
-    "street": "street",
-    "street2": "1B",
-    "state": "MD"
+  "attachments": [],
+  "privacyAgreementAccepted": true,
+  "militaryPayments": {
+    "payments":[],
+    "receiveCompensationInLieuOfRetired": false
   },
-  "email": "testy.testerson@gmail.com",
-  "veteranPhone": "2123456789",
-  "wasHospitalized": false
+  "serviceInformation": {
+      "servicePeriods": [
+          {
+              "dateRange": {
+                  "from": "2001-06-27",
+                  "to": "2007-10-14"
+              },
+              "serviceBranch": "Marine Corps"
+          }
+      ]
+  },
+  "disabilities": [],
+  "treatments": [],
+  "specialCircumstances": [],
+  "standardClaim": false,
 }
