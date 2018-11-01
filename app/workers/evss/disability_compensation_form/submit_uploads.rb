@@ -12,12 +12,13 @@ module EVSS
 
       sidekiq_options retry: RETRY
 
-      def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
+      def perform(submission_id, upload_data)
+        submission = Form526Submission.find(submission_id)
         guid = upload_data&.dig('confirmationCode')
-        with_tracking("Form526 Upload: #{guid}", saved_claim_id, submission_id) do
+        with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
           raise ArgumentError, "supporting evidence attachment with guid #{guid} has no file data" if file_body.nil?
-          document_data = create_document_data(evss_claim_id, upload_data)
+          document_data = create_document_data(submission.submitted_claim_id, upload_data)
           client = EVSS::DocumentsService.new(auth_headers)
           client.upload(file_body, document_data)
         end
@@ -25,9 +26,9 @@ module EVSS
 
       private
 
-      def create_document_data(evss_claim_id, upload_data)
+      def create_document_data(submitted_claim_id, upload_data)
         EVSSClaimDocument.new(
-          evss_claim_id: evss_claim_id,
+          evss_claim_id: submitted_claim_id,
           file_name: upload_data['name'],
           tracked_item_id: nil,
           document_type: upload_data['attachmentId']

@@ -9,6 +9,13 @@ class Form526Submission < ActiveRecord::Base
 
   has_many :form526_job_statuses, dependent: :destroy
 
+  attr_accessor :auth_headers_hash, :form_hash
+
+  after_initialize do |submission|
+    submission.auth_headers_hash = JSON.parse(submission.auth_headers)
+    submission.form_hash = JSON.parse(submission.form)
+  end
+
   def self.create_submission(user, auth_headers, saved_claim)
     Form526Submission.create(
       user_uuid: user.uuid,
@@ -17,18 +24,6 @@ class Form526Submission < ActiveRecord::Base
       form: saved_claim.to_submission_data(user)
     )
   end
-
-  def perform_ancillary_jobs(bid, claim_id)
-    workflow_batch = Sidekiq::Batch.new(bid)
-    workflow_batch.jobs do
-      submit_uploads if has_ancillary_item? 'uploads'
-      submit_form_4142 if has_ancillary_item? 'form4142'
-      submit_form_0781 if has_ancillary_item? 'form0781'
-      cleanup
-    end
-  end
-
-  private
 
   def start(klass)
     workflow_batch = Sidekiq::Batch.new
@@ -43,16 +38,28 @@ class Form526Submission < ActiveRecord::Base
     jids.first
   end
 
+  def perform_ancillary_jobs(bid)
+    workflow_batch = Sidekiq::Batch.new(bid)
+    workflow_batch.jobs do
+      submit_uploads if has_ancillary_item? SavedClaim::DisabilityCompensation::ITEMS[:uploads]
+      submit_form_4142 if has_ancillary_item? SavedClaim::DisabilityCompensation::ITEMS[:form4142]
+      submit_form_0781 if has_ancillary_item? SavedClaim::DisabilityCompensation::ITEMS[:form0781]
+      cleanup
+    end
+  end
+
+  private
+
   def has_ancillary_item?(item)
-    data_to_h[item].present?
+    form_hash[item].present?
   end
 
   def form_to_json(form)
-    data_to_h[form].to_json
+    form_hash[form].to_json
   end
 
   def submit_uploads
-    @submission.uploads.each do |upload_data|
+    form_hash[SavedClaim::DisabilityCompensation::ITEMS[:uploads]].each do |upload_data|
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, upload_data)
     end
   end
@@ -66,14 +73,6 @@ class Form526Submission < ActiveRecord::Base
   end
 
   def cleanup
-    EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(user_uuid)
-  end
-
-  def form_to_h
-    @form_hash ||= JSON.parse(form)
-  end
-
-  def auth_headers_to_h
-    @auth_headers_hash ||= JSON.parse(auth_headers)
+    EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
   end
 end

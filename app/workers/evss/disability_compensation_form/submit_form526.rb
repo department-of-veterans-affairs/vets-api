@@ -25,20 +25,14 @@ module EVSS
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
-      # @param user_uuid [String] The user's uuid thats associated with the form
-      # @param auth_headers [Hash] The VAAFI headers for the user
-      # @param saved_claim_id [String] The claim id for the claim that will be associated with the async transaction
-      # @param submission_id [Hash] The submission hash of 526, uploads, and 4142 data
+      # @param submission_id [Hash] The submission record
       #
-      def perform(user_uuid, auth_headers, saved_claim_id, submission_id)
-        @user_uuid = user_uuid
-        @auth_headers = auth_headers
-        @saved_claim_id = saved_claim_id
-        @submission_id = submission_id
-
-        with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
+      def perform(id)
+        submission = Form526Submission.find(id)
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id) do
           # TODO: sub classed #service can be removed once `increase only` has been deprecated
-          response = service(@auth_headers).submit_form526(submission.form526_to_json)
+          service = service(submission.auth_headers_hash)
+          response = service.submit_form526(submission.form_to_json[Form526Submission::ITEMS[:form526]])
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
@@ -55,13 +49,11 @@ module EVSS
 
       private
 
-      def submission
-        @submission ||= Form526Submission.find(@submission_id)
-      end
-
       def response_handler(response)
         submission_rate_limiter.increment
-        submission.perform_ancillary_jobs(response.claim_id)
+        submission.submitted_claim_id = response.claim_id
+        submission.save
+        EVSS::DisabilityCompensationForm::AncillaryJobs.new(submission).perform(bid)
       end
 
       def retryable_error_handler(error)
