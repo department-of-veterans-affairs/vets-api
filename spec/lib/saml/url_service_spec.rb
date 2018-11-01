@@ -16,7 +16,7 @@ RSpec.describe SAML::URLService do
       let(:saml_settings) do
         build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}/auth/saml/callback")
       end
-      
+
       it 'has sign in url: mhv_url' do
         expect(subject.mhv_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
       end

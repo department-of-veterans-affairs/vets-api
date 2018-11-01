@@ -14,8 +14,8 @@ module SAML
       'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
     }.freeze
 
-    LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'.freeze
-    LOGOUT_REDIRECT_PARTIAL = '/logout'.freeze
+    LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
+    LOGOUT_REDIRECT_PARTIAL = '/logout'
 
     attr_reader :saml_settings, :session, :authn_context
 

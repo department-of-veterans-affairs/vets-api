@@ -18,7 +18,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
-  let(:callback_url)        { "http://#{request_host}/auth/saml/callback"}
+  let(:callback_url)        { "http://#{request_host}/auth/saml/callback" }
   let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
