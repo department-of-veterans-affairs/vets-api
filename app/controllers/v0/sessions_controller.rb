@@ -26,7 +26,7 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:disable Metrics/CyclomaticComplexity
     def new
       url = case params[:type]
             when 'mhv'
@@ -38,13 +38,13 @@ module V0
               SAML::URLService.new(saml_settings).idme_loa1_url + query
             when 'mfa'
               authenticate
-              SAML::URLService.new(saml_settings, session).mfa_url
+              SAML::URLService.new(saml_settings, session: session).mfa_url
             when 'verify'
               authenticate
-              SAML::URLService.new(saml_settings, session).idme_loa3_url
+              SAML::URLService.new(saml_settings, session: session).idme_loa3_url
             when 'slo'
               authenticate
-              SAML::URLService.new(saml_settings, session).logout_url
+              SAML::URLService.new(saml_settings, session: session).logout_url
             end
       render json: { url: url }
     end
@@ -54,7 +54,7 @@ module V0
       session = Session.find(Base64.urlsafe_decode64(params[:session]))
       raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
       destroy_user_session!(User.find(session.uuid), session)
-      redirect_to SAML::URLService.new(saml_settings, session).slo_url
+      redirect_to SAML::URLService.new(saml_settings, session: session, user: current_user).slo_url
     end
 
     def saml_logout_callback
@@ -69,6 +69,8 @@ module V0
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
       # in the future the FE shouldnt count on ?success=true
+    rescue => e
+      log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
       redirect_to "#{base_redirect_url}/logout?success=true"
@@ -94,6 +96,7 @@ module V0
       end
     rescue NoMethodError
       Raven.extra_context(base64_params_saml_response: params[:SAMLResponse])
+      redirect_to "#{base_redirect_url}/auth/login/callback?auth=fail&code=7" unless performed?
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
     end
@@ -101,7 +104,7 @@ module V0
     private
 
     def base_redirect_url
-      return "#{request.protocol}#{request.host}:3001" if Rails.env.development?
+      return "#{request.protocol}#{request.host}:3001" if request.port == 3000
       # TODO: also fix for review instances
       "#{request.protocol}#{request.host.gsub(/(api)|(-api)/, '')}"
     end
@@ -109,7 +112,7 @@ module V0
     def saml_login_redirect_url
       if current_user.present?
         if current_user.loa[:current] < current_user.loa[:highest]
-          SAML::URLService.new(saml_settings, session).idme_loa3_url
+          SAML::URLService.new(saml_settings, session: session).idme_loa3_url
         else
           "#{base_redirect_url}/auth/login/callback?token=#{session.token}"
         end

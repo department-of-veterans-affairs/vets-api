@@ -3,12 +3,12 @@
 module SAML
   # This class is responsible for providing the URLs for the various SSO and SLO endpoints
   class URLService
-    attr_reader   :saml_settings, :session, :authn_context
+    attr_reader :saml_settings, :session, :authn_context
 
-    def initialize(saml_settings, session = nil)
+    def initialize(saml_settings, session: nil, user: nil)
       if session.present?
         @session = session
-        @authn_context = session.user.authn_context
+        @authn_context = session&.user&.authn_context || user&.authn_context
       end
       @saml_settings = saml_settings
     end
@@ -56,15 +56,16 @@ module SAML
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
-      url_settings = url_settings
-      url_settings.authn_context = link_authn_context
+      new_url_settings = url_settings
+      new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(url_settings)
+      saml_auth_request.create(new_url_settings)
     end
 
     def url_settings
       url_settings = saml_settings.dup
       url_settings.name_identifier_value = session&.uuid
+      url_settings
     end
   end
 end

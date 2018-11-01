@@ -36,7 +36,6 @@ class UserIdentity < Common::RedisStore
 
   def loa_highest_present
     if loa.key?(:highest) == false || loa[:highest].nil?
-      log_message_to_sentry('LOA.highest not present and cannot be determined by SAML assertion', :error)
       errors.add(:loa, 'loa[:highest] is not present!')
     end
   end
