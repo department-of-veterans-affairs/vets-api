@@ -15,7 +15,7 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
         JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json'))
       end
       let(:submission_data) { JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim.json')) }
-      subject { described_class.from_hash(form_content) }
+      subject { described_class.from_json(form_content) }
 
       it 'returns a hash of submission data' do
         VCR.use_cassette('evss/ppiu/payment_information') do
@@ -37,7 +37,7 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
       let(:submission_data_with_4142) do
         JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim_with_4142.json'))
       end
-      subject { described_class.from_hash(form_content_with_4142) }
+      subject { described_class.from_json(form_content_with_4142) }
 
       it 'returns a hash of submission data including 4142 and overflow text' do
         VCR.use_cassette('evss/ppiu/payment_information') do

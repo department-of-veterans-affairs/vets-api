@@ -12,7 +12,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::AncillaryJobs do
   end
   let(:saved_claim_id) { 1_234_567 }
   let(:claim_id) { 1_234_567 }
-  let(:submission_data) do
+  let(:submission_id) do
     {
       'form526' => '{"form526": "json"}',
       'form526_uploads' => uploads,

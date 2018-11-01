@@ -22,19 +22,6 @@ module EVSS
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
-      def self.start(user_uuid, auth_headers, saved_claim_id, submission_id)
-        workflow_batch = Sidekiq::Batch.new
-        workflow_batch.on(
-          :success,
-          'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
-          'saved_claim_id' => saved_claim_id
-        )
-        jids = workflow_batch.jobs do
-          perform_async(user_uuid, auth_headers, saved_claim_id, submission_id)
-        end
-        jids.first
-      end
-
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
@@ -51,7 +38,6 @@ module EVSS
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
           # TODO: sub classed #service can be removed once `increase only` has been deprecated
-          submission = Form526Submission.find(submission_id)
           response = service(@auth_headers).submit_form526(submission.form526_to_json)
           response_handler(response)
         end
@@ -69,14 +55,13 @@ module EVSS
 
       private
 
-      def response_handler(response)
-        submission_rate_limiter.increment
-        perform_ancillary_jobs(response.claim_id)
+      def submission
+        @submission ||= Form526Submission.find(@submission_id)
       end
 
-      def perform_ancillary_jobs(claim_id)
-        ancillary_jobs = AncillaryJobs.new(@user_uuid, @auth_headers, @saved_claim_id, @submission_data)
-        ancillary_jobs.perform(bid, claim_id)
+      def response_handler(response)
+        submission_rate_limiter.increment
+        submission.perform_ancillary_jobs(response.claim_id)
       end
 
       def retryable_error_handler(error)

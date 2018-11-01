@@ -194,14 +194,16 @@ ActiveRecord::Schema.define(version: 20181031155126) do
   add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
 
   create_table "form526_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",                          null: false
-    t.integer  "saved_claim_id",                     null: false
+    t.uuid     "user_uuid",                                 null: false
+    t.integer  "saved_claim_id",                            null: false
     t.integer  "submitted_claim_id"
-    t.string   "encrypted_data",                     null: false
-    t.string   "encrypted_data_iv",                  null: false
-    t.boolean  "workflow_complete",  default: false, null: false
-    t.datetime "created_at",                         null: false
-    t.datetime "updated_at",                         null: false
+    t.string   "encrypted_auth_headers",                    null: false
+    t.string   "encrypted_auth_headers_iv",                 null: false
+    t.string   "encrypted_form",                            null: false
+    t.string   "encrypted_form_iv",                         null: false
+    t.boolean  "workflow_complete",         default: false, null: false
+    t.datetime "created_at",                                null: false
+    t.datetime "updated_at",                                null: false
   end
 
   add_index "form526_submissions", ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true, using: :btree

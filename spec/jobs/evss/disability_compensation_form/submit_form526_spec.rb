@@ -19,7 +19,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
   describe '.perform_async' do
     let(:saved_claim) { FactoryBot.create(:va526ez) }
     let(:submission) { create(:form526_submission, user_uuid: user.uuid, saved_claim_id: saved_claim.id) }
-    let(:expected_claim_id) { 600130094 }
+    let(:expected_claim_id) { 600_130_094 }
 
     context 'with a successfull submission job' do
       it 'queues a job for submit' do

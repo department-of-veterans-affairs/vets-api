@@ -14,9 +14,9 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   attr_writer :form_hash
 
-  def self.from_hash(hash)
-    saved_claim = new(form: hash['form526'].to_json)
-    saved_claim.form_hash = hash
+  def self.from_json(json)
+    @form_hash = JSON.parse(json)
+    saved_claim = new(form: @form_hash['form526'].to_json)
     saved_claim
   end
 
