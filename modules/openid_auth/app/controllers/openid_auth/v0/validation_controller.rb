@@ -5,8 +5,6 @@ require_dependency 'openid_auth/application_controller'
 module OpenidAuth
   module V0
     class ValidationController < ApplicationController
-      before_action { permit_scopes %w[veteran_status.read] }
-
       def index
         render json: @current_user, serializer: OpenidAuth::UserSerializer
       rescue StandardError
