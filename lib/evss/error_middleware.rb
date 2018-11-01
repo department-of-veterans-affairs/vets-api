@@ -17,8 +17,9 @@ module EVSS
         if env.response_headers['content-type'].include?('xml')
           # TODO test
           resp = Hash.from_xml(env.body)
-          if %w[fatal error].include?(resp[resp.keys[0]]['messages'].try(:[], 'severity').downcase)
-            raise EVSSError.new(resp['messages']['text'], resp['messages']['text'])
+          inner_resp = resp[resp.keys[0]]
+          if %w[fatal error].include?(inner_resp['messages'].try(:[], 'severity').downcase)
+            raise EVSSError.new(inner_resp['messages']['text'], inner_resp['messages']['text'])
           end
         else
           resp = env.body
