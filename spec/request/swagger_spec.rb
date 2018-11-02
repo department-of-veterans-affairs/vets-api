@@ -1671,7 +1671,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         User.create(user)
       end
 
-      it 'supports getting connected applications' do
+      xit 'supports getting connected applications' do
         with_settings(
           Settings.oidc,
           auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
@@ -1686,7 +1686,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
-      it 'supports removing connected applications grants' do
+      xit 'supports removing connected applications grants' do
         with_settings(
           Settings.oidc,
           auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
