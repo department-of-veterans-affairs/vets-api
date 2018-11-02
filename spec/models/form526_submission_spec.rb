@@ -81,6 +81,12 @@ RSpec.describe Form526Submission do
     end
   end
 
+  describe '#auth_headers' do
+    it 'returns the parsed auth headers' do
+      expect(subject.auth_headers).to eq(auth_headers)
+    end
+  end
+
   describe '#perform_ancillary_jobs' do
     let(:bid) { SecureRandom.hex(8) }
 

@@ -5,8 +5,8 @@ class Form526Submission < ActiveRecord::Base
   attr_encrypted(:form_json, key: Settings.db_encryption_key)
 
   belongs_to :saved_claim,
-    class_name: 'SavedClaim::DisabilityCompensation',
-    foreign_key: 'saved_claim_id'
+             class_name: 'SavedClaim::DisabilityCompensation',
+             foreign_key: 'saved_claim_id'
 
   has_many :form526_job_statuses, dependent: :destroy
 
