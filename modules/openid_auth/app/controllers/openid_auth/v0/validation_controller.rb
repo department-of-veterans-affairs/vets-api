@@ -6,7 +6,7 @@ module OpenidAuth
   module V0
     class ValidationController < ApplicationController
       def index
-        render json: token_payload
+        render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
       rescue StandardError
         raise_error!
       end
@@ -21,10 +21,7 @@ module OpenidAuth
       end
 
       def validated_payload
-        @validated_payload ||= {
-          validated_token: token_payload,
-          va_identifiers: {}
-        }
+        @validated_payload ||= OpenStruct.new(token_payload)
       end
     end
   end
