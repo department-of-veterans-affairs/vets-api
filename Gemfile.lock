@@ -9,6 +9,15 @@ GIT
       faraday (>= 0.7.4, <= 0.12.2)
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
+  revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
+  branch: master
+  specs:
+    puma-plugin-statsd (0.0.1)
+      json
+      puma (~> 3.12)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: d6a8350b05f94c0971b7073c0d6b952162e116ba
   branch: master
@@ -869,9 +878,6 @@ GEM
     pry-nav (0.2.4)
       pry (>= 0.9.10, < 0.11.0)
     puma (3.12.0)
-    puma-plugin-statsd (0.0.1)
-      json
-      puma (~> 3.12)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
     rack (1.6.10)
@@ -1139,7 +1145,7 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 3.12.0)
-  puma-plugin-statsd
+  puma-plugin-statsd!
   pundit
   rack-attack
   rack-cors
