@@ -63,7 +63,7 @@ module OpenidAuth
       end
 
       def va_identifiers
-        {}
+        object.va_identifiers
       end
     end
   end

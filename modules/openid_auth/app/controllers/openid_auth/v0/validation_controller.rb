@@ -21,7 +21,7 @@ module OpenidAuth
       end
 
       def validated_payload
-        @validated_payload ||= OpenStruct.new(token_payload)
+        @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: {icn: @current_user.mhv_icn}))
       end
     end
   end
