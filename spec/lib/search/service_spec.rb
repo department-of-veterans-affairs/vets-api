@@ -88,6 +88,24 @@ describe Search::Service do
           end
         end
       end
+
+      it 'should increment the StatsD exception:429 counter' do
+        VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
+          allow_any_instance_of(described_class).to receive(:raise_backend_exception).and_return(nil)
+
+          expect { subject.results }.to trigger_statsd_increment(
+            "#{Search::Service::STATSD_KEY_PREFIX}.exceptions"
+          )
+        end
+      end
+
+      it 'should not log to sentry' do
+        VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(described_class).to_not receive(:log_message_to_sentry)
+
+          expect { subject.results }.to raise_error
+        end
+      end
     end
   end
 end
