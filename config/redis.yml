@@ -29,6 +29,9 @@ development: &defaults
   emis_response:
     namespace: emis-response
     each_ttl: 86400
+  okta_response:
+    namespace: okta-response
+    each_ttl: 86400
   saml_store:
     namespace: single-logout-request
     each_ttl: 43200
