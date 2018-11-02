@@ -172,7 +172,7 @@
     "receivedOtherEducationTrainingPreUnemployability": true,
     "otherEducationTrainingPreUnemployability": [
       {
-        "name":"Other Education A", 
+        "name":"Other Education Pre", 
         "dates": {
           "from": "1992-01-01",
           "to": "1993-01-01"
@@ -182,10 +182,10 @@
     "receivedOtherEducationTrainingPostUnemployability": true,
     "otherEducationTrainingPostUnemployability": [
       {
-        "name":"Other Education A", 
+        "name":"Other Education Post", 
         "dates": {
-          "from": "1992-01-01",
-          "to": "1993-01-01"
+          "from": "1998-01-01",
+          "to": "1999-01-01"
         }
       }
     ],
