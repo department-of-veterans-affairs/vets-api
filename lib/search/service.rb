@@ -87,7 +87,8 @@ module Search
       when Common::Client::Errors::ClientError
         message = parse_messages(error).first
         log_error_message(message)
-        raise_backend_exception('SEARCH_400', self.class, error) if error.status == 400
+        raise_backend_exception('SEARCH_429', self.class, error) if error.status == 429
+        raise_backend_exception('SEARCH_400', self.class, error) if error.status >= 400
       else
         raise error
       end

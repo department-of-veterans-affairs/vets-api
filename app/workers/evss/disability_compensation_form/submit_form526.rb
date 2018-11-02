@@ -22,6 +22,19 @@ module EVSS
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
 
+      def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
+        workflow_batch = Sidekiq::Batch.new
+        workflow_batch.on(
+          :success,
+          'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
+          'saved_claim_id' => saved_claim_id
+        )
+        jids = workflow_batch.jobs do
+          perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
+        end
+        jids.first
+      end
+
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
@@ -42,12 +55,18 @@ module EVSS
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
           # TODO: sub classed #service can be removed once `increase only` has been deprecated
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
-          success_handler(response)
+          response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
       rescue StandardError => e
         non_retryable_error_handler(e)
+      end
+
+      def workflow_complete_handler(_status, options)
+        submission = saved_claim(options['saved_claim_id']).submission
+        submission.complete = true
+        submission.save
       end
 
       private
@@ -60,36 +79,17 @@ module EVSS
         )
       end
 
-      def success_handler(response)
+      def response_handler(response)
         submission_rate_limiter.increment
         TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
-
-        perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
-        perform_submit_form_4142(response) if @submission_data['form4142'].present?
-        perform_submit_form_0781(response) if @submission_data['form0781'].present?
-        perform_cleanup
+        perform_ancillary_jobs(response.claim_id)
       end
 
-      def perform_submit_uploads(response)
-        EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form526_uploads']
+      def perform_ancillary_jobs(claim_id)
+        ancillary_jobs = AncillaryJobs.new(
+          @user_uuid, @auth_headers, @saved_claim_id, @submission_id, @submission_data
         )
-      end
-
-      def perform_submit_form_4142(response)
-        CentralMail::SubmitForm4142Job.perform_async(
-          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
-        )
-      end
-
-      def perform_submit_form_0781(response)
-        EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
-        )
-      end
-
-      def perform_cleanup
-        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(@user_uuid)
+        ancillary_jobs.perform(bid, claim_id)
       end
 
       def non_retryable_error_handler(error)
