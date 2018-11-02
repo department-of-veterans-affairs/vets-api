@@ -216,8 +216,12 @@
           "date": "1997-01-01"
         }
       ],
-      "education": "Test Education",
-      "receivedOtherEducationTrainingPreUnemployability": true,
+      "education": {
+        "value": "college4",
+        "checkbox": {
+          "college4": true
+        }
+      },
       "otherEducationTrainingPreUnemployability": [
         {
           "name": "Other Education A",
@@ -234,7 +238,8 @@
           }
         }
       ],
-      "receivedOtherEducationTrainingPostUnemployability": true,
+      "otherTrainingPostUnEmployYes": true,
+      "otherTrainingPostUnEmployNo": false,
       "otherEducationTrainingPostUnemployability": [
         {
           "name": "Other Education A",
@@ -253,9 +258,7 @@
       ],
       "remarks": "test remarks",
       "trainingPreDisabledYes": true,
-      "trainingPreDisabledNo": false,
-      "otherTrainingPostUnEmployYes": true,
-      "otherTrainingPostUnEmployNo": false
+      "trainingPreDisabledNo": false
     }
   }
 }
