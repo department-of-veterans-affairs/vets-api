@@ -51,10 +51,9 @@ module V0
 
     def logout
       session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
+      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
       @session_object = session_object
       @current_user = User.find(session_object.uuid)
-
-      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
       reset_session
       redirect_to SAML::URLService.new(saml_settings, session: session_object, user: current_user).slo_url
     end
