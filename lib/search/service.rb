@@ -107,10 +107,10 @@ module Search
     end
 
     def handle_429!(error)
-      if error.status == 429
-        StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
-        raise_backend_exception('SEARCH_429', self.class, error)
-      end
+      return unless error.status == 429
+
+      StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
+      raise_backend_exception('SEARCH_429', self.class, error)
     end
 
     def raise_backend_exception(key, source, error = nil)
