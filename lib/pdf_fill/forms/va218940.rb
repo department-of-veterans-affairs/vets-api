@@ -5,6 +5,8 @@ module PdfFill
     class Va218940 < FormBase
       include FormHelper
 
+      ITERATOR = PdfFill::HashConverter::ITERATOR
+
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -237,6 +239,16 @@ module PdfFill
               key: 'form1[0].#subform[1].Date[6]'
             }
           }
+        },
+        'doctorsCareDateRanges' => {
+          limit: 6,
+          first_key: 'from',
+          'from' => {
+            key: "form1[0].#subform[0].DoctorsCareDateFrom[#{ITERATOR}]"
+          },
+          'to' => {
+            key: "form1[0].#subform[0].DoctorsCareDateTo[#{ITERATOR}]"
+          }
         }
       }.freeze
 
@@ -245,12 +257,12 @@ module PdfFill
         expand_veteran_dob
         expand_veteran_address
         expand_education
+        expand_doctors_care_or_hospitalized
+        expand_service_connected_disability
+        expand_provided_care(@form_data['unemployability']['doctorProvidedCare'])
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
-
-        # @form_data['wasHospitalizedYes'] = @form_data['wasHospitalized'] == true
-        # @form_data['wasHospitalizedNo'] = @form_data['wasHospitalized'] == false
 
         @form_data['trainingPreDisabledYes'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == true
         @form_data['trainingPreDisabledNo'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == false
@@ -263,8 +275,36 @@ module PdfFill
 
       private
 
+      def expand_service_connected_disability
+        @form_data['serviceConnectedDisability'] = @form_data['unemployability']['disabilityPreventingEmployment']
+      end
+
+      def expand_doctors_care_or_hospitalized
+        @form_data['wasHospitalizedYes'] = @form_data['unemployability']['underDoctorHopitalCarePast12M'] == true
+        @form_data['wasHospitalizedNo'] = @form_data['unemployability']['underDoctorHopitalCarePast12M'] == false
+      end
+
       def expand_veteran_full_name
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
+      end
+
+      def expand_provided_care(provided_care)
+        return if provided_care.blank?
+        # expand_provider_extras(providers)
+        # expand_provider_address(providers)
+        expand_provided_care_date_range(provided_care, 'doctorsCareDateRanges')
+      end
+
+      def expand_provided_care_date_range(provided_care, key)
+        return if provided_care.empty?
+
+        care_date_ranges = []
+
+        provided_care.each do |care|
+          care_date_ranges.push(care['dates'])
+        end
+
+        @form_data[key] = care_date_ranges
       end
 
       def expand_ssn
