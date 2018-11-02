@@ -197,6 +197,7 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+      resources :connected_applications, only: %i[index destroy]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
