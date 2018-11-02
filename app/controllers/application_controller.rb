@@ -160,6 +160,22 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def extend_session!
+    @session_object.expire(Session.redis_namespace_ttl)
+    @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    @current_user&.expire(User.redis_namespace_ttl)
+    set_sso_cookie!
+  end
+
+  def reset_session
+    destroy_sso_cookie!
+    @session_object&.destroy
+    @current_user&.destroy
+    @session_object = nil
+    @current_user = nil
+    super
+  end
+
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
   def set_api_cookie!
     return unless @session_object
@@ -179,22 +195,6 @@ class ApplicationController < ActionController::API
       httponly: true,
       domain: Settings.sso.cookie_domain
     }
-  end
-
-  def extend_session!
-    @session_object.expire(Session.redis_namespace_ttl)
-    @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    @current_user&.expire(User.redis_namespace_ttl)
-    set_sso_cookie!
-  end
-
-  def reset_session
-    destroy_sso_cookie!
-    @session_object&.destroy
-    current_user&.destroy
-    @session_object = nil
-    @current_user = nil
-    super
   end
 
   def destroy_sso_cookie!

@@ -298,7 +298,7 @@ RSpec.describe ApplicationController, type: :controller do
 
         it 'renders json error' do
           get :test_authentication
-          expect(controller.instance_variable_get(:@session).uuid).to eq(user.uuid)
+          expect(controller.instance_variable_get(:@session_object).uuid).to eq(user.uuid)
           expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body)['errors'].first)
             .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
