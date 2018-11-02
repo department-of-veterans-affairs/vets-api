@@ -26,14 +26,14 @@ module PdfFill
         'veteranAddress' => {
           question_num: 6,
           question_text: 'MAILING ADDRESS',
-          'addressLine1' => {
+          'street' => {
             key: 'form1[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]',
             limit: 30,
             question_num: 6,
             question_suffix: 'A',
             question_text: 'Number and Street'
           },
-          'addressLine2' => {
+          'street2' => {
             key: 'form1[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
             limit: 5,
             question_num: 6,
@@ -209,19 +209,48 @@ module PdfFill
         },
         'otherTrainingPostUnEmployNo' => {
           key: 'form1[0].#subform[1].CheckBoxNo[7]'
+        },
+        'otherEducationTrainingPreUnemployability' => {
+          limit: 1,
+          'name' => {
+            key: 'form1[0].#subform[1].TypeOfEducationOrTraining[1]'
+          },
+          'dates' => {
+            'from' => {
+              key: 'form1[0].#subform[1].Date[7]'
+            },
+            'to' => {
+              key: 'form1[0].#subform[1].Date[8]'
+            }
+          }
+        },
+        'otherEducationTrainingPostUnemployability' => {
+          limit: 1,
+          'name' => {
+            key: 'form1[0].#subform[1].TypeOfEducationOrTraining[0]'
+          },
+          'dates' => {
+            'from' => {
+              key: 'form1[0].#subform[1].Date[5]'
+            },
+            'to' => {
+              key: 'form1[0].#subform[1].Date[6]'
+            }
+          }
         }
       }.freeze
 
       def merge_fields
-        expand_signature(@form_data['veteranFullName'])
-        @form_data['printedName'] = @form_data['signature']
-        @form_data['signature'] = '/es/ ' + @form_data['signature']
-
         expand_ssn
         expand_veteran_dob
         expand_veteran_address
-        expand_veteran_full_name
         expand_education
+
+        expand_signature(@form_data['veteranFullName'])
+        @form_data['signature'] = '/es/ ' + @form_data['signature']
+
+        # @form_data['wasHospitalizedYes'] = @form_data['wasHospitalized'] == true
+        # @form_data['wasHospitalizedNo'] = @form_data['wasHospitalized'] == false
 
         @form_data['trainingPreDisabledYes'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == true
         @form_data['trainingPreDisabledNo'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == false
