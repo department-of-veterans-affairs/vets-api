@@ -168,7 +168,7 @@ class ApplicationController < ActionController::API
   end
 
   def reset_session
-    destroy_sso_cookie!
+    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
     @session_object&.destroy
     @current_user&.destroy
     @session_object = nil
@@ -195,10 +195,6 @@ class ApplicationController < ActionController::API
       httponly: true,
       domain: Settings.sso.cookie_domain
     }
-  end
-
-  def destroy_sso_cookie!
-    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
   end
 
   def should_signout_sso?
