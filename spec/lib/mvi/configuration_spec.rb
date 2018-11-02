@@ -34,4 +34,20 @@ describe MVI::Configuration do
       end
     end
   end
+
+  describe '.open_timeout' do
+    context 'when Settings.mvi.open_timeout is set' do
+      it 'should use the setting' do
+        expect(MVI::Configuration.instance.open_timeout).to eq(15)
+      end
+    end
+  end
+
+  describe '.read_timeout' do
+    context 'when Settings.mvi.timeout is set' do
+      it 'should use the setting' do
+        expect(MVI::Configuration.instance.read_timeout).to eq(15)
+      end
+    end
+  end
 end
