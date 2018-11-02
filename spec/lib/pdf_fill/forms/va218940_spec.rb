@@ -48,6 +48,33 @@ describe PdfFill::Forms::Va218940 do
     end
   end
 
+  describe '#expand_veteran_full_name' do
+    context 'contains middle initial' do
+      let :form_data do
+        {
+          'veteranFullName' => {
+            'first' => 'Testy',
+            'middle' => 'Tester',
+            'last' => 'Testerson'
+          }
+        }
+      end
+      it 'should expand veteran full name correctly' do
+        new_form_class.send(:expand_veteran_full_name)
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'veteranFullName' => {
+            'first' => 'Testy',
+            'middle' => 'Tester',
+            'last' => 'Testerson',
+            'middleInitial' => 'T'
+          }
+        )
+      end
+    end
+  end
+
   describe '#expand_veteran_dob' do
     context 'dob is not blank' do
       let :form_data do
@@ -65,6 +92,29 @@ describe PdfFill::Forms::Va218940 do
             'month' => '11',
             'day' => '05'
           }
+        )
+      end
+    end
+  end
+
+  describe '#expand_service_connected_disability' do
+    context 'disabilityPreventingEmployment is not blank' do
+      let :form_data do
+        {
+          'unemployability' => {
+            'disabilityPreventingEmployment' => 'Disability Text'
+          }
+        }
+      end
+      it 'should expand the serviceConnectedDisability correctly' do
+        new_form_class.send(:expand_service_connected_disability)
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'unemployability' => {
+            'disabilityPreventingEmployment' => 'Disability Text'
+          },
+          'serviceConnectedDisability' => 'Disability Text'
         )
       end
     end
@@ -100,6 +150,75 @@ describe PdfFill::Forms::Va218940 do
               'lastFour' => '1234'
             }
           }
+        )
+      end
+    end
+  end
+
+  describe '#expand_veteran_doctors_care_or_hospitalized_status' do
+    context 'was hospitalized or under doctors care' do
+      let :form_data do
+        {
+          'unemployability' => {
+            'underDoctorHopitalCarePast12M' => true
+          }
+        }
+      end
+      it 'should expand veteran address correctly' do
+        new_form_class.send(:expand_doctors_care_or_hospitalized)
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'unemployability' => {
+            'underDoctorHopitalCarePast12M' => true
+          },
+          'wasHospitalizedYes' => true,
+          'wasHospitalizedNo' => false
+        )
+      end
+    end
+
+    context 'was not hospitalized or under doctors care' do
+      let :form_data do
+        {
+          'unemployability' => {
+            'underDoctorHopitalCarePast12M' => false
+          }
+        }
+      end
+      it 'should expand veteran address correctly' do
+        new_form_class.send(:expand_doctors_care_or_hospitalized)
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'unemployability' => {
+            'underDoctorHopitalCarePast12M' => false
+          },
+          'wasHospitalizedYes' => false,
+          'wasHospitalizedNo' => true
+        )
+      end
+    end
+  end
+
+  describe '#expand_provided_care_date_range' do
+    context 'date range is not empty' do
+      provided_care = [
+        {
+          'dates' => {
+            'from' => '1994-01-01',
+            'to' => '1995-01-01'
+          }
+        }
+      ]
+      it 'should expand the serviceConnectedDisability correctly' do
+        new_form_class.send(:expand_provided_care, provided_care)
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'doctorsCareDateRanges' => [
+            { 'from' => '1994-01-01', 'to' => '1995-01-01' }
+          ]
         )
       end
     end
