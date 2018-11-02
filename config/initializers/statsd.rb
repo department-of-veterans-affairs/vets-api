@@ -91,3 +91,6 @@ StatsD.increment("#{CentralMail::Service::STATSD_KEY_PREFIX}.upload.fail", 0)
 
 # init SentryJob error monitoring
 StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
+
+# init Search
+StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
