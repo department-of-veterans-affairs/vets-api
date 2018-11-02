@@ -44,4 +44,4 @@ module OpenidAuth
 
     delegate :va_identifiers, to: :object
   end
-  end
+end
