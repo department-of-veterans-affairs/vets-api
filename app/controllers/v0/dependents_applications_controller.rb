@@ -13,7 +13,7 @@ module V0
     end
 
     def disability_rating
-      res = EVSS::Dependents::Service.new(current_user).retrieve
+      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
       render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
     end
 

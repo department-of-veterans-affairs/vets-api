@@ -115,7 +115,7 @@ class FormProfiles::VA21686c < FormProfile
   private
 
   def initialize_veteran_information(user)
-    res = EVSS::Dependents::Service.new(user).retrieve
+    res = EVSS::Dependents::RetrievedInfo.for_user(user)
     veteran = res.body['submitProcess']['veteran']
     VA21686c::FormContactInformation.new(
       {
