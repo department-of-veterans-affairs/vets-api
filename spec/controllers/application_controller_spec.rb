@@ -283,7 +283,6 @@ RSpec.describe ApplicationController, type: :controller do
         end
 
         context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed: disabled' do
-
           before(:each) do
             Settings.sso.cookie_signout_enabled = nil
           end
