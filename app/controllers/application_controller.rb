@@ -23,7 +23,11 @@ class ApplicationController < ActionController::API
 
   before_action :block_unknown_hosts
   before_action :authenticate
+
+  # Ensures that we maintain sessions for currently signed-in users that have been
+  # authenticated with the HTTP header after we start using cookies instead of the header.
   before_action :set_api_cookie!
+
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -148,7 +152,7 @@ class ApplicationController < ActionController::API
       return false if @session_object.nil?
       @current_user = User.find(@session_object.uuid)
       if should_signout_sso?
-        destroy_user_session!(@current_user, @session_object)
+        reset_session
       else
         extend_session!
       end
@@ -156,19 +160,10 @@ class ApplicationController < ActionController::API
     end
   end
 
+  # Sets a cookie "api_session" with all of the key/value pairs from session object.
   def set_api_cookie!
     return unless @session_object
-    # Sets a cookie "api_session" with all of the key/value pairs from session object.
     @session_object.to_hash.each { |k, v| session[k] = v }
-  end
-
-  def destroy_user_session!(user, session_object)
-    destroy_sso_cookie!
-    session_object&.destroy
-    user&.destroy
-    @session_object = nil
-    @current_user = nil
-    reset_session
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
@@ -191,6 +186,15 @@ class ApplicationController < ActionController::API
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
     set_sso_cookie!
+  end
+
+  def reset_session
+    destroy_sso_cookie!
+    @session_object&.destroy
+    current_user&.destroy
+    @session_object = nil
+    @current_user = nil
+    super
   end
 
   def destroy_sso_cookie!
