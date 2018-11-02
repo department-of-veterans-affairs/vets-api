@@ -52,6 +52,7 @@ module V0
     def logout
       session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
       @session_object = session_object
+      @current_user = User.find(session_object.uuid)
 
       raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
       reset_session
