@@ -13,4 +13,4 @@ module OpenidAuth
       end
     end
   end
-  end
+end
