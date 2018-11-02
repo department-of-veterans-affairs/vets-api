@@ -249,6 +249,16 @@ module PdfFill
           'to' => {
             key: "form1[0].#subform[0].DoctorsCareDateTo[#{ITERATOR}]"
           }
+        },
+        'hospitalCareDateRanges' => {
+          limit: 6,
+          first_key: 'from',
+          'from' => {
+            key: "form1[0].#subform[0].HospitalCareDateFrom[#{ITERATOR}]"
+          },
+          'to' => {
+            key: "form1[0].#subform[0].HospitalCareDateTo[#{ITERATOR}]"
+          }
         }
       }.freeze
 
@@ -259,7 +269,8 @@ module PdfFill
         expand_education
         expand_doctors_care_or_hospitalized
         expand_service_connected_disability
-        expand_provided_care(@form_data['unemployability']['doctorProvidedCare'])
+        expand_provided_care(@form_data['unemployability']['doctorProvidedCare'], 'doctorsCareDateRanges')
+        expand_provided_care(@form_data['unemployability']['hospitalProvidedCare'], 'hospitalCareDateRanges')
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
@@ -288,22 +299,19 @@ module PdfFill
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
       end
 
-      def expand_provided_care(provided_care)
+      def expand_provided_care(provided_care, key)
         return if provided_care.blank?
         # expand_provider_extras(providers)
         # expand_provider_address(providers)
-        expand_provided_care_date_range(provided_care, 'doctorsCareDateRanges')
+        expand_provided_care_date_range(provided_care, key)
       end
 
       def expand_provided_care_date_range(provided_care, key)
         return if provided_care.empty?
-
         care_date_ranges = []
-
         provided_care.each do |care|
           care_date_ranges.push(care['dates'])
         end
-
         @form_data[key] = care_date_ranges
       end
 
