@@ -47,7 +47,7 @@ module V0
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def logout
       session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
@@ -84,9 +84,7 @@ module V0
         @current_user = @sso_service.new_user
         @session_object = @sso_service.new_session
 
-        set_api_cookie!
-        set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
-
+        set_cookies
         after_login_actions
         redirect_to saml_login_redirect_url
 
@@ -105,6 +103,11 @@ module V0
     end
 
     private
+
+    def set_cookies
+      set_api_cookie!
+      set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
+    end
 
     def saml_login_redirect_url
       if current_user.loa[:current] < current_user.loa[:highest]
