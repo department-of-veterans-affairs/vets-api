@@ -1737,6 +1737,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           end
         end
       end
+
+      context 'when the Search.gov rate limit has been exceeded' do
+        it 'returns a 429 with error details' do
+          VCR.use_cassette('search/exceeds_rate_limit') do
+            expect(subject).to validate(:get, '/v0/search', 429, '_query_string' => 'query=benefits')
+          end
+        end
+      end
     end
   end
 
