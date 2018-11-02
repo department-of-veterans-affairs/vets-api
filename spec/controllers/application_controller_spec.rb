@@ -271,9 +271,10 @@ RSpec.describe ApplicationController, type: :controller do
           let(:sso_cookie_value)  { nil }
 
           around(:each) do |example|
+            original_value = Settings.sso.cookie_signout_enabled
             Settings.sso.cookie_signout_enabled = true
             example.run
-            Settings.sso.cookie_signout_enabled = nil
+            Settings.sso.cookie_signout_enabled = original_value
           end
 
           it 'returns json error' do
@@ -291,6 +292,13 @@ RSpec.describe ApplicationController, type: :controller do
 
           let(:header_host_value) { 'localhost' }
           let(:sso_cookie_value)  { nil }
+
+          around(:each) do |example|
+            original_value = Settings.sso.cookie_signout_enabled
+            Settings.sso.cookie_signout_enabled = false
+            example.run
+            Settings.sso.cookie_signout_enabled = original_value
+          end
 
           it 'returns success' do
             get :test_authentication
