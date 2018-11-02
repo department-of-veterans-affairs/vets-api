@@ -212,7 +212,7 @@ describe PdfFill::Forms::Va218940 do
         }
       ]
       it 'should expand the serviceConnectedDisability correctly' do
-        new_form_class.send(:expand_provided_care, provided_care)
+        new_form_class.send(:expand_provided_care, provided_care, 'doctorsCareDateRanges')
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
