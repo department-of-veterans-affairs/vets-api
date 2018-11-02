@@ -204,10 +204,10 @@ module PdfFill
         'trainingPreDisabledNo' => {
           key: 'receivedOtherTrainingPreDisabled0'
         },
-        'otherTrainingPostUnEmployYes' => {
+        'trainingPostUnEmployYes' => {
           key: 'form1[0].#subform[1].CheckBoxYes[7]'
         },
-        'otherTrainingPostUnEmployNo' => {
+        'trainingPostUnEmployNo' => {
           key: 'form1[0].#subform[1].CheckBoxNo[7]'
         },
         'otherEducationTrainingPreUnemployability' => {
@@ -237,6 +237,18 @@ module PdfFill
               key: 'form1[0].#subform[1].Date[6]'
             }
           }
+        },
+        'preDisTrainOverflow' => {
+          key: '',
+          question_text: 'Pre-Disability Education or Training',
+          question_num: 24,
+          question_suffix: 'B'
+        },
+        'postDisTrainOverflow' => {
+          key: '',
+          question_text: 'Post-Disability Education or Training',
+          question_num: 25,
+          question_suffix: 'B'
         }
       }.freeze
 
@@ -246,7 +258,8 @@ module PdfFill
         expand_ssn
         expand_veteran_dob
         expand_veteran_address
-        expand_education
+        collapse_education(@form_data['unemployability'])
+        collapse_training(@form_data['unemployability'])
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
@@ -254,12 +267,7 @@ module PdfFill
         # @form_data['wasHospitalizedYes'] = @form_data['wasHospitalized'] == true
         # @form_data['wasHospitalizedNo'] = @form_data['wasHospitalized'] == false
 
-        @form_data['trainingPreDisabledYes'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == true
-        @form_data['trainingPreDisabledNo'] = @form_data['receivedOtherEducationTrainingPreUnemployability'] == false
-
-        @form_data['otherTrainingPostUnEmployYes'] = @form_data['otherEducationTrainingPostUnemployability'] == true
-        @form_data['otherTrainingPostUnEmployNo'] = @form_data['otherEducationTrainingPostUnemployability'] == false
-
+        @form_data.except!('unemployability')
         @form_data
       end
 
@@ -285,14 +293,56 @@ module PdfFill
           split_postal_code(@form_data['veteranAddress'], 'postalCode')
       end
 
-      def expand_education
-        education = @form_data['education']
+      def collapse_education(hash)
+        return if hash.blank?
+
+        education = hash['education']
         return if education.blank?
+
         @form_data['education'] = {
           'value' => education
         }
 
         expand_checkbox_as_hash(@form_data['education'], 'value')
+      end
+
+      def collapse_training(hash)
+        return if hash.blank?
+
+        ed_received_pre = hash['receivedOtherEducationTrainingPreUnemployability']
+        if ed_received_pre
+          @form_data['trainingPreDisabledYes'] = true
+        else
+          @form_data['trainingPreDisabledNo'] = true
+        end
+
+        other_training_pre_unemploy = hash['otherEducationTrainingPreUnemployability']
+        @form_data['otherEducationTrainingPreUnemployability'] = other_training_pre_unemploy
+        format_training_overflow(other_training_pre_unemploy, 'preDisTrainOverflow')
+
+        ed_received_post = hash['receivedOtherEducationTrainingPostUnemployability']
+        if ed_received_post
+          @form_data['trainingPostUnEmployYes'] = true
+        else
+          @form_data['trainingPostUnEmployNo'] = true
+        end
+
+        other_training_post_unemploy = hash['otherEducationTrainingPostUnemployability']
+        @form_data['otherEducationTrainingPostUnemployability'] = other_training_post_unemploy
+        format_training_overflow(other_training_post_unemploy, 'postDisTrainOverflow')
+      end
+
+      def format_training_overflow(training, key)
+        return if training.blank?
+        overflow = []
+        training.each do |edu|
+          name = edu['name'] || ''
+          dates = combine_date_ranges([edu['dates']])
+          overflow.push(name + "\n" + dates)
+        end
+
+        overflow.compact.join("\n\n")
+        @form_data[key] = PdfFill::FormValue.new('', overflow)
       end
 
       def expand_checkbox_as_hash(hash, key)
