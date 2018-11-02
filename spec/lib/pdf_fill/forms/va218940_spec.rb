@@ -111,7 +111,7 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       end
-      it 'should expand veteran full name correctly' do
+      it 'should expand veteran address correctly' do
         new_form_class.send(:expand_veteran_address)
         expect(
           JSON.parse(class_form_data.to_json)
