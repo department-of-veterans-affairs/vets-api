@@ -228,8 +228,10 @@ RSpec.describe ApplicationController, type: :controller do
 
       before(:each) do
         Settings.sso.cookie_enabled = true
-        Session.create(uuid: user.uuid, token: token)
+        session_object = Session.create(uuid: user.uuid, token: token)
         User.create(user)
+
+        session_object.to_hash.each { |k, v| session[k] = v }
 
         request.env['HTTP_HOST'] = header_host_value
         request.env['HTTP_AUTHORIZATION'] = header_auth_value
@@ -310,11 +312,12 @@ RSpec.describe ApplicationController, type: :controller do
       end
 
       context 'without valid session' do
-        let(:header_auth_value) { nil }
+        before { Session.find(token).destroy }
 
         it 'renders json error' do
           get :test_authentication
-          expect(controller.instance_variable_get(:@session)).to be_nil
+          expect(controller.instance_variable_get(:@session_object)).to be_nil
+          expect(session).to be_empty
           expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body)['errors'].first)
             .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
