@@ -149,13 +149,20 @@ class ApplicationController < ActionController::API
   def authenticate_token
     authenticate_with_http_token do |token, _options|
       @session_object = Session.find(token)
-      return false if @session_object.nil?
+
+      if @session_object.nil?
+        reset_session
+        return false
+      end
+
       @current_user = User.find(@session_object.uuid)
+
       if should_signout_sso?
         reset_session
       else
         extend_session!
       end
+
       @current_user.present?
     end
   end
