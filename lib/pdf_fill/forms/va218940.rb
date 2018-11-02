@@ -6,62 +6,60 @@ module PdfFill
       include FormHelper
 
       KEY = {
-        'veteran' => {
-          'fullName' => {
-            'first' => {
-              key: 'form1[0].#subform[0].VeteransFirstName[0]',
-              limit: 12,
-              question_num: 1,
-              question_text: "VETERAN/BENEFICIARY'S FIRST NAME"
-            },
-            'middleInitial' => {
-              key: 'form1[0].#subform[0].VeteransMiddleInitial[0]'
-            },
-            'last' => {
-              key: 'form1[0].#subform[0].VeteransLastName[0]',
-              limit: 18,
-              question_num: 1,
-              question_text: "VETERAN/BENEFICIARY'S LAST NAME"
-            }
+        'veteranFullName' => {
+          'first' => {
+            key: 'form1[0].#subform[0].VeteransFirstName[0]',
+            limit: 12,
+            question_num: 1,
+            question_text: "VETERAN/BENEFICIARY'S FIRST NAME"
           },
-          'mailingAddress' => {
+          'middleInitial' => {
+            key: 'form1[0].#subform[0].VeteransMiddleInitial[0]'
+          },
+          'last' => {
+            key: 'form1[0].#subform[0].VeteransLastName[0]',
+            limit: 18,
+            question_num: 1,
+            question_text: "VETERAN/BENEFICIARY'S LAST NAME"
+          }
+        },
+        'veteranAddress' => {
+          question_num: 6,
+          question_text: 'MAILING ADDRESS',
+          'street' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]',
+            limit: 30,
             question_num: 6,
-            question_text: 'MAILING ADDRESS',
-            'addressLine1' => {
-              key: 'form1[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]',
-              limit: 30,
-              question_num: 6,
-              question_suffix: 'A',
-              question_text: 'Number and Street'
+            question_suffix: 'A',
+            question_text: 'Number and Street'
+          },
+          'street2' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
+            limit: 5,
+            question_num: 6,
+            question_suffix: 'B',
+            question_text: 'Apartment or Unit Number'
+          },
+          'city' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_City[0]',
+            limit: 18,
+            question_num: 6,
+            question_suffix: 'C',
+            question_text: 'City'
+          },
+          'state' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_StateOrProvince[0]'
+          },
+          'country' => {
+            key: 'form1[0].#subform[0].CurrentMailingAddress_Country[0]',
+            limit: 2
+          },
+          'postalCode' => {
+            'firstFive' => {
+              key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
             },
-            'addressLine2' => {
-              key: 'form1[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
-              limit: 5,
-              question_num: 6,
-              question_suffix: 'B',
-              question_text: 'Apartment or Unit Number'
-            },
-            'city' => {
-              key: 'form1[0].#subform[0].CurrentMailingAddress_City[0]',
-              limit: 18,
-              question_num: 6,
-              question_suffix: 'C',
-              question_text: 'City'
-            },
-            'state' => {
-              key: 'form1[0].#subform[0].CurrentMailingAddress_StateOrProvince[0]'
-            },
-            'country' => {
-              key: 'form1[0].#subform[0].CurrentMailingAddress_Country[0]',
-              limit: 2
-            },
-            'zipCode' => {
-              'firstFive' => {
-                key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]'
-              },
-              'lastFour' => {
-                key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
-              }
+            'lastFour' => {
+              key: 'form1[0].#subform[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]'
             }
           }
         },
@@ -211,18 +209,47 @@ module PdfFill
         },
         'otherTrainingPostUnEmployNo' => {
           key: 'form1[0].#subform[1].CheckBoxNo[7]'
+        },
+        'otherEducationTrainingPreUnemployability' => {
+          limit: 1,
+          'name' => {
+            key: 'form1[0].#subform[1].TypeOfEducationOrTraining[1]'
+          },
+          'dates' => {
+            'from' => {
+              key: 'form1[0].#subform[1].Date[7]'
+            },
+            'to' => {
+              key: 'form1[0].#subform[1].Date[8]'
+            }
+          }
+        },
+        'otherEducationTrainingPostUnemployability' => {
+          limit: 1,
+          'name' => {
+            key: 'form1[0].#subform[1].TypeOfEducationOrTraining[0]'
+          },
+          'dates' => {
+            'from' => {
+              key: 'form1[0].#subform[1].Date[5]'
+            },
+            'to' => {
+              key: 'form1[0].#subform[1].Date[6]'
+            }
+          }
         }
       }.freeze
 
       def merge_fields
+        @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
+
         expand_ssn
         expand_veteran_dob
         expand_veteran_address
-        expand_veteran_full_name
         expand_education
 
-        # expand_signature(@form_data['veteranFullName'])
-        # @form_data['signature'] = '/es/ ' + @form_data['signature']
+        expand_signature(@form_data['veteranFullName'])
+        @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         # @form_data['wasHospitalizedYes'] = @form_data['wasHospitalized'] == true
         # @form_data['wasHospitalizedNo'] = @form_data['wasHospitalized'] == false
@@ -238,12 +265,8 @@ module PdfFill
 
       private
 
-      def expand_veteran_full_name
-        @form_data['veteran']['fullName'] = extract_middle_i(@form_data['veteran'], 'fullName')
-      end
-
       def expand_ssn
-        ssn = @form_data['veteran']['socialSecurityNumber']
+        ssn = @form_data['veteranSocialSecurityNumber']
         return if ssn.blank?
         ['', '1', '2'].each do |suffix|
           @form_data["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
@@ -251,15 +274,15 @@ module PdfFill
       end
 
       def expand_veteran_dob
-        veteran_date_of_birth = @form_data['veteran']['dateOfBirth']
+        veteran_date_of_birth = @form_data['veteranDateOfBirth']
         return if veteran_date_of_birth.blank?
         @form_data['veteranDateOfBirth'] = split_date(veteran_date_of_birth)
       end
 
       def expand_veteran_address
-        @form_data['veteran']['mailingAddress']['country'] = extract_country(@form_data['veteran']['mailingAddress'])
-        @form_data['veteran']['mailingAddress']['zipCode'] =
-          split_postal_code(@form_data['veteran']['mailingAddress'], 'zipCode')
+        @form_data['veteranAddress']['country'] = extract_country(@form_data['veteranAddress'])
+        @form_data['veteranAddress']['postalCode'] =
+          split_postal_code(@form_data['veteranAddress'], 'postalCode')
       end
 
       def expand_education
