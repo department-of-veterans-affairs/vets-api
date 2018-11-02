@@ -5,28 +5,15 @@ class Form526Submission < ActiveRecord::Base
   attr_encrypted(:form_json, key: Settings.db_encryption_key)
 
   belongs_to :saved_claim,
-    class_name: 'SavedClaim::DisabilityCompensation',
-    foreign_key: 'saved_claim_id'
+             class_name: 'SavedClaim::DisabilityCompensation',
+             foreign_key: 'saved_claim_id'
 
   has_many :form526_job_statuses, dependent: :destroy
-
-  attr_accessor :auth_headers_hash, :form_hash
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
-
-  def self.create_submission(user, auth_headers, saved_claim)
-    s = saved_claim.to_submission_data(user)
-    puts s
-    Form526Submission.create(
-      user_uuid: user.uuid,
-      saved_claim_id: saved_claim.id,
-      auth_headers_json: auth_headers.to_json,
-      form_json: s
-    )
-  end
 
   def start(klass)
     workflow_batch = Sidekiq::Batch.new

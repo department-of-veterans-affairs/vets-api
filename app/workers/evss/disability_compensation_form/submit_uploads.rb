@@ -22,6 +22,11 @@ module EVSS
           client = EVSS::DocumentsService.new(submission.auth_headers)
           client.upload(file_body, document_data)
         end
+      rescue Common::Exceptions::SentryIgnoredGatewayTimeout, EVSS::ErrorMiddleware::EVSSError => e
+        retryable_error_handler(e)
+        raise e
+      rescue StandardError => e
+        non_retryable_error_handler(e)
       end
 
       private

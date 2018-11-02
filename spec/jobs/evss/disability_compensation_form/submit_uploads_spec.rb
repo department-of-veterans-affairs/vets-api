@@ -61,6 +61,15 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         expect(client).to receive(:upload).with(file.read, document_data)
         described_class.drain
       end
+
+      context 'with a timeout' do
+        it 'logs a retryable error and re-raises the original error' do
+          allow(client).to receive(:upload).and_raise(Common::Exceptions::SentryIgnoredGatewayTimeout)
+          subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
+          expect_any_instance_of(subject).to receive(:retryable_error_handler).once
+          expect { described_class.drain }.to raise_error(Common::Exceptions::SentryIgnoredGatewayTimeout)
+        end
+      end
     end
 
     context 'when get_file is nil' do
@@ -72,6 +81,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           ArgumentError,
           'supporting evidence attachment with guid d44d6f52-2e85-43d4-a5a3-1d9cb4e482a0 has no file data'
         )
+      end
+
+      it 'logs a non retryable error' do
+        subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
+        expect_any_instance_of(subject).to receive(:non_retryable_error_handler).once
+        described_class.drain
       end
     end
   end
