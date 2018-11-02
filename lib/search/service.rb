@@ -86,8 +86,9 @@ module Search
       case error
       when Common::Client::Errors::ClientError
         message = parse_messages(error).first
+
+        handle_429!(error)
         log_error_message(message)
-        raise_backend_exception('SEARCH_429', self.class, error) if error.status == 429
         raise_backend_exception('SEARCH_400', self.class, error) if error.status >= 400
       else
         raise error
@@ -96,6 +97,13 @@ module Search
 
     def parse_messages(error)
       error.body&.dig('errors')
+    end
+
+    def handle_429!(error)
+      if error.status == 429
+        StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
+        raise_backend_exception('SEARCH_429', self.class, error)
+      end
     end
 
     def log_error_message(error_message)
