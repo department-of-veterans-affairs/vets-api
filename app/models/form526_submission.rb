@@ -10,8 +10,6 @@ class Form526Submission < ActiveRecord::Base
 
   has_many :form526_job_statuses, dependent: :destroy
 
-  attr_accessor :auth_headers_hash, :form_hash
-
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
@@ -55,7 +53,7 @@ class Form526Submission < ActiveRecord::Base
   private
 
   def submit_uploads
-    form_hash[FORM_526_UPLOADS].each do |upload_data|
+    form[FORM_526_UPLOADS].each do |upload_data|
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, upload_data)
     end
   end
