@@ -63,7 +63,7 @@ RSpec.describe 'Dependents Application Integration', type: %i[request serializer
     end
 
     it "returns the user's disability rating" do
-      VCR.use_cassette('evss/dependents/retrieve') do
+      VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
         get(disability_rating_v0_dependents_applications_path, nil, 'Authorization' => "Token token=#{token}")
         expect(response.code).to eq('200')
         expect(JSON.parse(response.body)['has30_percent']).to be true
