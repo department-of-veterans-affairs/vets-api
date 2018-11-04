@@ -117,12 +117,10 @@ module V0
     def saml_login_redirect_url
       if current_user.loa[:current] < current_user.loa[:highest]
         url_service.idme_loa3_url
+      elsif Settings.session_cookie.enabled
+        url_service.login_redirect_url
       else
-        if Settings.session_cookie.enabled
-          url_service.login_redirect_url
-        else
-          url_service.login_redirect_url(token: @session_object.token)
-        end
+        url_service.login_redirect_url(token: @session_object.token)
       end
     end
 
