@@ -69,7 +69,7 @@ module VetsAPI
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,
                                    key: 'api_session',
-                                   secure: Rails.env.production?,
+                                   secure: Settings.session_cookie.secure,
                                    http_only: true
   end
 end

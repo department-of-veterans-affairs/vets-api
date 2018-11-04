@@ -69,12 +69,17 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
-      # in the future the FE shouldnt count on ?success=true
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
-      redirect_to url_service.logout_redirect_url(success: true)
+
+      # In the future, the FE shouldn't count on ?success=true.
+      if Settings.session_cookie.enabled
+        redirect_to url_service.logout_redirect_url
+      else
+        redirect_to url_service.logout_redirect_url(success: true)
+      end
     end
 
     def saml_callback
@@ -113,7 +118,11 @@ module V0
       if current_user.loa[:current] < current_user.loa[:highest]
         url_service.idme_loa3_url
       else
-        url_service.login_redirect_url(token: @session_object.token)
+        if Settings.session_cookie.enabled
+          url_service.login_redirect_url
+        else
+          url_service.login_redirect_url(token: @session_object.token)
+        end
       end
     end
 

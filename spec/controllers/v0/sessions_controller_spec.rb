@@ -147,9 +147,16 @@ RSpec.describe V0::SessionsController, type: :controller do
   context 'when logged in' do
     before do
       allow(SAML::User).to receive(:new).and_return(saml_user)
-      Session.create(uuid: uuid, token: token)
+      session_object = Session.create(uuid: uuid, token: token)
+      session_object.to_hash.each { |k, v| session[k] = v }
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
+    end
+
+    after(:each) do |example|
+      original_value = Settings.session_cookie.enabled
+      Settings.session_cookie.enabled = true
+      Settings.session_cookie.enabled = original_value
     end
 
     describe 'new' do
@@ -173,7 +180,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     it 'redirects as success even when logout fails, but it logs the failure' do
-      expect(post(:saml_logout_callback)).to redirect_to('http://127.0.0.1:3001/logout?success=true')
+      expect(post(:saml_logout_callback)).to redirect_to('http://127.0.0.1:3001/logout')
     end
 
     describe 'GET sessions/logout' do
@@ -243,7 +250,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects as success and logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to('http://127.0.0.1:3001/logout?success=true')
+            .to redirect_to('http://127.0.0.1:3001/logout')
         end
       end
 
@@ -262,7 +269,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this will be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(redirect_to('http://127.0.0.1:3001/logout?success=true'))
+            .to redirect_to(redirect_to('http://127.0.0.1:3001/logout'))
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
@@ -318,7 +325,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
-        expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?token=')
+        expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')

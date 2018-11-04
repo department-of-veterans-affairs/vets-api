@@ -24,9 +24,10 @@ class ApplicationController < ActionController::API
   before_action :block_unknown_hosts
   before_action :authenticate
 
-  # Ensures that we maintain sessions for currently signed-in users that have been
-  # authenticated with the HTTP header after we start using cookies instead of the header.
-  before_action :set_api_cookie!
+  # Ensures that we maintain sessions for currently signed-in users
+  # (that have been authenticated with the HTTP header)
+  # after we start using cookies instead of the header.
+  before_action :set_api_cookie!, unless: -> { Settings.session_cookie.enabled }
 
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
@@ -147,24 +148,29 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_token
+    return validate_session(session[:token]) if Settings.session_cookie.enabled
     authenticate_with_http_token do |token, _options|
-      @session_object = Session.find(token)
-
-      if @session_object.nil?
-        reset_session
-        return false
-      end
-
-      @current_user = User.find(@session_object.uuid)
-
-      if should_signout_sso?
-        reset_session
-      else
-        extend_session!
-      end
-
-      @current_user.present?
+      validate_session(token)
     end
+  end
+
+  def validate_session(token)
+    @session_object = Session.find(token)
+
+    if @session_object.nil?
+      reset_session
+      return false
+    end
+
+    @current_user = User.find(@session_object.uuid)
+
+    if should_signout_sso?
+      reset_session
+    else
+      extend_session!
+    end
+
+    @current_user.present?
   end
 
   def extend_session!
