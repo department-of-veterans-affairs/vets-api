@@ -7,7 +7,7 @@ module PdfFill
 
       def expand_ssn(hash)
         ssn = hash['veteranSocialSecurityNumber']
-        return if ssn.blank?
+        return hash if ssn.blank?
         ['', '1', '2'].each do |suffix|
           hash["veteranSocialSecurityNumber#{suffix}"] = split_ssn(ssn)
         end
@@ -76,25 +76,25 @@ module PdfFill
 
       def get_unit_date_overflow(unit_assigned_dates)
         unit_assigned_dates_overflow = combine_date_ranges(unit_assigned_dates)
-        unit_assigned_dates_overflow.nil? ? '' : unit_assigned_dates_overflow
+        unit_assigned_dates_overflow || ''
       end
 
       def format_incident(incident, index)
         return if incident.blank?
         incident_overflow = ["Incident Number: #{index}"]
 
-        incident_date = incident['incidentDate'].nil? ? '' : incident['incidentDate']
+        incident_date = incident['incidentDate'] || ''
         incident_overflow.push('Incident Date: ' + incident_date)
 
         incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_overflow([incident['unitAssignedDates']]))
 
-        incident_location = incident['incidentLocation'].nil? ? '' : incident['incidentLocation']
+        incident_location = incident['incidentLocation'] || ''
         incident_overflow.push("Incident Location: \n\n" + incident_location)
 
-        incident_unit_assigned = incident['unitAssigned'].nil? ? '' : incident['unitAssigned']
+        incident_unit_assigned = incident['unitAssigned'] || ''
         incident_overflow.push("Unit Assignment During Incident: \n\n" + incident_unit_assigned)
 
-        incident_description = incident['incidentDescription'].nil? ? '' : incident['incidentDescription']
+        incident_description = incident['incidentDescription'] || ''
         incident_overflow.push("Description of Incident: \n\n" + incident_description)
 
         incident_overflow
