@@ -19,6 +19,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:request_host)        { '127.0.0.1:3000' }
   let(:callback_url)        { "http://#{request_host}/auth/saml/callback" }
+  let(:logout_redirect_url) { "http://127.0.0.1:3001/logout/" }
+
   let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
@@ -153,9 +155,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       UserIdentity.create(loa1_user.identity.attributes)
     end
 
-    after(:each) do |example|
+    around(:each) do |example|
       original_value = Settings.session_cookie.enabled
       Settings.session_cookie.enabled = true
+      example.run
       Settings.session_cookie.enabled = original_value
     end
 
@@ -180,7 +183,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     it 'redirects as success even when logout fails, but it logs the failure' do
-      expect(post(:saml_logout_callback)).to redirect_to('http://127.0.0.1:3001/logout')
+      expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
     end
 
     describe 'GET sessions/logout' do
@@ -250,7 +253,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects as success and logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to('http://127.0.0.1:3001/logout')
+            .to redirect_to(logout_redirect_url)
         end
       end
 
@@ -269,7 +272,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this will be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(redirect_to('http://127.0.0.1:3001/logout'))
+            .to redirect_to(redirect_to(logout_redirect_url))
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
