@@ -140,6 +140,13 @@ RSpec.describe V0::SessionsController, type: :controller do
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             get(:new, type: type)
             expect(response).to have_http_status(:unauthorized)
+            expect(JSON.parse(response.body))
+              .to eq('errors' => [{
+                       'title' => 'Not authorized',
+                       'detail' => 'Not authorized',
+                       'code' => '401',
+                       'status' => '401'
+                     }])
           end
         end
       end
@@ -175,18 +182,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme])
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
         end
       end
     end
 
-    it 'redirects as success even when logout fails, but it logs the failure' do
-      expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
-    end
-
-    describe 'GET sessions/logout' do
+    describe 'GET sessions/slo/new' do
       let(:logout_request) { OneLogin::RubySaml::Logoutrequest.new }
 
       before do
@@ -203,21 +206,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         Settings.sso.cookie_enabled = false
       end
 
-      context 'cannot find a session' do
-        it 'raises a Forbidden exception' do
-          get(:logout, session: Base64.urlsafe_encode64('invalid_token'))
-          expect(JSON.parse(response.body))
-            .to eq('errors' => [{
-                     'title' => 'Forbidden',
-                     'detail' => 'Invalid request',
-                     'code' => '403',
-                     'status' => '403'
-                   }])
-        end
-      end
-
       context 'can find an active session' do
-        it 'destroys the user, session, and cookie, persists logout_request object, redirects to SLO url' do
+        it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
@@ -227,8 +217,9 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
-          get(:logout, session: Base64.urlsafe_encode64(token))
-          expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
+          get(:new, type: 'slo')
+          expect(JSON.parse(response.body)['url'])
+            .to match('https://api.idmelabs.com/saml/SingleLogoutService')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
@@ -240,6 +231,10 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
         end
       end
+    end
+
+    it 'redirects as success even when logout fails, but it logs the failure' do
+      expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
     end
 
     describe 'POST saml_logout_callback' do
