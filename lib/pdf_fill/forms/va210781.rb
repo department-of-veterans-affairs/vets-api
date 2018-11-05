@@ -324,13 +324,7 @@ module PdfFill
           resolve_cause_injury_death(person_involved, index)
         end
 
-        combined_persons_involved = {}
-        persons_involved.each do |person|
-          person.each do |key, value|
-            combined_persons_involved[key] = value
-          end
-        end
-        incident['personInvolved'] = combined_persons_involved
+        incident['personInvolved'] = Hash[*persons_involved.collect(&:to_a).flatten]
       end
 
       def expand_injury_death_date(person_involved, index)
