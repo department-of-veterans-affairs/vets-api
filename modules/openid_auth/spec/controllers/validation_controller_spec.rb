@@ -20,4 +20,11 @@ describe OpenidAuth::ValidationController, type: :controller do
       'alg' => 'RS256'
     }]
   end
+
+  describe 'with no jwt supplied' do
+    it 'should return 401' do
+      get :index
+      expect(response.status).to eq(401)
+    end
+  end
 end
