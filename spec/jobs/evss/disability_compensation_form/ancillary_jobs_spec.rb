@@ -12,6 +12,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::AncillaryJobs do
   end
   let(:saved_claim_id) { 1_234_567 }
   let(:claim_id) { 1_234_567 }
+  let(:submission_id) { 1_234_567 }
   let(:submission_data) do
     {
       'form526' => '{"form526": "json"}',
@@ -24,10 +25,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::AncillaryJobs do
   let(:form4142) { nil }
   let(:form0781) { nil }
 
-  subject { described_class.new(user.uuid, auth_headers, saved_claim_id, submission_data) }
+  subject { described_class.new(user.uuid, auth_headers, saved_claim_id, submission_id, submission_data) }
 
   before(:each) do
     Sidekiq::Worker.clear_all
+  end
+
+  describe 'new' do
+    it 'raises an argument error if a parameter is nil' do
+      expect do
+        described_class.new(user.uuid, auth_headers, saved_claim_id, nil, submission_data)
+      end.to raise_error(ArgumentError)
+    end
   end
 
   describe 'perform' do
