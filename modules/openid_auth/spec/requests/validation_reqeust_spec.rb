@@ -25,30 +25,30 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
   let(:json_api_response) do
     {
-        "data" => {
-            "id" => "AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0",
-            "type" => "validated_token",
-            "attributes" => {
-                "ver" => 1,
-                "jti" => "AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0",
-                "iss" => "https://example.com/oauth2/default",
-                "aud" => "api://default",
-                "iat" => 1541453784,
-                "exp" => 1541457384,
-                "cid" => "0oa1c01m77heEXUZt2p7",
-                "uid" => "00u1zlqhuo3yLa2Xs2p7",
-                "scp" => [
-                    "profile",
-                    "email",
-                    "openid",
-                    "veteran_status.read"
-                ],
-                "sub" => "ae9ff5f4e4b741389904087d94cd19b2",
-                "va_identifiers" => {
-                    "icn" => "73806470379396828"
-                }
-            }
+      'data' => {
+        'id' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+        'type' => 'validated_token',
+        'attributes' => {
+          'ver' => 1,
+          'jti' => 'AT.04f_GBSkMkWYbLgG5joGNlApqUthsZnYXhiyPc_5KZ0',
+          'iss' => 'https://example.com/oauth2/default',
+          'aud' => 'api://default',
+          'iat' => 1_541_453_784,
+          'exp' => 1_541_457_384,
+          'cid' => '0oa1c01m77heEXUZt2p7',
+          'uid' => '00u1zlqhuo3yLa2Xs2p7',
+          'scp' => [
+            'profile',
+            'email',
+            'openid',
+            'veteran_status.read'
+          ],
+          'sub' => 'ae9ff5f4e4b741389904087d94cd19b2',
+          'va_identifiers' => {
+            'icn' => '73806470379396828'
+          }
         }
+      }
     }
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
@@ -71,15 +71,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
   end
 
-#   context 'when a response is invalid' do
-#     it 'should match the errors schema', :aggregate_failures do
-#       with_okta_configured do
-#         get '/internal/auth/v0/validation', nil, auth_header
+  #   context 'when a response is invalid' do
+  #     it 'should match the errors schema', :aggregate_failures do
+  #       with_okta_configured do
+  #         get '/internal/auth/v0/validation', nil, auth_header
 
-#         expect(response).to have_http_status(:bad_gateway)
-#         expect(response).to match_response_schema('errors')
-#         expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTH_STATUS502'
-#       end
-#     end
-#   end
+  #         expect(response).to have_http_status(:bad_gateway)
+  #         expect(response).to match_response_schema('errors')
+  #         expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTH_STATUS502'
+  #       end
+  #     end
+  #   end
 end
