@@ -200,6 +200,30 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       )
     end
 
+    it 'supports adding a preneed claim' do
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/burial_forms',
+          200,
+          '_data' => {
+            'application' => attributes_for(:burial_form)
+          }
+        )
+      end
+
+      expect(subject).to validate(
+        :post,
+        '/v0/preneeds/burial_forms',
+        422,
+        '_data' => {
+          'application' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
     context 'HCA tests' do
       let(:test_veteran) do
         File.read(
