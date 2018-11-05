@@ -1,74 +1,109 @@
 # frozen_string_literal: true
 
 module SAML
-  # This module is responsible for providing the URLs for the various SSO and SLO endpoints
-  module URLService
-    # converts from symbols to strings
-    SUCCESS_RELAY_KEYS = Settings.saml.relays&.keys&.map { |k| k.to_s }
+  # This class is responsible for providing the URLs for the various SSO and SLO endpoints
+  class URLService
+    VIRTUAL_HOST_MAPPINGS = {
+      'https://api.vets.gov' => { base_redirect: 'https://www.vets.gov' },
+      'https://staging-api.vets.gov' => { base_redirect: 'https://staging.vets.gov' },
+      'https://dev-api.vets.gov' => { base_redirect: 'https://dev.vets.gov' },
+      'https://api.va.gov' => { base_redirect: 'https://preview.va.gov' },
+      'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
+      'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
+      'http://localhost:3000' => { base_redirect: 'http://localhost:3001' },
+      'http://127.0.0.1:3000' => { base_redirect: 'http://127.0.0.1:3001' }
+    }.freeze
 
-    # SSO URLS
-    def mhv_url(relay_state)
-      build_sso_url(authn_context: 'myhealthevet', relay_state: relay_state)
+    LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
+    LOGOUT_REDIRECT_PARTIAL = '/logout/'
+
+    attr_reader :saml_settings, :session, :authn_context
+
+    def initialize(saml_settings, session: nil, user: nil)
+      if session.present?
+        @session = session
+        @authn_context = session&.user&.authn_context || user&.authn_context
+      end
+      @saml_settings = saml_settings
     end
 
-    def dslogon_url(relay_state)
-      build_sso_url(authn_context: 'dslogon', relay_state: relay_state)
+    # REDIRECT_URLS
+    def base_redirect_url
+      VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    def idme_loa1_url(relay_state)
-      build_sso_url(relay_state: relay_state)
+    def login_redirect_url(params = {})
+      add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", params)
     end
 
-    def idme_loa3_url(current_user, relay_state)
-      policy = current_user.authn_context
-      authn_context = policy.present? ? "#{policy}_loa3" : LOA::MAPPING.invert[3]
-      build_sso_url(authn_context: authn_context, relay_state: relay_state)
+    def logout_redirect_url(params = {})
+      add_query("#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}", params)
     end
 
-    def mfa_url(current_user, relay_state)
-      policy = current_user.authn_context
-      authn_context = policy.present? ? "#{policy}_multifactor" : 'multifactor'
-      build_sso_url(authn_context: authn_context, relay_state: relay_state)
+    # SIGN ON URLS
+    def mhv_url
+      build_sso_url('myhealthevet')
     end
 
+    def dslogon_url
+      build_sso_url('dslogon')
+    end
+
+    def idme_loa1_url
+      build_sso_url(LOA::MAPPING.invert[1])
+    end
+
+    def idme_loa3_url
+      link_authn_context = authn_context.present? ? "#{authn_context}_loa3" : LOA::MAPPING.invert[3]
+      build_sso_url(link_authn_context)
+    end
+
+    def mfa_url
+      link_authn_context = authn_context.present? ? "#{authn_context}_multifactor" : 'multifactor'
+      build_sso_url(link_authn_context)
+    end
+
+    # SIGN OFF URLS
     # This is the internal vets-api url that first gets invoked, it should redirect without authentication
     # when this url gets invoked, the session should be destroyed, before the callback returns
-    def logout_url(session, relay_state)
+    def logout_url
       token = Base64.urlsafe_encode64(session.token)
-      Rails.application.routes.url_helpers.logout_v0_sessions_url(
-        success_relay: relay_state.relay_enum, session: token
-      )
+      Rails.application.routes.url_helpers.logout_v0_sessions_url(session: token)
     end
 
-    # SLO URLS
-    def slo_url(session, relay_state)
-      build_slo_url(session, relay_state)
+    def slo_url
+      logout_request = OneLogin::RubySaml::Logoutrequest.new
+      # cache the request for session.token lookup when we receive the response
+      SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
+      Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
+      logout_request.create(url_settings)
     end
 
     private
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
-    # nil authn_context and nil connect will always default to idme level 1
-    # authn_context is the policy, connect represents the ID.me specific flow.
-    def build_sso_url(authn_context: LOA::MAPPING.invert[1], session: nil, relay_state: nil)
-      url_settings = url_settings(authn_context: authn_context, name_identifier_value: session&.uuid)
+    # link_authn_context is the new proposed authn_context
+    def build_sso_url(link_authn_context)
+      new_url_settings = url_settings
+      new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(url_settings, RelayState: relay_state.login_url)
+      saml_auth_request.create(new_url_settings)
     end
 
-    # Builds the url to trigger SLO, caching the request
-    def build_slo_url(session, relay_state)
-      logout_request = OneLogin::RubySaml::Logoutrequest.new
-      Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
-
-      url_settings = url_settings(name_identifier_value: session.uuid)
-      # cache the request for session.token lookup when we receive the response
-      SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
-      logout_request.create(url_settings, RelayState: relay_state.logout_url)
+    def current_host
+      uri = URI.parse(saml_settings.assertion_consumer_service_url)
+      uri.to_s.gsub(uri.path.to_s + uri.query.to_s, '')
     end
 
-    def url_settings(options)
-      saml_settings(options)
+    def url_settings
+      url_settings = saml_settings.dup
+      url_settings.name_identifier_value = session&.uuid
+      url_settings
+    end
+
+    def add_query(url, params)
+      punctuation = url.include?('?') ? '&' : '?'
+      url + (params.any? ? "#{punctuation}#{params.to_query}" : '')
     end
   end
 end

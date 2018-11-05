@@ -41,6 +41,8 @@ RSpec.describe BaseFacility, type: :model do
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(vc_facility.facility_type).to eq('vet_center')
       attrs.each_key { |k| expect(vc_facility[k]).to eq attrs[k] }
+      point = vc_facility.location.factory.point attrs['long'], attrs['lat']
+      expect(vc_facility.location).to eq(point)
     end
   end
 
@@ -101,6 +103,8 @@ RSpec.describe BaseFacility, type: :model do
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(vha_facility.facility_type).to eq('va_health_facility')
       attrs.each_key { |k| expect(vha_facility[k]).to eq attrs[k] }
+      point = vha_facility.location.factory.point attrs['long'], attrs['lat']
+      expect(vha_facility.location).to eq(point)
     end
   end
 
@@ -145,6 +149,8 @@ RSpec.describe BaseFacility, type: :model do
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(vba_facility.facility_type).to eq('va_benefits_facility')
       attrs.each_key { |k| expect(vba_facility[k]).to eq attrs[k] }
+      point = vba_facility.location.factory.point attrs['long'], attrs['lat']
+      expect(vba_facility.location).to eq(point)
     end
   end
 
@@ -176,6 +182,8 @@ RSpec.describe BaseFacility, type: :model do
     it 'should save and retrieve all attributes and they should match the original object' do
       expect(nca_facility.facility_type).to eq('va_cemetery')
       attrs.each_key { |k| expect(nca_facility[k]).to eq attrs[k] }
+      point = nca_facility.location.factory.point attrs['long'], attrs['lat']
+      expect(nca_facility.location).to eq(point)
     end
   end
 
