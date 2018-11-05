@@ -19,6 +19,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:request_host)        { '127.0.0.1:3000' }
   let(:callback_url)        { "http://#{request_host}/auth/saml/callback" }
+  let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
+
   let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
@@ -97,6 +99,16 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
 
+  def verify_session_cookie
+    token = session[:token]
+    expect(token).to_not be_nil
+    session_object = Session.find(token)
+    expect(session_object).to_not be_nil
+    session_object.to_hash.each do |k, v|
+      expect(session[k]).to eq(v)
+    end
+  end
+
   before(:each) do
     request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -135,11 +147,19 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when logged in' do
+    let!(:session_cookie_enabled) { Settings.session_cookie.enabled }
+
     before do
+      Settings.session_cookie.enabled = true
       allow(SAML::User).to receive(:new).and_return(saml_user)
-      Session.create(uuid: uuid, token: token)
+      session_object = Session.create(uuid: uuid, token: token)
+      session_object.to_hash.each { |k, v| session[k] = v }
       User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
+    end
+
+    after do
+      Settings.session_cookie.enabled = session_cookie_enabled
     end
 
     describe 'new' do
@@ -163,7 +183,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     it 'redirects as success even when logout fails, but it logs the failure' do
-      expect(post(:saml_logout_callback)).to redirect_to('http://127.0.0.1:3001/logout/?success=true')
+      expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
     end
 
     describe 'GET sessions/logout' do
@@ -173,6 +193,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
+        Session.find(token).to_hash.each { |k, v| session[k] = v }
         request.cookies['vagov_session_dev'] = 'bar'
       end
 
@@ -197,19 +218,24 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'can find an active session' do
         it 'destroys the user, session, and cookie, persists logout_request object, redirects to SLO url' do
-          # these should have been destroyed yet
-          expect(Session.find(token)).to_not be_nil
+          # these should not have been destroyed yet
+          verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
+
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
+
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:logout, session: Base64.urlsafe_encode64(token))
           expect(response.location).to match('https://api.idmelabs.com/saml/SingleLogoutService')
+
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
+          expect(session).to be_empty
           expect(User.find(uuid)).to be_nil
           expect(cookies['vagov_session_dev']).to be_nil
+
           # this should be created in redis
           expect(SingleLogoutRequest.find(logout_request.uuid)).to_not be_nil
         end
@@ -227,7 +253,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects as success and logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to('http://127.0.0.1:3001/logout/?success=true')
+            .to redirect_to(logout_redirect_url)
         end
       end
 
@@ -236,18 +262,19 @@ RSpec.describe V0::SessionsController, type: :controller do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
+          Session.find(token).to_hash.each { |k, v| session[k] = v }
         end
 
         it 'redirects to success and destroys only the logout request' do
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-          expect(Session.find(token)).to_not be_nil
+          verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(redirect_to('http://127.0.0.1:3001/logout/?success=true'))
+            .to redirect_to(redirect_to(logout_redirect_url))
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
-          expect(Session.find(token)).to_not be_nil
+          verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this should be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
@@ -269,6 +296,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         example.run
         Settings.sso.cookie_enabled = false
         Timecop.return
+      end
+
+      it 'sets the session cookie' do
+        Settings.sso.cookie_enabled = false
+        post :saml_callback
+        verify_session_cookie
       end
 
       it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
@@ -295,7 +328,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
-        expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?token=')
+        expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
