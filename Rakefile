@@ -20,7 +20,7 @@ unless Rails.env.production?
         'modules/vba_documents/spec/**/*_spec.rb',
         'modules/appeals_api/spec/**/*_spec.rb',
         'modules/va_facilities/spec/**/*_spec.rb',
-        'modules/veteran_verification/spec/**/*_spec.rb'
+        'modules/veteran_verification/spec/**/*_spec.rb',
         'modules/openid_auth/spec/**/*_spec.rb'
       ]
     )
