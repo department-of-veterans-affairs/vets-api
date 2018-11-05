@@ -18,7 +18,7 @@ module EVSS
           # TODO test
           resp = Hash.from_xml(env.body)
           inner_resp = resp[resp.keys[0]]
-          if %w[fatal error].include?(inner_resp['messages'].try(:[], 'severity').downcase)
+          if %w[fatal error].include?(inner_resp['messages'].try(:[], 'severity')&.downcase)
             raise EVSSError.new(inner_resp['messages']['text'], inner_resp['messages']['text'])
           end
         else
