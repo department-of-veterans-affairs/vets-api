@@ -163,7 +163,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     it 'redirects as success even when logout fails, but it logs the failure' do
-      expect(post(:saml_logout_callback)).to redirect_to('http://127.0.0.1:3001/logout?success=true')
+      expect(post(:saml_logout_callback)).to redirect_to('http://127.0.0.1:3001/logout/?success=true')
     end
 
     describe 'GET sessions/logout' do
@@ -227,7 +227,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects as success and logs the failure' do
           expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to('http://127.0.0.1:3001/logout?success=true')
+            .to redirect_to('http://127.0.0.1:3001/logout/?success=true')
         end
       end
 
@@ -245,7 +245,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this will be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(redirect_to('http://127.0.0.1:3001/logout?success=true'))
+            .to redirect_to(redirect_to('http://127.0.0.1:3001/logout/?success=true'))
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           expect(Session.find(token)).to_not be_nil
           expect(User.find(uuid)).to_not be_nil
