@@ -157,6 +157,7 @@ module V0
       Swagger::Schemas::AsyncTransaction::Vet360,
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
+      Swagger::Schemas::ConnectedApplications,
       Swagger::Schemas::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
