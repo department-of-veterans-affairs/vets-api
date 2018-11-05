@@ -197,7 +197,7 @@ class FormProfiles::VA21686c < FormProfile
 
   def convert_date(date)
     return unless date
-    DateTime.strptime(date.to_s, '%Q').to_date.to_s
+    Time.strptime(date.to_s, '%Q').to_date.to_s
   end
 
   def prefill_dependents(children)
