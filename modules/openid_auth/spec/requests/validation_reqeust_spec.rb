@@ -54,13 +54,13 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
   let(:user) { build(:user, :loa3) }
 
-  before(:each) do
-    allow(JWT).to receive(:decode).and_return(jwt)
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
-  end
-
   context 'with valid responses' do
+    before(:each) do
+      allow(JWT).to receive(:decode).and_return(jwt)
+      Session.create(uuid: user.uuid, token: token)
+      User.create(user)
+    end
+
     it 'should return true if the user is a veteran' do
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
@@ -71,15 +71,15 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
   end
 
-  #   context 'when a response is invalid' do
-  #     it 'should match the errors schema', :aggregate_failures do
-  #       with_okta_configured do
-  #         get '/internal/auth/v0/validation', nil, auth_header
+  context 'when a response is invalid' do
+    it 'should match the errors schema', :aggregate_failures do
+      with_okta_configured do
+        get '/internal/auth/v0/validation', nil, auth_header
 
-  #         expect(response).to have_http_status(:bad_gateway)
-  #         expect(response).to match_response_schema('errors')
-  #         expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTH_STATUS502'
-  #       end
-  #     end
-  #   end
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_response_schema('errors')
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTH_STATUS502'
+      end
+    end
+  end
 end
