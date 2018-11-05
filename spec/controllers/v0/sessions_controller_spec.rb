@@ -147,7 +147,10 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when logged in' do
+    let!(:session_cookie_enabled) { Settings.session_cookie.enabled }
+
     before do
+      Settings.session_cookie.enabled = true
       allow(SAML::User).to receive(:new).and_return(saml_user)
       session_object = Session.create(uuid: uuid, token: token)
       session_object.to_hash.each { |k, v| session[k] = v }
@@ -155,11 +158,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       UserIdentity.create(loa1_user.identity.attributes)
     end
 
-    around(:each) do |example|
-      original_value = Settings.session_cookie.enabled
-      Settings.session_cookie.enabled = true
-      example.run
-      Settings.session_cookie.enabled = original_value
+    after do
+      Settings.session_cookie.enabled = session_cookie_enabled
     end
 
     describe 'new' do
