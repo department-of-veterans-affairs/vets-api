@@ -77,5 +77,16 @@
     ]
   },
   "signature":"/es/ Testy Testerson",
-  "signatureDate":"2016-12-31"
+  "signatureDate":"2016-12-31",
+  "serviceConnectedDisability": "Unemployability Disability",
+  "wasHospitalizedNo": true,
+  "wasHospitalizedYes": false,
+  "doctorsCareDateRanges": [
+    {"from":"1994-01-01", "to":"1995-01-01"}
+  ],
+  "doctorsCareDetails": ["Doctor Care A\n123 Main Street 1B\nBaltimore MD 21200-1111\nUSA"],
+  "hospitalCareDateRanges": [
+    {"from":"1996-01-01", "to":"1997-01-01"}
+  ],
+  "hospitalCareDetails": ["Hospital Care A\n123 Main Street 2B\nBaltimore MD 21200-1111\nUSA"]
 }

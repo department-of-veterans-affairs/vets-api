@@ -26,26 +26,26 @@ module PdfFill
           }
         },
         'veteranAddress' => {
-          question_num: 6,
+          question_num: 5,
           question_text: 'MAILING ADDRESS',
           'street' => {
             key: 'form1[0].#subform[0].CurrentMailingAddress_NumberAndStreet[0]',
             limit: 30,
-            question_num: 6,
+            question_num: 5,
             question_suffix: 'A',
             question_text: 'Number and Street'
           },
           'street2' => {
             key: 'form1[0].#subform[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]',
             limit: 5,
-            question_num: 6,
+            question_num: 5,
             question_suffix: 'B',
             question_text: 'Apartment or Unit Number'
           },
           'city' => {
             key: 'form1[0].#subform[0].CurrentMailingAddress_City[0]',
             limit: 18,
-            question_num: 6,
+            question_num: 5,
             question_suffix: 'C',
             question_text: 'City'
           },
@@ -254,22 +254,45 @@ module PdfFill
         },
         'doctorsCareDateRanges' => {
           limit: 6,
+          question_text: 'DATE(S) OF TREATMENT BY DOCTOR(S)',
+          question_num: 10,
           'from' => {
+            question_num: 10,
+            question_text: 'From:',
             key: "form1[0].#subform[0].DoctorsCareDateFrom[#{ITERATOR}]"
           },
           'to' => {
+            question_num: 10,
+            question_text: 'To:',
             key: "form1[0].#subform[0].DoctorsCareDateTo[#{ITERATOR}]"
           }
         },
         'hospitalCareDateRanges' => {
           limit: 6,
-          first_key: 'from',
+          question_text: 'DATE(S) OF HOSPITALIZATION',
+          question_num: 13,
           'from' => {
+            question_num: 13,
+            question_text: 'From:',
             key: "form1[0].#subform[0].HospitalCareDateFrom[#{ITERATOR}]"
           },
           'to' => {
+            question_num: 13,
+            question_text: 'To:',
             key: "form1[0].#subform[0].HospitalCareDateTo[#{ITERATOR}]"
           }
+        },
+        'doctorsCareDetails' => {
+          limit: 2,
+          question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
+          question_num: 11,
+          key: "form1[0].#subform[0].NameAndAddressOfDoctors[#{ITERATOR}]"
+        },
+        'hospitalCareDetails' => {
+          limit: 2,
+          question_text: 'NAME AND ADDRESS OF HOSPITAL',
+          question_num: 12,
+          key: "form1[0].#subform[0].NameAndAddressOfHospitals[#{ITERATOR}]"
         }
       }.freeze
 
@@ -282,8 +305,8 @@ module PdfFill
         collapse_training(@form_data['unemployability'])
         expand_doctors_care_or_hospitalized
         expand_service_connected_disability
-        expand_provided_care(@form_data['unemployability']['doctorProvidedCare'], 'doctorsCareDateRanges')
-        expand_provided_care(@form_data['unemployability']['hospitalProvidedCare'], 'hospitalCareDateRanges')
+        expand_provided_care(@form_data['unemployability']['doctorProvidedCare'], 'doctorsCare')
+        expand_provided_care(@form_data['unemployability']['hospitalProvidedCare'], 'hospitalCare')
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
@@ -309,8 +332,7 @@ module PdfFill
 
       def expand_provided_care(provided_care, key)
         return if provided_care.blank?
-        # expand_provider_extras(providers)
-        # expand_provider_address(providers)
+        expand_provided_care_details(provided_care, key)
         expand_provided_care_date_range(provided_care, key)
       end
 
@@ -320,7 +342,18 @@ module PdfFill
         provided_care.each do |care|
           care_date_ranges.push(care['dates'])
         end
-        @form_data[key] = care_date_ranges
+        @form_data["#{key}DateRanges"] = care_date_ranges
+      end
+
+      def expand_provided_care_details(provided_care, key)
+        return if provided_care.empty?
+        care_details = []
+        provided_care.each do |care|
+          details = care['name']
+          details += "\n#{address_block(care['address'])}" if care['address'].present?
+          care_details.push(details)
+        end
+        @form_data["#{key}Details"] = care_details
       end
 
       def expand_ssn
@@ -344,14 +377,10 @@ module PdfFill
 
       def collapse_education(hash)
         return if hash.blank?
-
-        education = hash['education']
-        return if education.blank?
-
+        return if hash['education'].blank?
         @form_data['education'] = {
-          'value' => education
+          'value' => hash['education']
         }
-
         expand_checkbox_as_hash(@form_data['education'], 'value')
       end
 
@@ -392,15 +421,6 @@ module PdfFill
 
         overflow.compact.join("\n\n")
         @form_data[key] = PdfFill::FormValue.new('', overflow)
-      end
-
-      def expand_checkbox_as_hash(hash, key)
-        value = hash.try(:[], key)
-
-        return if value.blank?
-        hash['checkbox'] = {
-          value => true
-        }
       end
     end
   end

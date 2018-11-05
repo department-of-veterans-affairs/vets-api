@@ -24,68 +24,38 @@
     "disabilityPreventingEmployment": "Unemployability Disability",
     "underDoctorHopitalCarePast12M": false,
     "doctorProvidedCare": [
-        {
-          "name": "Doctor Care A",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1B",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "dates": {
-            "from": "1994-01-01",
-            "to": "1995-01-01"
-          }
+      {
+        "name": "Doctor Care A",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1B",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
         },
-        {
-          "name": "Doctor Care B",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1B",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "dates": {
-            "from": " 1997-01-01",
-            "to": "1998-01-01"
-          }
+        "dates": {
+          "from": "1994-01-01",
+          "to": "1995-01-01"
         }
+      }
     ],
     "hospitalProvidedCare": [
-        {
-          "name": "Hospital Care A",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1B",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "dates": {
-            "from": "1996-01-01",
-            "to": "1997-01-01"
-          }
+      {
+        "name": "Hospital Care A",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "2B",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
         },
-        {
-          "name": "Hospital Care A",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1B",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "dates": {
-            "from": "1998-01-01",
-            "to": "1999-01-01"
-          }
+        "dates": {
+          "from": "1996-01-01",
+          "to": "1997-01-01"
         }
+      }
     ],
     "disabilityAffectedEmploymentFullTimeDate": "1998-01-01",
     "lastWorkedFullTimeDate": "1997-01-01",
@@ -94,44 +64,44 @@
     "yearOfMostEarnings": "1992",
     "occupationDuringMostEarnings": "Test",
     "previousEmployers": [
-        {
-          "name": "Employer A",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1B",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "workType": "work",
-          "hoursPerWeek": "40",
-          "dates": {
-            "from": "1991-01-01",
-            "to": "1992-01-01"
-          },
-          "timeLostFromIllness": "2 months",
-          "mostEarningsInAMonth": "4000"
+      {
+        "name": "Employer A",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1B",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
         },
-        {
-          "name": "Employer B",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1C",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "workType": "work",
-          "hoursPerWeek": "40",
-          "dates": {
-            "from": "1992-01-01",
-            "to": "1993-01-01"
-          },
-          "timeLostFromIllness": "1 months",
-          "mostEarningsInAMonth": "2000"
-        }
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1991-01-01",
+          "to": "1992-01-01"
+        },
+        "timeLostFromIllness": "2 months",
+        "mostEarningsInAMonth": "4000"
+      },
+      {
+        "name": "Employer B",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      }
     ],
     "disabilityPreventMilitaryDuties": true,
     "past12MonthsEarnedIncome": "0",
@@ -141,38 +111,38 @@
     "receiveExpectWorkersCompensation": false,
     "attemptedToObtainEmploymentSinceUnemployability": false,
     "appliedEmployers": [
-        {
-          "name": "Employer C",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1D",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "workType": "work",
-          "date": "1997-01-01"
+      {
+        "name": "Employer C",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1D",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
         },
-        {
-          "name": "Employer D",
-          "address": {
-            "street": "123 Main Street",
-            "street2": "1E",
-            "city": "Baltimore",
-            "state": "MD",
-            "country": "USA",
-            "postalCode": "21200-1111"
-          },
-          "workType": "work",
-          "date": "1997-01-01"
-        }
+        "workType": "work",
+        "date": "1997-01-01"
+      },
+      {
+        "name": "Employer D",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1E",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "date": "1997-01-01"
+      }
     ],
     "education": "college4",
     "receivedOtherEducationTrainingPreUnemployability": true,
     "otherEducationTrainingPreUnemployability": [
       {
-        "name":"Other Education Pre", 
+        "name": "Other Education Pre",
         "dates": {
           "from": "1992-01-01",
           "to": "1993-01-01"
@@ -182,7 +152,7 @@
     "receivedOtherEducationTrainingPostUnemployability": true,
     "otherEducationTrainingPostUnemployability": [
       {
-        "name":"Other Education Post", 
+        "name": "Other Education Post",
         "dates": {
           "from": "1998-01-01",
           "to": "1999-01-01"
