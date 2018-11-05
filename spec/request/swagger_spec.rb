@@ -1687,12 +1687,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     describe 'profile/connected_applications' do
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
       let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
-      let(:user) { build(:user, :loa3) }
+      let(:user) { create(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
 
       before do
-        user[:uuid] = '00u2fqgvbyT23TZNm2p7'
-        Session.create(uuid: '00u2fqgvbyT23TZNm2p7', token: token)
-        User.create(user)
+        Session.create(uuid: user.uuid, token: token)
       end
 
       it 'supports getting connected applications' do
