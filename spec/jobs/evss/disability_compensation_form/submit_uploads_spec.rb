@@ -13,16 +13,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-
-  subject { described_class }
-
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:submitted_claim_id) { 600_130_094 }
   let(:submission) do
     create(:form526_submission, :with_uploads,
       user_uuid: user.uuid,
       auth_headers_json: auth_headers.to_json,
-      saved_claim_id: saved_claim.id
+      saved_claim_id: saved_claim.id,
+      submitted_claim_id: '600130094'
     )
   end
 
@@ -65,7 +62,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       context 'with a timeout' do
         it 'logs a retryable error and re-raises the original error' do
           allow(client).to receive(:upload).and_raise(Common::Exceptions::SentryIgnoredGatewayTimeout)
-          subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
+          subject.perform_async(submission.id, upload_data)
           expect_any_instance_of(subject).to receive(:retryable_error_handler).once
           expect { described_class.drain }.to raise_error(Common::Exceptions::SentryIgnoredGatewayTimeout)
         end
@@ -75,18 +72,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'when get_file is nil' do
       let(:attachment) { double(:attachment, get_file: nil) }
 
-      it 'raises an ArgumentError' do
+      it 'logs a non_retryable_error' do
         subject.perform_async(submission.id, upload_data)
-        expect { described_class.drain }.to raise_error(
-          ArgumentError,
-          'supporting evidence attachment with guid d44d6f52-2e85-43d4-a5a3-1d9cb4e482a0 has no file data'
-        )
-      end
-
-      it 'logs a non retryable error' do
-        subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
-        expect_any_instance_of(subject).to receive(:non_retryable_error_handler).once
         described_class.drain
+        expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
       end
     end
   end
