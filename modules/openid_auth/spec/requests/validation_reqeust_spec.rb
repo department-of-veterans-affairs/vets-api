@@ -3,8 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true do
-  include SchemaMatchers
-
   let(:token) { 'token' }
   let(:jwt) do
     [{
@@ -72,13 +70,12 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
 
   context 'when a response is invalid' do
-    it 'should match the errors schema', :aggregate_failures do
+    it 'should return an unauthorized for bad token', :aggregate_failures do
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
-        expect(response).to have_http_status(:bad_gateway)
-        expect(response).to match_response_schema('errors')
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTH_STATUS502'
+        expect(response).to have_http_status(:unauthorized)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
       end
     end
   end
