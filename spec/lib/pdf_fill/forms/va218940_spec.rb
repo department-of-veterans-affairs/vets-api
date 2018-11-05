@@ -211,8 +211,8 @@ describe PdfFill::Forms::Va218940 do
           }
         }
       ]
-      it 'should expand the serviceConnectedDisability correctly' do
-        new_form_class.send(:expand_provided_care, provided_care, 'doctorsCareDateRanges')
+      it 'should expand the doctorsCare date range correctly' do
+        new_form_class.send(:expand_provided_care_date_range, provided_care, 'doctorsCare')
         expect(
           JSON.parse(class_form_data.to_json)
         ).to eq(
@@ -221,6 +221,62 @@ describe PdfFill::Forms::Va218940 do
           ]
         )
       end
+    end
+  end
+
+  describe '#expand_provided_care_date_range' do
+    context 'date range is not empty' do
+      provided_care = [
+        {
+          'dates' => {
+            'from' => '1994-01-01',
+            'to' => '1995-01-01'
+          }
+        }
+      ]
+      it 'should expand the doctorsCare date range correctly' do
+        new_form_class.send(:expand_provided_care_date_range, provided_care, 'doctorsCare')
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'doctorsCareDateRanges' => [
+            { 'from' => '1994-01-01', 'to' => '1995-01-01' }
+          ]
+        )
+      end
+    end
+  end
+  context 'care name and address is not empty' do
+    provided_care = [
+      {
+        'name' => 'Doctor Smith',
+        'address' => {
+          'street' => '123 Test St.',
+          'state' => 'SC'
+        }
+      },
+      {
+        'name' => 'Doctor Jones',
+        'address' => {
+          'street' => '123 Test St.',
+          'street2' => '4B',
+          'city' => 'Testville',
+          'state' => 'SC',
+          'postalCode' => '12345',
+          'country' => 'US'
+        }
+      }
+    ]
+    it 'should expand the doctorsCare name and address correctly' do
+      new_form_class.send(:expand_provided_care_details, provided_care, 'doctorsCare')
+      expect(
+        JSON.parse(class_form_data.to_json)
+      ).to eq(
+        'doctorsCareDetails' => [
+          "Doctor Smith\n123 Test St.\nSC",
+          "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS"
+        ]
+      )
     end
   end
 end
