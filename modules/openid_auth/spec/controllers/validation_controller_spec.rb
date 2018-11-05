@@ -15,16 +15,17 @@ describe OpenidAuth::ValidationController, type: :controller do
       'uid' => '00u1zlqhuo3yLa2Xs2p7',
       'scp' => %w[profile email openid va_profile],
       'sub' => 'ae9ff5f4e4b741389904087d94cd19b2'
-    }, {
-      'kid' => '1Z0tNc4Hxs_n7ySgwb6YT8JgWpq0wezqupEg136FZHU',
-      'alg' => 'RS256'
     }]
   end
 
-  describe 'with no jwt supplied' do
-    it 'should return 401' do
+  it 'should return 200 and add the user to the session' do
+    allow(JWT).to receive(:decode).and_return(token)
+    with_okta_configured do
+      request.headers['Authorization'] = 'Bearer FakeToken'
       get :index
-      expect(response.status).to eq(401)
+      expect(response).to be_ok
+      expect(Session.find('FakeToken')).to_not be_nil
+      expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
     end
   end
 end
