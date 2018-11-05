@@ -15,9 +15,27 @@ task :security do
   puts 'running bundle-audit to check for insecure dependencies...'
   exit!(1) unless ShellCommand.run('bundle-audit update')
   audit_result = ShellCommand.run('bundle-audit check')
+  puts "\n"
+
+  puts 'running bundle-audit on sub-modules...'
+  starting_dir = Dir.pwd
+  sub_module_results = []
+  Dir.glob('modules/*').select do |module_f|
+    next unless File.directory? module_f
+    next unless File.exist?(module_f + '/Gemfile.lock')
+
+    puts "module [#{module_f}]..."
+    begin
+      Dir.chdir(module_f)
+      sub_module_results.push(ShellCommand.run('bundle-audit check'))
+    ensure
+      Dir.chdir(starting_dir)
+    end
+  end
 
   puts "\n"
-  if brakeman_result && audit_result
+
+  if brakeman_result && audit_result && !sub_module_results.include?(false)
     puts Rainbow('Passed. No obvious security vulnerabilities.').green
   else
     puts Rainbow('Failed. Security vulnerabilities were found.').red
