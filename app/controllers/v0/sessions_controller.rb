@@ -47,13 +47,15 @@ module V0
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
+    # rubocop:enable Metrics/CyclomaticComplexity
 
     def logout
-      session = Session.find(Base64.urlsafe_decode64(params[:session]))
-      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session.nil?
-      destroy_user_session!(User.find(session.uuid), session)
-      redirect_to SAML::URLService.new(saml_settings, session: session, user: current_user).slo_url
+      session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
+      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
+      @session_object = session_object
+      @current_user = User.find(session_object.uuid)
+      reset_session
+      redirect_to SAML::URLService.new(saml_settings, session: session_object, user: current_user).slo_url
     end
 
     def saml_logout_callback
@@ -67,12 +69,17 @@ module V0
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
-      # in the future the FE shouldnt count on ?success=true
     rescue => e
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
-      redirect_to url_service.logout_redirect_url(success: true)
+
+      # In the future, the FE shouldn't count on ?success=true.
+      if Settings.session_cookie.enabled
+        redirect_to url_service.logout_redirect_url
+      else
+        redirect_to url_service.logout_redirect_url(success: true)
+      end
     end
 
     def saml_callback
@@ -80,12 +87,12 @@ module V0
       @sso_service = SSOService.new(saml_response)
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
-        @session = @sso_service.new_session
+        @session_object = @sso_service.new_session
 
+        set_cookies
         after_login_actions
         redirect_to saml_login_redirect_url
 
-        log_persisted_session_and_warnings
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
       else
@@ -102,22 +109,29 @@ module V0
 
     private
 
+    def set_cookies
+      set_api_cookie!
+      set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
+    end
+
     def saml_login_redirect_url
       if current_user.loa[:current] < current_user.loa[:highest]
         url_service.idme_loa3_url
+      elsif Settings.session_cookie.enabled
+        url_service.login_redirect_url
       else
-        url_service.login_redirect_url(token: session.token)
+        url_service.login_redirect_url(token: @session_object.token)
       end
     end
 
     def after_login_actions
-      set_sso_cookie!
       AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
+      log_persisted_session_and_warnings
     end
 
     def log_persisted_session_and_warnings
-      obscure_token = Session.obscure_token(session.token)
-      Rails.logger.info("Logged in user with id #{session.uuid}, token #{obscure_token}")
+      obscure_token = Session.obscure_token(@session_object.token)
+      Rails.logger.info("Logged in user with id #{@session_object.uuid}, token #{obscure_token}")
       # We want to log when SSNs do not match between MVI and SAML Identity. And might take future
       # action if this appears to be happening frquently.
       if current_user.ssn_mismatch?
@@ -148,7 +162,7 @@ module V0
     end
 
     def url_service
-      SAML::URLService.new(saml_settings, session: session, user: current_user)
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user)
     end
   end
 end

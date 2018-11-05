@@ -7,7 +7,7 @@ module SAML
       'https://api.vets.gov' => { base_redirect: 'https://www.vets.gov' },
       'https://staging-api.vets.gov' => { base_redirect: 'https://staging.vets.gov' },
       'https://dev-api.vets.gov' => { base_redirect: 'https://dev.vets.gov' },
-      'https://api.va.gov' => { base_redirect: 'https://www.va.gov' },
+      'https://api.va.gov' => { base_redirect: 'https://preview.va.gov' },
       'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
       'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
       'http://localhost:3000' => { base_redirect: 'http://localhost:3001' },
@@ -15,7 +15,7 @@ module SAML
     }.freeze
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
-    LOGOUT_REDIRECT_PARTIAL = '/logout'
+    LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
     attr_reader :saml_settings, :session, :authn_context
 
@@ -92,7 +92,7 @@ module SAML
 
     def current_host
       uri = URI.parse(saml_settings.assertion_consumer_service_url)
-      uri.to_s.gsub(uri.path.to_s + uri.query.to_s, '')
+      URI.join(uri, '/').to_s.chop
     end
 
     def url_settings

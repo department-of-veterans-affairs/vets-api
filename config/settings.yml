@@ -13,6 +13,10 @@ saml:
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
+session_cookie:
+  enabled: false
+  secure: false
+
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
   cookie_enabled: true
