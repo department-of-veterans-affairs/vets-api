@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:loa_one) { { current: LOA::ONE } }
-  let(:loa_three) { { current: LOA::THREE } }
+  let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
+  let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }
@@ -82,6 +82,14 @@ RSpec.describe User, type: :model do
         loa1_user.uuid = ''
         expect(loa1_user.valid?).to be_falsey
         expect(loa1_user.errors[:uuid].size).to be_positive
+      end
+    end
+
+    context 'with LOA 1, and no highest will raise an exception on UserIdentity' do
+      subject(:loa1_user) { described_class.new(build(:user, loa: { current: 1 })) }
+
+      it 'should raise an exception' do
+        expect { loa1_user }.to raise_exception(Common::Exceptions::ValidationErrors)
       end
     end
   end

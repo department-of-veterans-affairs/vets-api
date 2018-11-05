@@ -71,7 +71,6 @@ module MVI
       when MVI::Errors::DuplicateRecords
         log_console_and_sentry('MVI Duplicate Record', :warn)
       when MVI::Errors::RecordNotFound
-        # Not going to log RecordNotFound to sentry, cloudwatch only.
         log_console_and_sentry('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
