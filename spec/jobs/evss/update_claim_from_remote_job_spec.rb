@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
   let(:user) { create(:user, :loa3) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
-  let(:tracker) { EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid, claim_id: claim.id) }
+  let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
 
   subject do
@@ -14,6 +14,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
 
   describe '#perform' do
     before do
+      tracker.claim_id = claim.id
       tracker.set_single_status('REQUESTED')
       expect(Sentry::TagRainbows).to receive(:tag)
       expect(tracker.get_single_status).to eq('REQUESTED')
@@ -26,6 +27,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
           receive(:set_single_status).with(String).and_call_original
         )
         subject.perform(user.uuid, claim.id)
+        tracker = EVSSClaimsSyncStatusTracker.find(user.uuid) 
         expect(tracker.get_single_status).to eq('SUCCESS')
       end
     end
@@ -40,6 +42,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
           receive(:set_single_status).with('FAILED').and_call_original
         )
         expect { subject.perform(user.uuid, claim.id) }.to raise_error(StandardError)
+        tracker = EVSSClaimsSyncStatusTracker.find(user.uuid)
         expect(tracker.get_single_status).to eq('FAILED')
       end
     end
