@@ -53,7 +53,7 @@ class Form526Submission < ActiveRecord::Base
   private
 
   def submit_uploads
-    form_hash[FORM_526_UPLOADS].each do |upload_data|
+    form[FORM_526_UPLOADS].each do |upload_data|
       EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, upload_data)
     end
   end
