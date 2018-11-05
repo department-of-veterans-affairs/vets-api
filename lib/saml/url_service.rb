@@ -15,7 +15,7 @@ module SAML
     }.freeze
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
-    LOGOUT_REDIRECT_PARTIAL = '/logout'
+    LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
     attr_reader :saml_settings, :session, :authn_context
 
