@@ -30,4 +30,11 @@ class UserIdentity < Common::RedisStore
   validates :uuid, presence: true
   validates :email, presence: true
   validates :loa, presence: true
+  validate  :loa_highest_present
+
+  private
+
+  def loa_highest_present
+    errors.add(:loa, 'loa[:highest] is not present!') if loa.key?(:highest) == false || loa[:highest].nil?
+  end
 end
