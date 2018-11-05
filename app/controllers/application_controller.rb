@@ -23,6 +23,12 @@ class ApplicationController < ActionController::API
 
   before_action :block_unknown_hosts
   before_action :authenticate
+
+  # Ensures that we maintain sessions for currently signed-in users
+  # (that have been authenticated with the HTTP header)
+  # after we start using cookies instead of the header.
+  before_action :set_api_cookie!, unless: -> { Settings.session_cookie.enabled }
+
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -51,6 +57,8 @@ class ApplicationController < ActionController::API
 
   private
 
+  attr_reader :current_user
+
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'
@@ -71,9 +79,9 @@ class ApplicationController < ActionController::API
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
-        if current_user.present?
-          extra[:icn] = current_user.icn
-          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+        if @current_user.present?
+          extra[:icn] = @current_user.icn
+          extra[:mhv_correlation_id] = @current_user.mhv_correlation_id
         end
         # Warn about VA900 needing to be added to exception.en.yml
         if exception.generic_error?
@@ -140,32 +148,58 @@ class ApplicationController < ActionController::API
   end
 
   def authenticate_token
+    return validate_session(session[:token]) if Settings.session_cookie.enabled
     authenticate_with_http_token do |token, _options|
-      @session = Session.find(token)
-      return false if @session.nil?
-      @current_user = User.find(@session.uuid)
-      if should_signout_sso?
-        destroy_user_session!(@current_user, @session)
-      else
-        extend_session!
-      end
-      @current_user.present?
+      validate_session(token)
     end
   end
 
-  def destroy_user_session!(user, session)
-    destroy_sso_cookie!
-    session&.destroy
-    user&.destroy
-    @session = nil
+  def validate_session(token)
+    @session_object = Session.find(token)
+
+    if @session_object.nil?
+      reset_session
+      return false
+    end
+
+    @current_user = User.find(@session_object.uuid)
+
+    if should_signout_sso?
+      reset_session
+    else
+      extend_session!
+    end
+
+    @current_user.present?
+  end
+
+  def extend_session!
+    @session_object.expire(Session.redis_namespace_ttl)
+    @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
+    @current_user&.expire(User.redis_namespace_ttl)
+    set_sso_cookie!
+  end
+
+  def reset_session
+    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
+    @session_object&.destroy
+    @current_user&.destroy
+    @session_object = nil
     @current_user = nil
+    super
+  end
+
+  # Sets a cookie "api_session" with all of the key/value pairs from session object.
+  def set_api_cookie!
+    return unless @session_object
+    @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
-    return unless Settings.sso.cookie_enabled && @session.present?
+    return unless Settings.sso.cookie_enabled && @session_object.present?
     encryptor = SSOEncryptor
-    contents = ActiveSupport::JSON.encode(@session.cookie_data)
+    contents = ActiveSupport::JSON.encode(@session_object.cookie_data)
     encrypted_value = encryptor.encrypt(contents)
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
@@ -176,24 +210,11 @@ class ApplicationController < ActionController::API
     }
   end
 
-  def extend_session!
-    session.expire(Session.redis_namespace_ttl)
-    current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
-    current_user&.expire(User.redis_namespace_ttl)
-    set_sso_cookie!
-  end
-
-  def destroy_sso_cookie!
-    cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
-  end
-
   def should_signout_sso?
     return false unless Settings.sso.cookie_enabled
     return false unless Settings.sso.cookie_signout_enabled
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
-
-  attr_reader :current_user, :session
 
   def render_unauthorized
     raise Common::Exceptions::Unauthorized
