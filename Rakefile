@@ -21,6 +21,7 @@ unless Rails.env.production?
         'modules/appeals_api/spec/**/*_spec.rb',
         'modules/va_facilities/spec/**/*_spec.rb',
         'modules/veteran_verification/spec/**/*_spec.rb'
+        'modules/openid_auth/spec/**/*_spec.rb'
       ]
     )
     t.verbose = false
