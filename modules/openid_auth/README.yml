@@ -17,7 +17,7 @@ info:
     Connect service to allow third-party applications. The token should be
     submitted as an `Authorization` header in the form `Bearer <token>`.
 
-    ### Veteran Status Request
+    ### Token Validation Request
 
     Allows a third-party application to request the validated token and VA Identifier ICN for an individual:
 
