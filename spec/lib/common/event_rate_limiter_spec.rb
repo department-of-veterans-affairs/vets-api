@@ -8,9 +8,9 @@ describe Common::EventRateLimiter do
       {
         'namespace' => 'evss-526-submit-form-rate-limit',
         'threshold_limit' => 10,
-        'threshold_ttl' => 86400,
+        'threshold_ttl' => 86_400,
         'count_limit' => 30,
-        'count_ttl' => 604800
+        'count_ttl' => 604_800
       }
     end
     subject { Common::EventRateLimiter.new(config) }
