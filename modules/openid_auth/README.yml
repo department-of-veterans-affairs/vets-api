@@ -75,7 +75,7 @@ paths:
         '403':
           description: Provided Access Token Does not have the required scopes to access.
         '502':
-          description: eMIS failed to respond or responded in a way we cannot handle. 
+          description: Token failed to be validated. 
 components:
   securitySchemes:
     bearer_token:
