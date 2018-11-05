@@ -391,7 +391,7 @@ module PdfFill
 
         return if incident_overflow.nil?
 
-        incident_medals_citations = incident['medalsCitations'].nil? ? '' : incident['medalsCitations']
+        incident_medals_citations = incident['medalsCitations'] || ''
         incident_overflow.push("Medals Or Citations: \n\n" + incident_medals_citations)
 
         incident_overflow.push("Persons Involved: \n\n" + format_persons_involved(incident))
