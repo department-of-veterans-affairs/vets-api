@@ -27,7 +27,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
           receive(:set_single_status).with(String).and_call_original
         )
         subject.perform(user.uuid, claim.id)
-        tracker = EVSSClaimsSyncStatusTracker.find(user.uuid) 
+        tracker = EVSSClaimsSyncStatusTracker.find(user.uuid)
         expect(tracker.get_single_status).to eq('SUCCESS')
       end
     end
