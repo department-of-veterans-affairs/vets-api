@@ -85,7 +85,7 @@ components:
   schemas:
     VeteranStatusConfirmation:
       description: |
-        Validated token for internal 3rd Party Apps
+        Validated token for internal API providers
       type: object
       properties:
         ver:
