@@ -18,14 +18,16 @@ describe OpenidAuth::ValidationController, type: :controller do
     }]
   end
 
+  it 'should return 401 with no jwt supplied' do
+    get :index
+    expect(response.status).to eq(401)
+  end
+
   it 'should return 200 and add the user to the session' do
     allow(JWT).to receive(:decode).and_return(token)
-    with_okta_configured do
-      request.headers['Authorization'] = 'Bearer FakeToken'
-      get :index
-      expect(response).to be_ok
-      expect(Session.find('FakeToken')).to_not be_nil
-      expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
-    end
+    request.headers['Authorization'] = 'Bearer FakeToken'
+    get :index
+    expect(response).to be_ok
+    expect(Session.find('FakeToken')).to_not be_nil
   end
 end
