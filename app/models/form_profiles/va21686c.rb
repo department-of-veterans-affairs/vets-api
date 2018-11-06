@@ -26,7 +26,6 @@ module VA21686c
 
   class FormFullName
     include Virtus.model
-
     attribute :first, ScrubbedString
     attribute :middle, ScrubbedString
     attribute :last, ScrubbedString
