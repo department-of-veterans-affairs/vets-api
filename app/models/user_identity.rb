@@ -35,6 +35,6 @@ class UserIdentity < Common::RedisStore
   private
 
   def loa_highest_present
-    errors.add(:loa, 'loa[:highest] is not present!') if loa.key?(:highest) == false || loa[:highest].nil?
+    errors.add(:loa, 'loa[:highest] is not present!') if loa[:highest].blank?
   end
 end
