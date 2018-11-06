@@ -24,7 +24,12 @@ module EVSS
       def submit(form, form_id)
         form['submitProcess']['application']['draftFormId'] = form_id
         change_evss_times!(form)
-        res = perform(:post, 'form686submission/submit', form.to_xml(root: 'submit686Request'), { 'Content-Type' => 'application/xml' })
+        res = perform(
+          :post,
+          'form686submission/submit',
+          form.to_xml(root: 'submit686Request'),
+          'Content-Type' => 'application/xml'
+        )
         Hash.from_xml(res.body)
       end
 

@@ -17,11 +17,9 @@ RSpec.describe DependentsApplication, type: :model do
   describe '.convert_phone' do
     it 'should convert a phone to the evss format' do
       expect(described_class.convert_phone('1234567890', 'DAYTIME')).to eq(
-        {
-          'areaNbr' => '123',
-          'phoneType' => 'DAYTIME',
-          'phoneNbr' => '456-7890'
-        }
+        'areaNbr' => '123',
+        'phoneType' => 'DAYTIME',
+        'phoneNbr' => '456-7890'
       )
     end
   end
@@ -35,15 +33,15 @@ RSpec.describe DependentsApplication, type: :model do
       ]
       children = [
         {
-          "ssn" => "111-22-3334",
+          'ssn' => '111-22-3334'
         },
         {
-          "ssn" => "111-22-3333",
+          'ssn' => '111-22-3333'
         }
       ]
 
       expect(described_class.filter_children(dependents, children)).to eq(
-        [{"ssn"=>"111-22-3333"}]
+        [{ 'ssn' => '111-22-3333' }]
       )
     end
   end

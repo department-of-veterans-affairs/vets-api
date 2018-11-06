@@ -1,11 +1,11 @@
+# frozen_string_literal: true
+
 module RedisForm
   extend ActiveSupport::Concern
 
   included do |base|
     # i tried to make this module a class but it didn't work because of how RedisStore was defined
-    unless base < Common::RedisStore
-      raise 'must be a subclass of Common::RedisStore'
-    end
+    raise 'must be a subclass of Common::RedisStore' unless base < Common::RedisStore
 
     include SetGuid
     include AsyncRequest
@@ -14,14 +14,14 @@ module RedisForm
     attr_accessor(:form)
 
     redis_store(name.underscore)
-    redis_ttl(86400)
+    redis_ttl(86_400)
     redis_key(:guid)
 
     attribute(:state, String, default: 'pending')
     attribute(:guid, String)
     attribute(:response, String)
 
-    alias id guid
+    alias_method :id, :guid
 
     validate(:form_matches_schema, unless: :persisted?)
     validates(:form, presence: true, unless: :persisted?)

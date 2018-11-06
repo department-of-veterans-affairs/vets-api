@@ -51,7 +51,7 @@ describe EVSS::Dependents::Service do
         VCR::MATCH_EVERYTHING
       ) do
         res = service.save(get_fixture('dependents/clean_form'))
-        expect(res['formId']).to eq(380682)
+        expect(res['formId']).to eq(380_682)
       end
     end
   end
@@ -62,7 +62,7 @@ describe EVSS::Dependents::Service do
         'evss/dependents/submit',
         VCR::MATCH_EVERYTHING
       ) do
-        res = service.submit(get_fixture('dependents/clean_form'), 380682)
+        res = service.submit(get_fixture('dependents/clean_form'), 380_682)
         expect(res['submit686Response']['confirmationNumber']).to eq('600138364')
       end
     end

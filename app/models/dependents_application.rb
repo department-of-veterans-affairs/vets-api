@@ -11,13 +11,13 @@ class DependentsApplication < Common::RedisStore
     'Death' => 'DEATH',
     'Divorce' => 'DIVORCED',
     'Other' => 'OTHER'
-  }
+  }.freeze
 
   def self.filter_children(dependents, evss_children)
     return [] if evss_children.blank? || dependents.blank?
 
     evss_children.find_all do |child|
-      ssn = child['ssn'].gsub('-', '')
+      ssn = child['ssn'].delete('-')
 
       dependents.find do |dependent|
         dependent['childSocialSecurityNumber'] == ssn
@@ -100,7 +100,6 @@ class DependentsApplication < Common::RedisStore
       }.merge(
         convert_name(previous_marriage['spouseFullName'])
       )
-
     end
   end
 
@@ -173,9 +172,9 @@ class DependentsApplication < Common::RedisStore
     child['childRelationshipType'] = dependent['childRelationship']&.upcase
 
     [
-      ['attendedSchool', 'attendingCollege'],
-      ['disabled', 'disabled'],
-      ['married', 'previouslyMarried']
+      %w[attendedSchool attendingCollege],
+      %w[disabled disabled],
+      %w[married previouslyMarried]
     ].each do |attrs|
       val = dependent[attrs[1]]
       next if val.nil?
@@ -183,8 +182,8 @@ class DependentsApplication < Common::RedisStore
     end
 
     [
-      ['dateOfBirth', 'childDateOfBirth'],
-      ['marriedDate', 'marriedDate']
+      %w[dateOfBirth childDateOfBirth],
+      %w[marriedDate marriedDate]
     ].each do |attrs|
       val = dependent[attrs[1]]
       next if val.blank?
