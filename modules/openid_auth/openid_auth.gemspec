@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://api.vets.gov/services/auth/docs/v0'
   s.summary     = 'OpenID Auth'
   s.description = 'OpenID Auth API'
-  s.license     = 'MIT'
+  s.license     = 'CC0'
 
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
 
