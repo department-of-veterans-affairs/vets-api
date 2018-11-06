@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe EVSSClaimServiceAsync do
   let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:tracker) { EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid) }
+  let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
   let(:claim) { FactoryBot.create(:evss_claim, user_uuid: user.uuid) }
   subject { described_class.new(user) }
 
@@ -38,6 +38,7 @@ RSpec.describe EVSSClaimServiceAsync do
         it 'deletes the existing tracker entry' do
           expect(tracker.get_collection_status).to eq result
           subject.all
+          tracker = EVSSClaimsSyncStatusTracker.find(user.uuid)
           expect(tracker.get_collection_status).to eq nil
         end
       end
@@ -74,6 +75,8 @@ RSpec.describe EVSSClaimServiceAsync do
         it 'deletes the existing tracker entry' do
           expect(tracker.get_single_status).to eq result
           subject.update_from_remote(claim)
+          tracker = EVSSClaimsSyncStatusTracker.find(user.uuid)
+          tracker.claim_id = claim.id
           expect(tracker.get_single_status).to eq nil
         end
       end
