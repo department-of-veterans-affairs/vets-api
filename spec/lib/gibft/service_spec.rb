@@ -8,11 +8,6 @@ describe Gibft::Service, type: :model do
 
   describe '#submit' do
     before do
-      VCR.use_cassette('foo', record: :once) do
-        service = Gibft::Service.new
-        body = service.send(:request, :post, '', service.oauth_params).body
-      end
-      binding.pry; fail
       expect(service).to receive(:get_oauth_token).and_return('token')
 
       expect(Restforce).to receive(:new).with(
