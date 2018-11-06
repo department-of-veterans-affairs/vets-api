@@ -74,8 +74,8 @@ paths:
                     $ref: '#/components/schemas/ValidatedToken'
         '403':
           description: Provided Access Token Does not have the required scopes to access.
-        '502':
-          description: Token failed to be validated. 
+        '500':
+          description: Token validation failed due to internal server error.
 components:
   securitySchemes:
     bearer_token:

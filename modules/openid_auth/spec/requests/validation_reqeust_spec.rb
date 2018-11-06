@@ -78,5 +78,20 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
       end
     end
+
+    it 'should return a server error if serialization fails', :aggregate_failures do
+      allow(JWT).to receive(:decode).and_return(jwt)
+      Session.create(uuid: user.uuid, token: token)
+      User.create(user)
+      allow_any_instance_of(OpenidAuth::ValidationSerializer).to receive(:attributes).and_raise(StandardError, 'random')
+      with_okta_configured do
+        get '/internal/auth/v0/validation', nil, auth_header
+
+        expect(response).to have_http_status(:internal_server_error)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '500'
+      end
+    end
+
+
   end
 end
