@@ -6,6 +6,7 @@ module EVSS
 
     sidekiq_options retry: false
 
+    # rubocop:disable Metrics/MethodLength
     def perform(app_id, form, user_uuid)
       Sentry::TagRainbows.tag
       @app_id = app_id
@@ -39,6 +40,7 @@ module EVSS
       )
       raise
     end
+    # rubocop:enable Metrics/MethodLength
 
     def dependents_application
       @dependents_application ||= DependentsApplication.find(@app_id)

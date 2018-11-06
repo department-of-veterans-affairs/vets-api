@@ -5,15 +5,6 @@ require 'rails_helper'
 RSpec.describe DependentsApplication, type: :model do
   let(:dependents_application) { create(:dependents_application) }
 
-  skip 'test' do
-    user = create(:evss_user)
-    VCR.configure do |c|
-      c.allow_http_connections_when_no_cassette = true
-    end
-    dependents_application = create(:dependents_application)
-    EVSS::DependentsApplicationJob.new.perform(dependents_application.id, dependents_application.parsed_form, user.uuid)
-  end
-
   describe '.convert_phone' do
     it 'should convert a phone to the evss format' do
       expect(described_class.convert_phone('1234567890', 'DAYTIME')).to eq(
