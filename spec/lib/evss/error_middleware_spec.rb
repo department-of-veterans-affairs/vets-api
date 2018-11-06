@@ -22,7 +22,7 @@ describe EVSS::ErrorMiddleware do
       'content-type' => 'application/xml'
     )
     expect(env).to receive(:body).and_return(
-      <<-eos
+      <<-XML
       <?xml version="1.0" encoding="UTF-8"?>
       <submit686Request>
         <messages>
@@ -30,7 +30,7 @@ describe EVSS::ErrorMiddleware do
           <text>foo</text>
         </messages>
       </submit686Request>
-      eos
+      XML
     )
 
     expect do
