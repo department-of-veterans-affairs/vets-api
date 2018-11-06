@@ -158,6 +158,7 @@ class ApplicationController < ActionController::API
     @session_object = Session.find(token)
 
     if @session_object.nil?
+      Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
       reset_session
       return false
     end
@@ -165,8 +166,10 @@ class ApplicationController < ActionController::API
     @current_user = User.find(@session_object.uuid)
 
     if should_signout_sso?
+      Rails.logger.info('SSO: MHV INITIATED SIGNOUT', sso_logging_info)
       reset_session
     else
+      Rails.logger.info('SSO: EXTENDING SESSION', sso_logging_info)
       extend_session!
     end
 
@@ -174,6 +177,8 @@ class ApplicationController < ActionController::API
   end
 
   def extend_session!
+    Rails.logger.info('SSO: ApplicationController#extend_session!', sso_logging_info)
+
     @session_object.expire(Session.redis_namespace_ttl)
     @current_user&.identity&.expire(UserIdentity.redis_namespace_ttl)
     @current_user&.expire(User.redis_namespace_ttl)
@@ -181,6 +186,8 @@ class ApplicationController < ActionController::API
   end
 
   def reset_session
+    Rails.logger.info('SSO: ApplicationController#reset_session', sso_logging_info)
+
     cookies.delete(Settings.sso.cookie_name, domain: Settings.sso.cookie_domain)
     @session_object&.destroy
     @current_user&.destroy
@@ -197,6 +204,8 @@ class ApplicationController < ActionController::API
 
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def set_sso_cookie!
+    Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
+
     return unless Settings.sso.cookie_enabled && @session_object.present?
     encryptor = SSOEncryptor
     contents = ActiveSupport::JSON.encode(@session_object.cookie_data)
@@ -211,6 +220,7 @@ class ApplicationController < ActionController::API
   end
 
   def should_signout_sso?
+    Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
     return false unless Settings.sso.cookie_enabled
     return false unless Settings.sso.cookie_signout_enabled
     cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
@@ -236,5 +246,15 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def sso_logging_info
+    {
+      sso_cookies_enabled: Settings.sso.cookie_enabled,
+      sso_cookies_signout_enabled: Settings.sso.cookie_signout_enabled,
+      sso_cookie_name: Settings.sso.cookie_name,
+      sso_cookie_contents: @session_object&.cookie_data,
+      request_host: request.host
+    }
   end
 end
