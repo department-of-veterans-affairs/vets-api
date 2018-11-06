@@ -266,8 +266,8 @@ class ApplicationController < ActionController::API
   # http://strikingly.github.io/blog/2015/08/31/Optimizing-HTTP-Cache-in-Rails/
   # and consider security ramifications of public vs private.
   def set_app_cache_headers
-    response.headers["Cache-Control"] = "no-cache, no-store"
-    response.headers["Pragma"] = "no-cache"
-    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
+    response.headers['Cache-Control'] = 'no-cache, no-store'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
   end
 end
