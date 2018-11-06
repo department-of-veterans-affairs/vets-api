@@ -13,9 +13,9 @@ module EVSS
       sidekiq_options retry: RETRY
 
       sidekiq_retry_in do |count|
-        # retry at 1m, 2m, 4h, 10h, 24h
-        60 + rand(30) if count <= 2
-        (count ** 6.5) + 4.hours + rand(30) if count > 2
+        # retry at 1m(ish), 2m, 4h, 10h, 24h
+        rand(60...90) if count <= 2
+        (count**6.5) + 4.hours + rand(30) if count > 2
       end
 
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
