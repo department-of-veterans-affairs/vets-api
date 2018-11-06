@@ -64,13 +64,6 @@ module SAML
     end
 
     # SIGN OFF URLS
-    # This is the internal vets-api url that first gets invoked, it should redirect without authentication
-    # when this url gets invoked, the session should be destroyed, before the callback returns
-    def logout_url
-      token = Base64.urlsafe_encode64(session.token)
-      Rails.application.routes.url_helpers.logout_v0_sessions_url(session: token)
-    end
-
     def slo_url
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       # cache the request for session.token lookup when we receive the response
