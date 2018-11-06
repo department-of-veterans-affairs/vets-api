@@ -39,7 +39,6 @@ Rails.application.routes.draw do
     resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: [] do
-      get  :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
@@ -191,6 +190,7 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+      resources :connected_applications, only: %i[index destroy]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]

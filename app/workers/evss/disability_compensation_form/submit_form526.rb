@@ -86,7 +86,9 @@ module EVSS
       end
 
       def perform_ancillary_jobs(claim_id)
-        ancillary_jobs = AncillaryJobs.new(@user_uuid, @auth_headers, @saved_claim_id, @submission_data)
+        ancillary_jobs = AncillaryJobs.new(
+          @user_uuid, @auth_headers, @saved_claim_id, @submission_id, @submission_data
+        )
         ancillary_jobs.perform(bid, claim_id)
       end
 
