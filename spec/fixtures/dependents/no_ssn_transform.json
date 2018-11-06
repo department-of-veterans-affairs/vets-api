@@ -36,30 +36,42 @@
     "vaOfficeName": "Roanoke",
     "veteran": {
       "address": {
-        "addressLine1": "street1",
-        "addressLine2": "Student Records",
+        "addressLine1": "3001 PARK CENTER DR",
+        "addressLine2": "APT 212",
+        "addressLine3": "",
         "addressLocality": "DOMESTIC",
-        "city": "LOUISVILLE",
+        "city": "ALEXANDRIA",
         "country": {
-          "dropDownCountry": "USA"
+          "dropDownCountry": "USA",
+          "textCountry": ""
         },
-        "state": "KY",
-        "zipCode": "40292"
+        "postOffice": "NONE",
+        "postalType": "NONE",
+        "sharedAddrsInd": "N",
+        "state": "VA",
+        "zipCode": "22302",
+        "zipLastFour": ""
       },
       "children": [
         {
           "firstName": "Test",
           "lastName": "User",
           "address": {
-            "addressLine1": "street1",
-            "addressLine2": "Student Records",
+            "addressLine1": "3001 PARK CENTER DR",
+            "addressLine2": "APT 212",
+            "addressLine3": "",
             "addressLocality": "DOMESTIC",
-            "city": "LOUISVILLE",
+            "city": "ALEXANDRIA",
             "country": {
-              "dropDownCountry": "USA"
+              "dropDownCountry": "USA",
+              "textCountry": ""
             },
-            "state": "KY",
-            "zipCode": "40292"
+            "postOffice": "NONE",
+            "postalType": "NONE",
+            "sharedAddrsInd": "N",
+            "state": "VA",
+            "zipCode": "22302",
+            "zipLastFour": ""
           },
           "countryOfBirth": {
             "dropDownCountry": "USA"
@@ -86,11 +98,11 @@
       "dateOfBirth": 515739600000,
       "dateOfBirthFromCorp": false,
       "edipi": "1007697216",
-      "emailAddress": "foo@foo.com",
-      "firstName": "first",
+      "emailAddress": "evssvsotest@gmail.com",
+      "firstName": "WESLEY",
       "hasNoFileNumber": false,
       "hasNoSsn": false,
-      "lastName": "last",
+      "lastName": "FORD",
       "marriageType": "MARRIED",
       "married": false,
       "middleName": "Watson",
@@ -116,24 +128,24 @@
         }
       ],
       "primaryPhone": {
-        "areaNbr": "555",
-        "phoneType": "DAYTIME",
-        "phoneNbr": "111-0000"
+        "areaNbr": "202",
+        "phoneNbr": "461-9724",
+        "phoneType": "DAYTIME"
       },
       "rlsnIds": [
 
       ],
       "secondaryPhone": {
-        "areaNbr": "555",
-        "phoneType": "NIGHTTIME",
-        "phoneNbr": "111-0001"
+        "areaNbr": "789",
+        "phoneNbr": "325-6545",
+        "phoneType": "NIGHTTIME"
       },
       "ssn": "796-04-3735",
       "ssnFromCorp": false,
       "tempDataId": {
       },
       "uniqueIdentifier": "235759727",
-      "vaFileNumber": "111-22-3333",
+      "vaFileNumber": "796-04-3735",
       "spouse": {
         "address": {
           "addressLine1": "street1",
@@ -152,7 +164,7 @@
         "noSsnReasonType": "NONRESIDENTALIEN",
         "dateOfBirth": "2016-12-15T00:00:00Z",
         "currentMarriage": {
-          "marriageDate": "2016-12-15T00:00:00Z",
+          "marriageDate": "2017-12-15T00:00:00Z",
           "city": "new york",
           "country": {
             "dropDownCountry": "USA"

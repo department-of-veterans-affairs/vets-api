@@ -197,15 +197,10 @@ class DependentsApplication < Common::RedisStore
   def self.transform_form(parsed_form, evss_form)
     dependents = parsed_form['dependents'] || []
     transformed = {}
-    transformed['emailAddress'] = parsed_form['veteranEmail']
-    transformed.merge!(convert_name(parsed_form['veteranFullName']))
-    home_address = convert_address(parsed_form['veteranAddress'])
-    transformed.merge!(home_address)
-    transformed.merge!(convert_ssn(parsed_form['veteranSocialSecurityNumber']))
-    transformed['vaFileNumber'] = convert_ssn(parsed_form['vaFileNumber'])['ssn']
 
     transformed['spouse'] = convert_marriage(parsed_form['currentMarriage'])
-    transformed['spouse']['address'] = transformed['address'] if parsed_form['currentMarriage'].try(:[], 'liveWithSpouse')
+    home_address = evss_form['submitProcess']['veteran'].slice('address')
+    transformed['spouse'].merge!(home_address) if parsed_form['currentMarriage'].try(:[], 'liveWithSpouse')
 
     children = filter_children(
       dependents,
@@ -228,8 +223,6 @@ class DependentsApplication < Common::RedisStore
     transformed['marriageType'] = parsed_form['maritalStatus']
 
     transformed['previousMarriages'] = convert_previous_marriages(parsed_form['previousMarriages'])
-    transformed['primaryPhone'] = convert_phone(parsed_form['dayPhone'], 'DAYTIME')
-    transformed['secondaryPhone'] = convert_phone(parsed_form['nightPhone'], 'NIGHTTIME')
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
