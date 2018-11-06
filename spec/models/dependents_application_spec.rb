@@ -5,16 +5,6 @@ require 'rails_helper'
 RSpec.describe DependentsApplication, type: :model do
   let(:dependents_application) { create(:dependents_application) }
 
-  describe '.convert_phone' do
-    it 'should convert a phone to the evss format' do
-      expect(described_class.convert_phone('1234567890', 'DAYTIME')).to eq(
-        'areaNbr' => '123',
-        'phoneType' => 'DAYTIME',
-        'phoneNbr' => '456-7890'
-      )
-    end
-  end
-
   describe '.filter_children' do
     it 'should filter children to match dependents' do
       dependents = [

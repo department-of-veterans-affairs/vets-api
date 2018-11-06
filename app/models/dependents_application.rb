@@ -127,16 +127,6 @@ class DependentsApplication < Common::RedisStore
     converted
   end
 
-  def self.convert_phone(phone, phone_type)
-    return {} if phone.blank?
-
-    {
-      'areaNbr' => phone[0..2],
-      'phoneType' => phone_type,
-      'phoneNbr' => "#{phone[3..5]}-#{phone[6..9]}"
-    }
-  end
-
   def self.convert_no_ssn(no_ssn, reason_type)
     {
       'hasNoSsn' => no_ssn,
