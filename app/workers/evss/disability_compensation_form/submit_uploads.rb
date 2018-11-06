@@ -6,11 +6,17 @@ module EVSS
       include Sidekiq::Worker
       include JobStatus
 
-      RETRY = 10
+      RETRY = 5
       FORM_TYPE = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
 
       sidekiq_options retry: RETRY
+
+      sidekiq_retry_in do |count|
+        # retry at 1m, 2m, 4h, 10h, 24h
+        60 + rand(30) if count <= 2
+        (count ** 6.5) + 4.hours + rand(30) if count > 2
+      end
 
       def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, upload_data)
         guid = upload_data&.dig('confirmationCode')
@@ -21,14 +27,18 @@ module EVSS
           client = EVSS::DocumentsService.new(auth_headers)
           client.upload(file_body, document_data)
         end
-      rescue Common::Exceptions::SentryIgnoredGatewayTimeout, EVSS::ErrorMiddleware::EVSSError => e
-        retryable_error_handler(e)
-        raise e
       rescue StandardError => e
-        non_retryable_error_handler(e)
+        # Can't send a job manually to the dead set.
+        # Log and re-raise so the job ends up in the dead set and the parent batch is not marked as complete.
+        retryable_error_handler(e)
       end
 
       private
+
+      def retryable_error_handler(error)
+        super(error)
+        raise error
+      end
 
       def create_document_data(evss_claim_id, upload_data)
         EVSSClaimDocument.new(

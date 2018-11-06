@@ -71,7 +71,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         it 'logs a retryable error and re-raises the original error' do
           allow(client).to receive(:upload).and_raise(Common::Exceptions::SentryIgnoredGatewayTimeout)
           subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
-          expect_any_instance_of(subject).to receive(:retryable_error_handler).once
           expect { described_class.drain }.to raise_error(Common::Exceptions::SentryIgnoredGatewayTimeout)
         end
       end
@@ -80,10 +79,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
     context 'when get_file is nil' do
       let(:attachment) { double(:attachment, get_file: nil) }
 
-      it 'logs a non retryable error' do
+      it 'logs a retryable error and re-raises the original error' do
         subject.perform_async(auth_headers, claim_id, saved_claim.id, submission_id, upload_data)
-        expect_any_instance_of(subject).to receive(:non_retryable_error_handler).once
-        described_class.drain
+        expect { described_class.drain }.to raise_error(ArgumentError)
       end
     end
   end
