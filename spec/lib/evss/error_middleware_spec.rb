@@ -15,6 +15,12 @@ describe EVSS::ErrorMiddleware do
     end
   end
 
+  it 'should handle xml errors' do
+    env = double
+    expect(env).to receive(:[]).with(:status).and_return(200)
+    described_class.new.on_complete(env)
+  end
+
   context 'with a backend service error' do
     it 'should raise an evss service error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
       VCR.use_cassette('evss/claims/error_504') do
