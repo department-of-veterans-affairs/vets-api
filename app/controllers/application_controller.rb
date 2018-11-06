@@ -29,6 +29,10 @@ class ApplicationController < ActionController::API
   # after we start using cookies instead of the header.
   before_action :set_api_cookie!, unless: -> { Settings.session_cookie.enabled }
 
+  # Before overriding this method, please read:
+  # http://strikingly.github.io/blog/2015/08/31/Optimizing-HTTP-Cache-in-Rails/
+  # and consider security ramifications of public vs private.
+  before_action :set_app_cache_headers
   before_action :set_app_info_headers
   before_action :set_tags_and_extra_context
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -256,5 +260,14 @@ class ApplicationController < ActionController::API
       sso_cookie_contents: @session_object&.cookie_data,
       request_host: request.host
     }
+  end
+
+  # Before overriding this method, please read:
+  # http://strikingly.github.io/blog/2015/08/31/Optimizing-HTTP-Cache-in-Rails/
+  # and consider security ramifications of public vs private.
+  def set_app_cache_headers
+    response.headers["Cache-Control"] = "no-cache, no-store"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "Fri, 01 Jan 1990 00:00:00 GMT"
   end
 end
