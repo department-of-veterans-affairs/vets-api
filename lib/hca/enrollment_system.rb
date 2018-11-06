@@ -668,6 +668,18 @@ module HCA
       veteran
     end
 
+    def remove_ctrl_chars!(value)
+      if value.is_a?(Hash)
+        value.each do |k, v|
+          value[k] = remove_ctrl_chars!(v)
+        end
+      elsif value.is_a?(Array)
+        value.map! { |i| remove_ctrl_chars!(i) }
+      elsif value.is_a?(String)
+        value.tr("\u0000-\u001f\u007f\u2028", '')
+      end
+    end
+
     def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
@@ -683,6 +695,7 @@ module HCA
       }
 
       convert_hash_values!(request)
+      remove_ctrl_chars!(request)
       request
     end
   end
