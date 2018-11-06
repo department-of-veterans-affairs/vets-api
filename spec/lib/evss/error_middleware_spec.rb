@@ -22,8 +22,20 @@ describe EVSS::ErrorMiddleware do
       'content-type' => 'application/xml'
     )
     expect(env).to receive(:body).and_return(
+      <<-eos
+      <?xml version="1.0" encoding="UTF-8"?>
+      <submit686Request>
+        <messages>
+          <severity>fatal</severity>
+          <text>foo</text>
+        </messages>
+      </submit686Request>
+      eos
     )
-    described_class.new.on_complete(env)
+
+    expect do
+      described_class.new.on_complete(env)
+    end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
   end
 
   context 'with a backend service error' do
