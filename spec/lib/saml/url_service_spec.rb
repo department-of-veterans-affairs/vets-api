@@ -37,10 +37,6 @@ RSpec.describe SAML::URLService do
         expect(subject.mfa_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
       end
 
-      it 'has sign out url: logout_url' do
-        expect(subject.logout_url).to include('http://www.example.com/v0/sessions/logout?session=')
-      end
-
       it 'has sign out url: slo_url' do
         expect(subject.slo_url).to include('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
       end

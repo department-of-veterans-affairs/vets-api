@@ -5,7 +5,7 @@ class EVSSClaimServiceAsync
 
   def initialize(user)
     @user = user
-    @tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: user.uuid)
+    @tracker = EVSSClaimsSyncStatusTracker.find_or_build(user.uuid)
   end
 
   def all

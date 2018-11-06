@@ -10,7 +10,7 @@ module EVSS
     def perform(user_uuid)
       Sentry::TagRainbows.tag
       @user = User.find user_uuid
-      tracker = EVSSClaimsSyncStatusTracker.new(user_uuid: user_uuid)
+      tracker = EVSSClaimsSyncStatusTracker.find_or_build(user_uuid)
       auth_headers = EVSS::AuthHeaders.new(@user).to_h
       @client = EVSS::ClaimsService.new(auth_headers)
       raw_claims = @client.all_claims.body
