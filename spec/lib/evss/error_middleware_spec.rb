@@ -18,6 +18,11 @@ describe EVSS::ErrorMiddleware do
   it 'should handle xml errors' do
     env = double
     expect(env).to receive(:[]).with(:status).and_return(200)
+    expect(env).to receive(:response_headers).and_return(
+      'content-type' => 'application/xml'
+    )
+    expect(env).to receive(:body).and_return(
+    )
     described_class.new.on_complete(env)
   end
 
