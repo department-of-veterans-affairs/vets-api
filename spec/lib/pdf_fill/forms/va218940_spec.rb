@@ -275,8 +275,8 @@ describe PdfFill::Forms::Va218940 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'doctorsCareDetails' => [
-            "Doctor Smith\n123 Test St.\nSC",
-            "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS"
+            { 'value' => "Doctor Smith\n123 Test St.\nSC" },
+            { 'value' => "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS" }
           ]
         )
       end
@@ -315,8 +315,8 @@ describe PdfFill::Forms::Va218940 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'doctorsCareDetails' => [
-            "Doctor Smith\n123 Test St.\nSC",
-            "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS"
+            { 'value' => "Doctor Smith\n123 Test St.\nSC" },
+            { 'value' => "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS" }
           ],
           'doctorsCareDateRanges' => [
             { 'from' => '1994-01-01', 'to' => '1995-01-01' }

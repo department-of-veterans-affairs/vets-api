@@ -284,15 +284,19 @@ module PdfFill
         },
         'doctorsCareDetails' => {
           limit: 1,
-          question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
-          question_num: 11,
-          key: "form1[0].#subform[0].NameAndAddressOfDoctors[#{ITERATOR}]"
+          'value' => {
+            question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
+            question_num: 11,
+            key: "form1[0].#subform[0].NameAndAddressOfDoctors[#{ITERATOR}]"
+          }
         },
         'hospitalCareDetails' => {
           limit: 1,
-          question_text: 'NAME AND ADDRESS OF HOSPITAL',
-          question_num: 12,
-          key: "form1[0].#subform[0].NameAndAddressOfHospitals[#{ITERATOR}]"
+          'value' => {
+            question_text: 'NAME AND ADDRESS OF HOSPITAL',
+            question_num: 12,
+            key: "form1[0].#subform[0].NameAndAddressOfHospitals[#{ITERATOR}]"
+          }
         }
       }.freeze
 
@@ -312,7 +316,6 @@ module PdfFill
         @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         @form_data.except!('unemployability')
-        @form_data
       end
 
       private
@@ -349,7 +352,9 @@ module PdfFill
         return if provided_care.empty?
         care_details = []
         provided_care.each do |care|
-          details = care['name'] + "\n#{address_block(care['address'])}"
+          details = {
+            'value' => care['name'] + "\n#{address_block(care['address'])}"
+          }
           care_details.push(details)
         end
         @form_data["#{key}Details"] = care_details
