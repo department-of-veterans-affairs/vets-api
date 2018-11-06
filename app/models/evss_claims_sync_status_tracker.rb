@@ -6,8 +6,8 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
   redis_key :user_uuid
 
   attribute :user_uuid, String
-  attribute :claim_id, String
   attribute :status_hash, Hash
+  attr_accessor :claim_id
 
   def get_collection_status
     status_hash[collection_key]
