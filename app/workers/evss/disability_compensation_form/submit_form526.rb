@@ -80,7 +80,6 @@ module EVSS
       end
 
       def response_handler(response)
-        submission_rate_limiter.increment
         TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
         perform_ancillary_jobs(response.claim_id)
       end
@@ -110,10 +109,6 @@ module EVSS
 
       def saved_claim(saved_claim_id)
         SavedClaim::DisabilityCompensation.find(saved_claim_id)
-      end
-
-      def submission_rate_limiter
-        Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
       end
     end
   end
