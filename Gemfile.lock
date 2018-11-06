@@ -880,7 +880,7 @@ GEM
     puma (3.12.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
