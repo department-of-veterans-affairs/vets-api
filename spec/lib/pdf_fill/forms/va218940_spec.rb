@@ -246,37 +246,83 @@ describe PdfFill::Forms::Va218940 do
       end
     end
   end
-  context 'care name and address is not empty' do
-    provided_care = [
-      {
-        'name' => 'Doctor Smith',
-        'address' => {
-          'street' => '123 Test St.',
-          'state' => 'SC'
+
+  describe '#expand_provided_care_details' do
+    context 'care name and address is not empty' do
+      provided_care = [
+        {
+          'name' => 'Doctor Smith',
+          'address' => {
+            'street' => '123 Test St.',
+            'state' => 'SC'
+          }
+        },
+        {
+          'name' => 'Doctor Jones',
+          'address' => {
+            'street' => '123 Test St.',
+            'street2' => '4B',
+            'city' => 'Testville',
+            'state' => 'SC',
+            'postalCode' => '12345',
+            'country' => 'US'
+          }
         }
-      },
-      {
-        'name' => 'Doctor Jones',
-        'address' => {
-          'street' => '123 Test St.',
-          'street2' => '4B',
-          'city' => 'Testville',
-          'state' => 'SC',
-          'postalCode' => '12345',
-          'country' => 'US'
+      ]
+      it 'should expand the doctorsCare name and address correctly' do
+        new_form_class.send(:expand_provided_care_details, provided_care, 'doctorsCare')
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'doctorsCareDetails' => [
+            "Doctor Smith\n123 Test St.\nSC",
+            "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS"
+          ]
+        )
+      end
+    end
+  end
+
+  describe '#expand_provided_care' do
+    context 'care name and address is not empty' do
+      provided_care = [
+        {
+          'name' => 'Doctor Smith',
+          'address' => {
+            'street' => '123 Test St.',
+            'state' => 'SC'
+          },
+          'dates' => {
+            'from' => '1994-01-01',
+            'to' => '1995-01-01'
+          }
+        },
+        {
+          'name' => 'Doctor Jones',
+          'address' => {
+            'street' => '123 Test St.',
+            'street2' => '4B',
+            'city' => 'Testville',
+            'state' => 'SC',
+            'postalCode' => '12345',
+            'country' => 'US'
+          }
         }
-      }
-    ]
-    it 'should expand the doctorsCare name and address correctly' do
-      new_form_class.send(:expand_provided_care_details, provided_care, 'doctorsCare')
-      expect(
-        JSON.parse(class_form_data.to_json)
-      ).to eq(
-        'doctorsCareDetails' => [
-          "Doctor Smith\n123 Test St.\nSC",
-          "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS"
-        ]
-      )
+      ]
+      it 'should expand the doctorsCare name and address correctly' do
+        new_form_class.send(:expand_provided_care, provided_care, 'doctorsCare')
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'doctorsCareDetails' => [
+            "Doctor Smith\n123 Test St.\nSC",
+            "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS"
+          ],
+          'doctorsCareDateRanges' => [
+            { 'from' => '1994-01-01', 'to' => '1995-01-01' }
+          ]
+        )
+      end
     end
   end
 end

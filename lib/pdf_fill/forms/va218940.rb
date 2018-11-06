@@ -283,13 +283,13 @@ module PdfFill
           }
         },
         'doctorsCareDetails' => {
-          limit: 2,
+          limit: 1,
           question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
           question_num: 11,
           key: "form1[0].#subform[0].NameAndAddressOfDoctors[#{ITERATOR}]"
         },
         'hospitalCareDetails' => {
-          limit: 2,
+          limit: 1,
           question_text: 'NAME AND ADDRESS OF HOSPITAL',
           question_num: 12,
           key: "form1[0].#subform[0].NameAndAddressOfHospitals[#{ITERATOR}]"
@@ -340,7 +340,7 @@ module PdfFill
         return if provided_care.empty?
         care_date_ranges = []
         provided_care.each do |care|
-          care_date_ranges.push(care['dates'])
+          care_date_ranges.push(care['dates']) if care['dates'].present?
         end
         @form_data["#{key}DateRanges"] = care_date_ranges
       end
@@ -349,8 +349,7 @@ module PdfFill
         return if provided_care.empty?
         care_details = []
         provided_care.each do |care|
-          details = care['name']
-          details += "\n#{address_block(care['address'])}" if care['address'].present?
+          details = care['name'] + "\n#{address_block(care['address'])}"
           care_details.push(details)
         end
         @form_data["#{key}Details"] = care_details
