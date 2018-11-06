@@ -88,8 +88,8 @@ paths:
         a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
-        Either the ids parameter or the bbox parameter is *required* to query this API. Requests
-        without one or the other will return `400 Bad Request`.
+        One of the `ids` parameter, the `bbox` parameter, or the `lat` and `long` parameters are
+        *required* to query this API. Requests without one or the other will return `400 Bad Request`.
 
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
@@ -109,6 +109,24 @@ paths:
             type: array
             items:
               type: string
+        - name: lat
+          description: |
+            Latitude of point to search for nearest VA Facilities.
+            Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
+          required: false
+          style: form
+          exploded: true
+          schema:
+            type: float
+        - name: long
+          description: |
+            Longitude of point to search for nearest VA Facilities.
+            Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
+          required: false
+          style: form
+          exploded: true
+          schema:
+            type: float
         - name: bbox[]
           description: |
             Bounding longitude/latitude/longitude/latitude within which facilities will be returned. 

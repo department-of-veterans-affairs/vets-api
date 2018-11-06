@@ -39,7 +39,6 @@ Rails.application.routes.draw do
     resource :upload_supporting_evidence, only: :create
 
     resource :sessions, only: [] do
-      get  :logout, to: 'sessions#logout'
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
@@ -191,6 +190,7 @@ Rails.application.routes.draw do
       resource :personal_information, only: :show
       resource :primary_phone, only: %i[show create]
       resource :service_history, only: :show
+      resources :connected_applications, only: %i[index destroy]
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy]
@@ -232,7 +232,6 @@ Rails.application.routes.draw do
       'profile',
       'dashboard',
       'veteran_id_card',
-      'claim_increase',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
@@ -245,6 +244,10 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
+
+  scope '/internal' do
+    mount OpenidAuth::Engine, at: '/auth'
+  end
 
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
