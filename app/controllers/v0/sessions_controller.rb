@@ -43,20 +43,13 @@ module V0
               url_service.idme_loa3_url
             when 'slo'
               authenticate
-              url_service.logout_url
+              logout_url = url_service.slo_url
+              reset_session
+              logout_url
             end
       render json: { url: url }
     end
     # rubocop:enable Metrics/CyclomaticComplexity
-
-    def logout
-      session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
-      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
-      @session_object = session_object
-      @current_user = User.find(session_object.uuid)
-      reset_session
-      redirect_to SAML::URLService.new(saml_settings, session: session_object, user: current_user).slo_url
-    end
 
     def saml_logout_callback
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
