@@ -8,11 +8,11 @@ module OpenidAuth
       def index
         render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
       rescue StandardError => e
-        raise Common::Exceptions::InternalServerError.new(e)
+        raise Common::Exceptions::InternalServerError, e
       end
 
       private
-      
+
       def validated_payload
         @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: @current_user.icn }))
       end
