@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/client/concerns/monitoring'
-
 module EVSS
   module Dependents
     class Service < EVSS::Service
@@ -15,6 +13,14 @@ module EVSS
         end
       rescue StandardError => e
         handle_error(e)
+      end
+
+      def submit
+        info = EVSS::Dependents::RetrievedInfo.for_user(@user)
+        info.body
+        # construct submission
+        # then delete:
+        info.delete
       end
     end
   end

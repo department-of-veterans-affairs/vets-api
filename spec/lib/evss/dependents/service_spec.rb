@@ -24,4 +24,13 @@ describe EVSS::Dependents::Service do
       end
     end
   end
+
+  describe '#submit' do
+    it 'deletes the cached response' do
+      VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
+        expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:delete)
+        subject.submit
+      end
+    end
+  end
 end

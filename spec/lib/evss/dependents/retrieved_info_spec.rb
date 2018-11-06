@@ -23,4 +23,14 @@ describe EVSS::Dependents::RetrievedInfo do
       end
     end
   end
+
+  describe '#delete' do
+    it 'deletes the cached response' do
+      VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
+        subject.body
+        expect(subject.delete).to eq(1)
+        expect(subject.class.find("evss_dependents_retrieve_#{user.uuid}")).to be_nil
+      end
+    end
+  end
 end

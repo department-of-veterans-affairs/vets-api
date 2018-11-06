@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/models/concerns/cache_aside'
+
 module EVSS
   module Dependents
     class RetrievedInfo < Common::RedisStore
@@ -19,6 +21,10 @@ module EVSS
         do_cached_with(key: "evss_dependents_retrieve_#{@user.uuid}") do
           EVSS::Dependents::Service.new(@user).retrieve
         end.body
+      end
+
+      def delete
+        self.class.delete("evss_dependents_retrieve_#{@user.uuid}")
       end
     end
   end
