@@ -91,7 +91,5 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '500'
       end
     end
-
-
   end
 end
