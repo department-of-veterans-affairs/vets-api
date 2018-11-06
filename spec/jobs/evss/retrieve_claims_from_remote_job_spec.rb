@@ -23,6 +23,7 @@ RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
         expect(User).to receive(:find).with(user.uuid).once.and_return(user)
         expect_any_instance_of(EVSSClaimsSyncStatusTracker).to receive(:set_collection_status).and_call_original
         subject.perform(user.uuid)
+        tracker = EVSSClaimsSyncStatusTracker.find user.uuid
         expect(tracker.get_collection_status).to eq('SUCCESS')
       end
     end
@@ -37,6 +38,7 @@ RSpec.describe EVSS::RetrieveClaimsFromRemoteJob, type: :job do
           receive(:set_collection_status).with('FAILED').and_call_original
         )
         expect { subject.perform(user.uuid) }.to raise_error(StandardError)
+        tracker = EVSSClaimsSyncStatusTracker.find user.uuid
         expect(tracker.get_collection_status).to eq('FAILED')
       end
     end
