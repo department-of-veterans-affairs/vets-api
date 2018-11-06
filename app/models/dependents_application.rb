@@ -231,6 +231,6 @@ class DependentsApplication < Common::RedisStore
   end
 
   def create_submission_job
-    # TODO
+    EVSS::DependentsApplicationJob.perform_async(id, parsed_form, user.uuid)
   end
 end
