@@ -26,7 +26,7 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
       url = case params[:type]
             when 'mhv'
@@ -44,12 +44,13 @@ module V0
             when 'slo'
               authenticate
               logout_url = url_service.slo_url
+              Rails.logger.info('SSO: LOGOUT', sso_logging_info)
               reset_session
               logout_url
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
@@ -103,6 +104,7 @@ module V0
     private
 
     def set_cookies
+      Rails.logger.info('SSO: LOGIN', sso_logging_info)
       set_api_cookie!
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
