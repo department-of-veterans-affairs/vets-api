@@ -1,0 +1,3 @@
+= OpenidAuth
+
+This project rocks.
