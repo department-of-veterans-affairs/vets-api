@@ -232,7 +232,6 @@ Rails.application.routes.draw do
       'profile',
       'dashboard',
       'veteran_id_card',
-      'claim_increase',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
@@ -245,6 +244,10 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
+
+  scope '/internal' do
+    mount OpenidAuth::Engine, at: '/auth'
+  end
 
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
