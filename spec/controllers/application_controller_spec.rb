@@ -148,6 +148,7 @@ RSpec.describe ApplicationController, type: :controller do
       # if current user is nil it means user is not signed in.
       expect(Raven).to receive(:tags_context).once.with(
         controller_name: 'anonymous',
+        virtual_host: 'www.example.com',
         sign_in_method: 'not-signed-in'
       )
       # since user is not signed in this shouldnt get called.
@@ -175,6 +176,7 @@ RSpec.describe ApplicationController, type: :controller do
         # if authn_context is nil on current_user it means idme
         expect(Raven).to receive(:tags_context).once.with(
           controller_name: 'anonymous',
+          virtual_host: 'www.example.com',
           sign_in_method: 'idme'
         )
         # since user IS signed in, this SHOULD get called
