@@ -552,6 +552,12 @@ RSpec.describe V0::SessionsController, type: :controller do
               session: {
                 valid: false,
                 errors: ["Uuid can't be blank"]
+              },
+              identity: {
+                valid: false,
+                errors: ["Uuid can't be blank"],
+                authn_context: nil,
+                loa: { current: 1, highest: 1 }
               }
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
