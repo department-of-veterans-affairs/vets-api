@@ -15,10 +15,10 @@
                         "not_deceased_indicator": true
                     },
                     "payment_account": {
-                        "account_number": "9876543211234",
+                        "account_number": "*********1234",
                         "account_type": "Checking",
                         "financial_institution_name": "Comerica",
-                        "financial_institution_routing_number": "042102115"
+                        "financial_institution_routing_number": "*****2115"
                     },
                     "payment_address": {
                         "address_effective_date": null,
