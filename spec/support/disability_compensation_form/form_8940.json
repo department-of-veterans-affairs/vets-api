@@ -1,22 +1,22 @@
 {
-  "vaFileNumber": "12345678",
-  "veteranSocialSecurityNumber": "123456789",
+  "vaFileNumber": "796068949",
+  "veteranSocialSecurityNumber": "796068949",
   "veteranFullName": {
-    "first": "Testy",
-    "middle": "Tester",
-    "last": "Testerson"
+    "first": "Beyonce",
+    "middle": null,
+    "last": "Knowles"
   },
-  "veteranDateOfBirth": "1981-11-05",
-  "email": "testy.testerson@gmail.com",
-  "veteranPhone": "2123456789",
+  "veteranDateOfBirth": "1809-02-12",
   "veteranAddress": {
-    "city": "Baltimore",
+    "city": "Quaint Town",
     "country": "USA",
-    "postalCode": "21231-1234",
-    "street": "street",
-    "street2": "1B",
-    "state": "MD"
+    "postalCode": "85918-1212",
+    "street": "1234 Classy Street",
+    "street2": "Apartment 567",
+    "state": "OR"
   },
+  "email": "test@email.com",
+  "veteranPhone": "2024561111",
   "unemployability": {
     "disabilityPreventingEmployment": "Unemployability Disability",
     "underDoctorHopitalCarePast12M": false,
@@ -32,23 +32,8 @@
           "postalCode": "21200-1111"
         },
         "dates": {
-          "from": "1994-1-1",
-          "to": "1995-1-1"
-        }
-      },
-      {
-        "name": "Doctor Care B",
-        "address": {
-          "street": "123 Main Street",
-          "street2": "1B",
-          "city": "Baltimore",
-          "state": "MD",
-          "country": "USA",
-          "postalCode": "21200-1111"
-        },
-        "dates": {
-          "from": " 1997-1-1",
-          "to": "1998-1-1"
+          "from": "1994-01-01",
+          "to": "1995-01-01"
         }
       }
     ],
@@ -57,36 +42,21 @@
         "name": "Hospital Care A",
         "address": {
           "street": "123 Main Street",
-          "street2": "1B",
+          "street2": "2B",
           "city": "Baltimore",
           "state": "MD",
           "country": "USA",
           "postalCode": "21200-1111"
         },
         "dates": {
-          "from": "1996-1-1",
-          "to": "1997-1-1"
-        }
-      },
-      {
-        "name": "Hospital Care B",
-        "address": {
-          "street": "123 Main Street",
-          "street2": "1B",
-          "city": "Baltimore",
-          "state": "MD",
-          "country": "USA",
-          "postalCode": "21200-1111"
-        },
-        "dates": {
-          "from": "1999-1-1",
-          "to": "2000-1-1"
+          "from": "1996-01-01",
+          "to": "1997-01-01"
         }
       }
     ],
-    "disabilityAffectedEmploymentFullTimeDate": "1998-1-1",
-    "lastWorkedFullTimeDate": "1997-1-1",
-    "becameTooDisabledToWorkDate": "1993-1-1",
+    "disabilityAffectedEmploymentFullTimeDate": "1998-01-01",
+    "lastWorkedFullTimeDate": "1997-01-01",
+    "becameTooDisabledToWorkDate": "1993-01-01",
     "mostEarningsInAYear": "100,000",
     "yearOfMostEarnings": "1992",
     "occupationDuringMostEarnings": "Test",
@@ -104,8 +74,8 @@
         "workType": "work",
         "hoursPerWeek": "40",
         "dates": {
-          "from": "1991-1-1",
-          "to": "1992-1-1"
+          "from": "1991-01-01",
+          "to": "1992-01-01"
         },
         "timeLostFromIllness": "2 months",
         "mostEarningsInAMonth": "4000"
@@ -123,8 +93,8 @@
         "workType": "work",
         "hoursPerWeek": "40",
         "dates": {
-          "from": "1992-1-1",
-          "to": "1993-1-1"
+          "from": "1992-01-01",
+          "to": "1993-01-01"
         },
         "timeLostFromIllness": "1 months",
         "mostEarningsInAMonth": "2000"
@@ -149,7 +119,7 @@
           "postalCode": "21200-1111"
         },
         "workType": "work",
-        "date": "1997-1-1"
+        "date": "1997-01-01"
       },
       {
         "name": "Employer D",
@@ -162,44 +132,30 @@
           "postalCode": "21200-1111"
         },
         "workType": "work",
-        "date": "1997-1-1"
+        "date": "1997-01-01"
       }
     ],
-    "education": "Test Education",
+    "education": "college4",
     "receivedOtherEducationTrainingPreUnemployability": true,
     "otherEducationTrainingPreUnemployability": [
       {
-        "name": "Other Education A",
+        "name": "Other Education Pre",
         "dates": {
-          "from": "1992-1-1",
-          "to": "1993-1-1"
-        }
-      },
-      {
-        "name": "Other Education B",
-        "dates": {
-          "from": "2001-1-1",
-          "to": "2002-1-1"
+          "from": "1992-01-01",
+          "to": "1993-01-01"
         }
       }
     ],
     "receivedOtherEducationTrainingPostUnemployability": true,
     "otherEducationTrainingPostUnemployability": [
       {
-        "name": "Other Education A",
+        "name": "Other Education Post",
         "dates": {
-          "from": "1992-1-1",
-          "to": "1993-1-1"
-        }
-      },
-      {
-        "name": "Other Education B",
-        "dates": {
-          "from": "2001-1-1",
-          "to": "2002-1-1"
+          "from": "1998-01-01",
+          "to": "1999-01-01"
         }
       }
     ],
-    "remarks": "test remarks"
+    "remarks": "Lorem ipsum dolor sit amet"
   }
 }

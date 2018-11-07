@@ -13,7 +13,6 @@ module EVSS
         return nil unless @veteran_data && @final_output
         @final_output['vaFileNumber'] = @user.ssn
         @final_output['veteranSocialSecurityNumber'] = @user.ssn
-        @final_output['veteranServiceNumber'] = @veteran_data['serviceNumber']
         @final_output['veteranFullName'] = full_name
         @final_output['veteranDateOfBirth'] = @user.birth_date
         @final_output['veteranAddress'] = address(@veteran_data['mailingAddress'])
