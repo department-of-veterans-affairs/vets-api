@@ -14,7 +14,7 @@ RSpec.describe 'Connected Applications API endpoint', type: :request do
   end
 
   context 'with valid response from okta' do
-    it 'should return list of grants by app' do
+    xit 'should return list of grants by app' do
       with_settings(
         Settings.oidc,
         auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
@@ -31,7 +31,7 @@ RSpec.describe 'Connected Applications API endpoint', type: :request do
       end
     end
 
-    it 'should delete all the grants by app' do
+    xit 'should delete all the grants by app' do
       with_settings(
         Settings.oidc,
         auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',

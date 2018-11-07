@@ -184,6 +184,22 @@ describe HCA::EnrollmentSystem do
 
   test_method(
     described_class,
+    'remove_ctrl_chars!',
+    [
+      [
+        {
+          a: {
+            b: ["sdfsdf\u0010", "sdfsdf\u0010"]
+          },
+          c: "sdfsdf\u0010"
+        },
+        { a: { b: %w[sdfsdf sdfsdf] }, c: 'sdfsdf' }
+      ]
+    ]
+  )
+
+  test_method(
+    described_class,
     'financial_flag?',
     [
       [

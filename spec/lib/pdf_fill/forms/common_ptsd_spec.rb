@@ -1,0 +1,125 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+describe PdfFill::Forms::CommonPtsd do
+  let(:including_class) { Class.new { include PdfFill::Forms::CommonPtsd } }
+
+  describe '#expand_ssn' do
+    it 'should expand the ssn correctly' do
+      expect(
+        JSON.parse(including_class.new.expand_ssn('veteranSocialSecurityNumber' => '123456789').to_json)
+      ).to eq(
+        'veteranSocialSecurityNumber' => { 'first' => '123', 'second' => '45', 'third' => '6789' },
+        'veteranSocialSecurityNumber1' => { 'first' => '123', 'second' => '45', 'third' => '6789' },
+        'veteranSocialSecurityNumber2' => { 'first' => '123', 'second' => '45', 'third' => '6789' }
+      )
+    end
+  end
+
+  describe '#expand_veteran_dob' do
+    it 'should expand the birth date correctly' do
+      expect(
+        JSON.parse(including_class.new.expand_veteran_dob(
+          'veteranDateOfBirth' => '1981-11-05'
+        ).to_json)
+      ).to eq(
+        'year' => '1981',
+        'month' => '11',
+        'day' => '05'
+      )
+    end
+  end
+
+  describe '#expand_incident_date' do
+    it 'should expand the incident date correctly' do
+      expect(including_class.new.expand_incident_date('incidentDate' => '2000-01-01')).to eq(
+        'month' => '01',
+        'day' => '01',
+        'year' => '2000'
+      )
+    end
+  end
+
+  # rubocop:disable Metrics/LineLength
+  describe '#expand_incident_location' do
+    it 'should expand the incident location into three lines one word each' do
+      expect(including_class.new.expand_incident_location(
+               'incidentLocation' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
+      )).to eq(
+        'row0' => 'abcdefghijklmnopqrs',
+        'row1' => 'xxxxxxxxxxxxxxxxxx',
+        'row2' => 'zzzzzzzzzzzzzzzzzzz'
+      )
+    end
+
+    it 'should expand the incident location into three lines multiple words' do
+      expect(including_class.new.expand_incident_location(
+               'incidentLocation' => 'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
+      )).to eq(
+        'row0' => 'abcd defg hijk lmno pqrs xxxx',
+        'row1' => 'yyyy zzzz aaaa bb cccc dddd',
+        'row2' => 'eeee ffff ggg'
+      )
+    end
+
+    it 'should ignore more than 90 characters' do
+      expect(JSON.parse(including_class.new.expand_incident_location(
+        'incidentLocation' => 'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      ).to_json)).to eq(
+        'row0' => 'abcdefghijklmno',
+        'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
+        'row2' => 'rstuvwxyz1234',
+        'row3' => 'abcdefghijklmnopqrst',
+        'row4' => 'uvwxyz1234'
+      )
+    end
+  end
+  # rubocop:enable Metrics/LineLength
+
+  describe '#expand incident_unit_assignment' do
+    it 'should expand the incident unit assignment into three lines one word each' do
+      expect(including_class.new.expand_incident_unit_assignment(
+               'unitAssigned' => 'abcdefghijklmnopqrs xxxxxxxxxxxxxxxxxx zzzzzzzzzzzzzzzzzzz'
+      )).to eq(
+        'row0' => 'abcdefghijklmnopqrs',
+        'row1' => 'xxxxxxxxxxxxxxxxxx',
+        'row2' => 'zzzzzzzzzzzzzzzzzzz'
+      )
+    end
+
+    it 'should expand the incident unit assignment into three lines multiple words' do
+      expect(including_class.new.expand_incident_unit_assignment(
+               'unitAssigned' =>
+               'abcd defg hijk lmno pqrs xxxx yyyy zzzz aaaa bb cccc dddd eeee ffff ggg'
+      )).to eq(
+        'row0' => 'abcd defg hijk lmno pqrs xxxx',
+        'row1' => 'yyyy zzzz aaaa bb cccc dddd',
+        'row2' => 'eeee ffff ggg'
+      )
+    end
+
+    it 'should ignore more than 90 characters' do
+      expect(JSON.parse(including_class.new.expand_incident_unit_assignment(
+        'unitAssigned' =>
+        'abcdefghijklmno pqrstuvwxyz1234 abcdefghinopq rstuvwxyz1234 abcdefghijklmnopqrst uvwxyz1234'
+      ).to_json)).to eq(
+        'row0' => 'abcdefghijklmno',
+        'row1' => 'pqrstuvwxyz1234 abcdefghinopq',
+        'row2' => 'rstuvwxyz1234',
+        'row3' => 'abcdefghijklmnopqrst',
+        'row4' => 'uvwxyz1234'
+      )
+    end
+  end
+
+  describe '#expand_incident_date' do
+    it 'should expand the incident date correctly' do
+      expect(including_class.new.expand_incident_date('incidentDate' => '2000-01-01')).to eq(
+        'month' => '01',
+        'day' => '01',
+        'year' => '2000'
+      )
+    end
+  end
+end

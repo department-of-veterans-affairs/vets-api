@@ -9,6 +9,7 @@ FactoryBot.define do
     website 'http://www.portland.va.gov/locations/vancouver.asp'
     lat 45.6394162600001
     long(-122.65528736)
+    location 'POINT(-122.65528736 45.6394162600001)'
     address('mailing' => {},
             'physical' => {
               'zip' => '98661-3753',
@@ -83,6 +84,7 @@ FactoryBot.define do
     website 'http://www.portland.va.gov/'
     lat 45.4974614500001
     long(-122.68287208)
+    location 'POINT(-122.68287208 45.4974614500001)'
     address 'mailing' => {},
             'physical' => {
               'zip' => '97239-2964',
@@ -190,6 +192,7 @@ FactoryBot.define do
     website nil
     lat 45.52017304
     long(-122.67221794)
+    location 'POINT(-122.67221794 45.52017304)'
     address 'mailing' => {},
             'physical' => {
               'zip' => '97204-3432',

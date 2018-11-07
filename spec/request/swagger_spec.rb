@@ -200,6 +200,30 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       )
     end
 
+    it 'supports adding a preneed claim' do
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/burial_forms',
+          200,
+          '_data' => {
+            'application' => attributes_for(:burial_form)
+          }
+        )
+      end
+
+      expect(subject).to validate(
+        :post,
+        '/v0/preneeds/burial_forms',
+        422,
+        '_data' => {
+          'application' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
     context 'HCA tests' do
       let(:test_veteran) do
         File.read(
@@ -1663,12 +1687,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     describe 'profile/connected_applications' do
       let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
       let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
-      let(:user) { build(:user, :loa3) }
+      let(:user) { create(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
 
       before do
-        user[:uuid] = '00u2fqgvbyT23TZNm2p7'
-        Session.create(uuid: '00u2fqgvbyT23TZNm2p7', token: token)
-        User.create(user)
+        Session.create(uuid: user.uuid, token: token)
       end
 
       it 'supports getting connected applications' do

@@ -59,12 +59,6 @@ development: &defaults
   evss_claims_store:
     namespace: evss
     each_ttl: 3600
-  evss_526_submit_form_rate_limit:
-    namespace: evss-526-submit-form-rate-limit
-    threshold_limit: 10
-    threshold_ttl: 86400
-    count_limit: 30
-    count_ttl: 604800
   user_account_details:
     namespace: user-account-details
     each_ttl: 1296000 # 15 days
