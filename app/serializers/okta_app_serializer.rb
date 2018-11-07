@@ -1,0 +1,13 @@
+class OktaAppSerializer < ActiveModel::Serializer
+  attributes :id, :title, :logo, :grants
+
+  def grants
+    object.grants.map do |grant|
+      {
+        title: grant['_links']['scope']['title'],
+        id: grant['id'],
+        created: grant['created']
+      }
+    end
+  end
+end
