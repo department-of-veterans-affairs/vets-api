@@ -23,12 +23,7 @@ module V0
       form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = Form526Submission.create(
-        user_uuid: @current_user.uuid,
-        saved_claim_id: saved_claim.id,
-        auth_headers_json: auth_headers.to_json,
-        form_json: saved_claim.to_submission_data(@current_user)
-      )
+      submission = create_submission(saved_claim)
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly)
 
       render json: { data: { attributes: { job_id: jid } } },
@@ -43,12 +38,7 @@ module V0
       form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
-      submission = Form526Submission.create(
-        user_uuid: @current_user.uuid,
-        saved_claim_id: saved_claim.id,
-        auth_headers_json: auth_headers.to_json,
-        form_json: saved_claim.to_submission_data(@current_user)
-      )
+      submission = create_submission(saved_claim)
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim)
 
       render json: { data: { attributes: { job_id: jid } } },
@@ -63,6 +53,15 @@ module V0
     end
 
     private
+
+    def create_submission(saved_claim)
+      Form526Submission.create(
+        user_uuid: @current_user.uuid,
+        saved_claim_id: saved_claim.id,
+        auth_headers_json: auth_headers.to_json,
+        form_json: saved_claim.to_submission_data(@current_user)
+      )
+    end
 
     def log_failure(claim)
       StatsD.increment("#{stats_key}.failure")
