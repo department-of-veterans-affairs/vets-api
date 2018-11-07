@@ -2,11 +2,12 @@
 
 require 'common/models/redis_store'
 require 'common/models/concerns/cache_aside'
-require_dependency 'emis/responses'
+require 'sentry_logging'
 
 module OktaRedis
   class Model < Common::RedisStore
     include Common::CacheAside
+    include SentryLogging
 
     attr_accessor :id, :user
 
