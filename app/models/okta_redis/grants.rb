@@ -25,6 +25,8 @@ module OktaRedis
       end
     end
 
+    private
+
     def okta_response
       do_cached_with(key: cache_key) do
         grants_response = service.grants(@user.okta_profile.id)

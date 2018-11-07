@@ -46,6 +46,8 @@ module OktaRedis
       )
     end
 
+    private
+
     def okta_response
       do_cached_with(key: cache_key) do
         app_response = service.app(@id)
