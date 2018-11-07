@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class OktaAppSerializer < ActiveModel::Serializer
   attributes :id, :title, :logo, :grants
 

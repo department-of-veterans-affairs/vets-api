@@ -10,7 +10,7 @@ module OktaRedis
 
     attr_accessor :id, :user
 
-    %i[ id user ].each do |option|
+    %i[id user].each do |option|
       define_singleton_method "with_#{option}" do |val|
         redis_config_key(:okta_response)
 
@@ -27,7 +27,7 @@ module OktaRedis
     end
 
     def cache_key
-      key = "#{class_name}.#{get_identifier}"
+      "#{class_name}.#{get_identifier}"
     end
 
     def class_name

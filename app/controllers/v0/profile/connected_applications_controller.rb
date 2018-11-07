@@ -20,7 +20,7 @@ module V0
 
       def apps_from_grants
         apps = {}
-        app_ids = @current_user.okta_grants.all.each do |grant|
+        @current_user.okta_grants.all.each do |grant|
           links = grant['_links']
           app_id = links['app']['href'].split('/').last
           unless apps[app_id]

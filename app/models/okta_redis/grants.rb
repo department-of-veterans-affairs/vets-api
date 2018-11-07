@@ -1,17 +1,19 @@
+# frozen_string_literal: true
+
 module OktaRedis
   class Grants < Model
-    CLASS_NAME = "GrantsService"
+    CLASS_NAME = 'GrantsService'
 
     def all
       okta_response.body
     end
 
     def delete_grants(grant_ids)
-      success = grant_ids.reduce(true){|memo, grant| delete_grant(grant) && memo}
-      OktaRedis::Grants.delete(cache_key()) if success
+      success = grant_ids.reduce(true) { |memo, grant| delete_grant(grant) && memo }
+      OktaRedis::Grants.delete(cache_key) if success
       success
     end
-    
+
     def delete_grant(grant_id)
       delete_response = service.delete_grant(@user.okta_profile.id, grant_id)
       if delete_response.success?
@@ -24,7 +26,7 @@ module OktaRedis
     end
 
     def okta_response
-      do_cached_with(key: cache_key()) do
+      do_cached_with(key: cache_key) do
         grants_response = service.grants(@user.okta_profile.id)
         grants_response.success? ? grants_response : []
       end
