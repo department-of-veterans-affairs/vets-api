@@ -1,14 +1,37 @@
-hostname: localhost:3000 # possible fallback for unsafe request.host
-virtual_hosts: ["localhost"] # Safe host names
+hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
+virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
+
+# For CORS requests; separate multiple origins with a comma
+web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
+
+# Settings for SAML authentication
+saml:
+  cert_path: config/certs/vetsgov-localhost.crt
+  cert_new_path: config/certs/vetsgov-localhost_new.crt
+  key_path: config/certs/vetsgov-localhost.key
+  issuer: saml-rp.vetsgov.localhost
+  callback_url: http://localhost:3000/auth/saml/callback
+  metadata_url: https://api.idmelabs.com/saml/metadata/provider
+
+session_cookie:
+  enabled: false
+  secure: false
+
+# Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
+sso:
+  cookie_enabled: true
+  cookie_signout_enabled: true
+  cookie_name: vagov_session_dev
+  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
+  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
+  cookie_secure: false
+  cookie_domain: localhost
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
   pdfinfo: pdfinfo
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
-
-# For CORS requests; separate multiple origins with a comma
-web_origin: http://localhost:3000,http://localhost:3001,null
 
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
 
@@ -17,15 +40,6 @@ database_url: postgis:///vets-api
 relative_url_root: /
 
 secret_key_base: 8af0fe1e378586520e4324694897eb269bd0fffa1c5be6cc3b4ffb9dbde095d0bef5c7fdab73cd05685d8fe1dd589287d78b38e4de7116fbe14461e414072677
-
-# Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
-sso:
-  cookie_enabled: false
-  cookie_name: vagov_session_dev
-  cookie_key: 095B564B0F29EF88A96F1A7584E17516B14F85C2B3AD431E63349AC5272BC86B
-  cookie_iv: A3C0567C78BEC6DDE75E2FEB92DE11AA
-  cookie_secure: false
-  cookie_domain: localhost
 
 review_instance_slug: ~
 
@@ -271,28 +285,6 @@ reports:
     bucket: ~
     region: ~
     secret_access_key: ~
-
-# Settings for SAML authentication
-saml:
-  cert_path: config/certs/vetsgov-localhost.crt
-  cert_new_path: config/certs/vetsgov-localhost_new.crt
-  key_path: config/certs/vetsgov-localhost.key
-  # Loaded in `config/initializers/saml.rb`, based on `*_path` settings above
-  # certificate: ~
-  # key: ~
-  issuer: saml-rp.vetsgov.localhost
-  callback_url: http://localhost:3000/auth/saml/callback
-  metadata_url: https://api.idmelabs.com/saml/metadata/provider
-  # TODO: update `relays` in each <ENV>-settings.local.yml.j2 file & make these relevant for localhost use
-  relays:
-    vetsgov: http://localhost:3001/auth/login/callback
-    vagov: http://localhost:3001/auth/login/callback
-    preview_vagov: ~
-  logout_relay: http://localhost:3001/logout
-  logout_relays:
-    vetsgov: http://localhost:3001/logout
-    vagov: http://localhost:3001/logout
-    preview_vagov: ~
 
 oidc:
   auth_server_metadata_url: ~

@@ -90,7 +90,7 @@ FacilityLocationBulkUpdateVHA:
   description: "Download and store facility location data"
 
 MaintenanceWindowRefresh:
-  cron: "*/5 * * * * America/New_York"
+  cron: "*/3 * * * * America/New_York"
   class: PagerDuty::PollMaintenanceWindows
   description: "Poll PagerDuty API for maintenance window information"
 
