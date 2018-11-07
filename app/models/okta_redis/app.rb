@@ -21,11 +21,12 @@ module OktaRedis
       @grants = []
     end
 
+    # rubocop:disable Rails/FindEach
     def fetch_grants
       raise 'Requires user set!' unless @user
       initialize_grants unless @grants
 
-      @user.okta_grants.all.find_each do |grant|
+      @user.okta_grants.all.each do |grant|
         links = grant['_links']
         app_id = links['app']['href'].split('/').last
         @grants << grant if app_id == @id
@@ -33,6 +34,7 @@ module OktaRedis
 
       @grants
     end
+    # rubocop:enable Rails/FindEach
 
     def delete_grants
       raise 'Requires user set!' unless @user
