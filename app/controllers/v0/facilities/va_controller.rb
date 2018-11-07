@@ -12,16 +12,16 @@ class V0::Facilities::VaController < FacilitiesController
   # @param type - Optional facility type, values = all (default), health, benefits, cemetery
   # @param services - Optional specialty services filter
   def index
-    if BaseFacility::TYPES.include?(params[:type]) || params[:address].nil?
-      resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
-      render json: resource,
-             each_serializer: VAFacilitySerializer,
-             meta: metadata(resource)
-    elsif params[:type] == 'cc_provider'
-      provider_locator
-    else
-      combined
-    end
+    return facilities if BaseFacility::TYPES.include?(params[:type]) || params[:address].nil?
+    return provider_locator if params[:type] == 'cc_provider'
+    combined
+  end
+
+  def facilities
+    resource = BaseFacility.query(params).paginate(page: params[:page], per_page: BaseFacility.per_page)
+    render json: resource,
+           each_serializer: VAFacilitySerializer,
+           meta: metadata(resource)
   end
 
   def combined
@@ -31,8 +31,8 @@ class V0::Facilities::VaController < FacilitiesController
     bbox_num = params[:bbox].map { |x| Float(x) }
     page = Integer(params[:page] || 1)
     total = resource.length + providers.length
-    sorted = merge(resource, providers, (bbox_num[0] + bbox_num[2]) / 2,
-                   (bbox_num[1] + bbox_num[3]) / 2, page * BaseFacility.per_page)
+    sorted = Provider.merge(resource, providers, (bbox_num[0] + bbox_num[2]) / 2,
+                            (bbox_num[1] + bbox_num[3]) / 2, page * BaseFacility.per_page)
     sorted = sorted[(page - 1) * BaseFacility.per_page, BaseFacility.per_page]
     sorted.map! { |row| format_records(row, ppms) }
     pages = { current_page: page, per_page: BaseFacility.per_page,
@@ -64,13 +64,15 @@ class V0::Facilities::VaController < FacilitiesController
     providers = providers[start_ind, BaseFacility.per_page - 1]
     providers.map! do |provider|
       prov_info = ppms.provider_info(provider['ProviderIdentifier'])
-      format_provloc(provider, prov_info)
+      provider.add_details(prov_info)
+      provider
     end
-    # paging currently not possible
     pages = { current_page: page, per_page: BaseFacility.per_page,
               total_pages: total / BaseFacility.per_page, total_entries: total }
 
-    render json: { data: providers, meta: { pagination: pages } }
+    render json: providers,
+           each_serializer: ProviderSerializer,
+           metadata: { pagination: pages }
   end
 
   private
@@ -81,31 +83,10 @@ class V0::Facilities::VaController < FacilitiesController
       { id: ser.id, name: record[:name], attributes: ser.as_json }
     else
       prov_info = ppms.provider_info(record['ProviderIdentifier'])
-      format_provloc(record, prov_info)
+      record.add_details(prov_info)
+      prov_ser = ProviderSerializer.new(record)
+      { id: prov_ser.id, name: record[:Name], attributes: prov_ser.as_json }
     end
-  end
-
-  def merge(facilities, providers, center_x, center_y, limit)
-    distance_facilities = facilities.map do |facility|
-      { distance: 69 * Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2),
-        facility: facility }
-    end
-    result = []
-    facility_ind = 0
-    provider_ind = 0
-    limit = facilities.length + providers.length if limit > facilities.length + providers.length
-    while result.length < limit
-      a = provider_ind < providers.length
-      b = facility_ind >= distance_facilities.length
-      if a && (b || distance_facilities[facility_ind][:distance] > providers[provider_ind]['Miles'])
-        result.push providers[provider_ind]
-        provider_ind += 1
-      else
-        result.push distance_facilities[facility_ind][:facility]
-        facility_ind += 1
-      end
-    end
-    result
   end
 
   def validate_types_name_part
@@ -133,25 +114,6 @@ class V0::Facilities::VaController < FacilitiesController
       BaseFacility::TYPES.include?(params[:type])
     unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
     raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
-  end
-
-  def format_provloc(provider, prov_info)
-    { id: "ccp_#{provider['ProviderIdentifier']}", type: 'cc_provider', attributes: {
-      unique_id: provider['ProviderIdentifier'], name: provider['ProviderName'],
-      lat: provider['Latitude'], long: provider['Longitude'],
-      address: { street: prov_info['AddressStreet'], city: prov_info['AddressCity'],
-                 state: prov_info['AddressStateProvince'],
-                 zip: prov_info['AddressPostalCode'] },
-      phone: prov_info['MainPhone'],
-      fax: prov_info['OrganizationFax'],
-      website: nil,
-      prefContact: prov_info['ContactMethod'],
-      accNewPatients: provider['ProviderAcceptingNewPatients'],
-      gender: provider['ProviderGender'],
-      distance: provider['Miles'],
-      network: provider['ProviderNetwork'],
-      specialty: prov_info['ProviderSpecialties'].map { |specialty| specialty['SpecialtyName'] }
-    } }
   end
 
   def metadata(resource)

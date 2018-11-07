@@ -21,7 +21,9 @@ module Facilities
         provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
           provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
       end
-      response.body
+      response.body.map do |provider|
+        Provider.from_provloc provider
+      end
     end
 
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
