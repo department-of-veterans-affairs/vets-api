@@ -30,14 +30,8 @@ class DependentsApplication < Common::RedisStore
   end
 
   def self.convert_name(full_name)
-    converted = {}
-    return converted if full_name.blank?
-
-    %w[first middle last].each do |type|
-      converted["#{type}Name"] = full_name[type] if full_name[type].present?
-    end
-
-    converted
+    full_name ||= {}
+    full_name.transform_keys { |k| "#{k}Name" }
   end
 
   def self.convert_ssn(ssn)
