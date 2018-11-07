@@ -8,20 +8,26 @@ module OktaRedis
   class Model < Common::RedisStore
     include Common::CacheAside
 
-    attr_accessor :user
+    attr_accessor :id, :user
 
-    def self.for_user(user)
-      redis_config_key(:okta_response)
+    %i[ id user ].each do |option|
+      define_singleton_method "with_#{option}" do |val|
+        redis_config_key(:okta_response)
 
-      okta_model = new
-      okta_model.user = user
-      okta_model
+        okta_model = new
+        okta_model.send("#{option}=", val)
+        okta_model
+      end
     end
 
     private
 
-    def cache_key(id)
-      key = "#{class_name}.#{id}"
+    def get_identifier
+      @user ? @user.uuid : @id
+    end
+
+    def cache_key
+      key = "#{class_name}.#{get_identifier}"
     end
 
     def class_name

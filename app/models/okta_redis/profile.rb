@@ -2,17 +2,16 @@ module OktaRedis
   class Profile < Model
     CLASS_NAME = "ProfileService"
     def id
-      binding.pry
-      okta_response['id']
+      okta_response.body['id']
     end
 
     private
 
     def okta_response
-      do_cached_with(key: cache_key(@user.uuid)) do
+      do_cached_with(key: cache_key()) do
         user_response = service.user(@user.uuid)
         if user_response.success?
-          user_response.body
+          user_response
         else
           raise Common::Exception::RecordNotFound, @user.uuid
         end
