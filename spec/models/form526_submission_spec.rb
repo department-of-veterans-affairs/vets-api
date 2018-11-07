@@ -110,7 +110,7 @@ RSpec.describe Form526Submission do
       it 'queues a 4142 job' do
         expect do
           subject.perform_ancillary_jobs(bid)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitForm4142.jobs, :size).by(1)
+        end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)
       end
     end
 

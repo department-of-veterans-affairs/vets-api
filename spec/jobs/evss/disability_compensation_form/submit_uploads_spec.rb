@@ -16,11 +16,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:submission) do
     create(:form526_submission, :with_uploads,
-      user_uuid: user.uuid,
-      auth_headers_json: auth_headers.to_json,
-      saved_claim_id: saved_claim.id,
-      submitted_claim_id: '600130094'
-    )
+           user_uuid: user.uuid,
+           auth_headers_json: auth_headers.to_json,
+           saved_claim_id: saved_claim.id,
+           submitted_claim_id: '600130094')
   end
 
   subject { described_class }
@@ -63,7 +62,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         it 'logs a retryable error and re-raises the original error' do
           allow(client).to receive(:upload).and_raise(Common::Exceptions::SentryIgnoredGatewayTimeout)
           subject.perform_async(submission.id, upload_data)
-          expect_any_instance_of(subject).to receive(:retryable_error_handler).once
+          expect(Form526JobStatus).to receive(:upsert).twice
           expect { described_class.drain }.to raise_error(Common::Exceptions::SentryIgnoredGatewayTimeout)
         end
       end
@@ -74,8 +73,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       it 'logs a non_retryable_error' do
         subject.perform_async(submission.id, upload_data)
-        described_class.drain
-        expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+        expect(Form526JobStatus).to receive(:upsert).twice
+        expect { described_class.drain }.to raise_error(ArgumentError)
       end
     end
   end

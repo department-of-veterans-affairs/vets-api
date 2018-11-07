@@ -6,13 +6,6 @@ module EVSS
       include Sidekiq::Worker
       include JobStatus
 
-      delegate :id, to: :submission
-      delegate :auth_headers, to: :submission
-      delegate :saved_claim_id, to: :submission
-      delegate :submitted_claim_id, to: :submission
-      delegate :form, to: :submission
-      delegate :form_to_json, to: :submission
-
       RETRY = 7
 
       sidekiq_options retry: RETRY

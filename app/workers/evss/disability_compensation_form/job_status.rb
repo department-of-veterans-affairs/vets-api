@@ -6,8 +6,10 @@ module EVSS
       extend ActiveSupport::Concern
       include SentryLogging
 
-      def with_tracking(job_title)
-        @job_title = job_title
+      def with_tracking(job_title, saved_claim_id, submission_id)
+        @status_job_title = job_title
+        @status_saved_claim_id = saved_claim_id
+        @status_submission_id = submission_id
 
         job_try
         yield
@@ -18,16 +20,16 @@ module EVSS
         upsert_job_status(Form526JobStatus::STATUS[:try])
         log_info('try')
         metrics.increment_try
-      rescue
-        Rails.logger.error('error tracking job try', class: klass)
+      rescue StandardError => error
+        Rails.logger.error('error tracking job try', error: error, class: klass)
       end
 
       def job_success
         upsert_job_status(Form526JobStatus::STATUS[:success])
         log_info('success')
         metrics.increment_success
-      rescue
-        Rails.logger.error('error tracking job success', class: klass)
+      rescue StandardError => error
+        Rails.logger.error('error tracking job success', error: error, class: klass)
       end
 
       def retryable_error_handler(error)
@@ -47,7 +49,7 @@ module EVSS
 
       def upsert_job_status(status, error = nil)
         values = {
-          form526_submission_id: id,
+          form526_submission_id: @status_submission_id,
           job_id: jid,
           job_class: klass,
           status: status,
@@ -58,17 +60,17 @@ module EVSS
       end
 
       def log_info(status)
-        Rails.logger.info(@job_title,
-                          'saved_claim_id' => saved_claim_id,
-                          'submission_id' => id,
+        Rails.logger.info(@status_job_title,
+                          'saved_claim_id' => @status_saved_claim_id,
+                          'submission_id' => @status_submission_id,
                           'job_id' => jid,
                           'status' => status)
       end
 
       def log_error(status, error)
-        Rails.logger.error(@job_title,
-                           'saved_claim_id' => saved_claim_id,
-                           'submission_id' => id,
+        Rails.logger.error(@status_job_title,
+                           'saved_claim_id' => @status_saved_claim_id,
+                           'submission_id' => @status_submission_id,
                            'job_id' => jid,
                            'status' => status,
                            'error_message' => error)

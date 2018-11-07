@@ -26,9 +26,9 @@ module EVSS
 
       def full_name
         {
-          "first": @user.first_name,
-          "middle": @user.middle_name,
-          "last": @user.last_name
+          'first' => @user.first_name,
+          'middle' => @user.middle_name,
+          'last' => @user.last_name
         }
       end
     end
