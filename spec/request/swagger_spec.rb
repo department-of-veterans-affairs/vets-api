@@ -200,6 +200,30 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       )
     end
 
+    it 'supports adding a preneed claim' do
+      VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
+        expect(subject).to validate(
+          :post,
+          '/v0/preneeds/burial_forms',
+          200,
+          '_data' => {
+            'application' => attributes_for(:burial_form)
+          }
+        )
+      end
+
+      expect(subject).to validate(
+        :post,
+        '/v0/preneeds/burial_forms',
+        422,
+        '_data' => {
+          'application' => {
+            'invalid-form' => { invalid: true }.to_json
+          }
+        }
+      )
+    end
+
     context 'HCA tests' do
       let(:test_veteran) do
         File.read(
@@ -1660,6 +1684,54 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'profile/connected_applications' do
+      let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
+      let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
+      let(:user) { create(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+
+      before do
+        Session.create(uuid: user.uuid, token: token)
+      end
+
+      it 'supports getting connected applications' do
+        with_settings(
+          Settings.oidc,
+          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+          issuer: 'https://example.com/oauth2/default',
+          base_api_url: 'https://example.com/api/v1/',
+          base_api_token: 'token'
+        ) do
+          expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
+          VCR.use_cassette('okta/grants') do
+            expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, auth_options)
+          end
+        end
+      end
+
+      it 'supports removing connected applications grants' do
+        with_settings(
+          Settings.oidc,
+          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+          issuer: 'https://example.com/oauth2/default',
+          base_api_url: 'https://example.com/api/v1/',
+          base_api_token: 'token'
+        ) do
+          params = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
+          expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, params)
+          VCR.use_cassette('okta/delete_grants') do
+            expect(subject).to(
+              validate(
+                :delete,
+                '/v0/profile/connected_applications/{application_id}',
+                204,
+                auth_options.merge(params)
+              )
+            )
+          end
+        end
+      end
+    end
+
     describe 'when EVSS authorization requirements are not met' do
       let(:unauthorized_evss_user) { build(:unauthorized_evss_user, :loa3) }
 
@@ -1710,6 +1782,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         it 'returns a 400 with error details' do
           VCR.use_cassette('search/empty_query') do
             expect(subject).to validate(:get, '/v0/search', 400, '_query_string' => 'query=')
+          end
+        end
+      end
+
+      context 'when the Search.gov rate limit has been exceeded' do
+        it 'returns a 429 with error details' do
+          VCR.use_cassette('search/exceeds_rate_limit') do
+            expect(subject).to validate(:get, '/v0/search', 429, '_query_string' => 'query=benefits')
           end
         end
       end
