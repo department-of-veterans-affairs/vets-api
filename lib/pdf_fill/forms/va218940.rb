@@ -287,7 +287,7 @@ module PdfFill
           'value' => {
             question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
             question_num: 11,
-            key: "form1[0].#subform[0].NameAndAddressOfDoctors[#{ITERATOR}]"
+            key: 'form1[0].#subform[0].NameAndAddressOfDoctors[0]'
           }
         },
         'hospitalCareDetails' => {
@@ -295,7 +295,7 @@ module PdfFill
           'value' => {
             question_text: 'NAME AND ADDRESS OF HOSPITAL',
             question_num: 12,
-            key: "form1[0].#subform[0].NameAndAddressOfHospitals[#{ITERATOR}]"
+            key: 'form1[0].#subform[0].NameAndAddressOfHospitals[0]'
           }
         }
       }.freeze
@@ -369,9 +369,8 @@ module PdfFill
       end
 
       def expand_veteran_dob
-        veteran_date_of_birth = @form_data['veteranDateOfBirth']
-        return if veteran_date_of_birth.blank?
-        @form_data['veteranDateOfBirth'] = split_date(veteran_date_of_birth)
+        return if @form_data['veteranDateOfBirth'].blank?
+        @form_data['veteranDateOfBirth'] = split_date(@form_data['veteranDateOfBirth'])
       end
 
       def expand_veteran_address
@@ -429,3 +428,4 @@ module PdfFill
     end
   end
 end
+# rubocop:enable Metrics/ClassLength

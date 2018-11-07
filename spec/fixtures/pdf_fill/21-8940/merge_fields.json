@@ -16,11 +16,8 @@
     "day": "05",
     "year": "1981"
   },
-  "veteranServiceNumber": "987654321",
   "email": "testy.testerson@gmail.com",
-  "alternateEmailAddress": "testy.testerson@hotmail.com",
   "veteranPhone": "2123456789",
-  "veteranSecondaryPhone": "3133456789",
   "veteranAddress": {
     "city": "Baltimore",
     "country": "US",
