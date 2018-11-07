@@ -65,12 +65,14 @@ class Form526Submission < ActiveRecord::Base
   end
 
   def submit_form_4142
+    # TODO(AJD): update args to take only submission id
     CentralMail::SubmitForm4142Job.perform_async(
       submitted_claim_id, saved_claim_id, id, form_to_json(FORM_4142)
     )
   end
 
   def submit_form_0781
+    # TODO(AJD): update args to take only submission id
     EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
       auth_headers, submitted_claim_id, saved_claim_id, id, form_to_json(FORM_0781)
     )
