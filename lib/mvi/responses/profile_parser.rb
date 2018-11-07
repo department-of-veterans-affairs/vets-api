@@ -103,7 +103,7 @@ module MVI
           icn: correlation_ids[:icn],
           mhv_ids: correlation_ids[:mhv_ids],
           active_mhv_ids: correlation_ids[:active_mhv_ids],
-          edipi: correlation_ids[:edipi],
+          edipi: sanitize_edipi(correlation_ids[:edipi]),
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
           sec_id: correlation_ids[:sec_id],
@@ -133,6 +133,12 @@ module MVI
 
       def get_patient_name(patient)
         locate_element(patient, NAME_XPATH)
+      end
+
+      def sanitize_edipi(edipi)
+        return nil unless edipi
+        # Get rid of invalid values like 'UNK'
+        edipi.match(/\d{10}/).to_s
       end
 
       # name can be a hash or an array of hashes with extra unneeded details
