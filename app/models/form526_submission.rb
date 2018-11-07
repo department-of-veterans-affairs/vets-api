@@ -19,7 +19,7 @@ class Form526Submission < ActiveRecord::Base
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
-      'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
+      'Form526Submission#workflow_complete_handler',
       'submission_id' => id
     )
     jids = workflow_batch.jobs do
@@ -50,6 +50,12 @@ class Form526Submission < ActiveRecord::Base
     end
   end
 
+  def workflow_complete_handler(_status, options)
+    submission = Form526Submission.find(options['submission_id'])
+    submission.workflow_complete = true
+    submission.save
+  end
+
   private
 
   def submit_uploads
@@ -59,7 +65,7 @@ class Form526Submission < ActiveRecord::Base
   end
 
   def submit_form_4142
-    CentralMail::SubmitForm4142Job.perform_async(id)
+    EVSS::DisabilityCompensationForm::SubmitForm4142.perform_async(id)
   end
 
   def submit_form_0781

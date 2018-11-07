@@ -211,14 +211,5 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
         expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
       end
     end
-
-    describe '#workflow_complete_handler' do
-      it 'sets the submission.complete to true' do
-        expect(submission.workflow_complete).to be_falsey
-        subject.new.workflow_complete_handler(nil, 'submission_id' => submission.id)
-        submission.reload
-        expect(submission.workflow_complete).to be_truthy
-      end
-    end
   end
 end

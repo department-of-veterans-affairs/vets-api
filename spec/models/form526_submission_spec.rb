@@ -110,7 +110,7 @@ RSpec.describe Form526Submission do
       it 'queues a 4142 job' do
         expect do
           subject.perform_ancillary_jobs(bid)
-        end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitForm4142.jobs, :size).by(1)
       end
     end
 
@@ -124,6 +124,15 @@ RSpec.describe Form526Submission do
           subject.perform_ancillary_jobs(bid)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
       end
+    end
+  end
+
+  describe '#workflow_complete_handler' do
+    it 'sets the submission.complete to true' do
+      expect(subject.workflow_complete).to be_falsey
+      subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+      subject.reload
+      expect(subject.workflow_complete).to be_truthy
     end
   end
 end

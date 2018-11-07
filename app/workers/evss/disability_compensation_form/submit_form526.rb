@@ -2,18 +2,13 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class SubmitForm526
-      include Sidekiq::Worker
-      include JobStatus
-
+    class SubmitForm526 < Job
       TRANSACTION_CLASS = AsyncTransaction::EVSS::VA526ezSubmitTransaction
 
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
-      RETRY = 13
+      RETRY = 7
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
-
-      sidekiq_options retry: RETRY
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
@@ -27,13 +22,11 @@ module EVSS
       #
       # @param submission_id [Hash] The submission record
       #
-      def perform(id)
-        @submission = Form526Submission.find(id)
-        with_tracking('Form526 Submission', @submission.saved_claim_id, @submission.id) do
-          # TODO: sub classed #service can be removed once `increase only` has been deprecated
-          service = service(@submission.auth_headers)
-          json = @submission.form_to_json(Form526Submission::FORM_526)
-          response = service.submit_form526(json)
+      def perform(submission_id)
+        super(submission_id)
+        with_tracking('Form526 Submission') do
+          service = service(auth_headers)
+          response = service.submit_form526(form_to_json(Form526Submission::FORM_526))
           response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
@@ -42,22 +35,16 @@ module EVSS
         non_retryable_error_handler(e)
       end
 
-      def workflow_complete_handler(_status, options)
-        submission = Form526Submission.find(options['submission_id'])
-        submission.workflow_complete = true
-        submission.save
-      end
-
       private
 
       def response_handler(response)
-        @submission.submitted_claim_id = response.claim_id
-        @submission.save
+        submission.submitted_claim_id = response.claim_id
+        submission.save
         perform_ancillary_jobs
       end
 
       def perform_ancillary_jobs
-        @submission.perform_ancillary_jobs(bid)
+        submission.perform_ancillary_jobs(bid)
       end
 
       def retryable_error_handler(error)
