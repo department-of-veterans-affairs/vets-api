@@ -40,6 +40,7 @@ FactoryBot.define do
             addressType: 'DOMESTIC',
             street: 'street1',
             street2: 'Student Records',
+            street3: 'street3',
             city: 'LOUISVILLE',
             state: 'KY',
             postalCode: '40292'

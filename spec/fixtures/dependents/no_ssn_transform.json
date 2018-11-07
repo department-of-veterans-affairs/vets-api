@@ -150,6 +150,7 @@
         "address": {
           "addressLine1": "street1",
           "addressLine2": "Student Records",
+          "addressLine3": "street3",
           "addressLocality": "DOMESTIC",
           "city": "LOUISVILLE",
           "country": {
