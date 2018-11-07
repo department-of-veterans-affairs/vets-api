@@ -133,7 +133,14 @@ class SSOService
       session:   {
         valid: new_session&.valid?,
         errors: new_session&.errors&.full_messages
+      },
+      identity: {
+        valid: new_user_identity&.valid?,
+        errors: new_user_identity&.errors&.full_messages,
+        authn_context: new_user_identity&.authn_context,
+        loa: new_user_identity&.loa
       }
+
     }
   end
 end
