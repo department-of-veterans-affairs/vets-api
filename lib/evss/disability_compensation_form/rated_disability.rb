@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
-require 'evss/disability_compensation_form/special_issue'
-
 module EVSS
   module DisabilityCompensationForm
     class RatedDisability

@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/response'
-require 'evss/disability_compensation_form/rated_disabilities'
-
 module EVSS
   module DisabilityCompensationForm
     class RatedDisabilitiesResponse < EVSS::Response

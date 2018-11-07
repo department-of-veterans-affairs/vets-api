@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/response'
-
 module EVSS
   module PCIU
     class PhoneNumberResponse < EVSS::Response

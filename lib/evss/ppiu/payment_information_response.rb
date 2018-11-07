@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'evss/response'
-require 'evss/ppiu/payment_information'
-
 module EVSS
   module PPIU
     class PaymentInformationResponse < EVSS::Response
