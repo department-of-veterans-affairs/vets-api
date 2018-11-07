@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module OktaRedis
   class Profile < Model
-    CLASS_NAME = "ProfileService"
+    CLASS_NAME = 'ProfileService'
     def id
       okta_response.body['id']
     end
@@ -8,7 +10,7 @@ module OktaRedis
     private
 
     def okta_response
-      do_cached_with(key: cache_key()) do
+      do_cached_with(key: cache_key) do
         user_response = service.user(@user.uuid)
         if user_response.success?
           user_response
