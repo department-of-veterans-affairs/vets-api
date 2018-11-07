@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'common/exceptions'
 
@@ -27,14 +29,13 @@ describe OktaRedis::Grants, skip_emis: true do
         end
       end
     end
-
   end
-  describe 'delete_grant' do 
+  describe 'delete_grant' do
     context 'raises on error' do
       it 'raises' do
         with_okta_configured do
           VCR.use_cassette('okta/delete_grants_error') do
-            expect{subject.delete_grant('123')}.to raise_error(RuntimeError)
+            expect { subject.delete_grant('123') }.to raise_error(RuntimeError)
           end
         end
       end
