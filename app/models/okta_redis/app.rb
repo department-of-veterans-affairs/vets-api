@@ -5,6 +5,11 @@ module OktaRedis
     CLASS_NAME = 'AppService'
     attr_accessor :grants
 
+    def initialize(attributes = {}, persisted = false)
+      super(attributes, persisted)
+      @grants = []
+    end
+
     %i[id label].each do |body_attr|
       define_method body_attr do
         okta_response.body[body_attr.to_s]
@@ -17,14 +22,9 @@ module OktaRedis
       okta_response.body['_links']['logo'].last['href']
     end
 
-    def initialize_grants
-      @grants = []
-    end
-
     # rubocop:disable Rails/FindEach
     def fetch_grants
       raise 'Requires user set!' unless @user
-      initialize_grants unless @grants
 
       @user.okta_grants.all.each do |grant|
         links = grant['_links']
@@ -38,7 +38,6 @@ module OktaRedis
 
     def delete_grants
       raise 'Requires user set!' unless @user
-      initialize_grants unless @grants
 
       fetch_grants if @grants.length.zero?
       @user.okta_grants.delete_grants(
