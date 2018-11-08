@@ -1,5 +1,6 @@
 namespace :breakers do
 
+  desc 'Begin a forced outage (requires: service=<service_name>)'
   task begin_forced_outage: :environment do
     services = Breakers.client.services.map {|s| s.name }
     service = ENV['service']
@@ -11,6 +12,7 @@ namespace :breakers do
     puts "Successfully forced outage of: [#{ENV['service']}]"
   end
 
+  desc 'End a forced outage (requires: service=<service_name>)'
   task end_forced_outage: :environment do
     services = Breakers.client.services.map {|s| s.name }
     service = ENV['service']
