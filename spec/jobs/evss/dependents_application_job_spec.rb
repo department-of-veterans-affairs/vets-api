@@ -34,7 +34,7 @@ RSpec.describe EVSS::DependentsApplicationJob do
         dependents_application = reload_dependents_application
         expect(dependents_application.state).to eq('success')
         expect(dependents_application.parsed_response).to eq(
-          'submit686Response' => { 'confirmationNumber' => '600142505' }
+          'submit686Response' => { 'confirmationNumber' => '600142587' }
         )
       end
     end
