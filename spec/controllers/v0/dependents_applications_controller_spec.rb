@@ -11,11 +11,7 @@ RSpec.describe V0::DependentsApplicationsController do
   end
 
   let(:test_form) do
-    JSON.parse(
-      File.read(
-        Rails.root.join('spec', 'fixtures', 'dependents', 'test_form.json')
-      )
-    )
+    build(:dependents_application).parsed_form
   end
 
   describe '#show' do
