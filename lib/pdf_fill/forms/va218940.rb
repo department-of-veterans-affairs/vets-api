@@ -136,18 +136,6 @@ module PdfFill
         'wasHospitalizedNo' => {
           key: 'form1[0].#subform[0].CheckBoxNo[0]'
         },
-        'witness1Signature' => {
-          key: 'form1[0].#subform[2].Signature[0]'
-        },
-        'witness1Address' => {
-          key: 'form1[0].#subform[2].AddressofWitness[1]'
-        },
-        'witness2Signature' => {
-          key: 'form1[0].#subform[2].Signature[1]'
-        },
-        'witness2Address' => {
-          key: 'form1[0].#subform[2].AddressofWitness[0]'
-        },
         'education' => {
           'checkbox' => {
             'gradeSchool1' => {
@@ -284,6 +272,9 @@ module PdfFill
         },
         'doctorsCareDetails' => {
           limit: 1,
+          question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
+          question_num: 11,
+          first_key: 'value',
           'value' => {
             question_text: 'NAME AND ADDRESS OF DOCTOR(S)',
             question_num: 11,
@@ -292,6 +283,9 @@ module PdfFill
         },
         'hospitalCareDetails' => {
           limit: 1,
+          question_text: 'NAME AND ADDRESS OF HOSPITAL',
+          question_num: 12,
+          first_key: 'value',
           'value' => {
             question_text: 'NAME AND ADDRESS OF HOSPITAL',
             question_num: 12,
@@ -428,4 +422,3 @@ module PdfFill
     end
   end
 end
-# rubocop:enable Metrics/ClassLength
