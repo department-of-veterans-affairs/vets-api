@@ -121,23 +121,11 @@ class Mvi < Common::RedisStore
 
   def response_from_redis_or_service
     do_cached_with(key: @user.uuid) do
-      profile = mvi_service.find_profile(@user)
-      self.class.redis_namespace_ttl = set_ttl(profile)
-      profile
+      mvi_service.find_profile(@user)
     end
   end
 
   def mvi_service
     @service ||= MVI::Service.new
-  end
-
-  def set_ttl(profile)
-    if profile.status == MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok]
-      # ensure default ttl is used for 'ok' responses
-      REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
-    else
-      # assign separate ttl to redis cache for failure responses
-      REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['failure_ttl']
-    end
   end
 end

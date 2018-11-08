@@ -59,6 +59,16 @@ module MVI
         Settings.mvi.cache_all_profile_responses || ok?
       end
 
+      def record_ttl
+        if ok?
+          # ensure default ttl is used for 'ok' responses
+          REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['each_ttl']
+        else
+          # assign separate ttl to redis cache for failure responses
+          REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['failure_ttl']
+        end
+      end
+
       def ok?
         @status == RESPONSE_STATUS[:ok]
       end

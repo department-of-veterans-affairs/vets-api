@@ -49,7 +49,10 @@ module Common
 
         record = yield
         raise NoMethodError, 'The record class being cached must implement #cache?' unless record.respond_to?(:cache?)
-        cache_record(key, record) if record.cache?
+        if record.cache?
+          ttl = record.respond_to?(:record_ttl) ? record.record_ttl : @redis_namespace_ttl
+          cache_record(key, record, ttl)
+        end
         record
       end
       # rubocop:enable Security/MarshalLoad
@@ -62,11 +65,11 @@ module Common
       #   redis_namespace, to be used together as the Redis key
       # @param record [ActiveRecord::Base] The ActiveRecord::Base db record to be cached
       #
-      def self.cache_record(key, record)
+      def self.cache_record(key, record, ttl)
         serialized = Marshal.dump(record)
 
         @redis_namespace.set(key, serialized)
-        @redis_namespace.expire(key, @redis_namespace_ttl)
+        @redis_namespace.expire(key, ttl)
       end
     end
   end
