@@ -76,10 +76,14 @@ module Common
       redis_namespace.del(redis_key)
     end
 
-    def save
+    def save(record_ttl = nil)
       return false unless valid?
       redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
-      expire(redis_namespace_ttl) if defined? redis_namespace_ttl
+      if record_ttl
+        expire(record_ttl)
+      elsif defined? redis_namespace_ttl
+        expire(redis_namespace_ttl)
+      end
       @persisted = true
     end
 

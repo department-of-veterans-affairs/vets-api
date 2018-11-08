@@ -42,7 +42,11 @@ module Common
 
     def cache(key, response)
       set_attributes(key, response)
-      save
+      if response.respond_to?(:record_ttl)
+        save(response.record_ttl)
+      else
+        save
+      end
     end
 
     private
