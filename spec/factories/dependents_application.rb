@@ -16,7 +16,7 @@ FactoryBot.define do
           last: 'last'
         },
         veteranAddress: {
-          country: 'USA',
+          countryDropdown: 'USA',
           addressType: 'DOMESTIC',
           street: 'street1',
           street2: 'Student Records',
@@ -36,14 +36,13 @@ FactoryBot.define do
             state: 'NY'
           },
           spouseAddress: {
-            country: 'USA',
-            addressType: 'DOMESTIC',
+            countryDropdown: 'Country Not In List',
+            countryText: 'countryText',
+            addressType: 'INTERNATIONAL',
             street: 'street1',
             street2: 'Student Records',
             street3: 'street3',
-            city: 'LOUISVILLE',
-            state: 'KY',
-            postalCode: '40292'
+            city: 'LOUISVILLE'
           },
           spouseFullName: {
             first: 'spouse',
@@ -109,7 +108,7 @@ FactoryBot.define do
             childDateOfBirth: '2016-12-15',
             childInHousehold: true,
             childAddress: {
-              country: 'USA',
+              countryDropdown: 'USA',
               addressType: 'DOMESTIC',
               street: 'street1',
               street2: 'Student Records',

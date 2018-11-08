@@ -63,9 +63,7 @@ class DependentsApplication < Common::RedisStore
       'addressLine3' => address['street3'],
       'addressLocality' => get_address_locality(address),
       'city' => address['city'],
-      'country' => {
-        'dropDownCountry' => address['country']
-      },
+      'country' => convert_country(address),
       'postOffice' => address['postOffice'],
       'postalType' => address['postalType'],
       'state' => address['state'],

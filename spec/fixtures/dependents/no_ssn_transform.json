@@ -151,13 +151,12 @@
           "addressLine1": "street1",
           "addressLine2": "Student Records",
           "addressLine3": "street3",
-          "addressLocality": "DOMESTIC",
+          "addressLocality": "INTERNATIONAL",
           "city": "LOUISVILLE",
           "country": {
-            "dropDownCountry": "USA"
-          },
-          "state": "KY",
-          "zipCode": "40292"
+            "dropDownCountry": "Country Not In List",
+            "textCountry": "countryText"
+          }
         },
         "firstName": "spouse",
         "lastName": "last",
