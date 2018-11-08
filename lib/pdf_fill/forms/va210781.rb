@@ -283,6 +283,12 @@ module PdfFill
         },
         'signatureDate' => {
           key: 'form1[0].#subform[2].Date11[0]'
+        },
+        'additionalIncidentText' => {
+          question_num: 17,
+          question_text: 'ADDITIONAL INCIDENTS',
+          limit: 0,
+          key: 'none'
         }
       }.freeze
 
