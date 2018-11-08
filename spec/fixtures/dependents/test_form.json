@@ -11,7 +11,7 @@
     "city": "Louisville",
     "state": "KY",
     "postalCode": "40206",
-    "country": "USA"
+    "countryDropdown": "USA"
   },
   "maritalStatus": "NEVERMARRIED",
   "veteranSocialSecurityNumber": "787675676"

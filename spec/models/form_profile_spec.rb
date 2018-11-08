@@ -86,8 +86,8 @@ RSpec.describe FormProfile, type: :model do
         'street2' => 'APT 212',
         'city' => 'ALEXANDRIA',
         'state' => 'VA',
-        'country' => 'USA',
-        'postalCode' => '22302'
+        'postalCode' => '22302',
+        'countryDropdown' => 'USA'
       },
       'veteranEmail' => 'evssvsotest@gmail.com',
       'veteranSocialSecurityNumber' => '796043735',
