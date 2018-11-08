@@ -12,8 +12,7 @@ class DependentsApplication < Common::RedisStore
     'Divorce' => 'DIVORCED',
     'Other' => 'OTHER'
   }.freeze
-  MILITARY_STATES = %w[AA AE AP]
-
+  MILITARY_STATES = %w[AA AE AP].freeze
 
   def self.filter_children(dependents, evss_children)
     return [] if evss_children.blank? || dependents.blank?
@@ -46,22 +45,23 @@ class DependentsApplication < Common::RedisStore
     }
   end
 
+  def self.get_address_locality(address)
+    if address['country'] == 'USA'
+      MILITARY_STATES.include?(address['state']) ? 'MILITARY' : 'DOMESTIC'
+    else
+      'INTERNATIONAL'
+    end
+  end
+
   def self.convert_address(address)
     converted = {}
     return converted if address.blank?
-
-    address_locality =
-      if address['country'] == 'USA'
-        MILITARY_STATES.include?(address['state']) ? 'MILITARY' : 'DOMESTIC'
-      else
-        'INTERNATIONAL'
-      end
 
     converted['address'] = {
       'addressLine1' => address['street'],
       'addressLine2' => address['street2'],
       'addressLine3' => address['street3'],
-      'addressLocality' => address_locality,
+      'addressLocality' => get_address_locality(address),
       'city' => address['city'],
       'country' => {
         'dropDownCountry' => address['country']
