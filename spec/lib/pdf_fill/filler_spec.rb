@@ -111,7 +111,7 @@ describe PdfFill::Filler do
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
     %w[21-8940].each do |form_id|
       context "form #{form_id}" do
-        %w[simple kitchen_sink overflow].each do |type|
+        %w[overflow].each do |type|
           context "with #{type} test data" do
             let(:form_data) do
               get_fixture("pdf_fill/#{form_id}/#{type}")
@@ -136,14 +136,14 @@ describe PdfFill::Filler do
                   FileUtils.compare_file(extras_path, "spec/fixtures/pdf_fill/#{form_id}/overflow_extras.pdf")
                 ).to eq(true)
 
-                File.delete(extras_path)
+                #File.delete(extras_path)
               end
 
               expect(
                 compare_pdfs(file_path, "spec/fixtures/pdf_fill/#{form_id}/#{type}.pdf")
               ).to eq(true)
 
-              File.delete(file_path)
+              #File.delete(file_path)
             end
           end
         end
