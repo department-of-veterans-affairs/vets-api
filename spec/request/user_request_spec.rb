@@ -95,4 +95,66 @@ RSpec.describe 'Fetching user data', type: :request do
       )
     end
   end
+
+  context 'when an LOA3 user is logged in', :skip_mvi do
+    let(:loa3_user) { build(:user, :loa3) }
+    let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
+
+    before do
+      Session.create(uuid: loa3_user.uuid, token: token)
+      User.create(loa3_user)
+      create(:account, idme_uuid: loa3_user.uuid)
+    end
+
+    it 'GET /v0/user - for MVI error should only make a request to MVI one time per request!' do
+      stub_mvi_failure
+      expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
+      get v0_user_url, nil, auth_header
+    end
+
+    it 'GET /v0/user - for MVI success should only make a request to MVI one time per multiple requests!' do
+      stub_mvi_success
+      expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
+      get v0_user_url, nil, auth_header
+      get v0_user_url, nil, auth_header
+      get v0_user_url, nil, auth_header
+    end
+
+    # Need to figure out how to test this, but need to set a few successes first (but for a different user)
+    xit 'raises a breakers exception after 50% failure rate' do
+      now = Time.current
+      start_time = now - 120
+      Timecop.freeze(start_time)
+
+      stub_mvi_failure
+      20.times do
+        get v0_user_url, nil, auth_header
+        expect(response.status).to eq(200)
+      end
+
+      expect do
+        get v0_user_url, nil, auth_header
+      end.to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
+
+      get v0_user_url, nil, auth_header
+      expect(response.status).to eq(503)
+
+      Timecop.freeze(now)
+      stub_mvi_success
+      get v0_user_url, nil, auth_header
+      expect(response.status).to eq(200)
+    end
+
+    def stub_mvi_failure
+      fail_XML = File.read('spec/support/mvi/find_candidate_soap_fault.xml')
+      stub_request(:post, Settings.mvi.url)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
+    end
+
+    def stub_mvi_success
+      success_XML = File.read('spec/support/mvi/find_candidate_response.xml')
+      stub_request(:post, Settings.mvi.url)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: success_XML)
+    end
+  end
 end
