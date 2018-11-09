@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'evss/disability_compensation_form/form8940'
 
 describe EVSS::DisabilityCompensationForm::Form8940 do
   let(:form_content) do
@@ -10,11 +9,7 @@ describe EVSS::DisabilityCompensationForm::Form8940 do
     )
   end
   let(:expected_output) { JSON.parse(File.read('spec/support/disability_compensation_form/form_8940.json')) }
-  let(:user) { build(:disabilities_compensation_user) }
-
-  before do
-    User.create(user)
-  end
+  let(:user) { create(:disabilities_compensation_user) }
 
   subject { described_class.new(user, form_content) }
 

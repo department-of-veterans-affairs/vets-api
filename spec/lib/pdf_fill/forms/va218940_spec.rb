@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/hash_converter'
 
 def basic_class
   PdfFill::Forms::Va218940.new({})
