@@ -52,8 +52,8 @@ module EVSS
 
     def connection
       @conn ||= Faraday.new(base_path, request: request_options, ssl: ssl_options) do |faraday|
-        faraday.response :snakecase, symbolize: false
         set_evss_middlewares(faraday)
+        faraday.response :snakecase, symbolize: false
       end
     end
 
