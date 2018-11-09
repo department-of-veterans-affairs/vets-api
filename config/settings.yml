@@ -204,7 +204,6 @@ mvi:
   pii_logging: false
   vba_orchestration: false
   edipi_search: false
-  cache_all_profile_responses: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for
