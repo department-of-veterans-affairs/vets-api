@@ -121,9 +121,7 @@ class Mvi < Common::RedisStore
 
   def response_from_redis_or_service
     do_cached_with(key: @user.uuid) do
-      profile = mvi_service.find_profile(@user)
-      self.class.redis_namespace_ttl = set_ttl(profile)
-      profile
+      mvi_service.find_profile(@user)
     end
   end
 
@@ -131,8 +129,15 @@ class Mvi < Common::RedisStore
     @service ||= MVI::Service.new
   end
 
-  def set_ttl(profile)
-    if profile.status == MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok]
+  def save
+    return false unless valid?
+    redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
+    expire(record_ttl)
+    @persisted = true
+  end
+
+  def record_ttl
+    if status == MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok]
       # ensure default ttl is used for 'ok' responses
       REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
     else
