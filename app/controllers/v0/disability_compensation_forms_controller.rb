@@ -47,9 +47,9 @@ module V0
     # :nocov:
 
     def submission_status
-      submission = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(params[:job_id])
-      raise Common::Exceptions::RecordNotFound, params[:job_id] unless submission
-      render json: submission, serializer: AsyncTransaction::BaseSerializer
+      job_status = Form526JobStatus.where(job_id: params[:job_id]).first
+      raise Common::Exceptions::RecordNotFound, params[:job_id] unless job_status
+      render json: job_status, serializer: Form526JobStatusSerializer
     end
 
     private

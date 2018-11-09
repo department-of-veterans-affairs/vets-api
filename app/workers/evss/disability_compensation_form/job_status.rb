@@ -55,6 +55,7 @@ module EVSS
           status: status,
           updated_at: Time.now.utc
         }
+        values[:error_class] = error.class if error
         values[:error_message] = error.try(:messages) || error.message if error
         Form526JobStatus.upsert({ job_id: jid }, values)
       end
