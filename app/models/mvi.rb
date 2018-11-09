@@ -130,10 +130,9 @@ class Mvi < Common::RedisStore
   end
 
   def save
-    return false unless valid?
-    redis_namespace.set(attributes[redis_namespace_key], Oj.dump(attributes))
-    expire(record_ttl)
-    @persisted = true
+    saved = super
+    expire(record_ttl) if saved
+    saved
   end
 
   def record_ttl
