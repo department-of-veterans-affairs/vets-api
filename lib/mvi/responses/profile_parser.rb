@@ -138,9 +138,9 @@ module MVI
       def sanitize_edipi(edipi)
         return if edipi.nil?
         # Get rid of invalid values like 'UNK'
-        sanitied_result = edipi.match(/\d{10}/).to_s
-        Rails.logger.info "Edipi sanitized. was: '#{edipi}' now: '#{sanitied_result}'." unless sanitied_result == edipi
-        sanitied_result
+        sanitized_result = edipi.match(/\d{10}/).to_s
+        Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
+        sanitized_result
       end
 
       # name can be a hash or an array of hashes with extra unneeded details
