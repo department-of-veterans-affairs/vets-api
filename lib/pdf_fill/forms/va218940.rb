@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
     class Va218940 < FormBase
@@ -127,7 +128,7 @@ module PdfFill
         'serviceConnectedDisability' => {
           key: 'form1[0].#subform[0].ServiceConnectedDisability[0]',
           limit: 90,
-          question_num: 2,
+          question_num: 8,
           question_text: 'SERVICE CONNECTED DISABILITY'
         },
         'wasHospitalizedYes' => {
@@ -202,6 +203,9 @@ module PdfFill
         },
         'otherEducationTrainingPreUnemployability' => {
           limit: 1,
+          question_text: 'Other Education or Training Prior to Unemployability',
+          question_num: 24,
+          first_key: 'name',
           'name' => {
             key: 'form1[0].#subform[1].TypeOfEducationOrTraining[1]'
           },
@@ -212,10 +216,19 @@ module PdfFill
             'to' => {
               key: 'form1[0].#subform[1].Date[8]'
             }
+          },
+          'otherEdPreUnemployOverflow' => {
+            key: '',
+            question_num: 24,
+            question_suffix: 'B',
+            question_text: 'Type of Education or Training Prior to Unemployability'
           }
         },
         'otherEducationTrainingPostUnemployability' => {
           limit: 1,
+          question_num: 25,
+          question_text: 'Other Education or Training After Unemployability',
+          first_key: 'name',
           'name' => {
             key: 'form1[0].#subform[1].TypeOfEducationOrTraining[0]'
           },
@@ -226,19 +239,13 @@ module PdfFill
             'to' => {
               key: 'form1[0].#subform[1].Date[6]'
             }
+          },
+          'otherEdPostUnemployOverflow' => {
+            key: '',
+            question_num: 25,
+            question_suffix: 'B',
+            question_text: 'Other Education or Training After Unemployability'
           }
-        },
-        'preDisTrainOverflow' => {
-          key: '',
-          question_text: 'Pre-Disability Education or Training',
-          question_num: 24,
-          question_suffix: 'B'
-        },
-        'postDisTrainOverflow' => {
-          key: '',
-          question_text: 'Post-Disability Education or Training',
-          question_num: 25,
-          question_suffix: 'B'
         },
         'doctorsCareDateRanges' => {
           limit: 6,
@@ -291,6 +298,140 @@ module PdfFill
             question_num: 12,
             key: 'form1[0].#subform[0].NameAndAddressOfHospitals[0]'
           }
+        },
+        'previousEmployers' => {
+          limit: 5,
+          question_num: 18,
+          question_text: 'Previous Employers',
+          first_key: 'nameAndAddress',
+          'nameAndAddress' => {
+            key: "employerNameAddress[#{ITERATOR}]"
+          },
+          'workType' => {
+            key: "typeOfWork[#{ITERATOR}]"
+          },
+          'hoursPerWeek' => {
+            key: "hoursPerWeek[#{ITERATOR}]"
+          },
+          'fromDate' => {
+            key: "fromDate[#{ITERATOR}]"
+          },
+          'toDate' => {
+            key: "toDate[#{ITERATOR}]"
+          },
+          'timeLostFromIllness' => {
+            key: "timeLost[#{ITERATOR}]"
+          },
+          'mostEarningsInAMonth' => {
+            key: "highestGrossEarnings[#{ITERATOR}]"
+          },
+          'previousEmployerOverflow' => {
+            key: '',
+            question_text: 'Previous Employer',
+            question_num: 18,
+            question_suffix: 'A'
+          }
+        },
+        'disabilityAffectEmployFTDate' => {
+          'day' => {
+            key: 'form1[0].#subform[0].Day[4]'
+          },
+          'month' => {
+            key: 'form1[0].#subform[0].Month[4]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[0].Year[8]'
+          }
+        },
+        'lastWorkedFullTimeDate' => {
+          'day' => {
+            key: 'form1[0].#subform[0].Day[5]'
+          },
+          'month' => {
+            key: 'form1[0].#subform[0].Month[5]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[0].Year[9]'
+          }
+        },
+        'becameTooDisabledToWorkDate' => {
+          'day' => {
+            key: 'form1[0].#subform[0].Day[6]'
+          },
+          'month' => {
+            key: 'form1[0].#subform[0].Month[6]'
+          },
+          'year' => {
+            key: 'form1[0].#subform[0].Year[10]'
+          }
+        },
+        'mostEarningsInAYear' => {
+          key: 'form1[0].#subform[0].NumericField1[0]'
+        },
+        'yearOfMostEarnings' => {
+          key: 'form1[0].#subform[0].Year[11]'
+        },
+        'occupationDuringMostEarnings' => {
+          key: 'form1[0].#subform[0].OccupationDuringThatYear[0]'
+        },
+        'preventMilitaryDutiesYes' => {
+          key: 'form1[0].#subform[1].CheckBoxYes[4]'
+        },
+        'preventMilitaryDutiesNo' => {
+          key: 'form1[0].#subform[1].CheckBoxNo[4]'
+        },
+        'past12MonthsEarnedIncome' => {
+          key: 'form1[0].#subform[1].NumericField1[4]'
+        },
+        'currentMonthlyEarnedIncome' => {
+          key: 'form1[0].#subform[1].NumericField1[5]'
+        },
+        'leftLastJobDueToDisabilityYes' => {
+          key: 'form1[0].#subform[1].CheckBoxYes[2]'
+        },
+        'leftLastJobDueToDisabilityNo' => {
+          key: 'form1[0].#subform[1].CheckBoxNo[2]'
+        },
+        'expectDisabilityRetirementYes' => {
+          key: 'form1[0].#subform[1].CheckBoxYes[1]'
+        },
+        'expectDisabilityRetirementNo' => {
+          key: 'form1[0].#subform[1].CheckBoxNo[1]'
+        },
+        'receiveExpectWorkersCompensationYes' => {
+          key: 'form1[0].#subform[1].CheckBoxYes[3]'
+        },
+        'receiveExpectWorkersCompensationNo' => {
+          key: 'form1[0].#subform[1].CheckBoxNo[3]'
+        },
+        'attemptedEmployYes' => {
+          key: 'form1[0].#subform[1].CheckBoxYes[5]'
+        },
+        'attemptedEmployNo' => {
+          key: 'form1[0].#subform[1].CheckBoxNo[5]'
+        },
+        'appliedEmployers' => {
+          limit: 3,
+          question_text: 'Employers Applied For Work Since Unemployment',
+          first_key: 'nameAndAddress',
+          'nameAndAddress' => {
+            key: "appliedEmployer[#{ITERATOR}]"
+          },
+          'workType' => {
+            key: "workType[#{ITERATOR}]"
+          },
+          'date' => {
+            key: "dateApplied[#{ITERATOR}]"
+          },
+          'appliedEmployerOverflow' => {
+            key: '',
+            question_text: 'Employer Applied to for Work Since Unemployment',
+            question_num: 22,
+            question_suffix: 'A'
+          }
+        },
+        'remarks' => {
+          key: 'form1[0].#subform[2].Remarks[0]'
         }
       }.freeze
 
@@ -299,28 +440,24 @@ module PdfFill
         expand_ssn
         expand_veteran_dob
         expand_veteran_address
-        collapse_education(@form_data['unemployability'])
-        collapse_training(@form_data['unemployability'])
-        expand_doctors_care_or_hospitalized
-        expand_service_connected_disability
-        expand_provided_care(@form_data['unemployability']['doctorProvidedCare'], 'doctorsCare')
-        expand_provided_care(@form_data['unemployability']['hospitalProvidedCare'], 'hospitalCare')
-
+        transform_various_unemployment_fields(@form_data['unemployability'])
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
 
         @form_data.except!('unemployability')
+
+        @form_data
       end
 
       private
 
-      def expand_service_connected_disability
-        @form_data['serviceConnectedDisability'] = @form_data['unemployability']['disabilityPreventingEmployment']
+      def expand_service_connected_disability(unemployability)
+        @form_data['serviceConnectedDisability'] = unemployability['disabilityPreventingEmployment']
       end
 
-      def expand_doctors_care_or_hospitalized
-        @form_data['wasHospitalizedYes'] = @form_data['unemployability']['underDoctorHopitalCarePast12M'] == true
-        @form_data['wasHospitalizedNo'] = @form_data['unemployability']['underDoctorHopitalCarePast12M'] == false
+      def expand_doctors_care_or_hospitalized(unemployability)
+        @form_data['wasHospitalizedYes'] = unemployability['underDoctorHopitalCarePast12M'] == true
+        @form_data['wasHospitalizedNo'] = unemployability['underDoctorHopitalCarePast12M'] == false
       end
 
       def expand_veteran_full_name
@@ -372,52 +509,155 @@ module PdfFill
         @form_data['veteranAddress']['postalCode'] = split_postal_code(@form_data['veteranAddress'])
       end
 
-      def collapse_education(hash)
-        return if hash.blank?
-        return if hash['education'].blank?
+      def transform_various_unemployment_fields(unemployability)
+        return if unemployability.blank?
+        collapse_education(unemployability)
+        collapse_training(unemployability)
+        expand_employment_disability_dates(unemployability)
+        expand_income_items(unemployability)
+        resolve_yes_no_checkboxes(unemployability)
+        resolve_applied_employers(unemployability)
+        expand_provided_care(unemployability['doctorProvidedCare'], 'doctorsCare')
+        expand_provided_care(unemployability['hospitalProvidedCare'], 'hospitalCare')
+        expand_previous_employers(unemployability['previousEmployers'])
+        expand_doctors_care_or_hospitalized(unemployability)
+        expand_service_connected_disability(unemployability)
+
+        @form_data['remarks'] = unemployability['remarks']
+      end
+
+      def collapse_education(unemployability)
+        return if unemployability['education'].blank?
         @form_data['education'] = {
-          'value' => hash['education']
+          'value' => unemployability['education']
         }
         expand_checkbox_as_hash(@form_data['education'], 'value')
       end
 
-      def collapse_training(hash)
-        return if hash.blank?
+      def collapse_training(unemployability)
+        other_training_pre_unemploy = unemployability['otherEducationTrainingPreUnemployability']
+        return if other_training_pre_unemploy.blank?
 
-        ed_received_pre = hash['receivedOtherEducationTrainingPreUnemployability']
-        if ed_received_pre
-          @form_data['trainingPreDisabledYes'] = true
-        else
-          @form_data['trainingPreDisabledNo'] = true
+        other_training_pre_unemploy.each do |training|
+          overflow = format_training_overflow(training)
+          training['otherEdPreUnemployOverflow'] = PdfFill::FormValue.new('', overflow)
         end
-
-        other_training_pre_unemploy = hash['otherEducationTrainingPreUnemployability']
         @form_data['otherEducationTrainingPreUnemployability'] = other_training_pre_unemploy
-        format_training_overflow(other_training_pre_unemploy, 'preDisTrainOverflow')
 
-        ed_received_post = hash['receivedOtherEducationTrainingPostUnemployability']
-        if ed_received_post
-          @form_data['trainingPostUnEmployYes'] = true
-        else
-          @form_data['trainingPostUnEmployNo'] = true
+        other_training_post_unemploy = unemployability['otherEducationTrainingPostUnemployability']
+        return if other_training_post_unemploy.blank?
+
+        other_training_post_unemploy.each do |training|
+          overflow = format_training_overflow(training)
+          training['otherEdPostUnemployOverflow'] = PdfFill::FormValue.new('', overflow)
         end
-
-        other_training_post_unemploy = hash['otherEducationTrainingPostUnemployability']
         @form_data['otherEducationTrainingPostUnemployability'] = other_training_post_unemploy
-        format_training_overflow(other_training_post_unemploy, 'postDisTrainOverflow')
       end
 
-      def format_training_overflow(training, key)
+      def format_training_overflow(training)
         return if training.blank?
         overflow = []
-        training.each do |edu|
-          name = edu['name'] || ''
-          dates = combine_date_ranges([edu['dates']])
-          overflow.push(name + "\n" + dates)
-        end
-
+        name = training['name'] || ''
+        dates = combine_date_ranges([training['dates']])
+        overflow.push(name + "\n" + dates)
         overflow.compact.join("\n\n")
-        @form_data[key] = PdfFill::FormValue.new('', overflow)
+      end
+
+      def expand_previous_employers(employers)
+        return if employers.blank?
+
+        employers.each do |employer|
+          overflow = format_previous_employer_overflow(employer)
+          employer['previousEmployerOverflow'] = PdfFill::FormValue.new('', overflow)
+          compress_previous_employer_info(employer)
+        end
+        @form_data['previousEmployers'] = employers
+      end
+
+      def format_previous_employer_overflow(previous_employer)
+        return if previous_employer.blank?
+        overflow = []
+        name = 'Name: ' + previous_employer['name'] || ''
+        address = 'Address: ' + combine_full_address(previous_employer['address']) || ''
+        dates = 'Dates of Employment: ' + combine_date_ranges([previous_employer['dates']]) || ''
+        work = 'Type of Work: ' + previous_employer['workType'] || ''
+        hours = 'Hours Per Week: ' + previous_employer['hoursPerWeek'] || ''
+        time = 'Time Lost From Illness: ' + previous_employer['timeLostFromIllness'] || ''
+        earnings = 'Highest Gross Earnings Per Month: ' + previous_employer['mostEarningsInAMonth'] || ''
+
+        format_str = name + "\n" + address + "\n" + work + "\n" + hours + "\n" + dates + "\n" + time + "\n" + earnings
+        overflow.push(format_str)
+        overflow.compact.join("\n\n")
+      end
+
+      def compress_previous_employer_info(employer)
+        address = combine_full_address(employer['address'])
+        employer['nameAndAddress'] = employer['name'] + "\n" + address
+        employer['fromDate'] = employer['dates']['from']
+        employer['toDate'] = employer['dates']['to']
+        employer.except!('name')
+        employer.except!('address')
+        employer.except!('dates')
+      end
+
+      # rubocop:disable Metrics/LineLength
+      def expand_employment_disability_dates(unemployability)
+        @form_data['disabilityAffectEmployFTDate'] = split_date(unemployability['disabilityAffectedEmploymentFullTimeDate'])
+        @form_data['lastWorkedFullTimeDate'] = split_date(unemployability['lastWorkedFullTimeDate'])
+        @form_data['becameTooDisabledToWorkDate'] = split_date(unemployability['becameTooDisabledToWorkDate'])
+      end
+      # rubocop:enable Metrics/LineLength
+
+      def expand_income_items(unemployability)
+        @form_data['mostEarningsInAYear'] = unemployability['mostEarningsInAYear']
+        @form_data['yearOfMostEarnings'] = unemployability['yearOfMostEarnings']
+        @form_data['occupationDuringMostEarnings'] = unemployability['occupationDuringMostEarnings']
+        @form_data['past12MonthsEarnedIncome'] = unemployability['past12MonthsEarnedIncome']
+        @form_data['currentMonthlyEarnedIncome'] = unemployability['currentMonthlyEarnedIncome']
+      end
+
+      def resolve_yes_no_checkboxes(unemployability)
+        @form_data['preventMilitaryDutiesYes'] = unemployability['disabilityPreventMilitaryDuties'] == true
+        @form_data['preventMilitaryDutiesNo'] = unemployability['disabilityPreventMilitaryDuties'] == false
+        @form_data['leftLastJobDueToDisabilityYes'] = unemployability['leftLastJobDueToDisability'] == true
+        @form_data['leftLastJobDueToDisabilityNo'] = unemployability['leftLastJobDueToDisability'] == false
+        @form_data['expectDisabilityRetirementYes'] = unemployability['receiveExpectDisabilityRetirement'] == true
+        @form_data['expectDisabilityRetirementNo'] = unemployability['receiveExpectDisabilityRetirement'] == false
+        @form_data['receiveExpectWorkersCompensationYes'] = unemployability['receiveExpectWorkersCompensation'] == true
+        @form_data['receiveExpectWorkersCompensationNo'] = unemployability['receiveExpectWorkersCompensation'] == false
+        @form_data['attemptedEmployYes'] = unemployability['attemptedToObtainEmploymentSinceUnemployability'] == true
+        @form_data['attemptedEmployNo'] = unemployability['attemptedToObtainEmploymentSinceUnemployability'] == false
+        ed_received_pre = unemployability['receivedOtherEducationTrainingPreUnemployability']
+        @form_data['trainingPreDisabledYes'] = ed_received_pre == true
+        @form_data['trainingPreDisabledNo'] = ed_received_pre == false
+        ed_received_post = unemployability['receivedOtherEducationTrainingPostUnemployability']
+        @form_data['trainingPostUnEmployYes'] = ed_received_post == true
+        @form_data['trainingPostUnEmployNo'] = ed_received_post == false
+      end
+
+      def resolve_applied_employers(unemployability)
+        return if unemployability['appliedEmployers'].blank?
+        unemployability['appliedEmployers'].each do |employer|
+          overflow = format_applied_employer_overflow(employer)
+          address = combine_full_address(employer['address'])
+          employer['nameAndAddress'] = employer['name'] + "\n" + address
+          employer.except!('name')
+          employer.except!('address')
+          employer['appliedEmployerOverflow'] = PdfFill::FormValue.new('', overflow)
+        end
+        @form_data['appliedEmployers'] = unemployability['appliedEmployers']
+      end
+
+      def format_applied_employer_overflow(applied_employer)
+        return if applied_employer.blank?
+        overflow = []
+        name = 'Name: ' + applied_employer['name'] || ''
+        address = 'Address: ' + combine_full_address(applied_employer['address']) || ''
+        work = 'Type of Work: ' + applied_employer['workType'] || ''
+        date = 'Date Applied: ' + applied_employer['date'] || ''
+
+        overflow.push(name + "\n" + address + "\n" + work + "\n" + date)
+        overflow.compact.join("\n\n")
       end
     end
   end
