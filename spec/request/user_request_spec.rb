@@ -120,15 +120,22 @@ RSpec.describe 'Fetching user data', type: :request do
       get v0_user_url, nil, auth_header
     end
 
-    # Need to figure out how to test this, but need to set a few successes first (but for a different user)
+    # The successes are not registering as 20 requests because we cache after the first one on a user basis
     xit 'raises a breakers exception after 50% failure rate' do
       now = Time.current
       start_time = now - 120
       Timecop.freeze(start_time)
 
+      stub_mvi_success
+      20.times do
+        get v0_user_url, nil, auth_header
+        expect(response.status).to eq(200)
+      end
+
       stub_mvi_failure
       20.times do
         get v0_user_url, nil, auth_header
+        binding.pry
         expect(response.status).to eq(200)
       end
 
