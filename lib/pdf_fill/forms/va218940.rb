@@ -577,15 +577,16 @@ module PdfFill
       def format_previous_employer_overflow(previous_employer)
         return if previous_employer.blank?
         overflow = []
-        name = 'Name: ' + previous_employer['name'] || ''
-        address = 'Address: ' + combine_full_address(previous_employer['address']) || ''
-        dates = 'Dates of Employment: ' + combine_date_ranges([previous_employer['dates']]) || ''
-        work = 'Type of Work: ' + previous_employer['workType'] || ''
-        hours = 'Hours Per Week: ' + previous_employer['hoursPerWeek'] || ''
-        time = 'Time Lost From Illness: ' + previous_employer['timeLostFromIllness'] || ''
-        earnings = 'Highest Gross Earnings Per Month: ' + previous_employer['mostEarningsInAMonth'] || ''
 
-        format_str = name + "\n" + address + "\n" + work + "\n" + hours + "\n" + dates + "\n" + time + "\n" + earnings
+        format_str = [
+          ['Name: ', previous_employer['name']].compact.join(' '),
+          ['Address: ', combine_full_address(previous_employer['address'])].compact.join(' '),
+          ['Dates of Employment: ', combine_date_ranges([previous_employer['dates']])].compact.join(' '),
+          ['Type of Work: ', previous_employer['workType']].compact.join(' '),
+          ['Hours Per Week: ', previous_employer['hoursPerWeek']].compact.join(' '),
+          ['Time Lost From Illness: ', previous_employer['timeLostFromIllness']].compact.join(' '),
+          ['Highest Gross Earnings Per Month: ', previous_employer['mostEarningsInAMonth']].compact.join(' ')
+        ].compact.join("\n")
         overflow.push(format_str)
         overflow.compact.join("\n\n")
       end
@@ -662,3 +663,5 @@ module PdfFill
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
