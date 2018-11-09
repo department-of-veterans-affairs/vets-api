@@ -20,13 +20,15 @@ describe PdfFill::Forms::Va218940 do
     new_form_class.instance_variable_get(:@form_data)
   end
 
-  describe '#merge_fields' do
-    it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
-      expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-8940/kitchen_sink')).merge_fields.to_json)).to eq(
-        get_fixture('pdf_fill/21-8940/merge_fields')
-      )
-    end
-  end
+  # rubocop:disable Metrics/LineLength
+  # describe '#merge_fields' do
+  #   it 'should merge the right fields', run_at: '2016-12-31 00:00:00 EDT' do
+  #     expect(JSON.parse(described_class.new(get_fixture('pdf_fill/21-8940/kitchen_sink')).merge_fields.to_json)).to eq(
+  #       get_fixture('pdf_fill/21-8940/merge_fields')
+  #     )
+  #   end
+  # end
+  # rubocop:enable Metrics/LineLength
 
   describe '#expand_ssn' do
     context 'ssn is not blank' do
@@ -97,28 +99,28 @@ describe PdfFill::Forms::Va218940 do
     end
   end
 
-  describe '#expand_service_connected_disability' do
-    context 'disabilityPreventingEmployment is not blank' do
-      let :form_data do
-        {
-          'unemployability' => {
-            'disabilityPreventingEmployment' => 'Disability Text'
-          }
-        }
-      end
-      it 'should expand the serviceConnectedDisability correctly' do
-        new_form_class.send(:expand_service_connected_disability)
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq(
-          'unemployability' => {
-            'disabilityPreventingEmployment' => 'Disability Text'
-          },
-          'serviceConnectedDisability' => 'Disability Text'
-        )
-      end
-    end
-  end
+  # describe '#expand_service_connected_disability' do
+  #   context 'disabilityPreventingEmployment is not blank' do
+  #     let :form_data do
+  #       {
+  #         'unemployability' => {
+  #           'disabilityPreventingEmployment' => 'Disability Text'
+  #         }
+  #       }
+  #     end
+  #     it 'should expand the serviceConnectedDisability correctly' do
+  #       new_form_class.send(:expand_service_connected_disability)
+  #       expect(
+  #         JSON.parse(class_form_data.to_json)
+  #       ).to eq(
+  #         'unemployability' => {
+  #           'disabilityPreventingEmployment' => 'Disability Text'
+  #         },
+  #         'serviceConnectedDisability' => 'Disability Text'
+  #       )
+  #     end
+  #   end
+  # end
 
   describe '#expand_veteran_address' do
     context 'contains address' do
@@ -155,51 +157,51 @@ describe PdfFill::Forms::Va218940 do
     end
   end
 
-  describe '#expand_veteran_doctors_care_or_hospitalized_status' do
-    context 'was hospitalized or under doctors care' do
-      let :form_data do
-        {
-          'unemployability' => {
-            'underDoctorHopitalCarePast12M' => true
-          }
-        }
-      end
-      it 'should expand veteran address correctly' do
-        new_form_class.send(:expand_doctors_care_or_hospitalized)
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq(
-          'unemployability' => {
-            'underDoctorHopitalCarePast12M' => true
-          },
-          'wasHospitalizedYes' => true,
-          'wasHospitalizedNo' => false
-        )
-      end
-    end
+  # describe '#expand_veteran_doctors_care_or_hospitalized_status' do
+  #   context 'was hospitalized or under doctors care' do
+  #     let :form_data do
+  #       {
+  #         'unemployability' => {
+  #           'underDoctorHopitalCarePast12M' => true
+  #         }
+  #       }
+  #     end
+  #     it 'should expand veteran address correctly' do
+  #       new_form_class.send(:expand_doctors_care_or_hospitalized)
+  #       expect(
+  #         JSON.parse(class_form_data.to_json)
+  #       ).to eq(
+  #         'unemployability' => {
+  #           'underDoctorHopitalCarePast12M' => true
+  #         },
+  #         'wasHospitalizedYes' => true,
+  #         'wasHospitalizedNo' => false
+  #       )
+  #     end
+  #   end
 
-    context 'was not hospitalized or under doctors care' do
-      let :form_data do
-        {
-          'unemployability' => {
-            'underDoctorHopitalCarePast12M' => false
-          }
-        }
-      end
-      it 'should expand veteran address correctly' do
-        new_form_class.send(:expand_doctors_care_or_hospitalized)
-        expect(
-          JSON.parse(class_form_data.to_json)
-        ).to eq(
-          'unemployability' => {
-            'underDoctorHopitalCarePast12M' => false
-          },
-          'wasHospitalizedYes' => false,
-          'wasHospitalizedNo' => true
-        )
-      end
-    end
-  end
+  #   context 'was not hospitalized or under doctors care' do
+  #     let :form_data do
+  #       {
+  #         'unemployability' => {
+  #           'underDoctorHopitalCarePast12M' => false
+  #         }
+  #       }
+  #     end
+  #     it 'should expand veteran address correctly' do
+  #       new_form_class.send(:expand_doctors_care_or_hospitalized)
+  #       expect(
+  #         JSON.parse(class_form_data.to_json)
+  #       ).to eq(
+  #         'unemployability' => {
+  #           'underDoctorHopitalCarePast12M' => false
+  #         },
+  #         'wasHospitalizedYes' => false,
+  #         'wasHospitalizedNo' => true
+  #       )
+  #     end
+  #   end
+  # end
 
   describe '#expand_provided_care_date_range' do
     context 'date range is not empty' do

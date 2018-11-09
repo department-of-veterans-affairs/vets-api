@@ -98,6 +98,63 @@
         },
         "timeLostFromIllness": "1 months",
         "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer F",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer G",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer H",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
       }
     ],
     "disabilityPreventMilitaryDuties": true,
@@ -106,7 +163,7 @@
     "leftLastJobDueToDisability": true,
     "receiveExpectDisabilityRetirement": false,
     "receiveExpectWorkersCompensation": false,
-    "attemptedToObtainEmploymentSinceUnemployability": false,
+    "attemptedToObtainEmploymentSinceUnemployability": true,
     "appliedEmployers": [
       {
         "name": "Employer C",
@@ -133,7 +190,21 @@
         },
         "workType": "work",
         "date": "1997-01-01"
+      },
+      {
+        "name": "Employer E",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1E",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "date": "1997-01-01"
       }
+
     ],
     "education": "college4",
     "receivedOtherEducationTrainingPreUnemployability": true,
