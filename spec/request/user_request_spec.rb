@@ -108,34 +108,39 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'GET /v0/user - for MVI error should only make a request to MVI one time per request!' do
       stub_mvi_failure
-      expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
-      get v0_user_url, nil, auth_header
+      expect_any_instance_of(Common::Client::Base).to receive(:perform).and_call_original
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
     end
 
     it 'GET /v0/user - for MVI success should only make a request to MVI one time per multiple requests!' do
       stub_mvi_success
       expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
-      get v0_user_url, nil, auth_header
-      get v0_user_url, nil, auth_header
-      get v0_user_url, nil, auth_header
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+      expect { get v0_user_url, nil, auth_header }
+        .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+      expect { get v0_user_url, nil, auth_header }
+        .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
     end
 
     # The successes are not registering as 20 requests because we cache after the first one on a user basis
-    xit 'raises a breakers exception after 50% failure rate' do
+    it 'GET /v0/user - for MVI raises a breakers exception after 50% failure rate' do
+      allow_any_instance_of(Mvi).to receive(:save).and_return(true)
+
       now = Time.current
       start_time = now - 120
       Timecop.freeze(start_time)
 
       stub_mvi_success
-      20.times do
+      2.times do
         get v0_user_url, nil, auth_header
         expect(response.status).to eq(200)
       end
 
       stub_mvi_failure
-      20.times do
+      2.times do
         get v0_user_url, nil, auth_header
-        binding.pry
         expect(response.status).to eq(200)
       end
 
@@ -144,7 +149,7 @@ RSpec.describe 'Fetching user data', type: :request do
       end.to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
 
       get v0_user_url, nil, auth_header
-      expect(response.status).to eq(503)
+      expect(response.status).to eq(200)
 
       Timecop.freeze(now)
       stub_mvi_success

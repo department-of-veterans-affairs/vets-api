@@ -47,15 +47,15 @@ module MVI
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
+        conn.use :breakers
         conn.request :soap_headers
 
         # Uncomment this if you want curl command equivalent or response output to log
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
-        conn.response :soap_parser
-        conn.use :breakers
         conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging
+        conn.response :soap_parser
         conn.response :betamocks if Settings.mvi.mock
         conn.adapter Faraday.default_adapter
       end
