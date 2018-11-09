@@ -2,9 +2,9 @@
   "vaFileNumber": "12345678",
   "veteranSocialSecurityNumber": "123456789",
   "veteranFullName": {
-    "first": "Testy",
+    "first": "XXXXXXXXXXXXXXXXXXXXXXXX",
     "middle": "Tester",
-    "last": "Testerson"
+    "last": "XXXXXXXXXXXXXXXXXXXXXXXX"
   },
   "veteranDateOfBirth": "1981-11-05",
   "email": "testy.testerson@gmail.com",
@@ -84,9 +84,9 @@
         }
       }
     ],
-    "disabilityAffectedEmploymentFullTimeDate": "1998-1-1",
-    "lastWorkedFullTimeDate": "1997-1-1",
-    "becameTooDisabledToWorkDate": "1993-1-1",
+    "disabilityAffectedEmploymentFullTimeDate": "1998-01-01",
+    "lastWorkedFullTimeDate": "1997-01-01",
+    "becameTooDisabledToWorkDate": "1993-01-01",
     "mostEarningsInAYear": "100,000",
     "yearOfMostEarnings": "1992",
     "occupationDuringMostEarnings": "Test",
@@ -104,8 +104,8 @@
         "workType": "work",
         "hoursPerWeek": "40",
         "dates": {
-          "from": "1991-1-1",
-          "to": "1992-1-1"
+          "from": "1991-01-01",
+          "to": "1992-01-01"
         },
         "timeLostFromIllness": "2 months",
         "mostEarningsInAMonth": "4000"
@@ -123,8 +123,84 @@
         "workType": "work",
         "hoursPerWeek": "40",
         "dates": {
-          "from": "1992-1-1",
-          "to": "1993-1-1"
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer F",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer G",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer H",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
+        },
+        "timeLostFromIllness": "1 months",
+        "mostEarningsInAMonth": "2000"
+      },
+      {
+        "name": "Employer I",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1C",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "hoursPerWeek": "40",
+        "dates": {
+          "from": "1992-01-01",
+          "to": "1993-01-01"
         },
         "timeLostFromIllness": "1 months",
         "mostEarningsInAMonth": "2000"
@@ -153,6 +229,45 @@
       },
       {
         "name": "Employer D",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1E",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "date": "1997-1-1"
+      },
+      {
+        "name": "Employer J",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1E",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "date": "1997-1-1"
+      },
+      {
+        "name": "Employer K",
+        "address": {
+          "street": "123 Main Street",
+          "street2": "1E",
+          "city": "Baltimore",
+          "state": "MD",
+          "country": "USA",
+          "postalCode": "21200-1111"
+        },
+        "workType": "work",
+        "date": "1997-1-1"
+      },
+      {
+        "name": "Employer L",
         "address": {
           "street": "123 Main Street",
           "street2": "1E",

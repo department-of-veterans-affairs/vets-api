@@ -16,10 +16,6 @@
     "street": "street",
     "street2": "1B",
     "state": "MD"
-  },
-  "unemployability": {
-    "disabilityPreventingEmployment": "Unemployability Disability",
-    "underDoctorHopitalCarePast12M": false
   }
 }
   
