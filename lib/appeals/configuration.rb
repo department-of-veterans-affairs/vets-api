@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'appeals/middleware/errors'
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
 require 'common/client/middleware/response/json_parser'
@@ -25,7 +26,8 @@ module Appeals
 
         faraday.response :betamocks if mock_enabled?
         faraday.response :raise_error, error_prefix: service_name
-        faraday.response :json_parser
+        faraday.response :appeals_errors
+        faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
     end
