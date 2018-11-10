@@ -176,7 +176,8 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
     context 'with a success status' do
-      let(:job_status) { create(:form526_job_status) }
+      let(:submission) { create(:form526_submission, submitted_claim_id: 61234567) }
+      let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
 
       it 'should return the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
@@ -187,6 +188,7 @@ RSpec.describe 'Disability compensation form', type: :request do
               'id' => '',
               'type' => 'form526_job_statuses',
               'attributes' => {
+                'claim_id' => 61234567,
                 'job_id' => '82dba5c2060867a53135b123',
                 'status' => 'success'
               }
@@ -197,7 +199,8 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a retryable_error status' do
-      let(:job_status) { create(:form526_job_status, :retryable_error) }
+      let(:submission) { create(:form526_submission) }
+      let(:job_status) { create(:form526_job_status, :retryable_error, form526_submission_id: submission.id) }
 
 
       it 'should return the job status and response', :aggregate_failures do
@@ -209,6 +212,7 @@ RSpec.describe 'Disability compensation form', type: :request do
               'id' => '',
               'type' => 'form526_job_statuses',
               'attributes' => {
+                'claim_id' => nil,
                 'job_id' => '82dba5c2060867a53135b123',
                 'status' => 'retryable_error'
               }
@@ -219,7 +223,8 @@ RSpec.describe 'Disability compensation form', type: :request do
     end
 
     context 'with a non_retryable_error status' do
-      let(:job_status) { create(:form526_job_status, :non_retryable_error) }
+      let(:submission) { create(:form526_submission) }
+      let(:job_status) { create(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
 
 
       it 'should return the job status and response', :aggregate_failures do
@@ -231,6 +236,7 @@ RSpec.describe 'Disability compensation form', type: :request do
               'id' => '',
               'type' => 'form526_job_statuses',
               'attributes' => {
+                'claim_id' => nil,
                 'job_id' => '82dba5c2060867a53135b123',
                 'status' => 'non_retryable_error'
               }
