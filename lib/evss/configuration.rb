@@ -38,11 +38,12 @@ module EVSS
         Settings.evss.root_cert_path.present?
     end
 
-    def set_evss_middlewares(faraday)
+    def set_evss_middlewares(faraday, snakecase: true)
       faraday.use      :breakers
       faraday.use      EVSS::ErrorMiddleware
       faraday.use      Faraday::Response::RaiseError
       faraday.response :betamocks if mock_enabled?
+      faraday.response :snakecase, symbolize: false if snakecase
       # calls to EVSS returns non JSON responses for some scenarios that don't make it through VAAFI
       # content_type: /\bjson$/ ensures only json content types are attempted to be parsed.
       faraday.response :json, content_type: /\bjson$/
@@ -53,7 +54,6 @@ module EVSS
     def connection
       @conn ||= Faraday.new(base_path, request: request_options, ssl: ssl_options) do |faraday|
         set_evss_middlewares(faraday)
-        faraday.response :snakecase, symbolize: false
       end
     end
 
