@@ -10,6 +10,7 @@ module Common
           UNPARSABLE_STATUS_CODES = [204, 301, 302, 304].freeze
 
           def on_complete(env)
+            puts "A"
             if env.response_headers['content-type'] =~ /\bjson/
               if env.body =~ WHITESPACE_REGEX || env.body =~ MHV_SUCCESS_REGEX
                 puts "B"
@@ -22,8 +23,10 @@ module Common
           end
 
           def parse(body = nil)
+            puts "PARSE"
             Oj.load(body)
           rescue Oj::Error => error
+            puts "ERROR #{error.message}"
             raise Common::Client::Errors::Serialization, error
           end
         end
