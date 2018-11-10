@@ -24,12 +24,11 @@ class MhvAccount < ActiveRecord::Base
   scope :active, -> { where.not(mhv_correlation_id: nil) }
 
   STATSD_ACCOUNT_INELIGIBLE_KEY = 'mhv.account.ineligible'
-  TERMS_AND_CONDITIONS_NAME = 'mhvac'
   UPGRADABLE_ACCOUNT_LEVELS = [nil, 'Basic', 'Advanced'].freeze
   INELIGIBLE_STATES = %i[
     needs_identity_verification needs_ssn_resolution needs_va_patient
     has_deactivated_mhv_ids has_multiple_active_mhv_ids
-    state_ineligible country_ineligible needs_terms_acceptance
+    state_ineligible country_ineligible
   ].freeze
   PERSISTED_STATES = %i[registered upgraded register_failed upgrade_failed].freeze
   ELIGIBLE_STATES = %i[existing eligible no_account].freeze
@@ -51,7 +50,6 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :needs_va_patient, unless: :va_patient?
       transitions from: ALL_STATES, to: :has_deactivated_mhv_ids, if: :deactivated_mhv_ids?
       transitions from: ALL_STATES, to: :has_multiple_active_mhv_ids, if: :multiple_active_mhv_ids?
-      transitions from: ALL_STATES, to: :needs_terms_acceptance, if: :requires_terms_acceptance?
       transitions from: ALL_STATES, to: :eligible
     end
 
@@ -94,18 +92,6 @@ class MhvAccount < ActiveRecord::Base
 
   def upgradable?
     may_upgrade? && account_level.in?(UPGRADABLE_ACCOUNT_LEVELS)
-  end
-
-  def terms_and_conditions_accepted?
-    terms_and_conditions_accepted.present?
-  end
-
-  def terms_and_conditions_accepted
-    @terms_and_conditions_accepted ||=
-      TermsAndConditionsAcceptance.joins(:terms_and_conditions)
-                                  .includes(:terms_and_conditions)
-                                  .where(terms_and_conditions: { latest: true, name: TERMS_AND_CONDITIONS_NAME })
-                                  .where(user_uuid: user_uuid).limit(1).first
   end
 
   def exists?
@@ -155,11 +141,6 @@ class MhvAccount < ActiveRecord::Base
 
   def ssn_mismatch?
     user.ssn_mismatch?
-  end
-
-  def requires_terms_acceptance?
-    return false if account_level == 'Premium'
-    !terms_and_conditions_accepted?
   end
 
   def multiple_active_mhv_ids?
