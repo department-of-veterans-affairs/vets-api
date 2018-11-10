@@ -16,6 +16,7 @@ module Common
           end
 
           def on_complete(env)
+            puts env.success?
             return if env.success?
             @body = env[:body]
             @status = env.status.to_i
@@ -25,6 +26,7 @@ module Common
           private
 
           def raise_error!
+            puts "STATUS #{status}"
             if status&.between?(400, 599)
               raise Common::Exceptions::BackendServiceException.new(service_i18n_key, response_values, @status, @body)
             else

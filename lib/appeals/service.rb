@@ -21,8 +21,8 @@ module Appeals
     rescue JSON::Schema::ValidationError => error
       log_exception_to_sentry(error)
       raise error
-    rescue Common::Client::Errors::ClientError => error
-      handle_service_error(error)
+    # rescue Common::Client::Errors::ClientError => error
+    #   handle_service_error(error)
     end
 
     private
