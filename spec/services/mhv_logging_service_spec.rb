@@ -22,7 +22,7 @@ RSpec.describe MHVLoggingService do
   end
 
   before(:each) do
-    mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+    mhv_account = double('mhv_account', ineligible?: false, upgraded?: true)
     allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
     allow(MHVLogging::Client).to receive(:new).and_return(authenticated_client)
   end

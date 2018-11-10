@@ -105,19 +105,11 @@ RSpec.describe MhvAccount, type: :model do
           expect(subject.creatable?).to be_falsey
         end
       end
-
-      context 'user has not accepted terms and conditions' do
-        let(:mhv_ids) { %w[14221465] }
-
-        it 'needs_terms_acceptance' do
-          expect(subject.account_state).to eq('needs_terms_acceptance')
-          expect(subject.creatable?).to be_falsey
-        end
-      end
     end
 
     context '#track_state' do
       let(:tracker_id) { user.uuid.to_s + user.mhv_correlation_id.to_s }
+      let(:user_ssn) { '123456789' }
 
       it 'creates redis entry' do
         subject.creatable?
@@ -152,7 +144,7 @@ RSpec.describe MhvAccount, type: :model do
         tracker = MHVAccountIneligible.find(tracker_id)
         expect(tracker).to be_truthy
         expect(tracker.mhv_correlation_id).to eq(user.mhv_correlation_id)
-        expect(tracker.account_state).to eq(:needs_terms_acceptance)
+        expect(tracker.account_state).to eq(:needs_ssn_resolution)
         expect(tracker.uuid).to eq(user.uuid)
 
         tracker = MHVAccountIneligible.find(user.uuid.to_s + 'different_id')
@@ -164,170 +156,150 @@ RSpec.describe MhvAccount, type: :model do
     end
 
     context 'check_account_state' do
-      context 'with terms accepted' do
-        let(:terms) { create(:terms_and_conditions, latest: true, name: described_class::TERMS_AND_CONDITIONS_NAME) }
-        before(:each) { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
+      context 'without an existing account' do
+        context 'nothing has been persisted and no mhv_id' do
+          it 'has no_account' do
+            expect(subject.account_state).to eq('no_account')
+            expect(subject.creatable?).to be_truthy
+          end
+        end
+      end
 
-        context 'without an existing account' do
-          context 'nothing has been persisted and no mhv_id' do
-            it 'has no_account' do
-              expect(subject.account_state).to eq('no_account')
-              expect(subject.creatable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
+      context 'with existing account' do
+        let(:mhv_ids) { %w[14221465] }
+
+        context 'nothing has been persisted with current mhv id' do
+          before(:each) do
+            allow_any_instance_of(MhvAccountTypeService)
+              .to receive(:mhv_account_type).and_return(account_type)
+          end
+
+          context 'account level basic' do
+            let(:account_type) { 'Basic' }
+
+            it 'has existing' do
+              expect(subject.account_state).to eq('existing')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_truthy
+            end
+          end
+
+          context 'account level advanced' do
+            let(:account_type) { 'Advanced' }
+
+            it 'has existing' do
+              expect(subject.account_state).to eq('existing')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_truthy
+            end
+          end
+
+          context 'account level premium' do
+            let(:account_type) { 'Premium' }
+
+            it 'has existing' do
+              expect(subject.account_state).to eq('existing')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
+            end
+          end
+
+          context 'account level unknown' do
+            let(:account_type) { 'Unknown' }
+
+            it 'has existing' do
+              expect(subject.account_state).to eq('existing')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
+            end
+          end
+
+          context 'account level unknown' do
+            let(:account_type) { 'Error' }
+
+            it 'has existing' do
+              expect(subject.account_state).to eq('existing')
+              expect(subject.creatable?).to be_falsey
+              expect(subject.upgradable?).to be_falsey
             end
           end
         end
 
-        context 'with existing account' do
-          let(:mhv_ids) { %w[14221465] }
-
-          context 'nothing has been persisted with current mhv id' do
-            before(:each) do
-              allow_any_instance_of(MhvAccountTypeService)
-                .to receive(:mhv_account_type).and_return(account_type)
-            end
-
-            context 'account level basic' do
-              let(:account_type) { 'Basic' }
-
-              it 'has existing' do
-                expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_truthy
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
-              end
-            end
-
-            context 'account level advanced' do
-              let(:account_type) { 'Advanced' }
-
-              it 'has existing' do
-                expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_truthy
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
-              end
-            end
-
-            context 'account level premium' do
-              let(:account_type) { 'Premium' }
-
-              it 'has existing' do
-                expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_falsey
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
-              end
-            end
-
-            context 'account level unknown' do
-              let(:account_type) { 'Unknown' }
-
-              it 'has existing' do
-                expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_falsey
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
-              end
-            end
-
-            context 'account level unknown' do
-              let(:account_type) { 'Error' }
-
-              it 'has existing' do
-                expect(subject.account_state).to eq('existing')
-                expect(subject.creatable?).to be_falsey
-                expect(subject.upgradable?).to be_falsey
-                expect(subject.terms_and_conditions_accepted?).to be_truthy
-              end
-            end
+        context 'previously upgraded' do
+          before(:each) do
+            MhvAccount.skip_callback(:initialize, :after, :setup)
+            create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+            MhvAccount.set_callback(:initialize, :after, :setup)
           end
 
-          context 'previously upgraded' do
-            before(:each) do
-              MhvAccount.skip_callback(:initialize, :after, :setup)
-              create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
-              MhvAccount.set_callback(:initialize, :after, :setup)
-            end
+          it 'has upgraded' do
+            expect(subject.account_state).to eq('upgraded')
+            expect(subject.changes[:account_state]).to be_nil
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_falsey
+          end
+        end
 
-            it 'has upgraded' do
-              expect(subject.account_state).to eq('upgraded')
-              expect(subject.changes[:account_state]).to be_nil
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
+        context 'previously registered but somehow upgraded because of account level' do
+          before(:each) do
+            MhvAccount.skip_callback(:initialize, :after, :setup)
+            create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
+                                            mhv_correlation_id: user.mhv_correlation_id)
+            MhvAccount.set_callback(:initialize, :after, :setup)
           end
 
-          context 'previously registered but somehow upgraded because of account level' do
-            before(:each) do
-              MhvAccount.skip_callback(:initialize, :after, :setup)
-              create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
-                                              mhv_correlation_id: user.mhv_correlation_id)
-              MhvAccount.set_callback(:initialize, :after, :setup)
-            end
-
-            it 'has upgraded, with account level Premium, but it is treated as upgraded therefore not upgradable' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Premium')
-              expect(subject.account_state).to eq('upgraded')
-              expect(subject.changes[:account_state]).to be_nil
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
-
-            it 'has upgraded, with account level Error, but it is treated as upgraded therefore not upgradable' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Error')
-              expect(subject.account_state).to eq('upgraded')
-              expect(subject.changes[:account_state]).to be_nil
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
+          it 'has upgraded, with account level Premium, but it is treated as upgraded therefore not upgradable' do
+            expect(subject.account_state).to eq('upgraded')
+            expect(subject.changes[:account_state]).to be_nil
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_falsey
           end
 
-          context 'previously registered' do
-            before(:each) do
-              MhvAccount.skip_callback(:initialize, :after, :setup)
-              create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
-              MhvAccount.set_callback(:initialize, :after, :setup)
-            end
+          it 'has upgraded, with account level Error, but it is treated as upgraded therefore not upgradable' do
+            expect(subject.account_state).to eq('upgraded')
+            expect(subject.changes[:account_state]).to be_nil
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_falsey
+          end
+        end
 
-            it 'has registered, upgradable with account level basic' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Basic')
-              expect(subject.account_state).to eq('registered')
-              expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
+        context 'previously registered' do
+          before(:each) do
+            MhvAccount.skip_callback(:initialize, :after, :setup)
+            create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
+            MhvAccount.set_callback(:initialize, :after, :setup)
+          end
 
-            it 'has registered, upgradable with account level advanced' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Advanced')
-              expect(subject.account_state).to eq('registered')
-              expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
+          it 'has registered, upgradable with account level basic' do
+            expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Basic')
+            expect(subject.account_state).to eq('registered')
+            expect(subject.changes).to be_empty
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_truthy
+          end
 
-            it 'has registered, upgradable with account level nil' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return(nil)
-              expect(subject.account_state).to eq('registered')
-              expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_truthy
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
+          it 'has registered, upgradable with account level advanced' do
+            expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Advanced')
+            expect(subject.account_state).to eq('registered')
+            expect(subject.changes).to be_empty
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_truthy
+          end
 
-            it 'has registered, NOT upgradable with account level Error' do
-              expect_any_instance_of(User).to receive(:mhv_account_type).exactly(2).times.and_return('Error')
-              expect(subject.account_state).to eq('registered')
-              expect(subject.changes).to be_empty
-              expect(subject.creatable?).to be_falsey
-              expect(subject.upgradable?).to be_falsey
-              expect(subject.terms_and_conditions_accepted?).to be_truthy
-            end
+          it 'has registered, upgradable with account level nil' do
+            expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return(nil)
+            expect(subject.account_state).to eq('registered')
+            expect(subject.changes).to be_empty
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_truthy
+          end
+
+          it 'has registered, NOT upgradable with account level Error' do
+            expect_any_instance_of(User).to receive(:mhv_account_type).exactly(1).times.and_return('Error')
+            expect(subject.account_state).to eq('registered')
+            expect(subject.changes).to be_empty
+            expect(subject.creatable?).to be_falsey
+            expect(subject.upgradable?).to be_falsey
           end
         end
       end

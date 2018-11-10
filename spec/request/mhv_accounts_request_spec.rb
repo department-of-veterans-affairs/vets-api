@@ -42,8 +42,6 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   let(:mhv_ids) { [] }
   let(:vha_facility_ids) { ['450'] }
 
-  let(:terms) { create(:terms_and_conditions, latest: true, name: MhvAccount::TERMS_AND_CONDITIONS_NAME) }
-
   before(:each) do
     stub_mvi(mvi_profile)
     use_authenticated_current_user(current_user: user)
@@ -104,8 +102,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         expect(response).to have_http_status(:created)
         expect(JSON.parse(response.body)['data']['attributes']).to eq(
           'account_level' => 'Advanced',
-          'account_state' => 'registered',
-          'terms_and_conditions_accepted' => true
+          'account_state' => 'registered'
         )
       end
     end
@@ -118,8 +115,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
         expect(response).to have_http_status(:accepted)
         expect(JSON.parse(response.body)['data']['attributes']).to eq(
           'account_level' => 'Premium',
-          'account_state' => 'upgraded',
-          'terms_and_conditions_accepted' => true
+          'account_state' => 'upgraded'
         )
       end
     end
@@ -147,146 +143,134 @@ RSpec.describe 'Account creation and upgrade', type: :request do
     end
   end
 
-  context 'without T&C acceptance' do
-    it_behaves_like 'a successful GET #show', account_state: 'needs_terms_acceptance', account_level: nil
-    it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                             message: V0::MhvAccountsController::CREATE_ERROR
-    it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                              message: V0::MhvAccountsController::UPGRADE_ERROR
-    it_behaves_like 'ssn mismatch'
-    it_behaves_like 'non va patient'
-  end
+  it_behaves_like 'ssn mismatch'
+  it_behaves_like 'non va patient'
 
-  context 'with T&C acceptance' do
-    before { create(:terms_and_conditions_acceptance, terms_and_conditions: terms, user_uuid: user.uuid) }
-
-    it_behaves_like 'ssn mismatch'
-    it_behaves_like 'non va patient'
-
-    context 'without an account' do
-      around(:each) do |example|
-        VCR.use_cassette('mhv_account_type_service/advanced') do
-          example.run
-        end
+  context 'without an account' do
+    around(:each) do |example|
+      VCR.use_cassette('mhv_account_type_service/advanced') do
+        example.run
       end
-
-      it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
-      it_behaves_like 'a successful POST #create'
-      it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                message: V0::MhvAccountsController::UPGRADE_ERROR
     end
 
-    context 'with account' do
-      let(:mhv_ids) { ['14221465'] }
+    it_behaves_like 'a successful GET #show', account_state: 'no_account', account_level: nil
+    it_behaves_like 'a successful POST #create'
+    it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
+                                              message: V0::MhvAccountsController::UPGRADE_ERROR
+  end
 
-      context 'that is existing' do
-        %w[Basic Advanced].each do |type|
-          context type do
-            around(:each) do |example|
-              # by wrapping these cassettes, we're ensuring that after a successful upgrade, the serialized
-              VCR.use_cassette('mhv_account_type_service/premium') do # account level is 'Premium'
-                VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
-                  example.run
-                end
-              end
-            end
+  context 'with account' do
+    let(:mhv_ids) { ['14221465'] }
 
-            it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
-            it_behaves_like 'ssn mismatch', account_level: type
-            it_behaves_like 'non va patient', account_level: type
-            it_behaves_like 'a successful POST #upgrade'
-            it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                     message: V0::MhvAccountsController::CREATE_ERROR
-          end
-        end
-
-        %w[Premium Error Unknown].each do |type|
-          context type do
-            around(:each) do |example|
+    context 'that is existing' do
+      %w[Basic Advanced].each do |type|
+        context type do
+          around(:each) do |example|
+            # by wrapping these cassettes, we're ensuring that after a successful upgrade,
+            # the serialized account level is 'Premium'
+            VCR.use_cassette('mhv_account_type_service/premium') do
               VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
                 example.run
               end
             end
-
-            it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
-            it_behaves_like 'ssn mismatch', account_level: type
-            it_behaves_like 'non va patient', account_level: type
-            it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                     message: V0::MhvAccountsController::CREATE_ERROR
-            it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                      message: V0::MhvAccountsController::UPGRADE_ERROR
           end
+
+          it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
+          it_behaves_like 'ssn mismatch', account_level: type
+          it_behaves_like 'non va patient', account_level: type
+          it_behaves_like 'a successful POST #upgrade'
+          it_behaves_like 'a failed POST #create', http_status: :forbidden,
+                                                   message: V0::MhvAccountsController::CREATE_ERROR
         end
       end
 
-      context 'that is registered' do
-        before(:each) do
-          MhvAccount.skip_callback(:initialize, :after, :setup)
-          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
-                            account_state: 'registered', registered_at: Time.current)
-          MhvAccount.set_callback(:initialize, :after, :setup)
-        end
-
-        around(:each) do |example|
-          # by wrapping these cassettes, we're ensuring that after a successful upgrade, the serialized
-          VCR.use_cassette('mhv_account_type_service/premium') do # account level is 'Premium'
-            VCR.use_cassette('mhv_account_type_service/advanced') do
+      %w[Premium Error Unknown].each do |type|
+        context type do
+          around(:each) do |example|
+            VCR.use_cassette("mhv_account_type_service/#{type.downcase}") do
               example.run
             end
           end
-        end
 
-        it_behaves_like 'a successful GET #show', account_state: 'registered', account_level: 'Advanced'
-        it_behaves_like 'ssn mismatch', account_level: 'Advanced'
-        it_behaves_like 'non va patient', account_level: 'Advanced'
-        it_behaves_like 'a successful POST #upgrade'
-        it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::CREATE_ERROR
+          it_behaves_like 'a successful GET #show', account_state: 'existing', account_level: type
+          it_behaves_like 'ssn mismatch', account_level: type
+          it_behaves_like 'non va patient', account_level: type
+          it_behaves_like 'a failed POST #create', http_status: :forbidden,
+                                                   message: V0::MhvAccountsController::CREATE_ERROR
+          it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
+                                                    message: V0::MhvAccountsController::UPGRADE_ERROR
+        end
+      end
+    end
+
+    context 'that is registered' do
+      before(:each) do
+        MhvAccount.skip_callback(:initialize, :after, :setup)
+        MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+                          account_state: 'registered', registered_at: Time.current)
+        MhvAccount.set_callback(:initialize, :after, :setup)
       end
 
-      context 'that is upgraded' do
-        before(:each) do
-          MhvAccount.skip_callback(:initialize, :after, :setup)
-          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
-                            account_state: 'upgraded', upgraded_at: Time.current)
-          MhvAccount.set_callback(:initialize, :after, :setup)
-        end
-
-        around(:each) do |example|
-          VCR.use_cassette('mhv_account_type_service/premium') do
+      around(:each) do |example|
+        # by wrapping these cassettes, we're ensuring that after a successful upgrade,
+        # the serialized account level is 'Premium'
+        VCR.use_cassette('mhv_account_type_service/premium') do
+          VCR.use_cassette('mhv_account_type_service/advanced') do
             example.run
           end
         end
-
-        it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
-        it_behaves_like 'ssn mismatch', account_level: 'Premium'
-        it_behaves_like 'non va patient', account_level: 'Premium'
-        it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::CREATE_ERROR
       end
 
-      context 'that is upgraded has registered_at but does not have upgraded at' do
-        before(:each) do
-          MhvAccount.skip_callback(:initialize, :after, :setup)
-          MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
-                            account_state: 'upgraded', registered_at: Time.current, upgraded_at: nil)
-          MhvAccount.set_callback(:initialize, :after, :setup)
-        end
+      it_behaves_like 'a successful GET #show', account_state: 'registered', account_level: 'Advanced'
+      it_behaves_like 'ssn mismatch', account_level: 'Advanced'
+      it_behaves_like 'non va patient', account_level: 'Advanced'
+      it_behaves_like 'a successful POST #upgrade'
+      it_behaves_like 'a failed POST #create', http_status: :forbidden,
+                                               message: V0::MhvAccountsController::CREATE_ERROR
+    end
 
-        around(:each) do |example|
-          VCR.use_cassette('mhv_account_type_service/premium') do
-            example.run
-          end
-        end
-
-        it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
-        it_behaves_like 'ssn mismatch', account_level: 'Premium'
-        it_behaves_like 'non va patient', account_level: 'Premium'
-        it_behaves_like 'a failed POST #create', http_status: :forbidden,
-                                                 message: V0::MhvAccountsController::CREATE_ERROR
-        it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
-                                                  message: V0::MhvAccountsController::UPGRADE_ERROR
+    context 'that is upgraded' do
+      before(:each) do
+        MhvAccount.skip_callback(:initialize, :after, :setup)
+        MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+                          account_state: 'upgraded', upgraded_at: Time.current)
+        MhvAccount.set_callback(:initialize, :after, :setup)
       end
+
+      around(:each) do |example|
+        VCR.use_cassette('mhv_account_type_service/premium') do
+          example.run
+        end
+      end
+
+      it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
+      it_behaves_like 'ssn mismatch', account_level: 'Premium'
+      it_behaves_like 'non va patient', account_level: 'Premium'
+      it_behaves_like 'a failed POST #create', http_status: :forbidden,
+                                               message: V0::MhvAccountsController::CREATE_ERROR
+    end
+
+    context 'that is upgraded has registered_at but does not have upgraded at' do
+      before(:each) do
+        MhvAccount.skip_callback(:initialize, :after, :setup)
+        MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
+                          account_state: 'upgraded', registered_at: Time.current, upgraded_at: nil)
+        MhvAccount.set_callback(:initialize, :after, :setup)
+      end
+
+      around(:each) do |example|
+        VCR.use_cassette('mhv_account_type_service/premium') do
+          example.run
+        end
+      end
+
+      it_behaves_like 'a successful GET #show', account_state: 'upgraded', account_level: 'Premium'
+      it_behaves_like 'ssn mismatch', account_level: 'Premium'
+      it_behaves_like 'non va patient', account_level: 'Premium'
+      it_behaves_like 'a failed POST #create', http_status: :forbidden,
+                                               message: V0::MhvAccountsController::CREATE_ERROR
+      it_behaves_like 'a failed POST #upgrade', http_status: :forbidden,
+                                                message: V0::MhvAccountsController::UPGRADE_ERROR
     end
   end
 end

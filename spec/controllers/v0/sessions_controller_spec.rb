@@ -193,7 +193,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       let(:logout_request) { OneLogin::RubySaml::Logoutrequest.new }
 
       before do
-        mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+        mhv_account = double('mhv_account', ineligible?: false, upgraded?: true)
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
@@ -254,7 +254,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'saml_logout_response is success' do
         before do
-          mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+          mhv_account = double('mhv_account', ineligible?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
