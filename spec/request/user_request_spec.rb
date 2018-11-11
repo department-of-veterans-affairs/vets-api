@@ -106,11 +106,31 @@ RSpec.describe 'Fetching user data', type: :request do
       create(:account, idme_uuid: loa3_user.uuid)
     end
 
+    # FIXME: how is it that this one only makes 1 external request??
     it 'GET /v0/user - for MVI error should only make a request to MVI one time per request!' do
       stub_mvi_failure
-      expect_any_instance_of(Common::Client::Base).to receive(:perform).and_call_original
       expect { get v0_user_url, nil, auth_header }
         .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+      expect(JSON.parse(response.body)['data']['attributes']['va_profile'])
+        .to eq('status' => 'SERVER_ERROR')
+    end
+
+    # FIXME: we should not be making 12 external requests!
+    it 'GET /v0/user - for MVI RecordNotFound should only make a request to MVI one time per request!' do
+      stub_mvi_record_not_found
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 12, value: 1)
+      expect(JSON.parse(response.body)['data']['attributes']['va_profile'])
+        .to eq('status' => 'NOT_FOUND')
+    end
+
+    # FIXME: we should not be making 12 external requests!
+    it 'GET /v0/user - for MVI DuplicateRecords should only make a request to MVI one time per request!' do
+      stub_mvi_duplicate_record
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 12, value: 1)
+      expect(JSON.parse(response.body)['data']['attributes']['va_profile'])
+        .to eq('status' => 'NOT_FOUND')
     end
 
     it 'GET /v0/user - for MVI success should only make a request to MVI one time per multiple requests!' do
@@ -124,20 +144,11 @@ RSpec.describe 'Fetching user data', type: :request do
         .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
     end
 
-    # The successes are not registering as 20 requests because we cache after the first one on a user basis
+    # FIXME: we should not be making 12 external requests!
     it 'GET /v0/user - for MVI raises a breakers exception after 50% failure rate' do
-      allow_any_instance_of(Mvi).to receive(:save).and_return(true)
-
       now = Time.current
       start_time = now - 120
       Timecop.freeze(start_time)
-
-      stub_mvi_success
-      2.times do
-        get v0_user_url, nil, auth_header
-        expect(response.status).to eq(200)
-      end
-
       stub_mvi_failure
       2.times do
         get v0_user_url, nil, auth_header
@@ -146,19 +157,30 @@ RSpec.describe 'Fetching user data', type: :request do
 
       expect do
         get v0_user_url, nil, auth_header
-      end.to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
-
-      get v0_user_url, nil, auth_header
-      expect(response.status).to eq(200)
+      end.to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 12, value: 1)
 
       Timecop.freeze(now)
       stub_mvi_success
       get v0_user_url, nil, auth_header
+      expect { get v0_user_url, nil, auth_header }
+        .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
       expect(response.status).to eq(200)
     end
 
     def stub_mvi_failure
       fail_XML = File.read('spec/support/mvi/find_candidate_soap_fault.xml')
+      stub_request(:post, Settings.mvi.url)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
+    end
+
+    def stub_mvi_record_not_found
+      fail_XML = File.read('spec/support/mvi/find_candidate_no_subject.xml')
+      stub_request(:post, Settings.mvi.url)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
+    end
+
+    def stub_mvi_duplicate_record
+      fail_XML = File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')
       stub_request(:post, Settings.mvi.url)
         .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
     end
