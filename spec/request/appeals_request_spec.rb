@@ -72,8 +72,6 @@ RSpec.describe 'Appeals Status', type: :request do
     context 'with a server error' do
       it 'returns a 502 and logs an error level message' do
         VCR.use_cassette('appeals/server_error') do
-          # expect_any_instance_of(Appeals::Service).to receive(:log_message_to_sentry)
-          #   .with('Appeals::Service handled an unexpected 500', :error, anything)
           get '/v0/appeals', nil, 'Authorization' => "Token token=#{session.token}"
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
