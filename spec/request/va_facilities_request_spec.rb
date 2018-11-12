@@ -6,8 +6,9 @@ RSpec.describe 'VA GIS Integration', type: :request do
   include SchemaMatchers
 
   BASE_QUERY_PATH = '/v0/facilities/va?'
-  PDX_BBOX = 'bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64'
+  PDX_BBOX = 'bbox[]=-122.786758&bbox[]=45.451913&bbox[]=-122.440689&bbox[]=45.64'
   NY_BBOX = 'bbox[]=-73.401&bbox[]=40.685&bbox[]=-77.36&bbox[]=43.03'
+  NOVA_BBOX = 'bbox[]=-79.512&bbox[]=37.55&bbox[]=-76.21&bbox[]=39.72'
 
   let(:ids_query) do
     ids = []
@@ -118,6 +119,45 @@ RSpec.describe 'VA GIS Integration', type: :request do
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(12)
+  end
+
+  regex_matcher = lambda { |r1, r2|
+    r1.uri.match(r2.uri)
+  }
+
+  it 'responds to GET #index with bbox, address, and ccp type' do
+    VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
+      get BASE_QUERY_PATH + NOVA_BBOX + '&type=cc_provider&address=22033'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      provider = json['data'][0]
+      expect(provider['attributes']['address']['city']).to eq('MANASSAS')
+      expect(provider['attributes']['phone']).to eq('(828) 555-1723')
+    end
+  end
+
+  it 'responds to GET #index with bbox and address' do
+    VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
+      setup_pdx
+      get BASE_QUERY_PATH + PDX_BBOX + '&address=97089'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(11)
+      expect(json['data'][9]['id']).to eq('ccp_1700950045') # make sure provider is merged into correct position
+    end
+  end
+
+  it 'responds to GET #index with success even if no providers are found' do
+    VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
+      get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(0)
+    end
   end
 
   it 'responds to GET #index with bbox and filter' do

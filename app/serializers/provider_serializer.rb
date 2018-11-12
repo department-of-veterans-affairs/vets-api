@@ -20,6 +20,14 @@ class ProviderSerializer < ActiveModel::Serializer
       zip: object.AddressPostalCode }
   end
 
+  def lat
+    object.Latitude
+  end
+
+  def long
+    object.Longitude
+  end
+
   def phone
     object.MainPhone
   end
