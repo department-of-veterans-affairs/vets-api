@@ -324,7 +324,7 @@ en:
         <<: *external_defaults
         title: 'Bad Gateway'
         code: 'APPEALSSTATUS500'
-        detail: 'Received an invalid response from the upstream server'
+        detail: 'Received a 500 response from the upstream server'
         status: 502
       APPEALSSTATUS502:
         <<: *external_defaults
