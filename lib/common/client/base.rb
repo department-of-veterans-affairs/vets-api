@@ -10,6 +10,9 @@ module Common
     class SecurityError < StandardError
     end
 
+    class BreakersImplementationError < StandardError
+    end
+
     class Base
       include SentryLogging
 
@@ -32,6 +35,13 @@ module Common
           if handlers.include?(Faraday::Adapter::HTTPClient) &&
              !handlers.include?(Common::Client::Middleware::Request::RemoveCookies)
             raise SecurityError, 'http client needs cookies stripped'
+          end
+
+          if handlers.include?(Breakers::UptimeMiddleware)
+            return unless handlers.first == Breakers::UptimeMiddleware
+            raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
+          else
+            warn('Breakers is not implemented for this service.')
           end
 
           connection
