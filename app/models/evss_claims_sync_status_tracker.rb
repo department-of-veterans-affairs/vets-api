@@ -1,44 +1,40 @@
 # frozen_string_literal: true
 
-require 'common/models/redis_store'
-require 'common/models/concerns/cache_aside'
-
 class EVSSClaimsSyncStatusTracker < Common::RedisStore
-  include Common::CacheAside
+  redis_store REDIS_CONFIG['evss_claims_store']['namespace']
+  redis_ttl REDIS_CONFIG['evss_claims_store']['each_ttl']
+  redis_key :user_uuid
 
-  redis_config_key :evss_claims_store
-
-  attr_reader :user_uuid
+  attribute :user_uuid, String
+  attribute :status_hash, Hash
   attr_accessor :claim_id
 
-  def initialize(attributes, persisted = false)
-    @user_uuid = attributes[:user_uuid]
-    @claim_id = attributes[:claim_id]
-    super
-  end
-
   def get_collection_status
-    self.class.find(collection_key)&.response&.dig(:status)
+    status_hash[collection_key]
   end
 
   def get_single_status
-    self.class.find(single_record_key)&.response&.dig(:status)
+    status_hash[single_record_key]
   end
 
   def set_collection_status(status)
-    cache(collection_key, status: status)
+    status_hash[collection_key] = status
+    save
   end
 
   def set_single_status(status)
-    cache(single_record_key, status: status)
+    status_hash[single_record_key] = status
+    save
   end
 
   def delete_collection_status
-    self.class.delete(collection_key)
+    status_hash.delete(collection_key)
+    save
   end
 
   def delete_single_status
-    self.class.delete(single_record_key)
+    status_hash.delete(single_record_key)
+    save
   end
 
   private
@@ -49,7 +45,7 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
         'EVSSClaimsRedisHelper#collection_key was called without having set a user uuid'
       )
     end
-    "#{user_uuid}.all"
+    'all'
   end
 
   def single_record_key
@@ -62,6 +58,6 @@ class EVSSClaimsSyncStatusTracker < Common::RedisStore
         "EVSSClaimsRedisHelper#single_record_key was called without having set a #{arr.join(', ')}"
       )
     end
-    "#{user_uuid}.update_from_remote.#{claim_id}"
+    "update_from_remote.#{claim_id}"
   end
 end
