@@ -35,19 +35,18 @@ describe MVI::Configuration do
     end
   end
 
-  # TODO(knkski): These tests probably aren't doing anything useful.
-  describe '.default_mvi_open_timeout' do
-    context 'when Settings.mvi.open_timeout is not set' do
-      it 'should use the default' do
-        expect(MVI::Configuration::OPEN_TIMEOUT).to eq(2)
+  describe '.open_timeout' do
+    context 'when Settings.mvi.open_timeout is set' do
+      it 'should use the setting' do
+        expect(MVI::Configuration.instance.open_timeout).to eq(15)
       end
     end
   end
 
-  describe '.default_mvi_timeout' do
-    context 'when Settings.mvi.timeout is not set' do
-      it 'should use the default' do
-        expect(MVI::Configuration::TIMEOUT).to eq(10)
+  describe '.read_timeout' do
+    context 'when Settings.mvi.timeout is set' do
+      it 'should use the setting' do
+        expect(MVI::Configuration.instance.read_timeout).to eq(15)
       end
     end
   end
