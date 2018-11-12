@@ -8,7 +8,7 @@ module PagerDuty
   class Configuration < Common::Client::Configuration::REST
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers # breakers must appear first, to work correctly.
+        conn.use :breakers 
         conn.request :json
 
         conn.response :raise_error, error_prefix: service_name

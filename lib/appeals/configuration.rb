@@ -23,7 +23,7 @@ module Appeals
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
-        faraday.use :breakers # breakers must appear first, to work correctly.
+        faraday.use :breakers
         faraday.use Faraday::Response::RaiseError
         faraday.request :json
         faraday.response :betamocks if mock_enabled?

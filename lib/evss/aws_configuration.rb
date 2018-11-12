@@ -17,7 +17,7 @@ module EVSS
     def connection
       req_options = Settings.faraday_socks_proxy.enabled ? request_options.merge(proxy_options) : request_options
       @conn ||= Faraday.new(base_path, request: req_options, ssl: ssl_options) do |faraday|
-        faraday.use      :breakers # breakers must appear first, to work correctly.
+        faraday.use      :breakers 
         faraday.use      EVSS::ErrorMiddleware
         faraday.use      Faraday::Response::RaiseError
         faraday.response :betamocks if mock_enabled?

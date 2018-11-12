@@ -18,7 +18,7 @@ module GI
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers # breakers must appear first, to work correctly.
+        conn.use :breakers 
         conn.request :json
         # Uncomment this out for generating curl output
         # conn.request :curl, ::Logger.new(STDOUT), :warn

@@ -17,7 +17,7 @@ module Facilities
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers # breakers must appear first, to work correctly.
+        conn.use :breakers 
         conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log

@@ -13,7 +13,7 @@ module EVSS
 
       def connection
         @conn ||= Faraday.new(base_path, request: request_options, ssl: ssl_options) do |faraday|
-          faraday.use      :breakers # breakers must appear first, to work correctly.
+          faraday.use      :breakers 
           faraday.use      EVSS::ErrorMiddleware
           faraday.use      Faraday::Response::RaiseError
           faraday.response :betamocks if mock_enabled?
