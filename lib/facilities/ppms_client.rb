@@ -15,19 +15,22 @@ module Facilities
     def provider_locator(params)
       qparams = build_params(params)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
+      return [] if response.body.nil?
       bbox_num = params[:bbox].map { |x| Float(x) }
       response.body.select! do |provider|
         provider['Latitude'] > bbox_num[1] && provider['Latitude'] < bbox_num[3] &&
           provider['Longitude'] > bbox_num[0] && provider['Longitude'] < bbox_num[2]
       end
-      response.body
+      response.body.map do |provider|
+        Provider.from_provloc provider
+      end
     end
 
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Providers/Providers_Get_0
     def provider_info(identifier)
       qparams = { :$expand => 'ProviderSpecialties' }
       response = perform(:get, "v1.0/Providers(#{identifier})?", qparams)
-      return nil if response.body.nil?
+      return nil if response.body.nil? || response.body[0].nil?
       Provider.new response.body[0]
     end
 
