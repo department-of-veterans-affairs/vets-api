@@ -3,7 +3,6 @@
 require 'appeals/middleware/errors'
 require 'common/client/configuration/rest'
 require 'common/client/middleware/response/raise_error'
-require 'common/client/middleware/response/json_parser'
 
 module Appeals
   class Configuration < Common::Client::Configuration::REST
