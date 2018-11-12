@@ -9,6 +9,11 @@ module StringHelpers
     str.slice(0, 1).capitalize + str.slice(1..-1)
   end
 
+  def hyphenated_ssn(ssn)
+    return if ssn.blank?
+    "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+  end
+
   def levenshtein_distance(str_a, str_b)
     Levenshtein.distance(str_a, str_b)
   end
