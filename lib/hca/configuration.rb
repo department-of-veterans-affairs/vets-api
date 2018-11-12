@@ -57,7 +57,7 @@ module HCA
         conn.options.timeout = 15       # TODO(molson): Make a config/setting
         conn.request :soap_headers
         conn.use HCA::SOAPParser
-        conn.use :breakers
+        conn.use :breakers # FIXME: breakers must appear first, to work correctly.
         conn.use Common::Client::Middleware::Response::RescueTimeout, { backend_service: :hca }, 'api.hca.timeout'
         conn.adapter Faraday.default_adapter
       end

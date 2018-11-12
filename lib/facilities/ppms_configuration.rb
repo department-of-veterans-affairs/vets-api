@@ -18,7 +18,7 @@ module Facilities
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use :breakers # breakers must appear first, to work correctly.
 
         # Uncomment this if you want curl command equivalent or response output to log
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?

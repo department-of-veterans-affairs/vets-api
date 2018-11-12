@@ -28,7 +28,7 @@ module EMIS
         conn.use Common::Client::Middleware::Request::RescueTimeout, backend_service: :emis
         conn.request :soap_headers
         conn.response :soap_parser
-        conn.use :breakers
+        conn.use :breakers # FIXME: breakers must appear first, to work correctly.
         conn.response :betamocks if Settings.emis.mock
         conn.adapter Faraday.default_adapter
       end

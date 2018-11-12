@@ -37,7 +37,7 @@ module Preneeds
         conn.response :eoas_xml_errors
         conn.response :clean_response
 
-        conn.use :breakers
+        conn.use :breakers # FIXME breakers must appear first, to work correctly.
         conn.adapter Faraday.default_adapter
       end
     end

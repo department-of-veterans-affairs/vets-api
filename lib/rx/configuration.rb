@@ -33,7 +33,7 @@ module Rx
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use :breakers # breakers must appear first, to work correctly.
         conn.request :json
 
         # Uncomment this if you want curl command equivalent or response output to log
@@ -55,7 +55,7 @@ module Rx
 
     def parallel_connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
-        conn.use :breakers
+        conn.use :breakers # breakers must appear first, to work correctly.
         conn.request :camelcase
         conn.request :json
 

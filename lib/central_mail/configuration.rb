@@ -15,7 +15,7 @@ module CentralMail
         faraday.request :multipart
         faraday.request :url_encoded
 
-        faraday.use :breakers
+        faraday.use :breakers # FIXME: breakers must appear first, to work correctly.
         faraday.adapter Faraday.default_adapter
       end
     end

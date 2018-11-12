@@ -18,7 +18,7 @@ module Preneeds
         conn.response :eoas_xml_errors
         conn.response :clean_response
 
-        conn.use :breakers
+        conn.use :breakers # FIXME: breakers must appear first, to work correctly.
         conn.use :logging, 'PreneedsBurial'
         conn.adapter Faraday.default_adapter
       end

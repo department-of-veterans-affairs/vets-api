@@ -8,7 +8,7 @@ module Salesforce
 
     def connection
       @conn ||= Faraday.new(base_path) do |faraday|
-        faraday.use :breakers
+        faraday.use :breakers # breakers must appear first, to work correctly.
         faraday.request :url_encoded
         faraday.response :json
         faraday.adapter Faraday.default_adapter
