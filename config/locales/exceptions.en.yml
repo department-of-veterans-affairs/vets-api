@@ -302,6 +302,12 @@ en:
         code: 'APPEALSSTATUS401'
         detail: 'Received a not authorized response from the upstream server'
         status: 502
+      APPEALSSTATUS403:
+        <<: *external_defaults
+        title: 'Forbiden'
+        code: 'APPEALSSTATUS403'
+        detail: 'You do not have access to the requested resource'
+        status: 403
       APPEALSSTATUS404:
         <<: *external_defaults
         title: 'Not found'

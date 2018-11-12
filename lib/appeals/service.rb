@@ -16,9 +16,6 @@ module Appeals
         response = perform(:get, '', {}, request_headers(user, additional_headers))
         Appeals::Responses::Appeals.new(response.body, response.status)
       end
-    rescue JSON::Schema::ValidationError => error
-      log_exception_to_sentry(error)
-      raise error
     end
 
     private
