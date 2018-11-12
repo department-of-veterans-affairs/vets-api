@@ -10,7 +10,7 @@ module Okta
 
     def connection
       @conn ||= Faraday.new(base_path) do |faraday|
-        faraday.use :breakers 
+        faraday.use :breakers
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
