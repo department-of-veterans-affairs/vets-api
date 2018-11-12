@@ -1,7 +1,5 @@
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
-  open_timeout: 2
-  timeout: 10
   mock: true
   processing_code: T
   client_cert_path: config/certs/vetsgov-localhost.crt
