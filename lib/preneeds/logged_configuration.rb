@@ -19,7 +19,7 @@ module Preneeds
         conn.response :clean_response
 
         conn.use :breakers # FIXME: breakers must appear first, to work correctly.
-        conn.use :logging, 'PreneedsBurial' # FIXME: `use` middleware should appear at the top (above `request` middleware).
+        conn.use :logging, 'PreneedsBurial' # FIXME: `use` middleware should appear (above `request` middleware).
         conn.adapter Faraday.default_adapter
       end
     end

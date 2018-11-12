@@ -21,13 +21,12 @@ module Common
       class Serialization < ClientError; end
       class ParsingError < ClientError; end
 
-
       class HTTPError < ClientError
         def initialize(message = nil, status = nil, body = nil)
           super
         end
 
-        alias_method :code, :status
+        alias code status
       end
     end
   end

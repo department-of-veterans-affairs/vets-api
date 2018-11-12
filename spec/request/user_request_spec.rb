@@ -168,27 +168,27 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     def stub_mvi_failure
-      fail_XML = File.read('spec/support/mvi/find_candidate_soap_fault.xml')
+      xml = File.read('spec/support/mvi/find_candidate_soap_fault.xml')
       stub_request(:post, Settings.mvi.url)
-        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: xml)
     end
 
     def stub_mvi_record_not_found
-      fail_XML = File.read('spec/support/mvi/find_candidate_no_subject.xml')
+      xml = File.read('spec/support/mvi/find_candidate_no_subject.xml')
       stub_request(:post, Settings.mvi.url)
-        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: xml)
     end
 
     def stub_mvi_duplicate_record
-      fail_XML = File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')
+      xml = File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')
       stub_request(:post, Settings.mvi.url)
-        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: fail_XML)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: xml)
     end
 
     def stub_mvi_success
-      success_XML = File.read('spec/support/mvi/find_candidate_response.xml')
+      xml = File.read('spec/support/mvi/find_candidate_response.xml')
       stub_request(:post, Settings.mvi.url)
-        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: success_XML)
+        .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: xml)
     end
   end
 end
