@@ -30,10 +30,13 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
+              reset_session
               url_service.mhv_url
             when 'dslogon'
+              reset_session
               url_service.dslogon_url
             when 'idme'
+              reset_session
               url_service.idme_loa1_url + (params[:signup] ? '&op=signup' : '')
             when 'mfa'
               authenticate
