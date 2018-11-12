@@ -10,7 +10,8 @@ require 'common/models/concerns/cache_aside'
 class Mvi < Common::RedisStore
   include Common::CacheAside
 
-  redis_config_key :mvi_profile_response
+  REDIS_CONFIG_KEY = :mvi_profile_response
+  redis_config_key REDIS_CONFIG_KEY
 
   # @return [User] the user to query MVI for.
   attr_accessor :user
@@ -126,5 +127,21 @@ class Mvi < Common::RedisStore
 
   def mvi_service
     @service ||= MVI::Service.new
+  end
+
+  def save
+    saved = super
+    expire(record_ttl) if saved
+    saved
+  end
+
+  def record_ttl
+    if status == MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok]
+      # ensure default ttl is used for 'ok' responses
+      REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
+    else
+      # assign separate ttl to redis cache for failure responses
+      REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['failure_ttl']
+    end
   end
 end

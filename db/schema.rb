@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181017120746) do
+ActiveRecord::Schema.define(version: 20181017123729) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -104,10 +104,11 @@ ActiveRecord::Schema.define(version: 20181017120746) do
   add_index "disability_compensation_job_statuses", ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true, using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
-    t.datetime "created_at",                    null: false
-    t.datetime "updated_at",                    null: false
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
     t.integer  "disability_compensation_id"
     t.integer  "va526ez_submit_transaction_id"
+    t.boolean  "complete",                      default: false
   end
 
   create_table "disability_contentions", force: :cascade do |t|

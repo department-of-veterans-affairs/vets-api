@@ -45,9 +45,10 @@ class SSOService
         end
       end
 
-      new_session.save && new_user.save && new_user_identity.save
+      return new_session.save && new_user.save && new_user_identity.save
     else
       handle_error_reporting_and_instrumentation
+      return false
     end
   end
 
@@ -103,6 +104,7 @@ class SSOService
   def invalid_persistence_handler
     return if new_session.valid? && new_user.valid? && new_user_identity.valid?
     @failure_instrumentation_tag = 'error:validations_failed'
+    @auth_error_code = '004' # This could be any of the three failing validation
     log_message_to_sentry('Login Fail! on User/Session Validation', :error, error_context)
   end
 

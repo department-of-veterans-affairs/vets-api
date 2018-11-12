@@ -13,9 +13,11 @@ describe Mvi, skip_mvi: true do
       profile: mvi_profile
     )
   end
-  let(:profile_response_error) do
-    MVI::Responses::FindProfileResponse.with_server_error
-  end
+  let(:profile_response_error) { MVI::Responses::FindProfileResponse.with_server_error }
+  let(:profile_response_not_found) { MVI::Responses::FindProfileResponse.with_not_found }
+
+  let(:default_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
+  let(:failure_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
   describe '.new' do
     it 'creates an instance with user attributes' do
@@ -25,19 +27,43 @@ describe Mvi, skip_mvi: true do
 
   describe '#profile' do
     context 'when the cache is empty' do
-      it 'should cache and return the response' do
+      it 'should cache and return an :ok response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
-        expect(mvi.redis_namespace).to receive(:set).once
+        expect(mvi).to receive(:save).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('OK')
+        expect(mvi.send(:record_ttl)).to eq(86_400)
+      end
+      it 'should return an :error response but not cache it' do
+        allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
+        expect(mvi).to_not receive(:save)
+        expect_any_instance_of(MVI::Service).to receive(:find_profile).once
+        expect(mvi.status).to eq('SERVER_ERROR')
+      end
+      it 'should return a :not_found response and cache it for a shorter time' do
+        allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_not_found)
+        expect(mvi).to receive(:save).once
+        expect_any_instance_of(MVI::Service).to receive(:find_profile).once
+        expect(mvi.status).to eq('NOT_FOUND')
+        expect(mvi.send(:record_ttl)).to eq(1800)
       end
     end
 
     context 'when there is cached data' do
-      it 'returns the cached data' do
+      it 'returns the cached data for :ok response' do
         mvi.cache(user.uuid, profile_response)
         expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
         expect(mvi.profile).to have_deep_attributes(mvi_profile)
+      end
+      it 'returns the cached data for :error response' do
+        mvi.cache(user.uuid, profile_response_error)
+        expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
+        expect(mvi.profile).to be_nil
+      end
+      it 'returns the cached data for :not_found response' do
+        mvi.cache(user.uuid, profile_response_not_found)
+        expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
+        expect(mvi.profile).to be_nil
       end
     end
   end

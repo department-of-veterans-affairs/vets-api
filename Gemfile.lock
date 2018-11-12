@@ -9,11 +9,20 @@ GIT
       faraday (>= 0.7.4, <= 0.12.2)
 
 GIT
-  remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 6490dc3ffe58717846dc45697d3fb59a2b5fba3c
+  remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
+  revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
   branch: master
   specs:
-    vets_json_schema (3.99.0)
+    puma-plugin-statsd (0.0.1)
+      json
+      puma (~> 3.12)
+
+GIT
+  remote: https://github.com/department-of-veterans-affairs/vets-json-schema
+  revision: e47a8cac0191b88881eeed96b2127764de29c236
+  branch: master
+  specs:
+    vets_json_schema (3.112.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -29,6 +38,12 @@ PATH
   remote: modules/appeals_api
   specs:
     appeals_api (0.0.1)
+      rails (~> 4.2.7.1)
+
+PATH
+  remote: modules/openid_auth
+  specs:
+    openid_auth (0.0.1)
       rails (~> 4.2.7.1)
 
 PATH
@@ -712,7 +727,7 @@ GEM
     connection_pool (2.2.1)
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
-    crass (1.0.3)
+    crass (1.0.4)
     date_validator (0.9.0)
       activemodel
       activesupport
@@ -806,7 +821,7 @@ GEM
     listen (3.0.6)
       rb-fsevent (>= 0.9.3)
       rb-inotify (>= 0.9.7)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
@@ -871,11 +886,11 @@ GEM
     puma (3.12.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
-    rack (1.6.10)
+    rack (1.6.11)
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
-    rack-protection (1.5.4)
+    rack-protection (2.0.4)
       rack
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -1127,6 +1142,7 @@ DEPENDENCIES
   octokit
   oj
   olive_branch
+  openid_auth!
   overcommit
   ox
   pdf-forms
@@ -1136,6 +1152,7 @@ DEPENDENCIES
   prawn
   pry-nav
   puma (~> 3.12.0)
+  puma-plugin-statsd!
   pundit
   rack-attack
   rack-cors

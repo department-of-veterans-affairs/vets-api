@@ -7,7 +7,7 @@ require 'lib/sentry_logging_spec_helper'
 RSpec.describe ApplicationController, type: :controller do
   it_behaves_like 'a sentry logger'
   controller do
-    skip_before_action :authenticate
+    skip_before_action :authenticate, except: :test_authentication
 
     JSON_ERROR = {
       'errorCode' => 139, 'developerMessage' => '', 'message' => 'Prescription is not Refillable'
@@ -28,6 +28,21 @@ RSpec.describe ApplicationController, type: :controller do
     def client_connection_failed
       client = Rx::Client.new(session: { user_id: 123 })
       client.get_session
+    end
+
+    def test_authentication
+      head :ok
+    end
+  end
+
+  before(:each) do
+    routes.draw do
+      get 'not_authorized' => 'anonymous#not_authorized'
+      get 'record_not_found' => 'anonymous#record_not_found'
+      get 'other_error' => 'anonymous#other_error'
+      get 'client_connection_failed' => 'anonymous#client_connection_failed'
+      get 'client_connection_failed_no_sentry' => 'anonymous#client_connection_failed_no_sentry'
+      get 'test_authentication' => 'anonymous#test_authentication'
     end
   end
 
@@ -76,7 +91,6 @@ RSpec.describe ApplicationController, type: :controller do
 
   context 'RecordNotFound' do
     subject { JSON.parse(response.body)['errors'].first }
-    before(:each) { routes.draw { get 'record_not_found' => 'anonymous#record_not_found' } }
     let(:keys_for_all_env) { %w[title detail code status] }
 
     context 'with Rails.env.test or Rails.env.development' do
@@ -101,7 +115,6 @@ RSpec.describe ApplicationController, type: :controller do
 
   context 'BackendServiceErrorError' do
     subject { JSON.parse(response.body)['errors'].first }
-    before(:each) { routes.draw { get 'other_error' => 'anonymous#other_error' } }
     let(:keys_for_production) { %w[title detail code status] }
     let(:keys_for_development) { keys_for_production + ['meta'] }
 
@@ -126,13 +139,6 @@ RSpec.describe ApplicationController, type: :controller do
   end
 
   context 'ConnectionFailed Error' do
-    before(:each) do
-      routes.draw do
-        get 'client_connection_failed' => 'anonymous#client_connection_failed'
-        get 'client_connection_failed_no_sentry' => 'anonymous#client_connection_failed_no_sentry'
-      end
-    end
-
     it 'makes a call to sentry when there is cause' do
       allow_any_instance_of(Rx::Client)
         .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
@@ -189,7 +195,6 @@ RSpec.describe ApplicationController, type: :controller do
 
     context 'Pundit::NotAuthorizedError' do
       subject { JSON.parse(response.body)['errors'].first }
-      before(:each) { routes.draw { get 'not_authorized' => 'anonymous#not_authorized' } }
       let(:keys_for_all_env) { %w[title detail code status] }
 
       context 'with Rails.env.test or Rails.env.development' do
@@ -210,6 +215,120 @@ RSpec.describe ApplicationController, type: :controller do
           expect(response.status).to eq(403)
           expect(subject.keys)
             .to eq(keys_for_all_env)
+        end
+      end
+    end
+
+    context '#test_authentication' do
+      let(:user) { build(:user, :loa3) }
+      let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
+      let(:header_host_value) { Settings.hostname }
+      let(:header_auth_value) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
+      let(:sso_cookie_value)  { 'bar' }
+
+      before(:each) do
+        Settings.sso.cookie_enabled = true
+        session_object = Session.create(uuid: user.uuid, token: token)
+        User.create(user)
+
+        session_object.to_hash.each { |k, v| session[k] = v }
+
+        request.env['HTTP_HOST'] = header_host_value
+        request.env['HTTP_AUTHORIZATION'] = header_auth_value
+        request.cookies[Settings.sso.cookie_name] = sso_cookie_value
+      end
+
+      after(:each) do
+        Settings.sso.cookie_enabled = false
+      end
+
+      context 'with valid session and user' do
+        it 'returns success' do
+          get :test_authentication
+          expect(response).to have_http_status(:success)
+        end
+
+        context 'with a virtual host that is invalid' do
+          let(:header_host_value) { 'unsafe_host' }
+
+          it 'returns bad request' do
+            get :test_authentication
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
+
+        context 'with a virtual host that matches sso cookie' do
+          let(:header_host_value) { 'localhost' }
+
+          it 'returns success' do
+            get :test_authentication
+            expect(response).to have_http_status(:success)
+          end
+        end
+
+        context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed' do
+          let(:header_host_value) { 'localhost' }
+          let(:sso_cookie_value)  { nil }
+
+          around(:each) do |example|
+            original_value = Settings.sso.cookie_signout_enabled
+            Settings.sso.cookie_signout_enabled = true
+            example.run
+            Settings.sso.cookie_signout_enabled = original_value
+          end
+
+          it 'returns json error' do
+            get :test_authentication
+            expect(response).to have_http_status(:unauthorized)
+            expect(JSON.parse(response.body)['errors'].first)
+              .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
+          end
+        end
+
+        context 'with a virtual host that matches sso cookie domain, but sso cookie destroyed: disabled' do
+          before(:each) do
+            Settings.sso.cookie_signout_enabled = nil
+          end
+
+          let(:header_host_value) { 'localhost' }
+          let(:sso_cookie_value)  { nil }
+
+          around(:each) do |example|
+            original_value = Settings.sso.cookie_signout_enabled
+            Settings.sso.cookie_signout_enabled = false
+            example.run
+            Settings.sso.cookie_signout_enabled = original_value
+          end
+
+          it 'returns success' do
+            get :test_authentication
+            expect(response).to have_http_status(:success)
+          end
+        end
+      end
+
+      context 'with valid session and no user' do
+        before { user.destroy }
+
+        it 'renders json error' do
+          get :test_authentication
+          expect(controller.instance_variable_get(:@session_object).uuid).to eq(user.uuid)
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body)['errors'].first)
+            .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
+        end
+      end
+
+      context 'without valid session' do
+        before { Session.find(token).destroy }
+
+        it 'renders json error' do
+          get :test_authentication
+          expect(controller.instance_variable_get(:@session_object)).to be_nil
+          expect(session).to be_empty
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body)['errors'].first)
+            .to eq('title' => 'Not authorized', 'detail' => 'Not authorized', 'code' => '401', 'status' => '401')
         end
       end
     end

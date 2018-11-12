@@ -6,6 +6,8 @@ module EVSS
       include Sidekiq::Worker
       include JobStatus
 
+      TRANSACTION_CLASS = AsyncTransaction::EVSS::VA526ezSubmitTransaction
+
       # Sidekiq has built in exponential back-off functionality for retrys
       # A max retry attempt of 13 will result in a run time of ~25 hours
       RETRY = 13
@@ -15,12 +17,22 @@ module EVSS
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
-        transaction_class.update_transaction(msg['jid'], :exhausted)
-        log_message_to_sentry(
-          "Failed all retries on Form526 submit, last error: #{msg['error_message']}",
-          :error
+        TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
+        Rails.logger.error('Form526 Exhausted', 'job_id' => msg['jid'], 'error_message' => msg['error_message'])
+        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
+      end
+
+      def self.start(user_uuid, auth_headers, saved_claim_id, submission_data)
+        workflow_batch = Sidekiq::Batch.new
+        workflow_batch.on(
+          :success,
+          'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
+          'saved_claim_id' => saved_claim_id
         )
-        metrics.increment_exhausted
+        jids = workflow_batch.jobs do
+          perform_async(user_uuid, auth_headers, saved_claim_id, submission_data)
+        end
+        jids.first
       end
 
       # Performs an asynchronous job for submitting a form526 to an upstream
@@ -41,8 +53,9 @@ module EVSS
         @submission_id = transaction.submission.id
 
         with_tracking('Form526 Submission', @saved_claim_id, @submission_id) do
+          # TODO: sub classed #service can be removed once `increase only` has been deprecated
           response = service(@auth_headers).submit_form526(@submission_data['form526'])
-          success_handler(response)
+          response_handler(response)
         end
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
@@ -50,76 +63,52 @@ module EVSS
         non_retryable_error_handler(e)
       end
 
+      def workflow_complete_handler(_status, options)
+        submission = saved_claim(options['saved_claim_id']).submission
+        submission.complete = true
+        submission.save
+      end
+
       private
 
       def find_or_create_transaction
-        transaction = transaction_class.find_transaction(jid)
+        transaction = TRANSACTION_CLASS.find_transaction(jid)
         return transaction if transaction.present?
-        saved_claim(@saved_claim_id).async_transaction = transaction_class.start(
+        saved_claim(@saved_claim_id).async_transaction = TRANSACTION_CLASS.start(
           @user_uuid, @auth_headers['va_eauth_dodedipnid'], jid
         )
       end
 
-      def success_handler(response)
-        submission_rate_limiter.increment
-        transaction_class.update_transaction(jid, :received, response.attributes)
-
-        perform_submit_uploads(response) if @submission_data['form526_uploads'].present?
-        perform_submit_form_4142(response) if @submission_data['form4142'].present?
-        perform_submit_form_0781(response) if @submission_data['form0781'].present?
-        perform_cleanup
+      def response_handler(response)
+        TRANSACTION_CLASS.update_transaction(jid, :received, response.attributes)
+        perform_ancillary_jobs(response.claim_id)
       end
 
-      def perform_submit_uploads(response)
-        EVSS::DisabilityCompensationForm::SubmitUploads.start(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form526_uploads']
+      def perform_ancillary_jobs(claim_id)
+        ancillary_jobs = AncillaryJobs.new(
+          @user_uuid, @auth_headers, @saved_claim_id, @submission_id, @submission_data
         )
-      end
-
-      def perform_submit_form_4142(response)
-        CentralMail::SubmitForm4142Job.perform_async(
-          response.claim_id, @saved_claim_id, @submission_id, @submission_data['form4142']
-        )
-      end
-
-      def perform_submit_form_0781(response)
-        EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
-          @auth_headers, response.claim_id, @saved_claim_id, @submission_id, @submission_data['form0781']
-        )
-      end
-
-      def perform_cleanup
-        EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(@user_uuid)
+        ancillary_jobs.perform(bid, claim_id)
       end
 
       def non_retryable_error_handler(error)
         message = error.try(:messages) || { error: error.message }
-        transaction_class.update_transaction(jid, :non_retryable_error, message)
+        TRANSACTION_CLASS.update_transaction(jid, :non_retryable_error, message)
         super(error)
       end
 
       def retryable_error_handler(error)
-        transaction_class.update_transaction(jid, :retrying, error: error.message)
+        TRANSACTION_CLASS.update_transaction(jid, :retrying, error: error.message)
         super(error)
         raise EVSS::DisabilityCompensationForm::GatewayTimeout, error.message
       end
 
-      def service(auth_headers)
-        EVSS::DisabilityCompensationForm::Service.new(
-          auth_headers
-        )
+      def service(_auth_headers)
+        raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
 
       def saved_claim(saved_claim_id)
         SavedClaim::DisabilityCompensation.find(saved_claim_id)
-      end
-
-      def transaction_class
-        AsyncTransaction::EVSS::VA526ezSubmitTransaction
-      end
-
-      def submission_rate_limiter
-        Common::EventRateLimiter.new(REDIS_CONFIG['evss_526_submit_form_rate_limit'])
       end
     end
   end

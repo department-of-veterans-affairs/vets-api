@@ -13,6 +13,11 @@ module Common
 
           def parse_body(env)
             hash = JSON.parse(env.body)
+            # flag Not Found errors as success so the error doesn't bubble up
+            if hash['error'] && hash['error']['message'] && hash['error']['message'] =~ /No Providers found/
+              env[:status] = 200
+              return []
+            end
             hash['value']
           end
         end

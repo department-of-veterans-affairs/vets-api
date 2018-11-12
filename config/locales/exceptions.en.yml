@@ -78,6 +78,12 @@ en:
         title: Validation error
         code: 109
         status: 422
+      not_a_safe_host_error:
+        <<: *defaults
+        title: Bad Request
+        detail: "\"%{host}\" is not a safe host"
+        code: 110
+        status: 400
       unauthorized:
         <<: *defaults
         title: Not authorized
@@ -290,12 +296,42 @@ en:
         code: 'MHVACCTCREATION159'
         detail: 'User is not matched or correlated in MVI'
         status: 422
+      APPEALSSTATUS401:
+        <<: *external_defaults
+        title: 'Bad Gateway'
+        code: 'APPEALSSTATUS401'
+        detail: 'Received a not authorized response from the upstream server'
+        status: 502
+      APPEALSSTATUS403:
+        <<: *external_defaults
+        title: 'Forbiden'
+        code: 'APPEALSSTATUS403'
+        detail: 'You do not have access to the requested resource'
+        status: 403
       APPEALSSTATUS404:
         <<: *external_defaults
-        title: 'Appeals data not found'
+        title: 'Not found'
         code: 'APPEALSSTATUS404'
         detail: 'Appeals data for a veteran with that SSN was not found'
         status: 404
+      APPEALSSTATUS422:
+        <<: *external_defaults
+        title: 'Unprocessable entity'
+        code: 'APPEALSSTATUS422'
+        detail: 'One or more unprocessable properties or validation errors'
+        status: 422
+      APPEALSSTATUS500:
+        <<: *external_defaults
+        title: 'Bad Gateway'
+        code: 'APPEALSSTATUS500'
+        detail: 'Received a 500 response from the upstream server'
+        status: 502
+      APPEALSSTATUS502:
+        <<: *external_defaults
+        title: 'Bad Gateway'
+        code: 'APPEALSSTATUS502'
+        detail: 'Received an invalid response from the upstream server'
+        status: 502
       GI404:
         <<: *external_defaults
         title: 'Record not found'
@@ -350,6 +386,12 @@ en:
         code: 'SEARCH_400'
         detail: 'Search.gov service responded with a Bad Request'
         status: 400
+      SEARCH_429:
+        <<: *external_defaults
+        title: Exceeded rate limit
+        code: 'SEARCH_429'
+        detail: 'Exceeded Search.gov rate limit'
+        status: 429
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway

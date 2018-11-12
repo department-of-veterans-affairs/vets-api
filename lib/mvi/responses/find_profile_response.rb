@@ -56,7 +56,7 @@ module MVI
       end
 
       def cache?
-        ok?
+        ok? || not_found?
       end
 
       def ok?
