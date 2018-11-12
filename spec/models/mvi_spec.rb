@@ -29,50 +29,23 @@ describe Mvi, skip_mvi: true do
     context 'when the cache is empty' do
       it 'should cache and return an :ok response' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
-        expect(mvi.redis_namespace).to receive(:set).once
+        expect(mvi).to receive(:save).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('OK')
+        expect(mvi.send(:record_ttl)).to eq(86_400)
       end
       it 'should return an :error response but not cache it' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
-        expect(mvi.redis_namespace).to_not receive(:set)
+        expect(mvi).to_not receive(:save)
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('SERVER_ERROR')
       end
-      it 'should return a :not_found response but not cache it' do
+      it 'should return a :not_found response and cache it for a shorter time' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_not_found)
-        expect(mvi.redis_namespace).to_not receive(:set)
+        expect(mvi).to receive(:save).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('NOT_FOUND')
-      end
-      context 'when cache_all_profile_responses setting is enabled' do
-        around(:each) do |example|
-          Settings.mvi.cache_all_profile_responses = true
-          example.run
-          Settings.mvi.cache_all_profile_responses = nil
-        end
-
-        it 'should cache and return an :ok response' do
-          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
-          expect(mvi.redis_namespace).to receive(:set).once
-          expect_any_instance_of(MVI::Service).to receive(:find_profile).once
-          expect(mvi.status).to eq('OK')
-          expect(mvi.redis_namespace_ttl).to eq(default_ttl)
-        end
-        it 'should cache and return an :error response' do
-          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
-          expect(mvi.redis_namespace).to receive(:set).once
-          expect_any_instance_of(MVI::Service).to receive(:find_profile).once
-          expect(mvi.status).to eq('SERVER_ERROR')
-          expect(mvi.redis_namespace_ttl).to eq(failure_ttl)
-        end
-        it 'should cache and return a :not_found response' do
-          allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_not_found)
-          expect(mvi.redis_namespace).to receive(:set).once
-          expect_any_instance_of(MVI::Service).to receive(:find_profile).once
-          expect(mvi.status).to eq('NOT_FOUND')
-          expect(mvi.redis_namespace_ttl).to eq(failure_ttl)
-        end
+        expect(mvi.send(:record_ttl)).to eq(1800)
       end
     end
 
