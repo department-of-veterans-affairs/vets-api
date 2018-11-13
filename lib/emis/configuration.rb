@@ -28,6 +28,7 @@ module EMIS
         conn.use :breakers
         conn.request :rescue_timeout, backend_service: :emis
         conn.request :soap_headers
+
         conn.response :soap_parser
         conn.response :betamocks if Settings.emis.mock
         conn.adapter Faraday.default_adapter
