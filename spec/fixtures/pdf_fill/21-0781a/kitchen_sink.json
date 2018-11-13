@@ -65,11 +65,7 @@
         "country": "USA",
         "postalCode": "21200-1111"
       }
-    }],
-    "behaviorChanges":[
-      "Category - Behavior Change A",
-      "Category - Behavior Change B"
-    ]
+    }]
   },
   {
     "personalAssault": true,
@@ -127,5 +123,9 @@
       }
     }]
   }],
-  "otherInformation": "Lorem ipsum dolor sit amet."
+  "otherInformation": [
+    "Category - Behavior Change A",
+    "Category - Behavior Change B",
+    "Lorem ipsum dolor sit amet."
+  ]
 }
