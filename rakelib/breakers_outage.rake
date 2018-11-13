@@ -1,5 +1,11 @@
 namespace :breakers do
 
+  desc 'List out all breakers-compatible service names'
+  task list_services: :environment do
+    services = Breakers.client.services.map {|s| s.name }
+    puts "Available Services:\n#{services}"
+  end
+
   desc 'Begin a forced outage (requires: service=<service_name>)'
   task begin_forced_outage: :environment do
     services = Breakers.client.services.map {|s| s.name }
