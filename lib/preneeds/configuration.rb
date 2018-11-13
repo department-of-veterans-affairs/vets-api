@@ -28,6 +28,8 @@ module Preneeds
       @faraday ||= Faraday.new(
         path, headers: base_request_headers, request: request_options, ssl: { verify: false }
       ) do |conn|
+        conn.use :breakers
+
         conn.options.timeout = TIMEOUT
 
         conn.request :soap_headers
@@ -37,7 +39,6 @@ module Preneeds
         conn.response :eoas_xml_errors
         conn.response :clean_response
 
-        conn.use :breakers # FIXME: breakers must appear first, to work correctly.
         conn.adapter Faraday.default_adapter
       end
     end

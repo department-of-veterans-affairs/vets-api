@@ -38,7 +38,7 @@ module Common
           end
 
           if handlers.include?(Breakers::UptimeMiddleware)
-            return unless handlers.first == Breakers::UptimeMiddleware
+            return connection if handlers.first == Breakers::UptimeMiddleware
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
             warn('Breakers is not implemented for this service.')
