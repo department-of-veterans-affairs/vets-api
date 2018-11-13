@@ -53,6 +53,8 @@ module EVSS
           job_id: jid,
           job_class: klass,
           status: status,
+          error_class: nil,
+          error_message: nil,
           updated_at: Time.now.utc
         }
         values[:error_class] = error.class if error

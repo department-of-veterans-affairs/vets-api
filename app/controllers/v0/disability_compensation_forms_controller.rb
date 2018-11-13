@@ -39,6 +39,7 @@ module V0
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
+
       jid = submission.start(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim)
 
       render json: { data: { attributes: { job_id: jid } } },
