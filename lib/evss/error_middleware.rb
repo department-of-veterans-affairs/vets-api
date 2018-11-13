@@ -11,13 +11,26 @@ module EVSS
     end
     class EVSSBackendServiceError < EVSSError; end
 
+    def handle_xml_body(env)
+      resp = Hash.from_xml(env.body)
+      inner_resp = resp[resp.keys[0]]
+      if %w[fatal error].include?(inner_resp&.dig('messages', 'severity')&.downcase)
+        raise EVSSError.new(inner_resp['messages']['text'], inner_resp['messages']['text'])
+      end
+    end
+
     def on_complete(env)
       case env[:status]
       when 200
-        resp = env.body
-        raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
-        if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
-          raise EVSSError.new(resp['messages'], resp['messages'])
+        if env.response_headers['content-type'].downcase.include?('xml')
+          handle_xml_body(env)
+        else
+          resp = env.body
+          raise EVSSError.new(resp['messages'], resp['messages']) if resp['success'] == false
+
+          if resp['messages']&.find { |m| m['severity'] =~ /fatal|error/i }
+            raise EVSSError.new(resp['messages'], resp['messages'])
+          end
         end
       when 503, 504
         resp = env.body
