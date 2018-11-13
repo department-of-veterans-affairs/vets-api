@@ -7,6 +7,9 @@ mvi:
   url: http://www.example.com/
   mock: false
 
+locators:
+  providers_enabled: true
+  
 reports:
   aws:
     access_key_id: key

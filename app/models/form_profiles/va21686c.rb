@@ -16,9 +16,8 @@ module VA21686c
     attribute :street3, ScrubbedString
     attribute :city, ScrubbedString
     attribute :state, ScrubbedString
-    attribute :country, ScrubbedString
+    attribute :country_dropdown, ScrubbedString
     attribute :postal_code, ScrubbedString
-    attribute :country, ScrubbedString
     attribute :country_text, ScrubbedString
     attribute :post_office, ScrubbedString
     attribute :postal_type, ScrubbedString
@@ -116,7 +115,7 @@ class FormProfiles::VA21686c < FormProfile
 
   def initialize_veteran_information(user)
     res = EVSS::Dependents::Service.new(user).retrieve
-    veteran = res.body['submitProcess']['veteran']
+    veteran = res['submitProcess']['veteran']
     VA21686c::FormContactInformation.new(
       {
         veteran_address: prefill_address(veteran['address']),
@@ -243,7 +242,7 @@ class FormProfiles::VA21686c < FormProfile
         city: address['city'],
         state: address['state'],
         postal_code: "#{address['zipCode']}#{"-#{address['zipLastFour']}" if address['zipLastFour'].present?}",
-        country: address.dig('country', 'dropDownCountry'),
+        country_dropdown: address.dig('country', 'dropDownCountry'),
         country_text: address.dig('country', 'textCountry'),
         post_office: address['postOffice'],
         postal_type: address['postalType']
