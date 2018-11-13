@@ -54,11 +54,11 @@ http_interactions:
       encoding: UTF-8
       string: |-
         {
-          "errors": [
+          "errors": [{
             "status": "403",
             "title": "Forbidden",
             "detail": "Forbidden"
-          ]
+          }]
         }
     http_version:
   recorded_at: Wed, 08 Jan 2018 14:44:00 GMT
