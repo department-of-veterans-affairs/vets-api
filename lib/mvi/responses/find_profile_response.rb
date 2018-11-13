@@ -56,7 +56,7 @@ module MVI
       end
 
       def cache?
-        Settings.mvi.cache_all_profile_responses || ok?
+        ok? || not_found?
       end
 
       def ok?
