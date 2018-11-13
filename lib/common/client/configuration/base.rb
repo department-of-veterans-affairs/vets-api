@@ -57,6 +57,9 @@ module Common
           exception_handler = proc do |exception|
             if exception.is_a?(Common::Exceptions::BackendServiceException)
               (500..599).cover?(exception.response_values[:status])
+            elsif exception.is_a?(Common::Client::Errors::HTTPError)
+              # A number of different middleware currently raise this exception instead of BackendServiceException
+              (500..599).cover?(exception.code)
             else
               false
             end
