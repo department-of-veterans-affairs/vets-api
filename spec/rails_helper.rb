@@ -57,7 +57,7 @@ def with_okta_configured(&block)
     issuer: 'https://example.com/oauth2/default',
     audience: 'api://default',
     base_api_url: 'https://example.com/',
-#    base_api_token: 'token'
+    base_api_token: 'token'
   ) do
     VCR.use_cassette('okta/metadata') do
       yield block
