@@ -94,6 +94,32 @@ describe PdfFill::Forms::Va210781a do
     end
   end
 
+  describe '#expand_other_information' do
+    let(:form_data) do
+      {
+        'behaviorChanges' => [
+          'Category - Behavior Change A',
+          'Category - Behavior Change B'
+        ]
+      }
+    end
+    it 'should expand behavior into other information correctly' do
+      new_form_class.send(:expand_other_information)
+      expect(
+        JSON.parse(class_form_data.to_json)
+      ).to eq(
+        'behaviorChanges' => [
+          'Category - Behavior Change A',
+          'Category - Behavior Change B'
+        ],
+        'otherInformation' => [
+          { 'value' => 'Category - Behavior Change A' },
+          { 'value' => 'Category - Behavior Change B' }
+        ]
+      )
+    end
+  end
+
   describe '#format_incident_overflow' do
     it 'incident information should handle no data' do
       expect(new_form_class.send(:format_incident_overflow, {}, 0)).to be_nil

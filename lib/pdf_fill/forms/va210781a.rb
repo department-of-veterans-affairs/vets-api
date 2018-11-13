@@ -185,8 +185,18 @@ module PdfFill
           }
         },
         'otherInformation' => {
-          key: 'F[0].Page_3[0].OtherInformation[0]',
-          question_num: 12
+          question_text: 'OTHER INFORMATION',
+          question_num: 12,
+          limit: 11,
+          first_key: 'otherInformation',
+          key: "F[0].Page_3[0].OtherInformation[#{ITERATOR}]",
+          'value' => {
+            first_key: 'otherInformation',
+            question_text: 'OTHER INFORMATION',
+            question_num: 12,
+            key: "F[0].Page_3[0].OtherInformation[#{ITERATOR}]",
+            limit: 30
+          }
         },
         'signature' => {
           key: 'F[0].Page_3[0].signature8[0]'
@@ -201,6 +211,7 @@ module PdfFill
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
         expand_incidents(@form_data['incident'])
+        expand_other_information
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
@@ -209,6 +220,15 @@ module PdfFill
       end
 
       private
+
+      def expand_other_information
+        return if @form_data['behaviorChanges'].blank?
+        @form_data['otherInformation'] = []
+
+        @form_data['behaviorChanges'].each do |behavior_change|
+          @form_data['otherInformation'].push('value' => behavior_change)
+        end
+      end
 
       def combine_source_name_address(incident)
         return if incident.blank?
