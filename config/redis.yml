@@ -25,7 +25,8 @@ development: &defaults
   mvi_profile_response:
     namespace: mvi-profile-response
     each_ttl: 86400
-    failure_ttl: 1800
+    not_found_ttl: 1800
+    failure_ttl: 60
   emis_response:
     namespace: emis-response
     each_ttl: 86400

@@ -136,9 +136,11 @@ class Mvi < Common::RedisStore
   end
 
   def record_ttl
-    if status == MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:ok]
+    if mvi_response.ok?
       # ensure default ttl is used for 'ok' responses
       REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['each_ttl']
+    elsif mvi_response.not_found?
+      REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['not_found_ttl']
     else
       # assign separate ttl to redis cache for failure responses
       REDIS_CONFIG[REDIS_CONFIG_KEY.to_s]['failure_ttl']
