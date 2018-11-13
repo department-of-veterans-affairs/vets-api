@@ -6,7 +6,7 @@ require 'common/client/middleware/response/rescue_timeout'
 describe Common::Client::Middleware::Response::RescueTimeout do
   subject do
     Faraday.new do |conn|
-      conn.use Common::Client::Middleware::Response::RescueTimeout, { backend_service: :evss }, 'api.hca.timeout'
+      conn.response :rescue_timeout, { backend_service: :evss }, 'api.hca.timeout'
       conn.adapter :test do |stub|
         stub.get('/') { [503, { body: 'it took too long!' }, 'timeout'] }
       end

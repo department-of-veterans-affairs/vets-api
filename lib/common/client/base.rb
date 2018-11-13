@@ -38,7 +38,7 @@ module Common
           end
 
           if handlers.include?(Breakers::UptimeMiddleware)
-            return unless handlers.first == Breakers::UptimeMiddleware
+            return connection if handlers.first == Breakers::UptimeMiddleware
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
             warn('Breakers is not implemented for this service.')
@@ -84,16 +84,6 @@ module Common
 
         headers.transform_values! do |value|
           if value.nil?
-            # FIXME: NO NO NO NO NO!
-            unless Rails.env.test?
-              log_message_to_sentry(
-                'nil headers bug',
-                :info,
-                unmodified_headers: unmodified_headers, method: method, path: path, params: params, client: inspect,
-                profile: 'pciu_profile'
-              )
-            end
-
             ''
           else
             value
