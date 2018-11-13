@@ -6,10 +6,6 @@ require 'backend_services'
 RSpec.describe 'Fetching user data', type: :request do
   include SchemaMatchers
 
-  before(:each) do
-    Mvi.memory_cache.clear
-  end
-
   let(:token) { 'abracadabra-open-sesame' }
 
   context 'when an LOA 3 user is logged in' do

@@ -5,6 +5,8 @@ require 'mvi/service'
 require 'mvi/responses/find_profile_response'
 
 describe MVI::Service do
+  before(:each) { Mvi.memory_cache.clear }
+  
   let(:user_hash) do
     {
       first_name: 'Mitchell',
