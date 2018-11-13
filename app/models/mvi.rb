@@ -21,9 +21,15 @@ class Mvi < Common::RedisStore
   # @param user [User] the user to query MVI for
   # @return [Mvi] an instance of this class
   def self.for_user(user)
-    mvi = Mvi.new
-    mvi.user = user
-    mvi
+    memory_cache.fetch(user.uuid, race_condition_ttl: 10) do
+      mvi = Mvi.new
+      mvi.user = user
+      mvi
+    end
+  end
+
+  def self.memory_cache
+    @memory_cache ||= ActiveSupport::Cache::MemoryStore.new(namespace: 'mvi', expires_in: 1.minute)
   end
 
   # The status of the last MVI response or not authorized for for users < LOA 3
