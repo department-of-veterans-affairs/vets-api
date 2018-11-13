@@ -16,11 +16,14 @@ RSpec.describe 'PPIU', type: :request do
 
   describe 'GET /v0/ppiu/payment_information' do
     context 'with a valid evss response' do
+      let(:ppiu_response) { File.read('spec/support/ppiu/ppiu_response.json') }
+
       it 'should match the ppiu schema' do
         VCR.use_cassette('evss/ppiu/payment_information') do
           get '/v0/ppiu/payment_information', nil, auth_header
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
+          expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
         end
       end
     end

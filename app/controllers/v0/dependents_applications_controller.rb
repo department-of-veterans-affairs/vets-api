@@ -2,25 +2,28 @@
 
 module V0
   class DependentsApplicationsController < ApplicationController
-    FORM_ID = '21-686C'
-    skip_before_action(:authenticate)
     before_action(:tag_rainbows)
 
     def create
-      form = JSON.parse(params[:form])
-      validate!(form)
-      render json: {}
-    end
-
-    private
-
-    def validate!(form)
-      validation_errors = JSON::Validator.fully_validate(
-        VetsJsonSchema::SCHEMAS[FORM_ID],
-        form, validate_schema: true
+      dependents_application = DependentsApplication.new(
+        params.require(:dependents_application).permit(:form).merge(
+          user: current_user
+        )
       )
 
-      raise Common::Exceptions::SchemaValidationErrors, validation_errors if validation_errors.present?
+      unless dependents_application.save
+        Raven.tags_context(validation: 'dependents')
+
+        raise Common::Exceptions::ValidationErrors, dependents_application
+      end
+
+      clear_saved_form(DependentsApplication::FORM_ID)
+
+      render(json: dependents_application)
+    end
+
+    def show
+      render(json: DependentsApplication.find(params[:id]))
     end
   end
 end

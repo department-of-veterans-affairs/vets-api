@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
+require 'appeals/middleware/errors'
 require 'common/client/configuration/rest'
-require 'common/client/middleware/request/camelcase'
-require 'common/client/middleware/response/caseflow_errors'
-require 'common/client/middleware/response/json_parser'
 require 'common/client/middleware/response/raise_error'
-require 'common/client/middleware/response/snakecase'
 
 module Appeals
   class Configuration < Common::Client::Configuration::REST
@@ -24,9 +21,11 @@ module Appeals
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
         faraday.use :breakers
-        faraday.use Faraday::Response::RaiseError
         faraday.request :json
+
         faraday.response :betamocks if mock_enabled?
+        faraday.response :raise_error, error_prefix: service_name
+        faraday.response :appeals_errors
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
