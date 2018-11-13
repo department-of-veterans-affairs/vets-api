@@ -404,9 +404,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
-
       context 'with a submission and job status' do
-        let(:submission) { create(:form526_submission, submitted_claim_id: 61234567) }
+        let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
         let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
 
         it 'supports getting submission status' do

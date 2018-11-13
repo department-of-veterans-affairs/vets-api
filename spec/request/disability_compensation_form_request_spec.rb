@@ -176,22 +176,20 @@ RSpec.describe 'Disability compensation form', type: :request do
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
     context 'with a success status' do
-      let(:submission) { create(:form526_submission, submitted_claim_id: 61234567) }
+      let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
       let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
 
       it 'should return the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
-          {
-            'data' => {
-              'id' => '',
-              'type' => 'form526_job_statuses',
-              'attributes' => {
-                'claim_id' => 61234567,
-                'job_id' => '82dba5c2060867a53135b123',
-                'status' => 'success'
-              }
+          'data' => {
+            'id' => '',
+            'type' => 'form526_job_statuses',
+            'attributes' => {
+              'claim_id' => 61_234_567,
+              'job_id' => '82dba5c2060867a53135b123',
+              'status' => 'success'
             }
           }
         )
@@ -202,20 +200,17 @@ RSpec.describe 'Disability compensation form', type: :request do
       let(:submission) { create(:form526_submission) }
       let(:job_status) { create(:form526_job_status, :retryable_error, form526_submission_id: submission.id) }
 
-
       it 'should return the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
-          {
-            'data' => {
-              'id' => '',
-              'type' => 'form526_job_statuses',
-              'attributes' => {
-                'claim_id' => nil,
-                'job_id' => '82dba5c2060867a53135b123',
-                'status' => 'retryable_error'
-              }
+          'data' => {
+            'id' => '',
+            'type' => 'form526_job_statuses',
+            'attributes' => {
+              'claim_id' => nil,
+              'job_id' => '82dba5c2060867a53135b123',
+              'status' => 'retryable_error'
             }
           }
         )
@@ -226,20 +221,17 @@ RSpec.describe 'Disability compensation form', type: :request do
       let(:submission) { create(:form526_submission) }
       let(:job_status) { create(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
 
-
       it 'should return the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
-          {
-            'data' => {
-              'id' => '',
-              'type' => 'form526_job_statuses',
-              'attributes' => {
-                'claim_id' => nil,
-                'job_id' => '82dba5c2060867a53135b123',
-                'status' => 'non_retryable_error'
-              }
+          'data' => {
+            'id' => '',
+            'type' => 'form526_job_statuses',
+            'attributes' => {
+              'claim_id' => nil,
+              'job_id' => '82dba5c2060867a53135b123',
+              'status' => 'non_retryable_error'
             }
           }
         )
@@ -248,7 +240,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
     context 'when no record is found' do
       it 'should return the async submit transaction status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/123", nil, auth_header
+        get '/v0/disability_compensation_form/submission_status/123', nil, auth_header
         expect(response).to have_http_status(:not_found)
       end
     end
