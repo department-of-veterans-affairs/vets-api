@@ -53,11 +53,11 @@ end
 def with_okta_configured(&block)
   with_settings(
     Settings.oidc,
-    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
+    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
     issuer: 'https://example.com/oauth2/default',
     audience: 'api://default',
     base_api_url: 'https://example.com/',
-    base_api_token: 'token'
+#    base_api_token: 'token'
   ) do
     VCR.use_cassette('okta/metadata') do
       yield block
@@ -82,6 +82,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
+  c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
