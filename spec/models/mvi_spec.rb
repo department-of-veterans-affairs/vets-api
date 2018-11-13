@@ -34,11 +34,12 @@ describe Mvi, skip_mvi: true do
         expect(mvi.status).to eq('OK')
         expect(mvi.send(:record_ttl)).to eq(86_400)
       end
-      it 'should return an :error response but not cache it' do
+      it 'should return an :error response and cache it for a minute' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
-        expect(mvi).to_not receive(:save)
+        expect(mvi).to receive(:save).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('SERVER_ERROR')
+        expect(mvi.send(:record_ttl)).to eq(60)
       end
       it 'should return a :not_found response and cache it for a shorter time' do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_not_found)
