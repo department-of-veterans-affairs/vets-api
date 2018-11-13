@@ -177,8 +177,15 @@ RSpec.describe OpenidApplicationController, type: :controller do
     end
 
     context 'with a MHV credential profile' do
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              icn: '10000012345V123457',
+              family_name: 'zackariah')
+      end
+
       before(:each) do
         allow(JWT).to receive(:decode).and_return(token)
+        stub_mvi(mvi_profile)
       end
 
       let(:idme_response) { FactoryBot.build(:okta_mhv_response) }
@@ -195,19 +202,25 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(response).to be_ok
           expect(Session.find('FakeToken')).to_not be_nil
           expect(JSON.parse(response.body)['user']).to eq('mhvzack_0@example.com')
-          expect(JSON.parse(response.body)['icn']).to eq('66218882840651988')
-          expect(JSON.parse(response.body)['last_name']).to eq('Heidenreich')
+          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123457')
+          expect(JSON.parse(response.body)['last_name']).to eq('zackariah')
         end
       end
     end
 
     context 'with a DSLogon credential profile' do
-      before(:each) do
-        allow(JWT).to receive(:decode).and_return(token)
-      end
-
       let(:idme_response) { FactoryBot.build(:okta_dslogon_response) }
       let(:faraday_response) { instance_double('Faraday::Response') }
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              icn: '10000012345V123456',
+              family_name: 'WEAVER')
+      end
+
+      before(:each) do
+        allow(JWT).to receive(:decode).and_return(token)
+        stub_mvi(mvi_profile)
+      end
 
       it 'should return 200 and add user to session' do
         with_okta_configured do
@@ -220,7 +233,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(response).to be_ok
           expect(Session.find('FakeToken')).to_not be_nil
           expect(JSON.parse(response.body)['user']).to eq('dslogon10923109@example.com')
-          expect(JSON.parse(response.body)['icn']).to eq('67402072736994358')
+          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123456')
           expect(JSON.parse(response.body)['last_name']).to eq('WEAVER')
         end
       end
