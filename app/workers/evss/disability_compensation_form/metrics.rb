@@ -3,38 +3,34 @@
 module EVSS
   module DisabilityCompensationForm
     class Metrics
-      def initialize(prefix, job_id)
+      def initialize(prefix)
         @prefix = prefix
-        @job_id = job_id
       end
 
       def increment_try
-        StatsD.increment("#{@prefix}.try", tags: ["job_id:#{@job_id}"])
+        StatsD.increment("#{@prefix}.try")
       end
 
       def increment_success
-        StatsD.increment("#{@prefix}.success", tags: ["job_id:#{@job_id}"])
+        StatsD.increment("#{@prefix}.success")
       end
 
       def increment_non_retryable(error)
-        tags = statsd_tags(error)
-        StatsD.increment("#{@prefix}.non_retryable_error", tags: tags)
+        StatsD.increment("#{@prefix}.non_retryable_error", tags: error_tags(error))
       end
 
       def increment_retryable(error)
-        tags = statsd_tags(error)
-        StatsD.increment("#{@prefix}.retryable_error", tags: tags)
+        StatsD.increment("#{@prefix}.retryable_error", tags: error_tags(error))
       end
 
       def increment_exhausted
-        StatsD.increment("#{@prefix}.exhausted", tags: ["job_id:#{@job_id}"])
+        StatsD.increment("#{@prefix}.exhausted")
       end
 
       private
 
-      def statsd_tags(error)
+      def error_tags(error)
         tags = ["error:#{error.class}"]
-        tags << "job_id:#{@job_id}"
         tags << "status:#{error.status_code}" if error.try(:status_code)
         tags << "message:#{error.message}" if error.try(:message)
         tags

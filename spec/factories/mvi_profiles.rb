@@ -68,7 +68,7 @@ FactoryBot.define do
       mhv_ids ['123456']
       active_mhv_ids ['123456']
       vha_facility_ids %w[516 553 200HD 200IP 200MHV]
-      edipi '1234'
+      edipi '1234567890'
       participant_id '12345678'
       birls_id '796122306'
       vet360_id '123456789'

@@ -53,7 +53,7 @@ describe MVI::Responses::ProfileParser do
         end
       end
 
-      context 'with a missing address' do
+      context 'with a missing address and an invalid edipi' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
         let(:mvi_profile) do
           build(
@@ -62,7 +62,8 @@ describe MVI::Responses::ProfileParser do
             birls_id: nil,
             sec_id: nil,
             historical_icns: nil,
-            vet360_id: nil
+            vet360_id: nil,
+            edipi: nil
           )
         end
         it 'should set the address to nil' do
