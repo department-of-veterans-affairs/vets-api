@@ -21,7 +21,6 @@ module V0
     #       and can eventually be removed completely
     def submit
       form_content = JSON.parse(request.body.string)
-
       saved_claim = SavedClaim::DisabilityCompensation::Form526IncreaseOnly.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission_data = saved_claim.to_submission_data(@current_user)
@@ -34,25 +33,19 @@ module V0
              status: :ok
     end
 
-    # :nocov:
     def submit_all_claim
-      # TODO: While testing `all claims` submissions we will be merging the submission
-      # with a hard coded "completed" form which will gap fill any missing data. This should
-      # be removed before `all claims` goes live.
-      form_content = all_claims_integration(JSON.parse(request.body.string))
-
+      form_content = JSON.parse(request.body.string)
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission_data = saved_claim.to_submission_data(@current_user)
 
-      jid = EVSS::DisabilityCompensationForm::SubmitForm526.start(
+      jid = EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.start(
         @current_user.uuid, auth_headers, saved_claim.id, submission_data
       )
 
       render json: { data: { attributes: { job_id: jid } } },
              status: :ok
     end
-    # :nocov:
 
     def submission_status
       submission = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find_transaction(params[:job_id])
@@ -75,16 +68,6 @@ module V0
     def translate_form4142(form_content)
       EVSS::DisabilityCompensationForm::Form4142.new(@current_user, form_content).translate
     end
-
-    # :nocov:
-    def all_claims_integration(form)
-      test_form = JSON.parse(File.read(Settings.evss.all_claims_submission))
-
-      # `deep_merge` will recursively replace any key values that have been included
-      # in the submitted form
-      test_form.deep_merge(form)
-    end
-    # :nocov:
 
     def validate_name_part
       raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
