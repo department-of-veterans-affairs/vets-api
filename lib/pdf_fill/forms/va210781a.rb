@@ -184,18 +184,16 @@ module PdfFill
             question_suffix: 'A'
           }
         },
-        'otherInformation' => {
+        'otherInformationLines' => {
           question_text: 'OTHER INFORMATION',
           question_num: 12,
           limit: 11,
-          first_key: 'otherInformation',
-          key: "F[0].Page_3[0].OtherInformation[#{ITERATOR}]",
+          first_key: 'value',
           'value' => {
-            first_key: 'otherInformation',
             question_text: 'OTHER INFORMATION',
             question_num: 12,
-            key: "F[0].Page_3[0].OtherInformation[#{ITERATOR}]",
-            limit: 30
+            limit: 80,
+            key: "F[0].Page_3[0].OtherInformation[#{ITERATOR}]"
           }
         },
         'signature' => {
@@ -222,11 +220,18 @@ module PdfFill
       private
 
       def expand_other_information
-        return if @form_data['behaviorChanges'].blank?
-        @form_data['otherInformation'] = []
+        return if @form_data['incident'].blank?
+        @form_data['otherInformationLines'] = []
 
-        @form_data['behaviorChanges'].each do |behavior_change|
-          @form_data['otherInformation'].push('value' => behavior_change)
+        if @form_data['otherInformation'].present?
+          @form_data['otherInformationLines'].push('value' => @form_data['otherInformation'])
+        end
+
+        @form_data['incident'].each do |incident|
+          next unless incident.key?('behaviorChanges')
+          incident['behaviorChanges'].each do |behavior_change|
+            @form_data['otherInformationLines'].push('value' => behavior_change)
+          end
         end
       end
 

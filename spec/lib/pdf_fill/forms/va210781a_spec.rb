@@ -53,36 +53,38 @@ describe PdfFill::Forms::Va210781a do
 
     it 'should expand multiple sources correctly' do
       incident = {
-        'source' => [{
-          'name' => {
-            'first' => 'Testy',
-            'middle' => 'T',
-            'last' => 'Testerson'
+        'source' => [
+          {
+            'name' => {
+              'first' => 'Testy',
+              'middle' => 'T',
+              'last' => 'Testerson'
+            },
+            'address' => {
+              'street' => '123 Main Street',
+              'street2' => '1B',
+              'city' => 'Baltimore',
+              'state' => 'MD',
+              'country' => 'USA',
+              'postalCode' => '21200-1111'
+            }
           },
-          'address' => {
-            'street' => '123 Main Street',
-            'street2' => '1B',
-            'city' => 'Baltimore',
-            'state' => 'MD',
-            'country' => 'USA',
-            'postalCode' => '21200-1111'
+          {
+            'name' => {
+              'first' => 'Besty',
+              'middle' => 'B',
+              'last' => 'Besterson'
+            },
+            'address' => {
+              'street' => '456 Main Street',
+              'street2' => '1B',
+              'city' => 'Baltimore',
+              'state' => 'MD',
+              'country' => 'USA',
+              'postalCode' => '21200-1111'
+            }
           }
-        },
-                     {
-                       'name' => {
-                         'first' => 'Besty',
-                         'middle' => 'B',
-                         'last' => 'Besterson'
-                       },
-                       'address' => {
-                         'street' => '456 Main Street',
-                         'street2' => '1B',
-                         'city' => 'Baltimore',
-                         'state' => 'MD',
-                         'country' => 'USA',
-                         'postalCode' => '21200-1111'
-                       }
-                     }]
+        ]
       }
 
       expect(new_form_class.send(:combine_source_name_address, incident)).to eq(
@@ -97,10 +99,15 @@ describe PdfFill::Forms::Va210781a do
   describe '#expand_other_information' do
     let(:form_data) do
       {
-        'behaviorChanges' => [
-          'Category - Behavior Change A',
-          'Category - Behavior Change B'
-        ]
+        'incident' => [
+          {
+            'behaviorChanges' => [
+              'Category - Behavior Change A',
+              'Category - Behavior Change B'
+            ]
+          }
+        ],
+        'otherInformation' => 'Other information text'
       }
     end
     it 'should expand behavior into other information correctly' do
@@ -108,11 +115,17 @@ describe PdfFill::Forms::Va210781a do
       expect(
         JSON.parse(class_form_data.to_json)
       ).to eq(
-        'behaviorChanges' => [
-          'Category - Behavior Change A',
-          'Category - Behavior Change B'
+        'incident' => [
+          {
+            'behaviorChanges' => [
+              'Category - Behavior Change A',
+              'Category - Behavior Change B'
+            ]
+          }
         ],
-        'otherInformation' => [
+        'otherInformation' => 'Other information text',
+        'otherInformationLines' => [
+          { 'value' => 'Other information text' },
           { 'value' => 'Category - Behavior Change A' },
           { 'value' => 'Category - Behavior Change B' }
         ]
