@@ -36,18 +36,14 @@ describe 'mhv account creation' do
       state: 'Tx',
       country: 'USA',
       zip: '77040',
-      sign_in_partners: 'VETS.GOV',
-      email: 'vets.gov.user+0@gmail.com',
-      terms_accepted_date: time,
-      terms_version: 'v3.2'
+      sign_in_partners: 'VA.GOV',
+      email: 'vets.gov.user+0@gmail.com'
     }
   end
 
   let(:upgrade_params) do
     {
-      user_id: '14221465',
-      form_signed_date_time: time.httpdate,
-      terms_version: 'v3.4'
+      user_id: '14221465'
     }
   end
 
