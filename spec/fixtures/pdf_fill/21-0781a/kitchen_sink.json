@@ -65,7 +65,11 @@
         "country": "USA",
         "postalCode": "21200-1111"
       }
-    }]
+    }],
+    "behaviourChanges":[
+      "Category - Behavior Change A",
+      "Category - Behavior Change B"
+    ]
   },
   {
     "personalAssault": true,
