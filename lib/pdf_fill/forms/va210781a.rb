@@ -184,7 +184,7 @@ module PdfFill
             question_suffix: 'A'
           }
         },
-        'otherInformationLines' => {
+        'otherInformation' => {
           question_text: 'OTHER INFORMATION',
           question_num: 12,
           limit: 11,
@@ -220,19 +220,12 @@ module PdfFill
       private
 
       def expand_other_information
-        return if @form_data['incident'].blank?
-        @form_data['otherInformationLines'] = []
-
-        if @form_data['otherInformation'].present?
-          @form_data['otherInformationLines'].push('value' => @form_data['otherInformation'])
+        return if @form_data['otherInformation'].blank?
+        other_information_lines = []
+        @form_data['otherInformation'].each do |other_information|
+          other_information_lines.push('value' => other_information)
         end
-
-        @form_data['incident'].each do |incident|
-          next unless incident.key?('behaviorChanges')
-          incident['behaviorChanges'].each do |behavior_change|
-            @form_data['otherInformationLines'].push('value' => behavior_change)
-          end
-        end
+        @form_data['otherInformation'] = other_information_lines
       end
 
       def combine_source_name_address(incident)

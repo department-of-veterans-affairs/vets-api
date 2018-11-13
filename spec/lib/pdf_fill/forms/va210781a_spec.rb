@@ -99,32 +99,19 @@ describe PdfFill::Forms::Va210781a do
   describe '#expand_other_information' do
     let(:form_data) do
       {
-        'incident' => [
-          {
-            'behaviorChanges' => [
-              'Category - Behavior Change A',
-              'Category - Behavior Change B'
-            ]
-          }
-        ],
-        'otherInformation' => 'Other information text'
+        'otherInformation' => [
+          'Other information text',
+          'Category - Behavior Change A',
+          'Category - Behavior Change B'
+        ]
       }
     end
-    it 'should expand behavior into other information correctly' do
+    it 'should expand other information correctly' do
       new_form_class.send(:expand_other_information)
       expect(
         JSON.parse(class_form_data.to_json)
       ).to eq(
-        'incident' => [
-          {
-            'behaviorChanges' => [
-              'Category - Behavior Change A',
-              'Category - Behavior Change B'
-            ]
-          }
-        ],
-        'otherInformation' => 'Other information text',
-        'otherInformationLines' => [
+        'otherInformation' => [
           { 'value' => 'Other information text' },
           { 'value' => 'Category - Behavior Change A' },
           { 'value' => 'Category - Behavior Change B' }
