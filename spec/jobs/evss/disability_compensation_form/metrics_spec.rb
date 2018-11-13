@@ -4,20 +4,19 @@ require 'rails_helper'
 
 describe EVSS::DisabilityCompensationForm::Metrics do
   let(:job_prefix) { 'job.prefix' }
-  let(:jid) { SecureRandom.uuid }
 
-  subject { described_class.new('job.prefix', jid) }
+  subject { described_class.new('job.prefix') }
 
   describe '#increment_try' do
     it 'increments a statsd counter' do
-      expect(StatsD).to receive(:increment).with("#{job_prefix}.try", tags: ["job_id:#{jid}"])
+      expect(StatsD).to receive(:increment).with("#{job_prefix}.try")
       subject.increment_try
     end
   end
 
   describe '#increment_success' do
     it 'increments a statsd counter' do
-      expect(StatsD).to receive(:increment).with("#{job_prefix}.success", tags: ["job_id:#{jid}"])
+      expect(StatsD).to receive(:increment).with("#{job_prefix}.success")
       subject.increment_success
     end
   end
@@ -26,7 +25,7 @@ describe EVSS::DisabilityCompensationForm::Metrics do
     it 'increments a statsd counter' do
       expect(StatsD).to receive(:increment).with(
         "#{job_prefix}.non_retryable_error",
-        tags: ['error:StandardError', "job_id:#{jid}", 'message:non retryable']
+        tags: ['error:StandardError', 'message:non retryable']
       )
       subject.increment_non_retryable(StandardError.new('non retryable'))
     end
@@ -36,7 +35,7 @@ describe EVSS::DisabilityCompensationForm::Metrics do
     it 'increments a statsd counter' do
       expect(StatsD).to receive(:increment).with(
         "#{job_prefix}.retryable_error",
-        tags: ['error:StandardError', "job_id:#{jid}", 'message:retryable']
+        tags: ['error:StandardError', 'message:retryable']
       )
       subject.increment_retryable(StandardError.new('retryable'))
     end
@@ -44,7 +43,7 @@ describe EVSS::DisabilityCompensationForm::Metrics do
 
   describe '#increment_exhausted' do
     it 'increments a statsd counter' do
-      expect(StatsD).to receive(:increment).with("#{job_prefix}.exhausted", tags: ["job_id:#{jid}"])
+      expect(StatsD).to receive(:increment).with("#{job_prefix}.exhausted")
       subject.increment_exhausted
     end
   end
