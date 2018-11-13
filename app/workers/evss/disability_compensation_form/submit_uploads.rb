@@ -3,6 +3,7 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitUploads < Job
+      RETRY = 10
       FORM_TYPE = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
 

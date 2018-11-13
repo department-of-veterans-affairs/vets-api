@@ -3,6 +3,9 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm526 < Job
+      # Sidekiq has built in exponential back-off functionality for retrys
+      # A max retry attempt of 13 will result in a run time of ~25 hours
+      RETRY = 13
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
