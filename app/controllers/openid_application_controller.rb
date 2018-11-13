@@ -12,9 +12,9 @@ class OpenidApplicationController < ApplicationController
   before_action :authenticate
   TOKEN_REGEX = /Bearer /
 
-
   DSLOGON_PREMIUM_LOAS = %w[2 3].freeze
   MHV_PREMIUM_LOAS = %w[Premium].freeze
+
   private
 
   def permit_scopes(scopes, actions: [])
@@ -106,13 +106,13 @@ class OpenidApplicationController < ApplicationController
 
   def derive_loa(profile)
     if profile['last_login_type'] == 'myhealthevet'
-      ml = MHV_PREMIUM_LOAS.include?(profile['mhv_account_type']) ? 3: 1
-      return { current: ml, highest: ml }
+      ml = MHV_PREMIUM_LOAS.include?(profile['mhv_account_type']) ? 3 : 1
+      { current: ml, highest: ml }
     elsif profile['last_login_type'] == 'dslogon'
       dl = DSLOGON_PREMIUM_LOAS.include?(profile['dslogon_assurance']) ? 3 : 1
-      return { current: dl, highest: dl }
+      { current: dl, highest: dl }
     else
-      return { current: profile['idme_loa'], highest: profile['idme_loa'] }
+      { current: profile['idme_loa'], highest: profile['idme_loa'] }
     end
   end
 
