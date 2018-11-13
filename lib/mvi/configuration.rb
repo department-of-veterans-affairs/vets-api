@@ -42,7 +42,7 @@ module MVI
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
         conn.use :breakers
         conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging
-        
+
         conn.request :soap_headers
 
         # Uncomment this if you want curl command equivalent or response output to log

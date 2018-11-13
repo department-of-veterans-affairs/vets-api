@@ -155,7 +155,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
       # Encounters failure and breakers kicks in
       stub_mvi_failure
-      1.times do |count|
+      1.times do |_count|
         expect { get v0_user_url, nil, new_user_auth_header }
           .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
           .and trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
@@ -180,7 +180,7 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   def new_user_auth_header(type = :loa3)
-    user = build(:user, type, uuid: rand(1000..100000))
+    user = build(:user, type, uuid: rand(1000..100_000))
     session = Session.create(uuid: user.uuid, token: token)
     User.create(user)
     create(:account, idme_uuid: user.uuid)
