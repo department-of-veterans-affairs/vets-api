@@ -167,7 +167,8 @@ locators:
   vha_access_satisfaction: https://www.accesstoshep.va.gov/
   vha_access_waittime: https://www.accesstopwt.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
-
+  providers_enabled: false
+  
 ppms:
   url: https://some.fakesite.com
 
@@ -194,8 +195,8 @@ mhv:
 # Settings for Master Veteran Index
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
-  open_timeout: 2
-  timeout: 10
+  open_timeout: 15
+  timeout: 15
   mock: false
   processing_code: T
   client_cert_path: /fake/client/cert/path
@@ -203,7 +204,6 @@ mvi:
   pii_logging: false
   vba_orchestration: false
   edipi_search: false
-  cache_all_profile_responses: false
 
 # Settings for eMIS
 # The certs used here can be obtained from the DevOps team. A different set is required for

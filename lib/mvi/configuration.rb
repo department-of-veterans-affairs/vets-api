@@ -5,20 +5,13 @@ require 'common/client/middleware/logging'
 
 module MVI
   class Configuration < Common::Client::Configuration::SOAP
-    # :nocov:
-    def self.default_mvi_open_timeout
-      Rails.logger.warn 'Settings.mvi.open_timeout not set, using default'
-      2
+    def self.open_timeout
+      Settings.mvi.open_timeout
     end
 
-    def self.default_mvi_timeout
-      Rails.logger.warn 'Settings.mvi.timeout not set, using default'
-      10
+    def self.read_timeout
+      Settings.mvi.timeout
     end
-    # :nocov:
-
-    OPEN_TIMEOUT = Settings.mvi.open_timeout&.to_i || default_mvi_open_timeout
-    TIMEOUT = Settings.mvi.timeout&.to_i || default_mvi_timeout
 
     def self.ssl_cert_path
       Settings.mvi.client_cert_path
