@@ -26,10 +26,9 @@ module EMIS
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
         conn.use :breakers
-
-        # FIXME: don't use a `use` middleware if its only for requests.
-        conn.use Common::Client::Middleware::Request::RescueTimeout, backend_service: :emis
+        conn.request :rescue_timeout, backend_service: :emis
         conn.request :soap_headers
+
         conn.response :soap_parser
         conn.response :betamocks if Settings.emis.mock
         conn.adapter Faraday.default_adapter
