@@ -8,6 +8,8 @@ module EVSS
       RETRY = 13
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
+      sidekiq_options retry: RETRY
+
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       sidekiq_retries_exhausted do |msg, _ex|
         TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
