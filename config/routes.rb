@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :dependents_applications, only: %i[create show] do
+    resources :dependents_applications, only: %i[create show] do
       collection do
         get(:disability_rating)
       end
