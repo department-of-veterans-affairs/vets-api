@@ -30,7 +30,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       Thread.new do
         server = WEBrick::HTTPServer.new(
           Port: TestConfiguration.instance.port,
-          AccessLog: [] #Suppress STDOUT
+          AccessLog: [] # Suppress STDOUT
         )
 
         server.mount_proc '/' do |req, res|
