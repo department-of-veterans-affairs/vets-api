@@ -28,9 +28,13 @@ module Common
         private
 
         # consider adding additional handling for JSON document bodies in the future
+        # if you need the original unmodified body, then you should possibly consider passing that
+        # as an object in your hash when setting response_env middleware lower in the stack.
         def handle_response_bodies(body)
           if body.is_a?(Ox::Document)
             Ox.dump(body)
+          elsif body.is_a?(Hash)
+            body.to_json
           else
             body
           end

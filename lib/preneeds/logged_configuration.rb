@@ -10,6 +10,7 @@ module Preneeds
         path, headers: base_request_headers, request: request_options, ssl: { verify: false }
       ) do |conn|
         conn.use :breakers
+        conn.use :logging, 'PreneedsBurial'
 
         conn.options.timeout = TIMEOUT
 
@@ -19,8 +20,6 @@ module Preneeds
         conn.response :soap_parser
         conn.response :eoas_xml_errors
         conn.response :clean_response
-
-        conn.use :logging, 'PreneedsBurial' # FIXME: `use` middleware should appear (above `request` middleware).
         conn.adapter Faraday.default_adapter
       end
     end
