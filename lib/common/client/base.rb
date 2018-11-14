@@ -90,7 +90,7 @@ module Common
         end
       end
 
-      def get(path, params, headers = base_headers)
+      def get(path, params, headers)
         request(:get, path, params, headers)
       end
 
