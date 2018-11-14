@@ -6,7 +6,7 @@ FactoryBot.define do
       {
         'lastName' => 'CARROLL',
         'gender' => 'F',
-        'secondEmail' => null,
+        'secondEmail' => nil,
         'login' => 'ae9ff5f4e4b741389904087d94cd19b2',
         'ssn' => '123456789',
         'last_login_type' => 'http://idmanagement.gov/ns/assurance/loa/3',
