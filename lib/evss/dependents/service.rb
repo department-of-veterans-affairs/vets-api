@@ -3,34 +3,56 @@
 module EVSS
   module Dependents
     class Service < EVSS::Service
+      include Common::Client::Monitoring
       configuration EVSS::Dependents::Configuration
+      STATSD_KEY_PREFIX = 'api.evss.dependents'
 
       def retrieve
-        perform(:get, 'load/retrieve')
+        with_monitoring do
+          perform(:get, 'load/retrieve')
+        end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       def clean_form(form)
-        perform(:post, 'inflightform/cleanForm', form.to_json, headers).body
+        with_monitoring do
+          perform(:post, 'inflightform/cleanForm', form.to_json, headers).body
+        end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       def validate(form)
-        perform(:post, 'inflightform/validateForm', form.to_json, headers).body
+        with_monitoring do
+          perform(:post, 'inflightform/validateForm', form.to_json, headers).body
+        end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       def save(form)
-        perform(:post, 'inflightform/saveForm', form.to_json, headers).body
+        with_monitoring do
+          perform(:post, 'inflightform/saveForm', form.to_json, headers).body
+        end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       def submit(form, form_id)
         form['submitProcess']['application']['draftFormId'] = form_id
         change_evss_times!(form)
-        res = perform(
-          :post,
-          'form686submission/submit',
-          form.to_xml(root: 'submit686Request'),
-          'Content-Type' => 'application/xml'
-        )
-        Hash.from_xml(res.body)
+        with_monitoring do
+          res = perform(
+            :post,
+            'form686submission/submit',
+            form.to_xml(root: 'submit686Request'),
+            'Content-Type' => 'application/xml'
+          )
+          Hash.from_xml(res.body)
+        end
+      rescue StandardError => e
+        handle_error(e)
       end
 
       private
