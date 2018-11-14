@@ -6,7 +6,7 @@ describe Common::Client::Middleware::Request::RescueTimeout do
   describe '#request' do
     subject do
       Faraday.new do |builder|
-        builder.use Common::Client::Middleware::Request::RescueTimeout, { backend_service: :evss }, 'api.hca.timeout'
+        builder.request :rescue_timeout, { backend_service: :evss }, 'api.hca.timeout'
         builder.adapter :test do |stub|
           stub.get('/') { |_env| raise Faraday::TimeoutError }
         end
