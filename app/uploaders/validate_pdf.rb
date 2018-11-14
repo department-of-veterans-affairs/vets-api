@@ -8,10 +8,11 @@ module ValidatePdf
   end
 
   def validate_pdf(file)
-    return unless file.readpartial(4) == '%PDF'
-    file.seek(-7, IO::SEEK_END)
-    raise CarrierWave::UploadError, 'PDF is missing an end of file marker' unless file.read.include?('%%EOF')
-    PDF::Reader.new(file).info
+    temp_file = file.tempfile
+    return unless temp_file.readpartial(4) == '%PDF'
+    PDF::Reader.new(temp_file).info
+  rescue PDF::Reader::MalformedPDFError
+    raise CarrierWave::UploadError, 'PDF is missing an end of file marker'
   rescue PDF::Reader::EncryptedPDFError
     raise CarrierWave::UploadError, 'PDF is encrypted'
   end
