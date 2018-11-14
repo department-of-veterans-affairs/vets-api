@@ -13,7 +13,7 @@ module EVSS
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)
       cached_info = Dependents::RetrievedInfo.for_user(user)
-      
+
       merged_form = DependentsApplication.transform_form(form, cached_info.body)
       merged_form = service.clean_form(merged_form)
 
