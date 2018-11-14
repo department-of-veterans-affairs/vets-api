@@ -94,15 +94,15 @@ module Common
         request(:get, path, params, headers)
       end
 
-      def post(path, params, headers = base_headers)
+      def post(path, params, headers)
         request(:post, path, params, headers)
       end
 
-      def put(path, params, headers = base_headers)
+      def put(path, params, headers)
         request(:put, path, params, headers)
       end
 
-      def delete(path, params, headers = base_headers)
+      def delete(path, params, headers)
         request(:delete, path, params, headers)
       end
 
