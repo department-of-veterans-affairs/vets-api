@@ -763,7 +763,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'new condition',
-            'serviceRelevance' => 'new condition description'
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
           }
         ]
       end
@@ -790,7 +790,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'worsened condition',
-            'serviceRelevance' => 'worsened condition description: worsened effects'
+            'serviceRelevance' =>
+              "Worsened because of military service\nworsened condition description: worsened effects"
           }
         ]
       end
@@ -819,7 +820,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'disabilityActionType' => 'NEW',
             'name' => 'va condition',
             'serviceRelevance' =>
-              "Event: va condition description\nLocation: va location\nTimeFrame: the third of october"
+              "Caused by VA care\nEvent: va condition description\n"\
+              "Location: va location\nTimeFrame: the third of october"
           }
         ]
       end
@@ -881,7 +883,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition',
                 'disabilityActionType' => 'SECONDARY',
-                'serviceRelevance' => 'secondary description'
+                'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
           },
@@ -894,12 +896,12 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition2',
                 'disabilityActionType' => 'SECONDARY',
-                'serviceRelevance' => 'secondary description'
+                'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               },
               {
                 'name' => 'secondary condition3',
                 'disabilityActionType' => 'SECONDARY',
-                'serviceRelevance' => 'secondary description'
+                'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
           }
