@@ -28,7 +28,7 @@ info:
 
     ## Reference
 
-    Raw Open API Spec: https://dev-api.va.gov/services/appeals/docs/v0/api
+    Raw Open API Spec: https://dev-api.va.gov/services/veteran_verification/docs/v0/api
 
   termsOfService: ''
   contact:
@@ -37,17 +37,17 @@ tags:
   - name: disability_rating
     description: Veteran Verification - Disability Rating
 servers:
-  - url: dev-api.va.gov/services/appeals/{version}
+  - url: dev-api.va.gov/services/veteran_verification/{version}
     description: VA.gov API development environment
     variables:
       version:
         default: v0
-  - url: staging-api.va.gov/services/appeals/{version}
+  - url: staging-api.va.gov/services/veteran_verification/{version}
     description: VA.gov API staging environment
     variables:
       version:
         default: v0
-  - url: api.va.gov/services/appeals/{version}
+  - url: api.va.gov/services/veteran_verification/{version}
     description: VA.gov API production environment
     variables:
       version:
