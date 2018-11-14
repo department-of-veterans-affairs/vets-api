@@ -90,19 +90,19 @@ module Common
         end
       end
 
-      def get(path, params, headers)
+      def get(path, params, headers = base_headers)
         request(:get, path, params, headers)
       end
 
-      def post(path, params, headers)
+      def post(path, params, headers = base_headers)
         request(:post, path, params, headers)
       end
 
-      def put(path, params, headers)
+      def put(path, params, headers = base_headers)
         request(:put, path, params, headers)
       end
 
-      def delete(path, params, headers)
+      def delete(path, params, headers = base_headers)
         request(:delete, path, params, headers)
       end
 
