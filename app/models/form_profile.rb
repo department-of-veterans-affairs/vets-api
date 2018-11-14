@@ -62,8 +62,7 @@ class FormIdentityInformation
   attribute :ssn
 
   def hyphenated_ssn
-    return if ssn.blank?
-    "#{ssn[0..2]}-#{ssn[3..4]}-#{ssn[5..8]}"
+    StringHelpers.hyphenated_ssn(ssn)
   end
 end
 

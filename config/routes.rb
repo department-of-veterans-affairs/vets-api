@@ -60,7 +60,7 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :dependents_applications, only: [:create]
+    resources :dependents_applications, only: %i[create show]
 
     resource :dependents_applications, only: [:create] do
       collection do

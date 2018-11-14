@@ -19,7 +19,8 @@ module EVSS
 
       def body
         do_cached_with(key: "evss_dependents_retrieve_#{@user.uuid}") do
-          EVSS::Dependents::Service.new(@user).retrieve
+          raw_response = EVSS::Dependents::Service.new(@user).retrieve
+          EVSS::Dependents::RetrieveInfoResponse.new(raw_response.status, raw_response)
         end.body
       end
 

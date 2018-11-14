@@ -3,33 +3,67 @@
 require 'rails_helper'
 
 describe EVSS::Dependents::Service do
-  let(:user) { build(:user, :loa3) }
-  subject { described_class.new(user) }
+  let(:user) { create(:evss_user) }
+  let(:service) { described_class.new(user) }
+
+  def returns_form(response)
+    expect(response['submitProcess'].present?).to eq(true)
+  end
 
   describe '#retrieve' do
-    context 'when successful' do
-      it 'returns a status of 200' do
-        VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-          response = subject.retrieve
-          expect(response).to be_ok
-        end
+    it 'should get user details' do
+      VCR.use_cassette(
+        'evss/dependents/retrieve',
+        VCR::MATCH_EVERYTHING
+      ) do
+        returns_form(service.retrieve.body)
       end
+    end
+  end
 
-      it 'returns a users dependents info' do
-        VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-          response = subject.retrieve
-          expect(response.attributes.keys).to include :body, :status
-          expect(response.attributes[:body].keys).to eq(['submitProcess'])
-        end
+  describe '#clean_form' do
+    it 'should clean the form request' do
+      VCR.use_cassette(
+        'evss/dependents/clean_form',
+        VCR::MATCH_EVERYTHING
+      ) do
+        returns_form(service.clean_form(get_fixture('dependents/retrieve')))
+      end
+    end
+  end
+
+  describe '#validate' do
+    it 'should validate the form' do
+      VCR.use_cassette(
+        'evss/dependents/validate',
+        VCR::MATCH_EVERYTHING
+      ) do
+        res = service.validate(get_fixture('dependents/clean_form'))
+        expect(res['errors']).to eq([])
+      end
+    end
+  end
+
+  describe '#save' do
+    it 'should save the form' do
+      VCR.use_cassette(
+        'evss/dependents/save',
+        VCR::MATCH_EVERYTHING
+      ) do
+        res = service.save(get_fixture('dependents/clean_form'))
+        expect(res['formId']).to eq(380_682)
       end
     end
   end
 
   describe '#submit' do
-    it 'deletes the cached response' do
-      VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
-        expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:delete)
-        subject.submit
+    it 'should submit the form' do
+      VCR.use_cassette(
+        'evss/dependents/submit',
+        VCR::MATCH_EVERYTHING
+      ) do
+        res = service.submit(get_fixture('dependents/clean_form'), 380_682)
+        expect(res['submit686Response']['confirmationNumber']).to eq('600138364')
       end
     end
   end

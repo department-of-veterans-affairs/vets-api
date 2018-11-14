@@ -16,8 +16,8 @@ module VA21686c
     attribute :street3, ScrubbedString
     attribute :city, ScrubbedString
     attribute :state, ScrubbedString
-    attribute :postal_code, ScrubbedString
     attribute :country_dropdown, ScrubbedString
+    attribute :postal_code, ScrubbedString
     attribute :country_text, ScrubbedString
     attribute :post_office, ScrubbedString
     attribute :postal_type, ScrubbedString
