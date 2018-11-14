@@ -5,6 +5,7 @@ module Common
     module Middleware
       module HandleTimeout
         include SentryLogging
+
         def handle_timeout(error)
           StatsD.increment(@timeout_key) if @timeout_key
           @extra_context ||= {}
