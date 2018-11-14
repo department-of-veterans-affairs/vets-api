@@ -78,8 +78,7 @@ module Common
         raise client_error
       end
 
-      def sanitize_headers!(method, path, params, headers)
-        unmodified_headers = headers.dup
+      def sanitize_headers!(_method, _path, _params, headers)
         headers.transform_keys!(&:to_s)
 
         headers.transform_values! do |value|
