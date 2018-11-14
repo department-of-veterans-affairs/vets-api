@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :provider, class: Facilities::Provider do
+  factory :provider, class: Provider do
     ProviderIdentifier '111111'
     Name 'Allergy Partners of Manassas'
     Latitude 38.8476575
