@@ -41,7 +41,7 @@ module Common
             return connection if handlers.first == Breakers::UptimeMiddleware
             raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
           else
-            warn('Breakers is not implemented for this service.')
+            warn("Breakers is not implemented for service: #{config.service_name}")
           end
 
           connection
