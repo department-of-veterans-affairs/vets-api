@@ -19,23 +19,9 @@ module Common
                 method: env.method,
                 url: env.url.to_s,
                 request_body: request_body,
-                response_body: Base64.encode64(handle_response_bodies(response_env.body))
+                response_body: Base64.encode64(response_env.body)
               }
             )
-          end
-        end
-
-        private
-
-        # if you need the original unmodified body, then you should possibly consider passing that
-        # as an object in your hash when setting response_env middleware lower in the stack.
-        def handle_response_bodies(body)
-          if body.is_a?(Ox::Document)
-            Ox.dump(body)
-          elsif body.is_a?(Hash)
-            body.to_json
-          else
-            body
           end
         end
       end

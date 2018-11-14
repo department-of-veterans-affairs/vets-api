@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'common/client/concerns/handle_timeout'
 
 module Common
   module Client
