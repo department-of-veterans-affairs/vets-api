@@ -387,27 +387,28 @@ module EVSS
         {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'NEW',
-          'serviceRelevance' => input_disability['primaryDescription']
+          'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
+                                "#{input_disability['primaryDescription']}"
         }
       end
 
       def map_worsened(input_disability)
-        service_relevance = "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
         {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'NEW',
-          'serviceRelevance' => service_relevance
+          'serviceRelevance' => "Worsened because of military service\n"\
+                                "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
         }
       end
 
       def map_va(input_disability)
-        service_relevance = "Event: #{input_disability['VAMistreatmentDescription']}\n"\
-                            "Location: #{input_disability['VAMistreatmentLocation']}\n"\
-                            "TimeFrame: #{input_disability['VAMistreatmentDate']}"
         {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'NEW',
-          'serviceRelevance' => service_relevance
+          'serviceRelevance' => "Caused by VA care\n"\
+                                "Event: #{input_disability['VAMistreatmentDescription']}\n"\
+                                "Location: #{input_disability['VAMistreatmentLocation']}\n"\
+                                "TimeFrame: #{input_disability['VAMistreatmentDate']}"
         }
       end
 
@@ -415,7 +416,8 @@ module EVSS
         disability = {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'SECONDARY',
-          'serviceRelevance' => input_disability['causedByDisabilityDescription']
+          'serviceRelevance' => "Caused by a service-connected disability\n"\
+                                "#{input_disability['causedByDisabilityDescription']}"
         }
 
         disabilities.each do |output_disability|
