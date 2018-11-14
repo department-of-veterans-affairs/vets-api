@@ -28,7 +28,7 @@ describe Common::Client::Middleware::Request::RemoveCookies do
   describe '#request' do
     let!(:server_thread) do
       Thread.new do
-        dev_null = WEBrick::Log::new("/dev/null", 7) # suppress logging to $stdout
+        dev_null = WEBrick::Log.new('/dev/null', 7) # suppress logging to $stdout
 
         server = WEBrick::HTTPServer.new(
           Port: TestConfiguration.instance.port,
