@@ -11,11 +11,13 @@ module EVSS
       sidekiq_options retry: RETRY
 
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
+      # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
         TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
         Rails.logger.error('Form526 Exhausted', 'job_id' => msg['jid'], 'error_message' => msg['error_message'])
         Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
       end
+      # :nocov:
 
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
