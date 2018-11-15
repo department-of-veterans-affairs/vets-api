@@ -138,19 +138,24 @@ RSpec.describe 'Disability compensation form', type: :request do
         end
       end
 
-      # TODO: There is not vets-json-schema defined for all claims yet so this test cannot pass
-      #       due to validation errors.
-      # context 'with an `all claims` claim' do
-      #   let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
+      context 'with an `all claims` claim' do
+        let(:all_claims_form) { File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json' }
 
-      #   it 'should match the rated disabilites schema' do
-      #     VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-      #       post '/v0/disability_compensation_form/submit_all_claim', all_claims_form, auth_header
-      #       expect(response).to have_http_status(:ok)
-      #       expect(response).to match_response_schema('submit_disability_form')
-      #     end
-      #   end
-      # end
+        it 'should match the rated disabilites schema' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            post '/v0/disability_compensation_form/submit_all_claim', all_claims_form, auth_header
+            expect(response).to have_http_status(:ok)
+            expect(response).to match_response_schema('submit_disability_form')
+          end
+        end
+
+        it 'should start the submit job' do
+          VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+            expect(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim).to receive(:perform_async).once
+            post '/v0/disability_compensation_form/submit_all_claim', all_claims_form, auth_header
+          end
+        end
+      end
     end
 
     context 'with invalid json body' do

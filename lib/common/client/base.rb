@@ -10,6 +10,9 @@ module Common
     class SecurityError < StandardError
     end
 
+    class BreakersImplementationError < StandardError
+    end
+
     class Base
       include SentryLogging
 
@@ -32,6 +35,13 @@ module Common
           if handlers.include?(Faraday::Adapter::HTTPClient) &&
              !handlers.include?(Common::Client::Middleware::Request::RemoveCookies)
             raise SecurityError, 'http client needs cookies stripped'
+          end
+
+          if handlers.include?(Breakers::UptimeMiddleware)
+            return connection if handlers.first == Breakers::UptimeMiddleware
+            raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
+          else
+            warn("Breakers is not implemented for service: #{config.service_name}")
           end
 
           connection
@@ -68,21 +78,11 @@ module Common
         raise client_error
       end
 
-      def sanitize_headers!(method, path, params, headers)
-        unmodified_headers = headers.dup
+      def sanitize_headers!(_method, _path, _params, headers)
         headers.transform_keys!(&:to_s)
 
         headers.transform_values! do |value|
           if value.nil?
-            unless Rails.env.test?
-              log_message_to_sentry(
-                'nil headers bug',
-                :info,
-                unmodified_headers: unmodified_headers, method: method, path: path, params: params, client: inspect,
-                profile: 'pciu_profile'
-              )
-            end
-
             ''
           else
             value
