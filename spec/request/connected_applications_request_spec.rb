@@ -5,14 +5,15 @@ require 'rails_helper'
 RSpec.describe 'Connected Applications API endpoint', type: :request do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { create(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
+  let(:user) { build(:user, :loa3, uuid: '00u2fqgvbyT23TZNm2p7') }
 
   before do
-    Session.create(uuid: '00u2fqgvbyT23TZNm2p7', token: token)
+    Session.create(uuid: user.uuid, token: token)
+    User.create(user)
   end
 
   context 'with valid response from okta' do
-    xit 'should return list of grants by app' do
+    it 'should return list of grants by app' do
       with_okta_configured do
         VCR.use_cassette('okta/grants') do
           get '/v0/profile/connected_applications', nil, auth_header
@@ -23,7 +24,7 @@ RSpec.describe 'Connected Applications API endpoint', type: :request do
       end
     end
 
-    xit 'should delete all the grants by app' do
+    it 'should delete all the grants by app' do
       with_okta_configured do
         VCR.use_cassette('okta/delete_grants') do
           delete '/v0/profile/connected_applications/0oa2ey2m6kEL2897N2p7', nil, auth_header
