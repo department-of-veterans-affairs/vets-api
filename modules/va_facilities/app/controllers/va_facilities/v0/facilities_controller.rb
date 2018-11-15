@@ -121,9 +121,9 @@ module VaFacilities
         meta = { pagination: { current_page: resource.current_page,
                                per_page: resource.per_page,
                                total_pages: resource.total_pages,
-                               total_entries: resource.total_entries } }
+                               total_entries: resource.total_entries },
+                 distances: {} }
         if params[:lat] && params[:long]
-          meta[:distances] = {}
           resource.each do |facility|
             meta[:distances][ApiSerialization.id(facility)] = facility.distance
           end
