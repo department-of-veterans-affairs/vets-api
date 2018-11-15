@@ -98,7 +98,7 @@ namespace :form526 do
       migrated += 1
       puts "---\n\n"
     end
-    
+
     puts "Submissions migrated: #{migrated}"
   end
 
