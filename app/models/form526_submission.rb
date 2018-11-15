@@ -25,6 +25,10 @@ class Form526Submission < ActiveRecord::Base
     jids = workflow_batch.jobs do
       klass.perform_async(id)
     end
+
+    # submit form 526 is the first job in the batch
+    # after it completes ancillary jobs may be added to the workflow batch
+    # see #perform_ancillary_jobs below
     jids.first
   end
 
