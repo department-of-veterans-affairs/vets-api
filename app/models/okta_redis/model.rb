@@ -11,9 +11,11 @@ module OktaRedis
 
     attr_accessor :id, :user
 
+    REDIS_CONFIG_KEY = :okta_response
+
     %i[id user].each do |option|
       define_singleton_method "with_#{option}" do |val|
-        redis_config_key(:okta_response)
+        redis_config_key(self::REDIS_CONFIG_KEY)
 
         okta_model = new
         okta_model.send("#{option}=", val)

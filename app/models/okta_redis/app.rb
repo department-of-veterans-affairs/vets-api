@@ -3,6 +3,7 @@
 module OktaRedis
   class App < Model
     CLASS_NAME = 'AppService'
+    REDIS_CONFIG_KEY = :okta_response_app
     attr_accessor :grants
 
     def initialize(attributes = {}, persisted = false)
