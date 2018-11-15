@@ -8,8 +8,13 @@ describe Common::Client::Middleware::Request::RemoveCookies do
       3010
     end
 
+    def service_name
+      'TestClient'
+    end
+
     def connection
       @conn ||= Faraday.new("http://127.0.0.1:#{port}") do |faraday|
+        faraday.use :breakers
         faraday.use :remove_cookies
         faraday.adapter :httpclient
       end
@@ -23,8 +28,12 @@ describe Common::Client::Middleware::Request::RemoveCookies do
   describe '#request' do
     let!(:server_thread) do
       Thread.new do
+        dev_null = WEBrick::Log.new('/dev/null', 7) # suppress logging to $stdout
+
         server = WEBrick::HTTPServer.new(
-          Port: TestConfiguration.instance.port
+          Port: TestConfiguration.instance.port,
+          Logger: dev_null,
+          AccessLog: dev_null
         )
 
         server.mount_proc '/' do |req, res|
