@@ -92,7 +92,7 @@ namespace :form526 do
 
       job_statuses.each do |job_status|
         status_hash = create_status_hash(nil, job_status)
-        puts 'Form526JobStatus'
+        puts 'Form526JobStatus:'
         pp status_hash
       end
 
