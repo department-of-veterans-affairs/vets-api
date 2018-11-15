@@ -67,4 +67,15 @@ describe EVSS::Dependents::Service do
       end
     end
   end
+
+  describe '#change_evss_times!' do
+    fit 'convertes epoch time to UTC iso8601 string' do
+      input_hash = {'firstDate' => 1_537_563_190_485, 'dateArray' => [{ 'secondDate' => 1_537_563_190_485 }] }
+      expect(
+        service.send(:change_evss_times!, input_hash)
+      ).to eq(
+        'firstDate' => '2018-09-21T20:53:10Z', 'dateArray' => [{ 'secondDate' => '2018-09-21T20:53:10Z' }]
+      )
+    end
+  end
 end
