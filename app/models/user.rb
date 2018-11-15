@@ -236,6 +236,18 @@ class User < Common::RedisStore
     end
   end
 
+  %w[profile grants].each do |okta_model_name|
+    okta_method = "okta_#{okta_model_name}"
+    define_method(okta_method) do
+      okta_instance = instance_variable_get(:"@#{okta_method}")
+      return okta_instance if okta_instance.present?
+
+      okta_model = "OktaRedis::#{okta_model_name.camelize}".constantize.with_user(self)
+      instance_variable_set(:"@#{okta_method}", okta_model)
+      okta_model
+    end
+  end
+
   def identity
     @identity ||= UserIdentity.find(uuid)
   end
