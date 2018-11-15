@@ -57,10 +57,6 @@ module EVSS
       def service(_auth_headers)
         raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
-
-      def saved_claim(saved_claim_id)
-        SavedClaim::DisabilityCompensation.find(saved_claim_id)
-      end
     end
   end
 end
