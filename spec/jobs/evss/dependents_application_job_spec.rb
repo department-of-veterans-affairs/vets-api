@@ -38,5 +38,16 @@ RSpec.describe EVSS::DependentsApplicationJob do
         )
       end
     end
+
+    it 'uses, then deletes a cache of user info' do
+      VCR.use_cassette(
+        'evss/dependents/all',
+        VCR::MATCH_EVERYTHING
+      ) do
+        expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:body).once.and_call_original
+        expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:delete).once.and_call_original
+        described_class.drain
+      end
+    end
   end
 end
