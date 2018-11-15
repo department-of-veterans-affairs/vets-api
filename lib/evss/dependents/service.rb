@@ -5,6 +5,7 @@ module EVSS
     class Service < EVSS::Service
       include Common::Client::Monitoring
       configuration EVSS::Dependents::Configuration
+
       STATSD_KEY_PREFIX = 'api.evss.dependents'
 
       def retrieve
