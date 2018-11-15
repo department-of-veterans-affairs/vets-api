@@ -47,7 +47,7 @@ namespace :form526 do
     puts JSON.pretty_generate(form)
   end
 
-  desc 'migrate existing 526 submissions to the new tables'
+  desc 'dry run for migrating existing 526 submissions to the new tables'
   task migrate_dry_run: :environment do
     migrated = 0
 
