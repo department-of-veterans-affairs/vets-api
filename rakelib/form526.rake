@@ -46,4 +46,93 @@ namespace :form526 do
     puts 'Form Data:'
     puts JSON.pretty_generate(form)
   end
+
+  desc 'migrate existing 526 submissions to the new tables'
+  task migrate_dry_run: :environment do
+    migrated = 0
+
+    DisabilityCompensationSubmission.find_each do |submission|
+      user_uuid = submission.async_transaction.user_uuid
+      job_statuses = submission.job_statuses
+      claim_id = nil
+      if submission.async_transaction.transaction_status == 'received'
+        claim_id = JSON.parse(submission.async_transaction.metadata)['claim_id']
+      end
+
+      submission_hash = {
+        user_uuid: user_uuid,
+        saved_claim_id: submission.disability_compensation_claim.id,
+        submitted_claim_id: claim_id,
+        auth_headers_json: { metadata: 'migrated data auth headers unavailable' }.to_json,
+        form_json: { metadata: 'migrated data form unavailable' }.to_json,
+        workflow_complete: job_statuses.all? { |js| js.status == 'success' },
+        created_at: submission.created_at,
+        updated_at: submission.updated_at
+      }
+
+      puts "\n\n---"
+      puts 'Form526Submission:'
+      pp submission_hash
+
+      job_statuses.each do |js|
+        status_hash = {
+          form526_submission_id: nil,
+          job_id: js.job_id,
+          job_class: js.job_class,
+          status: js.status,
+          error_class: nil,
+          error_message: js.error_message,
+          updated_at: js.updated_at
+        }
+
+        puts 'Form526JobStatus'
+        pp status_hash
+      end
+
+      migrated += 1
+      puts "---\n\n"
+      puts "Submissions migrated: #{migrated}"
+    end
+  end
+
+  desc 'migrate existing 526 submissions to the new tables'
+  task migrate_data: :environment do
+    migrated = 0
+
+    DisabilityCompensationSubmission.find_each do |submission|
+      user_uuid = submission.async_transaction.user_uuid
+      job_statuses = submission.job_statuses
+      claim_id = nil
+      if submission.async_transaction.transaction_status == 'received'
+        claim_id = JSON.parse(submission.async_transaction.metadata)['claim_id']
+      end
+
+      new_submission = Form526Submission.create(
+        user_uuid: user_uuid,
+        saved_claim_id: submission.disability_compensation_claim.id,
+        submitted_claim_id: claim_id,
+        auth_headers_json: { metadata: 'migrated data auth headers unavailable' }.to_json,
+        form_json: { metadata: 'migrated data form unavailable' }.to_json,
+        workflow_complete: job_statuses.all? { |js| js.status == 'success' },
+        created_at: submission.created_at,
+        updated_at: submission.updated_at
+      )
+
+      job_statuses.each do |js|
+        Form526JobStatus.create(
+          form526_submission_id: new_submission.id,
+          job_id: js.job_id,
+          job_class: js.job_class,
+          status: js.status,
+          error_class: nil,
+          error_message: js.error_message,
+          updated_at: js.updated_at
+        )
+      end
+
+      migrated += 1
+    end
+
+    puts "Submissions migrated: #{migrated}"
+  end
 end
