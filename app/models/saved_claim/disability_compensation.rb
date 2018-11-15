@@ -19,6 +19,9 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
 
+  # Defined for all claims in parent class as `increased only` is being deprecated
+  TRANSLATION_CLASS = EVSS::DisabilityCompensationForm::DataTranslationAllClaim
+
   def self.from_hash(hash)
     saved_claim = new(form: hash['form526'].to_json)
     saved_claim.form_hash = hash
@@ -35,7 +38,6 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
     form526_uploads = form526['form526'].delete('attachments')
 
-    # TODO: #translate_data can be removed once `increase only` has been deprecated
     {
       FORM_526 => translate_data(user, form526),
       FORM_526_UPLOADS => form526_uploads,
@@ -46,8 +48,8 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   private
 
-  def translate_data(_user, _form526)
-    raise NotImplementedError, 'Subclass of DisabilityCompensation must implement #translate_data'
+  def translate_data(user, form526)
+    self.class::TRANSLATION_CLASS.new(user, form526).translate
   end
 
   def append_overflow_text(form526)
