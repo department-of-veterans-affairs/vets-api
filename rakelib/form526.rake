@@ -97,8 +97,9 @@ namespace :form526 do
 
       migrated += 1
       puts "---\n\n"
-      puts "Submissions migrated: #{migrated}"
     end
+    
+    puts "Submissions migrated: #{migrated}"
   end
 
   desc 'migrate existing 526 submissions to the new tables'
