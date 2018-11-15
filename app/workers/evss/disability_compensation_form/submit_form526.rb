@@ -13,9 +13,19 @@ module EVSS
       # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
       # :nocov:
       sidekiq_retries_exhausted do |msg, _ex|
-        TRANSACTION_CLASS.update_transaction(msg['jid'], :exhausted)
+        jid = msg['jid']
+        values = {
+          form526_submission_id: msg['args'].first,
+          job_id: jid,
+          job_class: self.class.name.demodulize,
+          status: Form526JobStatus::STATUS[:exhausted],
+          error_class: nil,
+          error_message: msg['error_message'],
+          updated_at: Time.now.utc
+        }
+        Form526JobStatus.upsert({ job_id: jid }, values)
         Rails.logger.error('Form526 Exhausted', 'job_id' => msg['jid'], 'error_message' => msg['error_message'])
-        Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
+        Metrics.new(STATSD_KEY_PREFIX).increment_exhausted
       end
       # :nocov:
 
