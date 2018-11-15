@@ -10,6 +10,12 @@ describe EVSS::Dependents::Service do
     expect(response['submitProcess'].present?).to eq(true)
   end
 
+  def it_handles_errors(method, form = nil, form_id = nil)
+    allow(service).to receive(:perform).and_raise(Faraday::ParsingError)
+    expect(service).to receive(:handle_error)
+    service.send(*[method, form, form_id].compact)
+  end
+
   describe '#retrieve' do
     it 'should get user details' do
       VCR.use_cassette(
@@ -18,6 +24,10 @@ describe EVSS::Dependents::Service do
       ) do
         returns_form(service.retrieve.body)
       end
+    end
+
+    it 'handles errors' do
+      it_handles_errors(:retrieve)
     end
   end
 
@@ -29,6 +39,10 @@ describe EVSS::Dependents::Service do
       ) do
         returns_form(service.clean_form(get_fixture('dependents/retrieve')))
       end
+    end
+
+    it 'handles errors' do
+      it_handles_errors(:clean_form, get_fixture('dependents/retrieve'))
     end
   end
 
@@ -42,6 +56,10 @@ describe EVSS::Dependents::Service do
         expect(res['errors']).to eq([])
       end
     end
+
+    it 'handles errors' do
+      it_handles_errors(:validate, get_fixture('dependents/clean_form'))
+    end
   end
 
   describe '#save' do
@@ -54,6 +72,10 @@ describe EVSS::Dependents::Service do
         expect(res['formId']).to eq(380_682)
       end
     end
+
+    it 'handles errors' do
+      it_handles_errors(:save, get_fixture('dependents/clean_form'))
+    end
   end
 
   describe '#submit' do
@@ -65,6 +87,10 @@ describe EVSS::Dependents::Service do
         res = service.submit(get_fixture('dependents/clean_form'), 380_682)
         expect(res['submit686Response']['confirmationNumber']).to eq('600138364')
       end
+    end
+
+    it 'handles errors' do
+      it_handles_errors(:submit, get_fixture('dependents/clean_form'), 380_682)
     end
   end
 
