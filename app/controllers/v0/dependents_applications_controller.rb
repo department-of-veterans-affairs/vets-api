@@ -25,5 +25,10 @@ module V0
     def show
       render(json: DependentsApplication.find(params[:id]))
     end
+
+    def disability_rating
+      res = EVSS::Dependents::RetrievedInfo.for_user(current_user)
+      render json: { has30_percent: res.body.dig('submitProcess', 'application', 'has30Percent') }
+    end
   end
 end

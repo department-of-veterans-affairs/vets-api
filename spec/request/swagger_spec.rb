@@ -1694,13 +1694,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports getting connected applications' do
-        with_settings(
-          Settings.oidc,
-          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-          issuer: 'https://example.com/oauth2/default',
-          base_api_url: 'https://example.com/api/v1/',
-          base_api_token: 'token'
-        ) do
+        with_okta_configured do
           expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
           VCR.use_cassette('okta/grants') do
             expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, auth_options)
@@ -1709,13 +1703,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports removing connected applications grants' do
-        with_settings(
-          Settings.oidc,
-          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-          issuer: 'https://example.com/oauth2/default',
-          base_api_url: 'https://example.com/api/v1/',
-          base_api_token: 'token'
-        ) do
+        with_okta_configured do
           params = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
           expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, params)
           VCR.use_cassette('okta/delete_grants') do
