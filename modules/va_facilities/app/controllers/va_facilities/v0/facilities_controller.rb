@@ -118,10 +118,17 @@ module VaFacilities
       end
 
       def metadata(resource)
-        { pagination: { current_page: resource.current_page,
-                        per_page: resource.per_page,
-                        total_pages: resource.total_pages,
-                        total_entries: resource.total_entries } }
+        meta = { pagination: { current_page: resource.current_page,
+                               per_page: resource.per_page,
+                               total_pages: resource.total_pages,
+                               total_entries: resource.total_entries } }
+        if params[:lat] && params[:long]
+          meta[:distances] = {}
+          resource.each do |facility|
+            meta[:distances][ApiSerialization.id(facility)] = facility.distance
+          end
+        end
+        meta
       end
     end
   end
