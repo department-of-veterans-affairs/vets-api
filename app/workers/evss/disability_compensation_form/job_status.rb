@@ -6,6 +6,33 @@ module EVSS
       extend ActiveSupport::Concern
       include SentryLogging
 
+      class_methods do
+        def job_exhausted(msg)
+          submission_id = msg['args'].first
+          jid = msg['jid']
+          error_message = msg['error_message']
+          klass = self.class.name.demodulize
+
+          values = {
+            form526_submission_id: submission_id,
+            job_id: jid,
+            job_class: klass,
+            status: Form526JobStatus::STATUS[:exhausted],
+            error_class: nil,
+            error_message: error_message,
+            updated_at: Time.now.utc
+          }
+          Form526JobStatus.upsert({ job_id: jid }, values)
+
+          Rails.logger.error(
+            'Form526 Exhausted', submission_id: submission_id, job_id: jid, error_message: error_message
+          )
+          Metrics.new(STATSD_KEY_PREFIX).increment_exhausted
+        rescue StandardError => error
+          Rails.logger.error('error tracking job exhausted', error: error, class: klass)
+        end
+      end
+
       def with_tracking(job_title, saved_claim_id, submission_id)
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
