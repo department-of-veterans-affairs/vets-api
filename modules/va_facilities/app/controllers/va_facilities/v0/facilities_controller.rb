@@ -17,7 +17,7 @@ module VaFacilities
       before_action :validate_params, only: [:index]
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
-      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bouding box, or ids parameter to query facilities data.'
+      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bounding box, or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
