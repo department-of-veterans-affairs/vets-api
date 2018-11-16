@@ -173,7 +173,7 @@ class BaseFacility < ActiveRecord::Base
       additional_data = <<-SQL
         base_facilities.*,
         ST_Distance(base_facilities.location,
-        ST_MakePoint(#{lat},#{long})::geography) AS distance
+        ST_MakePoint(#{long},#{lat})::geography) AS distance
       SQL
       conditions = limit.nil? ? {} : "where distance < #{limit}"
       TYPES.map do |facility_type|
