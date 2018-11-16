@@ -27,7 +27,7 @@ module HCA
         Raven.tags_context(validation: 'hca')
         log_exception_to_sentry(e)
 
-        raise ValidationError.new
+        raise ValidationError
       end
 
       raise

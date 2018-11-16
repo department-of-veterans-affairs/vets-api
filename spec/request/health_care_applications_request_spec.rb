@@ -174,7 +174,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             expect(response.code).to eq('422')
             expect(JSON.parse(response.body)).to eq(
               'errors' => [
-                {"title"=>"Operation failed", "detail"=>"Validation error", "code"=>"HCA422", "status"=>"422"}
+                { 'title' => 'Operation failed', 'detail' => 'Validation error', 'code' => 'HCA422', 'status' => '422' }
               ]
             )
           end
