@@ -1,0 +1,161 @@
+{
+    "form526": {
+        "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+        "claimantCertification": true,
+        "directDeposit": {
+            "accountNumber": "123123123123",
+            "accountType": "CHECKING",
+            "bankName": "SomeBank",
+            "routingNumber": "123123123"
+        },
+        "disabilities": [
+            {
+                "diagnosticCode": 9999,
+                "disabilityActionType": "NEW",
+                "name": "PTSD (post traumatic stress disorder)",
+                "ratedDisabilityId": "1100583",
+                "secondaryDisabilities": [
+                    {
+                        "disabilityActionType": "SECONDARY",
+                        "name": "PTSD personal trauma",
+                        "serviceRelevance": "Caused by a service-connected disability\nLengthy description"
+                    }
+                ]
+            }
+        ],
+        "serviceInformation": {
+            "alternateNames": [
+                {
+                    "firstName": "JKack",
+                    "middleName": "Clint",
+                    "lastName": "Bauer"
+                }
+            ],
+            "confinements": [
+                {
+                    "confinementBeginDate": "1987-02-01",
+                    "confinementEndDate": "1989-01-01"
+                },
+                {
+                    "confinementBeginDate": "1990-03-06",
+                    "confinementEndDate": "1999-01-01"
+                }
+            ],
+            "reservesNationalGuardService": {
+                "obligationTermOfServiceFromDate": "2000-01-04",
+                "obligationTermOfServiceToDate": "2004-01-04",
+                "receivingInactiveDutyTrainingPay": true,
+                "title10Activation": {
+                    "anticipatedSeparationDate": "2020-01-01",
+                    "title10ActivationDate": "1999-03-04"
+                },
+                "unitName": "Seal Team Six",
+                "unitPhone": {
+                    "areaCode": "123",
+                    "phoneNumber": "1231231"
+                }
+            },
+            "servicePeriods": [
+                {
+                    "activeDutyBeginDate": "1980-02-05",
+                    "activeDutyEndDate": "1990-01-02",
+                    "serviceBranch": "Air Force"
+                },
+                {
+                    "activeDutyBeginDate": "1990-04-05",
+                    "activeDutyEndDate": "1999-01-01",
+                    "serviceBranch": "Air Force Reserves"
+                }
+            ]
+        },
+        "servicePay": {
+            "militaryRetiredPay": {
+                "payment": {
+                    "serviceBranch": "Air Force"
+                },
+                "receiving": true
+            },
+            "separationPay": {
+                "payment": {
+                    "serviceBranch": "Air Force"
+                },
+                "received": true,
+                "receivedDate": {
+                    "day": "4",
+                    "month": "3",
+                    "year": "2000"
+                }
+            },
+            "waiveVABenefitsToRetainRetiredPay": false,
+            "waiveVABenefitsToRetainTrainingPay": true
+        },
+        "standardClaim": false,
+        "treatments": [
+            {
+                "center": {
+                    "name": "Private Facility 2",
+                    "country": "USA"
+                },
+                "endDate": "2018-03-03",
+                "startDate": "2018-03-02",
+                "treatedDisabilityNames": [
+                    "PTSD (post traumatic stress disorder)"
+                ]
+            },
+            {
+                "center": {
+                    "name": "Huntsville VA Facility",
+                    "country": "USA"
+                },
+                "endDate": "2018-03-04",
+                "startDate": "2015-04-03",
+                "treatedDisabilityNames": [
+                    "PTSD personal trauma"
+                ]
+            }
+        ],
+        "veteran": {
+            "changeOfAddress": {
+                "addressChangeType": "PERMANENT",
+                "addressLine1": "5678 Couch Street",
+                "addressLine2": "Apt. 2",
+                "beginningDate": "2018-02-01",
+                "city": "Portland",
+                "country": "USA",
+                "state": "OR",
+                "type": "DOMESTIC",
+                "zipFirstFive": "23451",
+                "zipLastFour": "6789"
+            },
+            "currentMailingAddress": {
+                "addressLine1": "1234 Couch Street",
+                "addressLine2": "Apt. 22",
+                "city": "Portland",
+                "country": "USA",
+                "state": "OR",
+                "type": "DOMESTIC",
+                "zipFirstFive": "12345",
+                "zipLastFour": "6789"
+            },
+            "currentlyVAEmployee": false,
+            "daytimePhone": {
+                "areaCode": "123",
+                "phoneNumber": "1231231"
+            },
+            "emailAddress": "a@b.co",
+            "homelessness": {
+                "currentlyHomeless": {
+                    "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
+                    "otherLivingSituation": "other living situation"
+                },
+                "pointOfContact": {
+                    "pointOfContactName": "Jane Doe",
+                    "primaryPhone": {
+                        "areaCode": "123",
+                        "phoneNumber": "1231231"
+                    }
+                }
+            }
+        }
+    }
+}

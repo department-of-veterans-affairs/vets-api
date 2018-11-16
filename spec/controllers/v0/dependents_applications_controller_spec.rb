@@ -65,4 +65,14 @@ RSpec.describe V0::DependentsApplicationsController do
       end
     end
   end
+
+  describe 'GET disability_rating' do
+    it "returns the user's disability rating" do
+      VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
+        get(:disability_rating)
+        expect(response.code).to eq('200')
+        expect(JSON.parse(response.body)['has30_percent']).to be true
+      end
+    end
+  end
 end

@@ -12,10 +12,9 @@ module EVSS
       @app_id = app_id
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)
+      cached_info = Dependents::RetrievedInfo.for_user(user)
 
-      # TODO: used cached method
-      evss_form = service.retrieve
-      merged_form = DependentsApplication.transform_form(form, evss_form)
+      merged_form = DependentsApplication.transform_form(form, cached_info.body)
       merged_form = service.clean_form(merged_form)
 
       service.validate(merged_form).tap do |res|
@@ -29,6 +28,8 @@ module EVSS
 
       form_id = service.save(merged_form)['formId']
       res = service.submit(merged_form, form_id)
+
+      cached_info.delete
 
       dependents_application.update_attributes!(
         state: 'success',
