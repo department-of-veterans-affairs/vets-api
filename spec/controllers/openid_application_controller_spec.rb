@@ -248,7 +248,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
       let(:mvi_profile) do
         build(:mvi_profile,
               icn: '10000012345V123458',
-              family_name: 'WEAVER')
+              family_name: 'CARROLL')
       end
 
       before(:each) do
