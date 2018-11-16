@@ -111,7 +111,10 @@
         "treatmentDateRange": {
           "from": "2018-03-02",
           "to": "2018-03-03"
-        }
+        },
+        "treatedDisabilityNames": [
+          "PTSD (post traumatic stress disorder)"
+        ]
       },
       {
         "treatmentCenterName": "Huntsville VA Facility",
@@ -121,7 +124,10 @@
         "treatmentDateRange": {
           "from": "2015-04-03",
           "to": "2018-03-04"
-        }
+        },
+        "treatedDisabilityNames": [
+          "PTSD personal trauma"
+        ]
       }
     ],
     "waiveRetirementPay": false,
