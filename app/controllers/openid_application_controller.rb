@@ -112,7 +112,7 @@ class OpenidApplicationController < ApplicationController
       dl = DSLOGON_PREMIUM_LOAS.include?(profile['dslogon_assurance']) ? 3 : 1
       { current: dl, highest: dl }
     else
-      { current: profile['idme_loa'], highest: profile['idme_loa'] }
+      { current: profile['idme_loa']&.to_i, highest: profile['idme_loa']&.to_i }
     end
   end
 
