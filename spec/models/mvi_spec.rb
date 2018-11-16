@@ -4,7 +4,6 @@ require 'rails_helper'
 require 'common/exceptions'
 
 describe Mvi, skip_mvi: true do
-  before(:each) { Mvi.memory_cache.clear }
   let(:user) { build(:user, :loa3) }
   let(:mvi) { Mvi.for_user(user) }
   let(:mvi_profile) { build(:mvi_profile) }
