@@ -42,6 +42,7 @@ module Facilities
 
     def build_params(params)
       bbox_num = params[:bbox].map { |x| Float(x) }
+      page = Integer(params[:page] || 1)
       lats = bbox_num.values_at(1, 3)
       longs = bbox_num.values_at(2, 0)
       # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
@@ -50,7 +51,7 @@ module Facilities
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
       { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000, specialtycode1: 'null',
         specialtycode2: 'null', specialtycode3: 'null', specialtycode4: 'null',
-        network: 0, gender: 0, primarycare: 0, acceptingnewpatients: 0, maxResults: 20 * params[:page] }
+        network: 0, gender: 0, primarycare: 0, acceptingnewpatients: 0, maxResults: 20 * page }
     end
   end
 end
