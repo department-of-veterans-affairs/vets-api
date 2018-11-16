@@ -5,6 +5,9 @@ module HCA
     include SentryLogging
 
     class ValidationError < Common::Exceptions::BackendServiceException
+      def initialize
+        super('HCA422', status: 422)
+      end
     end
 
     VALIDATION_FAIL_KEY = 'api.hca.validation_fail'
@@ -24,7 +27,7 @@ module HCA
         Raven.tags_context(validation: 'hca')
         log_exception_to_sentry(e)
 
-        raise ValidationError.new('HCA422', status: 422)
+        raise ValidationError.new
       end
 
       raise

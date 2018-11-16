@@ -166,15 +166,15 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
 
         context 'with a validation error' do
-          let(:error) { HCA::SOAPParser::ValidationError.new('error') }
+          let(:error) { HCA::SOAPParser::ValidationError.new }
 
           it 'should render error message' do
             subject
 
-            expect(response.code).to eq('400')
+            expect(response.code).to eq('422')
             expect(JSON.parse(response.body)).to eq(
               'errors' => [
-                { 'title' => 'Operation failed', 'detail' => 'error', 'code' => 'VA900', 'status' => '400' }
+                {"title"=>"Operation failed", "detail"=>"Validation error", "code"=>"HCA422", "status"=>"422"}
               ]
             )
           end
