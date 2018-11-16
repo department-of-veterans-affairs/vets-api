@@ -197,7 +197,7 @@ paths:
                     properties:
                       distances:
                         type: object
-                        description: "For lat/long queries, a dictionary mapping facility ids to the distance from the point in miles"
+                        description: "For lat/long queries, a dictionary mapping facility ids to the distance from the search location. Distance is expressed in miles and represents straight-line distance, not driving distance."
                         additional_properties:
                           type: number
                         example:
