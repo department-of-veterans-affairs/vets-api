@@ -10,8 +10,6 @@ module EVSS
     # @param [User] Initialized with a user through the EVSS::Service parent
     #
     class Service < EVSS::Service
-      include Common::Client::Monitoring
-
       configuration EVSS::PCIU::Configuration
 
       # Returns a response object containing the user's email address and
@@ -24,13 +22,11 @@ module EVSS
       #   }
       #
       def get_email_address
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'emailAddress')
 
           EVSS::PCIU::EmailAddressResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       # Returns a response object containing the user's primary phone number,
@@ -45,13 +41,11 @@ module EVSS
       #   }
       #
       def get_primary_phone
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'primaryPhoneNumber')
 
           EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       # Returns a response object containing the user's alternate phone number,
@@ -66,13 +60,11 @@ module EVSS
       #   }
       #
       def get_alternate_phone
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'secondaryPhoneNumber')
 
           EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       # POST's the passed phone attributes to the EVSS::PCIU service.
@@ -89,7 +81,7 @@ module EVSS
       #   }
       #
       def post_primary_phone(phone_attrs)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(
             :post,
             'primaryPhoneNumber',
@@ -99,8 +91,6 @@ module EVSS
 
           EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       # POST's the passed phone attributes to the EVSS::PCIU service.
@@ -117,7 +107,7 @@ module EVSS
       #   }
       #
       def post_alternate_phone(phone_attrs)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(
             :post,
             'secondaryPhoneNumber',
@@ -127,8 +117,6 @@ module EVSS
 
           EVSS::PCIU::PhoneNumberResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       # POST's the passed email attributes to the EVSS::PCIU service.
@@ -142,7 +130,7 @@ module EVSS
       #   }
       #
       def post_email_address(email_attrs)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(
             :post,
             'emailAddress',
@@ -152,8 +140,6 @@ module EVSS
 
           EVSS::PCIU::EmailAddressResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
     end
   end
