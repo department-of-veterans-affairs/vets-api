@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true do
+  include SchemaMatchers
+
   let(:token) { 'token' }
   let(:jwt) do
     [{
@@ -69,7 +71,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
   end
 
-  context 'when a response is invalid' do
+  context 'when token is unauthorized' do
     it 'should return an unauthorized for bad token', :aggregate_failures do
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
@@ -78,18 +80,46 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         expect(JSON.parse(response.body)['errors'].first['code']).to eq '401'
       end
     end
+  end
 
-    it 'should return a server error if serialization fails', :aggregate_failures do
+  context 'when a response is invalid' do
+    let(:mvi_profile) do
+      build(:mvi_profile,
+            icn: nil,
+            family_name: 'zackariah')
+    end
+
+    before(:each) do 
       allow(JWT).to receive(:decode).and_return(jwt)
       Session.create(uuid: user.uuid, token: token)
       User.create(user)
+    end
+
+    it 'should return a server error if serialization fails', :aggregate_failures do
       allow_any_instance_of(OpenidAuth::ValidationSerializer).to receive(:attributes).and_raise(StandardError, 'random')
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
-        expect(response).to have_http_status(:internal_server_error)
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq '500'
+        expect(response).to have_http_status(:bad_gateway)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'MHV_STATUS502'
+      end
+    end
+
+    it 'should return a server error when missing an ICN', :aggregate_failures do
+      stub_mvi(mvi_profile)
+      with_okta_configured do
+        get '/internal/auth/v0/validation', nil, auth_header
+
+        expect(response).to have_http_status(:bad_gateway)
+        expect(response).to match_response_schema('errors')
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'MHV_STATUS502'
       end
     end
   end
+
+  # context 'when a response is invalid' do
+    
+
+    
+  # end
 end
