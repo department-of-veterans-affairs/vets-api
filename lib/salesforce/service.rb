@@ -2,6 +2,8 @@
 
 module Salesforce
   class Service < Common::Client::Base
+    include Common::Client::Monitoring
+
     SALESFORCE_HOST = "https://#{Settings.salesforce.env == 'prod' ? 'login' : 'test'}.salesforce.com"
 
     def oauth_params
@@ -29,7 +31,7 @@ module Salesforce
     end
 
     def get_oauth_token
-      body = request(:post, '', oauth_params).body
+      body = with_monitoring { request(:post, '', oauth_params).body }
       Raven.extra_context(oauth_response_body: body)
 
       body['access_token']
