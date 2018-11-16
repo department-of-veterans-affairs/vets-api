@@ -27,6 +27,7 @@ module VIC
       veteran_address
       phone
     ].freeze
+    STATSD_KEY_PREFIX = 'api.vic2'
 
     def convert_form(form)
       converted_form = form.deep_transform_keys { |key| key.to_s.underscore }
@@ -54,20 +55,22 @@ module VIC
     def send_file_with_path(client, case_id, file_path, mime_type, description)
       file_name = "#{description}.#{mime_type.split('/')[1]}"
 
-      content_version_id = client.create!(
-        'ContentVersion',
-        Title: description, PathOnClient: file_name,
-        VersionData: Restforce::UploadIO.new(
-          file_path,
-          mime_type
+      with_monitoring do
+        content_version_id = client.create!(
+          'ContentVersion',
+          Title: description, PathOnClient: file_name,
+          VersionData: Restforce::UploadIO.new(
+            file_path,
+            mime_type
+          )
         )
-      )
 
-      client.create!(
-        'ContentDocumentLink',
-        ContentDocumentId: client.find('ContentVersion', content_version_id)['ContentDocumentId'],
-        ShareType: 'V', LinkedEntityId: case_id
-      )
+        client.create!(
+          'ContentDocumentLink',
+          ContentDocumentId: client.find('ContentVersion', content_version_id)['ContentDocumentId'],
+          ShareType: 'V', LinkedEntityId: case_id
+        )
+      end
 
       File.delete(file_path)
     end
@@ -200,7 +203,7 @@ module VIC
       add_user_data!(converted_form, user) if user.present?
 
       client = get_client
-      response_body = client.post('/services/apexrest/VICRequest', converted_form).body
+      response_body = with_monitoring { client.post('/services/apexrest/VICRequest', converted_form).body }
       Raven.extra_context(submit_response_body: response_body)
 
       case_id = response_body['case_id']
