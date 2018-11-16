@@ -349,7 +349,7 @@ module EVSS
           {
             'startDate' => treatment['treatmentDateRange']['from'],
             'endDate' => treatment['treatmentDateRange']['to'],
-            'treatedDisabilityNames' => [], # TODO: This needs to be matched
+            'treatedDisabilityNames' => treatment['treatedDisabilityNames'],
             'center' => {
               'name' => treatment['treatmentCenterName']
             }.merge(treatment['treatmentCenterAddress'])
