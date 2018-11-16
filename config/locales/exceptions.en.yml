@@ -242,6 +242,11 @@ en:
         code: 'SM99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
+      HCA422:
+        <<: *external_defaults
+        code: 'HCA422'
+        detail: 'Validation error'
+        status: 422
       BB99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'BB99'

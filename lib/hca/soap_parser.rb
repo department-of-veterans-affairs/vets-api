@@ -4,7 +4,7 @@ module HCA
   class SOAPParser < Common::Client::Middleware::Response::SOAPParser
     include SentryLogging
 
-    class ValidationError < StandardError
+    class ValidationError < Common::Exceptions::BackendServiceException
     end
 
     VALIDATION_FAIL_KEY = 'api.hca.validation_fail'
@@ -24,7 +24,7 @@ module HCA
         Raven.tags_context(validation: 'hca')
         log_exception_to_sentry(e)
 
-        raise ValidationError, 'HCA validation error'
+        raise ValidationError, 'HCA422'
       end
 
       raise
