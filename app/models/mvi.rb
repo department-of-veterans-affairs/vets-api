@@ -21,7 +21,7 @@ class Mvi < Common::RedisStore
   # @param user [User] the user to query MVI for
   # @return [Mvi] an instance of this class
   def self.for_user(user)
-    mvi = Mvi.new
+    mvi = Thread.current[:mvi] || Thread.current[:mvi] = Mvi.new
     mvi.user = user
     mvi
   end
