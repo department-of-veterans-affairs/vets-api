@@ -23,9 +23,18 @@ module EVSS
         request_env.url.host == host && request_env.url.path =~ /^#{path}/
       end
 
+      exception_handler = proc do |exception|
+        if exception.is_a?(Common::Exceptions::SentryIgnoredGatewayTimeout)
+          true
+        else
+          false
+        end
+      end
+
       Breakers::Service.new(
         name: name,
-        request_matcher: matcher
+        request_matcher: matcher,
+        exception_handler: exception_handler
       )
     end
 
