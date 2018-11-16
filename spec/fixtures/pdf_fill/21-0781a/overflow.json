@@ -11,172 +11,181 @@
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
-  "incident": [{
-    "personalAssault": true,
-    "incidentDate": "2000-01-01",
-    "unitAssignedDates": {
-      "from": "2001-01-01",
-      "to": "2002-02-02"
-    },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
-    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "source": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
+  "incident": [
+    {
+      "personalAssault": true,
+      "incidentDate": "2000-01-01",
+      "unitAssignedDates": {
+        "from": "2001-01-01",
+        "to": "2002-02-02"
       },
-      "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
+      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "source": [
+        {
+          "name": {
+            "first": "Testy",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Dusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "789 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Trusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "100 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        }
+      ]
     },
     {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
+      "incidentDate": "2015-01-01",
+      "unitAssignedDates": {
+        "from": "2015-01-01",
+        "to": "2016-02-02"
       },
-      "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
+      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "source": [
+        {
+          "name": {
+            "first": "Testy",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Dusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "789 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Trusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "100 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        }
+      ]
     },
     {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
+      "incidentDate": "2015-01-01",
+      "unitAssignedDates": {
+        "from": "2015-01-01",
+        "to": "2016-02-02"
       },
-      "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    }]
-  }, 
-  {
-    "incidentDate": "2015-01-01",
-    "unitAssignedDates": {
-      "from": "2015-01-01",
-      "to": "2016-02-02"
-    },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
-    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "source": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    }]
-  },
-  {
-    "incidentDate": "2015-01-01",
-    "unitAssignedDates": {
-      "from": "2015-01-01",
-      "to": "2016-02-02"
-    },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
-    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    "source": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    }]
-  }],
+      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+      "source": [
+        {
+          "name": {
+            "first": "Testy",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Dusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "789 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Trusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "100 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        }
+      ]
+    }
+  ],
+  "additionalIncidentText": "Additional incident text",
   "otherInformation": [
     "Category - Behavior Change A",
     "Category - Behavior Change B",

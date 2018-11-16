@@ -557,7 +557,7 @@ RSpec.describe FormProfile, type: :model do
 
   describe '#prefill_form' do
     def can_prefill_emis(yes)
-      expect(user).to receive(:authorize).with(:emis, :access?).and_return(yes)
+      expect(user).to receive(:authorize).at_least(:once).with(:emis, :access?).and_return(yes)
     end
 
     def strip_required(schema)
