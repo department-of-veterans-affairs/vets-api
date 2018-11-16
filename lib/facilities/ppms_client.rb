@@ -48,9 +48,9 @@ module Facilities
       xlen = (lats.max - lats.min) * 69 / 2
       ylen = (longs.max - longs.min) * 69 / 2
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
-      { address: params[:address], radius: radius, driveTime: 10_000, specialtycode1: 'null',
+      { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000, specialtycode1: 'null',
         specialtycode2: 'null', specialtycode3: 'null', specialtycode4: 'null',
-        network: 0, gender: 0, primarycare: 0, acceptingnewpatients: 0, maxResults: 200 }
+        network: 0, gender: 0, primarycare: 0, acceptingnewpatients: 0, maxResults: 20 * params[:page] }
     end
   end
 end
