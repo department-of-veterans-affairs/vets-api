@@ -98,7 +98,9 @@
                 },
                 "endDate": "2018-03-03",
                 "startDate": "2018-03-02",
-                "treatedDisabilityNames": []
+                "treatedDisabilityNames": [
+                    "PTSD (post traumatic stress disorder)"
+                ]
             },
             {
                 "center": {
@@ -107,7 +109,9 @@
                 },
                 "endDate": "2018-03-04",
                 "startDate": "2015-04-03",
-                "treatedDisabilityNames": []
+                "treatedDisabilityNames": [
+                    "PTSD personal trauma"
+                ]
             }
         ],
         "veteran": {
