@@ -24,7 +24,7 @@ module HCA
         Raven.tags_context(validation: 'hca')
         log_exception_to_sentry(e)
 
-        raise ValidationError, 'HCA422'
+        raise ValidationError.new('HCA422', status: 422)
       end
 
       raise
