@@ -197,20 +197,20 @@ paths:
                     properties:
                       distances:
                         type: object
-                        description: "For lat/long queries, a dictionary mapping facility ids to the distance from the point"
+                        description: "For lat/long queries, a dictionary mapping facility ids to the distance from the point in miles"
                         additional_properties:
                           type: number
                         example:
-                          vha_436_gl: 4852433.04216896
-                          vha_436_qb: 4819378.06782545
-                          vha_437_ga: 4840757.7159905
-                          vha_437_gd: 4851081.50087153
-                          vha_463: 3470373.80407519
-                          vha_463_ga: 3071196.80240715
-                          vha_463_gb: 3544374.53624005
-                          vha_463_gc: 3430717.89120473
-                          vha_463_gd: 3644627.88327391
-                          vha_463_ge: 3801297.11767129
+                          vha_537: 2.45
+                          vha_537_ga: 25.81
+                          vha_537_gd: 1.12
+                          vha_537_ha: 8.64
+                          vha_537_qa: 3.48
+                          vha_556: 32.02
+                          vha_556_ga: 11.81
+                          vha_578: 10.95
+                          vha_578_ge: 32.05
+                          vha_578_gg: 13.09
                       pagination:
                         type: object
                         required:

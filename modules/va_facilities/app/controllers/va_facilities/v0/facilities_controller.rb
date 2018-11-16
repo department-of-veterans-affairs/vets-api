@@ -125,7 +125,7 @@ module VaFacilities
                  distances: {} }
         if params[:lat] && params[:long]
           resource.each do |facility|
-            meta[:distances][ApiSerialization.id(facility)] = facility.distance
+            meta[:distances][ApiSerialization.id(facility)] = facility.distance.round(2)
           end
         end
         meta
