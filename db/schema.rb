@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181017123729) do
+ActiveRecord::Schema.define(version: 20181031155126) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -170,6 +170,19 @@ ActiveRecord::Schema.define(version: 20181017123729) do
 
   add_index "evss_claims", ["user_uuid"], name: "index_evss_claims_on_user_uuid", using: :btree
 
+  create_table "form526_job_statuses", force: :cascade do |t|
+    t.integer  "form526_submission_id", null: false
+    t.string   "job_id",                null: false
+    t.string   "job_class",             null: false
+    t.string   "status",                null: false
+    t.string   "error_class"
+    t.string   "error_message"
+    t.datetime "updated_at",            null: false
+  end
+
+  add_index "form526_job_statuses", ["form526_submission_id"], name: "index_form526_job_statuses_on_form526_submission_id", using: :btree
+  add_index "form526_job_statuses", ["job_id"], name: "index_form526_job_statuses_on_job_id", unique: true, using: :btree
+
   create_table "form526_opt_ins", force: :cascade do |t|
     t.string   "user_uuid",          null: false
     t.string   "encrypted_email",    null: false
@@ -179,6 +192,23 @@ ActiveRecord::Schema.define(version: 20181017123729) do
   end
 
   add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
+
+  create_table "form526_submissions", force: :cascade do |t|
+    t.uuid     "user_uuid",                                      null: false
+    t.integer  "saved_claim_id",                                 null: false
+    t.integer  "submitted_claim_id"
+    t.string   "encrypted_auth_headers_json",                    null: false
+    t.string   "encrypted_auth_headers_json_iv",                 null: false
+    t.string   "encrypted_form_json",                            null: false
+    t.string   "encrypted_form_json_iv",                         null: false
+    t.boolean  "workflow_complete",              default: false, null: false
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
+  end
+
+  add_index "form526_submissions", ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true, using: :btree
+  add_index "form526_submissions", ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true, using: :btree
+  add_index "form526_submissions", ["user_uuid"], name: "index_form526_submissions_on_user_uuid", using: :btree
 
   create_table "form_attachments", force: :cascade do |t|
     t.datetime "created_at",             null: false

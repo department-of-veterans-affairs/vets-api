@@ -1,44 +1,120 @@
 {
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "properties": {
     "data": {
+      "properties": {
         "attributes": {
-            "responses": [
-                {
-                    "control_information": {
-                        "can_update_address": true,
-                        "corp_avail_indicator": true,
-                        "corp_rec_found_indicator": true,
-                        "has_no_bdn_payments_indicator": true,
-                        "identity_indicator": true,
-                        "index_indicator": true,
-                        "is_competent_indicator": true,
-                        "no_fiduciary_assigned_indicator": true,
-                        "not_deceased_indicator": true
+          "properties": {
+            "responses": {
+              "description": "Array of responses of banking info",
+              "properties": {
+                "control_information": {
+                  "properties": {
+                    "can_update_address": {
+                      "type": "boolean"
                     },
-                    "payment_account": {
-                        "account_number": "9876543211234",
-                        "account_type": "Checking",
-                        "financial_institution_name": "Comerica",
-                        "financial_institution_routing_number": "042102115"
+                    "corp_avail_indicator": {
+                      "type": "boolean"
                     },
-                    "payment_address": {
-                        "address_effective_date": null,
-                        "address_one": null,
-                        "address_three": null,
-                        "address_two": null,
-                        "city": null,
-                        "country_name": null,
-                        "military_post_office_type_code": null,
-                        "military_state_code": null,
-                        "state_code": null,
-                        "type": null,
-                        "zip_code": null,
-                        "zip_suffix": null
+                    "corp_rec_found_indicator": {
+                      "type": "boolean"
                     },
-                    "payment_type": "CNP"
+                    "has_no_bdn_payments_indicator": {
+                      "type": "boolean"
+                    },
+                    "identity_indicator": {
+                      "type": "boolean"
+                    },
+                    "index_indicator": {
+                      "type": "boolean"
+                    },
+                    "is_competent_indicator": {
+                      "type": "boolean"
+                    },
+                    "no_fiduciary_assigned_indicator": {
+                      "type": "boolean"
+                    },
+                    "not_deceased_indicator": {
+                      "type": "boolean"
+                    }
+                  },
+                  "type": "object"
+                },
+                "payment_account": {
+                  "properties": {
+                    "account_number": {
+                      "type": "string"
+                    },
+                    "account_type": {
+                      "type": "string"
+                    },
+                    "financial_institution_name": {
+                      "type": "string"
+                    },
+                    "financial_institution_routing_number": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                },
+                "payment_address": {
+                  "properties": {
+                    "address_effective_date": {
+                      "type": ["string", "null"]
+                    },
+                    "address_one": {
+                      "type": ["string", "null"]
+                    },
+                    "address_three": {
+                      "type": ["string", "null"]
+                    },
+                    "address_two": {
+                      "type": ["string", "null"]
+                    },
+                    "city": {
+                      "type": ["string", "null"]
+                    },
+                    "country_name": {
+                      "type": ["string", "null"]
+                    },
+                    "military_post_office_type_code": {
+                      "type": ["string", "null"]
+                    },
+                    "military_state_code": {
+                      "type": ["string", "null"]
+                    },
+                    "state_code": {
+                      "type": ["string", "null"]
+                    },
+                    "type": {
+                      "type": ["string", "null"]
+                    },
+                    "zip_code": {
+                      "type": ["string", "null"]
+                    },
+                    "zip_suffix": {
+                      "type": ["string", "null"]
+                    }
+                  },
+                  "type": "object"
                 }
-            ]
+              },
+              "type": "array"
+            }
+          },
+          "type": "object",
+          "required": ["responses"]
         },
-        "id": "",
-        "type": "evss_ppiu_payment_information_responses"
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "type": "object"
     }
+  },
+  "type": "object"
 }
