@@ -296,6 +296,12 @@ en:
         code: 'MHVACCTCREATION159'
         detail: 'User is not matched or correlated in MVI'
         status: 422
+      MHV_STATUS502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'MHV_STATUS502'
+        detail: MHV service responded with something other than veteran status information
+        status: 502
       APPEALSSTATUS401:
         <<: *external_defaults
         title: 'Bad Gateway'
