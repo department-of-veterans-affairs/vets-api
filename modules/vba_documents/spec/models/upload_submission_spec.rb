@@ -186,5 +186,10 @@ describe VBADocuments::UploadSubmission, type: :model do
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_received.guid)
       expect(updated.status).to eq('received')
     end
+
+    it 'should report an error to Statsd when changed to error' do
+      expect(StatsD).to receive(:increment)
+      upload_success.update_attribute :status, 'error'
+    end
   end
 end
