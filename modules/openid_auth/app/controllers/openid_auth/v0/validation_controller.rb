@@ -7,8 +7,8 @@ module OpenidAuth
   module V0
     class ValidationController < ApplicationController
       def index
-        raise StandardError unless user_icn = @current_user.icn
-        render json: validated_payload(user_icn), serializer: OpenidAuth::ValidationSerializer
+        raise StandardError unless @current_user.icn
+        render json: validated_payloa, serializer: OpenidAuth::ValidationSerializer
       rescue StandardError
         raise_error!
       end
@@ -22,8 +22,8 @@ module OpenidAuth
         )
       end
 
-      def validated_payload(user_icn)
-        @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: user_icn }))
+      def validated_payload
+        @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: @current_user.icn }))
       end
     end
   end
