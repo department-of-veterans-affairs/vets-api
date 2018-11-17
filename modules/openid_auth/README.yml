@@ -72,10 +72,8 @@ paths:
                 properties:
                   data:
                     $ref: '#/components/schemas/ValidatedToken'
-        '403':
-          description: Provided Access Token Does not have the required scopes to access.
-        '500':
-          description: Token validation failed due to internal server error.
+        '502':
+          description: MHV service responded with something other than the necessary information.
 components:
   securitySchemes:
     bearer_token:
