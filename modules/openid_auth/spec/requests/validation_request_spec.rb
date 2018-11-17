@@ -89,7 +89,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
             family_name: 'zackariah')
     end
 
-    before(:each) do 
+    before(:each) do
       allow(JWT).to receive(:decode).and_return(jwt)
       Session.create(uuid: user.uuid, token: token)
       User.create(user)
@@ -118,8 +118,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
 
   # context 'when a response is invalid' do
-    
 
-    
   # end
 end
