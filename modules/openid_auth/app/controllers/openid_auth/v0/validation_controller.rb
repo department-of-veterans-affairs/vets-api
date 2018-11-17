@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'openid_auth/application_controller'
-require 'mvi/errors/errors'
 
 module OpenidAuth
   module V0
