@@ -116,8 +116,4 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
   end
-
-  # context 'when a response is invalid' do
-
-  # end
 end
