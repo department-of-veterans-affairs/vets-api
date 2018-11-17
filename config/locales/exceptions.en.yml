@@ -300,7 +300,7 @@ en:
         <<: *external_defaults
         title: Unexpected response body
         code: 'MHV_STATUS502'
-        detail: MHV service responded with something other than veteran status information
+        detail: MHV service responded with something other than the necessary information
         status: 502
       APPEALSSTATUS401:
         <<: *external_defaults
