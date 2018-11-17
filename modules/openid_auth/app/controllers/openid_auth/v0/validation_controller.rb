@@ -8,7 +8,7 @@ module OpenidAuth
     class ValidationController < ApplicationController
       def index
         raise StandardError unless @current_user.icn
-        render json: validated_payloa, serializer: OpenidAuth::ValidationSerializer
+        render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
       rescue StandardError
         raise_error!
       end
