@@ -6,6 +6,9 @@ module VBADocuments
     include SentryLogging
 
     IN_FLIGHT_STATUSES = %w[received processing].freeze
+    STATSD_PREFIX = "VBADocument_UploadSubmission"
+
+    after_save :report_errors
 
     def self.refresh_and_get_statuses!(guids)
       submissions = where(guid: guids)
@@ -114,6 +117,12 @@ module VBADocuments
                               :warning,
                               status: response_object['status'])
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
+      end
+    end
+
+    def report_errors
+      if self.status_changed? && self.status == 'error'
+        StatsD.increment "#{STATSD_PREFIX}"
       end
     end
   end
