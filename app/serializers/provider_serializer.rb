@@ -49,7 +49,9 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def specialty
-    object.ProviderSpecialties.map { |specialty| specialty['SpecialtyName'] }
+    object.ProviderSpecialties.map do |specialty| 
+      { name: specialty['SpecialtyName'],
+        desc: specialty['SpecialtyDescription'] } end
   end
 
   attributes :unique_id, :name, :address, :phone, :fax, :lat, :long,
