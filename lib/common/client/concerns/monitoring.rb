@@ -4,8 +4,8 @@ module Common::Client
   module Monitoring
     extend ActiveSupport::Concern
 
-    def with_monitoring
-      caller = caller_locations(1, 1)[0].label
+    def with_monitoring(trace_location = 1)
+      caller = caller_locations(trace_location, 1)[0].label
       yield
     rescue => error
       increment_failure(caller, error)

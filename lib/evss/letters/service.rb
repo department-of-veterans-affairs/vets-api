@@ -8,8 +8,6 @@ require 'common/client/concerns/monitoring'
 module EVSS
   module Letters
     class Service < EVSS::Service
-      include Common::Client::Monitoring
-
       configuration EVSS::Letters::Configuration
 
       INVALID_ADDRESS_ERROR = 'letterDestination.addressLine1.invalid'
@@ -28,12 +26,10 @@ module EVSS
       end
 
       def get_letter_beneficiary
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'letterBeneficiary')
           EVSS::Letters::BeneficiaryResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       private
