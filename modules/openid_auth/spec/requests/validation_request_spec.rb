@@ -101,7 +101,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         get '/internal/auth/v0/validation', nil, auth_header
 
         expect(response).to have_http_status(:bad_gateway)
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'MHV_STATUS502'
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTHTOKEN_502'
       end
     end
 
@@ -112,7 +112,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
 
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('errors')
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'MHV_STATUS502'
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTHTOKEN_502'
       end
     end
   end

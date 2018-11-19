@@ -16,7 +16,7 @@ module OpenidAuth
 
       def raise_error!
         raise Common::Exceptions::BackendServiceException.new(
-          'MHV_STATUS502',
+          'AUTHTOKEN_502',
           source: self.class.to_s
         )
       end

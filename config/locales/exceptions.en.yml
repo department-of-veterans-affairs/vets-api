@@ -296,11 +296,11 @@ en:
         code: 'MHVACCTCREATION159'
         detail: 'User is not matched or correlated in MVI'
         status: 422
-      MHV_STATUS502:
+      AUTHTOKEN_502:
         <<: *external_defaults
         title: Unexpected response body
-        code: 'MHV_STATUS502'
-        detail: MHV service responded with something other than the necessary information
+        code: 'AUTHTOKEN_502'
+        detail: Auth service responded with something other than the necessary information
         status: 502
       APPEALSSTATUS401:
         <<: *external_defaults
