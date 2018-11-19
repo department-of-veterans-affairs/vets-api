@@ -12,6 +12,17 @@ class Preference < ActiveRecord::Base
 
   alias choices preference_choices
 
+  def self.with_choices(code)
+    preference = find_by code: code
+
+    return unless preference
+
+    {
+      preference: preference.as_json,
+      preference_choices: preference.choices.as_json
+    }
+  end
+
   def to_param
     code
   end
