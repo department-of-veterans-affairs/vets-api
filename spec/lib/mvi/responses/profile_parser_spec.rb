@@ -63,7 +63,7 @@ describe MVI::Responses::ProfileParser do
             sec_id: nil,
             historical_icns: nil,
             vet360_id: nil,
-            edipi: '',
+            edipi: nil,
             full_mvi_ids: [
               '1000123456V123456^NI^200M^USVHA^P',
               '12345^PI^516^USVHA^PCE',
