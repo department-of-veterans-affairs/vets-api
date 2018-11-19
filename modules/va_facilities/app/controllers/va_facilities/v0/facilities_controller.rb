@@ -17,7 +17,7 @@ module VaFacilities
       before_action :validate_params, only: [:index]
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
-      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bouding box, or ids parameter to query facilities data.'
+      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bounding box, or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -118,10 +118,17 @@ module VaFacilities
       end
 
       def metadata(resource)
-        { pagination: { current_page: resource.current_page,
-                        per_page: resource.per_page,
-                        total_pages: resource.total_pages,
-                        total_entries: resource.total_entries } }
+        meta = { pagination: { current_page: resource.current_page,
+                               per_page: resource.per_page,
+                               total_pages: resource.total_pages,
+                               total_entries: resource.total_entries },
+                 distances: {} }
+        if params[:lat] && params[:long]
+          resource.each do |facility|
+            meta[:distances][ApiSerialization.id(facility)] = facility.distance.round(2)
+          end
+        end
+        meta
       end
     end
   end
