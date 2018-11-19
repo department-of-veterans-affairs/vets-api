@@ -5,6 +5,7 @@ require 'evss/auth_headers'
 
 module EVSS
   class Service < Common::Client::Base
+    include Common::Client::Monitoring
     STATSD_KEY_PREFIX = 'api.evss'
 
     def initialize(user)
@@ -22,6 +23,14 @@ module EVSS
     end
 
     private
+
+    def with_monitoring_and_error_handling
+      with_monitoring(2) do
+        yield
+      end
+    rescue StandardError => e
+      handle_error(e)
+    end
 
     def headers_for_user(user)
       EVSS::AuthHeaders.new(user).to_h
