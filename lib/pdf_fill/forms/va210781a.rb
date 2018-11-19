@@ -227,11 +227,9 @@ module PdfFill
 
       def expand_other_information
         return if @form_data['otherInformation'].blank?
-        other_information_lines = []
-        @form_data['otherInformation'].each do |other_information|
-          other_information_lines.push('value' => other_information)
+        @form_data['otherInformation'].map! do |other_info|
+          { 'value' => other_info }
         end
-        @form_data['otherInformation'] = other_information_lines
       end
 
       def combine_source_name_address(incident)
