@@ -296,6 +296,12 @@ en:
         code: 'MHVACCTCREATION159'
         detail: 'User is not matched or correlated in MVI'
         status: 422
+      AUTHTOKEN_404:
+        <<: *external_defaults
+        title: Not found
+        code: 'AUTHTOKEN_404'
+        detail: Auth service responded that data for token was not found
+        status: 404
       AUTHTOKEN_502:
         <<: *external_defaults
         title: Unexpected response body
