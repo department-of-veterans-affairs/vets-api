@@ -3,47 +3,38 @@
 module EVSS
   module Dependents
     class Service < EVSS::Service
-      include Common::Client::Monitoring
       configuration EVSS::Dependents::Configuration
 
       STATSD_KEY_PREFIX = 'api.evss.dependents'
 
       def retrieve
-        with_monitoring do
+        with_monitoring_and_error_handling do
           perform(:get, 'load/retrieve')
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def clean_form(form)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           perform(:post, 'inflightform/cleanForm', form.to_json, headers).body
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def validate(form)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           perform(:post, 'inflightform/validateForm', form.to_json, headers).body
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def save(form)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           perform(:post, 'inflightform/saveForm', form.to_json, headers).body
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def submit(form, form_id)
         form['submitProcess']['application']['draftFormId'] = form_id
         change_evss_times!(form)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           res = perform(
             :post,
             'form686submission/submit',
@@ -52,8 +43,6 @@ module EVSS
           )
           Hash.from_xml(res.body)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       private
