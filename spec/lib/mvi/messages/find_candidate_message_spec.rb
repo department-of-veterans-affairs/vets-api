@@ -72,6 +72,20 @@ describe MVI::Messages::FindProfileMessage do
           'Gender'
         )
       end
+
+      context 'orchestration' do
+        around(:each) do |example|
+          Settings.mvi.vba_orchestration = true
+          example.run
+          Settings.mvi.vba_orchestration = nil
+        end
+        it 'should have orchestration related params when enabled' do
+          expect(xml).to eq_text_at_path(
+            "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
+            'MVI.ORCHESTRATION'
+          )
+        end
+      end
     end
 
     context 'with nil gender' do

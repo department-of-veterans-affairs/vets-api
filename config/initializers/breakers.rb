@@ -46,6 +46,8 @@ services = [
   EVSS::PCIUAddress::Configuration.instance.breakers_service,
   EVSS::GiBillStatus::Configuration.instance.breakers_service,
   EVSS::Dependents::Configuration.instance.breakers_service,
+  Gibft::Configuration.instance.breakers_service,
+  VIC::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
   VIC::Configuration.instance.breakers_service,
