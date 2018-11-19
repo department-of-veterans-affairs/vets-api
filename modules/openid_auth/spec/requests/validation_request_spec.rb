@@ -83,12 +83,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
   end
 
   context 'when a response is invalid' do
-    let(:mvi_profile) do
-      build(:mvi_profile,
-            icn: nil,
-            family_name: 'zackariah')
-    end
-
     before(:each) do
       allow(JWT).to receive(:decode).and_return(jwt)
       Session.create(uuid: user.uuid, token: token)
@@ -105,8 +99,17 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       end
     end
 
-    it 'should return a server error when missing an ICN', :aggregate_failures do
-      stub_mvi(mvi_profile)
+    it 'should return a not found when va profile returns not found', :aggregate_failures do
+      with_okta_configured do
+        get '/internal/auth/v0/validation', nil, auth_header
+
+        expect(response).to have_http_status(:not_found)
+        expect(response).to match_response_schema('errors')
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTHTOKEN_404'
+      end
+    end
+
+    it 'should return a server error when va profile returns server error', :aggregate_failures do
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
