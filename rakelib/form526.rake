@@ -74,10 +74,12 @@ namespace :form526 do
 
   desc 'update all disability compensation claims to have the correct type'
   task update_types: :environment do
-    SavedClaim::DisabilityCompensation.each do |claim|
-      claim.type = 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly'
-      claim.save
-    end
+    # `update_all` is being used because the `type` field will reset to `SavedClaim::DisabilityCompensation`
+    # if a `claim.save` is done
+    # rubocop:disable Rails/SkipsModelValidations
+    SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
+                                      .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   desc 'dry run for migrating existing 526 submissions to the new tables'
