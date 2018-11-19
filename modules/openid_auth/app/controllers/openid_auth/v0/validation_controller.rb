@@ -10,9 +10,9 @@ module OpenidAuth
         case @current_user.va_profile_status
         when 'OK'
           render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
-        when 'server_error'
+        when 'SERVER_ERROR'
           raise_error!
-        when 'not_found'
+        when 'NOT_FOUND'
           raise_not_found!
         else
           raise_not_found!
