@@ -100,7 +100,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'should return a not found when va profile returns not found', :aggregate_failures do
-      user.stub(:va_profile_status).with('NOT_FOUND')
+      user.stub(:va_profile_status) { 'NOT_FOUND' }
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
@@ -111,7 +111,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'should return a server error when va profile returns server error', :aggregate_failures do
-      user.stub(:va_profile_status).with('SERVER_ERROR')
+      user.stub(:va_profile_status) { 'SERVER_ERROR' }
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
