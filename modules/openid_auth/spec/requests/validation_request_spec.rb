@@ -112,7 +112,6 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
     end
 
     it 'should return a server error when va profile returns server error', :aggregate_failures do
-      pending('Need to stub out va_profile_status without redoing VCR')
       allow_any_instance_of(User).to receive(:va_profile_status).and_return('SERVER_ERROR')
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
