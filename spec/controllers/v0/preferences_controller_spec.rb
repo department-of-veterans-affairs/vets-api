@@ -27,6 +27,10 @@ RSpec.describe V0::PreferencesController, type: :controller do
         expect(response).to have_http_status(:success)
       end
 
+      it 'matches the response schema' do
+        expect(response).to match_response_schema('preferences')
+      end
+
       it 'returns a single Preference' do
         get :show, code: preference.code
         preference_code = json_body_for(response)['attributes']['code']
