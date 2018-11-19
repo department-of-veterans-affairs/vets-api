@@ -707,15 +707,19 @@ components:
       type: object
       properties:
         primary_care_urgent:
+          description: "% of Veterans who say they usually or always get an appointment when they need care right away at a primary care location"
           type: float
           example: 0.85
         primary_care_routine:
+          description: "% of Veterans who say they usually or always get an appointment when they need it at a primary care location"
           type: float
           example: 0.85
         specialty_care_urgent:
+          description: "% of Veterans who say they usually or always get an appointment when they need care right away at a specialty location"
           type: float
           example: 0.85
         specialty_care_routine:
+          description: "% of Veterans who say they usually or always get an appointment when they need it at a specialty location"
           type: float
           example: 0.85
     PatientWaitTime: 
