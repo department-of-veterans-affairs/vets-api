@@ -11,7 +11,8 @@ module V0
     private
 
     def set_preference
-      @preference = Preference.find_by(code: preference_params['code'])
+      @preference = PreferencesRedis::Cache.for(preference_params['code'])&.choices
+
       raise Common::Exceptions::RecordNotFound, preference_params['code'] if @preference.blank?
     end
 
