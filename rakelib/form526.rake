@@ -50,7 +50,7 @@ namespace :form526 do
   def create_submission_hash(claim_id, submission, user_uuid)
     {
       user_uuid: user_uuid,
-      saved_claim_id: submission.disability_compensation_claim.id,
+      saved_claim_id: submission.disability_compensation_id,
       submitted_claim_id: claim_id,
       auth_headers_json: { metadata: 'migrated data auth headers unavailable' }.to_json,
       form_json: { metadata: 'migrated data form unavailable' }.to_json,
@@ -72,16 +72,25 @@ namespace :form526 do
     }
   end
 
+  desc 'update all disability compensation claims to have the correct type'
+  task update_types: :environment do
+    # `update_all` is being used because the `type` field will reset to `SavedClaim::DisabilityCompensation`
+    # if a `claim.save` is done
+    # rubocop:disable Rails/SkipsModelValidations
+    SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
+                                      .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
+    # rubocop:enable Rails/SkipsModelValidations
+  end
+
   desc 'dry run for migrating existing 526 submissions to the new tables'
   task migrate_dry_run: :environment do
     migrated = 0
 
     DisabilityCompensationSubmission.find_each do |submission|
-      user_uuid = submission.async_transaction.user_uuid
+      job = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find(submission.va526ez_submit_transaction_id)
+      user_uuid = job.user_uuid
       claim_id = nil
-      if submission.async_transaction.transaction_status == 'received'
-        claim_id = JSON.parse(submission.async_transaction.metadata)['claim_id']
-      end
+      claim_id = JSON.parse(job.metadata)['claim_id'] if job.transaction_status == 'received'
 
       submission_hash = create_submission_hash(claim_id, submission, user_uuid)
 
@@ -107,11 +116,10 @@ namespace :form526 do
     migrated = 0
 
     DisabilityCompensationSubmission.find_each do |submission|
-      user_uuid = submission.async_transaction.user_uuid
+      job = AsyncTransaction::EVSS::VA526ezSubmitTransaction.find(submission.va526ez_submit_transaction_id)
+      user_uuid = job.user_uuid
       claim_id = nil
-      if submission.async_transaction.transaction_status == 'received'
-        claim_id = JSON.parse(submission.async_transaction.metadata)['claim_id']
-      end
+      claim_id = JSON.parse(job.metadata)['claim_id'] if job.transaction_status == 'received'
 
       new_submission = Form526Submission.create(create_submission_hash(claim_id, submission, user_uuid))
 
