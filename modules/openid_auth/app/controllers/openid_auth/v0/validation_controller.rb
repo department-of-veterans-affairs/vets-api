@@ -7,34 +7,19 @@ module OpenidAuth
   module V0
     class ValidationController < ApplicationController
       def index
-        case @current_user.va_profile_status
-        when 'OK'
+        validate_user
+        begin
           render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
-        when 'SERVER_ERROR'
-          raise_error!
-        when 'NOT_FOUND'
-          raise_not_found!
-        else
-          raise_not_found!
+        rescue StandardError => e
+          raise Common::Exceptions::InternalServerError, e
         end
-      rescue StandardError
-        raise_error!
       end
 
       private
 
-      def raise_not_found!
-        raise Common::Exceptions::BackendServiceException.new(
-          'AUTHTOKEN_404',
-          source: self.class.to_s
-        )
-      end
-
-      def raise_error!
-        raise Common::Exceptions::BackendServiceException.new(
-          'AUTHTOKEN_502',
-          source: self.class.to_s
-        )
+      def validate_user
+        raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.va_profile_status == 'NOT_FOUND'
+        raise Common::Exceptions::BadGateway if @current_user.va_profile_status == 'SERVER_ERROR'
       end
 
       def validated_payload

@@ -94,20 +94,18 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
-        expect(response).to have_http_status(:bad_gateway)
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTHTOKEN_502'
+        expect(response).to have_http_status(:internal_server_error)
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '500'
       end
     end
 
     it 'should return a not found when va profile returns not found', :aggregate_failures do
-      pending('Need to stub out va_profile_status without redoing VCR')
       allow_any_instance_of(User).to receive(:va_profile_status).and_return('NOT_FOUND')
       with_okta_configured do
         get '/internal/auth/v0/validation', nil, auth_header
 
         expect(response).to have_http_status(:not_found)
-        expect(response).to match_response_schema('errors')
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTHTOKEN_404'
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '404'
       end
     end
 
@@ -117,8 +115,7 @@ RSpec.describe 'Validated Token API endpoint', type: :request, skip_emis: true d
         get '/internal/auth/v0/validation', nil, auth_header
 
         expect(response).to have_http_status(:bad_gateway)
-        expect(response).to match_response_schema('errors')
-        expect(JSON.parse(response.body)['errors'].first['code']).to eq 'AUTHTOKEN_502'
+        expect(JSON.parse(response.body)['errors'].first['code']).to eq '502'
       end
     end
   end
