@@ -19,12 +19,16 @@ class Form526Submission < ActiveRecord::Base
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
-      'EVSS::DisabilityCompensationForm::SubmitForm526#workflow_complete_handler',
+      'Form526Submission#workflow_complete_handler',
       'submission_id' => id
     )
     jids = workflow_batch.jobs do
       klass.perform_async(id)
     end
+
+    # submit form 526 is the first job in the batch
+    # after it completes ancillary jobs may be added to the workflow batch
+    # see #perform_ancillary_jobs below
     jids.first
   end
 
@@ -50,6 +54,12 @@ class Form526Submission < ActiveRecord::Base
     end
   end
 
+  def workflow_complete_handler(_status, options)
+    submission = Form526Submission.find(options['submission_id'])
+    submission.workflow_complete = true
+    submission.save
+  end
+
   private
 
   def submit_uploads
@@ -59,11 +69,17 @@ class Form526Submission < ActiveRecord::Base
   end
 
   def submit_form_4142
-    CentralMail::SubmitForm4142Job.perform_async(id)
+    # TODO(AJD): update args to take only submission id
+    CentralMail::SubmitForm4142Job.perform_async(
+      submitted_claim_id, saved_claim_id, id, form_to_json(FORM_4142)
+    )
   end
 
   def submit_form_0781
-    EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(id)
+    # TODO(AJD): update args to take only submission id
+    EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
+      auth_headers, submitted_claim_id, saved_claim_id, id, form_to_json(FORM_0781)
+    )
   end
 
   def cleanup
