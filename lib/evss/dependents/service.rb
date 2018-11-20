@@ -5,32 +5,44 @@ module EVSS
     class Service < EVSS::Service
       configuration EVSS::Dependents::Configuration
 
+      STATSD_KEY_PREFIX = 'api.evss.dependents'
+
       def retrieve
-        perform(:get, 'load/retrieve').body
+        with_monitoring_and_error_handling do
+          perform(:get, 'load/retrieve')
+        end
       end
 
       def clean_form(form)
-        perform(:post, 'inflightform/cleanForm', form.to_json, headers).body
+        with_monitoring_and_error_handling do
+          perform(:post, 'inflightform/cleanForm', form.to_json, headers).body
+        end
       end
 
       def validate(form)
-        perform(:post, 'inflightform/validateForm', form.to_json, headers).body
+        with_monitoring_and_error_handling do
+          perform(:post, 'inflightform/validateForm', form.to_json, headers).body
+        end
       end
 
       def save(form)
-        perform(:post, 'inflightform/saveForm', form.to_json, headers).body
+        with_monitoring_and_error_handling do
+          perform(:post, 'inflightform/saveForm', form.to_json, headers).body
+        end
       end
 
       def submit(form, form_id)
         form['submitProcess']['application']['draftFormId'] = form_id
         change_evss_times!(form)
-        res = perform(
-          :post,
-          'form686submission/submit',
-          form.to_xml(root: 'submit686Request'),
-          'Content-Type' => 'application/xml'
-        )
-        Hash.from_xml(res.body)
+        with_monitoring_and_error_handling do
+          res = perform(
+            :post,
+            'form686submission/submit',
+            form.to_xml(root: 'submit686Request'),
+            'Content-Type' => 'application/xml'
+          )
+          Hash.from_xml(res.body)
+        end
       end
 
       private
