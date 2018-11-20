@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::PreferencesController, type: :controller do
   include RequestHelper
+  include SchemaMatchers
 
   describe '#show' do
     let(:preference) { create(:preference, :with_choices) }

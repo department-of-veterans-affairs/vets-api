@@ -45,8 +45,19 @@ module Swagger
           property :attributes, type: :object do
             property :code, type: :string
             property :title, type: :string
-            property :preference_choices, type: :array
+            property :preference_choices, type: :array do
+              key :'$ref', :PreferenceChoices
+            end
           end
+        end
+      end
+
+      swagger_schema :PreferenceChoices do
+        property :data, type: :object do
+          property :id, type: :integer
+          property :code, type: :string
+          property :description, type: :string
+          property :preference_id, type: :integer
         end
       end
     end
