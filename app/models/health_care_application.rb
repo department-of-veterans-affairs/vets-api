@@ -26,10 +26,6 @@ class HealthCareApplication < ActiveRecord::Base
   def submit_sync
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
-    rescue HCA::SOAPParser::ValidationError => e
-      raise Common::Exceptions::BackendServiceException.new(
-        nil, detail: e.message
-      )
     rescue Common::Client::Errors::ClientError => e
       log_exception_to_sentry(e)
 
