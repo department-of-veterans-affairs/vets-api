@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'openid_auth/application_controller'
-require 'awesome_print'
 
 module OpenidAuth
   module V0
