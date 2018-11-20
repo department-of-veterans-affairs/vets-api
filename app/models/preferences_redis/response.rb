@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module PreferencesRedis
   class Response
     attr_reader :code, :choices
