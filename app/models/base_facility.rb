@@ -78,6 +78,8 @@ class BaseFacility < ActiveRecord::Base
 
   PENSION_LOCATIONS = %w[310 330 335].freeze
 
+  METERS_PER_MILE = 1609.344
+
   class << self
     attr_writer :validate_on_load
 
@@ -173,7 +175,7 @@ class BaseFacility < ActiveRecord::Base
       additional_data = <<-SQL
         base_facilities.*,
         ST_Distance(base_facilities.location,
-        ST_MakePoint(#{lat},#{long})::geography) AS distance
+        ST_MakePoint(#{long},#{lat})) / #{METERS_PER_MILE} AS distance
       SQL
       conditions = limit.nil? ? {} : "where distance < #{limit}"
       TYPES.map do |facility_type|

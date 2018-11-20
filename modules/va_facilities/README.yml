@@ -188,6 +188,49 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Facility"
+                  meta:
+                    description: "Metadata about the response"
+                    type: object
+                    required:
+                      - pagination
+                      - distances
+                    properties:
+                      distances:
+                        type: object
+                        description: "For lat/long queries, a dictionary mapping facility ids to the distance from the search location. Distance is expressed in miles and represents straight-line distance, not driving distance."
+                        additional_properties:
+                          type: number
+                        example:
+                          vha_537: 2.45
+                          vha_537_ga: 25.81
+                          vha_537_gd: 1.12
+                          vha_537_ha: 8.64
+                          vha_537_qa: 3.48
+                          vha_556: 32.02
+                          vha_556_ga: 11.81
+                          vha_578: 10.95
+                          vha_578_ge: 32.05
+                          vha_578_gg: 13.09
+                      pagination:
+                        type: object
+                        required:
+                          - current_page
+                          - per_page
+                          - total_entries
+                          - total_pages
+                        properties:
+                          current_page:
+                            type: integer
+                            example: 1
+                          per_page:
+                            type: integer
+                            example: 10
+                          total_entries:
+                            type: integer
+                            example: 2162
+                          total_pages:
+                            type: integer
+                            example: 217
             application/vnd.geo+json:
               schema:
                 required:
@@ -664,15 +707,19 @@ components:
       type: object
       properties:
         primary_care_urgent:
+          description: "% of Veterans who say they usually or always get an appointment when they need care right away at a primary care location"
           type: float
           example: 0.85
         primary_care_routine:
+          description: "% of Veterans who say they usually or always get an appointment when they need it at a primary care location"
           type: float
           example: 0.85
         specialty_care_urgent:
+          description: "% of Veterans who say they usually or always get an appointment when they need care right away at a specialty location"
           type: float
           example: 0.85
         specialty_care_routine:
+          description: "% of Veterans who say they usually or always get an appointment when they need it at a specialty location"
           type: float
           example: 0.85
     PatientWaitTime: 
