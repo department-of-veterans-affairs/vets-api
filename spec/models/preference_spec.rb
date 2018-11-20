@@ -14,4 +14,12 @@ describe Preference do
       expect(preference.to_param).to eq(preference.code)
     end
   end
+
+  describe '.with_choices' do
+    it 'returns the preferences with choices' do
+      preference = create(:preference, :with_choices)
+      results = Preference.with_choices(preference.code)
+      expect(results).to have_key(:preference_choices)
+    end
+  end
 end
