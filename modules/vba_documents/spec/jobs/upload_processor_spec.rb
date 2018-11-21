@@ -328,7 +328,6 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       end
     end
 
-
     it 'does not set error status for retriable timeout error' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
