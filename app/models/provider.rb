@@ -34,6 +34,7 @@ class Provider < Common::Base
     self.MainPhone = prov_info['MainPhone']
     self.OrganizationFax = prov_info['OrganizationFax']
     self.ContactMethod = prov_info['ContactMethod']
+    self.ProviderSpecialties = prov_info['ProviderSpecialties']
   end
 
   def self.merge(facilities, providers, center_x, center_y, limit)

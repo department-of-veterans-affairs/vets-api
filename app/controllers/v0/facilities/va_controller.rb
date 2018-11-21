@@ -13,7 +13,7 @@ class V0::Facilities::VaController < FacilitiesController
   # @param services - Optional specialty services filter
   def index
     # this first return is temporary for the rollout of provider locator to staging
-    return facilities unless Settings.locators.providers_enabled
+    # return facilities unless Settings.locators.providers_enabled
 
     return facilities if BaseFacility::TYPES.include?(params[:type]) || params[:address].nil?
     return provider_locator if params[:type] == 'cc_provider'
@@ -70,7 +70,7 @@ class V0::Facilities::VaController < FacilitiesController
       provider
     end
     pages = { current_page: page, per_page: BaseFacility.per_page,
-              total_pages: total / BaseFacility.per_page, total_entries: total }
+              total_pages: total / BaseFacility.per_page + 1, total_entries: total }
 
     render json: providers,
            each_serializer: ProviderSerializer,
