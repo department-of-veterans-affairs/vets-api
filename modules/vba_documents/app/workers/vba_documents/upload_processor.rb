@@ -35,6 +35,7 @@ module VBADocuments
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
+        UploadProcessor.perform_in(30.minutes, guid) if e.code == 'DOC201'
         log_error(e, upload)
       ensure
         tempfile.close
