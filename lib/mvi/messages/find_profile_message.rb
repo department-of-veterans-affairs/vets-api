@@ -60,13 +60,6 @@ module MVI
         el
       end
 
-      def build_vba_orchestration
-        el = element('otherIDsScopingOrganization')
-        el << element('value', extension: 'VBA', root: '2.16.840.1.113883.4.349')
-        el << element('semanticsText', text!: 'MVI.ORCHESTRATION')
-        el
-      end
-
       def build_living_subject_name
         el = element('livingSubjectName')
         value = element('value', use: 'L')

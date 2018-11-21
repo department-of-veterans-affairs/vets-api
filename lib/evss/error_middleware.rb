@@ -9,7 +9,7 @@ module EVSS
         @details = details
       end
     end
-    class EVSSBackendServiceError < EVSSError; end
+    class EVSSBackendServiceError < Common::Exceptions::BackendServiceException; end
 
     def handle_xml_body(env)
       resp = Hash.from_xml(env.body)
@@ -20,7 +20,9 @@ module EVSS
     end
 
     def on_complete(env)
-      case env[:status]
+      status = env[:status]
+
+      case status
       when 200
         if env.response_headers['content-type'].downcase.include?('xml')
           handle_xml_body(env)
@@ -34,7 +36,7 @@ module EVSS
         end
       when 503, 504
         resp = env.body
-        raise EVSSBackendServiceError, resp
+        raise EVSSBackendServiceError.new("EVSS#{status}", { status: status }, status, resp)
       end
     end
   end

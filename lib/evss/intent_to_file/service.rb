@@ -6,37 +6,29 @@ require 'common/client/concerns/monitoring'
 module EVSS
   module IntentToFile
     class Service < EVSS::Service
-      include Common::Client::Monitoring
-
       configuration EVSS::IntentToFile::Configuration
 
       ITF_SOURCE = 'VETS.GOV'
 
       def get_intent_to_file
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, '')
           EVSS::IntentToFile::IntentToFilesResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def get_active(itf_type)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, "#{itf_type}/active")
           EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def create_intent_to_file(itf_type)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:post, itf_type.to_s, { source: ITF_SOURCE }.to_json, headers)
           EVSS::IntentToFile::IntentToFileResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       private
