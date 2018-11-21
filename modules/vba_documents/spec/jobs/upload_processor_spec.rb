@@ -319,10 +319,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         expect(updated.status).to eq('error')
         expect(updated.code).to eq('DOC201')
       end
-      
+
       it 'queues another job to retry the request' do
-        expect(client_stub).to receive(:upload) { |arg| faraday_response }
-        Timecop.freeze(Time.now)
+        expect(client_stub).to receive(:upload) { |_arg| faraday_response }
+        Timecop.freeze(Time.zone.now)
         described_class.new.perform(upload.guid)
         expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
       end
