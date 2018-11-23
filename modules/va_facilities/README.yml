@@ -196,21 +196,19 @@ paths:
                       - distances
                     properties:
                       distances:
-                        type: object
-                        description: "For lat/long queries, a dictionary mapping facility ids to the distance from the search location. Distance is expressed in miles and represents straight-line distance, not driving distance."
-                        additional_properties:
-                          type: number
-                        example:
-                          vha_537: 2.45
-                          vha_537_ga: 25.81
-                          vha_537_gd: 1.12
-                          vha_537_ha: 8.64
-                          vha_537_qa: 3.48
-                          vha_556: 32.02
-                          vha_556_ga: 11.81
-                          vha_578: 10.95
-                          vha_578_ge: 32.05
-                          vha_578_gg: 13.09
+                        type: array
+                        description: "For lat/long queries, a list of mappings between facility ids and the distance from the search location. Distance is expressed in miles and represents straight-line distance, not driving distance."
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: "Facility id. Matches the facility id in the data part of the response."
+                              example: vha_688
+                            distance:
+                              type: float
+                              description: "Distance from search location"
+                              example: 3.14
                       pagination:
                         type: object
                         required:
