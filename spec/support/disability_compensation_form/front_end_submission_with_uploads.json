@@ -1,8 +1,8 @@
 {
   "form526": {
     "veteran": {
-      "emailAddress": "string",
-      "alternateEmailAddress": "string",
+      "emailAddress": "test@email.com",
+      "alternateEmailAddress": "test2@email.com",
       "mailingAddress": {
         "addressLine1": "1234 Classy Street",
         "addressLine2": "Apartment 567",
@@ -18,7 +18,7 @@
         "city": "APO",
         "country": "USA",
         "zipCode": "12345-6789",
-        "effectiveDate": "2018-03-29T18:50:03.014Z"
+        "effectiveDate": "2018-03-29"
       },
       "primaryPhone": "2024561111",
       "homelessness": {
@@ -32,9 +32,19 @@
     },
     "attachments": [
       {
-        "guid": "foo",
-        "file_name": "bar.pdf",
-        "doctype": "L023"
+        "name": "private_medical_record.pdf",
+        "confirmationCode": "d44d6f52-2e85-43d4-a5a3-1d9cb4e482a0",
+        "attachmentId": "L451"
+      },
+      {
+        "name": "private_medical_record_2.pdf",
+        "confirmationCode": "d44d6f52-2e85-43d4-a5a3-1d9cb4e482a1",
+        "attachmentId": "L451"
+      },
+      {
+        "name": "private_medical_record_3.pdf",
+        "confirmationCode": "d44d6f52-2e85-43d4-a5a3-1d9cb4e482a2",
+        "attachmentId": "L451"
       }
     ],
     "militaryPayments": {
@@ -46,22 +56,22 @@
         {
           "serviceBranch": "NOAA",
           "dateRange": {
-            "from": "2018-03-29T18:50:03.015Z",
-            "to": "2018-03-29T18:50:03.015Z"
+            "from": "2018-03-29",
+            "to": "2018-03-29"
           }
         }
       ],
       "reservesNationalGuardService": {
         "title10Activation": {
-          "title10ActivationDate": "2018-03-29T18:50:03.015Z",
-          "anticipatedSeparationDate": "2018-03-29T18:50:03.015Z"
+          "title10ActivationDate": "2018-03-29",
+          "anticipatedSeparationDate": "2018-03-29"
         },
         "obligationTermOfServiceDateRange": {
-          "from": "2018-03-29T18:50:03.015Z",
-          "to": "2018-03-29T18:50:03.015Z"
+          "from": "2018-03-29",
+          "to": "2018-03-29"
         },
         "unitName": "string",
-        "unitPhone": "2024561111"
+        "waiveVABenefitsToRetainTrainingPay": false
       },
       "servedInCombatZone": true,
       "alternateNames": [
@@ -74,8 +84,8 @@
       "confinements": [
         {
           "confinementDateRange": {
-            "from": "2018-03-29T18:50:03.015Z",
-            "to": "2018-03-29T18:50:03.015Z"
+            "from": "2018-03-29",
+            "to": "2018-03-29"
           },
           "verifiedIndicator": false
         }
@@ -115,13 +125,13 @@
       {
         "treatmentCenterName": "string",
         "treatmentDateRange": {
-          "from": "2018-03-29T18:50:03.015Z",
-          "to": "2018-03-29T18:50:03.015Z"
+          "from": "2018-03-29",
+          "to": "2018-03-29"
         },
         "treatmentCenterAddress": {
-          "country": "string",
+          "country": "USA",
           "city": "string",
-          "state": "string"
+          "state": "OR"
         },
         "treatmentCenterType": "DOD_MTF"
       }
