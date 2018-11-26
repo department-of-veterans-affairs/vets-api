@@ -122,10 +122,11 @@ module VaFacilities
                                per_page: resource.per_page,
                                total_pages: resource.total_pages,
                                total_entries: resource.total_entries },
-                 distances: {} }
+                 distances: [] }
         if params[:lat] && params[:long]
           resource.each do |facility|
-            meta[:distances][ApiSerialization.id(facility)] = facility.distance.round(2)
+            meta[:distances] << { id: ApiSerialization.id(facility),
+                                  distance: facility.distance&.round(2) }
           end
         end
         meta
