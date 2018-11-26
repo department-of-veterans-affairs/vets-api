@@ -11,14 +11,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181031155126) do
+ActiveRecord::Schema.define(version: 20181126172613) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+  enable_extension "postgis"
   enable_extension "uuid-ossp"
   enable_extension "pg_trgm"
   enable_extension "btree_gin"
-  enable_extension "postgis"
 
   create_table "accounts", force: :cascade do |t|
     t.uuid     "uuid",       null: false
@@ -194,7 +194,7 @@ ActiveRecord::Schema.define(version: 20181031155126) do
   add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
 
   create_table "form526_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",                                      null: false
+    t.string   "user_uuid",                                      null: false
     t.integer  "saved_claim_id",                                 null: false
     t.integer  "submitted_claim_id"
     t.string   "encrypted_auth_headers_json",                    null: false
