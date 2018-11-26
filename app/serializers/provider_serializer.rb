@@ -28,6 +28,10 @@ class ProviderSerializer < ActiveModel::Serializer
     object.Longitude
   end
 
+  def email
+    object.Email
+  end
+
   def phone
     object.MainPhone
   end
@@ -55,6 +59,6 @@ class ProviderSerializer < ActiveModel::Serializer
     end
   end
 
-  attributes :unique_id, :name, :address, :phone, :fax, :lat, :long,
+  attributes :unique_id, :name, :address, :email, :phone, :fax, :lat, :long,
              :pref_contact, :acc_new_patients, :gender, :specialty
 end
