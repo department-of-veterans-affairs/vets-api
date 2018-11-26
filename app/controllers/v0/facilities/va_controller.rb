@@ -70,7 +70,7 @@ class V0::Facilities::VaController < FacilitiesController
       provider
     end
     pages = { current_page: page, per_page: BaseFacility.per_page,
-              total_pages: total / BaseFacility.per_page, total_entries: total }
+              total_pages: total / BaseFacility.per_page + 1, total_entries: total }
 
     render json: providers,
            each_serializer: ProviderSerializer,
