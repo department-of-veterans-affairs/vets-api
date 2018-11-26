@@ -12,10 +12,13 @@ module Gibft
       'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.rdtcdsit'
     }.freeze
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings['salesforce-gibft'].env]
+    STATSD_KEY_PREFIX = 'api.gibft'
 
     def submit(form)
       client = get_client
-      response_body = client.post('/services/apexrest/educationcomplaint', form).body
+      response_body = with_monitoring do
+        client.post('/services/apexrest/educationcomplaint', form).body
+      end
       Raven.extra_context(submit_response_body: response_body)
 
       response_body.slice('case_id', 'case_number')

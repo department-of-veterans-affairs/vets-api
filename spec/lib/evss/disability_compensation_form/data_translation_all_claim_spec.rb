@@ -687,7 +687,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                   'country' => 'USA',
                   'city' => 'Portland',
                   'state' => 'OR'
-                }
+                },
+                'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3]
               }
             ]
           }
@@ -699,7 +700,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'startDate' => '2018-01-01',
             'endDate' => '2018-02-01',
-            'treatedDisabilityNames' => [],
+            'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
             'center' => {
               'name' => 'Super Hospital',
               'country' => 'USA',
