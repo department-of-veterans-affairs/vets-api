@@ -96,28 +96,21 @@ describe PdfFill::Forms::Va218940 do
     end
   end
 
-  # describe '#expand_service_connected_disability' do
-  #   context 'disabilityPreventingEmployment is not blank' do
-  #     let :form_data do
-  #       {
-  #         'unemployability' => {
-  #           'disabilityPreventingEmployment' => 'Disability Text'
-  #         }
-  #       }
-  #     end
-  #     it 'should expand the serviceConnectedDisability correctly' do
-  #       new_form_class.send(:expand_service_connected_disability)
-  #       expect(
-  #         JSON.parse(class_form_data.to_json)
-  #       ).to eq(
-  #         'unemployability' => {
-  #           'disabilityPreventingEmployment' => 'Disability Text'
-  #         },
-  #         'serviceConnectedDisability' => 'Disability Text'
-  #       )
-  #     end
-  #   end
-  # end
+  describe '#expand_service_connected_disability' do
+    context 'disabilityPreventingEmployment is not blank' do
+      unemployability = {
+        'disabilityPreventingEmployment' => 'Disability Text'
+      }
+      it 'should expand the serviceConnectedDisability correctly' do
+        new_form_class.send(:expand_service_connected_disability, unemployability)
+        expect(
+          JSON.parse(class_form_data.to_json)
+        ).to eq(
+          'serviceConnectedDisability' => 'Disability Text'
+        )
+      end
+    end
+  end
 
   describe '#expand_veteran_address' do
     context 'contains address' do
