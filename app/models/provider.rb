@@ -9,6 +9,7 @@ class Provider < Common::Base
   attribute :AddressCity, String
   attribute :AddressStateProvince, String
   attribute :AddressPostalCode, String
+  attribute :Email, String
   attribute :MainPhone, String
   attribute :OrganizationFax, String
   attribute :ContactMethod, String
@@ -31,6 +32,7 @@ class Provider < Common::Base
     self.AddressCity = prov_info['AddressCity']
     self.AddressStateProvince = prov_info['AddressStateProvince']
     self.AddressPostalCode = prov_info['AddressPostalCode']
+    self.Email = prov_info['Email']
     self.MainPhone = prov_info['MainPhone']
     self.OrganizationFax = prov_info['OrganizationFax']
     self.ContactMethod = prov_info['ContactMethod']
