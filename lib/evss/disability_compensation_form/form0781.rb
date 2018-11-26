@@ -19,16 +19,16 @@ module EVSS
         @final_output['email'] = @veteran_data['emailAddress']
         @final_output['veteranPhone'] = @veteran_data['primaryPhone']
         @final_output['veteranSecondaryPhone'] = '' # No secondary phone available in 526 PreFill
-        @final_output.to_json
+        @final_output
       end
 
       private
 
       def full_name
         {
-          "first": @user.first_name,
-          "middle": @user.middle_name,
-          "last": @user.last_name
+          'first' => @user.first_name,
+          'middle' => @user.middle_name,
+          'last' => @user.last_name
         }
       end
     end

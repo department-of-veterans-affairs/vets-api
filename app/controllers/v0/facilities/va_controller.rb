@@ -59,7 +59,6 @@ class V0::Facilities::VaController < FacilitiesController
   def provider_locator
     ppms = Facilities::PPMSClient.new
     providers = ppms.provider_locator(params)
-    Rails.logger.info(providers.class.name)
     page = 1
     page = Integer(params[:page]) if params[:page]
     total = providers.length
@@ -71,11 +70,11 @@ class V0::Facilities::VaController < FacilitiesController
       provider
     end
     pages = { current_page: page, per_page: BaseFacility.per_page,
-              total_pages: total / BaseFacility.per_page, total_entries: total }
+              total_pages: total / BaseFacility.per_page + 1, total_entries: total }
 
     render json: providers,
            each_serializer: ProviderSerializer,
-           metadata: { pagination: pages }
+           meta: { pagination: pages }
   end
 
   private
@@ -83,12 +82,12 @@ class V0::Facilities::VaController < FacilitiesController
   def format_records(record, ppms)
     if record.is_a?(BaseFacility)
       ser = VAFacilitySerializer.new(record)
-      { id: ser.id, name: record[:name], attributes: ser.as_json }
+      { id: ser.id, type: 'vha_facility', name: record[:name], attributes: ser.as_json }
     else
       prov_info = ppms.provider_info(record['ProviderIdentifier'])
       record.add_details(prov_info)
       prov_ser = ProviderSerializer.new(record)
-      { id: prov_ser.id, name: record[:Name], attributes: prov_ser.as_json }
+      { id: prov_ser.id, type: 'cc_provider', name: record[:Name], attributes: prov_ser.as_json }
     end
   end
 
