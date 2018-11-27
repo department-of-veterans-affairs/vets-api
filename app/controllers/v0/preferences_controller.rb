@@ -17,12 +17,16 @@ module V0
     private
 
     def set_preference
-      @preference = Preference.find_by(code: preference_params['code'])
-      raise Common::Exceptions::RecordNotFound, preference_params['code'] if @preference.blank?
+      @preference = Preference.find_by(code: code)
+      raise Common::Exceptions::RecordNotFound, code if @preference.blank?
     end
 
     def preference_params
       params.permit(:code)
+    end
+
+    def code
+      preference_params['code']
     end
   end
 end
