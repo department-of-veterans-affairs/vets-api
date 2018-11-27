@@ -6,4 +6,3 @@ Faraday::Middleware.register_middleware immutable_headers: Common::Client::Middl
 Faraday::Request.register_middleware rescue_timeout: Common::Client::Middleware::Request::RescueTimeout
 
 Faraday::Response.register_middleware hca_soap_parser: HCA::SOAPParser
-Faraday::Response.register_middleware rescue_timeout: Common::Client::Middleware::Response::RescueTimeout

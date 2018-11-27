@@ -59,8 +59,6 @@ module Common
               (500..599).cover?(exception.response_values[:status])
             elsif exception.is_a?(Common::Client::Errors::HTTPError)
               (500..599).cover?(exception.status)
-            elsif exception.is_a?(Common::Exceptions::SentryIgnoredGatewayTimeout)
-              true
             else
               false
             end

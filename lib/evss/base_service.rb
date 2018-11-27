@@ -23,18 +23,9 @@ module EVSS
         request_env.url.host == host && request_env.url.path =~ /^#{path}/
       end
 
-      exception_handler = proc do |exception|
-        if exception.is_a?(Common::Exceptions::SentryIgnoredGatewayTimeout)
-          true
-        else
-          false
-        end
-      end
-
       Breakers::Service.new(
         name: name,
-        request_matcher: matcher,
-        exception_handler: exception_handler
+        request_matcher: matcher
       )
     end
 
@@ -63,8 +54,8 @@ module EVSS
     def conn
       @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
         faraday.options.timeout = timeout
-        faraday.use      :breakers
         faraday.request  :rescue_timeout, backend_service: :evss
+        faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
         faraday.use      EVSS::ErrorMiddleware
         faraday.response :betamocks if @use_mock

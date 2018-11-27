@@ -37,9 +37,17 @@ module Common
             raise SecurityError, 'http client needs cookies stripped'
           end
 
-          if handlers.include?(Breakers::UptimeMiddleware)
-            return connection if handlers.first == Breakers::UptimeMiddleware
-            raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
+          breakers_index = handlers.index(Breakers::UptimeMiddleware)
+          if breakers_index
+            rescue_timeout_index = handlers.index(Common::Client::Middleware::Request::RescueTimeout)
+            if rescue_timeout_index
+              if rescue_timeout_index.positive? || breakers_index > 1
+                raise BreakersImplementationError,
+                      ':rescue_timeout should be the first middleware implemented, and Breakers should be the second.'
+              end
+            elsif breakers_index.positive?
+              raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
+            end
           else
             warn("Breakers is not implemented for service: #{config.service_name}")
           end

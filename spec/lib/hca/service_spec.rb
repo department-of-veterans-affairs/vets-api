@@ -65,6 +65,23 @@ describe HCA::Service do
         )
       end
     end
+    context 'timesout' do
+      it 'rescues and raises SentryIgnoredGatewayTimeout exception' do
+        expect(service).to receive(:connection).and_return(
+          Faraday.new do |conn|
+            conn.builder.handlers = service.send(:connection).builder.handlers.reject do |x|
+              x.inspect == 'Faraday::Adapter::NetHttp'
+            end
+            conn.adapter :test do |stub|
+              stub.post('/') { |_env| raise Faraday::TimeoutError }
+            end
+          end
+        )
+        expect { service.send(:request, :post, '', OpenStruct.new(body: nil)) }.to raise_error(
+          Common::Exceptions::SentryIgnoredGatewayTimeout
+        )
+      end
+    end
   end
 
   describe '#health_check' do
