@@ -35,8 +35,6 @@ class MhvAccount < ActiveRecord::Base
   ELIGIBLE_STATES = %i[existing eligible no_account].freeze
   ALL_STATES = (%i[unknown] + INELIGIBLE_STATES + ELIGIBLE_STATES + PERSISTED_STATES).freeze
 
-  after_initialize :setup
-
   # rubocop:disable Metrics/BlockLength
   aasm(:account_state) do
     state :unknown, initial: true
@@ -117,12 +115,19 @@ class MhvAccount < ActiveRecord::Base
     user.mhv_account_type
   end
 
-  def user
-    @user ||= User.find(user_uuid)
-  end
-
   def already_premium?
     !previously_upgraded? && !created_at? && account_level == 'Premium'
+  end
+
+  def user=(user)
+    raise 'Invalid User UUID' unless user.uuid == user_uuid
+    @user = user
+    setup
+    @user
+  end
+
+  def user
+    @user
   end
 
   private
