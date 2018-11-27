@@ -5,9 +5,6 @@ require 'backend_services'
 
 RSpec.describe 'Fetching user data', type: :request do
   include SchemaMatchers
-  after(:each) do
-    Thread.current[:mvi] = nil
-  end
 
   let(:token) { 'abracadabra-open-sesame' }
 
@@ -21,6 +18,7 @@ RSpec.describe 'Fetching user data', type: :request do
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
+      allow(mhv_account).to receive(:user=).and_return(mhv_user)
       User.create(mhv_user)
       create(:account, idme_uuid: mhv_user.uuid)
     end
@@ -155,16 +153,14 @@ RSpec.describe 'Fetching user data', type: :request do
       # Encounters failure and breakers kicks in
       stub_mvi_failure
       1.times do |_count|
-        Thread.current[:mvi] = nil
         expect { get v0_user_url, nil, new_user_auth_header }
           .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
-          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
           .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
       end
 
       # skipped because breakers is active
       stub_mvi_success
-      Thread.current[:mvi] = nil
       expect { get v0_user_url, nil, new_user_auth_header }
         .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
@@ -172,7 +168,6 @@ RSpec.describe 'Fetching user data', type: :request do
 
       Timecop.freeze(now)
       # sufficient time has elasped that new requests are made, resulting in succses
-      Thread.current[:mvi] = nil
       expect { get v0_user_url, nil, new_user_auth_header }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
