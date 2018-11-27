@@ -19,10 +19,6 @@ describe Mvi, skip_mvi: true do
   let(:default_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
   let(:failure_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
 
-  after(:each) do
-    Thread.current[:mvi] = nil
-  end
-
   describe '.new' do
     it 'creates an instance with user attributes' do
       expect(mvi.user).to eq(user)
