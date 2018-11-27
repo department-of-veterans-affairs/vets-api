@@ -123,12 +123,10 @@ class MhvAccount < ActiveRecord::Base
     raise 'Invalid User UUID' unless user.uuid.to_s == user_uuid.to_s
     @user = user
     setup
-    @user
+    self.user
   end
 
-  def user
-    @user
-  end
+  attr_reader :user
 
   private
 
