@@ -14,7 +14,7 @@ module VBADocuments
 
     # DOC2xx errors: server errors either local or downstream
     # not unambiguously related to submitted content
-    DOC201 = 'Upload server error'
+    DOC201 = 'Upload server error. Request will be retried when upstream service is available.'
     DOC202 = 'Error during processing by downstream system'
 
     def initialize(message = nil, code: nil, detail: nil)
