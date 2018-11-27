@@ -12,7 +12,7 @@ describe Common::Client::Base do
 
     def service_name
       'test_service'
-     end
+    end
   end
 
   class Common::Client::Base::TestService < Common::Client::Base
@@ -66,7 +66,9 @@ describe Common::Client::Base do
                 faraday.use :breakers
               end
             )
-            expect { connect }.to raise_error(Common::Client::BreakersImplementationError, 'Breakers should be the first middleware implemented.')
+            expect { connect }.to raise_error(
+              Common::Client::BreakersImplementationError, 'Breakers should be the first middleware implemented.'
+            )
           end
         end
         context 'in the first position' do
@@ -102,7 +104,10 @@ describe Common::Client::Base do
                   faraday.request :rescue_timeout
                 end
               )
-              expect { connect }.to raise_error(Common::Client::BreakersImplementationError, ':rescue_timeout should be the first middleware implemented, and Breakers should be the second.')
+              expect { connect }.to raise_error(
+                Common::Client::BreakersImplementationError, 
+                ':rescue_timeout should be the first middleware implemented, and Breakers should be the second.'
+              )
             end
           end
         end
