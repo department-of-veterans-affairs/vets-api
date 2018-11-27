@@ -4,7 +4,7 @@ module Swagger
   module Requests
     class Preferences
       include Swagger::Blocks
-      swagger_path '/v0/preferences' do
+      swagger_path '/v0/user/preferences/choices' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -25,7 +25,7 @@ module Swagger
         end
       end
 
-      swagger_path '/v0/preferences/{code}' do
+      swagger_path '/v0/user/preferences/choices/{code}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
 
@@ -75,10 +75,8 @@ module Swagger
 
       swagger_schema :PreferenceChoices do
         property :data, type: :object do
-          property :id, type: :integer
           property :code, type: :string
           property :description, type: :string
-          property :preference_id, type: :integer
         end
       end
     end
