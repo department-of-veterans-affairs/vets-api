@@ -120,7 +120,7 @@ class MhvAccount < ActiveRecord::Base
   end
 
   def user=(user)
-    raise 'Invalid User UUID' unless user.uuid == user_uuid
+    raise 'Invalid User UUID' unless user.uuid.to_s == user_uuid.to_s
     @user = user
     setup
     @user
