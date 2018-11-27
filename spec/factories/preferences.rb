@@ -10,5 +10,28 @@ FactoryBot.define do
         create_list :preference_choice, 3, preference: preference
       end
     end
+
+    trait :benefits do
+      code { 'benefits' }
+      title { 'Benefits' }
+      benefits = %w[health-care
+                    disability
+                    appeals
+                    education-training
+                    careers-employment
+                    pension
+                    housing-assistance
+                    life-insurance
+                    burials-memorials
+                    family-caregiver-benefits]
+
+      after :create do |preference|
+        benefits.each do |benefit|
+          create :preference_choice, preference: preference,
+                                     code: benefit,
+                                     description: benefit.tr('-', ' ')
+        end
+      end
+    end
   end
 end

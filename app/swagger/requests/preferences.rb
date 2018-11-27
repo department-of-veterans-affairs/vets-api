@@ -4,6 +4,27 @@ module Swagger
   module Requests
     class Preferences
       include Swagger::Blocks
+      swagger_path '/v0/preferences' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'returns all Preference objects with associated PreferenceChoices'
+          key :operationId, 'getPreferences'
+          key :tags, %w[preferences]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              property :data, type: :array do
+                key :'$ref', :Preferences
+              end
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/preferences/{code}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError

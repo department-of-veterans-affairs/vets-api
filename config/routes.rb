@@ -232,6 +232,8 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
+    resources :preferences, only: %i[show index], path: 'user/preferences/choices', param: :code
+
     [
       'profile',
       'dashboard',
@@ -245,8 +247,6 @@ Rails.application.routes.draw do
         defaults: { feature: feature }
       )
     end
-
-    resources :preferences, param: :code, only: :show
   end
 
   root 'v0/example#index', module: 'v0'
@@ -271,4 +271,3 @@ Rails.application.routes.draw do
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
 end
-# rubocop:enable Metrics/BlockLength

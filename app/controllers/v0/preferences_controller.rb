@@ -2,7 +2,13 @@
 
 module V0
   class PreferencesController < ApplicationController
-    before_action :set_preference
+    before_action :set_preference, only: :show
+
+    def index
+      results = Preference.all
+      render json: results,
+             each_serializer: PreferenceSerializer
+    end
 
     def show
       render json: @preference
