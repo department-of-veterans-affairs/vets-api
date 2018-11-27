@@ -206,7 +206,8 @@ class User < Common::RedisStore
   end
 
   def mhv_account
-    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+    # MHV account should not re-initialize user based on uuid, but use the existing one.
+    @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id).tap { |m| m.user = self }
   end
 
   def in_progress_forms
