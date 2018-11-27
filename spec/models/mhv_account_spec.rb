@@ -245,9 +245,7 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously upgraded' do
             before(:each) do
-              MhvAccount.skip_callback(:initialize, :after, :setup)
               create(:mhv_account, :upgraded, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
-              MhvAccount.set_callback(:initialize, :after, :setup)
             end
 
             it 'has upgraded' do
@@ -261,10 +259,8 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered but somehow upgraded because of account level' do
             before(:each) do
-              MhvAccount.skip_callback(:initialize, :after, :setup)
               create(:mhv_account, :upgraded, upgraded_at: nil, user_uuid: user.uuid,
                                               mhv_correlation_id: user.mhv_correlation_id)
-              MhvAccount.set_callback(:initialize, :after, :setup)
             end
 
             it 'has upgraded, with account level Premium, but it is treated as upgraded therefore not upgradable' do
@@ -288,9 +284,7 @@ RSpec.describe MhvAccount, type: :model do
 
           context 'previously registered' do
             before(:each) do
-              MhvAccount.skip_callback(:initialize, :after, :setup)
               create(:mhv_account, :registered, user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id)
-              MhvAccount.set_callback(:initialize, :after, :setup)
             end
 
             it 'has registered, upgradable with account level basic' do
