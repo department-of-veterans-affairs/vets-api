@@ -24,6 +24,28 @@ FactoryBot.define do
           state: 'KY',
           postalCode: '40292'
         },
+        spouseMarriages: [
+          {
+            dateOfMarriage: '2015-12-15',
+            locationOfMarriage: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            spouseFullName: {
+              first: 'spouse',
+              last: 'last'
+            },
+            dateOfSeparation: '2015-12-16',
+            locationOfSeparation: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            reasonForSeparation: 'Other',
+            explainSeparation: 'other'
+          }
+        ],
         currentMarriage: {
           spouseIsVeteran: true,
           spouseDateOfBirth: '2016-12-15',
@@ -48,31 +70,9 @@ FactoryBot.define do
             first: 'spouse',
             last: 'last'
           },
-          spouseMarriages: [
-            {
-              dateOfMarriage: '2015-12-15',
-              locationOfMarriage: {
-                countryDropdown: 'USA',
-                city: 'new york',
-                state: 'NY'
-              },
-              spouseFullName: {
-                first: 'spouse',
-                last: 'last'
-              },
-              dateOfSeparation: '2015-12-16',
-              locationOfSeparation: {
-                countryDropdown: 'USA',
-                city: 'new york',
-                state: 'NY'
-              },
-              reasonForSeparation: 'Other',
-              explainSeparation: 'other'
-            }
-          ],
           spouseSocialSecurityNumber: '111223333'
         },
-        previousMarriages: [
+        marriages: [
           {
             dateOfMarriage: '2015-12-15',
             locationOfMarriage: {
