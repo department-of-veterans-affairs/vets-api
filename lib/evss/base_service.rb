@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require 'common/client/middleware/response/json_parser'
-require 'evss/error_middleware'
-require 'sentry_logging'
+require 'common/client/concerns/faraday_middleware_check'
 
 module EVSS
   class BaseService
     include SentryLogging
+    include Common::Client::FaradayMiddlewareCheck
 
     SYSTEM_NAME = 'vets.gov'
     DEFAULT_TIMEOUT = 15 # in seconds
@@ -52,17 +51,21 @@ module EVSS
     # Uses HTTPClient adapter because headers need to be sent unmanipulated
     # Net/HTTP capitalizes headers
     def conn
-      @conn ||= Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
-        faraday.options.timeout = timeout
-        faraday.request  :rescue_timeout, backend_service: :evss
-        faraday.use      :breakers
-        faraday.use      Faraday::Response::RaiseError
-        faraday.use      EVSS::ErrorMiddleware
-        faraday.response :betamocks if @use_mock
-        faraday.response :snakecase, symbolize: false
-        faraday.response :json_parser
-        faraday.use      :remove_cookies
-        faraday.adapter  :httpclient
+      @conn ||= begin
+        conn = Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
+          faraday.options.timeout = timeout
+          faraday.request  :rescue_timeout, backend_service: :evss
+          faraday.use      :breakers
+          faraday.use      Faraday::Response::RaiseError
+          faraday.use      EVSS::ErrorMiddleware
+          faraday.response :betamocks if @use_mock
+          faraday.response :snakecase, symbolize: false
+          faraday.response :json_parser
+          faraday.use      :remove_cookies
+          faraday.adapter  :httpclient
+        end
+        faraday_config_check(conn.builder.handlers)
+        conn
       end
     end
 

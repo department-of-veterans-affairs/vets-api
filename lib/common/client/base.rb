@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require 'faraday'
-require 'common/client/errors'
-require 'common/models/collection'
-require 'sentry_logging'
+require 'common/client/concerns/faraday_middleware_check'
 
 module Common
   module Client
@@ -15,6 +12,7 @@ module Common
 
     class Base
       include SentryLogging
+      include Common::Client::FaradayMiddlewareCheck
 
       def self.configuration(configuration = nil)
         @configuration ||= configuration.instance
@@ -32,25 +30,7 @@ module Common
           connection = config.connection
           handlers = connection.builder.handlers
 
-          if handlers.include?(Faraday::Adapter::HTTPClient) &&
-             !handlers.include?(Common::Client::Middleware::Request::RemoveCookies)
-            raise SecurityError, 'http client needs cookies stripped'
-          end
-
-          breakers_index = handlers.index(Breakers::UptimeMiddleware)
-          if breakers_index
-            rescue_timeout_index = handlers.index(Common::Client::Middleware::Request::RescueTimeout)
-            if rescue_timeout_index
-              if rescue_timeout_index.positive? || breakers_index > 1
-                raise BreakersImplementationError,
-                      ':rescue_timeout should be the first middleware implemented, and Breakers should be the second.'
-              end
-            elsif breakers_index.positive?
-              raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
-            end
-          else
-            warn("Breakers is not implemented for service: #{config.service_name}")
-          end
+          faraday_config_check(handlers)
 
           connection
         end.call
