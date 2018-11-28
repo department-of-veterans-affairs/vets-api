@@ -5,26 +5,20 @@ require 'evss/jwt'
 module EVSS
   module ReferenceData
     class Service < EVSS::Service
-      include Common::Client::Monitoring
-
       configuration EVSS::ReferenceData::Configuration
 
       def get_countries
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'countries')
           EVSS::PCIUAddress::CountriesResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def get_states
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'states')
           EVSS::PCIUAddress::StatesResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       private
