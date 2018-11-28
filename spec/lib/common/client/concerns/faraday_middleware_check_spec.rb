@@ -51,12 +51,12 @@ describe Common::Client::FaradayMiddlewareCheck do
           expect(service.conn).to be_a(Faraday::Connection)
         end
       end
-      context 'and `rescue_timeout`' do
-        context 'with `rescue_timeout` in first position, `breakers` in second' do
+      context 'and `log_timeout_as_warning`' do
+        context 'with `log_timeout_as_warning` in first position, `breakers` in second' do
           it 'returns a Faraday::Connection' do
             allow(service).to receive(:connection).and_return(
               Faraday.new('http://example.com') do |faraday|
-                faraday.request :rescue_timeout
+                faraday.request :log_timeout_as_warning
                 faraday.use :breakers
                 faraday.request :soap_headers
               end
@@ -64,18 +64,18 @@ describe Common::Client::FaradayMiddlewareCheck do
             expect(service.conn).to be_a(Faraday::Connection)
           end
         end
-        context 'without `rescue_timeout` in first position, `breakers` in second' do
+        context 'without `log_timeout_as_warning` in first position, `breakers` in second' do
           it 'raises an error' do
             allow(service).to receive(:connection).and_return(
               Faraday.new('http://example.com') do |faraday|
                 faraday.request :soap_headers
                 faraday.use :breakers
-                faraday.request :rescue_timeout
+                faraday.request :log_timeout_as_warning
               end
             )
             expect { service.conn }.to raise_error(
               Common::Client::BreakersImplementationError,
-              ':rescue_timeout should be the first middleware implemented, and Breakers should be the second.'
+              ':log_timeout_as_warning should be the first middleware implemented, and Breakers should be the second.'
             )
           end
         end

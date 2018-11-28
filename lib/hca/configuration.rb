@@ -52,7 +52,7 @@ module HCA
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
-        conn.request :rescue_timeout, { backend_service: :hca }, 'api.hca.timeout'
+        conn.request :log_timeout_as_warning, { backend_service: :hca }, 'api.hca.timeout'
         conn.use :breakers
         conn.options.open_timeout = 10  # TODO(molson): Make a config/setting
         conn.options.timeout = 15       # TODO(molson): Make a config/setting

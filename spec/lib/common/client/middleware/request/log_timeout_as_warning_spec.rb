@@ -2,11 +2,11 @@
 
 require 'rails_helper'
 
-describe Common::Client::Middleware::Request::RescueTimeout do
+describe Common::Client::Middleware::Request::LogTimeoutAsWarning do
   describe '#request' do
     subject do
       Faraday.new(Settings.hca.endpoint) do |builder|
-        builder.request :rescue_timeout, { backend_service: :evss }, 'api.hca.timeout'
+        builder.request :log_timeout_as_warning, { backend_service: :evss }, 'api.hca.timeout'
         builder.use     :breakers
         builder.adapter :test do |stub|
           stub.get('/') { |_env| raise Faraday::TimeoutError }

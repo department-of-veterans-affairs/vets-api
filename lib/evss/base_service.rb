@@ -54,7 +54,7 @@ module EVSS
       @conn ||= begin
         conn = Faraday.new(base_url, headers: @headers, ssl: ssl_options) do |faraday|
           faraday.options.timeout = timeout
-          faraday.request  :rescue_timeout, backend_service: :evss
+          faraday.request  :log_timeout_as_warning, backend_service: :evss
           faraday.use      :breakers
           faraday.use      Faraday::Response::RaiseError
           faraday.use      EVSS::ErrorMiddleware

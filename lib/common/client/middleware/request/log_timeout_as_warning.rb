@@ -6,7 +6,7 @@ module Common
   module Client
     module Middleware
       module Request
-        class RescueTimeout < Faraday::Middleware
+        class LogTimeoutAsWarning < Faraday::Middleware
           include SentryLogging
 
           def initialize(app = nil, error_tags_context = {}, timeout_key = nil)

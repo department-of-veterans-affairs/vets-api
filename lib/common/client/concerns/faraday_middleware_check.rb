@@ -6,7 +6,7 @@ module Common::Client
 
     def faraday_config_check(handlers)
       check_for_remove_cookies(handlers)
-      check_for_breakers_and_rescue_timeout_placement(handlers)
+      check_for_breakers_and_log_timeout_as_warning_placement(handlers)
     end
 
     def check_for_remove_cookies(handlers)
@@ -16,16 +16,16 @@ module Common::Client
       end
     end
 
-    def check_for_breakers_and_rescue_timeout_placement(handlers)
+    def check_for_breakers_and_log_timeout_as_warning_placement(handlers)
       breakers_index = handlers.index(Breakers::UptimeMiddleware)
-      rescue_timeout_index = handlers.index(Common::Client::Middleware::Request::RescueTimeout)
+      log_as_warning_index = handlers.index(Common::Client::Middleware::Request::LogTimeoutAsWarning)
 
-      if rescue_timeout_index&.positive? || (breakers_index&.> 1)
+      if log_as_warning_index&.positive? || (breakers_index&.> 1)
         raise BreakersImplementationError,
-              ':rescue_timeout should be the first middleware implemented, and Breakers should be the second.'
+              ':log_timeout_as_warning should be the first middleware implemented, and Breakers should be the second.'
       end
 
-      if rescue_timeout_index.nil? && breakers_index&.positive?
+      if log_as_warning_index.nil? && breakers_index&.positive?
         raise BreakersImplementationError, 'Breakers should be the first middleware implemented.'
       end
 

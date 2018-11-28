@@ -25,7 +25,7 @@ module EMIS
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
-        conn.request :rescue_timeout, backend_service: :emis
+        conn.request :log_timeout_as_warning, backend_service: :emis
         conn.use :breakers
         conn.request :soap_headers
 
