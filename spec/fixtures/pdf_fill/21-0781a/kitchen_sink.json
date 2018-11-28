@@ -123,5 +123,9 @@
       }
     }]
   }],
-  "otherInformation": "Lorem ipsum dolor sit amet."
+  "otherInformation": [
+    "Category - Behavior Change A",
+    "Category - Behavior Change B",
+    "Lorem ipsum dolor sit amet."
+  ]
 }

@@ -188,6 +188,47 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/Facility"
+                  meta:
+                    description: "Metadata about the response"
+                    type: object
+                    required:
+                      - pagination
+                      - distances
+                    properties:
+                      distances:
+                        type: array
+                        description: "For lat/long queries, a list of mappings between facility ids and the distance from the search location. Distance is expressed in miles and represents straight-line distance, not driving distance."
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              description: "Facility id. Matches the facility id in the data part of the response."
+                              example: vha_688
+                            distance:
+                              type: float
+                              description: "Distance from search location"
+                              example: 3.14
+                      pagination:
+                        type: object
+                        required:
+                          - current_page
+                          - per_page
+                          - total_entries
+                          - total_pages
+                        properties:
+                          current_page:
+                            type: integer
+                            example: 1
+                          per_page:
+                            type: integer
+                            example: 10
+                          total_entries:
+                            type: integer
+                            example: 2162
+                          total_pages:
+                            type: integer
+                            example: 217
             application/vnd.geo+json:
               schema:
                 required:

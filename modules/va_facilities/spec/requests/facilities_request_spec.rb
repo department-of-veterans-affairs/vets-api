@@ -54,6 +54,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
+      expect(json['meta']['distances']).to eq([])
     end
 
     it 'responds to GET #index with lat/long' do
@@ -63,6 +64,18 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
+      expect(json['meta']['distances'].length).to eq(10)
+    end
+
+    it 'responds such that record and distance metadata IDs match up' do
+      setup_pdx
+      get base_query_path + lat_long, nil, accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      record_ids = json['data'].map { |x| x['id'] }
+      distance_ids = json['meta']['distances'].map { |x| x['id'] }
+      expect(record_ids).to match_array(distance_ids)
     end
 
     it 'responds to GET #index with ids' do
