@@ -51,7 +51,9 @@ module V0
     private
 
     def create_submission(saved_claim)
-      Rails.logger.info('Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id)
+      Rails.logger.info(
+        'Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id
+      )
       Form526Submission.create(
         user_uuid: @current_user.uuid,
         saved_claim_id: saved_claim.id,
@@ -59,7 +61,9 @@ module V0
         form_json: saved_claim.to_submission_data(@current_user)
       )
     rescue PG::NotNullViolation => e
-      Rails.logger.error('Creating 526 submission: PG::NotNullViolation', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id)
+      Rails.logger.error(
+        'Creating 526 submission: PG::NotNullViolation', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id
+      )
       raise e
     end
 
