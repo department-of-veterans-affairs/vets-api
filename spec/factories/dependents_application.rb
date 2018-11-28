@@ -50,13 +50,7 @@ FactoryBot.define do
           spouseIsVeteran: true,
           spouseDateOfBirth: '2016-12-15',
           liveWithSpouse: false,
-          dateOfMarriage: '2017-12-15',
           spouseVaFileNumber: '111223333',
-          locationOfMarriage: {
-            countryDropdown: 'USA',
-            city: 'new york',
-            state: 'NY'
-          },
           spouseAddress: {
             countryDropdown: 'Country Not In List',
             countryText: 'countryText',
@@ -66,13 +60,29 @@ FactoryBot.define do
             street3: 'street3',
             city: 'LOUISVILLE'
           },
-          spouseFullName: {
-            first: 'spouse',
-            last: 'last'
-          },
           spouseSocialSecurityNumber: '111223333'
         },
         marriages: [
+          {
+            dateOfMarriage: '2015-11-15',
+            locationOfMarriage: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            spouseFullName: {
+              first: 'spouseone',
+              last: 'lastone'
+            },
+            dateOfSeparation: '2015-11-16',
+            locationOfSeparation: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            reasonForSeparation: 'Other',
+            explainSeparation: 'other'
+          },
           {
             dateOfMarriage: '2015-12-15',
             locationOfMarriage: {
@@ -81,17 +91,9 @@ FactoryBot.define do
               state: 'NY'
             },
             spouseFullName: {
-              first: 'spouse',
-              last: 'last'
-            },
-            dateOfSeparation: '2015-12-16',
-            locationOfSeparation: {
-              countryDropdown: 'USA',
-              city: 'new york',
-              state: 'NY'
-            },
-            reasonForSeparation: 'Other',
-            explainSeparation: 'other'
+              first: 'spousetwo',
+              last: 'lasttwo'
+            }
           }
         ],
         veteranSocialSecurityNumber: '796043735',
