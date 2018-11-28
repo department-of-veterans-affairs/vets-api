@@ -333,11 +333,13 @@ ActiveRecord::Schema.define(version: 20181126171800) do
   add_index "preference_choices", ["preference_id"], name: "index_preference_choices_on_preference_id", using: :btree
 
   create_table "preferences", force: :cascade do |t|
-    t.string   "code"
+    t.string   "code",       null: false
     t.string   "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "preferences", ["code"], name: "index_preferences_on_code", unique: true, using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
