@@ -64,17 +64,17 @@ FactoryBot.define do
         },
         marriages: [
           {
-            dateOfMarriage: '2015-11-15',
+            dateOfMarriage: '2015-12-15',
             locationOfMarriage: {
               countryDropdown: 'USA',
               city: 'new york',
               state: 'NY'
             },
             spouseFullName: {
-              first: 'spouseone',
-              last: 'lastone'
+              first: 'spouse',
+              last: 'last'
             },
-            dateOfSeparation: '2015-11-16',
+            dateOfSeparation: '2015-12-16',
             locationOfSeparation: {
               countryDropdown: 'USA',
               city: 'new york',
@@ -84,15 +84,15 @@ FactoryBot.define do
             explainSeparation: 'other'
           },
           {
-            dateOfMarriage: '2015-12-15',
+            dateOfMarriage: '2017-12-15',
             locationOfMarriage: {
               countryDropdown: 'USA',
               city: 'new york',
               state: 'NY'
             },
             spouseFullName: {
-              first: 'spousetwo',
-              last: 'lasttwo'
+              first: 'spouse',
+              last: 'last'
             }
           }
         ],
