@@ -9,10 +9,6 @@ describe Common::Client::Base do
         faraday.adapter :httpclient
       end
     end
-
-    def service_name
-      'test_service'
-    end
   end
 
   class Common::Client::Base::TestService < Common::Client::Base
