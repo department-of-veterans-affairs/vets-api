@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/external/backend_service_exception'
+
 module HCA
   class SOAPParser < Common::Client::Middleware::Response::SOAPParser
     include SentryLogging
