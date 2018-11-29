@@ -23,7 +23,7 @@ namespace :form526 do
 
   desc 'Get one or more submission details given an array of ids'
   task submission: :environment do |_, args|
-    raise 'No submission ids provided' unless args
+    raise 'No submission ids provided' unless args.extras.count > 0
 
     args.extras.each do |id|
       submission = Form526Submission.find(id)
