@@ -79,6 +79,16 @@ RSpec.describe Form526Submission do
         expect(subject.form_to_json(Form526Submission::FORM_0781)).to eq(JSON.parse(form_json)['form0781'].to_json)
       end
     end
+
+    context 'with form 8940' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_8940.json')
+      end
+
+      it 'returns the sub form as json' do
+        expect(subject.form_to_json(Form526Submission::FORM_8940)).to eq(JSON.parse(form_json)['form8940'].to_json)
+      end
+    end
   end
 
   describe '#auth_headers' do

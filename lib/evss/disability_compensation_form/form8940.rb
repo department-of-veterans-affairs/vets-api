@@ -2,7 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class Form4142 < AncillaryFormPopulator
+    class Form8940 < AncillaryFormPopulator
       def translate
         return nil unless @veteran_data && @final_output
         @final_output['veteranAddress'] = address(@veteran_data['mailingAddress'])

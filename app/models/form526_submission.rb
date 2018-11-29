@@ -14,6 +14,7 @@ class Form526Submission < ActiveRecord::Base
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
+  FORM_8940 = 'form8940'
 
   def start(klass)
     workflow_batch = Sidekiq::Batch.new
