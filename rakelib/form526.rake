@@ -15,15 +15,15 @@ namespace :form526 do
     print_row('created at:', 'updated at:', 'submission id:', 'claim id:', 'workflow complete:')
 
     Form526Submission.where('created_at BETWEEN ? AND ?', start_date, end_date)
-        .order(created_at: :desc)
-        .find_each do |s|
+                     .order(created_at: :desc)
+                     .find_each do |s|
       print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete)
     end
   end
 
   desc 'Get one or more submission details given an array of ids'
   task submission: :environment do |_, args|
-    raise 'No submission ids provided' unless args.extras.count > 0
+    raise 'No submission ids provided' unless args.extras.count.positive?
 
     args.extras.each do |id|
       submission = Form526Submission.find(id)
@@ -38,7 +38,7 @@ namespace :form526 do
       puts "user uuid: #{submission.user_uuid}"
       puts "user edipi: #{auth_headers['va_eauth_dodedipnid']}"
       puts "user participant id: #{auth_headers['va_eauth_pid']}"
-      puts "user ssn: #{auth_headers['va_eauth_pnid'].gsub(/(?=\d{5})\d/,"*") }"
+      puts "user ssn: #{auth_headers['va_eauth_pnid'].gsub(/(?=\d{5})\d/, '*')}"
       puts "saved claim id: #{submission.saved_claim_id}"
       puts "submitted claim id: #{submission.submitted_claim_id}"
       puts "workflow complete: #{submission.workflow_complete}"
@@ -48,7 +48,7 @@ namespace :form526 do
       puts '----------------------------------------'
       puts "Jobs:\n\n"
       submission.form526_job_statuses.each do |s|
-        puts "#{s.job_class}"
+        puts s.job_class.to_s
         puts "  status: #{s.status}"
         puts "  error: #{s.error_class}" if s.error_class
         puts "    message: #{s.error_message}" if s.error_message
