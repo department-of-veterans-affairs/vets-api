@@ -24,55 +24,7 @@ FactoryBot.define do
           state: 'KY',
           postalCode: '40292'
         },
-        currentMarriage: {
-          spouseIsVeteran: true,
-          spouseDateOfBirth: '2016-12-15',
-          liveWithSpouse: false,
-          dateOfMarriage: '2017-12-15',
-          spouseVaFileNumber: '111223333',
-          locationOfMarriage: {
-            countryDropdown: 'USA',
-            city: 'new york',
-            state: 'NY'
-          },
-          spouseAddress: {
-            countryDropdown: 'Country Not In List',
-            countryText: 'countryText',
-            addressType: 'INTERNATIONAL',
-            street: 'street1',
-            street2: 'Student Records',
-            street3: 'street3',
-            city: 'LOUISVILLE'
-          },
-          spouseFullName: {
-            first: 'spouse',
-            last: 'last'
-          },
-          spouseMarriages: [
-            {
-              dateOfMarriage: '2015-12-15',
-              locationOfMarriage: {
-                countryDropdown: 'USA',
-                city: 'new york',
-                state: 'NY'
-              },
-              spouseFullName: {
-                first: 'spouse',
-                last: 'last'
-              },
-              dateOfSeparation: '2015-12-16',
-              locationOfSeparation: {
-                countryDropdown: 'USA',
-                city: 'new york',
-                state: 'NY'
-              },
-              reasonForSeparation: 'Other',
-              explainSeparation: 'other'
-            }
-          ],
-          spouseSocialSecurityNumber: '111223333'
-        },
-        previousMarriages: [
+        spouseMarriages: [
           {
             dateOfMarriage: '2015-12-15',
             locationOfMarriage: {
@@ -92,6 +44,56 @@ FactoryBot.define do
             },
             reasonForSeparation: 'Other',
             explainSeparation: 'other'
+          }
+        ],
+        currentMarriage: {
+          spouseIsVeteran: true,
+          spouseDateOfBirth: '2016-12-15',
+          liveWithSpouse: false,
+          spouseVaFileNumber: '111223333',
+          spouseAddress: {
+            countryDropdown: 'Country Not In List',
+            countryText: 'countryText',
+            addressType: 'INTERNATIONAL',
+            street: 'street1',
+            street2: 'Student Records',
+            street3: 'street3',
+            city: 'LOUISVILLE'
+          },
+          spouseSocialSecurityNumber: '111223333'
+        },
+        marriages: [
+          {
+            dateOfMarriage: '2015-12-15',
+            locationOfMarriage: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            spouseFullName: {
+              first: 'spouse',
+              last: 'last'
+            },
+            dateOfSeparation: '2015-12-16',
+            locationOfSeparation: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            reasonForSeparation: 'Other',
+            explainSeparation: 'other'
+          },
+          {
+            dateOfMarriage: '2017-12-15',
+            locationOfMarriage: {
+              countryDropdown: 'USA',
+              city: 'new york',
+              state: 'NY'
+            },
+            spouseFullName: {
+              first: 'spouse',
+              last: 'last'
+            }
           }
         ],
         veteranSocialSecurityNumber: '796043735',

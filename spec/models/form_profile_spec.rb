@@ -94,7 +94,7 @@ RSpec.describe FormProfile, type: :model do
       'dayPhone' => '2024619724',
       'maritalStatus' => 'NEVERMARRIED',
       'nightPhone' => '7893256545',
-      'previousMarriages' => [
+      'spouseMarriages' => [
         {
           'dateOfMarriage' => '1979-02-01',
           'locationOfMarriage' => {
@@ -108,32 +108,34 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentMarriage' => {
-        'dateOfMarriage' => '2018-02-02',
-        'locationOfMarriage' => {
-          'countryDropdown' => 'USA',
-          'city' => 'Washington',
-          'state' => 'DC'
-        },
-        'spouseFullName' => {
-          'first' => 'Martha',
-          'last' => 'Stewart'
-        },
-        'spouseSocialSecurityNumber' => '579009999',
-        'spouseMarriages' => [
-          {
-            'dateOfMarriage' => '1979-02-01',
-            'locationOfMarriage' => {
-              'countryDropdown' => 'USA',
-              'city' => 'Washington',
-              'state' => 'DC'
-            },
-            'spouseFullName' => {
-              'first' => 'Dennis',
-              'last' => 'Menise'
-            }
+      'marriages' => [
+        {
+          'dateOfMarriage' => '1979-02-01',
+          'locationOfMarriage' => {
+            'countryDropdown' => 'USA',
+            'city' => 'Washington',
+            'state' => 'DC'
+          },
+          'spouseFullName' => {
+            'first' => 'Dennis',
+            'last' => 'Menise'
           }
-        ],
+        },
+        {
+          'dateOfMarriage' => '2018-02-02',
+          'locationOfMarriage' => {
+            'countryDropdown' => 'USA',
+            'city' => 'Washington',
+            'state' => 'DC'
+          },
+          'spouseFullName' => {
+            'first' => 'Martha',
+            'last' => 'Stewart'
+          }
+        }
+      ],
+      'currentMarriage' => {
+        'spouseSocialSecurityNumber' => '579009999',
         'liveWithSpouse' => true,
         'spouseDateOfBirth' => '1969-02-16'
       },
