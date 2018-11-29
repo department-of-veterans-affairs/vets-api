@@ -194,7 +194,11 @@ class DependentsApplication < Common::RedisStore
     dependents = parsed_form['dependents'] || []
     transformed = {}
 
-    transformed['spouse'] = convert_marriage(parsed_form['currentMarriage'], parsed_form['marriages']&.last, parsed_form['spouseMarriages'])
+    transformed['spouse'] = convert_marriage(
+      parsed_form['currentMarriage'],
+      parsed_form['marriages']&.last,
+      parsed_form['spouseMarriages']
+    )
     home_address = evss_form['submitProcess']['veteran'].slice('address')
     transformed['spouse'].merge!(home_address) if parsed_form['currentMarriage'].try(:[], 'liveWithSpouse')
 

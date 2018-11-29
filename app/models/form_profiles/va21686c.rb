@@ -146,7 +146,7 @@ class FormProfiles::VA21686c < FormProfile
         {
           date_of_marriage: convert_date(marriage['marriageDate']),
           location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
-          spouse_full_name: prefill_name(spouse),
+          spouse_full_name: prefill_name(spouse)
         }.compact
       )
     end
@@ -166,7 +166,7 @@ class FormProfiles::VA21686c < FormProfile
 
   def prefill_current_marriage(spouse)
     return unless spouse
-    marriage = spouse['currentMarriage']
+
     VA21686c::FormCurrentMarriage.new(
       {
         spouse_social_security_number: convert_ssn(spouse['ssn']),
