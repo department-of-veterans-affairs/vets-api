@@ -498,7 +498,11 @@ RSpec.describe FormProfile, type: :model do
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
-      }
+      },
+      'bankAccountNumber' => '*********1234',
+      'bankAccountType' => 'Checking',
+      'bankName' => 'Comerica',
+      'bankRoutingNumber' => '*****2115'
     }
   end
 
@@ -704,13 +708,17 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           end
 
+          # Note: `increase only` and `all claims` use the same form prefilling
           it 'returns prefilled 21-526EZ' do
             VCR.use_cassette('evss/pciu_address/address_domestic') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                expect_prefilled('21-526EZ')
+                VCR.use_cassette('evss/ppiu/payment_information') do
+                  expect_prefilled('21-526EZ')
+                end
               end
             end
           end
+
           it 'returns prefilled 21-686C' do
             VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
               expect_prefilled('21-686C')
