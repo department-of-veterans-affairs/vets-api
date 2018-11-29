@@ -185,7 +185,8 @@ class FormProfiles::VA526ez < FormProfile
     else
       {}
     end
-  rescue StandardError
+  rescue StandardError => e
+    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
     {}
   end
 
