@@ -22,6 +22,9 @@
                       "properties": {
                         "code": {
                           "type": "string"
+                        },
+                        "description": {
+                          "type": "string"
                         }
                       },
                       "type": "object"

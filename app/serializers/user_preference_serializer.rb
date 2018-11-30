@@ -22,7 +22,7 @@ class UserPreferenceSerializer < ActiveModel::Serializer
       {
         code: pair[:preference].code,
         title: pair[:preference].title,
-        user_preferences: pair[:user_preferences].map { |pref| { code: pref.code } }
+        user_preferences: pair[:user_preferences].map { |pref| { code: pref.code, description: pref.description } }
       }
     end
   end
