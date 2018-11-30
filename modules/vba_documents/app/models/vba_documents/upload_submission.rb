@@ -122,7 +122,7 @@ module VBADocuments
 
     def report_errors
       if self.status_changed? && self.status == 'error'
-        StatsD.increment "#{STATSD_PREFIX}"
+        StatsD.increment STATSD_PREFIX, tags: ["status:#{code}"]
       end
     end
   end
