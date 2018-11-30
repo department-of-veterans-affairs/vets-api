@@ -1,13 +1,15 @@
 # frozen_string_literal: true
 
 class SetUserPreferences
-  attr_reader :account, :requested_user_preferences, :preference_codes,
-              :user_preferences, :preference, :preference_choice
+  attr_reader :account, :requested_user_preferences, :preference_codes, :user_preferences,
+              :preference, :preference_choice, :preference_records, :preference_choice_records
 
   def initialize(account, requested_user_preferences)
     @account = account
     @requested_user_preferences = requested_user_preferences
     @preference_codes = derive_preference_codes
+    @preference_records = eager_load_preferences
+    @preference_choice_records = eager_load_preference_choices
   end
 
   def execute!
@@ -37,6 +39,22 @@ class SetUserPreferences
     requested_user_preferences.map { |requested| requested.dig 'preference', 'code' }
   end
 
+  def eager_load_preferences
+    Preference.where(code: preference_codes).to_a
+  end
+
+  def eager_load_preference_choices
+    PreferenceChoice.where(code: derive_preference_choice_codes).to_a
+  end
+
+  def derive_preference_choice_codes
+    requested_user_preferences.map do |requested|
+      requested.dig('user_preferences').map do |user_preference|
+        user_preference['code']
+      end
+    end.flatten
+  end
+
   def destroy_user_preferences!
     user_prefs = UserPreference.for_preference_and_account(account.id, preference_codes)
 
@@ -46,7 +64,7 @@ class SetUserPreferences
   def assign_preference_codes(preferences)
     preference_code   = preferences.dig 'preference', 'code'
     @user_preferences = preferences.dig 'user_preferences'
-    @preference       = Preference.find_by code: preference_code
+    @preference       = find_record preference_records, preference_code
 
     raise Common::Exceptions::RecordNotFound, preference_code if preference.blank?
   end
@@ -60,9 +78,13 @@ class SetUserPreferences
 
   def assign_user_preference_codes(user_preference)
     choice_code        = user_preference.dig 'code'
-    @preference_choice = PreferenceChoice.find_by code: choice_code
+    @preference_choice = find_record preference_choice_records, choice_code
 
     raise Common::Exceptions::RecordNotFound, choice_code if preference_choice.blank?
+  end
+
+  def find_record(records, code)
+    records.find { |record| record.code == code }
   end
 
   def create_user_preference!
