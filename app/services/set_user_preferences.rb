@@ -7,7 +7,7 @@
 # Also note that it accepts and sets multiple preference/choices combinations in
 # each request.  This is so that the end user can make a number of preference decisions
 # in one page, and the FE can send over just one request, in order to create all of the
-# UserPreference records for all of the user’s decisions.
+# UserPreference records for all of the users decisions.
 #
 # This class is responsible for:
 #   - accepting an Account record and an array of preference/choice pairings
