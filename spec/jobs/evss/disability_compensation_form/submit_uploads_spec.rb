@@ -60,10 +60,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       context 'with a timeout' do
         it 'logs a retryable error and re-raises the original error' do
-          allow(client).to receive(:upload).and_raise(Common::Exceptions::SentryIgnoredGatewayTimeout)
+          allow(client).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
           subject.perform_async(submission.id, upload_data)
           expect(Form526JobStatus).to receive(:upsert).twice
-          expect { described_class.drain }.to raise_error(Common::Exceptions::SentryIgnoredGatewayTimeout)
+          expect { described_class.drain }.to raise_error(EVSS::ErrorMiddleware::EVSSBackendServiceError)
         end
       end
     end
