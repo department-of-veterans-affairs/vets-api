@@ -189,7 +189,7 @@ describe VBADocuments::UploadSubmission, type: :model do
 
     it 'should report an error to Statsd when changed to error' do
       expect(StatsD).to receive(:increment)
-      upload_success.update_attribute :status, 'error'
+      upload_processing.update_attribute :status, 'error'
     end
   end
 end
