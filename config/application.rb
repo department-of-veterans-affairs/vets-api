@@ -49,7 +49,7 @@ module VetsAPI
     # CORS configuration; see also cors_preflight route
     config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
       allow do
-        origins { |source, _env| Settings.web_origin.split(',').include?(source) }
+        origins '*'
         resource '*', headers: :any,
                       methods: :any,
                       credentials: true,
