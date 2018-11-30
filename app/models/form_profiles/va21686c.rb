@@ -16,9 +16,8 @@ module VA21686c
     attribute :street3, ScrubbedString
     attribute :city, ScrubbedString
     attribute :state, ScrubbedString
-    attribute :country, ScrubbedString
+    attribute :country_dropdown, ScrubbedString
     attribute :postal_code, ScrubbedString
-    attribute :country, ScrubbedString
     attribute :country_text, ScrubbedString
     attribute :post_office, ScrubbedString
     attribute :postal_type, ScrubbedString
@@ -65,13 +64,12 @@ module VA21686c
     attribute :spouse_full_name, VA21686c::FormFullName
   end
 
-  class FormCurrentMarriage < FormMarriage
+  class FormCurrentMarriage
     include Virtus.model
 
     attribute :spouse_social_security_number, ScrubbedString
     attribute :spouse_has_no_ssn, Boolean
     attribute :spouse_has_no_ssn_reason, ScrubbedString
-    attribute :spouse_marriages, Array[VA21686c::FormMarriage]
     attribute :spouse_address, VA21686c::FormAddress
     attribute :spouse_is_veteran, Boolean
     attribute :live_with_spouse, Boolean
@@ -87,8 +85,9 @@ module VA21686c
     attribute :day_phone, ScrubbedString
     attribute :night_phone, ScrubbedString
     attribute :veteran_social_security_number, ScrubbedString
-    attribute :current_marriage, VA21686c::FormMarriage
-    attribute :previous_marriages, Array[VA21686c::FormMarriage]
+    attribute :current_marriage, VA21686c::FormCurrentMarriage
+    attribute :spouse_marriages, Array[VA21686c::FormMarriage]
+    attribute :marriages, Array[VA21686c::FormMarriage]
     attribute :dependents, Array[VA21686c::FormDependent]
     attribute :va_file_number, ScrubbedString
     attribute :marital_status, ScrubbedString
@@ -102,7 +101,7 @@ class FormProfiles::VA21686c < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/applicant-information'
+      returnUrl: '/veteran-information'
     }
   end
 
@@ -115,8 +114,10 @@ class FormProfiles::VA21686c < FormProfile
   private
 
   def initialize_veteran_information(user)
-    res = EVSS::Dependents::Service.new(user).retrieve
+    res = EVSS::Dependents::RetrievedInfo.for_user(user)
     veteran = res.body['submitProcess']['veteran']
+    spouse = veteran['spouse']
+
     VA21686c::FormContactInformation.new(
       {
         veteran_address: prefill_address(veteran['address']),
@@ -127,11 +128,30 @@ class FormProfiles::VA21686c < FormProfile
         day_phone: convert_phone(veteran['primaryPhone']),
         night_phone: convert_phone(veteran['secondaryPhone']),
         veteran_social_security_number: convert_ssn(veteran['ssn']),
-        current_marriage: prefill_current_marriage(veteran['spouse']),
-        previous_marriages: veteran['previousMarriages'].map { |m| prefill_marriage(m) },
+        current_marriage: prefill_current_marriage(spouse),
+        spouse_marriages: spouse.try(:[], 'previousMarriages')&.map { |m| prefill_marriage(m) },
+        marriages: prefill_marriages(spouse, veteran['previousMarriages']),
         dependents: prefill_dependents(veteran['children'])
       }.compact
     )
+  end
+
+  def prefill_marriages(spouse, previous_marriages)
+    marriages = previous_marriages.map { |m| prefill_marriage(m) }
+
+    if spouse.present?
+      marriage = spouse['currentMarriage']
+
+      marriages << VA21686c::FormMarriage.new(
+        {
+          date_of_marriage: convert_date(marriage['marriageDate']),
+          location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
+          spouse_full_name: prefill_name(spouse)
+        }.compact
+      )
+    end
+
+    marriages
   end
 
   def convert_ssn(ssn)
@@ -146,16 +166,12 @@ class FormProfiles::VA21686c < FormProfile
 
   def prefill_current_marriage(spouse)
     return unless spouse
-    marriage = spouse['currentMarriage']
+
     VA21686c::FormCurrentMarriage.new(
       {
-        date_of_marriage: convert_date(marriage['marriageDate']),
-        location_of_marriage: prefill_location(marriage['country'], marriage['city'], marriage['state']),
-        spouse_full_name: prefill_name(spouse),
         spouse_social_security_number: convert_ssn(spouse['ssn']),
         spouse_has_no_ssn: spouse['hasNoSsn'],
         spouse_has_no_ssn_reason: spouse['noSsnReasonType'],
-        spouse_marriages: spouse['previousMarriages'].map { |m| prefill_marriage(m) },
         spouse_address: prefill_address(spouse['address']),
         spouse_is_veteran: spouse['veteran'],
         live_with_spouse: spouse['sameResidency'],
@@ -197,7 +213,7 @@ class FormProfiles::VA21686c < FormProfile
 
   def convert_date(date)
     return unless date
-    Time.strptime(date.to_s, '%Q').to_date.to_s
+    Time.strptime(date.to_s, '%Q').utc.to_date.to_s
   end
 
   def prefill_dependents(children)
@@ -243,7 +259,7 @@ class FormProfiles::VA21686c < FormProfile
         city: address['city'],
         state: address['state'],
         postal_code: "#{address['zipCode']}#{"-#{address['zipLastFour']}" if address['zipLastFour'].present?}",
-        country: address.dig('country', 'dropDownCountry'),
+        country_dropdown: address.dig('country', 'dropDownCountry'),
         country_text: address.dig('country', 'textCountry'),
         post_office: address['postOffice'],
         postal_type: address['postalType']

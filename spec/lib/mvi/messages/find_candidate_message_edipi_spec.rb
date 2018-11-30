@@ -33,6 +33,20 @@ describe MVI::Messages::FindProfileMessageEdipi do
         expect(xml).to eq_at_path("#{parameter_list_path}/id/@root", '2.16.840.1.113883.3.42.10001.100001.12')
         expect(xml).to eq_at_path("#{parameter_list_path}/id/@extension", edipi)
       end
+
+      context 'orchestration' do
+        around(:each) do |example|
+          Settings.mvi.vba_orchestration = true
+          example.run
+          Settings.mvi.vba_orchestration = nil
+        end
+        it 'should have orchestration related params when enabled' do
+          expect(xml).to eq_text_at_path(
+            "#{parameter_list_path}/otherIDsScopingOrganization/semanticsText",
+            'MVI.ORCHESTRATION'
+          )
+        end
+      end
     end
   end
 end

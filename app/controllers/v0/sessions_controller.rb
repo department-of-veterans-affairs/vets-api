@@ -26,14 +26,17 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
       url = case params[:type]
             when 'mhv'
+              reset_session
               url_service.mhv_url
             when 'dslogon'
+              reset_session
               url_service.dslogon_url
             when 'idme'
+              reset_session
               url_service.idme_loa1_url + (params[:signup] ? '&op=signup' : '')
             when 'mfa'
               authenticate
@@ -43,20 +46,14 @@ module V0
               url_service.idme_loa3_url
             when 'slo'
               authenticate
-              url_service.logout_url
+              logout_url = url_service.slo_url
+              Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+              reset_session
+              logout_url
             end
       render json: { url: url }
     end
-    # rubocop:enable Metrics/CyclomaticComplexity
-
-    def logout
-      session_object = Session.find(Base64.urlsafe_decode64(params[:session]))
-      raise Common::Exceptions::Forbidden, detail: 'Invalid request' if session_object.nil?
-      @session_object = session_object
-      @current_user = User.find(session_object.uuid)
-      reset_session
-      redirect_to SAML::URLService.new(saml_settings, session: session_object, user: current_user).slo_url
-    end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
@@ -110,6 +107,7 @@ module V0
     private
 
     def set_cookies
+      Rails.logger.info('SSO: LOGIN', sso_logging_info)
       set_api_cookie!
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end

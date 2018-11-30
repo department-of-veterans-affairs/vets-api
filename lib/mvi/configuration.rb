@@ -5,20 +5,13 @@ require 'common/client/middleware/logging'
 
 module MVI
   class Configuration < Common::Client::Configuration::SOAP
-    # :nocov:
-    def self.default_mvi_open_timeout
-      Rails.logger.warn 'Settings.mvi.open_timeout not set, using default'
-      2
+    def self.open_timeout
+      Settings.mvi.open_timeout
     end
 
-    def self.default_mvi_timeout
-      Rails.logger.warn 'Settings.mvi.timeout not set, using default'
-      10
+    def self.read_timeout
+      Settings.mvi.timeout
     end
-    # :nocov:
-
-    OPEN_TIMEOUT = Settings.mvi.open_timeout&.to_i || default_mvi_open_timeout
-    TIMEOUT = Settings.mvi.timeout&.to_i || default_mvi_timeout
 
     def self.ssl_cert_path
       Settings.mvi.client_cert_path
@@ -47,6 +40,7 @@ module MVI
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
+        conn.use :breakers
         conn.request :soap_headers
 
         # Uncomment this if you want curl command equivalent or response output to log
@@ -54,8 +48,7 @@ module MVI
         # conn.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
         conn.response :soap_parser
-        conn.use :breakers
-        conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging
+        conn.use :logging, 'MVIRequest' if Settings.mvi.pii_logging # Refactor as response middleware?
         conn.response :betamocks if Settings.mvi.mock
         conn.adapter Faraday.default_adapter
       end
