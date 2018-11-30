@@ -14,6 +14,7 @@ module Facilities
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
     def provider_locator(params)
       qparams = build_params(params)
+      Rails.logger.info(qparams)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       return [] if response.body.nil?
       bbox_num = params[:bbox].map { |x| Float(x) }
@@ -34,6 +35,11 @@ module Facilities
       Provider.new response.body[0]
     end
 
+    def provider_caresites
+      response = perform(:get, "v1.0/Providers(#{identifier})/CareSites")
+      response
+    end
+
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
     def specialties
       response = perform(:get, 'v1.0/Specialties', {})
@@ -48,10 +54,13 @@ module Facilities
       # more estimation fun about 69 miles between latitude lines, <= 69 miles between long lines
       xlen = (lats.max - lats.min) * 69 / 2
       ylen = (longs.max - longs.min) * 69 / 2
+      specialty = 'null'
+      specialty = params[:services][0] unless params[:services].nil?
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
-      { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000, specialtycode1: 'null',
-        specialtycode2: 'null', specialtycode3: 'null', specialtycode4: 'null',
-        network: 0, gender: 0, primarycare: 0, acceptingnewpatients: 0, maxResults: 20 * page + 1 }
+      { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000,
+        specialtycode1: params[:services][0], specialtycode2: 'null', specialtycode3: 'null',
+        specialtycode4: 'null', network: 0, gender: 0, primarycare: 0,
+        acceptingnewpatients: 0, maxResults: 20 * page + 1 }
     end
   end
 end
