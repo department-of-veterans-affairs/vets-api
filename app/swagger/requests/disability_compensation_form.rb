@@ -91,7 +91,7 @@ module Swagger
           response 200 do
             key :description, 'Returns the status of a given submission'
             schema do
-              key :'$ref', :SubmissionStatus
+              key :'$ref', :Form526JobStatus
             end
           end
         end

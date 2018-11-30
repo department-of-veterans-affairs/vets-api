@@ -89,6 +89,7 @@ module MVI
       # rubocop:disable MethodLength
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
+        full_mvi_ids = get_extensions(patient.locate('id'))
         correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
         log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
@@ -100,6 +101,7 @@ module MVI
           ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
           address: parse_address(patient),
           home_phone: parse_phone(patient),
+          full_mvi_ids: full_mvi_ids,
           icn: correlation_ids[:icn],
           mhv_ids: correlation_ids[:mhv_ids],
           active_mhv_ids: correlation_ids[:active_mhv_ids],
@@ -114,6 +116,12 @@ module MVI
         )
       end
       # rubocop:enable MethodLength
+
+      def get_extensions(id_array)
+        id_array.map do |id_object|
+          id_object.attributes[:extension]
+        end
+      end
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         return if mhv_ids.blank?

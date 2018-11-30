@@ -122,7 +122,7 @@ RSpec.describe 'Disability compensation form', type: :request do
       context 'with an `increase only` claim' do
         let(:valid_increase_form) { File.read 'spec/support/disability_compensation_form/front_end_submission.json' }
 
-        it 'should match the rated disabilities schema' do
+        it 'should match the submit_disability_form schema' do
           VCR.use_cassette('evss/disability_compensation_form/submit_form') do
             post '/v0/disability_compensation_form/submit', valid_increase_form, auth_header
             expect(response).to have_http_status(:ok)
@@ -167,101 +167,63 @@ RSpec.describe 'Disability compensation form', type: :request do
   end
 
   describe 'Get /v0/disability_compensation_form/submission_status' do
-    let(:job_id) { SecureRandom.uuid }
+    context 'with a success status' do
+      let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
+      let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
 
-    context 'with a submitted transaction status' do
-      before do
-        create(:va526ez_submit_transaction,
-               transaction_id: job_id,
-               transaction_status: 'submitted',
-               metadata: {})
-      end
-
-      it 'should return the async submit transaction status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+      it 'should return the job status and response', :aggregate_failures do
+        get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
           'data' => {
             'id' => '',
-            'type' => 'async_transaction_evss_va526ez_submit_transactions',
+            'type' => 'form526_job_statuses',
             'attributes' => {
-              'transaction_id' => job_id,
-              'transaction_status' => 'submitted',
-              'type' => 'AsyncTransaction::EVSS::VA526ezSubmitTransaction',
-              'metadata' => {}
+              'claim_id' => 61_234_567,
+              'job_id' => '82dba5c2060867a53135b123',
+              'status' => 'success'
             }
           }
         )
       end
     end
 
-    context 'with a received transaction status' do
-      before do
-        create(:va526ez_submit_transaction,
-               transaction_id: job_id,
-               transaction_status: 'received',
-               metadata: {
-                 claim_id: 600_130_094,
-                 end_product_claim_code: '020SUPP',
-                 end_product_claim_name: 'eBenefits 526EZ-Supplemental (020)',
-                 inflight_document_id: 194_300
-               })
-      end
+    context 'with a retryable_error status' do
+      let(:submission) { create(:form526_submission) }
+      let(:job_status) { create(:form526_job_status, :retryable_error, form526_submission_id: submission.id) }
 
-      it 'should return the async submit transaction status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+      it 'should return the job status and response', :aggregate_failures do
+        get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
           'data' => {
             'id' => '',
-            'type' => 'async_transaction_evss_va526ez_submit_transactions',
+            'type' => 'form526_job_statuses',
             'attributes' => {
-              'transaction_id' => job_id,
-              'transaction_status' => 'received',
-              'type' => 'AsyncTransaction::EVSS::VA526ezSubmitTransaction',
-              'metadata' => {
-                'claim_id' => 600_130_094,
-                'end_product_claim_code' => '020SUPP',
-                'end_product_claim_name' => 'eBenefits 526EZ-Supplemental (020)',
-                'inflight_document_id' => 194_300
-              }
+              'claim_id' => nil,
+              'job_id' => '82dba5c2060867a53135b123',
+              'status' => 'retryable_error'
             }
           }
         )
       end
     end
 
-    context 'with a retrying transaction status' do
-      before do
-        create(:va526ez_submit_transaction,
-               transaction_id: job_id,
-               transaction_status: 'retrying',
-               metadata: {
-                 messages: {
-                   key: 'form526.submit.establishClaim.serviceError',
-                   severity: 'FATAL',
-                   text: 'Error calling external service to establish the claim during Submit'
-                 }
-               })
-      end
+    context 'with a non_retryable_error status' do
+      let(:submission) { create(:form526_submission) }
+      let(:job_status) { create(:form526_job_status, :non_retryable_error, form526_submission_id: submission.id) }
 
-      it 'should return the async submit transaction status and latest error', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+      it 'should return the job status and response', :aggregate_failures do
+        get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, auth_header
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)).to have_deep_attributes(
           'data' => {
             'id' => '',
-            'type' => 'async_transaction_evss_va526ez_submit_transactions',
+            'type' => 'form526_job_statuses',
             'attributes' => {
-              'transaction_id' => job_id,
-              'transaction_status' => 'retrying',
-              'type' => 'AsyncTransaction::EVSS::VA526ezSubmitTransaction',
-              'metadata' => {
-                'messages' => {
-                  'key' => 'form526.submit.establishClaim.serviceError',
-                  'severity' => 'FATAL',
-                  'text' => 'Error calling external service to establish the claim during Submit'
-                }
-              }
+              'claim_id' => nil,
+              'job_id' => '82dba5c2060867a53135b123',
+              'status' => 'non_retryable_error'
             }
           }
         )
@@ -270,7 +232,7 @@ RSpec.describe 'Disability compensation form', type: :request do
 
     context 'when no record is found' do
       it 'should return the async submit transaction status and response', :aggregate_failures do
-        get "/v0/disability_compensation_form/submission_status/#{job_id}", nil, auth_header
+        get '/v0/disability_compensation_form/submission_status/123', nil, auth_header
         expect(response).to have_http_status(:not_found)
       end
     end

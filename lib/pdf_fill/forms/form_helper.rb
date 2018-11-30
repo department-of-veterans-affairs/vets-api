@@ -80,6 +80,24 @@ module PdfFill
         return if date_range_array.nil?
         date_range_array.map { |r| 'from: ' + r['from'] + ' to: ' + r['to'] if r }.join("\n")
       end
+
+      def address_block(address)
+        return if address.nil?
+        [
+          [address['street'], address['street2']].compact.join(' '),
+          [address['city'], address['state'], address['postalCode']].compact.join(' '),
+          address['country']
+        ].compact.join("\n")
+      end
+
+      def expand_checkbox_as_hash(hash, key)
+        value = hash.try(:[], key)
+
+        return if value.blank?
+        hash['checkbox'] = {
+          value => true
+        }
+      end
     end
   end
 end

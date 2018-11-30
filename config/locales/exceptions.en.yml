@@ -242,6 +242,11 @@ en:
         code: 'SM99'
         detail: 'Something went wrong. Please try again later.'
         status: 502
+      HCA422:
+        <<: *external_defaults
+        code: 'HCA422'
+        detail: 'Validation error'
+        status: 422
       BB99: # 'Unknown application error occurred'
         <<: *external_defaults
         code: 'BB99'
@@ -296,6 +301,18 @@ en:
         code: 'MHVACCTCREATION159'
         detail: 'User is not matched or correlated in MVI'
         status: 422
+      AUTHTOKEN_404:
+        <<: *external_defaults
+        title: Not found
+        code: 'AUTHTOKEN_404'
+        detail: Auth service responded that data for token was not found
+        status: 404
+      AUTHTOKEN_502:
+        <<: *external_defaults
+        title: Unexpected response body
+        code: 'AUTHTOKEN_502'
+        detail: Auth service responded with something other than the necessary information
+        status: 502
       APPEALSSTATUS401:
         <<: *external_defaults
         title: 'Bad Gateway'
@@ -350,6 +367,18 @@ en:
         code: 'EVSS502'
         detail: 'Received an an invalid response from the upstream server'
         status: 502
+      EVSS503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'EVSS503'
+        detail: 'The server is currently unable to handle the request due to a temporary overload or scheduled maintenance, which will likely be alleviated after some delay'
+        status: 503
+      EVSS504:
+        <<: *external_defaults
+        title: Gateway Timeout
+        code: 'EVSS504'
+        detail: 'The server, while acting as a gateway or proxy, did not receive a timely response from an upstream server it needed to access in order to complete the request'
+        status: 504
       EMIS_HIST502:
         <<: *external_defaults
         title: Unexpected response body
