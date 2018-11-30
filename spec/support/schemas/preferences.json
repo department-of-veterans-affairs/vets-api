@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "properties": {
+    "data": {
+      "properties": {
+        "attributes": {
+          "properties": {
+            "code": {
+              "description": "Unique identifying slug for the given Preference",
+              "type": "string"
+            },
+            "title": {
+              "description": "A human-readable title for the Preference",
+              "type": "string"
+            },
+            "preference_choices": {
+              "description": "An array of PreferenceChoice objects",
+              "items": {
+                "type": "object"
+              },
+              "type": "array"
+            }
+          },
+          "type": "object"
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "type": "object"
+}
