@@ -11,7 +11,7 @@ module Breakers
           # * (possibly negative) digit identifiers
           # * uuid's with or without dashes
           # * institution id's of form 111A2222 or 11A22222
-          r = %r{(\/)(\-?\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}|[\dA-Z]{8})(\/|$)}
+          r = %r{(\/)(\-?\d+|[a-fA-F0-9]{8}(\-?[a-fA-F0-9]{4}){3}\-?[a-fA-F0-9]{12}|[\dA-Z]{8})(\/|$)|(\d{10}V\d{6}%5ENI%5E200M%5EUSVHA)}
           endpoint = request.url.path.gsub(r, '\1xxx\4')
           tags.append("endpoint:#{endpoint}")
         end
