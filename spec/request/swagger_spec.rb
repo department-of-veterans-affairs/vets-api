@@ -404,24 +404,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
-      it 'supports getting submission status' do
-        job_id = SecureRandom.uuid
-        create(:va526ez_submit_transaction,
-               transaction_id: job_id,
-               transaction_status: 'submitted',
-               metadata: {})
-        expect(subject).to validate(
-          :get,
-          '/v0/disability_compensation_form/submission_status/{job_id}',
-          401,
-          'job_id' => job_id
-        )
-        expect(subject).to validate(
-          :get,
-          '/v0/disability_compensation_form/submission_status/{job_id}',
-          200,
-          auth_options.merge('job_id' => job_id)
-        )
+      context 'with a submission and job status' do
+        let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
+        let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
+
+        it 'supports getting submission status' do
+          expect(subject).to validate(
+            :get,
+            '/v0/disability_compensation_form/submission_status/{job_id}',
+            401,
+            'job_id' => job_status.job_id
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/disability_compensation_form/submission_status/{job_id}',
+            200,
+            auth_options.merge('job_id' => job_status.job_id)
+          )
+        end
       end
     end
 
@@ -1326,6 +1326,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           200,
           auth_options.merge('_data' => body.as_json)
         )
+      end
+    end
+
+    describe 'preferences' do
+      let(:preference) { create(:preference) }
+      let(:route) { '/v0/user/preferences/choices' }
+
+      it 'supports getting preference data' do
+        expect(subject).to validate(:get, route, 200, auth_options)
+        expect(subject).to validate(:get, route, 401)
+        expect(subject).to validate(:get, "#{route}/{code}", 200, auth_options.merge('code' => preference.code))
+        expect(subject).to validate(:get, "#{route}/{code}", 401, 'code' => preference.code)
+        expect(subject).to validate(:get, "#{route}/{code}", 404, auth_options.merge('code' => 'wrong'))
       end
     end
 

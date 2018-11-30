@@ -94,7 +94,7 @@ RSpec.describe FormProfile, type: :model do
       'dayPhone' => '2024619724',
       'maritalStatus' => 'NEVERMARRIED',
       'nightPhone' => '7893256545',
-      'previousMarriages' => [
+      'spouseMarriages' => [
         {
           'dateOfMarriage' => '1979-02-01',
           'locationOfMarriage' => {
@@ -108,32 +108,34 @@ RSpec.describe FormProfile, type: :model do
           }
         }
       ],
-      'currentMarriage' => {
-        'dateOfMarriage' => '2018-02-02',
-        'locationOfMarriage' => {
-          'countryDropdown' => 'USA',
-          'city' => 'Washington',
-          'state' => 'DC'
-        },
-        'spouseFullName' => {
-          'first' => 'Martha',
-          'last' => 'Stewart'
-        },
-        'spouseSocialSecurityNumber' => '579009999',
-        'spouseMarriages' => [
-          {
-            'dateOfMarriage' => '1979-02-01',
-            'locationOfMarriage' => {
-              'countryDropdown' => 'USA',
-              'city' => 'Washington',
-              'state' => 'DC'
-            },
-            'spouseFullName' => {
-              'first' => 'Dennis',
-              'last' => 'Menise'
-            }
+      'marriages' => [
+        {
+          'dateOfMarriage' => '1979-02-01',
+          'locationOfMarriage' => {
+            'countryDropdown' => 'USA',
+            'city' => 'Washington',
+            'state' => 'DC'
+          },
+          'spouseFullName' => {
+            'first' => 'Dennis',
+            'last' => 'Menise'
           }
-        ],
+        },
+        {
+          'dateOfMarriage' => '2018-02-02',
+          'locationOfMarriage' => {
+            'countryDropdown' => 'USA',
+            'city' => 'Washington',
+            'state' => 'DC'
+          },
+          'spouseFullName' => {
+            'first' => 'Martha',
+            'last' => 'Stewart'
+          }
+        }
+      ],
+      'currentMarriage' => {
+        'spouseSocialSecurityNumber' => '579009999',
         'liveWithSpouse' => true,
         'spouseDateOfBirth' => '1969-02-16'
       },
@@ -498,7 +500,11 @@ RSpec.describe FormProfile, type: :model do
         },
         'primaryPhone' => '4445551212',
         'emailAddress' => 'test2@test1.net'
-      }
+      },
+      'bankAccountNumber' => '*********1234',
+      'bankAccountType' => 'Checking',
+      'bankName' => 'Comerica',
+      'bankRoutingNumber' => '*****2115'
     }
   end
 
@@ -704,13 +710,17 @@ RSpec.describe FormProfile, type: :model do
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
           end
 
+          # Note: `increase only` and `all claims` use the same form prefilling
           it 'returns prefilled 21-526EZ' do
             VCR.use_cassette('evss/pciu_address/address_domestic') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                expect_prefilled('21-526EZ')
+                VCR.use_cassette('evss/ppiu/payment_information') do
+                  expect_prefilled('21-526EZ')
+                end
               end
             end
           end
+
           it 'returns prefilled 21-686C' do
             VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
               expect_prefilled('21-686C')

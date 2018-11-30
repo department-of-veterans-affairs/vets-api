@@ -3,48 +3,63 @@
 require 'pp'
 
 namespace :form526 do
-  desc 'Get all jobs within a date period. [<start date>,<end date>]'
-  task :jobs, %i[start_date end_date] => [:environment] do |_, args|
-    def print_row(created_at, updated_at, job_id, status)
-      printf "%-24s %-24s %-25s %s\n", created_at, updated_at, job_id, status
+  desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
+  task :submissions, %i[start_date end_date] => [:environment] do |_, args|
+    def print_row(created_at, updated_at, id, claim_id, complete)
+      printf "%-24s %-24s %-15s %-10s %s\n", created_at, updated_at, id, claim_id, complete
     end
-
-    TRXS = AsyncTransaction::EVSS::VA526ezSubmitTransaction
 
     start_date = args[:start_date] || 30.days.ago.utc.to_s
     end_date = args[:end_date] || Time.zone.now.utc.to_s
 
-    print_row('created at:', 'updated at:', 'job id:', 'job status:')
-    TRXS.where('created_at BETWEEN ? AND ?', start_date, end_date)
-        .order(created_at: :desc)
-        .find_each do |job|
-      print_row(job.created_at, job.updated_at, job.transaction_id, job.transaction_status)
+    print_row('created at:', 'updated at:', 'submission id:', 'claim id:', 'workflow complete:')
+
+    Form526Submission.where('created_at BETWEEN ? AND ?', start_date, end_date)
+                     .order(created_at: :desc)
+                     .find_each do |s|
+      print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete)
     end
   end
 
-  desc 'Get job details given a job id'
-  task :job, %i[job_id] => [:environment] do |_, args|
-    raise 'No job id provided' unless args[:job_id]
+  desc 'Get one or more submission details given an array of ids'
+  task submission: :environment do |_, args|
+    raise 'No submission ids provided' unless args.extras.count.positive?
 
-    job = AsyncTransaction::EVSS::VA526ezSubmitTransaction.where(transaction_id: args[:job_id]).first
+    args.extras.each do |id|
+      submission = Form526Submission.find(id)
 
-    form = JSON.parse(job.saved_claim.form)
-    form['veteran'] = 'OMITTED'
+      saved_claim_form = JSON.parse(submission.saved_claim.form)
+      saved_claim_form['veteran'] = 'FILTERED'
 
-    puts '----------------------------------------'
-    puts 'Job Details:'
-    puts "user uuid: #{job.user_uuid}"
-    puts "source id: #{job.source_id}"
-    puts "source: #{job.source}"
-    puts "transaction status: #{job.transaction_status}"
-    puts "created at: #{job.created_at}"
-    puts "updated at: #{job.updated_at}"
-    puts '----------------------------------------'
-    puts 'Job Metadata:'
-    puts job.metadata
-    puts '----------------------------------------'
-    puts 'Form Data:'
-    puts JSON.pretty_generate(form)
+      auth_headers = JSON.parse(submission.auth_headers_json)
+
+      puts '------------------------------------------------------------'
+      puts "Submission (#{submission.id}):\n\n"
+      puts "user uuid: #{submission.user_uuid}"
+      puts "user edipi: #{auth_headers['va_eauth_dodedipnid']}"
+      puts "user participant id: #{auth_headers['va_eauth_pid']}"
+      puts "user ssn: #{auth_headers['va_eauth_pnid'].gsub(/(?=\d{5})\d/, '*')}"
+      puts "saved claim id: #{submission.saved_claim_id}"
+      puts "submitted claim id: #{submission.submitted_claim_id}"
+      puts "workflow complete: #{submission.workflow_complete}"
+      puts "created at: #{submission.created_at}"
+      puts "updated at: #{submission.updated_at}"
+      puts "\n"
+      puts '----------------------------------------'
+      puts "Jobs:\n\n"
+      submission.form526_job_statuses.each do |s|
+        puts s.job_class.to_s
+        puts "  status: #{s.status}"
+        puts "  error: #{s.error_class}" if s.error_class
+        puts "    message: #{s.error_message}" if s.error_message
+        puts "  updadated at: #{s.updated_at}"
+        puts "\n"
+      end
+      puts '----------------------------------------'
+      puts "Form JSON:\n\n"
+      puts JSON.pretty_generate(saved_claim_form)
+      puts "\n\n"
+    end
   end
 
   def create_submission_hash(claim_id, submission, user_uuid)
@@ -74,10 +89,12 @@ namespace :form526 do
 
   desc 'update all disability compensation claims to have the correct type'
   task update_types: :environment do
-    SavedClaim::DisabilityCompensation.each do |claim|
-      claim.type = 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly'
-      claim.save
-    end
+    # `update_all` is being used because the `type` field will reset to `SavedClaim::DisabilityCompensation`
+    # if a `claim.save` is done
+    # rubocop:disable Rails/SkipsModelValidations
+    SavedClaim::DisabilityCompensation.where(type: 'SavedClaim::DisabilityCompensation')
+                                      .update_all(type: 'SavedClaim::DisabilityCompensation::Form526IncreaseOnly')
+    # rubocop:enable Rails/SkipsModelValidations
   end
 
   desc 'dry run for migrating existing 526 submissions to the new tables'

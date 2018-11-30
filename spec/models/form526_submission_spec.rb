@@ -126,4 +126,13 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe '#workflow_complete_handler' do
+    it 'sets the submission.complete to true' do
+      expect(subject.workflow_complete).to be_falsey
+      subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+      subject.reload
+      expect(subject.workflow_complete).to be_truthy
+    end
+  end
 end
