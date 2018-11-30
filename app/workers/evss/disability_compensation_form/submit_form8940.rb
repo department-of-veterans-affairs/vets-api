@@ -41,7 +41,7 @@ module EVSS
           parsed_form8940 = parse_8940(parsed_form.deep_dup)
 
           # process 8940
-          process_8940(auth_headers, evss_claim_id, FORM_ID, parsed_form8940) if parsed_form8940.present?
+          process_8940(auth_headers, evss_claim_id, parsed_form8940) if parsed_form8940.present?
         end
       rescue StandardError => error
         # Cannot move job straight to dead queue dynamically within an executing job
