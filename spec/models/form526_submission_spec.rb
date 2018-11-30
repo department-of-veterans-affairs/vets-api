@@ -135,6 +135,18 @@ RSpec.describe Form526Submission do
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
       end
     end
+
+    context 'with form 8940' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_8940.json')
+      end
+
+      it 'queues a 8940 job' do
+        expect do
+          subject.perform_ancillary_jobs(bid)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
+      end
+    end
   end
 
   describe '#workflow_complete_handler' do
