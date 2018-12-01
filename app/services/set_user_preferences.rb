@@ -20,7 +20,7 @@ class SetUserPreferences
               :preference, :preference_choice, :preference_records, :preference_choice_records
 
   # @param account [Account] An instance of Account
-  # @param requested_user_preferences [Array<Hash>] An array of hashes. Each has contains
+  # @param requested_user_preferences [Array<Hash>] An array of hashes. Each hash contains
   #   a Preference#code, and the associates PreferenceChoice#codes the user selected.
   #   For example:
   #   [
@@ -112,13 +112,6 @@ class SetUserPreferences
     @preference       = find_record preference_records, preference_code
 
     raise Common::Exceptions::RecordNotFound, preference_code if preference.blank?
-  end
-
-  def results_template
-    {
-      preference: preference,
-      user_preferences: []
-    }
   end
 
   def assign_user_preference_codes(user_preference)
