@@ -58,7 +58,7 @@ module Facilities
       specialty = params[:services][0] unless params[:services].nil?
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
       { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000,
-        specialtycode1: params[:services][0], specialtycode2: 'null', specialtycode3: 'null',
+        specialtycode1: specialty, specialtycode2: 'null', specialtycode3: 'null',
         specialtycode4: 'null', network: 0, gender: 0, primarycare: 0,
         acceptingnewpatients: 0, maxResults: 20 * page + 1 }
     end
