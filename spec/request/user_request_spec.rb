@@ -16,8 +16,10 @@ RSpec.describe 'Fetching user data', type: :request do
       allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+      allow(mhv_account).to receive(:user_uuid).and_return(mhv_user.uuid)
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
+      allow(mhv_account).to receive(:user=).and_return(mhv_user)
       User.create(mhv_user)
       create(:account, idme_uuid: mhv_user.uuid)
     end
@@ -66,14 +68,9 @@ RSpec.describe 'Fetching user data', type: :request do
   end
 
   context 'when an LOA 1 user is logged in', :skip_mvi do
-    let(:loa1_user) { build(:user, :loa1) }
+    let(:auth_header) { new_user_auth_header(:loa1) }
 
     before do
-      Session.create(uuid: loa1_user.uuid, token: token)
-      User.create(loa1_user)
-      create(:account, idme_uuid: loa1_user.uuid)
-
-      auth_header = { 'Authorization' => "Token token=#{token}" }
       get v0_user_url, nil, auth_header
     end
 
@@ -94,5 +91,118 @@ RSpec.describe 'Fetching user data', type: :request do
         ].sort
       )
     end
+  end
+
+  context 'MVI Integration', :skip_mvi do
+    let(:auth_header) { new_user_auth_header }
+
+    it 'GET /v0/user - for MVI error should only make a request to MVI one time per request!' do
+      stub_mvi_failure
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+
+      expect(JSON.parse(response.body)['data']['attributes']['va_profile'])
+        .to eq('status' => 'SERVER_ERROR')
+    end
+
+    it 'GET /v0/user - for MVI RecordNotFound should only make a request to MVI one time per request!' do
+      stub_mvi_record_not_found
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+
+      expect(JSON.parse(response.body)['data']['attributes']['va_profile'])
+        .to eq('status' => 'NOT_FOUND')
+    end
+
+    it 'GET /v0/user - for MVI DuplicateRecords should only make a request to MVI one time per request!' do
+      stub_mvi_duplicate_record
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+
+      expect(JSON.parse(response.body)['data']['attributes']['va_profile'])
+        .to eq('status' => 'NOT_FOUND')
+    end
+
+    it 'GET /v0/user - for MVI success should only make a request to MVI one time per multiple requests!' do
+      stub_mvi_success
+      expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
+      expect { get v0_user_url, nil, auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+      expect { get v0_user_url, nil, auth_header }
+        .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+      expect { get v0_user_url, nil, auth_header }
+        .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+    end
+
+    it 'GET /v0/user - for MVI raises a breakers exception after 50% failure rate' do
+      now = Time.current
+      start_time = now - 120
+      Timecop.freeze(start_time)
+      # Starts out successful
+      stub_mvi_success
+      expect { get v0_user_url, nil, new_user_auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+
+      # Encounters failure and breakers kicks in
+      stub_mvi_failure
+      1.times do |_count|
+        expect { get v0_user_url, nil, new_user_auth_header }
+          .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+          .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+      end
+
+      # skipped because breakers is active
+      stub_mvi_success
+      expect { get v0_user_url, nil, new_user_auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
+
+      Timecop.freeze(now)
+      # sufficient time has elasped that new requests are made, resulting in succses
+      expect { get v0_user_url, nil, new_user_auth_header }
+        .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
+        .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
+      expect(response.status).to eq(200)
+    end
+  end
+
+  def new_user_auth_header(type = :loa3)
+    user = build(:user, type, uuid: rand(1000..100_000))
+    session = Session.create(uuid: user.uuid, token: token)
+    User.create(user)
+    create(:account, idme_uuid: user.uuid)
+    { 'Authorization' => "Token token=#{session.token}" }
+  end
+
+  def stub_mvi_failure
+    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_soap_fault.xml')
+  end
+
+  def stub_mvi_record_not_found
+    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_no_subject.xml')
+  end
+
+  def stub_mvi_duplicate_record
+    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_multiple_match_response.xml')
+  end
+
+  def stub_mvi_success
+    stub_mvi_external_request File.read('spec/support/mvi/find_candidate_response.xml')
+  end
+
+  def stub_mvi_external_request(file)
+    stub_request(:post, Settings.mvi.url)
+      .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: file)
   end
 end
