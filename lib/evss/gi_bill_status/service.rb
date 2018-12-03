@@ -15,6 +15,7 @@ module EVSS
       }.freeze
 
       def self.within_scheduled_uptime?
+        current_time = get_current_time
         if current_time.saturday?
           (OPERATING_HOURS[:start]...OPERATING_HOURS[:saturday_end]).cover?(current_time.hour)
         else
@@ -24,6 +25,7 @@ module EVSS
 
       def self.seconds_until_downtime
         if within_scheduled_uptime?
+          current_time = get_current_time
           end_hour = current_time.saturday? ? OPERATING_HOURS[:saturday_end] : OPERATING_HOURS[:end]
           Time.new(
             current_time.year,
@@ -37,6 +39,7 @@ module EVSS
       end
 
       def self.retry_after_time
+        current_time = get_current_time
         tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
         service_start_time = tz.parse(tz.today.to_s + ' 0' + OPERATING_HOURS[:start].to_s + ':00:00')
 
@@ -52,11 +55,11 @@ module EVSS
         EVSS::GiBillStatus::GiBillStatusResponse.new(response.status, response)
       end
 
-      def self.current_time
+      def self.get_current_time
         Time.now.in_time_zone(OPERATING_ZONE)
       end
 
-      private_class_method :current_time
+      private_class_method :get_current_time
     end
   end
 end
