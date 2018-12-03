@@ -58,7 +58,7 @@ module EVSS
         parsed_form
       end
 
-      def process_8940(_auth_headers, evss_claim_id, form_content)
+      def process_8940(auth_headers, evss_claim_id, form_content)
         # generate and stamp PDF file
         pdf_path8940 = generate_stamp_pdf(form_content, evss_claim_id) if form_content.present?
         upload_to_vbms(auth_headers, evss_claim_id, pdf_path8940) if pdf_path8940.present?
