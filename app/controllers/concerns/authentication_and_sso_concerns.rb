@@ -9,10 +9,6 @@ module AuthenticationAndSSOConcerns
 
   included do
     before_action :authenticate
-
-    # Ensures that we maintain sessions for currently signed-in users
-    # (that have been authenticated with the HTTP header)
-    # after we start using cookies instead of the header.
     before_action :set_api_cookie!, unless: -> { Settings.session_cookie.enabled }
   end
 
@@ -67,6 +63,14 @@ module AuthenticationAndSSOConcerns
     super
   end
 
+  # Determines whether user signed out of MHV's website
+  def should_signout_sso?
+    Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
+    return false unless Settings.sso.cookie_enabled
+    return false unless Settings.sso.cookie_signout_enabled
+    cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
+  end
+
   # Extends the users session, including the MHV SSO Cookie
   def extend_session!
     Rails.logger.info('SSO: ApplicationController#extend_session!', sso_logging_info)
@@ -78,12 +82,13 @@ module AuthenticationAndSSOConcerns
   end
 
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
+  # Ensures that we maintain session of currently signed-in user before switch to session cookies
   def set_api_cookie!
     return unless @session_object
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
-  # Sets a cookie used by MHV for SSO purposes
+  # Sets a cookie used by MHV for SSO
   def set_sso_cookie!
     Rails.logger.info('SSO: ApplicationController#set_sso_cookie!', sso_logging_info)
 
@@ -99,8 +104,7 @@ module AuthenticationAndSSOConcerns
     }
   end
 
-  # The contents of MHV SSO Cookie
-  # Cookie Specs found here:
+  # The contents of MHV SSO Cookie with specifications found here:
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def sso_cookie_content
     return nil if @current_user.blank?
@@ -110,14 +114,6 @@ module AuthenticationAndSSOConcerns
       'mhvCorrelationId' => @current_user.mhv_correlation_id,
       'expirationTime' => @session_object.ttl_in_time.iso8601(0)
     }
-  end
-
-  # Determines whether or not user signed out of MHV (MHV initiated signout destroying the SSO cookie)
-  def should_signout_sso?
-    Rails.logger.info('SSO: ApplicationController#should_signout_sso?', sso_logging_info)
-    return false unless Settings.sso.cookie_enabled
-    return false unless Settings.sso.cookie_signout_enabled
-    cookies[Settings.sso.cookie_name].blank? && request.host.match(Settings.sso.cookie_domain)
   end
 
   # Info for logging purposes related to SSO.
