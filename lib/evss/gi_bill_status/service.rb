@@ -27,6 +27,7 @@ module EVSS
         if within_scheduled_uptime?
           current_time = get_current_time
           end_hour = current_time.saturday? ? OPERATING_HOURS[:saturday_end] : OPERATING_HOURS[:end]
+
           Time.new(
             current_time.year,
             current_time.month,
