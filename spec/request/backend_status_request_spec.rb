@@ -33,6 +33,12 @@ RSpec.describe 'Backend Status', type: :request do
         expect(json['data']['attributes']['is_available']).to eq(false)
         expect(json['data']['attributes']['name']).to eq('gibs')
       end
+
+      it 'returns 0 as number of seconds until next downtime' do
+        get v0_backend_status_url('gibs'), nil, auth_header
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['uptime_remaining']).to eq(0)
+      end
     end
   end
 
@@ -45,11 +51,17 @@ RSpec.describe 'Backend Status', type: :request do
         get v0_backend_status_url('gibs'), nil, auth_header
         expect(response).to have_http_status(:ok)
       end
-      it 'indicates the service is unavailable' do
+      it 'indicates the service is available' do
         get v0_backend_status_url('gibs'), nil, auth_header
         json = JSON.parse(response.body)
         expect(json['data']['attributes']['is_available']).to eq(true)
         expect(json['data']['attributes']['name']).to eq('gibs')
+      end
+
+      it 'returns number of seconds until next downtime' do
+        get v0_backend_status_url('gibs'), nil, auth_header
+        json = JSON.parse(response.body)
+        expect(json['data']['attributes']['uptime_remaining']).to eq(57_600)
       end
     end
   end
