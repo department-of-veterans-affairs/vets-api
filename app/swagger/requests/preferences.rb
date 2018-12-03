@@ -46,7 +46,9 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              key :'$ref', :Preferences
+              property :data, type: :array do
+                key :'$ref', :Preferences
+              end
             end
           end
 
@@ -184,13 +186,12 @@ module Swagger
       # rubocop:enable Metrics/LineLength
 
       swagger_schema :Preferences do
-        property :data, type: :object do
-          property :id, type: :string
-          property :type, type: :string
-          property :attributes, type: :object do
-            property :code, type: :string
-            property :title, type: :string
-            property :preference_choices, type: :array do
+        property :type, type: :string
+        property :attributes, type: :object do
+          property :code, type: :string
+          property :title, type: :string
+          property :preference_choices, type: :array do
+            items do
               key :'$ref', :PreferenceChoices
             end
           end
@@ -198,7 +199,8 @@ module Swagger
       end
 
       swagger_schema :PreferenceChoices do
-        property :data, type: :object do
+        key :type, :object
+        property :attributes, type: :object do
           property :code, type: :string
           property :description, type: :string
         end
