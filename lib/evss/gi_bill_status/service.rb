@@ -53,7 +53,7 @@ module EVSS
       end
 
       def self.current_time
-        @time ||= Time.now.in_time_zone(OPERATING_ZONE)
+        Time.now.in_time_zone(OPERATING_ZONE)
       end
 
       private_class_method :current_time
