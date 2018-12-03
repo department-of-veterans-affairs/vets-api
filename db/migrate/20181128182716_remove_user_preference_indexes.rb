@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RemoveUserPreferenceIndexes < ActiveRecord::Migration
   def change
     remove_index(:user_preferences, :account_id)
