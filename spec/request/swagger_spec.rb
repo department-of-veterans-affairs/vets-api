@@ -1329,6 +1329,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'preferences' do
+      let(:preference) { create(:preference) }
+      let(:route) { '/v0/user/preferences/choices' }
+
+      it 'supports getting preference data' do
+        expect(subject).to validate(:get, route, 200, auth_options)
+        expect(subject).to validate(:get, route, 401)
+        expect(subject).to validate(:get, "#{route}/{code}", 200, auth_options.merge('code' => preference.code))
+        expect(subject).to validate(:get, "#{route}/{code}", 401, 'code' => preference.code)
+        expect(subject).to validate(:get, "#{route}/{code}", 404, auth_options.merge('code' => 'wrong'))
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)

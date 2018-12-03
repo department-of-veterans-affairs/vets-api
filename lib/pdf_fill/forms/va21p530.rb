@@ -341,15 +341,6 @@ module PdfFill
         }
       end
 
-      def expand_checkbox_as_hash(hash, key)
-        value = hash.try(:[], key)
-        return if value.blank?
-
-        hash['checkbox'] = {
-          value => true
-        }
-      end
-
       def expand_checkbox_in_place(hash, key)
         hash.merge!(expand_checkbox(hash[key], StringHelpers.capitalize_only(key)))
       end
