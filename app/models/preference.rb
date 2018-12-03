@@ -12,7 +12,7 @@ class Preference < ActiveRecord::Base
 
   alias choices preference_choices
 
-  scope :with_code, ->(codes) { where(code: codes) }
+  scope :with_codes, ->(codes) { where(code: codes) }
 
   def self.with_choices(code)
     preference = find_by code: code

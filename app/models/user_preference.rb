@@ -15,7 +15,7 @@ class UserPreference < ActiveRecord::Base
   def self.for_preference_and_account(account_id, preference_codes)
     UserPreference
       .joins(:preference)
-      .merge(Preference.with_code(preference_codes))
+      .merge(Preference.with_codes(preference_codes))
       .for_account(account_id)
   end
 end
