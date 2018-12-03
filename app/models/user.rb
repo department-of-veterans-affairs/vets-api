@@ -48,7 +48,7 @@ class User < Common::RedisStore
   # @return [Account] an instance of the Account object
   #
   def account
-    Account.find_by(idme_uuid: uuid) if Settings.account.enabled
+    Account.find_by(idme_uuid: uuid)
   end
 
   def pciu_email
