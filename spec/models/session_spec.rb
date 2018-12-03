@@ -24,12 +24,6 @@ RSpec.describe Session, type: :model do
       expect(subject.persisted?).to be_falsey
     end
 
-    context 'without a user match' do
-      it '#cookie_data returns {}' do
-        expect(subject.cookie_data(nil)).to eq(nil)
-      end
-    end
-
     context 'with a matching user' do
       let(:start_time) { Time.current.utc }
       let(:expry_time) { start_time + 1800 }
@@ -45,16 +39,8 @@ RSpec.describe Session, type: :model do
         Timecop.return
       end
 
-      it '#cookie_data returns certain attribute for user object' do
-        expect(subject.cookie_data(user))
-          .to eq('patientIcn' => '1000123456V123456',
-                 'mhvCorrelationId' => '12345678901',
-                 'expirationTime' => expry_time.iso8601(0))
-      end
-
-      it '#cookie_data raises an exception if uuid mismatch' do
-        expect { subject.cookie_data(create(:user, :loa1, uuid: 1234)) }
-          .to raise_exception('Invalid User UUID')
+      it '#ttl_in_time returns ttl of the session' do
+        expect(subject.ttl_in_time).to eq(expry_time)
       end
     end
   end
