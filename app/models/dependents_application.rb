@@ -105,26 +105,26 @@ class DependentsApplication < Common::RedisStore
     end
   end
 
-  def self.convert_marriage(current_marriage)
+  def self.convert_marriage(current_marriage, last_marriage, spouse_marriages)
     converted = {}
     return converted if current_marriage.blank?
     converted.merge!(convert_address(current_marriage['spouseAddress']))
-    converted.merge!(convert_name(current_marriage['spouseFullName']))
+    converted.merge!(convert_name(last_marriage['spouseFullName']))
     converted.merge!(convert_no_ssn(current_marriage['spouseHasNoSsn'], current_marriage['spouseHasNoSsnReason']))
     converted.merge!(convert_ssn(current_marriage['spouseSocialSecurityNumber']))
 
     converted['dateOfBirth'] = convert_evss_date(current_marriage['spouseDateOfBirth'])
 
     converted['currentMarriage'] = {
-      'marriageDate' => convert_evss_date(current_marriage['dateOfMarriage']),
-      'city' => current_marriage['locationOfMarriage']['city'],
-      'country' => convert_country(current_marriage['locationOfMarriage']),
-      'state' => current_marriage['locationOfMarriage']['state']
+      'marriageDate' => convert_evss_date(last_marriage['dateOfMarriage']),
+      'city' => last_marriage['locationOfMarriage']['city'],
+      'country' => convert_country(last_marriage['locationOfMarriage']),
+      'state' => last_marriage['locationOfMarriage']['state']
     }
 
     converted['vaFileNumber'] = convert_ssn(current_marriage['spouseVaFileNumber'])['ssn']
     converted['veteran'] = current_marriage['spouseIsVeteran']
-    converted['previousMarriages'] = convert_previous_marriages(current_marriage['spouseMarriages'])
+    converted['previousMarriages'] = convert_previous_marriages(spouse_marriages)
 
     converted
   end
@@ -194,7 +194,11 @@ class DependentsApplication < Common::RedisStore
     dependents = parsed_form['dependents'] || []
     transformed = {}
 
-    transformed['spouse'] = convert_marriage(parsed_form['currentMarriage'])
+    transformed['spouse'] = convert_marriage(
+      parsed_form['currentMarriage'],
+      parsed_form['marriages']&.last,
+      parsed_form['spouseMarriages']
+    )
     home_address = evss_form['submitProcess']['veteran'].slice('address')
     transformed['spouse'].merge!(home_address) if parsed_form['currentMarriage'].try(:[], 'liveWithSpouse')
 
@@ -218,13 +222,21 @@ class DependentsApplication < Common::RedisStore
 
     transformed['marriageType'] = parsed_form['maritalStatus']
 
-    transformed['previousMarriages'] = convert_previous_marriages(parsed_form['previousMarriages'])
+    transformed['previousMarriages'] = convert_previous_marriages(
+      separate_previous_marriages(parsed_form['marriages'])
+    )
 
     evss_form['submitProcess']['veteran'].merge!(transformed)
 
     Common::HashHelpers.deep_compact(evss_form)
   end
   # rubocop:enable Metrics/MethodLength
+
+  def self.separate_previous_marriages(marriages)
+    marriages&.find_all do |marriage|
+      marriage['dateOfSeparation'].present?
+    end
+  end
 
   private
 

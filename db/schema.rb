@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181031155126) do
+ActiveRecord::Schema.define(version: 20181126171800) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -194,7 +194,7 @@ ActiveRecord::Schema.define(version: 20181031155126) do
   add_index "form526_opt_ins", ["user_uuid"], name: "index_form526_opt_ins_on_user_uuid", unique: true, using: :btree
 
   create_table "form526_submissions", force: :cascade do |t|
-    t.uuid     "user_uuid",                                      null: false
+    t.string   "user_uuid",                                      null: false
     t.integer  "saved_claim_id",                                 null: false
     t.integer  "submitted_claim_id"
     t.string   "encrypted_auth_headers_json",                    null: false
@@ -333,11 +333,13 @@ ActiveRecord::Schema.define(version: 20181031155126) do
   add_index "preference_choices", ["preference_id"], name: "index_preference_choices_on_preference_id", using: :btree
 
   create_table "preferences", force: :cascade do |t|
-    t.string   "code"
+    t.string   "code",       null: false
     t.string   "title"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  add_index "preferences", ["code"], name: "index_preferences_on_code", unique: true, using: :btree
 
   create_table "preneed_submissions", force: :cascade do |t|
     t.string   "tracking_number",    null: false
