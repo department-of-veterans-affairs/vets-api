@@ -35,7 +35,7 @@ module V0
     end
 
     def mhv_accounts_service
-      @mhv_accounts_service ||= MhvAccountsService.new(mhv_account)
+      @mhv_accounts_service ||= MhvAccountsService.new(mhv_account, current_user)
     end
 
     def render_account(status: :ok)

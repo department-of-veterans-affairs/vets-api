@@ -221,10 +221,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       context 'that is registered' do
         before(:each) do
-          MhvAccount.skip_callback(:initialize, :after, :setup)
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'registered', registered_at: Time.current)
-          MhvAccount.set_callback(:initialize, :after, :setup)
         end
 
         around(:each) do |example|
@@ -246,10 +244,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       context 'that is upgraded' do
         before(:each) do
-          MhvAccount.skip_callback(:initialize, :after, :setup)
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', upgraded_at: Time.current)
-          MhvAccount.set_callback(:initialize, :after, :setup)
         end
 
         around(:each) do |example|
@@ -267,10 +263,8 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
       context 'that is upgraded has registered_at but does not have upgraded at' do
         before(:each) do
-          MhvAccount.skip_callback(:initialize, :after, :setup)
           MhvAccount.create(user_uuid: user.uuid, mhv_correlation_id: mhv_ids.first,
                             account_state: 'upgraded', registered_at: Time.current, upgraded_at: nil)
-          MhvAccount.set_callback(:initialize, :after, :setup)
         end
 
         around(:each) do |example|

@@ -25,22 +25,19 @@ RSpec.describe Session, type: :model do
     end
 
     context 'without a user match' do
-      it '#user returns nil' do
-        expect(subject.user).to eq(nil)
-      end
-
       it '#cookie_data returns {}' do
-        expect(subject.cookie_data).to eq(nil)
+        expect(subject.cookie_data(nil)).to eq(nil)
       end
     end
 
     context 'with a matching user' do
       let(:start_time) { Time.current.utc }
       let(:expry_time) { start_time + 1800 }
+      let(:user) { create(:user, :mhv, uuid: attributes[:uuid]) }
 
       before(:each) do
         Timecop.freeze(start_time)
-        create(:user, :mhv, uuid: attributes[:uuid])
+        user
         subject.save # persisting it to freeze the ttl
       end
 
@@ -48,15 +45,16 @@ RSpec.describe Session, type: :model do
         Timecop.return
       end
 
-      it '#user returns a matching user object' do
-        expect(subject.user).to be_a(User)
-      end
-
       it '#cookie_data returns certain attribute for user object' do
-        expect(subject.cookie_data)
+        expect(subject.cookie_data(user))
           .to eq('patientIcn' => '1000123456V123456',
                  'mhvCorrelationId' => '12345678901',
                  'expirationTime' => expry_time.iso8601(0))
+      end
+
+      it '#cookie_data raises an exception if uuid mismatch' do
+        expect { subject.cookie_data(create(:user, :loa1, uuid: 1234)) }
+          .to raise_exception('Invalid User UUID')
       end
     end
   end
