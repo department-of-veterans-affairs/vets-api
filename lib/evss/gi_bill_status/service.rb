@@ -27,13 +27,9 @@ module EVSS
         if within_scheduled_uptime?
           current_time = get_current_time
           end_hour = current_time.saturday? ? OPERATING_HOURS[:saturday_end] : OPERATING_HOURS[:end]
-
-          Time.new(
-            current_time.year,
-            current_time.month,
-            current_time.day,
-            end_hour
-          ).in_time_zone(OPERATING_ZONE) - current_time
+          tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
+          service_end_time = tz.parse(tz.today.to_s + ' ' + end_hour.to_s + ':00:00')
+          service_end_time - current_time
         else
           0
         end
