@@ -7,7 +7,7 @@ module Gibft
     CONSUMER_KEY = Settings['salesforce-gibft'].consumer_key
     SIGNING_KEY_PATH = Settings['salesforce-gibft'].signing_key_path
     SALESFORCE_USERNAMES = {
-      'prod' => 'vetsgov-devops@listserv.gsa.gov',
+      'prod' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov',
       'uat' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.uat',
       'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.rdtcdsit'
     }.freeze
