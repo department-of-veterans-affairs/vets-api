@@ -14,7 +14,6 @@ module Facilities
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/GlobalFunctions/GlobalFunctions_ProviderLocator
     def provider_locator(params)
       qparams = build_params(params)
-      Rails.logger.info(qparams)
       response = perform(:get, 'v1.0/ProviderLocator?', qparams)
       return [] if response.body.nil?
       bbox_num = params[:bbox].map { |x| Float(x) }
@@ -35,9 +34,9 @@ module Facilities
       Provider.new response.body[0]
     end
 
-    def provider_caresites
-      response = perform(:get, "v1.0/Providers(#{identifier})/CareSites")
-      response
+    def provider_caresites(identifier)
+      response = perform(:get, "v1.0/Providers(#{identifier})/CareSites", {})
+      response.body
     end
 
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0

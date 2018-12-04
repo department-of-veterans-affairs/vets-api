@@ -13,7 +13,7 @@ class V0::Facilities::VaController < FacilitiesController
   # @param services - Optional specialty services filter
   def index
     # this first return is temporary for the rollout of provider locator to staging
-    return facilities unless Settings.locators.providers_enabled
+    # return facilities unless Settings.locators.providers_enabled
 
     return facilities if BaseFacility::TYPES.include?(params[:type]) || params[:address].nil?
     return provider_locator if params[:type] == 'cc_provider'
@@ -100,6 +100,7 @@ class V0::Facilities::VaController < FacilitiesController
 
   def validate_params
     super
+    params.delete(:type) if params[:type] == 'all'
     validate_no_services_without_type
     validate_type_and_services_known unless params[:type].nil?
   end
