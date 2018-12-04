@@ -51,7 +51,7 @@ RSpec.describe 'Backend Status', type: :request do
           expect(json['data']['attributes']['is_available']).to eq(true)
           expect(json['data']['attributes']['name']).to eq('gibs')
         end
-  
+
         it 'returns number of seconds until next downtime' do
           get v0_backend_status_url('gibs'), nil, auth_header
           json = JSON.parse(response.body)
