@@ -289,7 +289,7 @@ oidc:
   auth_server_metadata_url: ~
   issuer: ~
   audience: ~
-  base_api_url: ~
+  base_api_url: https://example.com
   base_api_token: ~
 
 sentry:
@@ -326,9 +326,6 @@ faraday_socks_proxy:
   uri: socks5://localhost:2002
 
 google_analytics_tracking_id: ~
-
-account:
-  enabled: false
 
 # Settings for search
 search:
