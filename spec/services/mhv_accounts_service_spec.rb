@@ -48,8 +48,10 @@ RSpec.describe MhvAccountsService do
   end
 
   describe 'account creation and upgrade' do
-    let(:mhv_account) { MhvAccount.new(user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id) }
-    subject { described_class.new(mhv_account) }
+    let(:mhv_account) do
+      MhvAccount.new(user_uuid: user.uuid, mhv_correlation_id: user.mhv_correlation_id).tap { |m| m.user = user }
+    end
+    subject { described_class.new(mhv_account, user) }
 
     context 'account creation' do
       it 'handles failure to create' do
