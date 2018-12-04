@@ -19,7 +19,7 @@ module EVSS
         translate_treatments
         translate_disabilities
 
-        @form_content.compact.to_json
+        @form_content.compact
       end
 
       private
@@ -160,10 +160,10 @@ module EVSS
       # All claims will switch to including the direct deposit info in the payload
       def can_set_direct_deposit?(account)
         return unless account
-        return unless account.account_type
-        return unless account.account_number
-        return unless account.financial_institution_routing_number
-        return unless account.financial_institution_name
+        return if account.account_type.blank?
+        return if account.account_number.blank?
+        return if account.financial_institution_routing_number.blank?
+        return if account.financial_institution_name.blank?
         true
       end
 

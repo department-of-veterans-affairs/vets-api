@@ -20,6 +20,18 @@ class ProviderSerializer < ActiveModel::Serializer
       zip: object.AddressPostalCode }
   end
 
+  def lat
+    object.Latitude
+  end
+
+  def long
+    object.Longitude
+  end
+
+  def email
+    object.Email
+  end
+
   def phone
     object.MainPhone
   end
@@ -41,9 +53,12 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def specialty
-    object.ProviderSpecialties.map { |specialty| specialty['SpecialtyName'] }
+    object.ProviderSpecialties.map do |specialty|
+      { name: specialty['SpecialtyName'],
+        desc: specialty['SpecialtyDescription'] }
+    end
   end
 
-  attributes :unique_id, :name, :address, :phone, :fax,
+  attributes :unique_id, :name, :address, :email, :phone, :fax, :lat, :long,
              :pref_contact, :acc_new_patients, :gender, :specialty
 end

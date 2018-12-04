@@ -83,6 +83,11 @@ module Common
       @persisted = true
     end
 
+    def update_attributes!(attributes_hash)
+      self.attributes = attributes_hash
+      save!
+    end
+
     def save!
       raise Common::Exceptions::ValidationErrors, self unless save
     end

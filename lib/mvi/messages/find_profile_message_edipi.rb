@@ -22,6 +22,8 @@ module MVI
       def build_parameter_list
         el = element('parameterList')
         el << element('id', root: '2.16.840.1.113883.3.42.10001.100001.12', extension: @edipi)
+        el << build_vba_orchestration if Settings.mvi.vba_orchestration
+        el
       end
     end
   end

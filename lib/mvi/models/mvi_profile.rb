@@ -15,6 +15,7 @@ module MVI
       attribute :ssn, String
       attribute :address, MviProfileAddress
       attribute :home_phone, String
+      attribute :full_mvi_ids, Array[String]
       attribute :icn, String
       attribute :icn_with_aaid, String
       attribute :mhv_ids, Array[String]

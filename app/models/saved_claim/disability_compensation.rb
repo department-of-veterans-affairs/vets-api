@@ -12,7 +12,19 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   alias_attribute :submission, :disability_compensation_submission
 
-  attr_writer :form_hash
+  attr_accessor :form_hash
+
+  FORM_526 = 'form526'
+  FORM_526_UPLOADS = 'form526_uploads'
+  FORM_4142 = 'form4142'
+  FORM_0781 = 'form0781'
+
+  # For backwards compatibility, FORM constant needs to be set
+  # subclasses will overwrite this constant when using `add_form_and_validation`
+  const_set('FORM', '21-526EZ')
+
+  # Defined for all claims in parent class as `increased only` is being deprecated
+  TRANSLATION_CLASS = EVSS::DisabilityCompensationForm::DataTranslationAllClaim
 
   def self.from_hash(hash)
     saved_claim = new(form: hash['form526'].to_json)
@@ -20,6 +32,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
     saved_claim
   end
 
+  # TODO(AJD): this could move to Form526Submission so constants aren't duplicated
   def to_submission_data(user)
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
     form0781 = EVSS::DisabilityCompensationForm::Form0781.new(user, @form_hash.deep_dup).translate
@@ -29,19 +42,18 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
     form526_uploads = form526['form526'].delete('attachments')
 
-    # TODO: #translate_data can be removed once `increase only` has been deprecated
     {
-      'form526' => translate_data(user, form526),
-      'form526_uploads' => form526_uploads,
-      'form4142' => form4142,
-      'form0781' => form0781
-    }
+      FORM_526 => translate_data(user, form526),
+      FORM_526_UPLOADS => form526_uploads,
+      FORM_4142 => form4142,
+      FORM_0781 => form0781
+    }.to_json
   end
 
   private
 
-  def translate_data(_user, _form526)
-    raise NotImplementedError, 'Subclass of DisabilityCompensation must implement #translate_data'
+  def translate_data(user, form526)
+    self.class::TRANSLATION_CLASS.new(user, form526).translate
   end
 
   def append_overflow_text(form526)

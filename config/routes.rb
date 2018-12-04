@@ -60,7 +60,11 @@ Rails.application.routes.draw do
       end
     end
 
-    resource :dependents_applications, only: [:create]
+    resources :dependents_applications, only: %i[create show] do
+      collection do
+        get(:disability_rating)
+      end
+    end
 
     if Settings.central_mail.upload.enabled
       resources :pension_claims, only: %i[create show]
@@ -228,11 +232,12 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
+    resources :preferences, only: %i[show index], path: 'user/preferences/choices', param: :code
+
     [
       'profile',
       'dashboard',
       'veteran_id_card',
-      'claim_increase',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
@@ -245,6 +250,10 @@ Rails.application.routes.draw do
   end
 
   root 'v0/example#index', module: 'v0'
+
+  scope '/internal' do
+    mount OpenidAuth::Engine, at: '/auth'
+  end
 
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
@@ -262,4 +271,3 @@ Rails.application.routes.draw do
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
 end
-# rubocop:enable Metrics/BlockLength

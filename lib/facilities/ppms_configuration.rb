@@ -15,10 +15,21 @@ module Facilities
     def service_name
       'FL'
     end
+    # ppms has strange behavior for certain url-encoded characters, no url-encoding works best
+    class DoNotEncoder
+      def self.encode(params)
+        buffer = +''
+        params.each do |key, value|
+          buffer << "#{key}=#{value}&"
+        end
+        buffer.chop
+      end
+    end
 
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
+        conn.options.params_encoder = DoNotEncoder
 
         # Uncomment this if you want curl command equivalent or response output to log
         # conn.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
