@@ -22,7 +22,7 @@ module SAML
     def initialize(saml_settings, session: nil, user: nil)
       if session.present?
         @session = session
-        @authn_context = session&.user&.authn_context || user&.authn_context
+        @authn_context = user&.authn_context
       end
       @saml_settings = saml_settings
     end
