@@ -120,7 +120,9 @@ module VBADocuments
     end
 
     def report_errors
-      StatsD.increment VBADocuments::UploadError::STATSD_UPLOAD_SUBMISSION_FAIL_KEY, tags: ["status:#{code}"] if status_changed? && status == 'error'
+      key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
+      StatsD.increment key, tags: ["status:#{code}"] if status_changed? && status == 'error'
     end
+
   end
 end
