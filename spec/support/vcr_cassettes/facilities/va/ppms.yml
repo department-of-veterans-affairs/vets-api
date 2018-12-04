@@ -65,6 +65,69 @@ http_interactions:
   recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
 - request:
     method: get
+    uri: !ruby/regexp /CareSites/
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Date:
+      - Fri, 27 Jul 2018 21:30:16 GMT
+      Server:
+      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
+      X-Frame-Options:
+      - SAMEORIGIN
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains
+      - max-age=31536000; includeSubdomains
+      X-Powered-By:
+      - Express
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Methods:
+      - GET
+      - OPTIONS
+      - POST
+      - PUT
+      Access-Control-Allow-Headers:
+      - Content-Length
+      - Content-Type
+      - x-contact
+      - x-cull
+      - x-forward-for
+      - x-id
+      - x-token
+      - x-token2
+      - x-username
+      Content-Type:
+      - text/html; charset=utf-8
+      Content-Length:
+      - '50'
+      Etag:
+      - W/"32-5e15861"
+      Vary:
+      - Accept-Encoding
+      X-Xss-Protection:
+      - 1; mode=block
+    body:
+      encoding: UTF-8
+      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#CareSites","value":[{"Name": "123 Main Street, Manassas, VA, 20111", "Id":"62bdd2b1-9dd1-e8111-12346324daqe4", "Latitude":38.8, "Longitude": -76.6, "Street": "123 Main Street"}]}'
+    http_version: 
+  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
+- request:
+    method: get
     uri: !ruby/regexp /Providers/
     body:
       encoding: US-ASCII
@@ -187,69 +250,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#Specialties","value":[{"SpecialtyCode":"101Y00000X","Name":"Counselor   ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":null,"SpecialtyDescription":"A provider who is trained and educated in the performance of behavior health services through interpersonal communications and analysis. Training and education at the specialty level usually requires a master\u2019s degree and clinical experience and supervision for licensure or certification."},{"SpecialtyCode":"101YA0400X","Name":"Counselor - Addiction (Substance Use Disorder) ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Addiction (Substance Use Disorder)","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YM0800X","Name":"Counselor - Mental Health ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Mental Health","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP1600X","Name":"Counselor - Pastoral ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Pastoral","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YP2500X","Name":"Counselor - Professional ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"Professional","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"101YS0200X","Name":"Counselor - School ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Counselor","Specialization":"School","SpecialtyDescription":"Definition to come..."},{"SpecialtyCode":"102L00000X","Name":"Psychoanalyst   ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Psychoanalyst","Specialization":null,"SpecialtyDescription":"Psychoanalysis is a comprehensive, theoretical framework which, when applied to a treatment process, consists of an intensive verbal, therapeutic relationship between an analyst and an analysand which aims for symptom relief, emotional growth, and personal integration. The psychoanalytic treatment process includes, but is not limited to, the recognition of unconscious processes and conflicts; the significance of developmental influences; and the impact of resistances, defenses, transference and countertransference phenomena. Treatment is enhanced by an understanding developed in the analyst\u2019s training and personal analysis of unconscious manifestations, such as dreams, slips of the tongue, fantasies and day dreams. Psychoanalytic technique varies in relation to theoretical orientation."},{"SpecialtyCode":"102X00000X","Name":"Poetry Therapist   ","Grouping":"Behavioral Health & Social Service Providers","Classification":"Poetry Therapist","Specialization":null,"SpecialtyDescription":"A medical or mental health professional who has attained credentials after satisfactorily completing a poetry therapy training program approved by the National Federation for Biblio/Poetry Therapy (NFBPT). Training includes didactic work, peer group experience, and supervised practicum.  An NFBPT credentialed certified poetry therapist (CPT) or registered poetry therapist (PTR) integrates discussion of published literature and reflective or creative writing into the psychotherapeutic process to achieve goals of emotional well-being, symptom reduction, and improved interpersonal communication.  Certified poetry therapists and registered poetry therapists are licensed mental health professionals with advanced training in the theory and practice of poetry therapy. CPTs and PTRs are qualified to work independently with emotionally troubled populations in clinical, rehabilitative, community and educational institutions. They also work with emotionally healthy individuals adjusting to developmental issues, life crises, or disabilities. The PTR completes an advanced level of training and fieldwork, commensurate with the highest levels of clinical practice. The terms poetry therapy, applied poetry facilitation, journal therapy, bibliotherapy, biblio/poetry therapy, and poetry/journal therapy reflect the interactive use of literature and/or writing to promote personal growth and emotional healing. In addition to poetry, poetry therapy applies all forms or written and spoken language including story, myth, folk and fairy tale and other genres of poetic expression as well as journal, memoir, and narrative. The poetry therapy process integrates discussion of published literature and reflective or creative writing for expression and communication of thoughts and feelings to facilitate participants emotional well-being. The field of poetry therapy encompasses all of these modalities, though only a duly trained and licensed clinical practitioner can be credentialed as CPT or PTR."}]}'
-    http_version: 
-  recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
-- request:
-    method: get
-    uri: !ruby/regexp /CareSites/
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Fri, 27 Jul 2018 21:30:16 GMT
-      Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips PHP/5.6.25
-      X-Frame-Options:
-      - SAMEORIGIN
-      Strict-Transport-Security:
-      - max-age=31536000; includeSubDomains
-      - max-age=31536000; includeSubdomains
-      X-Powered-By:
-      - Express
-      Access-Control-Allow-Origin:
-      - "*"
-      Access-Control-Allow-Methods:
-      - GET
-      - OPTIONS
-      - POST
-      - PUT
-      Access-Control-Allow-Headers:
-      - Content-Length
-      - Content-Type
-      - x-contact
-      - x-cull
-      - x-forward-for
-      - x-id
-      - x-token
-      - x-token2
-      - x-username
-      Content-Type:
-      - text/html; charset=utf-8
-      Content-Length:
-      - '50'
-      Etag:
-      - W/"32-5e15861"
-      Vary:
-      - Accept-Encoding
-      X-Xss-Protection:
-      - 1; mode=block
-    body:
-      encoding: UTF-8
-      string: '{"@odata.context":"https://dev.dws.ppms.va.gov/v1.0/$metadata#CareSites","value":[{"Name": "123 Main Street, Manassas, VA, 20111", "Id":"62bdd2b1-9dd1-e8111-12346324daqe4", "Latitude":38.8, "Longitude": -76.6, "Street": "123 Main Street"}]}'
     http_version: 
   recorded_at: Fri, 27 Jul 2018 21:30:16 GMT
 recorded_with: VCR 3.0.3
