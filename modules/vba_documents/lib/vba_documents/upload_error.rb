@@ -17,7 +17,7 @@ module VBADocuments
     DOC201 = 'Upload server error. Request will be retried when upstream service is available.'
     DOC202 = 'Error during processing by downstream system'
 
-    STATSD_PREFIX = 'VBADocument_UploadSubmission'
+    STATSD_UPLOAD_SUBMISSION_FAIL_KEY = 'api.vba.document_upload.fail'
 
     def initialize(message = nil, code: nil, detail: nil)
       if message.nil?
@@ -31,7 +31,7 @@ module VBADocuments
       @code = code
       @detail = detail
 
-      StatsD.increment STATSD_PREFIX, tags: ["status:#{code}"]
+      StatsD.increment STATSD_UPLOAD_SUBMISSION_FAIL_KEY, tags: ["status:#{code}"]
     end
   end
 end
