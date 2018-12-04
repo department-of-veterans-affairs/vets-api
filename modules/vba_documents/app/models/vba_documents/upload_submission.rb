@@ -123,6 +123,5 @@ module VBADocuments
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
       StatsD.increment key, tags: ["status:#{code}"] if status_changed? && status == 'error'
     end
-
   end
 end
