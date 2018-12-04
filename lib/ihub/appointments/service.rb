@@ -51,7 +51,7 @@ module IHub
       rescue StandardError => error
         Raven.extra_context(
           message: error.message,
-          url: confib.base_path
+          url: config.base_path
         )
         Raven.tags_context(ihub: 'appointments')
 
