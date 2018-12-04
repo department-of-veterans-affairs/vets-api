@@ -104,15 +104,6 @@ module AuthenticationAndSSOConcerns
     }
   end
 
-  sign_in:  { type: SIGN_IN_TYPE, initial_loa: INITIAL_LOA }
-  idp:      { name: IDP, identity_proofed: BOOLEAN, highest_loa: HIGHEST_LOA }
-
-  SIGN_IN_TYPE is either 'MHV', 'DS LOGON', or 'ID.me'
-  INITIAL_LOA is either 1 or 3 (corresponding to Basic/Advanced or Premium for MHV)
-  IDP is always ID.me for now
-  BOOLEAN is true or false
-  HIGHEST_LOA is null or 3 (corresponding to not identity proofed or identity proofed)
-
   # The contents of MHV SSO Cookie with specifications found here:
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def sso_cookie_content

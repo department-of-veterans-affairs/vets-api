@@ -20,8 +20,9 @@ class ApplicationController < ActionController::API
     Common::Exceptions::SentryIgnoredGatewayTimeout
   ].freeze
 
-  # See Also AuthenticationAndSSOConcerns for more before filters
+
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
+  # See Also AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   before_action :set_tags_and_extra_context
 
