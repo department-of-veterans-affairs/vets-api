@@ -233,6 +233,7 @@ Rails.application.routes.draw do
     end
 
     resources :preferences, only: %i[show index], path: 'user/preferences/choices', param: :code
+    resources :user_preferences, only: :create, path: 'user/preferences'
 
     [
       'profile',
