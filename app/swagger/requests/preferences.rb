@@ -18,7 +18,9 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               property :data, type: :array do
-                key :'$ref', :Preferences
+                items do
+                  key :'$ref', :Preferences
+                end
               end
             end
           end
@@ -46,9 +48,7 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              property :data, type: :array do
-                key :'$ref', :Preferences
-              end
+              key :'$ref', :Preferences
             end
           end
 
