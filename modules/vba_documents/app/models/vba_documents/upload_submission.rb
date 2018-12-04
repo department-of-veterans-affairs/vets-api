@@ -6,7 +6,6 @@ module VBADocuments
     include SentryLogging
 
     IN_FLIGHT_STATUSES = %w[received processing].freeze
-    STATSD_PREFIX = 'VBADocument_UploadSubmission'
 
     after_save :report_errors
 
@@ -121,7 +120,7 @@ module VBADocuments
     end
 
     def report_errors
-      StatsD.increment STATSD_PREFIX, tags: ["status:#{code}"] if status_changed? && status == 'error'
+      StatsD.increment VBADocuments::UploadError::STATSD_UPLOAD_SUBMISSION_FAIL_KEY, tags: ["status:#{code}"] if status_changed? && status == 'error'
     end
   end
 end
