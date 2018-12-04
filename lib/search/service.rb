@@ -86,7 +86,7 @@ module Search
       case error
       when Common::Client::Errors::ClientError
         message = parse_messages(error).first
-        log_error_message(message)
+        save_error_details(message)
         raise_backend_exception('SEARCH_429', self.class, error) if error.status == 429
         raise_backend_exception('SEARCH_400', self.class, error) if error.status >= 400
       else
@@ -98,13 +98,12 @@ module Search
       error.body&.dig('errors')
     end
 
-    def log_error_message(error_message)
-      log_message_to_sentry(
-        error_message,
-        :error,
-        { url: config.base_path },
-        search: 'general_search_query_error'
+    def save_error_details(error_message)
+      Raven.extra_context(
+        message: error_message,
+        url: config.base_path
       )
+      Raven.tags_context(search: 'general_search_query_error')
     end
 
     def raise_backend_exception(key, source, error = nil)
