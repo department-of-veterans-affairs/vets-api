@@ -54,7 +54,7 @@ module Facilities
       xlen = (lats.max - lats.min) * 69 / 2
       ylen = (longs.max - longs.min) * 69 / 2
       specialty = 'null'
-      specialty = params[:services][0] unless params[:services].nil?
+      specialty = "'#{params[:services][0]}'" unless params[:services].nil?
       radius = Math.sqrt(xlen * xlen + ylen * ylen) * 1.1 # go a little bit beyond the corner;
       { address: "'#{params[:address]}'", radius: radius, driveTime: 10_000,
         specialtycode1: specialty, specialtycode2: 'null', specialtycode3: 'null',
