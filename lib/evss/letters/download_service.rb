@@ -25,10 +25,9 @@ module EVSS
           when 404
             raise Common::Exceptions::RecordNotFound, type
           else
-            log_message_to_sentry(
-              'EVSS letter generation failed', :error, extra_context: {
-                url: config.base_path, body: response.body
-              }
+            Raven.extra_context(
+              url: config.base_path,
+              body: response.body
             )
             raise_backend_exception('EVSS502', 'Letters')
           end
