@@ -23,10 +23,6 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   # subclasses will overwrite this constant when using `add_form_and_validation`
   const_set('FORM', '21-526EZ')
 
-  # For backwards compatibility, FORM constant needs to be set
-  # subclasses will overwrite this constant when using `add_form_and_validation`
-  const_set('FORM', '21-526EZ')
-
   # Defined for all claims in parent class as `increased only` is being deprecated
   TRANSLATION_CLASS = EVSS::DisabilityCompensationForm::DataTranslationAllClaim
 
