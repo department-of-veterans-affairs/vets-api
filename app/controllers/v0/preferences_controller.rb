@@ -6,8 +6,7 @@ module V0
 
     def index
       results = Preference.all
-      render json: results,
-             each_serializer: PreferenceSerializer
+      render json: results.to_a, serializer: PreferenceSerializer
     end
 
     def show
