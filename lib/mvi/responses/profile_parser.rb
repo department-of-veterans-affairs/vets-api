@@ -89,6 +89,7 @@ module MVI
       # rubocop:disable MethodLength
       def build_mvi_profile(patient)
         name = parse_name(get_patient_name(patient))
+        full_mvi_ids = get_extensions(patient.locate('id'))
         correlation_ids = MVI::Responses::IdParser.new.parse(patient.locate('id'))
         log_inactive_mhv_ids(correlation_ids[:mhv_ids].to_a, correlation_ids[:active_mhv_ids].to_a)
         MVI::Models::MviProfile.new(
@@ -100,10 +101,11 @@ module MVI
           ssn: parse_ssn(locate_element(patient, SSN_XPATH)),
           address: parse_address(patient),
           home_phone: parse_phone(patient),
+          full_mvi_ids: full_mvi_ids,
           icn: correlation_ids[:icn],
           mhv_ids: correlation_ids[:mhv_ids],
           active_mhv_ids: correlation_ids[:active_mhv_ids],
-          edipi: correlation_ids[:edipi],
+          edipi: sanitize_edipi(correlation_ids[:edipi]),
           participant_id: correlation_ids[:vba_corp_id],
           vha_facility_ids: correlation_ids[:vha_facility_ids],
           sec_id: correlation_ids[:sec_id],
@@ -114,6 +116,12 @@ module MVI
         )
       end
       # rubocop:enable MethodLength
+
+      def get_extensions(id_array)
+        id_array.map do |id_object|
+          id_object.attributes[:extension]
+        end
+      end
 
       def log_inactive_mhv_ids(mhv_ids, active_mhv_ids)
         return if mhv_ids.blank?
@@ -133,6 +141,14 @@ module MVI
 
       def get_patient_name(patient)
         locate_element(patient, NAME_XPATH)
+      end
+
+      def sanitize_edipi(edipi)
+        return if edipi.nil?
+        # Get rid of invalid values like 'UNK'
+        sanitized_result = edipi.match(/\d{10}/)&.to_s
+        Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
+        sanitized_result
       end
 
       # name can be a hash or an array of hashes with extra unneeded details

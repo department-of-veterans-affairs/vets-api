@@ -7,7 +7,7 @@ module SAML
       'https://api.vets.gov' => { base_redirect: 'https://www.vets.gov' },
       'https://staging-api.vets.gov' => { base_redirect: 'https://staging.vets.gov' },
       'https://dev-api.vets.gov' => { base_redirect: 'https://dev.vets.gov' },
-      'https://api.va.gov' => { base_redirect: 'https://preview.va.gov' },
+      'https://api.va.gov' => { base_redirect: 'https://www.va.gov' },
       'https://staging-api.va.gov' => { base_redirect: 'https://staging.va.gov' },
       'https://dev-api.va.gov' => { base_redirect: 'https://dev.va.gov' },
       'http://localhost:3000' => { base_redirect: 'http://localhost:3001' },
@@ -22,7 +22,7 @@ module SAML
     def initialize(saml_settings, session: nil, user: nil)
       if session.present?
         @session = session
-        @authn_context = session&.user&.authn_context || user&.authn_context
+        @authn_context = user&.authn_context
       end
       @saml_settings = saml_settings
     end

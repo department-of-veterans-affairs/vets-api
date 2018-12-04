@@ -404,24 +404,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         end
       end
 
-      it 'supports getting submission status' do
-        job_id = SecureRandom.uuid
-        create(:va526ez_submit_transaction,
-               transaction_id: job_id,
-               transaction_status: 'submitted',
-               metadata: {})
-        expect(subject).to validate(
-          :get,
-          '/v0/disability_compensation_form/submission_status/{job_id}',
-          401,
-          'job_id' => job_id
-        )
-        expect(subject).to validate(
-          :get,
-          '/v0/disability_compensation_form/submission_status/{job_id}',
-          200,
-          auth_options.merge('job_id' => job_id)
-        )
+      context 'with a submission and job status' do
+        let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
+        let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
+
+        it 'supports getting submission status' do
+          expect(subject).to validate(
+            :get,
+            '/v0/disability_compensation_form/submission_status/{job_id}',
+            401,
+            'job_id' => job_status.job_id
+          )
+          expect(subject).to validate(
+            :get,
+            '/v0/disability_compensation_form/submission_status/{job_id}',
+            200,
+            auth_options.merge('job_id' => job_status.job_id)
+          )
+        end
       end
     end
 
@@ -1329,6 +1329,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
     end
 
+    describe 'preferences' do
+      let(:preference) { create(:preference) }
+      let(:route) { '/v0/user/preferences/choices' }
+
+      it 'supports getting preference data' do
+        expect(subject).to validate(:get, route, 200, auth_options)
+        expect(subject).to validate(:get, route, 401)
+        expect(subject).to validate(:get, "#{route}/{code}", 200, auth_options.merge('code' => preference.code))
+        expect(subject).to validate(:get, "#{route}/{code}", 401, 'code' => preference.code)
+        expect(subject).to validate(:get, "#{route}/{code}", 404, auth_options.merge('code' => 'wrong'))
+      end
+    end
+
     describe 'profiles' do
       it 'supports getting email address data' do
         expect(subject).to validate(:get, '/v0/profile/email', 401)
@@ -1694,13 +1707,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports getting connected applications' do
-        with_settings(
-          Settings.oidc,
-          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-          issuer: 'https://example.com/oauth2/default',
-          base_api_url: 'https://example.com/api/v1/',
-          base_api_token: 'token'
-        ) do
+        with_okta_configured do
           expect(subject).to validate(:get, '/v0/profile/connected_applications', 401)
           VCR.use_cassette('okta/grants') do
             expect(subject).to validate(:get, '/v0/profile/connected_applications', 200, auth_options)
@@ -1709,13 +1716,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports removing connected applications grants' do
-        with_settings(
-          Settings.oidc,
-          auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/oauth-authorization-server',
-          issuer: 'https://example.com/oauth2/default',
-          base_api_url: 'https://example.com/api/v1/',
-          base_api_token: 'token'
-        ) do
+        with_okta_configured do
           params = { 'application_id' => '0oa2ey2m6kEL2897N2p7' }
           expect(subject).to validate(:delete, '/v0/profile/connected_applications/{application_id}', 401, params)
           VCR.use_cassette('okta/delete_grants') do

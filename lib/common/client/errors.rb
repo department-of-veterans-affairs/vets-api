@@ -20,13 +20,13 @@ module Common
       class NotAuthenticated < ClientError; end
       class Serialization < ClientError; end
       class ParsingError < ClientError; end
-      class HTTPError < ClientError
-        attr_accessor :code
 
-        def initialize(message = nil, code = nil)
-          super(message)
-          @code = code
+      class HTTPError < ClientError
+        def initialize(message = nil, status = nil, body = nil)
+          super
         end
+
+        alias code status
       end
     end
   end

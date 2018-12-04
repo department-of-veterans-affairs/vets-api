@@ -14,14 +14,17 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
       let(:form_content) do
         JSON.parse(File.read('spec/support/disability_compensation_form/front_end_submission.json'))
       end
-      let(:submission_data) { JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim.json')) }
+      let(:submission_data) do
+        JSON.parse(File.read('spec/support/disability_compensation_form/submissions/only_526.json'))
+      end
+
       subject { described_class.from_hash(form_content) }
 
       it 'returns a hash of submission data' do
         VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
             VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              expect(subject.to_submission_data(user)).to eq submission_data
+              expect(JSON.parse(subject.to_submission_data(user))).to eq submission_data
             end
           end
         end
@@ -35,7 +38,7 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
         )
       end
       let(:submission_data_with_4142) do
-        JSON.parse(File.read('spec/support/disability_compensation_form/saved_claim_with_4142.json'))
+        JSON.parse(File.read('spec/support/disability_compensation_form/submissions/with_4142.json'))
       end
       subject { described_class.from_hash(form_content_with_4142) }
 
@@ -43,7 +46,7 @@ RSpec.describe SavedClaim::DisabilityCompensation::Form526IncreaseOnly do
         VCR.use_cassette('evss/ppiu/payment_information') do
           VCR.use_cassette('evss/intent_to_file/active_compensation') do
             VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-              expect(subject.to_submission_data(user)).to eq submission_data_with_4142
+              expect(JSON.parse(subject.to_submission_data(user))).to eq submission_data_with_4142
             end
           end
         end

@@ -146,7 +146,10 @@ RSpec.describe OpenidApplicationController, type: :controller do
       def index
         render json: {
           'test' => 'It worked.',
-          'user' => @current_user.email
+          'user' => @current_user.email,
+          'icn' => @current_user.icn,
+          'last_name' => @current_user.last_name,
+          'loa_current' => @current_user.loa[:current]
         }
       end
     end
@@ -170,6 +173,103 @@ RSpec.describe OpenidApplicationController, type: :controller do
           expect(response).to be_ok
           expect(Session.find('FakeToken')).to_not be_nil
           expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
+        end
+      end
+    end
+
+    context 'with a MHV credential profile' do
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              icn: '10000012345V123457',
+              family_name: 'zackariah')
+      end
+
+      before(:each) do
+        allow(JWT).to receive(:decode).and_return(token)
+        stub_mvi(mvi_profile)
+      end
+
+      let(:okta_response) { FactoryBot.build(:okta_mhv_response) }
+      let(:faraday_response) { instance_double('Faraday::Response') }
+
+      it 'should return 200 and add user to session' do
+        with_okta_configured do
+          Okta::Service.any_instance.stub(:user).and_return(faraday_response)
+          allow(faraday_response).to receive(:success?).and_return(true)
+          allow(faraday_response).to receive(:body).and_return(okta_response)
+
+          request.headers['Authorization'] = 'Bearer FakeToken'
+          get :index
+          expect(response).to be_ok
+          expect(Session.find('FakeToken')).to_not be_nil
+          expect(JSON.parse(response.body)['user']).to eq('mhvzack_0@example.com')
+          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123457')
+          expect(JSON.parse(response.body)['last_name']).to eq('zackariah')
+          expect(JSON.parse(response.body)['loa_current']).to eq(3)
+        end
+      end
+    end
+
+    context 'with a DSLogon credential profile' do
+      let(:okta_response) { FactoryBot.build(:okta_dslogon_response) }
+      let(:faraday_response) { instance_double('Faraday::Response') }
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              icn: '10000012345V123456',
+              family_name: 'WEAVER')
+      end
+
+      before(:each) do
+        allow(JWT).to receive(:decode).and_return(token)
+        stub_mvi(mvi_profile)
+      end
+
+      it 'should return 200 and add user to session' do
+        with_okta_configured do
+          Okta::Service.any_instance.stub(:user).and_return(faraday_response)
+          allow(faraday_response).to receive(:success?).and_return(true)
+          allow(faraday_response).to receive(:body).and_return(okta_response)
+
+          request.headers['Authorization'] = 'Bearer FakeToken'
+          get :index
+          expect(response).to be_ok
+          expect(Session.find('FakeToken')).to_not be_nil
+          expect(JSON.parse(response.body)['user']).to eq('dslogon10923109@example.com')
+          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123456')
+          expect(JSON.parse(response.body)['last_name']).to eq('WEAVER')
+          expect(JSON.parse(response.body)['loa_current']).to eq(3)
+        end
+      end
+    end
+
+    context 'with an ID.me credential profile' do
+      let(:okta_response) { FactoryBot.build(:okta_idme_response) }
+      let(:faraday_response) { instance_double('Faraday::Response') }
+      let(:mvi_profile) do
+        build(:mvi_profile,
+              icn: '10000012345V123458',
+              family_name: 'CARROLL')
+      end
+
+      before(:each) do
+        allow(JWT).to receive(:decode).and_return(token)
+        stub_mvi(mvi_profile)
+      end
+
+      it 'should return 200 and add user to session' do
+        with_okta_configured do
+          Okta::Service.any_instance.stub(:user).and_return(faraday_response)
+          allow(faraday_response).to receive(:success?).and_return(true)
+          allow(faraday_response).to receive(:body).and_return(okta_response)
+
+          request.headers['Authorization'] = 'Bearer FakeToken'
+          get :index
+          expect(response).to be_ok
+          expect(Session.find('FakeToken')).to_not be_nil
+          expect(JSON.parse(response.body)['user']).to eq('vets.gov.user+20@gmail.com')
+          expect(JSON.parse(response.body)['icn']).to eq('10000012345V123458')
+          expect(JSON.parse(response.body)['last_name']).to eq('CARROLL')
+          expect(JSON.parse(response.body)['loa_current']).to eq(3)
         end
       end
     end
