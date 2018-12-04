@@ -18,50 +18,60 @@ RSpec.describe 'Backend Status', type: :request do
     User.create(user)
   end
 
-  context 'during offline hours on saturday' do
-    before { Timecop.freeze(offline_saturday) }
-    after { Timecop.return }
+  describe '#show' do
+    it 'responds 200' do
+      get v0_backend_status_url('gibs'), nil, auth_header
+      expect(response).to have_http_status(:ok)
+    end
 
-    describe '#show' do
-      it 'responds 200' do
-        get v0_backend_status_url('gibs'), nil, auth_header
-        expect(response).to have_http_status(:ok)
-      end
-      it 'indicates the service is unavailable' do
-        get v0_backend_status_url('gibs'), nil, auth_header
-        json = JSON.parse(response.body)
-        expect(json['data']['attributes']['is_available']).to eq(false)
-        expect(json['data']['attributes']['name']).to eq('gibs')
+    context 'for the gibs service' do
+      context 'during offline hours on saturday' do
+        before { Timecop.freeze(offline_saturday) }
+        after { Timecop.return }
+        it 'indicates the service is unavailable' do
+          get v0_backend_status_url('gibs'), nil, auth_header
+          json = JSON.parse(response.body)
+          expect(json['data']['attributes']['is_available']).to eq(false)
+          expect(json['data']['attributes']['name']).to eq('gibs')
+        end
+
+        it 'returns 0 as number of seconds until next downtime' do
+          get v0_backend_status_url('gibs'), nil, auth_header
+          json = JSON.parse(response.body)
+          expect(json['data']['attributes']['uptime_remaining']).to eq(0)
+        end
       end
 
-      it 'returns 0 as number of seconds until next downtime' do
-        get v0_backend_status_url('gibs'), nil, auth_header
-        json = JSON.parse(response.body)
-        expect(json['data']['attributes']['uptime_remaining']).to eq(0)
+      context 'during online hours on weekday' do
+        before { Timecop.freeze(online_weekday) }
+        after { Timecop.return }
+        it 'indicates the service is available' do
+          get v0_backend_status_url('gibs'), nil, auth_header
+          json = JSON.parse(response.body)
+          expect(json['data']['attributes']['is_available']).to eq(true)
+          expect(json['data']['attributes']['name']).to eq('gibs')
+        end
+  
+        it 'returns number of seconds until next downtime' do
+          get v0_backend_status_url('gibs'), nil, auth_header
+          json = JSON.parse(response.body)
+          expect(json['data']['attributes']['uptime_remaining']).to eq(57_600)
+        end
       end
     end
-  end
 
-  context 'during online hours on weekday' do
-    before { Timecop.freeze(online_weekday) }
-    after { Timecop.return }
-
-    describe '#show' do
-      it 'responds 200' do
-        get v0_backend_status_url('gibs'), nil, auth_header
-        expect(response).to have_http_status(:ok)
-      end
-      it 'indicates the service is available' do
-        get v0_backend_status_url('gibs'), nil, auth_header
+    context 'for non-gibs service' do
+      it 'always indicates the service is available' do
+        get v0_backend_status_url('hca'), nil, auth_header
         json = JSON.parse(response.body)
         expect(json['data']['attributes']['is_available']).to eq(true)
-        expect(json['data']['attributes']['name']).to eq('gibs')
+        expect(json['data']['attributes']['name']).to eq('hca')
       end
 
-      it 'returns number of seconds until next downtime' do
-        get v0_backend_status_url('gibs'), nil, auth_header
+      it 'always returns 0 as number of seconds until next downtime' do
+        get v0_backend_status_url('hca'), nil, auth_header
         json = JSON.parse(response.body)
-        expect(json['data']['attributes']['uptime_remaining']).to eq(57_600)
+        expect(json['data']['attributes']['uptime_remaining']).to eq(0)
       end
     end
   end
