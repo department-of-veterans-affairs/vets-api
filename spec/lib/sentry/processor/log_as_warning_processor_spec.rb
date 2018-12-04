@@ -43,7 +43,8 @@ RSpec.describe Sentry::Processor::LogAsWarning do
 
   context 'for Common::Exceptions::GatewayTimeout errors' do
     it 'sets the :level to 30 (warning)' do
-      expect(result[:level]).to eq(30)
+      expect(processor.process(data)[:level]).to eq(30)
+      expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
     end
   end
 end
