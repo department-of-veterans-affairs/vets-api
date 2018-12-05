@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/LineLength
 module Swagger
   module Requests
     class Preferences
@@ -17,9 +18,30 @@ module Swagger
           response 200 do
             key :description, 'Response is OK'
             schema do
-              property :data, type: :array do
-                items do
-                  key :'$ref', :Preferences
+              key :required, %i[data]
+              property :data, type: :object do
+                key :required, %i[id type attributes]
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes, type: :object do
+                  key :required, %i[preferences]
+                  property :preferences do
+                    key :type, :array
+                    items do
+                      key :required, %i[code title preference_choices]
+                      property :code, type: :string
+                      property :title, type: :string
+                      property :preference_choices do
+                        key :type, :array
+                        key :description, 'Array of PreferenceChoice#codes that the user selected for the associated Preference'
+                        items do
+                          key :required, %i[code description]
+                          property :code, type: :string, description: 'The PreferenceChoice#code'
+                          property :description, type: :string, description: 'The PreferenceChoice#description'
+                        end
+                      end
+                    end
+                  end
                 end
               end
             end
@@ -61,7 +83,6 @@ module Swagger
         end
       end
 
-      # rubocop:disable Metrics/LineLength
       swagger_path '/v0/user/preferences' do
         operation :post do
           extend Swagger::Responses::AuthenticationError
@@ -183,16 +204,19 @@ module Swagger
           end
         end
       end
-      # rubocop:enable Metrics/LineLength
 
       swagger_schema :Preferences do
-        property :type, type: :string
-        property :attributes, type: :object do
-          property :code, type: :string
-          property :title, type: :string
-          property :preference_choices, type: :array do
-            items do
-              key :'$ref', :PreferenceChoices
+        property :data, type: :object do
+          key :required, %i[id type attributes]
+          property :id, type: :string
+          property :type, type: :string
+          property :attributes, type: :object do
+            property :code, type: :string
+            property :title, type: :string
+            property :preference_choices, type: :array do
+              items do
+                key :'$ref', :PreferenceChoices
+              end
             end
           end
         end
@@ -200,11 +224,10 @@ module Swagger
 
       swagger_schema :PreferenceChoices do
         key :type, :object
-        property :attributes, type: :object do
-          property :code, type: :string
-          property :description, type: :string
-        end
+        property :code, type: :string
+        property :description, type: :string
       end
     end
   end
 end
+# rubocop:enable Metrics/LineLength
