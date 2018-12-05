@@ -1,5 +1,3 @@
-# frozen_string_literal: true
-
 class AddBackUserPreferenceIndexes < ActiveRecord::Migration
   disable_ddl_transaction!
    def change
