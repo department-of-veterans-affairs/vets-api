@@ -58,4 +58,14 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       end
     end
   end
+
+  context 'when requesting the healthcheck route' do
+    it 'returns a successful response' do
+      VCR.use_cassette('appeals/health-check') do
+        get '/services/appeals/v0/healthcheck'
+        puts(response)
+        expect(response).to have_http_status(:ok)
+      end
+    end
+  end
 end
