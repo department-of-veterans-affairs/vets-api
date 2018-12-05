@@ -37,6 +37,10 @@ module EVSS
     end
 
     def save_error_details(error)
+      Raven.tags_context(
+        external_service: self.class.to_s.underscore
+      )
+
       Raven.extra_context(
         url: config.base_path,
         message: error.message,
