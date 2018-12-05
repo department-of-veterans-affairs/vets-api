@@ -35,7 +35,7 @@ module EVSS
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
 
-        @translated_form.to_json
+        @translated_form
       end
 
       private
@@ -126,16 +126,13 @@ module EVSS
 
       def separation_pay
         return nil if input_form['separationPayBranch'].blank?
-        approximate_date = split_approximate_date(input_form['separationPayDate'])
         {
           'received' => true,
           'payment' => {
             'serviceBranch' => service_branch(input_form['separationPayBranch'])
           },
           'receivedDate' => {
-            'day' => approximate_date.day.to_s,
-            'month' => approximate_date.month.to_s,
-            'year' => approximate_date.year.to_s
+            'year' => input_form['separationPayDate'].to_s
           }
         }
       end
@@ -185,7 +182,7 @@ module EVSS
           'obligationTermOfServiceToDate' => reserves_service_info['obligationTermOfServiceDateRange']['to'],
           'unitName' => reserves_service_info['unitName'],
           'unitPhone' => split_phone_number(reserves_service_info['unitPhone']),
-          'receivingInactiveDutyTrainingPay' => input_form['waiveTrainingPay']
+          'receivingInactiveDutyTrainingPay' => input_form['hasTrainingPay']
         }.compact
       end
 
@@ -216,10 +213,10 @@ module EVSS
       def translate_veteran
         {
           'veteran' => {
-            'emailAddress' => input_form['emailAddress'],
+            'emailAddress' => input_form.dig('phoneAndEmail', 'email'),
             'currentMailingAddress' => translate_mailing_address(input_form['mailingAddress']),
             'changeOfAddress' => translate_change_of_address(input_form['forwardingAddress']),
-            'daytimePhone' => split_phone_number(input_form['primaryPhone']),
+            'daytimePhone' => split_phone_number(input_form.dig('phoneAndEmail', 'phone')),
             'homelessness' => translate_homelessness,
             'currentlyVAEmployee' => input_form['isVAEmployee']
           }.compact
@@ -360,7 +357,7 @@ module EVSS
       end
 
       def translate_disabilities
-        disabilities = input_form['disabilities'].deep_dup.presence || []
+        disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
         { 'disabilities' => translate_new_disabilities(disabilities) }
       end
 

@@ -17,8 +17,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
-    Breakers::OutageException,
-    Common::Exceptions::SentryIgnoredGatewayTimeout
+    Breakers::OutageException
   ].freeze
 
   before_action :block_unknown_hosts
@@ -208,7 +207,7 @@ class ApplicationController < ActionController::API
 
     return unless Settings.sso.cookie_enabled && @session_object.present?
     encryptor = SSOEncryptor
-    contents = ActiveSupport::JSON.encode(@session_object.cookie_data)
+    contents = ActiveSupport::JSON.encode(@session_object.cookie_data(@current_user))
     encrypted_value = encryptor.encrypt(contents)
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
@@ -253,7 +252,7 @@ class ApplicationController < ActionController::API
       sso_cookies_enabled: Settings.sso.cookie_enabled,
       sso_cookies_signout_enabled: Settings.sso.cookie_signout_enabled,
       sso_cookie_name: Settings.sso.cookie_name,
-      sso_cookie_contents: @session_object&.cookie_data,
+      sso_cookie_contents: @session_object&.cookie_data(@current_user),
       request_host: request.host
     }
   end
