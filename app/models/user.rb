@@ -285,17 +285,7 @@ class User < Common::RedisStore
   # @return [Array] an array of objects with paired Preference/UserPreference objects
   #
   def preferences
-    results = []
-    user_preferences = UserPreference.eager_load(:preference, :preference_choice).where(account_id: account.id)
-    preference_ids = user_preferences.pluck(:preference_id).uniq
-    preference_ids.each do |id|
-      preference = Preference.find(id)
-      results += [{
-        preference: preference,
-        user_preferences: user_preferences.where(preference_id: id).collect(&:preference_choice)
-      }]
-    end
-    results
+    UserPreference.with_kitchen_sink(account.id)
   end
 
   private

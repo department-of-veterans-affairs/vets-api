@@ -35,7 +35,7 @@ module V0
     end
 
     def user_preferences
-      @user_preferences ||= current_user.preferences
+      @user_preferences ||= UserPreference.all_preferences_with_choices(current_user.account_id)
     end
   end
 end
