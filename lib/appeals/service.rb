@@ -13,9 +13,13 @@ module Appeals
 
     def get_appeals(user, additional_headers = {})
       with_monitoring do
-        response = perform(:get, '', {}, request_headers(user, additional_headers))
+        response = perform(:get, '/api/v2/appeals', {}, request_headers(user, additional_headers))
         Appeals::Responses::Appeals.new(response.body, response.status)
       end
+    end
+
+    def healthcheck
+      perform(:get, '/health-check', nil)
     end
 
     private
