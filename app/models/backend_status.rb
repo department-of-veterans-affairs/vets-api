@@ -9,7 +9,9 @@ class BackendStatus
 
   attribute :name, String
   attribute :is_available, Boolean
+  attribute :uptime_remaining, Integer
 
   validates :name, presence: true
   validates :is_available, presence: true
+  validates :uptime_remaining, presence: true
 end
