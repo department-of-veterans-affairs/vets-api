@@ -38,6 +38,14 @@ module Facilities
         end
       end
 
+      it 'should return a CareSite' do
+        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+          r = PPMSClient.new.provider_caresites(1_427_435_759)
+          expect(r.length).to be > 0
+          expect(r[0]['Longitude']).not_to be(nil)
+        end
+      end
+
       it 'should edit the parameters' do
         params = PPMSClient.new.build_params('bbox': [73, -60, 74, -61])
         Rails.logger.info(params)

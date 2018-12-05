@@ -9,4 +9,13 @@ class UserPreference < ActiveRecord::Base
   belongs_to :preference_choice
 
   validates :account_id, :preference_id, :preference_choice_id, presence: true
+
+  scope :for_account, ->(account_id) { where(account_id: account_id) }
+
+  def self.for_preference_and_account(account_id, preference_codes)
+    UserPreference
+      .joins(:preference)
+      .merge(Preference.with_codes(preference_codes))
+      .for_account(account_id)
+  end
 end

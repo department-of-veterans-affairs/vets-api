@@ -1340,6 +1340,44 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         expect(subject).to validate(:get, "#{route}/{code}", 401, 'code' => preference.code)
         expect(subject).to validate(:get, "#{route}/{code}", 404, auth_options.merge('code' => 'wrong'))
       end
+
+      it 'supports creating and/or updating UserPreferences for POST /v0/user/preferences' do
+        preference = create :preference
+        choice = create :preference_choice, preference: preference
+        request_body = [
+          {
+            preference: { code: preference.code },
+            user_preferences: [{ code: choice.code }]
+          }
+        ]
+
+        expect(subject).to validate(
+          :post,
+          '/v0/user/preferences',
+          200,
+          auth_options.merge('_data' => { '_json' => request_body.as_json })
+        )
+      end
+
+      it 'supports authorization validation for POST /v0/user/preferences' do
+        expect(subject).to validate(:post, '/v0/user/preferences', 401)
+      end
+
+      it 'supports 404 error reporting for POST /v0/user/preferences' do
+        bad_request_body = [
+          {
+            preference: { code: 'code-not-in-db' },
+            user_preferences: [{ code: 'code-not-in-db' }]
+          }
+        ]
+
+        expect(subject).to validate(
+          :post,
+          '/v0/user/preferences',
+          404,
+          auth_options.merge('_data' => { '_json' => bad_request_body.as_json })
+        )
+      end
     end
 
     describe 'profiles' do
