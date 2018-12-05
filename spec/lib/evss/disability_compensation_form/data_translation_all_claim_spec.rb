@@ -132,7 +132,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'separationPayBranch' => 'Air Force',
-            'separationPayDate' => '2018-01-31'
+            'separationPayDate' => '2018'
           }
         }
       end
@@ -145,8 +145,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               'serviceBranch' => 'Air Force'
             },
             'receivedDate' => {
-              'day' => '31',
-              'month' => '1',
               'year' => '2018'
             }
           }
@@ -257,7 +255,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 'unitPhone' => '1231231231'
               }
             },
-            'waiveTrainingPay' => true
+            'waiveTrainingPay' => true,
+            'hasTrainingPay' => true
           }
         }
       end
@@ -341,8 +340,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'mailingAddress' => {},
-            'emailAddress' => 'tester@adhocteam.us',
-            'primaryPhone' => '5551231234',
+            'phoneAndEmail' => {
+              'email' => 'tester@adhocteam.us',
+              'phone' => '5551231234'
+            },
             'isVAEmployee' => true
           }
         }
@@ -718,7 +719,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
-            'disabilities' => [
+            'ratedDisabilities' => [
               {
                 'diagnosticCode' => 9999,
                 'disabilityActionType' => 'NEW',
