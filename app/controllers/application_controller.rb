@@ -17,8 +17,7 @@ class ApplicationController < ActionController::API
     Common::Exceptions::Unauthorized,
     Common::Exceptions::RoutingError,
     Common::Exceptions::Forbidden,
-    Breakers::OutageException,
-    Common::Exceptions::SentryIgnoredGatewayTimeout
+    Breakers::OutageException
   ].freeze
 
   before_action :block_unknown_hosts
