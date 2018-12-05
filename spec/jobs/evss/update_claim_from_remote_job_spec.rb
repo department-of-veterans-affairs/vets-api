@@ -36,7 +36,7 @@ RSpec.describe EVSS::UpdateClaimFromRemoteJob, type: :job do
     describe 'when error occurs (e.g. timeout)' do
       it 'should set the status to FAILED' do
         allow(client_stub).to receive(:find_claim_by_id).and_raise(
-          Common::Exceptions::SentryIgnoredGatewayTimeout
+          EVSS::ErrorMiddleware::EVSSBackendServiceError
         )
         allow(EVSS::ClaimsService).to receive(:new) { client_stub }
         expect_any_instance_of(EVSSClaimsSyncStatusTracker).to(
