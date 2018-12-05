@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'appeals_api', path: 'modules/appeals_api'
+gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran_verification', path: 'modules/veteran_verification'
@@ -10,7 +11,7 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '4.2.7.1'
+gem 'rails', '4.2.11'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json

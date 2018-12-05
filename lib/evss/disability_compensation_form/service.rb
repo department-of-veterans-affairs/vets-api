@@ -7,8 +7,6 @@ require_relative '../disability_compensation_auth_headers.rb'
 module EVSS
   module DisabilityCompensationForm
     class Service < EVSS::Service
-      include Common::Client::Monitoring
-
       configuration EVSS::DisabilityCompensationForm::Configuration
 
       def initialize(headers)
@@ -16,22 +14,18 @@ module EVSS
       end
 
       def get_rated_disabilities
-        with_monitoring do
+        with_monitoring_and_error_handling do
           raw_response = perform(:get, 'ratedDisabilities')
           RatedDisabilitiesResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       def submit_form526(form_content)
-        with_monitoring do
+        with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'submit', form_content, headers)
           FormSubmitResponse.new(raw_response.status, raw_response)
         end
-      rescue StandardError => e
-        handle_error(e)
       end
 
       private

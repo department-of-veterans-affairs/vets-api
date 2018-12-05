@@ -53,7 +53,7 @@ describe MVI::Responses::ProfileParser do
         end
       end
 
-      context 'with a missing address' do
+      context 'with a missing address and an invalid edipi' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
         let(:mvi_profile) do
           build(
@@ -62,7 +62,18 @@ describe MVI::Responses::ProfileParser do
             birls_id: nil,
             sec_id: nil,
             historical_icns: nil,
-            vet360_id: nil
+            vet360_id: nil,
+            edipi: nil,
+            full_mvi_ids: [
+              '1000123456V123456^NI^200M^USVHA^P',
+              '12345^PI^516^USVHA^PCE',
+              '2^PI^553^USVHA^PCE',
+              '12345^PI^200HD^USVHA^A',
+              'TKIP123456^PI^200IP^USVHA^A',
+              '123456^PI^200MHV^USVHA^A',
+              'UNK^NI^200DOD^USDOD^A',
+              '12345678^PI^200CORP^USVBA^A'
+            ]
           )
         end
         it 'should set the address to nil' do
@@ -82,7 +93,13 @@ describe MVI::Responses::ProfileParser do
             historical_icns: nil,
             mhv_ids: ['1100792239'],
             active_mhv_ids: ['1100792239'],
-            icn_with_aaid: icn_with_aaid
+            icn_with_aaid: icn_with_aaid,
+            full_mvi_ids: [
+              '1008714701V416111^NI^200M^USVHA^P',
+              '796122306^PI^200BRLS^USVBA^A',
+              '9100792239^PI^200CORP^USVBA^A',
+              '1100792239^PI^200MHS^USVHA^A'
+            ]
           )
         end
         it 'should filter with only first name and retrieve correct MHV id' do
@@ -150,7 +167,21 @@ describe MVI::Responses::ProfileParser do
     let(:icn_with_aaid) { '12345678901234567^NI^200M^USVHA' }
     let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_multiple_mhv_response.xml')) }
     let(:mvi_profile) do
-      build(:mvi_profile_response, :multiple_mhvids, historical_icns: nil, icn_with_aaid: icn_with_aaid)
+      build(
+        :mvi_profile_response,
+        :multiple_mhvids,
+        historical_icns: nil,
+        icn_with_aaid: icn_with_aaid,
+        full_mvi_ids: [
+          '12345678901234567^NI^200M^USVHA^P',
+          '12345678^PI^200CORP^USVBA^A',
+          '12345678901^PI^200MH^USVHA^A',
+          '12345678902^PI^200MH^USVHA^D',
+          '1122334455^NI^200DOD^USDOD^A',
+          '0001234567^PN^200PROV^USDVA^A',
+          '123412345^PI^200BRLS^USVBA^A'
+        ]
+      )
     end
 
     before(:each) do
