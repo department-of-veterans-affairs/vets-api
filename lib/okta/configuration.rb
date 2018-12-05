@@ -12,6 +12,7 @@ module Okta
       @conn ||= Faraday.new(base_path) do |faraday|
         faraday.use :breakers
         faraday.response :json
+        faraday.response :betamocks if Settings.oidc.mock
         faraday.adapter Faraday.default_adapter
       end
     end

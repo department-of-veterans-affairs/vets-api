@@ -9,8 +9,6 @@ module Accountable
   # Account.
   #
   def create_user_account
-    return unless Settings.account.enabled
-
     Account.cache_or_create_by! @current_user
   rescue StandardError => error
     log error
