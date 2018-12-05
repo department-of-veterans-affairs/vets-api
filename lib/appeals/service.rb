@@ -19,7 +19,9 @@ module Appeals
     end
 
     def healthcheck
-      perform(:get, '/health-check', nil)
+      with_monitoring do
+        perform(:get, '/health-check', nil)
+      end
     end
 
     private
