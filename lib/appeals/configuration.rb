@@ -11,7 +11,7 @@ module Appeals
     end
 
     def base_path
-      "#{Settings.appeals.host}/api/v2/appeals"
+      Settings.appeals.host
     end
 
     def service_name
