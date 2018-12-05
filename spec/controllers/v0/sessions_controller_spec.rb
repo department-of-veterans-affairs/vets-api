@@ -316,6 +316,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             levenshtein_distance: 8
           }
         )
+        expect(Raven).to receive(:tags_context).twice
 
         once = { times: 1, value: 1 }
         callback_tags = ['status:success', 'context:dslogon']
@@ -429,6 +430,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
+          expect(Raven).to receive(:tags_context).twice
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
