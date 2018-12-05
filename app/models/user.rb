@@ -286,7 +286,7 @@ class User < Common::RedisStore
   #
   def preferences
     results = []
-    user_preferences = UserPreference.where(account_id: account.id)
+    user_preferences = UserPreference.eager_load(:preference, :preference_choice).where(account_id: account.id)
     preference_ids = user_preferences.pluck(:preference_id).uniq
     preference_ids.each do |id|
       preference = Preference.find(id)
