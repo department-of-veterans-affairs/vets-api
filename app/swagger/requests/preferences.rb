@@ -138,6 +138,49 @@ module Swagger
           end
         end
       end
+
+      swagger_path '/v0/user/preferences' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+          key :description, 'Retrieve a user\'s UserPreferences'
+          key :operationId, 'getUserPreferences'
+          key :tags, %w[
+            preferences
+          ]
+          parameter :authorization
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :required, %i[data]
+              property :data, type: :object do
+                key :required, %i[id type attributes]
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes, type: :object do
+                  key :required, %i[user_preferences]
+                  property :user_preferences do
+                    key :type, :array
+                    items do
+                      key :required, %i[code title user_preferences]
+                      property :code, type: :string
+                      property :title, type: :string
+                      property :user_preferences do
+                        key :type, :array
+                        key :description, 'Array of selected PreferenceChoice#codes for the associated Preference'
+                        items do
+                          key :required, %i[code description]
+                          property :code, type: :string, description: 'The PreferenceChoice#code'
+                          property :description, type: :string, description: 'The PreferenceChoice#description'
+                        end
+                      end
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+      end
       # rubocop:enable Metrics/LineLength
 
       swagger_schema :Preferences do
