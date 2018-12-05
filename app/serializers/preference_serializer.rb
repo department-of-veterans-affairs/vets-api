@@ -1,19 +1,10 @@
 # frozen_string_literal: true
 
 class PreferenceSerializer < ActiveModel::Serializer
-  attribute :preferences
+  attribute :code
+  attribute :title
 
-  def id
-    nil
-  end
-
-  def preferences
-    object.map do |o|
-      {
-        code: o.code,
-        title: o.title,
-        preference_choices: o.choices.select(%i[code description]).as_json(except: :id)
-      }
-    end
+  attribute :preference_choices do
+    object.choices.select(%i[code description]).as_json(except: :id)
   end
 end
