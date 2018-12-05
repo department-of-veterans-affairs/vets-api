@@ -19,6 +19,12 @@ class UserPreference < ActiveRecord::Base
       .for_account(account_id)
   end
 
+  # A user can have many UserPreferences which represent a given PreferenceChoice.
+  # This method will return an array of objects including each Preference and the
+  # associated choices those which the User has opted-in
+  #
+  # @return [Array] an array of objects with paired Preference/UserPreference objects
+  #
   def self.all_preferences_with_choices(account_id)
     results = []
     user_preferences = for_account(account_id).eager_load(:preference, :preference_choice)

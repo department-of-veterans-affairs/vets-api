@@ -278,16 +278,6 @@ class User < Common::RedisStore
     edipi.present? && veteran? || military_person?
   end
 
-  # A user can have many UserPreferences which represent a given PreferenceChoice.
-  # This method will return an array of objects including each Preference and the
-  # associated choices those which the User has opted-in
-  #
-  # @return [Array] an array of objects with paired Preference/UserPreference objects
-  #
-  def preferences
-    UserPreference.with_kitchen_sink(account.id)
-  end
-
   private
 
   def pciu
