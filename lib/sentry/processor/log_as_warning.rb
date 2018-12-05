@@ -7,7 +7,7 @@ module Sentry
       RELEVANT_EXCEPTIONS = [
         Common::Exceptions::GatewayTimeout.to_s,
         EVSS::ErrorMiddleware::EVSSError.to_s
-      ]
+      ].freeze
 
       def process(data)
         process_if_symbol_keys(data) if data[:exception]
@@ -18,9 +18,7 @@ module Sentry
       private
 
       def process_if_symbol_keys(data)
-        if RELEVANT_EXCEPTIONS.include?(data[:exception][:values].last[:type])
-          data[:level] = SENTRY_LOG_LEVEL_WARNING
-        end
+        data[:level] = SENTRY_LOG_LEVEL_WARNING if RELEVANT_EXCEPTIONS.include?(data[:exception][:values].last[:type])
       end
 
       def process_if_string_keys(data)
