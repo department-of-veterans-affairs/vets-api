@@ -100,6 +100,7 @@ class V0::Facilities::VaController < FacilitiesController
 
   def validate_params
     super
+    params.delete(:type) if params[:type] == 'all'
     validate_no_services_without_type
     validate_type_and_services_known unless params[:type].nil?
   end
