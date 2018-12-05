@@ -40,7 +40,7 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
-  # This delegated method can also be called with #account_uuid
+  # This delegated method is called with #account_uuid
   delegate :uuid, to: :account, prefix: true, allow_nil: true
 
   # Retrieve a user's Account record.
@@ -48,7 +48,7 @@ class User < Common::RedisStore
   # @return [Account] an instance of the Account object
   #
   def account
-    Account.find_by(idme_uuid: uuid) if Settings.account.enabled
+    Account.find_by(idme_uuid: uuid)
   end
 
   def pciu_email
@@ -207,6 +207,7 @@ class User < Common::RedisStore
 
   def mhv_account
     @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+                               .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 
   def in_progress_forms
@@ -233,6 +234,18 @@ class User < Common::RedisStore
       emis_model = "EMISRedis::#{emis_method.camelize}".constantize.for_user(self)
       instance_variable_set(:"@#{emis_method}", emis_model)
       emis_model
+    end
+  end
+
+  %w[profile grants].each do |okta_model_name|
+    okta_method = "okta_#{okta_model_name}"
+    define_method(okta_method) do
+      okta_instance = instance_variable_get(:"@#{okta_method}")
+      return okta_instance if okta_instance.present?
+
+      okta_model = "OktaRedis::#{okta_model_name.camelize}".constantize.with_user(self)
+      instance_variable_set(:"@#{okta_method}", okta_model)
+      okta_model
     end
   end
 

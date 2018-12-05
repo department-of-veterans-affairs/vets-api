@@ -28,6 +28,15 @@ module VA526ez
     attribute :rated_disabilities, Array[FormRatedDisability]
   end
 
+  class FormPaymentAccountInformation
+    include Virtus.model
+
+    attribute :account_type, String
+    attribute :account_number, String
+    attribute :routing_number, String
+    attribute :bank_name, String
+  end
+
   class FormAddress
     include Virtus.model
 
@@ -58,10 +67,12 @@ end
 class FormProfiles::VA526ez < FormProfile
   attribute :rated_disabilities_information, VA526ez::FormRatedDisabilities
   attribute :veteran_contact_information, VA526ez::FormContactInformation
+  attribute :payment_information, VA526ez::FormPaymentAccountInformation
 
   def prefill(user)
     @rated_disabilities_information = initialize_rated_disabilities_information(user)
     @veteran_contact_information = initialize_veteran_contact_information(user)
+    @payment_information = initialize_payment_information(user)
     super(user)
   end
 
@@ -155,5 +166,31 @@ class FormProfiles::VA526ez < FormProfile
       address_line_2: address&.address_two,
       address_line_3: address&.address_three
     }.compact
+  end
+
+  def initialize_payment_information(user)
+    return {} unless user.authorize :evss, :access?
+
+    service = EVSS::PPIU::Service.new(user)
+    response = service.get_payment_information
+    raw_account = response.responses.first&.payment_account
+
+    if raw_account
+      VA526ez::FormPaymentAccountInformation.new(
+        account_type: raw_account&.account_type&.capitalize,
+        account_number: mask(raw_account&.account_number),
+        routing_number: mask(raw_account&.financial_institution_routing_number),
+        bank_name: raw_account&.financial_institution_name
+      )
+    else
+      {}
+    end
+  rescue StandardError => e
+    Rails.logger.error "Failed to retrieve PPIU data: #{e.message}"
+    {}
+  end
+
+  def mask(number)
+    number.gsub(/.(?=.{4})/, '*')
   end
 end

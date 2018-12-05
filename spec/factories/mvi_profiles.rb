@@ -45,6 +45,16 @@ FactoryBot.define do
     ssn { Faker::Medical::SSN.ssn.delete('-') }
     address { build(:mvi_profile_address) }
     home_phone { Faker::PhoneNumber.phone_number }
+    full_mvi_ids [
+      '1000123456V123456^NI^200M^USVHA^P',
+      '12345^PI^516^USVHA^PCE',
+      '2^PI^553^USVHA^PCE',
+      '12345^PI^200HD^USVHA^A',
+      'TKIP123456^PI^200IP^USVHA^A',
+      '123456^PI^200MHV^USVHA^A',
+      'UNK^NI^200DOD^USDOD^A',
+      '12345678^PI^200CORP^USVBA^A'
+    ]
     icn { Faker::Number.number(17) }
     icn_with_aaid { '1000123456V123456^NI^200M^USVHA' }
     mhv_ids { Array.new(2) { Faker::Number.number(11) } }
@@ -64,11 +74,22 @@ FactoryBot.define do
       birth_date '19800101'
       ssn '555443333'
       home_phone '1112223333'
+      full_mvi_ids [
+        '1000123456V123456^NI^200M^USVHA^P',
+        '12345^PI^516^USVHA^PCE',
+        '2^PI^553^USVHA^PCE',
+        '12345^PI^200HD^USVHA^A',
+        'TKIP123456^PI^200IP^USVHA^A',
+        '123456^PI^200MHV^USVHA^A',
+        '1234567890^NI^200DOD^USDOD^A',
+        '12345678^PI^200CORP^USVBA^A',
+        '123456789^PI^200VETS^USDVA^A'
+      ]
       icn '1000123456V123456'
       mhv_ids ['123456']
       active_mhv_ids ['123456']
       vha_facility_ids %w[516 553 200HD 200IP 200MHV]
-      edipi '1234'
+      edipi '1234567890'
       participant_id '12345678'
       birls_id '796122306'
       vet360_id '123456789'

@@ -20,7 +20,7 @@ describe EVSS::DisabilityCompensationForm::Form4142 do
 
   describe '#translate' do
     it 'should return correctly formatted json to send to async job' do
-      expect(JSON.parse(subject.translate)).to eq expected_output
+      expect(subject.translate).to eq expected_output
     end
   end
 end

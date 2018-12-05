@@ -255,6 +255,18 @@
     :cache_multiple_responses:
       :uid_location: body
       :uid_locator: '(?:root="2.16.840.1.113883.4.1" )?extension="(\d{9})"(?: root="2.16.840.1.113883.4.1")?'
+  - :method: :post
+    :path: <%= URI(Settings.mvi.url).path %>
+    :file_path: "mvi/profile_icn"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '(?:root="2.16.840.1.113883.4.349" )?extension="(\d{10}V\d{6})"(?: root="2.16.840.1.113883.4.349")?'
+  - :method: :post
+    :path: <%= URI(Settings.mvi.url).path %>
+    :file_path: "mvi/profile_edipi"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: '(?:root="2.16.840.1.113883.3.42.10001.100001.12" )?extension="(\d{10})"(?: root="2.16.840.1.113883.3.42.10001.100001.12")?'
 
 
 # EMIS
@@ -380,3 +392,23 @@
   - :method: :get
     :path: "/api/v2/search/i14y"
     :file_path: "search/default"
+
+# Okta
+- :name: 'Okta'
+  :base_uri: <%= "#{URI(Settings.oidc.base_api_url).host}:#{URI(Settings.oidc.base_api_url).port}" %>
+  :endpoints:
+  # User
+  - :method: :get
+    :path: "/api/v1/users/*"
+    :file_path: "okta/users"
+    :cache_multiple_responses:
+      :uid_location: url
+      :uid_locator:  '\/api\/v1\/users\/(.*)'
+  # Keys
+  - :method: :get
+    :path: "/oauth2/default/v1/keys"
+    :file_path: "okta/keys"
+  # Metadata
+  - :method: :get
+    :path: "/oauth2/default/.well-known/oauth-authorization-server"
+    :file_path: "okta/metadata"

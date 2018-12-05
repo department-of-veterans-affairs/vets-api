@@ -294,26 +294,38 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.code).to eq('DOC104')
     end
 
-    it 'sets error status for downstream server error' do
-      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
-      allow(CentralMail::Service).to receive(:new) { client_stub }
-      allow(faraday_response).to receive(:status).and_return(500)
-      allow(faraday_response).to receive(:body).and_return('')
-      allow(faraday_response).to receive(:success?).and_return(false)
-      capture_body = nil
-      expect(client_stub).to receive(:upload) { |arg|
-        capture_body = arg
-        faraday_response
-      }
-      described_class.new.perform(upload.guid)
-      expect(capture_body).to be_a(Hash)
-      expect(capture_body).to have_key('metadata')
-      expect(capture_body).to have_key('document')
-      metadata = JSON.parse(capture_body['metadata'])
-      expect(metadata['uuid']).to eq(upload.guid)
-      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('error')
-      expect(updated.code).to eq('DOC201')
+    context 'with a downstream error' do
+      before do
+        allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+        allow(CentralMail::Service).to receive(:new) { client_stub }
+        allow(faraday_response).to receive(:status).and_return(500)
+        allow(faraday_response).to receive(:body).and_return('')
+        allow(faraday_response).to receive(:success?).and_return(false)
+      end
+
+      it 'sets error status for downstream server error' do
+        capture_body = nil
+        expect(client_stub).to receive(:upload) { |arg|
+          capture_body = arg
+          faraday_response
+        }
+        described_class.new.perform(upload.guid)
+        expect(capture_body).to be_a(Hash)
+        expect(capture_body).to have_key('metadata')
+        expect(capture_body).to have_key('document')
+        metadata = JSON.parse(capture_body['metadata'])
+        expect(metadata['uuid']).to eq(upload.guid)
+        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+        expect(updated.status).to eq('error')
+        expect(updated.code).to eq('DOC201')
+      end
+
+      it 'queues another job to retry the request' do
+        expect(client_stub).to receive(:upload) { |_arg| faraday_response }
+        Timecop.freeze(Time.zone.now)
+        described_class.new.perform(upload.guid)
+        expect(described_class.jobs.last['at']).to eq(30.minutes.from_now.to_f)
+      end
     end
 
     it 'does not set error status for retriable timeout error' do

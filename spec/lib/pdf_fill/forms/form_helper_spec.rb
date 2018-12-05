@@ -131,4 +131,30 @@ describe PdfFill::Forms::FormHelper do
       expect(including_class.new.validate_date('2018-01-01')).to be_truthy
     end
   end
+
+  describe '#address_block' do
+    it 'should return nil with nil address' do
+      expect(including_class.new.address_block(nil)).to be_nil
+    end
+
+    it 'should return full address block with full address' do
+      address = {
+        'street' => '123 Test St.',
+        'street2' => '4B',
+        'city' => 'Testville',
+        'state' => 'SC',
+        'postalCode' => '12345-6789',
+        'country' => 'US'
+      }
+      expect(including_class.new.address_block(address)).to eq("123 Test St. 4B\nTestville SC 12345-6789\nUS")
+    end
+
+    it 'should return partial address block with partial address' do
+      address = {
+        'street' => '123 Test St.',
+        'state' => 'SC'
+      }
+      expect(including_class.new.address_block(address)).to eq("123 Test St.\nSC")
+    end
+  end
 end

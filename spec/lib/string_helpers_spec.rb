@@ -14,6 +14,12 @@ describe StringHelpers do
     end
   end
 
+  describe '#hyphenated_ssn' do
+    it 'should hyphenate the ssn' do
+      expect(described_class.hyphenated_ssn('111221234')).to eq('111-22-1234')
+    end
+  end
+
   context 'levenshtein_distance' do
     fixtures = [
       ['hello', 'hello', 0],
