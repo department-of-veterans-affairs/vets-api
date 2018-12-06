@@ -27,10 +27,13 @@ module Vet360
     def handle_error(error)
       case error
       when Common::Client::Errors::ParsingError # Vet360 sent a non-JSON response
-        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
+        Raven.extra_context(
+          message: error.message,
+          url: config.base_path
+        )
         raise_backend_exception('VET360_502', self.class)
       when Common::Client::Errors::ClientError
-        log_error_messages(error)
+        save_error_details(error)
         raise Common::Exceptions::Forbidden if error.status == 403
         raise_invalid_body(error, self.class) unless error.body.is_a?(Hash)
         message = parse_messages(error)&.first
@@ -41,22 +44,16 @@ module Vet360
       end
     end
 
-    def log_error_messages(error)
-      if person_transaction_failure?(error)
-        log_message_to_sentry(
-          error.message,
-          :error,
-          { url: config.base_path, body: error.body },
-          vet360: 'failed_vet360_id_initializations'
-        )
-      else
-        log_message_to_sentry(
-          error.message,
-          :error,
-          { url: config.base_path, body: error.body },
-          vet360: 'general_client_error'
-        )
-      end
+    def save_error_details(error)
+      Raven.extra_context(
+        message: error.message,
+        url: config.base_path,
+        body: error.body
+      )
+
+      Raven.tags_context(
+        vet360: person_transaction_failure?(error) ? 'failed_vet360_id_initializations' : 'general_client_error'
+      )
     end
 
     def person_transaction_failure?(error)
