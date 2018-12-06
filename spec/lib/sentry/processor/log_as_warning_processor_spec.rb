@@ -16,7 +16,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
       platform: 'ruby',
       sdk: { 'name' => 'sentry-raven', 'version' => '2.3.0' },
       logger: '',
-      server_name: 'Johnnys-MacBook-Pro.local',
+      server_name: 'cool server',
       release: 'c57d00f70',
       environment: 'default',
       modules: {},
@@ -30,7 +30,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
       exception: {
         values: [
           {
-            type: 'Common::Exceptions::GatewayTimeout',
+            type: exception,
             value: 'Common::Exceptions::GatewayTimeout',
             module: 'Common::Exceptions',
             stacktrace: nil
@@ -42,9 +42,26 @@ RSpec.describe Sentry::Processor::LogAsWarning do
   end
 
   context 'for Common::Exceptions::GatewayTimeout errors' do
+    let(:exception) { Common::Exceptions::GatewayTimeout.to_s }
     it 'sets the :level to 30 (warning)' do
       expect(processor.process(data)[:level]).to eq(30)
       expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
+    end
+  end
+
+  context 'for EVSS::ErrorMiddleware::EVSSError errors' do
+    let(:exception) { EVSS::ErrorMiddleware::EVSSError.to_s }
+    it 'sets the :level to 30 (warning)' do
+      expect(processor.process(data)[:level]).to eq(30)
+      expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
+    end
+  end
+
+  context 'for all other errors' do
+    let(:exception) { NoMethodError.to_s }
+    it 'does not change the :level' do
+      expect(processor.process(data)[:level]).to eq(40)
+      expect(processor.process(data.deep_stringify_keys)['level']).to eq(40)
     end
   end
 end
