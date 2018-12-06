@@ -6,12 +6,11 @@ module V0
 
     def index
       results = Preference.all
-      render json: results,
-             each_serializer: PreferenceSerializer
+      render json: results.to_a, serializer: PreferencesSerializer
     end
 
     def show
-      render json: @preference
+      render json: @preference, serializer: PreferenceSerializer
     end
 
     private
