@@ -11,6 +11,17 @@ FactoryBot.define do
       end
     end
 
+    trait :notifications do
+      code { 'notifications' }
+      title { 'Notifications' }
+      after :create do |preference|
+        create :preference_choice, preference: preference, code: 'push-mobile',  description: 'Push alert to mobile?'
+        create :preference_choice, preference: preference, code: 'text-mobile',  description: 'Text alert to mobile?'
+        create :preference_choice, preference: preference, code: 'push-browser', description: 'Push alert to browser?'
+        create :preference_choice, preference: preference, code: 'email',        description: 'Email notifications?'
+      end
+    end
+
     trait :benefits do
       code { 'benefits' }
       title { 'Benefits' }

@@ -180,7 +180,7 @@ RSpec.describe 'Disability compensation form', type: :request do
             'type' => 'form526_job_statuses',
             'attributes' => {
               'claim_id' => 61_234_567,
-              'job_id' => '82dba5c2060867a53135b123',
+              'job_id' => job_status.job_id,
               'status' => 'success'
             }
           }
@@ -201,7 +201,7 @@ RSpec.describe 'Disability compensation form', type: :request do
             'type' => 'form526_job_statuses',
             'attributes' => {
               'claim_id' => nil,
-              'job_id' => '82dba5c2060867a53135b123',
+              'job_id' => job_status.job_id,
               'status' => 'retryable_error'
             }
           }
@@ -222,7 +222,7 @@ RSpec.describe 'Disability compensation form', type: :request do
             'type' => 'form526_job_statuses',
             'attributes' => {
               'claim_id' => nil,
-              'job_id' => '82dba5c2060867a53135b123',
+              'job_id' => job_status.job_id,
               'status' => 'non_retryable_error'
             }
           }
