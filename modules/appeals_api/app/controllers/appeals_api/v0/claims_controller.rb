@@ -28,25 +28,25 @@ module AppealsApi
 
       def first_name
         first_name = request.headers['X-VA-First-Name']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless first_name
+        raise Common::Exceptions::ParameterMissing, 'X-VA-First-Name' unless first_name
         first_name
       end
 
       def last_name
         last_name = request.headers['X-VA-Last-Name']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless last_name
+        raise Common::Exceptions::ParameterMissing, 'X-VA-Last-Name' unless last_name
         last_name
       end
 
       def edipi
         edipi = request.headers['X-VA-EDIPI']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless edipi
+        raise Common::Exceptions::ParameterMissing, 'X-VA-EDIPI' unless edipi
         edipi
       end
 
       def birth_date
         birth_date = request.headers['X-VA-Birth-Date']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless birth_date
+        raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless birth_date
         birth_date
       end
 
