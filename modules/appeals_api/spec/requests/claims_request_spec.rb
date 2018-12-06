@@ -6,6 +6,14 @@ require 'evss/request_decision'
 
 RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
+  VALID_HEADERS = {
+    'X-VA-SSN' => '111223333',
+    'X-VA-First-Name' => 'Test',
+    'X-VA-Last-Name' => 'Consumer',
+    'X-VA-EDIPI' => '12345',
+    'X-VA-Birth-Date' => '11-11-1111',
+    'X-Consumer-Username' => 'TestConsumer'
+  }.freeze
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     VCR.use_cassette('evss/claims/claims') do
@@ -33,6 +41,19 @@ RSpec.describe 'EVSS Claims management', type: :request do
             'X-VA-User' => 'adhoc.test.user',
             'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
         expect(response).to match_response_schema('evss_claim_service')
+      end
+    end
+  end
+
+  context 'header validations' do
+    VALID_HEADERS.each_key do |header|
+      context "without #{header}" do
+        it 'returns a bad request response' do
+          VCR.use_cassette('evss/claims/claims') do
+            get '/services/appeals/v0/claims', nil, VALID_HEADERS.except(header)
+            expect(response).to have_http_status(:bad_request)
+          end
+        end
       end
     end
   end
