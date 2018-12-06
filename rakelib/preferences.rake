@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+# rubocop:disable Metrics/MethodLength
 namespace :preferences do
   desc 'Seed the database with the MVP Preference and associated PreferenceChoices'
   task initial_seed: :environment do
@@ -86,3 +89,4 @@ def preference_choice_attrs
     }
   ]
 end
+# rubocop:enable Metrics/MethodLength
