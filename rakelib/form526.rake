@@ -25,6 +25,8 @@ namespace :form526 do
   task submission: :environment do |_, args|
     raise 'No submission ids provided' unless args.extras.count.positive?
 
+    Rails.application.eager_load!
+
     args.extras.each do |id|
       submission = Form526Submission.find(id)
 
