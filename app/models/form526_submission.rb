@@ -58,8 +58,10 @@ class Form526Submission < ActiveRecord::Base
 
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
-    submission.workflow_complete = true
-    submission.save
+    if submission.form526_job_statuses.all?(&:success?)
+      submission.workflow_complete = true
+      submission.save
+    end
   end
 
   private

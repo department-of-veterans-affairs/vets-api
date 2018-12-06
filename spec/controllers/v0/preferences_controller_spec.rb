@@ -29,7 +29,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'matches the response schema' do
-        expect(response).to match_response_schema('preferences')
+        expect(response).to match_response_schema('preference')
       end
 
       it 'returns a single Preference' do
@@ -81,14 +81,13 @@ RSpec.describe V0::PreferencesController, type: :controller do
 
       it 'returns all existing Preferences with their choices' do
         body = json_body_for(response)
-        first_preference_code = body[0]['attributes']['code']
-
-        expect(body.size).to eq 2
-        expect(first_preference_code).to eq first_preference.code
+        preferences = body.dig('attributes', 'preferences')
+        expect(body['attributes']['preferences'].size).to eq 2
+        expect(preferences[0]['code']).to eq first_preference.code
       end
 
       it 'returns all PreferenceChoices for given Preference' do
-        preference_choices = json_body_for(response)[0]['attributes']['preference_choices']
+        preference_choices = json_body_for(response)['attributes']['preferences'][0]['preference_choices']
         preference_choice_codes = preference_choices.map { |pc| pc['code'] }
 
         expect(preference_choice_codes).to match_array first_preference.choices.map(&:code)
