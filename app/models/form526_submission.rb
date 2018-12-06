@@ -87,10 +87,7 @@ class Form526Submission < ActiveRecord::Base
   end
 
   def submit_form_8940
-    # TODO(AJD): update args to take only submission id
-    EVSS::DisabilityCompensationForm::SubmitForm8940.perform_async(
-      auth_headers, submitted_claim_id, saved_claim_id, id, form_to_json(FORM_0781)
-    )
+    EVSS::DisabilityCompensationForm::SubmitForm8940.perform_async(id)
   end
 
   def cleanup

@@ -13,9 +13,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:evss_claim_id) { 123_456_789 }
-  let(:submission_id) { 123_456_790 }
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  # let(:evss_claim_id) { 123_456_789 }
+  # let(:submission_id) { 123_456_790 }
+  # let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:form8940) { File.read 'spec/support/disability_compensation_form/form_8940.json' }
 
   subject { described_class }
@@ -28,16 +28,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
   end
 
   describe '.perform_async' do
+    with8940 = File.read 'spec/support/disability_compensation_form/submissions/with_8940.json'
+    submitted_claim_id = 123_456_789
+
+    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:submitted_claim_id) { 123_456_789 }
+    let(:submission) do
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id,
+             submitted_claim_id: submitted_claim_id,
+             form_json: with8940)
+    end
+
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
-          subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form8940)
+          subject.perform_async(submission.id)
         end.to change(subject.jobs, :size).by(1)
       end
 
       it 'submits successfully' do
         VCR.use_cassette('evss/disability_compensation_form/submit_8940') do
-          subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form8940)
+          subject.perform_async(submission.id)
           jid = subject.jobs.last['jid']
           described_class.drain
           expect(jid).not_to be_empty
@@ -51,7 +65,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
       end
 
       it 'raises a gateway timeout error' do
-        subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form8940)
+        subject.perform_async(submission.id)
         expect { described_class.drain }.to raise_error(StandardError)
       end
     end
@@ -62,7 +76,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
       end
 
       it 'raises a standard error' do
-        subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form8940)
+        subject.perform_async(submission.id)
         expect { described_class.drain }.to raise_error(StandardError)
       end
     end

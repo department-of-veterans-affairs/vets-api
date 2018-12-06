@@ -2,10 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class SubmitForm8940
-      include Sidekiq::Worker
-      include JobStatus
-
+    class SubmitForm8940 < Job
       FORM_ID = '21-8940' # form id for PTSD IU
       DOC_TYPE = 'L149'
 
@@ -29,19 +26,18 @@ module EVSS
 
       # Performs an asynchronous job for generating and submitting 8940 PDF documents to VBMS
       #
-      # @param auth_headers [Hash] The VAAFI headers for the user
-      # @param evss_claim_id [String] EVSS Claim id received from 526 submission
-      # @param saved_claim_id [Integer] Saved Claim id from 526 submission
       # @param submission_id [String] The submission id of 526, uploads, and 4142 data
-      # @param form_content [Hash] The form content for 8940 submission
       #
-      def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, form_content)
-        with_tracking('Form8940 Submission', saved_claim_id, submission_id) do
-          parsed_form = JSON.parse(form_content)
+      def perform(submission_id)
+        super(submission_id)
+
+        with_tracking('Form8940 Submission', submission.saved_claim_id, submission_id) do
+          parsed_form = JSON.parse(submission.form_to_json(Form526Submission::FORM_8940))
+
           parsed_form8940 = parse_8940(parsed_form.deep_dup)
 
           # process 8940
-          process_8940(auth_headers, evss_claim_id, parsed_form8940) if parsed_form8940.present?
+          process_8940(parsed_form8940) if parsed_form8940.present?
         end
       rescue StandardError => error
         # Cannot move job straight to dead queue dynamically within an executing job
@@ -58,18 +54,18 @@ module EVSS
         parsed_form
       end
 
-      def process_8940(auth_headers, evss_claim_id, form_content)
+      def process_8940(form_content)
         # generate and stamp PDF file
-        pdf_path8940 = generate_stamp_pdf(form_content, evss_claim_id) if form_content.present?
-        upload_to_vbms(auth_headers, evss_claim_id, pdf_path8940) if pdf_path8940.present?
+        pdf_path8940 = generate_stamp_pdf(form_content) if form_content.present?
+        upload_to_vbms(submission.auth_headers, submission.submitted_claim_id, pdf_path8940) if pdf_path8940.present?
       end
 
       # Invokes Filler ancillary form method to generate PDF document
       # Then calls method CentralMail::DatestampPdf to stamp the document.
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "VA.gov Submission" at the top of each page
-      def generate_stamp_pdf(form_content, evss_claim_id)
-        pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, FORM_ID)
+      def generate_stamp_pdf(form_content)
+        pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, submission.submitted_claim_id, FORM_ID)
         stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
         CentralMail::DatestampPdf.new(stamped_path1).run(
           text: 'VA.gov Submission',
