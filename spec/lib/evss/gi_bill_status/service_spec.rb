@@ -61,6 +61,24 @@ describe EVSS::GiBillStatus::Service do
       end
     end
 
+    describe '.seconds_until_downtime' do
+      context 'during downtime' do
+        before { Timecop.freeze(late_time) }
+        after { Timecop.return }
+        it 'returns 0' do
+          expect(described_class.seconds_until_downtime).to eq(0)
+        end
+      end
+
+      context 'during uptime' do
+        before { Timecop.freeze(non_dst) }
+        after { Timecop.return }
+        it 'returns number of seconds until uptime ends/downtime starts' do
+          expect(described_class.seconds_until_downtime).to eq(14_400)
+        end
+      end
+    end
+
     describe '#get_gi_bill_status' do
       context 'with a valid evss response' do
         it 'returns a valid response object' do

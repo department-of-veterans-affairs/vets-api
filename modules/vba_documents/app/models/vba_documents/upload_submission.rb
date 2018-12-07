@@ -7,6 +7,8 @@ module VBADocuments
 
     IN_FLIGHT_STATUSES = %w[received processing].freeze
 
+    after_save :report_errors
+
     def self.refresh_and_get_statuses!(guids)
       submissions = where(guid: guids)
       in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
@@ -115,6 +117,11 @@ module VBADocuments
                               status: response_object['status'])
         raise Common::Exceptions::BadGateway, detail: 'Unknown processing status'
       end
+    end
+
+    def report_errors
+      key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
+      StatsD.increment key, tags: ["status:#{code}"] if status_changed? && status == 'error'
     end
   end
 end
