@@ -8,7 +8,7 @@ module Benchmark
     #
     # Any changes made must be made to both.
     #
-    WHITELIST = ['/', '/disability/', '/facilities/', '/disability/how-to-file-claim/'].freeze
+    WHITELIST = ['/', '/disability/', '/find-locations/', '/disability/how-to-file-claim/'].freeze
 
     attr_reader :tags
 
