@@ -42,7 +42,7 @@ describe EVSS::ErrorMiddleware do
     it 'should raise an evss service error', run_at: 'Wed, 13 Dec 2017 23:45:40 GMT' do
       VCR.use_cassette('evss/claims/error_504') do
         expect { claims_service.find_claim_by_id(1) }.to raise_exception(
-          Common::Exceptions::SentryIgnoredGatewayTimeout
+          EVSS::ErrorMiddleware::EVSSBackendServiceError
         )
       end
     end

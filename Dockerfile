@@ -15,7 +15,8 @@ libpq-dev \
 clamav \
 imagemagick \
 pdftk \
-poppler-utils
+poppler-utils && \
+freshclam
 
 WORKDIR $APP_PATH
 ADD Gemfile $APP_PATH

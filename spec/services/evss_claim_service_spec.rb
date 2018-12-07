@@ -11,7 +11,7 @@ RSpec.describe EVSSClaimService do
   context 'when EVSS client times out' do
     describe '#all' do
       it 'returns all claims for the user' do
-        allow(client_stub).to receive(:all_claims).and_raise(Common::Exceptions::SentryIgnoredGatewayTimeout)
+        allow(client_stub).to receive(:all_claims).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject.all
@@ -23,7 +23,7 @@ RSpec.describe EVSSClaimService do
     describe '#update_from_remote' do
       it 'returns claim' do
         allow(client_stub).to receive(:find_claim_by_id).and_raise(
-          Common::Exceptions::SentryIgnoredGatewayTimeout
+          EVSS::ErrorMiddleware::EVSSBackendServiceError
         )
         allow(subject).to receive(:client) { client_stub }
         claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
