@@ -24,6 +24,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       match_requests_on: [:method,
                           VCR.request_matchers.uri_without_params(:qqfile, :docType, :docTypeDescription)]
     }
+    # the response body may not be encoded according to the encoding specified in the HTTP headers
+    # VCR will base64 encode the body of the request or response during serialization,
+    # in order to preserve the bytes exactly.
+    c.preserve_exact_body_bytes do |http_message|
+      http_message.body.encoding.name == 'ASCII-8BIT' ||
+        !http_message.body.valid_encoding?
+    end
   end
 
   describe '.perform_async' do
