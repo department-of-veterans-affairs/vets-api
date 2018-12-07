@@ -25,7 +25,6 @@ module SAML
       @saml_response = saml_response
       @saml_attributes = saml_response.attributes
       @user_attributes = user_attributes_class.new(saml_attributes, real_authn_context)
-      Raven.tags_context(sso_authn_context: context_key(real_authn_context))
       log_warnings_to_sentry!
     end
 
