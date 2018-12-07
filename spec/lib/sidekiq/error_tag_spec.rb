@@ -11,7 +11,7 @@ describe Sidekiq::ErrorTag do
 
   it 'should tag raven before each sidekiq job' do
     TestJob.perform_async
-    expect(Raven).to receive(:tags_context).with(job: 'test_job')
+    expect(Raven).to receive(:tags_context).with(job: 'TestJob')
     TestJob.drain
   end
 end
