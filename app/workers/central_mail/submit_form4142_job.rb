@@ -32,7 +32,7 @@ module CentralMail
     #
     def perform(submission_id)
       super(submission_id)
-      with_tracking('Form4142 Submission', submission.submitted_claim_id, submission.id) do
+      with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
         saved_claim_created_at = SavedClaim::DisabilityCompensation.find(submission.saved_claim_id).created_at
         @parsed_form = process_form(submission.form_to_json(Form526Submission::FORM_4142))
 
