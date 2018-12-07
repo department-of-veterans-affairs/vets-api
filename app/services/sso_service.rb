@@ -13,17 +13,6 @@ class SSOService
                   'Current time is earlier than NotBefore condition' => '003',
                   # 004, 005 and 006 are user persistence errors
                   DEFAULT_ERROR_MESSAGE => '007' }.freeze
-
-  CONTEXT_MAP = {
-      LOA::MAPPING.invert[1] => 'idme',
-      'dslogon' => 'dslogon',
-      'myhealthevet' => 'myhealthevet',
-      LOA::MAPPING.invert[3] => 'idproof',
-      'multifactor' => 'multifactor',
-      'dslogon_multifactor' => 'dslogon_multifactor',
-      'myhealthevet_multifactor' => 'myhealthevet_multifactor'
-    }.freeze
-
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
     @saml_response = response
@@ -79,10 +68,10 @@ class SSOService
   end
 
   def context_key
-      CONTEXT_MAP[real_authn_context] || 'unknown'
-    rescue StandardError
-      'unknown'
-    end
+    SAML::User.context_key(real_authn_context) || SAML::User::UNKNOWN_CONTEXT
+  rescue StandardError
+    SAML::User::UNKNOWN_CONTEXT
+  end
 
   private
 

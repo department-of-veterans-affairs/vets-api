@@ -88,7 +88,6 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{@sso_service.context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
-      Raven.tags_context(sso_authn_context: @sso_service.context_key)
     rescue NoMethodError
       Raven.extra_context(base64_params_saml_response: params[:SAMLResponse])
       redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
