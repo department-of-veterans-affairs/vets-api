@@ -5,7 +5,7 @@ http_interactions:
     uri: "<EVSS_BASE_URL>/wss-document-services-web-3.6/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L228&docTypeDescription=VA%20Form%2021-0781%20-%20Statement%20in%20Support%20of%20Claim%20for%20PTSD&qqfile=b480d18c02e22aea90f6f4bf68c57d71.pdf&systemName=vets.gov&trackedItemIds"
     body:
       encoding: UTF-8
-      string: !binary |-
+      base64_string: |
         JVBERi0xLjcKJeLjz9MKMSAwIG9iaiAKPDwKL0Zvcm1UeXBlIDEKL1N1YnR5
         cGUgL0Zvcm0KL1Jlc291cmNlcyAKPDwKL0ZvbnQgCjw8Ci9GMS4wIDIgMCBS
         Cj4+Ci9Qcm9jU2V0IFsvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1h
@@ -32678,7 +32678,7 @@ http_interactions:
     uri: "<EVSS_BASE_URL>/wss-document-services-web-3.6/rest/queuedDocumentUploadService/ajaxUploadFile?claimId=123456789&docType=L229&docTypeDescription=VA%20Form%2021-0781a%20-%20Statement%20in%20Support%20of%20Claim%20for%20PTSD%20Secondary%20to%20Personal%20Assault&qqfile=3a53a0e91e3716cef70ac734185d6694.pdf&systemName=vets.gov&trackedItemIds"
     body:
       encoding: UTF-8
-      string: !binary |-
+      base64_string: |
         JVBERi0xLjcKJeLjz9MKMSAwIG9iaiAKPDwKL0Zvcm1UeXBlIDEKL1N1YnR5
         cGUgL0Zvcm0KL1Jlc291cmNlcyAKPDwKL0ZvbnQgCjw8Ci9GMS4wIDIgMCBS
         Cj4+Ci9Qcm9jU2V0IFsvUERGIC9UZXh0IC9JbWFnZUIgL0ltYWdlQyAvSW1h
