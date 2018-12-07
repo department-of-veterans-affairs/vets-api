@@ -3,9 +3,6 @@
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm8940 < Job
-      FORM_ID = '21-8940' # form id for PTSD IU
-      DOC_TYPE = 'L149'
-
       STATSD_KEY_PREFIX = 'worker.evss.submit_form8940'
 
       # Sidekiq has built in exponential back-off functionality for retrys
@@ -31,13 +28,10 @@ module EVSS
       def perform(submission_id)
         super(submission_id)
 
+        document = EVSS::DisabilityCompensationForm::Form8940Document.new(submission)
+
         with_tracking('Form8940 Submission', submission.saved_claim_id, submission_id) do
-          parsed_form = JSON.parse(submission.form_to_json(Form526Submission::FORM_8940))
-
-          parsed_form8940 = parse_8940(parsed_form.deep_dup)
-
-          # process 8940
-          process_8940(parsed_form8940) if parsed_form8940.present?
+          upload_to_vbms(submission.auth_headers, document)
         end
       rescue StandardError => error
         # Cannot move job straight to dead queue dynamically within an executing job
@@ -49,58 +43,12 @@ module EVSS
 
       private
 
-      def parse_8940(parsed_form)
-        return '' if parsed_form['unemployability'].empty?
-        parsed_form
-      end
-
-      def process_8940(form_content)
-        # generate and stamp PDF file
-        pdf_path8940 = generate_stamp_pdf(form_content) if form_content.present?
-        upload_to_vbms(submission.auth_headers, submission.submitted_claim_id, pdf_path8940) if pdf_path8940.present?
-      end
-
-      # Invokes Filler ancillary form method to generate PDF document
-      # Then calls method CentralMail::DatestampPdf to stamp the document.
-      # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
-      # and second time to stamp with text "VA.gov Submission" at the top of each page
-      def generate_stamp_pdf(form_content)
-        pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, submission.submitted_claim_id, FORM_ID)
-        stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
-        CentralMail::DatestampPdf.new(stamped_path1).run(
-          text: 'VA.gov Submission',
-          x: 510,
-          y: 775,
-          text_only: true
-        )
-      end
-
-      def get_evss_claim_metadata(pdf_path)
-        pdf_path_split = pdf_path.split('/')
-        {
-          doc_type: DOC_TYPE,
-          file_name: pdf_path_split.last
-        }
-      end
-
-      def create_document_data(evss_claim_id, upload_data)
-        EVSSClaimDocument.new(
-          evss_claim_id: evss_claim_id,
-          file_name: upload_data[:file_name],
-          tracked_item_id: nil,
-          document_type: DOC_TYPE
-        )
-      end
-
-      def upload_to_vbms(auth_headers, evss_claim_id, pdf_path)
-        upload_data = get_evss_claim_metadata(pdf_path)
-        document_data = create_document_data(evss_claim_id, upload_data)
+      def upload_to_vbms(auth_headers, document)
         client = EVSS::DocumentsService.new(auth_headers)
-        file_body = open(pdf_path).read
-        client.upload(file_body, document_data)
+        client.upload(document.file_body, document.data)
       ensure
         # Delete the temporary PDF file
-        File.delete(pdf_path) if pdf_path.present?
+        File.delete(document.pdf_path) if document.pdf_path.present?
       end
     end
   end

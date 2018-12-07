@@ -13,9 +13,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  # let(:evss_claim_id) { 123_456_789 }
-  # let(:submission_id) { 123_456_790 }
-  # let(:saved_claim) { FactoryBot.create(:va526ez) }
   let(:form8940) { File.read 'spec/support/disability_compensation_form/form_8940.json' }
 
   subject { described_class }
