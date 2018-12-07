@@ -3,6 +3,18 @@
 module EVSS
   module DisabilityCompensationForm
     class EvssDocument
+      def file_body
+        open(@pdf_path).read
+      end
+
+      def data
+        @document_data
+      end
+
+      attr_reader :pdf_path
+
+      private
+
       # Invokes Filler ancillary form method to generate PDF document
       # Then calls method CentralMail::DatestampPdf to stamp the document.
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page

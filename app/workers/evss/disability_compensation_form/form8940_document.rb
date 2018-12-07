@@ -15,16 +15,6 @@ module EVSS
         @document_data = create_document_data(submission.submitted_claim_id, upload_data, DOC_TYPE)
       end
 
-      def file_body
-        open(@pdf_path).read
-      end
-
-      def data
-        @document_data
-      end
-
-      attr_reader :pdf_path
-
       private
 
       def parse_8940(parsed_form)
