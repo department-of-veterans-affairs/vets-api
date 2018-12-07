@@ -1,11 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Sidekiq::ErrorTag do
   class TestJob
     include Sidekiq::Worker
 
-    def perform
-    end
+    def perform; end
   end
 
   it 'should tag raven before each sidekiq job' do
