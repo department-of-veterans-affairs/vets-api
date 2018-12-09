@@ -41,19 +41,17 @@ RSpec.describe Sentry::Processor::LogAsWarning do
     }
   end
 
-  context 'for Common::Exceptions::GatewayTimeout errors' do
-    let(:exception) { Common::Exceptions::GatewayTimeout.to_s }
-    it 'sets the :level to 30 (warning)' do
-      expect(processor.process(data)[:level]).to eq(30)
-      expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
-    end
-  end
-
-  context 'for EVSS::ErrorMiddleware::EVSSError errors' do
-    let(:exception) { EVSS::ErrorMiddleware::EVSSError.to_s }
-    it 'sets the :level to 30 (warning)' do
-      expect(processor.process(data)[:level]).to eq(30)
-      expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
+  %w[
+    Common::Exceptions::GatewayTimeout
+    EVSS::ErrorMiddleware::EVSSError
+    EVSS::DisabilityCompensationForm::GatewayTimeout
+  ].each do |error|
+    context "for #{error} errors" do
+      let(:exception) { error }
+      it 'sets the :level to 30 (warning)' do
+        expect(processor.process(data)[:level]).to eq(30)
+        expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
+      end
     end
   end
 

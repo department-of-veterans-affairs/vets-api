@@ -5,26 +5,31 @@ module Sentry
     class LogAsWarning < Raven::Processor
       SENTRY_LOG_LEVEL_WARNING = 30
       RELEVANT_EXCEPTIONS = [
-        Common::Exceptions::GatewayTimeout.to_s,
-        EVSS::ErrorMiddleware::EVSSError.to_s
+        Common::Exceptions::GatewayTimeout,
+        EVSS::ErrorMiddleware::EVSSError
       ].freeze
 
       def process(data)
-        process_if_symbol_keys(data) if data[:exception]
-        process_if_string_keys(data) if data['exception']
+        exception_class = get_exception_class(data)
+
+        RELEVANT_EXCEPTIONS.each do |relevant_exception|
+          if exception_class == relevant_exception || exception_class < relevant_exception
+            data[:level] = SENTRY_LOG_LEVEL_WARNING
+            break
+          end
+        end
+
         data
       end
 
       private
 
-      def process_if_symbol_keys(data)
-        data[:level] = SENTRY_LOG_LEVEL_WARNING if RELEVANT_EXCEPTIONS.include?(data[:exception][:values].last[:type])
-      end
-
-      def process_if_string_keys(data)
-        if RELEVANT_EXCEPTIONS.include?(data['exception']['values'].last['type'])
-          data['level'] = SENTRY_LOG_LEVEL_WARNING
-        end
+      def get_exception_class(data)
+        if data[:exception]
+          data[:exception][:values].last[:type]
+        elsif data['exception']
+          data['exception']['values'].last['type']
+        end.constantize
       end
     end
   end
