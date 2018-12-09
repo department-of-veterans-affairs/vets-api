@@ -10,6 +10,8 @@ module Sentry
       ].freeze
 
       def process(data)
+        return data if data[:exception].blank? && data['exception'].blank?
+
         exception_class = get_exception_class(data)
 
         RELEVANT_EXCEPTIONS.each do |relevant_exception|
@@ -27,7 +29,7 @@ module Sentry
       def get_exception_class(data)
         if data[:exception]
           data[:exception][:values].last[:type]
-        elsif data['exception']
+        else
           data['exception']['values'].last['type']
         end.constantize
       end
