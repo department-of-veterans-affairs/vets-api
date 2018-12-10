@@ -96,6 +96,9 @@ ActiveRecord::Migration.maintain_test_schema!
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Logging.logger = nil
+Sidekiq::Testing.server_middleware do |chain|
+  chain.add Sidekiq::ErrorTag
+end
 
 require 'shrine/storage/memory'
 
