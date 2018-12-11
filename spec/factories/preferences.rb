@@ -23,7 +23,7 @@ FactoryBot.define do
     end
 
     trait :benefits do
-      code { 'test-benefit' }
+      code { 'test-benefits' }
       title { 'Test Benefits' }
       benefits = %w[test-health-care
                     test-disability
