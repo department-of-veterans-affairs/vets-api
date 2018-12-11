@@ -12,12 +12,14 @@ class MhvAccountsService
 
   ADDRESS_ATTRS = %w[street city state postal_code country].freeze
 
-  def initialize(mhv_account)
+  def initialize(mhv_account, user)
     @mhv_account = mhv_account
-    @user = mhv_account.user
+    @mhv_account.user = user
   end
 
-  attr_accessor :mhv_account, :user
+  attr_accessor :mhv_account
+
+  delegate :user, to: :mhv_account
 
   def create
     if mhv_account.creatable?

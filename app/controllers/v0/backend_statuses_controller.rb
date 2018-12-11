@@ -11,14 +11,15 @@ module V0
 
       # get status
       be_status = BackendStatus.new(name: @backend_service)
-
-      be_status.is_available = case @backend_service
-                               when BackendServices::GI_BILL_STATUS
-                                 EVSS::GiBillStatus::Service.within_scheduled_uptime?
-                               else
-                                 # default service is up!
-                                 true
-                               end
+      case @backend_service
+      when BackendServices::GI_BILL_STATUS
+        be_status.is_available = EVSS::GiBillStatus::Service.within_scheduled_uptime?
+        be_status.uptime_remaining = EVSS::GiBillStatus::Service.seconds_until_downtime
+      else
+        # default service is up!
+        be_status.is_available = true
+        be_status.uptime_remaining = 0
+      end
 
       render json: be_status,
              serializer: BackendStatusSerializer

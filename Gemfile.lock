@@ -999,6 +999,8 @@ GEM
     sdoc (0.4.1)
       json (~> 1.7, >= 1.7.7)
       rdoc (~> 4.0)
+    seedbank (0.5.0)
+      rake (>= 10.0)
     semantic_logger (4.2.2)
       concurrent-ruby (~> 1.0)
     sentry-raven (2.7.4)
@@ -1172,6 +1174,7 @@ DEPENDENCIES
   ruby-saml
   savon
   sdoc (~> 0.4.0)
+  seedbank
   sentry-raven
   shrine
   shrine-memory

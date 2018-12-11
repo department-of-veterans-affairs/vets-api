@@ -37,7 +37,7 @@ describe Vet360::Service do
     context 'when given a Common::Client::Errors::ParsingError from a Vet360 service call' do
       let(:error) { Common::Client::Errors::ParsingError.new }
       it 'logs an error message to sentry', :aggregate_failures do
-        expect(subject).to receive(:log_message_to_sentry).with(any_args)
+        expect(Raven).to receive(:extra_context)
 
         expect { subject.send('handle_error', error) }.to raise_error do |e|
           expect(e).to be_a(Common::Exceptions::BackendServiceException)

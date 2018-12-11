@@ -40,7 +40,7 @@ class User < Common::RedisStore
   delegate :email, to: :identity, allow_nil: true
   delegate :first_name, to: :identity, allow_nil: true
 
-  # This delegated method can also be called with #account_uuid
+  # This delegated method is called with #account_uuid
   delegate :uuid, to: :account, prefix: true, allow_nil: true
 
   # Retrieve a user's Account record.
@@ -48,7 +48,7 @@ class User < Common::RedisStore
   # @return [Account] an instance of the Account object
   #
   def account
-    Account.find_by(idme_uuid: uuid) if Settings.account.enabled
+    Account.find_by(idme_uuid: uuid)
   end
 
   def pciu_email
@@ -207,6 +207,7 @@ class User < Common::RedisStore
 
   def mhv_account
     @mhv_account ||= MhvAccount.find_or_initialize_by(user_uuid: uuid, mhv_correlation_id: mhv_correlation_id)
+                               .tap { |m| m.user = self } # MHV account should not re-initialize use
   end
 
   def in_progress_forms
