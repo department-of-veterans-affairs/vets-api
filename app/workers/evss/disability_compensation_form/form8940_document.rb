@@ -7,8 +7,7 @@ module EVSS
       DOC_TYPE = 'L149'
 
       def initialize(submission)
-        parsed_form = JSON.parse(submission.form[Form526Submission::FORM_8940])
-        form_content = parse_8940(parsed_form.deep_dup)
+        form_content = parse_8940(submission.form[Form526Submission::FORM_8940])
 
         @pdf_path = generate_stamp_pdf(form_content, submission.submitted_claim_id, FORM_ID) if form_content.present?
         upload_data = get_evss_claim_metadata(@pdf_path, DOC_TYPE)
@@ -19,7 +18,7 @@ module EVSS
 
       def parse_8940(parsed_form)
         return '' if parsed_form['unemployability'].empty?
-        parsed_form
+        parsed_form.deep_dup
       end
     end
   end
