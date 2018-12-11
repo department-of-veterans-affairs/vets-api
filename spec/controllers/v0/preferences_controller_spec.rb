@@ -53,8 +53,8 @@ RSpec.describe V0::PreferencesController, type: :controller do
   end
 
   describe '#index' do
-    let!(:first_preference) { create(:preference, :with_choices) }
-    let!(:second_preference) { create(:preference, :with_choices) }
+    let!(:notifications) { create(:preference, :notifications) }
+    let!(:benefits) { create(:preference, :benefits) }
 
     context 'when not logged in' do
       it 'returns unauthorized' do
@@ -80,17 +80,16 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'returns all existing Preferences with their choices' do
-        body = json_body_for(response)
-        preferences = body.dig('attributes', 'preferences')
-        expect(body['attributes']['preferences'].size).to eq 2
-        expect(preferences[0]['code']).to eq first_preference.code
+        preferences = json_body_for(response).dig('attributes', 'preferences')
+        expect(preferences.size).to eq Preference.count
       end
 
       it 'returns all PreferenceChoices for given Preference' do
-        preference_choices = json_body_for(response)['attributes']['preferences'][0]['preference_choices']
-        preference_choice_codes = preference_choices.map { |pc| pc['code'] }
+        body = json_body_for(response)['attributes']['preferences']
+        preference_set = body.select { |o| o.dig('code') == 'notifications' }.first
+        preference_choice_codes = preference_set['preference_choices'].map { |pc| pc['code'] }
 
-        expect(preference_choice_codes).to match_array first_preference.choices.map(&:code)
+        expect(preference_choice_codes).to match_array notifications.choices.map(&:code)
       end
     end
   end
