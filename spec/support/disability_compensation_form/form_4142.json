@@ -1,24 +1,5 @@
 {
   "privacyAgreementAccepted": true,
-  "vaFileNumber": "796068949",
-  "veteranSocialSecurityNumber": "796068949",
-  "veteranServiceNumber": "string",
-  "veteranFullName": {
-    "first": "Beyonce",
-    "middle": null,
-    "last": "Knowles"
-  },
-  "veteranDateOfBirth": "1809-02-12",
-  "veteranAddress": {
-    "city": "Quaint Town", 
-    "country": "USA", 
-    "postalCode": "85918-1212", 
-    "street": "1234 Classy Street", 
-    "street2": "Apartment 567", 
-    "state": "OR"
-  },
-  "email": "test@email.com",
-  "veteranPhone": "2024561111",
   "limitedConsent": "true",
   "providerFacility": [
     {
@@ -126,5 +107,24 @@
         "postalCode": "21200-1111"
       }
     }
-  ]
+  ],
+  "vaFileNumber": "796068949",
+  "veteranSocialSecurityNumber": "796068949",
+  "veteranFullName": {
+    "first": "Beyonce",
+    "middle": null,
+    "last": "Knowles"
+  },
+  "veteranDateOfBirth": "1809-02-12",
+  "veteranAddress": {
+    "city": "Portland",
+    "country": "USA",
+    "postalCode": "12345-6789",
+    "street": "1234 Couch Street",
+    "street2": "Apt. 22",
+    "state": "OR"
+  },
+  "email": "test@email.com",
+  "veteranPhone": "2024561111",
+  "veteranServiceNumber": ""
 }

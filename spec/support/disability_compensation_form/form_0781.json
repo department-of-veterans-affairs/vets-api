@@ -1,4 +1,122 @@
 {
+  "incident": [
+    {
+      "personalAssault": true,
+      "incidentDate": "2000-01-01",
+      "unitAssignedDates": {
+        "from": "2001-01-01",
+        "to": "2002-02-02"
+      },
+      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentDescription": "Lorem ipsum dolor sit amet.",
+      "source": [
+        {
+          "name": {
+            "first": "Testy",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Dusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "789 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Trusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "100 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        }
+      ]
+    },
+    {
+      "personalAssault": false,
+      "incidentDate": "2000-01-01",
+      "unitAssignedDates": {
+        "from": "2001-01-01",
+        "to": "2002-02-02"
+      },
+      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentDescription": "Lorem ipsum dolor sit amet.",
+      "source": [
+        {
+          "name": {
+            "first": "Testy",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "123 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Dusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "789 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        },
+        {
+          "name": {
+            "first": "Trusty",
+            "middle": "Tester",
+            "last": "Testerson"
+          },
+          "address": {
+            "street": "100 Main Street",
+            "street2": "1B",
+            "city": "Baltimore",
+            "state": "MD",
+            "country": "USA",
+            "postalCode": "21200-1111"
+          }
+        }
+      ]
+    }
+  ],
   "vaFileNumber": "796068949",
   "veteranSocialSecurityNumber": "796068949",
   "veteranFullName": {
@@ -7,120 +125,8 @@
     "last": "Knowles"
   },
   "veteranDateOfBirth": "1809-02-12",
-  "veteranServiceNumber": "string",
   "email": "test@email.com",
   "veteranPhone": "2024561111",
   "veteranSecondaryPhone": "",
-  "incident": [{
-    "personalAssault": true,
-    "incidentDate": "2000-01-01",
-    "unitAssignedDates": {
-      "from": "2001-01-01",
-      "to": "2002-02-02"
-    },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
-    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "incidentDescription": "Lorem ipsum dolor sit amet.",
-    "source": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    }]
-  },
-  {
-    "personalAssault": false,
-    "incidentDate": "2000-01-01",
-    "unitAssignedDates": {
-      "from": "2001-01-01",
-      "to": "2002-02-02"
-    },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
-    "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
-    "incidentDescription": "Lorem ipsum dolor sit amet.",
-    "source": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    },
-    {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
-      "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
-        "city": "Baltimore",
-        "state": "MD",
-        "country": "USA",
-        "postalCode": "21200-1111"
-      }
-    }]
-  }]
+  "veteranServiceNumber": ""
 }
