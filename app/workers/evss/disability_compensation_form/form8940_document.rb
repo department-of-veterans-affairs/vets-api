@@ -7,7 +7,7 @@ module EVSS
       DOC_TYPE = 'L149'
 
       def initialize(submission)
-        parsed_form = JSON.parse(submission.form_to_json(Form526Submission::FORM_8940))
+        parsed_form = JSON.parse(submission.form[Form526Submission::FORM_8940])
         form_content = parse_8940(parsed_form.deep_dup)
 
         @pdf_path = generate_stamp_pdf(form_content, submission.submitted_claim_id, FORM_ID) if form_content.present?

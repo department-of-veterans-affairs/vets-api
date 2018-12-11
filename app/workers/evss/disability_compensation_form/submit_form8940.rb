@@ -28,9 +28,8 @@ module EVSS
       def perform(submission_id)
         super(submission_id)
 
-        document = EVSS::DisabilityCompensationForm::Form8940Document.new(submission)
-
         with_tracking('Form8940 Submission', submission.saved_claim_id, submission_id) do
+          document = EVSS::DisabilityCompensationForm::Form8940Document.new(submission)
           upload_to_vbms(submission.auth_headers, document)
         end
       rescue StandardError => error
