@@ -72,7 +72,7 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
 
   describe '.perform_async for client error' do
     let(:missing_postalcode_form_json) do
-      File.read 'spec/support/disability_compensation_form/form_4142_missing_postalcode.json'
+      File.read 'spec/support/disability_compensation_form/submissions/with_4142_missing_postalcode.json'
     end
     let(:submission) do
       Form526Submission.create(user_uuid: user.uuid,
