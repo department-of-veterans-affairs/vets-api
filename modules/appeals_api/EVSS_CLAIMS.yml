@@ -202,189 +202,6 @@ components:
       name: apikey
       in: header 
   schemas:
-    ClaimDetails:
-      description: |
-        Claim with full details for the given Veteran info
-      type: object
-      properties:
-        id:
-          type: string
-          description: Claim ID from EVSS
-          example: '8347210'
-        type:
-          type: string
-          example: evss_claims
-          description: Required by JSON API standard
-        attributes:
-          type: object
-          properties:
-            date_filed:
-              type: string
-              format: date
-              description: Date in YYYY-MM-DD the claim was first filed
-              example: '2018-06-04'
-            min_est_date:
-              type: string
-              format: date
-              example: '2019-06-04'
-            max_est_date:
-              type: string
-              format: date
-              example: '2019-09-04'
-            phase_change_date:
-              type: string
-              format: date
-              example: '2018-06-04'
-              description: Date in YYYY-MM-DD the claim's phase was changed
-            open:
-              type: boolean
-              description: Has the claim been resolved
-            waiver_submitted: 
-              type: boolean
-              example: true
-            documents_needed: 
-              type: boolean
-              example: false
-              description: Does the claim require additional documents to be submitted
-            development_letter_sent: 
-              type: boolean
-              example: false
-            decision_letter_sent: 
-              type: boolean
-              example: false
-            updated_at: 
-              type: string
-              format: date-time
-              example: '2018-07-30T17:31:15.958Z'
-              description: Time stamp of last change to the claim
-            phase:
-              type: number
-              format: integer
-              example: 2
-              description: |
-                Phase the claim is in. Numbers map to the following
-                
-                1. 'claim received' 
-                1. 'under review' 
-                1. 'gathering of evidence' 
-                1. 'review of evidence' 
-                1. 'preparation for decision' 
-                1. 'pending decision approval' 
-                1. 'preparation for notification' 
-                1. 'complete'
-            ever_phase_back:
-              type: boolean
-              example: false
-            current_phase_back:
-              type: boolean
-              example: false
-            requested_decision:
-              type: boolean
-              example: false
-              description: The claim filer has requested a claim decision be made
-            claim_type:
-              type: string
-              example: Compensation
-              enum:
-                - Compenstation
-            va_representative:
-              type: string
-              example: DISABLED AMERICAN VETERANS
-              description: Group filing claim on behalf of the Veteran
-            contention_list:
-              type: array
-              items:
-                type: string
-                example: Diabetes (Increase)
-            events_timeline:
-              type: array
-              items:
-                type: object
-                properties:
-                  tracked_item_id:
-                    type: string
-                    description: Used by other_documents_list and claimed_tracked_items types
-                  filename:
-                    type: string
-                    example: KE-LLY_CAR-ROLL_526.pdf
-                    description: Used by other_documents_list type
-                  file_type:
-                    type: string
-                    example: VA 21-526EZ, Fully Developed Claim (Compensation)
-                    description: Used by other_documents_list type
-                  document_type:
-                    type: string
-                    example: L533
-                    description: Used by other_documents_list type
-                  upload_date:
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                    description: Used by other_documents_list and claimed_tracked_items types
-                  description:
-                    type: string
-                    description: Used by claimed_tracked_items type
-                  display_name:
-                    type: string
-                    description: Used by claimed_tracked_items type
-                  overdue:
-                    type: boolean
-                    example: false
-                    description: Used by claimed_tracked_items type
-                  status:
-                    type: string
-                    description: Used by claimed_tracked_items type
-                  uploaded:
-                    type: boolean
-                    example: false
-                    description: Used by claimed_tracked_items type
-                  uploads_allowed:
-                    type: boolean
-                    example: false
-                    description: Used by claimed_tracked_items type
-                  opened_date:
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                    description: Used by claimed_tracked_items type
-                  requested_date:
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                    description: Used by claimed_tracked_items type
-                  received_date:
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                    description: Used by claimed_tracked_items type
-                  closed_date:
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                    description: Used by claimed_tracked_items type
-                  suspense_date:
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                    description: Used by claimed_tracked_items type
-                  documents:
-                    type: array
-                    items:
-                      type: string
-                  date:
-                    required: true
-                    type: string
-                    format: date
-                    example: '2018-06-04'
-                  type:
-                    required: true
-                    type: string
-                    example: filed
-                    enum:
-                      - filed
-                      - phase1
-                      - other_documents_list
-                      - claim_tracked_items
     Claim:
       description: |
         Claim with some details for the given Veteran info
@@ -409,10 +226,12 @@ components:
             min_est_date:
               type: string
               format: date
+              description: Minimum Estimated Claim Completion Date
               example: '2019-06-04'
             max_est_date:
               type: string
               format: date
+              description: Maximum Estimated Claim Completion Date
               example: '2019-09-04'
             phase_change_date:
               type: string
@@ -424,16 +243,19 @@ components:
               description: Has the claim been resolved
             waiver_submitted: 
               type: boolean
-              example: true
+              description: Requested Decision or Waiver 5103 Submitted
+              example: false
             documents_needed: 
               type: boolean
               example: false
               description: Does the claim require additional documents to be submitted
             development_letter_sent: 
               type: boolean
+              description: Indicates if a Decision Notification Letter has been sent to the Claimant regarding a benefit claim
               example: false
             decision_letter_sent: 
               type: boolean
+              description: Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim
               example: false
             updated_at: 
               type: string
@@ -448,18 +270,20 @@ components:
                 Phase the claim is in. Numbers map to the following
                 
                 1. 'claim received' 
-                1. 'under review' 
-                1. 'gathering of evidence' 
-                1. 'review of evidence' 
-                1. 'preparation for decision' 
-                1. 'pending decision approval' 
-                1. 'preparation for notification' 
-                1. 'complete'
+                2. 'under review' 
+                3. 'gathering of evidence' 
+                4. 'review of evidence' 
+                5. 'preparation for decision' 
+                6. 'pending decision approval' 
+                7. 'preparation for notification' 
+                8. 'complete'
             ever_phase_back:
               type: boolean
+              description: This flag indicates if the claim ever phased back(went back to previous phase) at some point
               example: false
             current_phase_back:
               type: boolean
+              description: This flag indicates if the current phase ever phased back(went back to previous phase) at some point
               example: false
             requested_decision:
               type: boolean
@@ -469,4 +293,6 @@ components:
               type: string
               example: Compensation
               enum:
-                - Compenstation
+                - Compensation
+                - Compensation and Pension
+                - Dependency
