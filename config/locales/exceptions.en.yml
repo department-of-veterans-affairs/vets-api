@@ -140,6 +140,12 @@ en:
         detail: "An outage has been reported on the %{service} since %{since}"
         code: 503
         status: 503
+      service_unavailable:
+        <<: *defaults
+        title: Service unavailable
+        detail: "External service unavailable"
+        code: 503
+        status: 503
       gateway_timeout: &gateway_timeout
         <<: *defaults
         title: Gateway timeout
