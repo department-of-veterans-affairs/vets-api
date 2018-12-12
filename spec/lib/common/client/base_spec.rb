@@ -49,7 +49,9 @@ describe Common::Client::Base do
 
       context 'when request raises a 503 backend service exception' do
         it 'should raise a ServiceUnavailable error' do
-          expect(service).to receive(:connection).and_raise(Common::Exceptions::BackendServiceException.new(nil, {}, 503))
+          expect(service).to receive(:connection).and_raise(
+            Common::Exceptions::BackendServiceException.new(nil, {}, 503)
+          )
           expect { service.send(:request, :get, nil) }.to raise_error(
             Common::Exceptions::ServiceUnavailable
           )
