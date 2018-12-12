@@ -14,4 +14,8 @@ class Form526JobStatus < ActiveRecord::Base
     non_retryable_error: 'non_retryable_error',
     exhausted: 'exhausted'
   }.freeze
+
+  def success?
+    status == STATUS[:success]
+  end
 end

@@ -27,7 +27,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       VCR.use_cassette('evss/ppiu/payment_information') do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-            expect(JSON.parse(subject.translate)).to eq JSON.parse(evss_json)
+            expect(subject.translate).to eq JSON.parse(evss_json)
           end
         end
       end

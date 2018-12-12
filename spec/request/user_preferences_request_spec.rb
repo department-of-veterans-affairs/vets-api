@@ -121,4 +121,29 @@ describe 'user_preferences', type: :request do
       end
     end
   end
+
+  describe 'GET /v0/user/preferences' do
+    before do
+      benefits = create(:preference, :benefits)
+      notifications = create(:preference, :notifications)
+      UserPreference.create(account_id: user.account.id,
+                            preference_id: benefits.id,
+                            preference_choice_id: benefits.choices.first.id)
+
+      UserPreference.create(account_id: user.account.id,
+                            preference_id: notifications.id,
+                            preference_choice_id: notifications.choices.first.id)
+
+      UserPreference.create(account_id: user.account.id,
+                            preference_id: notifications.id,
+                            preference_choice_id: notifications.choices.last.id)
+    end
+
+    it 'returns an index of all of the user\'s preferences' do
+      get '/v0/user/preferences', {}, auth_header
+
+      expect(response).to be_ok
+      expect(response).to match_response_schema('user_preferences')
+    end
+  end
 end

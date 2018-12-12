@@ -79,6 +79,16 @@ RSpec.describe Form526Submission do
         expect(subject.form_to_json(Form526Submission::FORM_0781)).to eq(JSON.parse(form_json)['form0781'].to_json)
       end
     end
+
+    context 'with form 8940' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_8940.json')
+      end
+
+      it 'returns the sub form as json' do
+        expect(subject.form_to_json(Form526Submission::FORM_8940)).to eq(JSON.parse(form_json)['form8940'].to_json)
+      end
+    end
   end
 
   describe '#auth_headers' do
@@ -125,14 +135,63 @@ RSpec.describe Form526Submission do
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
       end
     end
+
+    context 'with form 8940' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_8940.json')
+      end
+
+      it 'queues a 8940 job' do
+        expect do
+          subject.perform_ancillary_jobs(bid)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
+      end
+    end
   end
 
   describe '#workflow_complete_handler' do
-    it 'sets the submission.complete to true' do
-      expect(subject.workflow_complete).to be_falsey
-      subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-      subject.reload
-      expect(subject.workflow_complete).to be_truthy
+    context 'with a single successful job' do
+      subject { create(:form526_submission, :with_one_succesful_job) }
+
+      it 'sets the submission.complete to true' do
+        expect(subject.workflow_complete).to be_falsey
+        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        subject.reload
+        expect(subject.workflow_complete).to be_truthy
+      end
+    end
+
+    context 'with multiple successful jobs' do
+      subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+
+      it 'sets the submission.complete to true' do
+        expect(subject.workflow_complete).to be_falsey
+        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        subject.reload
+        expect(subject.workflow_complete).to be_truthy
+      end
+    end
+
+    context 'with mixed result jobs' do
+      subject { create(:form526_submission, :with_mixed_status) }
+
+      it 'sets the submission.complete to true' do
+        expect(subject.workflow_complete).to be_falsey
+        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        subject.reload
+        expect(subject.workflow_complete).to be_falsey
+      end
+    end
+
+    context 'with a failing 526 form job' do
+      subject { create(:form526_submission, :with_one_failed_job) }
+
+      it 'sets the submission.complete to true' do
+        expect(subject.workflow_complete).to be_falsey
+        subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+        subject.reload
+        expect(subject.workflow_complete).to be_falsey
+      end
     end
   end
 end
