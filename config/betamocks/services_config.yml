@@ -374,6 +374,9 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+  - :method: :get
+    :path: "/health-check"
+    :file_path: "appeals/health-check"
 
 # IHUB
 - :name: 'IHub'
