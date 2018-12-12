@@ -241,6 +241,7 @@ components:
             open:
               type: boolean
               description: Has the claim been resolved
+              example: true
             waiver_submitted: 
               type: boolean
               description: Requested Decision or Waiver 5103 Submitted
