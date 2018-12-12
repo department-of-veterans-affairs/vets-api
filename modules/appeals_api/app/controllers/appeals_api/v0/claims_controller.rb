@@ -51,15 +51,15 @@ module AppealsApi
       end
 
       def target_veteran
-        veteran = OpenStruct.new
-        veteran.ssn = ssn
-        veteran.loa = { current: :loa3 }
-        veteran.first_name = first_name
-        veteran.last_name = last_name
-        veteran.birth_date = birth_date
-        veteran.edipi = edipi
-        veteran.last_signed_in = Time.zone.now
-        veteran
+        AppealsApi::Veteran.new(
+          ssn: ssn,
+          loa: { current: :loa3 },
+          first_name: first_name,
+          last_name: last_name,
+          birth_date: birth_date,
+          edipi: edipi,
+          last_signed_in: Time.zone.now
+        )
       end
     end
   end
