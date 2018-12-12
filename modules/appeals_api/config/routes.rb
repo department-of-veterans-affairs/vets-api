@@ -11,7 +11,9 @@ AppealsApi::Engine.routes.draw do
 
   namespace :docs do
     namespace :v0 do
+      # DEPRECATED DOC LINK (To be removed)
       get 'api', to: 'api#appeals'
+      # -------------------
       get 'appeals', to: 'api#appeals'
       get 'claims', to: 'api#claims'
     end
