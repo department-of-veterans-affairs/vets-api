@@ -9,7 +9,7 @@ module AppealsApi
 
     def log_request
       hashed_ssn = Digest::SHA2.hexdigest ssn
-      Rails.logger.info('Caseflow Request',
+      Rails.logger.info('Appeals App Request',
                         'consumer' => consumer,
                         'va_user' => requesting_va_user,
                         'lookup_identifier' => hashed_ssn)
@@ -20,7 +20,7 @@ module AppealsApi
         'consumer' => consumer,
         'va_user' => requesting_va_user
       }.merge(additional_fields)
-      Rails.logger.info('Caseflow Response', logged_info)
+      Rails.logger.info('Appeals App Response', logged_info)
     end
 
     def consumer
