@@ -5,7 +5,9 @@ require 'support/saml/response_builder'
 
 RSpec.describe SAML::User do
   describe 'MHV Logon' do
-    let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet', saml_attributes) }
+    let(:saml_response) do
+      SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet', saml_attributes)
+    end
     let(:described_instance) { described_class.new(saml_response) }
 
     context 'non-premium user' do
@@ -39,7 +41,9 @@ RSpec.describe SAML::User do
       end
 
       context 'multifactor' do
-        let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet_multifactor', saml_attributes) }
+        let(:saml_response) do
+          SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet_multifactor', saml_attributes)
+        end
 
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy
@@ -80,7 +84,9 @@ RSpec.describe SAML::User do
       end
 
       context 'multifactor' do
-        let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet_multifactor', saml_attributes) }
+        let(:saml_response) do
+          SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet_multifactor', saml_attributes)
+        end
 
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy

@@ -26,7 +26,7 @@ class UserIdentity < Common::RedisStore
   attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
   attribute :mhv_account_type # this is only available for MHV sign-in users
   attribute :dslogon_edipi # this is only available for dslogon users
-  attribute :sign_in, Hash, default: :default_sign_in # this is the original sign_in (see sso_service: mergable_identity_attributes)
+  attribute :sign_in, Hash, default: :default_sign_in # original sign_in (see sso_service#mergable_identity_attributes)
 
   validates :uuid, presence: true
   validates :email, presence: true

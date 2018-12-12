@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module SAML
   class ResponseBuilder
     include RSpec::Mocks::ExampleMethods
@@ -52,6 +54,7 @@ module SAML
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def saml_attributes
       case type
       when 'myhealthevet'
@@ -96,6 +99,7 @@ module SAML
           'dslogon_idvalue' => ['11122333']
         )
       end
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
