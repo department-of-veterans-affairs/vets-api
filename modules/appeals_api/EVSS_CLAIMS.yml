@@ -252,11 +252,11 @@ components:
               description: Does the claim require additional documents to be submitted
             development_letter_sent: 
               type: boolean
-              description: Indicates if a Decision Notification Letter has been sent to the Claimant regarding a benefit claim
+              description: Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim
               example: false
             decision_letter_sent: 
               type: boolean
-              description: Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim
+              description: Indicates if a Decision Notification Letter has been sent to the Claimant regarding a benefit claim
               example: false
             updated_at: 
               type: string
