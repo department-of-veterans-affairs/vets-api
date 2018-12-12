@@ -15,12 +15,12 @@ class ProviderSerializer < ActiveModel::Serializer
   end
 
   def address
-    if object.AddressCity
+    if object.AddressStreet && object.AddressCity && object.AddressStateProvince && object.AddressPostalCode
       return { street: object.AddressStreet, city: object.AddressCity,
                state: object.AddressStateProvince,
                zip: object.AddressPostalCode }
     end
-    { street: object.AddressStreet }
+    {}
   end
 
   def lat

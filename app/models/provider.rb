@@ -40,6 +40,15 @@ class Provider < Common::Base
     self.ProviderSpecialties = prov_info['ProviderSpecialties']
   end
 
+  def add_caresite(caresite)
+    self.AddressStreet = caresite['Street']
+    self.AddressCity = caresite['City']
+    self.AddressPostalCode = caresite['ZipCode']
+    self.AddressStateProvince = caresite['State']
+    self.Longitude = caresite['Longitude']
+    self.Latitude = caresite['Latitude']
+  end
+
   def self.merge(facilities, providers, center_x, center_y, limit)
     distance_facilities = facilities.map do |facility|
       { distance: 69 * Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2),
