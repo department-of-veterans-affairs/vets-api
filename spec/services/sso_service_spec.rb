@@ -24,7 +24,7 @@ RSpec.describe SSOService do
         it "has a #new_user_identity which responds to #sign_in" do
           expect(sso_service.new_user_identity.sign_in)
             .to eq({ service_name: 'myhealthevet' })
-          saml_response_verifying_identity = SAML::ResponseBuilder.saml_response('idme', '3')
+          saml_response_verifying_identity = SAML::ResponseBuilder.saml_response('loa3')
           sso_service_verifying_identity = described_class.new(saml_response_verifying_identity)
           expect(sso_service_verifying_identity.new_user_identity.sign_in)
             .to eq({ service_name: 'idme' })
@@ -67,7 +67,7 @@ RSpec.describe SSOService do
         it "has a #new_user_identity which responds to #sign_in" do
           expect(sso_service.new_user_identity.sign_in)
             .to eq({ service_name: 'dslogon' })
-          saml_response_verifying_identity = SAML::ResponseBuilder.saml_response('idme', '3')
+          saml_response_verifying_identity = SAML::ResponseBuilder.saml_response('loa3')
           sso_service_verifying_identity = described_class.new(saml_response_verifying_identity)
           expect(sso_service_verifying_identity.new_user_identity.sign_in)
             .to eq({ service_name: 'idme' })
@@ -90,7 +90,7 @@ RSpec.describe SSOService do
 
   describe 'IDme Identity' do
     context 'idme assurance 1' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('idme', '1') }
+      let(:saml_response) { SAML::ResponseBuilder.saml_response('loa1') }
 
       it "has a #new_user_identity which responds to #sign_in" do
         expect(sso_service.new_user_identity.sign_in)
@@ -99,7 +99,7 @@ RSpec.describe SSOService do
     end
 
     context 'idme assurance 3' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('idme', '3') }
+      let(:saml_response) { SAML::ResponseBuilder.saml_response('loa3') }
 
       it "has a #new_user_identity which responds to #sign_in" do
         expect(sso_service.new_user_identity.sign_in)

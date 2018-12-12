@@ -1,22 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'saml/user'
-require 'ruby-saml'
+require 'support/saml/response_builder'
 
 RSpec.describe SAML::User do
   describe 'ID.me' do
-    let(:saml_response) do
-      instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
-                                                    response: 'base64decoded-stuff',
-                                                    decrypted_document: decrypted_document_partial)
-    end
-    let(:decrypted_document_partial) { REXML::Document.new(response_partial) }
-    let(:response_partial) { File.read("#{::Rails.root}/spec/fixtures/files/saml_responses/#{response_file}") }
     let(:described_instance) { described_class.new(saml_response) }
 
     context 'LOA1 user' do
-      let(:response_file) { 'loa1.xml' }
+      let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('loa1', saml_attributes) }
       let(:saml_attributes) do
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['1234abcd'],
@@ -27,6 +19,15 @@ RSpec.describe SAML::User do
       end
 
       context 'add additional context when no decrypted document' do
+        let(:saml_response) do
+          instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
+                                                        response: 'base64decoded-stuff',
+                                                        decrypted_document: decrypted_document_partial)
+        end
+        let(:decrypted_document_partial) { REXML::Document.new(response_partial) }
+        let(:response_file) { 'loa1.xml' }
+        let(:response_partial) { File.read("#{::Rails.root}/spec/fixtures/files/saml_responses/#{response_file}") }
+
         it 'adds additional context for NoMethodError' do
           allow(REXML::XPath).to receive(:first).and_raise(NoMethodError)
           expect(Raven).to receive(:extra_context).with(
@@ -62,7 +63,7 @@ RSpec.describe SAML::User do
       end
 
       context 'multifactor' do
-        let(:response_file) { 'multifactor.xml' }
+        let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('multifactor', saml_attributes) }
 
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy
@@ -71,7 +72,7 @@ RSpec.describe SAML::User do
     end
 
     context 'LOA3 user' do
-      let(:response_file) { 'loa3.xml' }
+      let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('loa3', saml_attributes) }
       let(:saml_attributes) do
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['1234abcd'],
@@ -118,7 +119,7 @@ RSpec.describe SAML::User do
       end
 
       context 'multifactor' do
-        let(:response_file) { 'multifactor.xml' }
+        let(:saml_response) { SAML::ResponseBuilder.saml_response_from_attributes('multifactor', saml_attributes) }
 
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy

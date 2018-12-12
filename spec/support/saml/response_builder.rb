@@ -4,32 +4,51 @@ module SAML
 
     attr_reader :type, :level
 
-    def initialize(type:, level:)
+    def initialize(type:, level: nil)
       @type = type
       @level = level
     end
 
-    def self.saml_response(type, level)
+    def self.saml_response(type, level = nil)
+      level ||= { 'loa1' => '1', 'loa3' => '3' }.fetch(type, '1')
       new(type: type, level: level).saml_response
     end
 
-    def saml_response
-      response_partial = File.read("#{::Rails.root}/spec/fixtures/files/saml_responses/#{response_file}")
-      decrypted_document_partial = REXML::Document.new(response_partial)
-      instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
+    def self.saml_response_from_attributes(type, attributes)
+      new(type: type).saml_response(attributes)
+    end
+
+    def saml_response(attributes = saml_attributes)
+      decrypted_document_partial = REXML::Document.new(authn_context_xml_partial)
+      instance_double(OneLogin::RubySaml::Response, attributes: attributes,
                                                     decrypted_document: decrypted_document_partial,
                                                     is_a?: true,
                                                     is_valid?: true)
     end
 
-    def response_file
+    def authn_context_xml_partial
+      <<-XML
+      <?xml version="1.0"?>
+      <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
+        <saml:Assertion>
+          <saml:AuthnStatement>
+            <saml:AuthnContext>
+              <saml:AuthnContextClassRef>#{authn_context}</saml:AuthnContextClassRef>
+            </saml:AuthnContext>
+          </saml:AuthnStatement>
+        </saml:Assertion>
+      </samlp:Response>
+      XML
+    end
+
+    def authn_context
       case type
-      when 'myhealthevet'
-        'mhv.xml'
-      when 'dslogon'
-        'dslogon.xml'
-      when 'idme'
-        level == 1 ? 'loa1.xml' : 'loa3.xml'
+      when 'loa1'
+        'http://idmanagement.gov/ns/assurance/loa/1/vets'
+      when 'loa3'
+        'http://idmanagement.gov/ns/assurance/loa/3/vets'
+      else
+        type
       end
     end
 
@@ -45,7 +64,7 @@ module SAML
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'level_of_assurance' => []
         )
-      when 'idme'
+      when 'loa1', 'loa3'
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'email'              => ['kam+tristanmhv@adhocteam.us'],
