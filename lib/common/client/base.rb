@@ -15,6 +15,7 @@ module Common
 
     class Base
       include SentryLogging
+      include Concerns::RefineErrors
 
       def self.configuration(configuration = nil)
         @configuration ||= configuration.instance
@@ -53,25 +54,18 @@ module Common
         send(method, path, params || {}, headers || {})
       end
 
+      # rubocop:disable Metrics/MethodLength
       def request(method, path, params = {}, headers = {})
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+        handle_service_unavailable do
+          connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }
+        end.env
       rescue Common::Exceptions::BackendServiceException => e
-        if e.original_status&.to_i == 503
-          raise Common::Exceptions::ServiceUnavailable.new
-        end
-
         # convert BackendServiceException into a more meaningful exception title for Sentry
         raise config.service_exception.new(
           e.key, e.response_values, e.original_status, e.original_body
         )
-      rescue Common::Client::Errors::HTTPError => e
-        if e.status&.to_i == 503
-          raise Common::Exceptions::ServiceUnavailable.new
-        end
-
-        raise
       rescue Timeout::Error, Faraday::TimeoutError
         Raven.extra_context(service_name: config.service_name, url: config.base_path)
         raise Common::Exceptions::GatewayTimeout
@@ -87,6 +81,7 @@ module Common
         client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
         raise client_error
       end
+      # rubocop:enable Metrics/MethodLength
 
       def sanitize_headers!(_method, _path, _params, headers)
         headers.transform_keys!(&:to_s)
