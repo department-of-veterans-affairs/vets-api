@@ -6,7 +6,7 @@ require 'evss/disability_compensation_form/form0781'
 describe EVSS::DisabilityCompensationForm::Form0781 do
   let(:form_content) do
     JSON.parse(
-      File.read('spec/support/disability_compensation_form/front_end_submission_with_0781.json')
+      File.read('spec/support/disability_compensation_form/all_claims_with_0781_fe_submission.json')
     )
   end
   let(:expected_output) { JSON.parse(File.read('spec/support/disability_compensation_form/form_0781.json')) }

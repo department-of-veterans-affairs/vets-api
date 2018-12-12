@@ -2,10 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class SubmitForm0781
-      include Sidekiq::Worker
-      include JobStatus
-
+    class SubmitForm0781 < Job
       FORM_ID_0781 = '21-0781' # form id for PTSD
       FORM_ID_0781A = '21-0781a' # form id for PTSD Secondary to Personal Assault
       FORMS_METADATA = {
@@ -33,21 +30,24 @@ module EVSS
 
       # Performs an asynchronous job for generating and submitting 0781 + 0781A PDF documents to VBMS
       #
-      # @param auth_headers [Hash] The VAAFI headers for the user
-      # @param evss_claim_id [String] EVSS Claim id received from 526 submission
-      # @param saved_claim_id [Integer] Saved Claim id from 526 submission
       # @param submission_id [String] The submission id of 526, uploads, and 4142 data
-      # @param form_content [Hash] The form content for 0781 + 0781A submission
       #
-      def perform(auth_headers, evss_claim_id, saved_claim_id, submission_id, form_content)
-        with_tracking('Form0781 Submission', saved_claim_id, submission_id) do
-          parsed_form = JSON.parse(form_content)
+      def perform(submission_id)
+        super(submission_id)
+        with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
+          parsed_form = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
           parsed_form0781 = get_form_0781(parsed_form.deep_dup)
           parsed_form0781a = get_form_0781a(parsed_form.deep_dup)
 
           # process 0781 and 0781a
-          process_0781(auth_headers, evss_claim_id, FORM_ID_0781, parsed_form0781) if parsed_form0781.present?
-          process_0781(auth_headers, evss_claim_id, FORM_ID_0781A, parsed_form0781a) if parsed_form0781a.present?
+          if parsed_form0781.present?
+            process_0781(submission.auth_headers,
+                         submission.submitted_claim_id, FORM_ID_0781, parsed_form0781)
+          end
+          if parsed_form0781a.present?
+            process_0781(submission.auth_headers,
+                         submission.submitted_claim_id, FORM_ID_0781A, parsed_form0781a)
+          end
         end
       rescue StandardError => error
         # Cannot move job straight to dead queue dynamically within an executing job
