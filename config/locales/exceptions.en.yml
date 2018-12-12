@@ -140,12 +140,6 @@ en:
         detail: "An outage has been reported on the %{service} since %{since}"
         code: 503
         status: 503
-      service_unavailable:
-        <<: *defaults
-        title: Service unavailable
-        detail: "External service unavailable"
-        code: 503
-        status: 503
       gateway_timeout: &gateway_timeout
         <<: *defaults
         title: Gateway timeout
@@ -171,6 +165,12 @@ en:
     # All error codes below this line, use the same exception class bad_request
     # need to be mapped properly using specific codes described below
     # Below this line just define the minor code as key to be used by client error
+      service_unavailable:
+        <<: *external_defaults
+        title: Service unavailable
+        detail: "External service unavailable"
+        code: 'EXTERNAL503'
+        status: 503
       VA900:
         <<: *external_defaults
       SM105: # What casues this? Perhaps then we can come up with more customized detail below
