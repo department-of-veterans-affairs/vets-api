@@ -14,9 +14,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:evss_claim_id) { 123_456_789 }
-  let(:submission_id) { 123_456_790 }
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:form0781) { File.read 'spec/support/disability_compensation_form/form_0781.json' }
+  let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' }
 
   subject { described_class }
 
@@ -25,19 +24,33 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       match_requests_on: [:method,
                           VCR.request_matchers.uri_without_params(:qqfile, :docType, :docTypeDescription)]
     }
+    # the response body may not be encoded according to the encoding specified in the HTTP headers
+    # VCR will base64 encode the body of the request or response during serialization,
+    # in order to preserve the bytes exactly.
+    c.preserve_exact_body_bytes do |http_message|
+      http_message.body.encoding.name == 'ASCII-8BIT' ||
+        !http_message.body.valid_encoding?
+    end
   end
 
   describe '.perform_async' do
+    let(:submission) do
+      Form526Submission.create(user_uuid: user.uuid,
+                               auth_headers_json: auth_headers.to_json,
+                               saved_claim_id: saved_claim.id,
+                               form_json: form0781,
+                               submitted_claim_id: evss_claim_id)
+    end
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
-          subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form0781)
+          subject.perform_async(submission.id)
         end.to change(subject.jobs, :size).by(1)
       end
 
       it 'submits successfully' do
         VCR.use_cassette('evss/disability_compensation_form/submit_0781') do
-          subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form0781)
+          subject.perform_async(submission.id)
           jid = subject.jobs.last['jid']
           described_class.drain
           expect(jid).not_to be_empty
@@ -51,7 +64,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'raises a gateway timeout error' do
-        subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form0781)
+        subject.perform_async(submission.id)
         expect { described_class.drain }.to raise_error(StandardError)
       end
     end
@@ -62,7 +75,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'raises a standard error' do
-        subject.perform_async(auth_headers, evss_claim_id, saved_claim.id, submission_id, form0781)
+        subject.perform_async(submission.id)
         expect { described_class.drain }.to raise_error(StandardError)
       end
     end
