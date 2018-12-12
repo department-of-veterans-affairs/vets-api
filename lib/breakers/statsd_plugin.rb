@@ -20,7 +20,6 @@ module Breakers
             (\/|$)
           }x
           endpoint = request.url.path.gsub(r, '\1xxx\4')
-
           tags.append("endpoint:#{endpoint}")
         end
 
