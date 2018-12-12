@@ -45,6 +45,7 @@ RSpec.describe Sentry::Processor::LogAsWarning do
     Common::Exceptions::GatewayTimeout
     EVSS::ErrorMiddleware::EVSSError
     EVSS::DisabilityCompensationForm::GatewayTimeout
+    Common::Exceptions::ServiceUnavailable
   ].each do |error|
     context "for #{error} errors" do
       let(:exception) { error }

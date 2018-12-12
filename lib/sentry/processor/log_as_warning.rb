@@ -6,7 +6,8 @@ module Sentry
       SENTRY_LOG_LEVEL_WARNING = 30
       RELEVANT_EXCEPTIONS = [
         Common::Exceptions::GatewayTimeout,
-        EVSS::ErrorMiddleware::EVSSError
+        EVSS::ErrorMiddleware::EVSSError,
+        Common::Exceptions::ServiceUnavailable
       ].freeze
 
       def process(data)
