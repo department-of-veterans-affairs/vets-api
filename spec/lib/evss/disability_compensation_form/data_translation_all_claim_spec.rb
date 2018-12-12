@@ -341,8 +341,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'form526' => {
             'mailingAddress' => {},
             'phoneAndEmail' => {
-              'email' => 'tester@adhocteam.us',
-              'phone' => '5551231234'
+              'emailAddress' => 'tester@adhocteam.us',
+              'primaryPhone' => '5551231234'
             },
             'isVAEmployee' => true
           }
