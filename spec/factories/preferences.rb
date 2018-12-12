@@ -11,19 +11,30 @@ FactoryBot.define do
       end
     end
 
+    trait :notifications do
+      code { 'notifications' }
+      title { 'Notifications' }
+      after :create do |preference|
+        create :preference_choice, preference: preference, code: 'push-mobile',  description: 'Push alert to mobile?'
+        create :preference_choice, preference: preference, code: 'text-mobile',  description: 'Text alert to mobile?'
+        create :preference_choice, preference: preference, code: 'push-browser', description: 'Push alert to browser?'
+        create :preference_choice, preference: preference, code: 'email',        description: 'Email notifications?'
+      end
+    end
+
     trait :benefits do
-      code { 'benefits' }
-      title { 'Benefits' }
-      benefits = %w[health-care
-                    disability
-                    appeals
-                    education-training
-                    careers-employment
-                    pension
-                    housing-assistance
-                    life-insurance
-                    burials-memorials
-                    family-caregiver-benefits]
+      code { 'test-benefits' }
+      title { 'Test Benefits' }
+      benefits = %w[test-health-care
+                    test-disability
+                    test-appeals
+                    test-education-training
+                    test-careers-employment
+                    test-pension
+                    test-housing-assistance
+                    test-life-insurance
+                    test-burials-memorials
+                    test-family-caregiver-benefits]
 
       after :create do |preference|
         benefits.each do |benefit|

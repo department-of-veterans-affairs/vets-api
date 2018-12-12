@@ -232,8 +232,8 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
-    resources :preferences, only: %i[show index], path: 'user/preferences/choices', param: :code
-    resources :user_preferences, only: :create, path: 'user/preferences'
+    resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
+    resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
 
     [
       'profile',

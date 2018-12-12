@@ -35,7 +35,7 @@ module EVSS
         output_form.update(translate_treatments)
         output_form.update(translate_disabilities)
 
-        @translated_form.to_json
+        @translated_form
       end
 
       private
