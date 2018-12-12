@@ -9,8 +9,6 @@ module Accountable
   # Account.
   #
   def create_user_account
-    return unless Settings.account.enabled
-
     Account.cache_or_create_by! @current_user
   rescue StandardError => error
     log error
@@ -19,9 +17,8 @@ module Accountable
   private
 
   def log(error)
-    log_message_to_sentry(
-      'Account Creation Error',
-      :error,
+    log_exception_to_sentry(
+      error,
       {
         error: error.inspect,
         idme_uuid: @current_user.uuid

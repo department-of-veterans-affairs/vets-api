@@ -21,7 +21,7 @@ class EVSSClaimService
       end
     end.flatten
     return claims, true
-  rescue Breakers::OutageException, Common::Exceptions::SentryIgnoredGatewayTimeout
+  rescue Breakers::OutageException, EVSS::ErrorMiddleware::EVSSBackendServiceError
     return claims_scope.all, false
   end
 
@@ -30,7 +30,7 @@ class EVSSClaimService
       raw_claim = client.find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
       successful_sync = true
-    rescue Breakers::OutageException, Common::Exceptions::SentryIgnoredGatewayTimeout
+    rescue Breakers::OutageException, EVSS::ErrorMiddleware::EVSSBackendServiceError
       successful_sync = false
     end
     [claim, successful_sync]

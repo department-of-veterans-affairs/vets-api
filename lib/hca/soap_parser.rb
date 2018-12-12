@@ -18,19 +18,23 @@ module HCA
     def on_complete(env)
       super
     rescue Common::Client::Errors::HTTPError => e
-      doc = parse_doc(env.body)
-      el = doc.locate(FAULT_STRING_EL)[0]
+      if env.status.to_i == 503
+        raise Faraday::TimeoutError
+      else
+        doc = parse_doc(env.body)
+        el = doc.locate(FAULT_STRING_EL)[0]
 
-      if el&.nodes.try(:[], 0) == 'formSubmissionException' &&
-         doc.locate(FAULT_CODE_EL)[0]&.nodes.try(:[], 0) != 'VOA_0240'
-        StatsD.increment(VALIDATION_FAIL_KEY)
-        Raven.tags_context(validation: 'hca')
-        log_exception_to_sentry(e)
+        if el&.nodes.try(:[], 0) == 'formSubmissionException' &&
+           doc.locate(FAULT_CODE_EL)[0]&.nodes.try(:[], 0) != 'VOA_0240'
+          StatsD.increment(VALIDATION_FAIL_KEY)
+          Raven.tags_context(validation: 'hca')
+          log_exception_to_sentry(e)
 
-        raise ValidationError
+          raise ValidationError
+        end
+
+        raise
       end
-
-      raise
     end
   end
 end
