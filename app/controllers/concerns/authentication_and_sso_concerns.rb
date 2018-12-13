@@ -2,6 +2,7 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
+# rubocop:disable Metrics/ModuleLength
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -108,12 +109,22 @@ module AuthenticationAndSSOConcerns
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def sso_cookie_content
     return nil if @current_user.blank?
+    content = if Settings.sso.testing
+                {
+                  'patient_icn' => (@current_user.mhv_icn || @current_user.icn),
+                  'mhv_correlation_id' => @current_user.mhv_correlation_id,
+                  'sign_in' => @current_user.identity.sign_in,
+                  'expiration_time' => @session_object.ttl_in_time.iso8601(0)
+                }
+              else
+                {
+                  'patient_icn' => (@current_user.mhv_icn || @current_user.icn),
+                  'mhv_correlation_id' => @current_user.mhv_correlation_id,
+                  'expiration_time' => @session_object.ttl_in_time.iso8601(0)
+                }
+              end
 
-    {
-      'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
-      'mhvCorrelationId' => @current_user.mhv_correlation_id,
-      'expirationTime' => @session_object.ttl_in_time.iso8601(0)
-    }
+    content.deep_transform_keys { |key| key.to_s.camelize(:lower) }
   end
 
   # Info for logging purposes related to SSO.
@@ -127,3 +138,4 @@ module AuthenticationAndSSOConcerns
     }
   end
 end
+# rubocop:enable Metrics/ModuleLength

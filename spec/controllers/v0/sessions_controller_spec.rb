@@ -376,7 +376,26 @@ RSpec.describe V0::SessionsController, type: :controller do
           post :saml_callback
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
+            .to eq(
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'expirationTime' => expire_at.iso8601(0)
+            )
+        end
+
+        it 'has a cookie, which includes the testing values', :aggregate_failures do
+          with_settings(Settings.sso, testing: true) do
+            post :saml_callback
+          end
+
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq(
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'signIn' => { 'serviceName' => 'idme' },
+              'expirationTime' => expire_at.iso8601(0)
+            )
         end
       end
 
