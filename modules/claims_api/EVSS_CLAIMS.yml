@@ -22,7 +22,7 @@ info:
     
     Allows a client to check claims status from EVSS.
 
-    1. Client Request: GET https://api.vets.gov/services/appeals/v0/claims
+    1. Client Request: GET https://api.vets.gov/services/claims/v0/claims
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the claim status as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
@@ -36,7 +36,7 @@ info:
 
     Allows a client to retrieve claim status by EVSS id.
 
-    1. Client Request: GET https://api.vets.gov/services/appeals/v0/claims/123123
+    1. Client Request: GET https://api.vets.gov/services/claims/v0/claims/123123
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the claim status as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
@@ -48,7 +48,7 @@ info:
           
     ## Reference
 
-    Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+    Raw Open API Spec: http://dev-api.vets.gov/services/claims/docs/v0/api
 
   termsOfService: ''
   contact:
@@ -57,7 +57,7 @@ tags:
   - name: claims 
     description: EVSS claims status API
 servers: 
-  - url: dev-api.vets.gov/services/appeals/{version}
+  - url: dev-api.vets.gov/services/claims/{version}
     description: Vets.gov API development environment
     variables:
       version:
