@@ -18,6 +18,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
+  FORM_8940 = 'form8940'
 
   # For backwards compatibility, FORM constant needs to be set
   # subclasses will overwrite this constant when using `add_form_and_validation`
@@ -36,6 +37,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
   def to_submission_data(user)
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
     form0781 = EVSS::DisabilityCompensationForm::Form0781.new(user, @form_hash.deep_dup).translate
+    form8940 = EVSS::DisabilityCompensationForm::Form8940.new(user, @form_hash.deep_dup).translate
 
     form526 = @form_hash.deep_dup
     form526 = append_overflow_text(form526) if form4142
@@ -46,7 +48,8 @@ class SavedClaim::DisabilityCompensation < SavedClaim
       FORM_526 => translate_data(user, form526),
       FORM_526_UPLOADS => form526_uploads,
       FORM_4142 => form4142,
-      FORM_0781 => form0781
+      FORM_0781 => form0781,
+      FORM_8940 => form8940
     }.to_json
   end
 

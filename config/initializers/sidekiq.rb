@@ -11,6 +11,7 @@ Sidekiq.configure_server do |config|
 
   config.server_middleware do |chain|
     chain.add Sidekiq::Instrument::ServerMiddleware
+    chain.add Sidekiq::ErrorTag
   end
 
   config.client_middleware do |chain|
