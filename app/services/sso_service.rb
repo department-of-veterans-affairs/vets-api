@@ -13,11 +13,10 @@ class SSOService
                   'Current time is earlier than NotBefore condition' => '003',
                   # 004, 005 and 006 are user persistence errors
                   DEFAULT_ERROR_MESSAGE => '007' }.freeze
-
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
     @saml_response = response
-
+    Raven.tags_context(sso_authn_context: context_key)
     if saml_response.is_valid?(true)
       @saml_attributes = SAML::User.new(@saml_response)
       @existing_user = User.find(saml_attributes.user_attributes.uuid)
@@ -66,6 +65,12 @@ class SSOService
 
   def real_authn_context
     REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+  end
+
+  def context_key
+    SAML::User.context_key(real_authn_context) || SAML::User::UNKNOWN_CONTEXT
+  rescue StandardError
+    SAML::User::UNKNOWN_CONTEXT
   end
 
   private
@@ -133,7 +138,14 @@ class SSOService
       session:   {
         valid: new_session&.valid?,
         errors: new_session&.errors&.full_messages
+      },
+      identity: {
+        valid: new_user_identity&.valid?,
+        errors: new_user_identity&.errors&.full_messages,
+        authn_context: new_user_identity&.authn_context,
+        loa: new_user_identity&.loa
       }
+
     }
   end
 end
