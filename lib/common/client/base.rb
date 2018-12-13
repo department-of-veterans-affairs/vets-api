@@ -77,7 +77,6 @@ module Common
         client_error = error_class.new(e.message, response_hash&.dig(:status), response_hash&.dig(:body))
         raise client_error
       end
-      # rubocop:enable Metrics/MethodLength
 
       def sanitize_headers!(_method, _path, _params, headers)
         headers.transform_keys!(&:to_s)

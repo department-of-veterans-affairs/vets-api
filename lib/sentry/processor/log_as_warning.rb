@@ -17,9 +17,7 @@ module Sentry
         exception_class = get_exception_class(stringified_data)
 
         RELEVANT_EXCEPTIONS.each do |relevant_exception|
-          if exception_class <= relevant_exception
-            return set_warning_level(stringified_data)
-          end
+          return set_warning_level(stringified_data) if exception_class <= relevant_exception
         end
 
         stringified_data
