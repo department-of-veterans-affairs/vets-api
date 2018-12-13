@@ -24,6 +24,7 @@ Sidekiq.configure_client do |config|
 
   config.client_middleware do |chain|
     chain.add Sidekiq::Instrument::ClientMiddleware
+    chain.add Sidekiq::SetRequestId
   end
 
   # Remove the default error handler
