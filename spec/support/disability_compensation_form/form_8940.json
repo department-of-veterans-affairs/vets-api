@@ -8,11 +8,11 @@
   },
   "veteranDateOfBirth": "1809-02-12",
   "veteranAddress": {
-    "city": "Quaint Town",
+    "city": "Portland",
     "country": "USA",
-    "postalCode": "85918-1212",
-    "street": "1234 Classy Street",
-    "street2": "Apartment 567",
+    "postalCode": "12345-6789",
+    "street": "1234 Couch Street",
+    "street2": "Apt. 22",
     "state": "OR"
   },
   "email": "test@email.com",
