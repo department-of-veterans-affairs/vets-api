@@ -34,8 +34,13 @@ module Facilities
       Provider.new response.body[0]
     end
 
-    def provider_caresites(identifier)
-      response = perform(:get, "v1.0/Providers(#{identifier})/CareSites", {})
+    def provider_caresites(site_name)
+      response = perform(:get, 'v1.0/CareSites()?', name: site_name)
+      response.body
+    end
+
+    def provider_services(identifier)
+      response = perform(:get, "v1.0/Providers(#{identifier})/ProviderServices", {})
       response.body
     end
 
