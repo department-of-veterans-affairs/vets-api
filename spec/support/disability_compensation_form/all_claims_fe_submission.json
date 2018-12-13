@@ -67,8 +67,8 @@
     ],
     "otherHomelessHousing": "other living situation",
     "phoneAndEmail": {
-      "phone" : "1231231231",
-      "email": "a@b.co"
+      "primaryPhone" : "1231231231",
+      "emailAddress": "a@b.co"
     },
     "privacyAgreementAccepted": true,
     "separationPayBranch": "Air Force",
