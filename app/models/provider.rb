@@ -24,11 +24,12 @@ class Provider < Common::Base
     provider = Provider.new(prov_loc)
     provider.Name = prov_loc['ProviderName']
     provider.IsAcceptingNewPatients = prov_loc['ProviderAcceptingNewPatients']
+    provider.AddressStreet = prov_loc['CareSiteAddress']
     provider
   end
 
   def add_details(prov_info)
-    self.AddressStreet = prov_info['AddressStreet']
+    self.AddressStreet = prov_info['AddressStreet'] unless prov_info['AddressStreet'].nil?
     self.AddressCity = prov_info['AddressCity']
     self.AddressStateProvince = prov_info['AddressStateProvince']
     self.AddressPostalCode = prov_info['AddressPostalCode']
@@ -37,6 +38,15 @@ class Provider < Common::Base
     self.OrganizationFax = prov_info['OrganizationFax']
     self.ContactMethod = prov_info['ContactMethod']
     self.ProviderSpecialties = prov_info['ProviderSpecialties']
+  end
+
+  def add_caresite(caresite)
+    self.AddressStreet = caresite['Street']
+    self.AddressCity = caresite['City']
+    self.AddressPostalCode = caresite['ZipCode']
+    self.AddressStateProvince = caresite['State']
+    self.Longitude = caresite['Longitude']
+    self.Latitude = caresite['Latitude']
   end
 
   def self.merge(facilities, providers, center_x, center_y, limit)
