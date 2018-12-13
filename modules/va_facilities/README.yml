@@ -1,9 +1,9 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: VA Facilities 
+  title: VA Facilities
   description: |
-    
+
     ## Background
 
     This API provides information about physical VA facilities. Information available includes
@@ -13,27 +13,27 @@ info:
     - Health facilities
     - Benefits facilities
     - Cemeteries
-    - Vet Centers 
+    - Vet Centers
 
     ## Design
-    
+
     ### Authorization
-    
+
     API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey".
 
     ### Response Formats
-    
-    Clients may request several response formats by setting the `Accept` header. 
+
+    Clients may request several response formats by setting the `Accept` header.
     - application/json - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`. .
     - application/vnd.geo+json - GeoJSON-compliant format, representing each facility as a Feature with a Point geometry.
     - text/csv - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.
-          
+
     ### Response Elements
 
     Some data elements within the response are only present for facilities of a given type:
     - The patient satisfaction scores contained in the `satisfaction` element are only applicable
       to VA health facilities.
-    - The patient wait time values contained in the `wait_times` element are only applicable to 
+    - The patient wait time values contained in the `wait_times` element are only applicable to
       VA health facilities.
     - The list of available services in the `services` element is only applicable to VA health and
       benefits facilities.
@@ -70,13 +70,13 @@ paths:
   /facilities:
     get:
       tags:
-        - facilities 
+        - facilities
       summary: Query facilities based on a geographic bounding box and optional attribute filters
       description: |
-        Retrieve all facilities contained within the specified bounding box. Bounding box is 
-        specified as four parameters long1, lat1, long2, lat2. Relative ordering of longitude and 
-        latitude parameters is unimportant. 
-        
+        Retrieve all facilities contained within the specified bounding box. Bounding box is
+        specified as four parameters long1, lat1, long2, lat2. Relative ordering of longitude and
+        latitude parameters is unimportant.
+
         Additionally one can filter the facilities within the bounding box by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
         services.
@@ -110,37 +110,40 @@ paths:
             items:
               type: string
         - name: lat
+          in: query
           description: |
             Latitude of point to search for nearest VA Facilities.
             Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
           required: false
-          style: form
-          exploded: true
           schema:
-            type: float
+            type: number
+            format: float
         - name: long
+          in: query
           description: |
             Longitude of point to search for nearest VA Facilities.
             Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
           required: false
           style: form
-          exploded: true
+          explode: true
           schema:
-            type: float
+            type: number
+            format: float
         - name: bbox[]
-          description: |
-            Bounding longitude/latitude/longitude/latitude within which facilities will be returned. 
-            Bounding box parameters should be specified in WGS84 coordinate reference system.
           in: query
+          description: |
+            Bounding longitude/latitude/longitude/latitude within which facilities will be returned.
+            Bounding box parameters should be specified in WGS84 coordinate reference system.
           required: false
           style: form
-          exploded: true
+          explode: true
           schema:
             type: array
             minItems: 4
             maxItems: 4
             items:
-              type: float
+              type: number
+              format: float
         - name: type
           description: Optional facility type search filter
           in: query
@@ -156,7 +159,7 @@ paths:
           description: Optional facility service search filter
           in: query
           style: form
-          exploded: true
+          explode: true
           schema:
             type: array
             items:
@@ -206,7 +209,8 @@ paths:
                               description: "Facility id. Matches the facility id in the data part of the response."
                               example: vha_688
                             distance:
-                              type: float
+                              type: number
+                              format: float
                               description: "Distance from search location"
                               example: 3.14
                       pagination:
@@ -240,7 +244,7 @@ paths:
                     enum: ["FeatureCollection"]
                   features:
                     type: array
-                    items: 
+                    items:
                       $ref: "#/components/schemas/FacilityFeature"
           headers:
             Link:
@@ -269,7 +273,7 @@ paths:
   /facilities/{id}:
     get:
       tags:
-        - facilities 
+        - facilities
       summary: Retrieve a specific facility by ID
       operationId: getFacilityById
       security:
@@ -278,8 +282,8 @@ paths:
         - in: path
           name: id
           description: |
-            Facility ID, in the form `<prefix>_<id>`, where prefix is one of "vha", "vba", "nca", or "vc" 
-            for health, benefits, cemetery, or Vet Center facilities respectively. 
+            Facility ID, in the form `<prefix>_<id>`, where prefix is one of "vha", "vba", "nca", or "vc"
+            for health, benefits, cemetery, or Vet Center facilities respectively.
           required: true
           schema:
             type: string
@@ -330,23 +334,23 @@ paths:
   /facilities/all:
     get:
       tags:
-        - facilities 
+        - facilities
       summary: Bulk download of all available facilities
       description: |
-        Retrieve all available facilities in a single operation, formatted as either a GeoJSON 
+        Retrieve all available facilities in a single operation, formatted as either a GeoJSON
         FeatureCollection or as a CSV. Due to the complexity of the facility resource type, the CSV
-        response contains a subset of available facility data - specifically it omits the 
-        available services, patient satisfaction, and patient wait time data. 
+        response contains a subset of available facility data - specifically it omits the
+        available services, patient satisfaction, and patient wait time data.
       operationId: getAllFacilities
       security:
         - api_key: []
       parameters:
-        in: header
-        name: Accept
-        schema:
-          enum:
-            - application/vnd.geo+json
-            - text/csv
+        - in: header
+          name: Accept
+          schema:
+            enum:
+              - application/vnd.geo+json
+              - text/csv
           required: true
       responses:
         '200':
@@ -363,7 +367,7 @@ paths:
                     enum: ["FeatureCollection"]
                   features:
                     type: array
-                    items: 
+                    items:
                       $ref: "#/components/schemas/FacilityFeature"
             text/csv:
               schema:
@@ -426,7 +430,7 @@ components:
               example: Washington VA Medical Center
             facility_type:
               type: string
-              enum: 
+              enum:
                 - va_health_facility
                 - va_benefits_facility
                 - va_cemetery
@@ -436,11 +440,13 @@ components:
               example: VA Medical Center (VAMC)
             lat:
               description: Facility latitude
-              type: float
+              type: number
+              format: float
               example: 38.9311137
             long:
               description: Facility longitude
-              type: float
+              type: number
+              format: float
               example: -77.0109110499999
             website:
               type: string
@@ -464,16 +470,16 @@ components:
                   type: array
                   items:
                     type: string
-                    enum: 
+                    enum:
                       - "Online Scheduling"
-                health: 
+                health:
                   type: array
                   items:
                     $ref: "#/components/schemas/HealthService"
                 benefits:
                   type: array
                   items:
-                    $ref: "#/components/schemas/BenefitsService" 
+                    $ref: "#/components/schemas/BenefitsService"
                 last_updated:
                   type: string
                   format: date
@@ -506,10 +512,10 @@ components:
           type: string
           enum: ["Feature"]
           example: Feature
-        geometry: 
+        geometry:
           type: object
           properties:
-            type: 
+            type:
               type: string
               enum: ["Point"]
               example: Point
@@ -518,8 +524,9 @@ components:
               minLength: 2
               maxLength: 2
               items:
-                type: float
-              example: [-77.0367761, 38.9004181] 
+                type: number
+                format: float
+              example: [-77.0367761, 38.9004181]
         properties:
           type: object
           properties:
@@ -531,7 +538,7 @@ components:
               example: vha_688
             facility_type:
               type: string
-              enum: 
+              enum:
                 - va_health_facility
                 - va_benefits_facility
                 - va_cemetery
@@ -561,16 +568,16 @@ components:
                   type: array
                   items:
                     type: string
-                    enum: 
+                    enum:
                       - "Online Scheduling"
-                health: 
+                health:
                   type: array
                   items:
                     $ref: "#/components/schemas/HealthService"
                 benefits:
                   type: array
                   items:
-                    $ref: "#/components/schemas/BenefitsService" 
+                    $ref: "#/components/schemas/BenefitsService"
                 last_updated:
                   type: string
                   format: date
@@ -605,10 +612,10 @@ components:
           type: string
         address_3:
           type: string
-        city: 
+        city:
           type: string
           example: "Washington"
-        state: 
+        state:
           type: string
           example: "DC"
         zip:
@@ -617,25 +624,25 @@ components:
     PhoneNumbers:
       type: object
       properties:
-        main: 
+        main:
           type: string
           example: "202-555-1212"
-        fax: 
+        fax:
           type: string
           example: "202-555-1212"
-        pharmacy: 
+        pharmacy:
           type: string
           example: "202-555-1212"
-        after_hours: 
+        after_hours:
           type: string
           example: "202-555-1212"
-        patient_advocate: 
+        patient_advocate:
           type: string
           example: "202-555-1212"
-        mental_health_clinic: 
+        mental_health_clinic:
           type: string
           example: "202-555-1212"
-        enrollment_coordinator: 
+        enrollment_coordinator:
           type: string
           example: "202-555-1212"
     Hours:
@@ -667,66 +674,70 @@ components:
     HealthService:
       type: string
       enum:
-        - PrimaryCare 
-        - MentalHealthCare 
-        - UrgentCare 
-        - EmergencyCare 
-        - Audiology 
-        - Cardiology 
+        - PrimaryCare
+        - MentalHealthCare
+        - UrgentCare
+        - EmergencyCare
+        - Audiology
+        - Cardiology
         - Dermatology
-        - Gastroenterology 
-        - Gynecology 
-        - Ophthalmology 
-        - Optometry 
-        - Orthopedics 
-        - Urology 
+        - Gastroenterology
+        - Gynecology
+        - Ophthalmology
+        - Optometry
+        - Orthopedics
+        - Urology
         - WomensHealth
     BenefitsService:
       type: string
       enum:
-        - ApplyingForBenefits 
-        - BurialClaimAssistance 
+        - ApplyingForBenefits
+        - BurialClaimAssistance
         - DisabilityClaimAssistance
-        - eBenefitsRegistrationAssistance 
-        - EducationAndCareerCounseling 
+        - eBenefitsRegistrationAssistance
+        - EducationAndCareerCounseling
         - EducationClaimAssistance
-        - FamilyMemberClaimAssistance 
-        - HomelessAssistance 
-        - InsuranceClaimAssistanceAndFinancialCounseling 
-        - IntegratedDisabilityEvaluationSystemAssistance 
+        - FamilyMemberClaimAssistance
+        - HomelessAssistance
+        - InsuranceClaimAssistanceAndFinancialCounseling
+        - IntegratedDisabilityEvaluationSystemAssistance
         - Pensions
         - PreDischargeClaimAssistance
         - TransitionAssistance
         - UpdatingDirectDepositInformation
-        - VAHomeLoanAssistance 
-        - VocationalRehabilitationAndEmploymentAssistance 
+        - VAHomeLoanAssistance
+        - VocationalRehabilitationAndEmploymentAssistance
     PatientSatisfaction:
-      description: Veteran-reported satisfaction scores for health care services 
+      description: Veteran-reported satisfaction scores for health care services
       type: object
       properties:
         primary_care_urgent:
           description: "% of Veterans who say they usually or always get an appointment when they need care right away at a primary care location"
-          type: float
+          type: number
+          format: float
           example: 0.85
         primary_care_routine:
           description: "% of Veterans who say they usually or always get an appointment when they need it at a primary care location"
-          type: float
+          type: number
+          format: float
           example: 0.85
         specialty_care_urgent:
           description: "% of Veterans who say they usually or always get an appointment when they need care right away at a specialty location"
-          type: float
+          type: number
+          format: float
           example: 0.85
         specialty_care_routine:
           description: "% of Veterans who say they usually or always get an appointment when they need it at a specialty location"
-          type: float
+          type: number
+          format: float
           example: 0.85
-    PatientWaitTime: 
+    PatientWaitTime:
       description: Expected wait times for new and established patients for a given health care service
       type: object
       properties:
         service:
-          $ref: "#components/schemas/HealthService"
-        new: 
+          $ref: "#/components/schemas/HealthService"
+        new:
           description: The average number of days a Veteran who hasn’t been to this location has to wait for a non-urgent appointment
           type: integer
           example: 10

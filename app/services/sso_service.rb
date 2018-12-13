@@ -55,8 +55,8 @@ class SSOService
     # We don't want to persist the mhv_account_type because then we would have to change it when we
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
-    # TODO: Do we want to pull in DS Logon attributes here as well??
-    %w[mhv_correlation_id mhv_icn dslogon_edipi]
+    # Also we want the original sign-in, NOT the one from ID.me LOA3
+    %w[mhv_correlation_id mhv_icn dslogon_edipi sign_in]
   end
 
   def new_login?
