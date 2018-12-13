@@ -1,18 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'saml/user'
-require 'ruby-saml'
+require 'support/saml/response_builder'
 
 RSpec.describe SAML::User do
   describe 'DS Logon' do
     let(:saml_response) do
-      instance_double(OneLogin::RubySaml::Response, attributes: saml_attributes,
-                                                    decrypted_document: decrypted_document_partial)
+      SAML::ResponseBuilder.saml_response_from_attributes('dslogon', saml_attributes)
     end
-    let(:decrypted_document_partial) { REXML::Document.new(response_partial) }
-    let(:response_partial) { File.read("#{::Rails.root}/spec/fixtures/files/saml_responses/#{response_file}") }
-    let(:response_file) { 'dslogon.xml' }
     let(:described_instance) { described_class.new(saml_response) }
 
     context 'logging' do
@@ -104,7 +99,9 @@ RSpec.describe SAML::User do
       end
 
       context 'multifactor' do
-        let(:response_file) { 'dslogon_multifactor.xml' }
+        let(:saml_response) do
+          SAML::ResponseBuilder.saml_response_from_attributes('dslogon_multifactor', saml_attributes)
+        end
 
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy
@@ -157,7 +154,9 @@ RSpec.describe SAML::User do
       end
 
       context 'multifactor' do
-        let(:response_file) { 'dslogon_multifactor.xml' }
+        let(:saml_response) do
+          SAML::ResponseBuilder.saml_response_from_attributes('dslogon_multifactor', saml_attributes)
+        end
 
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy
