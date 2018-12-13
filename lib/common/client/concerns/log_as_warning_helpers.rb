@@ -2,15 +2,15 @@
 
 module Common::Client
   module Concerns
-    module RefineErrors
-      def handle_service_unavailable
+    module LogAsWarningHelpers
+      def warn_for_service_unavailable
         yield
       rescue Common::Exceptions::BackendServiceException => e
-        raise Common::Exceptions::ServiceUnavailable if e.original_status&.to_i == 503
+        Raven.extra_context(log_as_warning: true) if e.original_status&.to_i == 503
 
         raise
       rescue Common::Client::Errors::HTTPError => e
-        raise Common::Exceptions::ServiceUnavailable if e.status&.to_i == 503
+        Raven.extra_context(log_as_warning: true) if e.status&.to_i == 503
 
         raise
       end

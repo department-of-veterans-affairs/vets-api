@@ -15,7 +15,6 @@ module Common
 
     class Base
       include SentryLogging
-      include Concerns::RefineErrors
 
       def self.configuration(configuration = nil)
         @configuration ||= configuration.instance
@@ -54,13 +53,10 @@ module Common
         send(method, path, params || {}, headers || {})
       end
 
-      # rubocop:disable Metrics/MethodLength
       def request(method, path, params = {}, headers = {})
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        handle_service_unavailable do
-          connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }
-        end.env
+        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
       rescue Common::Exceptions::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
         raise config.service_exception.new(
