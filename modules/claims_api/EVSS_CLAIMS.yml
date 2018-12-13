@@ -1,0 +1,299 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Benefit Claims
+  description: |
+    Benefit Claims Status
+    
+    ## Background
+    
+    This API is being provided as a proof of concept of a general-purpose VA  API gateway. The use case is to allow authorized third-party developers to request the status of a Veteran's benefit claims.
+
+    The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records.
+    
+    ## Design
+    
+    ### Authorization
+    
+    API requests are authorized by means of a symmetric API token, provided in an HTTP header
+    with name "apikey".
+
+    ### List Statuses Request
+    
+    Allows a client to check claims status from EVSS.
+
+    1. Client Request: GET https://api.vets.gov/services/appeals/v0/claims
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the person requesting the claim status as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+    
+    2. Service Response: A JSON API object with the current status of claims
+
+    ### Single status request
+
+    Allows a client to retrieve claim status by EVSS id.
+
+    1. Client Request: GET https://api.vets.gov/services/appeals/v0/claims/123123
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the person requesting the claim status as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+    
+    2. Service Response: A JSON API object with the current status of the requested claim
+          
+    ## Reference
+
+    Raw Open API Spec: http://dev-api.vets.gov/services/appeals/docs/v0/api
+
+  termsOfService: ''
+  contact:
+    name: Vets.gov
+tags:
+  - name: claims 
+    description: EVSS claims status API
+servers: 
+  - url: dev-api.vets.gov/services/appeals/{version}
+    description: Vets.gov API development environment
+    variables:
+      version:
+        default: v0
+paths:
+  /claims:
+    get:
+      tags:
+        - claims_status 
+      summary: Retrieve claims status for the Veteran with the supplied vaafi headers
+      operationId: getAppealStatus
+      security:
+        - api_key: []
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          requried: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          requried: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          requried: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          requried: true
+          schema:
+            type: string
+          description: Veteran's EIDPI number
+      responses:
+        '200':
+          description: Appeals retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Claim"
+        '400':
+          description: Missing header
+        '401':
+          description: VAAFI authentication failure
+        '403':
+          description: Bad API Token
+        '422':
+          description: Invalid Header
+  /claims/{id}:
+    get:
+      tags:
+        - claims_status 
+      summary: Retrieve claims status for the Veteran with the supplied vaafi headers
+      operationId: getAppealStatus
+      security:
+        - api_key: []
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          requried: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          requried: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          requried: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          requried: true
+          schema:
+            type: string
+          description: Veteran's EIDPI number
+      responses:
+        '200':
+          description: Appeals retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Claim"
+        '400':
+          description: Missing header
+        '401':
+          description: VAAFI authentication failure
+        '403':
+          description: Bad API Token
+        '404':
+          description: No claim found for supplied evss id
+        '422':
+          description: Invalid Header
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: apikey
+      in: header 
+  schemas:
+    Claim:
+      description: |
+        Claim with some details for the given Veteran info
+      type: object
+      properties:
+        id:
+          type: string
+          description: Claim ID from EVSS
+          example: '8347210'
+        type:
+          type: string
+          example: evss_claims
+          description: Required by JSON API standard
+        attributes:
+          type: object
+          properties:
+            date_filed:
+              type: string
+              format: date
+              description: Date in YYYY-MM-DD the claim was first filed
+              example: '2018-06-04'
+            min_est_date:
+              type: string
+              format: date
+              description: Minimum Estimated Claim Completion Date
+              example: '2019-06-04'
+            max_est_date:
+              type: string
+              format: date
+              description: Maximum Estimated Claim Completion Date
+              example: '2019-09-04'
+            phase_change_date:
+              type: string
+              format: date
+              example: '2018-06-04'
+              description: Date in YYYY-MM-DD the claim's phase was changed
+            open:
+              type: boolean
+              description: Has the claim been resolved
+              example: true
+            waiver_submitted: 
+              type: boolean
+              description: Requested Decision or Waiver 5103 Submitted
+              example: false
+            documents_needed: 
+              type: boolean
+              example: false
+              description: Does the claim require additional documents to be submitted
+            development_letter_sent: 
+              type: boolean
+              description: Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim
+              example: false
+            decision_letter_sent: 
+              type: boolean
+              description: Indicates if a Decision Notification Letter has been sent to the Claimant regarding a benefit claim
+              example: false
+            updated_at: 
+              type: string
+              format: date-time
+              example: '2018-07-30T17:31:15.958Z'
+              description: Time stamp of last change to the claim
+            phase:
+              type: number
+              format: integer
+              example: 2
+              description: |
+                Phase the claim is in. Numbers map to the following
+                
+                1. 'claim received' 
+                2. 'under review' 
+                3. 'gathering of evidence' 
+                4. 'review of evidence' 
+                5. 'preparation for decision' 
+                6. 'pending decision approval' 
+                7. 'preparation for notification' 
+                8. 'complete'
+            ever_phase_back:
+              type: boolean
+              description: This flag indicates if the claim ever phased back(went back to previous phase) at some point
+              example: false
+            current_phase_back:
+              type: boolean
+              description: This flag indicates if the current phase ever phased back(went back to previous phase) at some point
+              example: false
+            requested_decision:
+              type: boolean
+              example: false
+              description: The claim filer has requested a claim decision be made
+            claim_type:
+              type: string
+              example: Compensation
+              enum:
+                - Compensation
+                - Compensation and Pension
+                - Dependency
