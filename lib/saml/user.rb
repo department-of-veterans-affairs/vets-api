@@ -10,6 +10,15 @@ module SAML
   class User
     include SentryLogging
 
+    CONTEXT_MAP = { LOA::MAPPING.invert[1] => 'idme',
+                    'dslogon' => 'dslogon',
+                    'myhealthevet' => 'myhealthevet',
+                    LOA::MAPPING.invert[3] => 'idproof',
+                    'multifactor' => 'multifactor',
+                    'dslogon_multifactor' => 'dslogon_multifactor',
+                    'myhealthevet_multifactor' => 'myhealthevet_multifactor' }.freeze
+    UNKNOWN_CONTEXT = 'unknown'
+
     attr_reader :saml_response, :saml_attributes, :user_attributes
 
     def initialize(saml_response)
@@ -26,6 +35,12 @@ module SAML
 
     def to_hash
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
+    end
+
+    def self.context_key(authn_context)
+      CONTEXT_MAP[authn_context] || UNKNOWN_CONTEXT
+    rescue StandardError
+      UNKNOWN_CONTEXT
     end
 
     private
