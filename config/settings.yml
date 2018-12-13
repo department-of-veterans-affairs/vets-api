@@ -1,6 +1,18 @@
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
+# Defines the relative environment, i.e. Settings.env.production? => false
+#
+# Background: All of our deployed envs (dev, staging, and production) have
+# their `Rails.env` set to 'production'.
+#
+# This setting allows you to target behavior specifically for any of those
+# three environments (i.e. if Settings.env.production? ...)
+env:
+  development?: true
+  staging?: false
+  production?: false
+
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
 
@@ -90,7 +102,6 @@ ihub:
   appointments:
     timeout: 30
     mock: true
-  in_production: false
 
 
 # Settings for EVSS

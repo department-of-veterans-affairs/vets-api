@@ -69,7 +69,7 @@ module IHub
       end
 
       def appointments_url
-        if Settings.ihub.in_production
+        if Settings.env.production?
           @user.icn
         else
           "#{@user.icn}?noFilter=true"
