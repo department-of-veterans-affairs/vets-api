@@ -14,6 +14,7 @@ class Form526Submission < ActiveRecord::Base
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
   FORM_0781 = 'form0781'
+  FORM_8940 = 'form8940'
 
   def start(klass)
     workflow_batch = Sidekiq::Batch.new
@@ -50,6 +51,7 @@ class Form526Submission < ActiveRecord::Base
       submit_uploads if form[FORM_526_UPLOADS].present?
       submit_form_4142 if form[FORM_4142].present?
       submit_form_0781 if form[FORM_0781].present?
+      submit_form_8940 if form[FORM_8940].present?
       cleanup
     end
   end
@@ -71,17 +73,15 @@ class Form526Submission < ActiveRecord::Base
   end
 
   def submit_form_4142
-    # TODO(AJD): update args to take only submission id
-    CentralMail::SubmitForm4142Job.perform_async(
-      submitted_claim_id, saved_claim_id, id, form_to_json(FORM_4142)
-    )
+    CentralMail::SubmitForm4142Job.perform_async(id)
   end
 
   def submit_form_0781
-    # TODO(AJD): update args to take only submission id
-    EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(
-      auth_headers, submitted_claim_id, saved_claim_id, id, form_to_json(FORM_0781)
-    )
+    EVSS::DisabilityCompensationForm::SubmitForm0781.perform_async(id)
+  end
+
+  def submit_form_8940
+    EVSS::DisabilityCompensationForm::SubmitForm8940.perform_async(id)
   end
 
   def cleanup

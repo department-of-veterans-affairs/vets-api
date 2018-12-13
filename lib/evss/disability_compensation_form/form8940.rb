@@ -2,11 +2,12 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class Form0781
+    class Form8940
       def initialize(user, form_content)
         @user = user
         @phone_email = form_content.dig('form526', 'phoneAndEmail')
-        @final_output = form_content.dig('form526', 'form0781')
+        @mailing_address = form_content.dig('form526', 'mailingAddress')
+        @final_output = form_content.dig('form526', 'form8940')
       end
 
       def translate
@@ -15,20 +16,30 @@ module EVSS
         @final_output['veteranSocialSecurityNumber'] = @user.ssn
         @final_output['veteranFullName'] = full_name
         @final_output['veteranDateOfBirth'] = @user.birth_date
+        @final_output['veteranAddress'] = address(@mailing_address)
         @final_output['email'] = @phone_email['emailAddress']
         @final_output['veteranPhone'] = @phone_email['primaryPhone']
-        @final_output['veteranSecondaryPhone'] = '' # No secondary phone available in 526 PreFill
-        @final_output['veteranServiceNumber'] = '' # No veteran service number available in 526 PreFill
-        @final_output
+        @final_output.to_json
       end
 
       private
 
       def full_name
         {
-          'first' => @user.first_name,
-          'middle' => @user.middle_name,
-          'last' => @user.last_name
+          "first": @user.first_name,
+          "middle": @user.middle_name,
+          "last": @user.last_name
+        }
+      end
+
+      def address(data)
+        {
+          "city": data['city'],
+          "country": data['country'],
+          "postalCode": data['zipCode'],
+          "street": data['addressLine1'],
+          "street2": data['addressLine2'],
+          "state": data['state']
         }
       end
     end

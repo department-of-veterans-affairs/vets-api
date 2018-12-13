@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
-RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
+RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm8940, type: :job do
   before(:each) do
     Sidekiq::Worker.clear_all
   end
@@ -13,9 +13,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:evss_claim_id) { 123_456_789 }
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' }
+  let(:form8940) { File.read 'spec/support/disability_compensation_form/form_8940.json' }
 
   subject { described_class }
 
@@ -24,23 +22,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       match_requests_on: [:method,
                           VCR.request_matchers.uri_without_params(:qqfile, :docType, :docTypeDescription)]
     }
-    # the response body may not be encoded according to the encoding specified in the HTTP headers
-    # VCR will base64 encode the body of the request or response during serialization,
-    # in order to preserve the bytes exactly.
-    c.preserve_exact_body_bytes do |http_message|
-      http_message.body.encoding.name == 'ASCII-8BIT' ||
-        !http_message.body.valid_encoding?
-    end
   end
 
   describe '.perform_async' do
+    with8940 = File.read 'spec/support/disability_compensation_form/submissions/with_8940.json'
+    submitted_claim_id = 123_456_789
+
+    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:submitted_claim_id) { 123_456_789 }
     let(:submission) do
-      Form526Submission.create(user_uuid: user.uuid,
-                               auth_headers_json: auth_headers.to_json,
-                               saved_claim_id: saved_claim.id,
-                               form_json: form0781,
-                               submitted_claim_id: evss_claim_id)
+      create(:form526_submission,
+             user_uuid: user.uuid,
+             auth_headers_json: auth_headers.to_json,
+             saved_claim_id: saved_claim.id,
+             submitted_claim_id: submitted_claim_id,
+             form_json: with8940)
     end
+
     context 'with a successful submission job' do
       it 'queues a job for submit' do
         expect do
@@ -49,7 +47,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       it 'submits successfully' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_0781') do
+        VCR.use_cassette('evss/disability_compensation_form/submit_8940') do
           subject.perform_async(submission.id)
           jid = subject.jobs.last['jid']
           described_class.drain

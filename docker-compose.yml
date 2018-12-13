@@ -3,12 +3,14 @@ services:
   redis:
     image: redis:3.2-alpine
   postgres:
-    image: mdillon/postgis:9.6-alpine 
+    image: mdillon/postgis:9.6-alpine
     environment:
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-password}"
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
     volumes:
       - ./data:/var/lib/postgresql/data:cached
+    ports:
+      - "54320:5432"
   vets-api:
     build:
       context: .
