@@ -17,22 +17,6 @@ describe Common::Client::Base do
         class TestService < ::Common::Client::Base
           configuration TestConfiguration
         end
-
-        class DefaultConfiguration < ::Common::Client::Configuration::REST
-          def connection
-            @conn ||= Faraday.new('http://example.com') do |faraday|
-              faraday.adapter Faraday.default_adapter
-            end
-          end
-
-          def service_name
-            'foo'
-          end
-        end
-
-        class DefaultService < ::Common::Client::Base
-          configuration DefaultConfiguration
-        end
       end
     end
   end
@@ -42,30 +26,6 @@ describe Common::Client::Base do
       expect { Specs::Common::Client::TestService.new.send(:request, :get, '', nil) }.to raise_error(
         Common::Client::SecurityError
       )
-    end
-
-    context 'service unavailable errors' do
-      let(:service) { Specs::Common::Client::DefaultService.new }
-
-      context 'when request raises a 503 backend service exception' do
-        it 'should raise a ServiceUnavailable error' do
-          expect(service).to receive(:connection).and_raise(
-            Common::Exceptions::BackendServiceException.new(nil, {}, 503)
-          )
-          expect { service.send(:request, :get, nil) }.to raise_error(
-            Common::Exceptions::ServiceUnavailable
-          )
-        end
-      end
-
-      context 'when a request raises a 503 HTTPError error' do
-        it 'should raise a ServiceUnavailable error' do
-          expect(service).to receive(:connection).and_raise(Common::Client::Errors::HTTPError.new(nil, 503))
-          expect { service.send(:request, :get, nil) }.to raise_error(
-            Common::Exceptions::ServiceUnavailable
-          )
-        end
-      end
     end
   end
 
