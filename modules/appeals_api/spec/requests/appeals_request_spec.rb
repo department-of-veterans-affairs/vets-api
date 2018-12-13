@@ -26,13 +26,11 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
             'X-Consumer-Username' => 'TestConsumer',
             'X-VA-User' => 'adhoc.test.user'
         hash = Digest::SHA2.hexdigest '111223333'
-        expect(Rails.logger).to have_received(:info).with('Appeals App Request',
-                                                          'consumer' => 'TestConsumer',
+        expect(Rails.logger).to have_received(:info).with('Caseflow Request',
                                                           'va_user' => 'adhoc.test.user',
                                                           'lookup_identifier' => hash)
-        expect(Rails.logger).to have_received(:info).with('Appeals App Response',
+        expect(Rails.logger).to have_received(:info).with('Caseflow Response',
                                                           'va_user' => 'adhoc.test.user',
-                                                          'consumer' => 'TestConsumer',
                                                           'first_appeal_id' => '1196201',
                                                           'appeal_count' => 3)
       end
