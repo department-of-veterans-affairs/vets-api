@@ -114,7 +114,7 @@ module AuthenticationAndSSOConcerns
         'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
         'mhvCorrelationId' => @current_user.mhv_correlation_id,
         'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
-        'credentialUsed' => sso_cookie_sign_credential_used,
+        'credential_used' => sso_cookie_sign_credential_used,
         'expirationTime' => @session_object.ttl_in_time.iso8601(0)
       }
     else
