@@ -50,13 +50,19 @@ module ClaimsApi
         birth_date
       end
 
+      def va_profile
+        OpenStruct.new(
+          birth_date: birth_date
+        )
+      end
+
       def target_veteran
         ClaimsApi::Veteran.new(
           ssn: ssn,
           loa: { current: :loa3 },
           first_name: first_name,
           last_name: last_name,
-          birth_date: birth_date,
+          va_profile: va_profile,
           edipi: edipi,
           last_signed_in: Time.zone.now
         )
