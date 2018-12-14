@@ -10,12 +10,12 @@ module ClaimsApi
        last_name
        edipi
        birls_id
-       participant_id
-       birth_date].each do |attr|
+       participant_id].each do |attr|
       attribute attr, String
     end
 
     attribute :loa, Hash
+    attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
 
     def ssn=(new_ssn)
@@ -23,14 +23,10 @@ module ClaimsApi
       super(new_ssn)
     end
 
-    def birth_date=(new_birth_date)
-      matches = Date.parse(new_birth_date).iso8601
+    def va_profile=(new_va_profile)
+      matches = Date.parse(new_va_profile.birth_date).iso8601
       raise Common::Exceptions::ParameterMissing 'X-VA-Birth-Date' unless matches
-      super(new_birth_date)
-    end
-
-    def va_profile
-      nil
+      super(new_va_profile)
     end
   end
 end
