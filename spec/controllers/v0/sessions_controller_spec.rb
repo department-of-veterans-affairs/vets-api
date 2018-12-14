@@ -395,6 +395,7 @@ RSpec.describe V0::SessionsController, type: :controller do
               'patientIcn' => nil,
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
+              'credentialUsed' => 'id_me',
               'expirationTime' => expire_at.iso8601(0)
             )
         end
