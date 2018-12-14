@@ -49,12 +49,11 @@ module IHub
           IHub::Appointments::Response.from(response)
         end
       rescue StandardError => error
-        log_message_to_sentry(
-          error.message,
-          :error,
-          extra_context: { url: config.base_path },
-          ihub: 'appointments'
+        Raven.extra_context(
+          message: error.message,
+          url: config.base_path
         )
+        Raven.tags_context(ihub: 'appointments')
 
         raise error
       end
@@ -98,12 +97,10 @@ module IHub
       end
 
       def log_error(response)
-        log_message_to_sentry(
-          'iHub Appointments Service Error',
-          :error,
-          response_body: response.body.merge('status_code' => response.status),
-          ihub: 'appointments_error_occurred'
+        Raven.extra_context(
+          response_body: response.body.merge('status_code' => response.status)
         )
+        Raven.tags_context(ihub: 'appointments_error_occurred')
       end
 
       def raise_backend_exception!(key, source, error = nil)

@@ -35,9 +35,7 @@ module EVSS
 
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
-          log_message_to_sentry(
-            error.message, :error, extra_context: { url: config.base_path, body: error.body }
-          )
+          save_error_details(error)
           raise EVSS::IntentToFile::ServiceException, error.body
         else
           super(error)

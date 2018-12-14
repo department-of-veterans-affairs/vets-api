@@ -316,6 +316,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             levenshtein_distance: 8
           }
         )
+        expect(Raven).to receive(:tags_context).twice
 
         once = { times: 1, value: 1 }
         callback_tags = ['status:success', 'context:dslogon']
@@ -376,7 +377,26 @@ RSpec.describe V0::SessionsController, type: :controller do
           post :saml_callback
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
+            .to eq(
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'expirationTime' => expire_at.iso8601(0)
+            )
+        end
+
+        it 'has a cookie, which includes the testing values', :aggregate_failures do
+          with_settings(Settings.sso, testing: true) do
+            post :saml_callback
+          end
+
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq(
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'signIn' => { 'serviceName' => 'idme' },
+              'expirationTime' => expire_at.iso8601(0)
+            )
         end
       end
 
@@ -419,7 +439,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
           expect(Raven).to receive(:extra_context).twice
           expect(Raven).not_to receive(:user_context)
-          expect(Raven).not_to receive(:tags_context).once
+          expect(Raven).not_to receive(:tags_context).twice
           expect(controller).not_to receive(:log_message_to_sentry)
           post :saml_callback
         end
@@ -429,6 +449,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
+          expect(Raven).to receive(:tags_context).twice
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
@@ -552,6 +573,12 @@ RSpec.describe V0::SessionsController, type: :controller do
               session: {
                 valid: false,
                 errors: ["Uuid can't be blank"]
+              },
+              identity: {
+                valid: false,
+                errors: ["Uuid can't be blank"],
+                authn_context: nil,
+                loa: { current: 1, highest: 1 }
               }
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')

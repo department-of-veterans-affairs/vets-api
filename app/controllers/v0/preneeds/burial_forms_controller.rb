@@ -49,7 +49,7 @@ module V0
         validation_errors = ::Preneeds::BurialForm.validate(schema, form)
 
         if validation_errors.present?
-          log_message_to_sentry(validation_errors.join(','), :error, {}, validation: 'preneeds')
+          Raven.tags_context(validation: 'preneeds')
           raise Common::Exceptions::SchemaValidationErrors, validation_errors
         end
       end

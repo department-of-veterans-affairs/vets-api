@@ -1,11 +1,7 @@
 # frozen_string_literal: true
 
 module CentralMail
-  class SubmitForm4142Job
-    include Sidekiq::Worker
-    include SentryLogging
-    include EVSS::DisabilityCompensationForm::JobStatus
-
+  class SubmitForm4142Job < EVSS::DisabilityCompensationForm::Job
     FORM_ID = '21-4142'
     FOREIGN_POSTALCODE = '00000'
     STATSD_KEY_PREFIX = 'worker.evss.submit_form4142'
@@ -23,25 +19,25 @@ module CentralMail
 
     # This callback cannot be tested due to the limitations of `Sidekiq::Testing.fake!`
     sidekiq_retries_exhausted do |msg, _ex|
-      log_message_to_sentry(
-        "Failed all retries on Form4142 submit, last error: #{msg['error_message']}",
-        :error
+      Rails.logger.send(
+        :error,
+        "Failed all retries on Form4142 submit, last error: #{msg['error_message']}"
       )
+      Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
     end
 
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
-    # @param evss_claim_id [String] EVSS Claim id received from 526 submission to generate unique PDF file path
-    # @param saved_claim_id [Integer] Saved Claim id
-    # @param form_content [Hash] The form content for 4142 and 4142A that is to be submitted
+    # @param submission_id [Integer] Submission id from Form526Submission
     #
-    def perform(evss_claim_id, saved_claim_id, submission_id, form_content)
-      with_tracking('Form4142 Submission', saved_claim_id, submission_id) do
-        saved_claim_created_at = SavedClaim::DisabilityCompensation.find(saved_claim_id).created_at
-        @parsed_form = process_form(form_content)
+    def perform(submission_id)
+      super(submission_id)
+      with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
+        saved_claim_created_at = SavedClaim::DisabilityCompensation.find(submission.saved_claim_id).created_at
+        @parsed_form = process_form(submission.form_to_json(Form526Submission::FORM_4142))
 
         # generate and stamp PDF
-        @pdf_path = generate_stamp_pdf(@parsed_form, evss_claim_id)
+        @pdf_path = generate_stamp_pdf(@parsed_form, submission.submitted_claim_id)
 
         response = CentralMail::Service.new.upload(create_request_body(saved_claim_created_at))
         handle_service_exception(response) if response.present? && response.status.between?(201, 600)

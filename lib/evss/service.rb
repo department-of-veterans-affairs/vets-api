@@ -36,13 +36,29 @@ module EVSS
       EVSS::AuthHeaders.new(user).to_h
     end
 
+    def save_error_details(error)
+      Raven.tags_context(
+        external_service: self.class.to_s.underscore
+      )
+
+      Raven.extra_context(
+        url: config.base_path,
+        message: error.message,
+        body: error.body
+      )
+    end
+
     def handle_error(error)
+      Raven.extra_context(
+        message: error.message,
+        url: config.base_path
+      )
+
       case error
       when Faraday::ParsingError
-        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path })
         raise_backend_exception('EVSS502', self.class)
       when Common::Client::Errors::ClientError
-        log_message_to_sentry(error.message, :error, extra_context: { url: config.base_path, body: error.body })
+        Raven.extra_context(body: error.body)
         raise Common::Exceptions::Forbidden if error.status == 403
         raise_backend_exception('EVSS400', self.class, error) if error.status == 400
         raise_backend_exception('EVSS502', self.class, error)

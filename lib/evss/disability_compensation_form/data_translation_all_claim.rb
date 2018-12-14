@@ -213,10 +213,10 @@ module EVSS
       def translate_veteran
         {
           'veteran' => {
-            'emailAddress' => input_form.dig('phoneAndEmail', 'email'),
+            'emailAddress' => input_form.dig('phoneAndEmail', 'emailAddress'),
             'currentMailingAddress' => translate_mailing_address(input_form['mailingAddress']),
             'changeOfAddress' => translate_change_of_address(input_form['forwardingAddress']),
-            'daytimePhone' => split_phone_number(input_form.dig('phoneAndEmail', 'phone')),
+            'daytimePhone' => split_phone_number(input_form.dig('phoneAndEmail', 'primaryPhone')),
             'homelessness' => translate_homelessness,
             'currentlyVAEmployee' => input_form['isVAEmployee']
           }.compact
