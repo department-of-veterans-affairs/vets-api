@@ -13,11 +13,10 @@ class SSOService
                   'Current time is earlier than NotBefore condition' => '003',
                   # 004, 005 and 006 are user persistence errors
                   DEFAULT_ERROR_MESSAGE => '007' }.freeze
-
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
     @saml_response = response
-
+    Raven.tags_context(sso_authn_context: context_key)
     if saml_response.is_valid?(true)
       @saml_attributes = SAML::User.new(@saml_response)
       @existing_user = User.find(saml_attributes.user_attributes.uuid)
@@ -56,8 +55,8 @@ class SSOService
     # We don't want to persist the mhv_account_type because then we would have to change it when we
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
-    # TODO: Do we want to pull in DS Logon attributes here as well??
-    %w[mhv_correlation_id mhv_icn dslogon_edipi]
+    # Also we want the original sign-in, NOT the one from ID.me LOA3
+    %w[mhv_correlation_id mhv_icn dslogon_edipi sign_in]
   end
 
   def new_login?
@@ -66,6 +65,12 @@ class SSOService
 
   def real_authn_context
     REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+  end
+
+  def context_key
+    SAML::User.context_key(real_authn_context) || SAML::User::UNKNOWN_CONTEXT
+  rescue StandardError
+    SAML::User::UNKNOWN_CONTEXT
   end
 
   private
@@ -133,7 +138,14 @@ class SSOService
       session:   {
         valid: new_session&.valid?,
         errors: new_session&.errors&.full_messages
+      },
+      identity: {
+        valid: new_user_identity&.valid?,
+        errors: new_user_identity&.errors&.full_messages,
+        authn_context: new_user_identity&.authn_context,
+        loa: new_user_identity&.loa
       }
+
     }
   end
 end

@@ -13,15 +13,6 @@ module V0
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
-    STATSD_CONTEXT_MAP = {
-      LOA::MAPPING.invert[1] => 'idme',
-      'dslogon' => 'dslogon',
-      'myhealthevet' => 'myhealthevet',
-      LOA::MAPPING.invert[3] => 'idproof',
-      'multifactor' => 'multifactor',
-      'dslogon_multifactor' => 'dslogon_multifactor',
-      'myhealthevet_multifactor' => 'myhealthevet_multifactor'
-    }.freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -91,10 +82,10 @@ module V0
         redirect_to saml_login_redirect_url
 
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{context_key}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:success', "context:#{@sso_service.context_key}"])
       else
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{context_key}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{@sso_service.context_key}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     rescue NoMethodError
@@ -144,19 +135,6 @@ module V0
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
       errors
-    end
-
-    def benchmark_tags(*tags)
-      tags << "context:#{context_key}"
-      tags << "loa:#{current_user&.identity ? current_user.loa[:current] : 'none'}"
-      tags << "multifactor:#{current_user&.identity ? current_user.multifactor : 'none'}"
-      tags
-    end
-
-    def context_key
-      STATSD_CONTEXT_MAP[@sso_service.real_authn_context] || 'unknown'
-    rescue StandardError
-      'unknown'
     end
 
     def url_service
