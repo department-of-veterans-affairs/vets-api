@@ -185,7 +185,7 @@
       ]
     }
   ],
-  "additionalIncidentText": "Additional incident text",
+  "additionalSecondaryIncidentText": "Additional incident text",
   "otherInformation": [
     "Category - Behavior Change A",
     "Category - Behavior Change B",

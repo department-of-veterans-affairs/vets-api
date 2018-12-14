@@ -202,7 +202,7 @@ module PdfFill
         'signatureDate' => {
           key: 'F[0].Page_3[0].date9[0]'
         },
-        'additionalIncidentText' => {
+        'additionalSecondaryIncidentText' => {
           question_num: 15,
           question_text: 'ADDITIONAL INCIDENTS',
           limit: 0,
