@@ -66,7 +66,7 @@ paths:
   /claims:
     get:
       tags:
-        - claims_status 
+        - claims
       summary: Retrieve claims status for the Veteran with the supplied vaafi headers
       operationId: getAppealStatus
       security:
@@ -132,7 +132,7 @@ paths:
   /claims/{id}:
     get:
       tags:
-        - claims_status 
+        - claims
       summary: Retrieve claims status for the Veteran with the supplied vaafi headers
       operationId: getAppealStatus
       security:
