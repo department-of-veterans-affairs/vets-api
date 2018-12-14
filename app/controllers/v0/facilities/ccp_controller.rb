@@ -7,9 +7,9 @@ class V0::Facilities::CcpController < FacilitiesController
     ppms = Facilities::PPMSClient.new
     result = ppms.provider_info(params[:id])
     raise Common::Exceptions::RecordNotFound, params[:id] if result.nil?
-    caresites = ppms.provider_caresites(params[:id])
-    result.Latitude = caresites[0]['Latitude'] unless caresites.nil?
-    result.Longitude = caresites[0]['Longitude'] unless caresites.nil?
+    services = ppms.provider_services(params[:id])
+    caresites = ppms.provider_caresites(services[0]['CareSiteLocationAddress']) if services.present?
+    result.add_caresite(caresites[0]) if caresites.present?
     render json: result, serializer: ProviderSerializer
   end
 

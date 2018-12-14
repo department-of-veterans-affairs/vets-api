@@ -109,22 +109,30 @@ module AuthenticationAndSSOConcerns
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def sso_cookie_content
     return nil if @current_user.blank?
-    content = if Settings.sso.testing
-                {
-                  'patient_icn' => (@current_user.mhv_icn || @current_user.icn),
-                  'mhv_correlation_id' => @current_user.mhv_correlation_id,
-                  'sign_in' => @current_user.identity.sign_in,
-                  'expiration_time' => @session_object.ttl_in_time.iso8601(0)
-                }
-              else
-                {
-                  'patient_icn' => (@current_user.mhv_icn || @current_user.icn),
-                  'mhv_correlation_id' => @current_user.mhv_correlation_id,
-                  'expiration_time' => @session_object.ttl_in_time.iso8601(0)
-                }
-              end
+    if Settings.sso.testing
+      {
+        'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
+        'mhvCorrelationId' => @current_user.mhv_correlation_id,
+        'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
+        'credential_used' => sso_cookie_sign_credential_used,
+        'expirationTime' => @session_object.ttl_in_time.iso8601(0)
+      }
+    else
+      {
+        'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
+        'mhvCorrelationId' => @current_user.mhv_correlation_id,
+        'expirationTime' => @session_object.ttl_in_time.iso8601(0)
+      }
+    end
+  end
 
-    content.deep_transform_keys { |key| key.to_s.camelize(:lower) }
+  # Temporary solution for MHV having already coded this attribute differently than expected.
+  def sso_cookie_sign_credential_used
+    {
+      'myhealthevet' => 'my_healthe_vet',
+      'dslogon' => 'ds_logon',
+      'idme' => 'id_me'
+    }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 
   # Info for logging purposes related to SSO.
