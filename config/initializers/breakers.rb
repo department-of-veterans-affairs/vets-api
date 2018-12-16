@@ -77,3 +77,4 @@ client = Breakers::Client.new(
 # No need to prefix it when using the namespace
 Breakers.redis_prefix = ''
 Breakers.client = client
+Breakers.disabled = true if Settings.breakers_disabled
