@@ -336,6 +336,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
           .to eq('patientIcn' => loa3_user.icn,
                  'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+                 'signIn' => { 'serviceName' => 'idme' },
+                 'credential_used' => 'id_me',
                  'expirationTime' => expire_at.iso8601(0))
       end
 
@@ -352,6 +354,8 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
           .to eq('patientIcn' => loa3_user.icn,
                  'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+                 'signIn' => { 'serviceName' => 'idme' },
+                 'credential_used' => 'id_me',
                  'expirationTime' => expire_at.iso8601(0))
       end
 
@@ -380,11 +384,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to eq(
               'patientIcn' => nil,
               'mhvCorrelationId' => nil,
+              'signIn' => { 'serviceName' => 'idme' },
+              'credential_used' => 'id_me',
               'expirationTime' => expire_at.iso8601(0)
             )
         end
 
-        it 'has a cookie, which includes the testing values', :aggregate_failures do
+        # keeping this spec round to easily test out the testing attributes
+        xit 'has a cookie, which includes the testing values', :aggregate_failures do
           with_settings(Settings.sso, testing: true) do
             post :saml_callback
           end
@@ -417,7 +424,12 @@ RSpec.describe V0::SessionsController, type: :controller do
           post :saml_callback
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => nil, 'mhvCorrelationId' => nil, 'expirationTime' => expire_at.iso8601(0))
+            .to eq(
+              'patientIcn' => nil,
+              'mhvCorrelationId' => nil,
+              'signIn' => { 'serviceName' => 'idme' },
+              'credential_used' => 'id_me',
+              'expirationTime' => expire_at.iso8601(0))
         end
       end
 
