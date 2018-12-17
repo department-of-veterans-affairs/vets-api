@@ -50,8 +50,10 @@ module Common
 
           path = URI.parse(base_path).path
           host = URI.parse(base_path).host
+          port = URI.parse(base_path).port
+
           matcher = proc do |request_env|
-            request_env.url.host == host && request_env.url.path =~ /^#{path}/
+            request_env.url.host == host && request_env.url.port == port && request_env.url.path =~ /^#{path}/
           end
 
           exception_handler = proc do |exception|
