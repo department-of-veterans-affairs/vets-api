@@ -47,13 +47,10 @@ module Common
 
         def breakers_service
           return @service if defined?(@service)
-
-          path = URI.parse(base_path).path
-          host = URI.parse(base_path).host
-          port = URI.parse(base_path).port
-
+          base_uri = URI.parse(base_path)
           matcher = proc do |request_env|
-            request_env.url.host == host && request_env.url.port == port && request_env.url.path =~ /^#{path}/
+            request_env.url.host == base_uri.host && request_env.url.port == base_uri.port &&
+              request_env.url.path =~ /^#{base_uri.path}/
           end
 
           exception_handler = proc do |exception|
