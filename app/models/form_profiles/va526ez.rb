@@ -89,13 +89,34 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_veteran_contact_information(user)
     return {} unless user.authorize :evss, :access?
 
-    pciu_email = extract_pciu_data(user, :pciu_email)
-    pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+    vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+
+    if vet360_contact_info.mailing_address.present?
+      mailing_address = convert_vets360_address(vet360_contact_info.mailing_address)
+    else
+      mailing_address = get_common_address(user)
+    end
+
+    if vet360_contact_info.email.try(:email_address).present?
+      email_address = vet360_contact_info.email.email_address
+    else
+      email_address = extract_pciu_data(user, :pciu_email)
+    end
+
+    if vet360_contact_info.home_phone.try(:formatted_phone).present?
+      primary_phone = [
+        vet360_contact_info.home_phone.area_code,
+        vet360_contact_info.home_phone.phone_number
+      ].join('')
+    else
+      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
+      primary_phone = get_us_phone(pciu_primary_phone)
+    end
 
     contact_info = VA526ez::FormContactInformation.new(
-      mailing_address: get_common_address(user),
-      email_address: pciu_email,
-      primary_phone: get_us_phone(pciu_primary_phone)
+      mailing_address: mailing_address,
+      email_address: email_address,
+      primary_phone: primary_phone
     )
 
     VA526ez::FormVeteranContactInformation.new(
@@ -114,6 +135,18 @@ class FormProfiles::VA526ez < FormProfile
     VA526ez::FormRatedDisabilities.new(
       rated_disabilities: response.rated_disabilities
     )
+  end
+
+  def convert_vets360_address(address)
+    {
+      address_line_1: address.address_line1,
+      address_line_2: address.address_line2,
+      address_line_3: address.address_line3,
+      city: address.city,
+      country: address.country_code_iso3,
+      state: address.state_code || address.province,
+      zip_code: address.zip_plus_four || address.international_postal_code
+    }.compact
   end
 
   # Convert PCIU address to a Common address type
