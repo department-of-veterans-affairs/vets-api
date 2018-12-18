@@ -65,6 +65,27 @@ RSpec.describe 'Fetching user data', type: :request do
         ].sort
       )
     end
+
+    context 'with a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
+      let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
+
+      before do
+        exception   = 'the server responded with status 503'
+        error_body  = { 'status' => 'some service unavailable status' }
+        allow_any_instance_of(Vet360::Service).to receive(:perform).and_raise(
+          Common::Client::Errors::ClientError.new(exception, 503, error_body)
+        )
+      end
+
+      it 'returns a 200', :aggregate_failures do
+        get v0_user_url, nil, auth_header
+
+        body = JSON.parse(response.body)
+
+        expect(response.status).to eq(200)
+        expect(body.dig('data', 'attributes', 'vet360_contact_information')).to eq({})
+      end
+    end
   end
 
   context 'when an LOA 1 user is logged in', :skip_mvi do
