@@ -251,7 +251,7 @@
         "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
         "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
         "incidentDescription": "Lorem ipsum dolor sit amet.",
-        "s": [
+        "sources": [
           {
             "name": {
               "first": "Testy",
