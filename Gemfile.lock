@@ -41,6 +41,12 @@ PATH
       rails (~> 4.2.11)
 
 PATH
+  remote: modules/claims_api
+  specs:
+    claims_api (0.0.1)
+      rails (~> 4.2.11)
+
+PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
@@ -1102,6 +1108,7 @@ DEPENDENCIES
   byebug
   carrierwave (~> 0.11)
   carrierwave-aws
+  claims_api!
   clam_scan
   climate_control
   config

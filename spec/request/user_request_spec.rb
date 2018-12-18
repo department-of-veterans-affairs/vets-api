@@ -159,6 +159,7 @@ RSpec.describe 'Fetching user data', type: :request do
           .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
           .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
       end
+      expect(MVI::Configuration.instance.breakers_service.latest_outage.start_time.to_i).to eq(start_time.to_i)
 
       # skipped because breakers is active
       stub_mvi_success
@@ -166,7 +167,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-
+      expect(MVI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
       Timecop.freeze(now)
       # sufficient time has elasped that new requests are made, resulting in succses
       expect { get v0_user_url, nil, new_user_auth_header }
@@ -174,6 +175,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
       expect(response.status).to eq(200)
+      expect(MVI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
     end
   end
 
