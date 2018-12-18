@@ -429,7 +429,8 @@ RSpec.describe V0::SessionsController, type: :controller do
               'mhvCorrelationId' => nil,
               'signIn' => { 'serviceName' => 'idme' },
               'credential_used' => 'id_me',
-              'expirationTime' => expire_at.iso8601(0))
+              'expirationTime' => expire_at.iso8601(0)
+            )
         end
       end
 
