@@ -86,7 +86,7 @@ module PdfFill
         'veteranSecondaryPhone' => {
           key: 'F[0].Page_1[0].PreferredEmail[2]'
         },
-        'incident' => {
+        'incidents' => {
           limit: 2,
           first_key: 'incidentDescription',
           question_text: 'INCIDENTS',
@@ -155,7 +155,7 @@ module PdfFill
           'incidentDescription' => {
             key: "incidentDescription[#{ITERATOR}]"
           },
-          'source' => {
+          'sources' => {
             limit: 6,
             first_key: 'combinedName0',
             'combinedName0' => {
@@ -214,7 +214,7 @@ module PdfFill
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
-        expand_incidents(@form_data['incident'])
+        expand_incidents(@form_data['incidents'])
         expand_other_information
 
         expand_signature(@form_data['veteranFullName'])
@@ -235,7 +235,7 @@ module PdfFill
       def combine_source_name_address(incident)
         return if incident.blank?
 
-        incident_sources = incident['source']
+        incident_sources = incident['sources']
         combined_sources = {}
 
         incident_sources.each_with_index do |source, index|
@@ -246,13 +246,13 @@ module PdfFill
           combined_sources["combinedAddress#{index}"] = combined_source_address
         end
 
-        incident['source'] = combined_sources
+        incident['sources'] = combined_sources
       end
 
       def combine_other_sources_overflow(incident)
-        return if incident.blank? || incident['source'].blank?
+        return if incident.blank? || incident['sources'].blank?
 
-        sources = incident['source']
+        sources = incident['sources']
         overflow_sources = []
 
         sources.each do |source|

@@ -86,7 +86,7 @@ module PdfFill
         'veteranSecondaryPhone' => {
           key: 'form1[0].#subform[0].PreferredEmail[2]'
         },
-        'incident' => {
+        'incidents' => {
           limit: 2,
           first_key: 'incidentDescription',
           question_text: 'INCIDENTS',
@@ -158,7 +158,7 @@ module PdfFill
           'medalsCitations' => {
             key: "medalsCitations[#{INCIDENT_ITERATOR}]"
           },
-          'personInvolved' => {
+          'personsInvolved' => {
             limit: 30,
             'first0' => {
               key: "personInvolvedFirst[0][#{INCIDENT_ITERATOR}]",
@@ -296,7 +296,7 @@ module PdfFill
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
-        expand_incidents(@form_data['incident'])
+        expand_incidents(@form_data['incidents'])
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
@@ -320,9 +320,9 @@ module PdfFill
 
       def expand_persons_involved(incident)
         return if incident.blank?
-        return if incident['personInvolved'].blank?
+        return if incident['personsInvolved'].blank?
 
-        persons_involved = incident['personInvolved']
+        persons_involved = incident['personsInvolved']
         persons_involved.each_with_index do |person_involved, index|
           expand_injury_death_date(person_involved, index)
           split_person_unit_assignment(person_involved, index)
@@ -330,7 +330,7 @@ module PdfFill
           resolve_cause_injury_death(person_involved, index)
         end
 
-        incident['personInvolved'] = Hash[*persons_involved.collect(&:to_a).flatten]
+        incident['personsInvolved'] = Hash[*persons_involved.collect(&:to_a).flatten]
       end
 
       def expand_injury_death_date(person_involved, index)
@@ -371,15 +371,8 @@ module PdfFill
         return if person_involved.blank?
 
         cause = person_involved['injuryDeath']
-        cause_map = {
-          'Killed in Action' => "killedInAction#{index}",
-          'Killed Non-Battle' => "killedNonBattle#{index}",
-          'Wounded in Action' => "woundedInAction#{index}",
-          'Injured Non-Battle' => "injuredNonBattle#{index}",
-          'Other' => "other#{index}"
-        }
-        person_involved[cause_map[cause]] = true
-        if cause == 'Other'
+        person_involved["#{cause}#{index}"] = true
+        if cause == 'other'
           person_involved["otherText#{index}"] = person_involved['injuryDeathOther']
           person_involved.except!('injuryDeathOther')
         end
@@ -401,7 +394,7 @@ module PdfFill
       def format_persons_involved(incident)
         return if incident.blank?
 
-        persons_involved = incident['personInvolved']
+        persons_involved = incident['personsInvolved']
         return '' if persons_involved.blank?
 
         overflow_people = []
@@ -413,12 +406,21 @@ module PdfFill
       end
 
       def format_one_person(person)
+        cause_map = {
+          'killedInAction' => 'Killed in Action',
+          'killedNonBattle' => 'Killed Non-Battle',
+          'woundedInAction' => 'Wounded in Action',
+          'injuredNonBattle' => 'Injured Non-Battle',
+          'other' => 'Other'
+        }
+        cause = cause_map[person['injuryDeath']] unless person['injuryDeath'].nil?
+
         overflow_person = []
         overflow_person.push(combine_full_name(person['name']))
         overflow_person.push('Rank: ' + person['rank']) unless person['rank'].nil?
         overflow_person.push('Unit Assigned: ' + person['unitAssigned']) unless person['unitAssigned'].nil?
         overflow_person.push('Injury or Death Date: ' + person['injuryDeathDate']) unless person['injuryDeathDate'].nil?
-        overflow_person.push('Injury or Death Cause: ' + person['injuryDeath']) unless person['injuryDeath'].nil?
+        overflow_person.push('Injury or Death Cause: ' + cause) unless cause.nil?
         overflow_person.join("\n")
       end
     end

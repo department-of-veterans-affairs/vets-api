@@ -11,7 +11,7 @@
   "email": "testy.testerson@gmail.com",
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
-  "incident": [
+  "incidents": [
     {
       "personalAssault": true,
       "incidentDate": "2000-01-01",
@@ -22,7 +22,7 @@
       "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "source": [
+      "sources": [
         {
           "name": {
             "first": "Testy",
@@ -79,7 +79,7 @@
       "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "source": [
+      "sources": [
         {
           "name": {
             "first": "Testy",
@@ -136,7 +136,7 @@
       "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-      "source": [
+      "sources": [
         {
           "name": {
             "first": "Testy",
