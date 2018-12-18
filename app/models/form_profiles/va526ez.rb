@@ -91,17 +91,17 @@ class FormProfiles::VA526ez < FormProfile
 
     vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
 
-    if vet360_contact_info.mailing_address.present?
-      mailing_address = convert_vets360_address(vet360_contact_info.mailing_address)
-    else
-      mailing_address = get_common_address(user)
-    end
+    mailing_address = if vet360_contact_info.mailing_address.present?
+                        convert_vets360_address(vet360_contact_info.mailing_address)
+                      else
+                        get_common_address(user)
+                      end
 
-    if vet360_contact_info.email.try(:email_address).present?
-      email_address = vet360_contact_info.email.email_address
-    else
-      email_address = extract_pciu_data(user, :pciu_email)
-    end
+    email_address = if vet360_contact_info.email.try(:email_address).present?
+                      vet360_contact_info.email.email_address
+                    else
+                      extract_pciu_data(user, :pciu_email)
+                    end
 
     if vet360_contact_info.home_phone.try(:formatted_phone).present?
       primary_phone = [
