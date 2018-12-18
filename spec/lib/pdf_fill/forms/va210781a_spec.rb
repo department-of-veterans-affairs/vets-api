@@ -28,7 +28,7 @@ describe PdfFill::Forms::Va210781a do
   describe '#combine_source_name_address' do
     it 'should expand sources correctly' do
       incident = {
-        'source' => [{
+        'sources' => [{
           'name' => {
             'first' => 'Testy',
             'middle' => 'T',
@@ -53,7 +53,7 @@ describe PdfFill::Forms::Va210781a do
 
     it 'should expand multiple sources correctly' do
       incident = {
-        'source' => [
+        'sources' => [
           {
             'name' => {
               'first' => 'Testy',
