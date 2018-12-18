@@ -22,11 +22,7 @@
     "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "incidentDescription": "Lorem ipsum dolor sit amet.",
     "sources": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
+      "name": "Testy Tester Testerson",
       "address": {
         "street": "123 Main Street",
         "street2": "1B",
@@ -37,11 +33,7 @@
       }
     },
     {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
+      "name": "Dusty Tester Testerson",
       "address": {
         "street": "789 Main Street",
         "street2": "1B",
@@ -52,11 +44,7 @@
       }
     },
     {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
+      "name": "Trusty Tester Testerson",
       "address": {
         "street": "100 Main Street",
         "street2": "1B",
@@ -78,11 +66,7 @@
     "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "incidentDescription": "Lorem ipsum dolor sit amet.",
     "sources": [{
-      "name": {
-        "first": "Testy",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
+      "name": "Testy Tester Testerson",
       "address": {
         "street": "123 Main Street",
         "street2": "1B",
@@ -93,11 +77,7 @@
       }
     },
     {
-      "name": {
-        "first": "Dusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
+      "name": "Dusty Tester Testerson",
       "address": {
         "street": "789 Main Street",
         "street2": "1B",
@@ -108,11 +88,7 @@
       }
     },
     {
-      "name": {
-        "first": "Trusty",
-        "middle": "Tester",
-        "last": "Testerson"
-      },
+      "name": "Trusty Tester Testerson",
       "address": {
         "street": "100 Main Street",
         "street2": "1B",

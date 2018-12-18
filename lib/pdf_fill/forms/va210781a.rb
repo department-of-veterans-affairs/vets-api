@@ -159,21 +159,27 @@ module PdfFill
             limit: 6,
             first_key: 'combinedName0',
             'combinedName0' => {
+              limit: 80,
               key: "incident_source_name[#{ITERATOR}][0]"
             },
             'combinedAddress0' => {
+              limit: 80,
               key: "incident_source_address[#{ITERATOR}][0]"
             },
             'combinedName1' => {
+              limit: 80,
               key: "incident_source_name[#{ITERATOR}][1]"
             },
             'combinedAddress1' => {
+              limit: 80,
               key: "incident_source_address[#{ITERATOR}][1]"
             },
             'combinedName2' => {
+              limit: 80,
               key: "incident_source_name[#{ITERATOR}][2]"
             },
             'combinedAddress2' => {
+              limit: 80,
               key: "incident_source_address[#{ITERATOR}][2]"
             }
           },
@@ -239,10 +245,9 @@ module PdfFill
         combined_sources = {}
 
         incident_sources.each_with_index do |source, index|
-          combined_source_name = combine_full_name(source['name'])
           combined_source_address = combine_full_address(source['address'])
 
-          combined_sources["combinedName#{index}"] = combined_source_name
+          combined_sources["combinedName#{index}"] = source['name']
           combined_sources["combinedAddress#{index}"] = combined_source_address
         end
 
@@ -256,7 +261,7 @@ module PdfFill
         overflow_sources = []
 
         sources.each do |source|
-          overflow = combine_full_name(source['name']) + " \n " + combine_full_address(source['address'])
+          overflow = source['name'] + " \n " + combine_full_address(source['address'])
           overflow_sources.push(overflow)
         end
 
