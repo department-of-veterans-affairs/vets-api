@@ -31,6 +31,18 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         end
       end
     end
+
+    context 'when service returns a 503 error code' do
+      it 'raises a BackendServiceException error' do
+        VCR.use_cassette('vet360/contact_information/person_status_503', VCR::MATCH_EVERYTHING) do
+          expect { subject.get_person }.to raise_error do |e|
+            expect(e).to be_a(Common::Exceptions::BackendServiceException)
+            expect(e.status_code).to eq(502)
+            expect(e.errors.first.code).to eq('VET360_502')
+          end
+        end
+      end
+    end
   end
 
   describe '#post_email' do
