@@ -13,7 +13,7 @@ class UserPreference < ActiveRecord::Base
     :account_id,
     uniqueness: {
       scope: :preference_choice_id,
-      message: "already has a UserPreference record with this PreferenceChoice"
+      message: 'already has a UserPreference record with this PreferenceChoice'
     }
   )
 
