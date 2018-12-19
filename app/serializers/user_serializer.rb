@@ -50,6 +50,8 @@ class UserSerializer < ActiveModel::Serializer
       temporary_phone: person.temporary_phone,
       fax_number: person.fax_number
     }
+  rescue Common::Exceptions::BackendServiceException
+    {}
   end
 
   def va_profile
