@@ -206,7 +206,7 @@ describe 'user_preferences', type: :request do
 
     context 'when passed an empty UserPreferences array' do
       it 'sets a user to have no selections' do
-        delete '/v0/user/preferences/benefits', auth_header
+        delete '/v0/user/preferences/benefits', {}, auth_header
 
         expect(response).to have_http_status(:ok)
         expect(UserPreference.where(account_id: user.account.id).count).to eq 0
