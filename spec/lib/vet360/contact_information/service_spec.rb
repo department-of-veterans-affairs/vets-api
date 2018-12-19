@@ -81,6 +81,10 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'returns a status of 200' do
         VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
           address.id = nil
+          address.address_line1 = '1493 Martin Luther King Rd'
+          address.city = 'Fulton'
+          address.state_code = 'MS'
+          address.zip_code = '38843'
           response = subject.post_address(address)
           expect(response).to be_ok
         end
@@ -91,6 +95,10 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
       it 'raises an exception' do
         VCR.use_cassette('vet360/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do
           address.id = 42
+          address.address_line1 = '1493 Martin Luther King Rd'
+          address.city = 'Fulton'
+          address.state_code = 'MS'
+          address.zip_code = '38843'
           expect { subject.post_address(address) }.to raise_error do |e|
             expect(e).to be_a(Common::Exceptions::BackendServiceException)
             expect(e.status_code).to eq(400)
@@ -108,6 +116,9 @@ describe Vet360::ContactInformation::Service, skip_vet360: true do
         VCR.use_cassette('vet360/contact_information/put_address_success', VCR::MATCH_EVERYTHING) do
           address.id = 437
           address.address_line1 = '1494 Martin Luther King Rd'
+          address.city = 'Fulton'
+          address.state_code = 'MS'
+          address.zip_code = '38843'
           response = subject.put_address(address)
           expect(response.transaction.id).to eq('2c8c1b3b-1b1c-416c-bc91-a9fb4f79291f')
           expect(response).to be_ok
