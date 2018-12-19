@@ -101,13 +101,13 @@ class FormProfiles::VA526ez < FormProfile
     return {} unless user.authorize :evss, :access?
 
     # fill in blank values with PCIU data
-    return_val = initialize_vets360_contact_info(user).merge({
+    return_val = initialize_vets360_contact_info(user).merge(
       mailing_address: get_common_address(user),
       email_address: extract_pciu_data(user, :pciu_email),
       primary_phone: get_us_phone(
         extract_pciu_data(user, :pciu_primary_phone)
       )
-    }) { |k, old_val, new_val| old_val.blank? ? new_val : old_val }
+    ) { |_, old_val, new_val| old_val.presence || new_val }
 
     contact_info = VA526ez::FormContactInformation.new(return_val)
 
