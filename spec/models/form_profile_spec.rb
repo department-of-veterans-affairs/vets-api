@@ -726,8 +726,9 @@ RSpec.describe FormProfile, type: :model do
           context 'when Vet360 prefill is enabled' do
             before do
               Settings.vet360.prefill = true
-              v21_526_ez_expected['veteran']['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
-              v21_526_ez_expected['veteran']['primaryPhone'] = '3035551234'
+              expected_veteran_info = v21_526_ez_expected['veteran']
+              expected_veteran_info['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+              expected_veteran_info['primaryPhone'] = '3035551234'
             end
 
             it 'returns prefilled 21-526EZ' do
