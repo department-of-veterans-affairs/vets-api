@@ -90,27 +90,14 @@ class FormProfiles::VA526ez < FormProfile
     return {} unless user.authorize :evss, :access?
 
     vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+    mailing_address = convert_vets360_address(vet360_contact_info.mailing_address) || get_common_address(user)
+    email_address = vet360_contact_info.email.try(:email_address) || extract_pciu_data(user, :pciu_email)
+    primary_phone = [vet360_contact_info.home_phone.area_code, vet360_contact_info.home_phone.phone_number].join('')
 
-    mailing_address = if vet360_contact_info.mailing_address.present?
-                        convert_vets360_address(vet360_contact_info.mailing_address)
-                      else
-                        get_common_address(user)
-                      end
-
-    email_address = if vet360_contact_info.email.try(:email_address).present?
-                      vet360_contact_info.email.email_address
-                    else
-                      extract_pciu_data(user, :pciu_email)
-                    end
-
-    if vet360_contact_info.home_phone.try(:formatted_phone).present?
-      primary_phone = [
-        vet360_contact_info.home_phone.area_code,
-        vet360_contact_info.home_phone.phone_number
-      ].join('')
-    else
-      pciu_primary_phone = extract_pciu_data(user, :pciu_primary_phone)
-      primary_phone = get_us_phone(pciu_primary_phone)
+    if primary_phone.blank?
+      primary_phone = get_us_phone(
+        extract_pciu_data(user, :pciu_primary_phone)
+      )
     end
 
     contact_info = VA526ez::FormContactInformation.new(
@@ -138,6 +125,7 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def convert_vets360_address(address)
+    return if address.blank?
     {
       address_line_1: address.address_line1,
       address_line_2: address.address_line2,
