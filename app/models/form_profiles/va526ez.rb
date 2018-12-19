@@ -86,25 +86,30 @@ class FormProfiles::VA526ez < FormProfile
 
   private
 
+  def initialize_vets360_contact_info(user)
+    return {} unless Settings.vet360.prefill && user.vet360_id.present?
+
+    vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
+    {
+      mailing_address: convert_vets360_address(vet360_contact_info.mailing_address),
+      email_address: vet360_contact_info.email.try(:email_address),
+      primary_phone: [vet360_contact_info.home_phone.area_code, vet360_contact_info.home_phone.phone_number].join('')
+    }.compact
+  end
+
   def initialize_veteran_contact_information(user)
     return {} unless user.authorize :evss, :access?
 
-    vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
-    mailing_address = convert_vets360_address(vet360_contact_info.mailing_address) || get_common_address(user)
-    email_address = vet360_contact_info.email.try(:email_address) || extract_pciu_data(user, :pciu_email)
-    primary_phone = [vet360_contact_info.home_phone.area_code, vet360_contact_info.home_phone.phone_number].join('')
-
-    if primary_phone.blank?
-      primary_phone = get_us_phone(
+    # fill in blank values with PCIU data
+    return_val = initialize_vets360_contact_info(user).merge({
+      mailing_address: get_common_address(user),
+      email_address: extract_pciu_data(user, :pciu_email),
+      primary_phone: get_us_phone(
         extract_pciu_data(user, :pciu_primary_phone)
       )
-    end
+    }) { |k, old_val, new_val| old_val.blank? ? new_val : old_val }
 
-    contact_info = VA526ez::FormContactInformation.new(
-      mailing_address: mailing_address,
-      email_address: email_address,
-      primary_phone: primary_phone
-    )
+    contact_info = VA526ez::FormContactInformation.new(return_val)
 
     VA526ez::FormVeteranContactInformation.new(
       veteran: contact_info
