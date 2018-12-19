@@ -12,6 +12,14 @@ module V0
       render json: response, serializer: UserPreferenceSerializer
     end
 
+    # Deleting all associated Preferences
+    def delete_all
+      preference_code = user_preference_params(:preference)
+      preferences = UserPreference.for_preference_and_account(account.id, preference_code)
+
+      preferences.destroy_all
+    end
+
     def index
       render json: user_preferences, serializer: UserPreferenceSerializer
     end
