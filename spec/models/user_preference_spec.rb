@@ -61,4 +61,46 @@ describe UserPreference, type: :model do
       end
     end
   end
+
+  describe 'validations' do
+    let(:john_account) { create :account }
+    let(:mary_account) { create :account }
+    let(:preference) { create :preference }
+    let(:preference_choice) { create :preference_choice }
+    let!(:user_preference) do
+      create(
+        :user_preference,
+        account: john_account,
+        preference: preference,
+        preference_choice: preference_choice
+      )
+    end
+
+    it 'can create a UserPreference with the same PreferenceChoice, for different users' do
+      expect do
+        create(
+          :user_preference,
+          account: mary_account,
+          preference: preference,
+          preference_choice: preference_choice
+        )
+      end.to change { UserPreference.count }.by(1)
+    end
+
+    it 'cannot create a UserPreference with the same PreferenceChoice, for the same user' do
+      user_pref = build(
+        :user_preference,
+        account: john_account,
+        preference: preference,
+        preference_choice: preference_choice
+      )
+
+      expect { user_pref.save! }.to raise_error do |e|
+        expect(e).to be_a(ActiveRecord::RecordInvalid)
+        expect(e.message).to eq(
+          'Validation failed: Account already has a UserPreference record with this PreferenceChoice'
+        )
+      end
+    end
+  end
 end
