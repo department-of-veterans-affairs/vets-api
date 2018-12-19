@@ -816,6 +816,7 @@ module PdfFill
         ].each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
+        [5, 6].each { |i| net_worths[i] = { 'name' => 'Other', 'amount' => 0, 'recipient' => 'Myself' } }
         net_worths[7] = financial_accts['additionalSources'][0]
 
         overflow_financial_accts(net_worths, financial_accts)
