@@ -59,18 +59,6 @@ class V0::Facilities::VaController < FacilitiesController
 
   private
 
-  def format_records(record, ppms)
-    if record.is_a?(BaseFacility)
-      ser = VAFacilitySerializer.new(record)
-      { id: ser.id, type: 'vha_facility', name: record[:name], attributes: ser.as_json }
-    else
-      prov_info = ppms.provider_info(record['ProviderIdentifier'])
-      record.add_details(prov_info)
-      prov_ser = ProviderSerializer.new(record)
-      { id: prov_ser.id, type: 'cc_provider', name: record[:Name], attributes: prov_ser.as_json }
-    end
-  end
-
   def validate_types_name_part
     raise Common::Exceptions::ParameterMissing, 'name_part' if params[:name_part].blank?
     raise Common::Exceptions::ParameterMissing, 'type' if params[:type].blank?
