@@ -14,10 +14,9 @@ module V0
 
     # Deleting all associated Preferences
     def delete_all
-      preference_code = user_preference_params(:preference)
-      preferences = UserPreference.for_preference_and_account(account.id, preference_code)
+      preferences = UserPreference.for_preference_and_account(account.id, params[:code])
 
-      preferences.destroy_all
+      render json: {}, serializer: UserPreferenceSerializer if preferences.destroy_all
     end
 
     def index

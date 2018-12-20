@@ -189,12 +189,7 @@ describe 'user_preferences', type: :request do
 
   describe 'DELETE /v0/user/preferences/:code' do
     before do
-      benefits = create(:preference, :benefits)
       notifications = create(:preference, :notifications)
-      UserPreference.create(account_id: user.account.id,
-                            preference_id: benefits.id,
-                            preference_choice_id: benefits.choices.first.id)
-
       UserPreference.create(account_id: user.account.id,
                             preference_id: notifications.id,
                             preference_choice_id: notifications.choices.first.id)
@@ -204,11 +199,12 @@ describe 'user_preferences', type: :request do
                             preference_choice_id: notifications.choices.last.id)
     end
 
-    context 'when passed an empty UserPreferences array' do
-      it 'sets a user to have no selections' do
-        delete '/v0/user/preferences/benefits', {}, auth_header
+    context 'when a user has UserPreferences' do
+      it 'deletes all of a User\'s UserPreferences' do
+        delete '/v0/user/preferences/notifications/delete_all', {}, auth_header
 
         expect(response).to have_http_status(:ok)
+        expect(response).to match_response_schema('user_preferences')
         expect(UserPreference.where(account_id: user.account.id).count).to eq 0
       end
     end
