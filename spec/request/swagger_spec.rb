@@ -1363,6 +1363,23 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         expect(subject).to validate(:post, '/v0/user/preferences', 401)
       end
 
+
+      it 'supports 400 error reporting for POST /v0/user/preferences' do
+        bad_request_body = [
+          {
+            preference: { code: preference.code },
+            user_preferences: []
+          }
+        ]
+
+        expect(subject).to validate(
+          :post,
+          '/v0/user/preferences',
+          400,
+          auth_options.merge('_data' => { '_json' => bad_request_body.as_json })
+        )
+      end
+
       it 'supports 404 error reporting for POST /v0/user/preferences' do
         bad_request_body = [
           {
