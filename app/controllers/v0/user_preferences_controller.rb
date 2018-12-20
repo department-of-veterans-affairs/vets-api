@@ -13,6 +13,8 @@ module V0
     end
 
     # Deleting all associated Preferences
+    # @param code - Required Preference code for UserPreferences to be deleted
+    #
     def delete_all
       preferences = UserPreference.for_preference_and_account(account.id, params[:code])
 
