@@ -12,7 +12,8 @@ module V0
       render json: response, serializer: UserPreferenceSerializer
     end
 
-    # Deleting all associated Preferences
+    # This endpoint deletes all associated UserPreferences for a given Preference code.
+    #
     # @param code - Required Preference code for UserPreferences to be deleted
     #
     def delete_all
