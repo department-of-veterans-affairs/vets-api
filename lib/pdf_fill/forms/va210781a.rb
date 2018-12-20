@@ -155,33 +155,29 @@ module PdfFill
           'incidentDescription' => {
             key: "incidentDescription[#{ITERATOR}]"
           },
-          'sources' => {
-            limit: 6,
-            first_key: 'combinedName0',
-            'combinedName0' => {
-              limit: 80,
-              key: "incident_source_name[#{ITERATOR}][0]"
-            },
-            'combinedAddress0' => {
-              limit: 80,
-              key: "incident_source_address[#{ITERATOR}][0]"
-            },
-            'combinedName1' => {
-              limit: 80,
-              key: "incident_source_name[#{ITERATOR}][1]"
-            },
-            'combinedAddress1' => {
-              limit: 80,
-              key: "incident_source_address[#{ITERATOR}][1]"
-            },
-            'combinedName2' => {
-              limit: 80,
-              key: "incident_source_name[#{ITERATOR}][2]"
-            },
-            'combinedAddress2' => {
-              limit: 80,
-              key: "incident_source_address[#{ITERATOR}][2]"
-            }
+          'combinedName0' => {
+            limit: 80,
+            key: "incident_source_name[#{ITERATOR}][0]"
+          },
+          'combinedAddress0' => {
+            limit: 80,
+            key: "incident_source_address[#{ITERATOR}][0]"
+          },
+          'combinedName1' => {
+            limit: 80,
+            key: "incident_source_name[#{ITERATOR}][1]"
+          },
+          'combinedAddress1' => {
+            limit: 80,
+            key: "incident_source_address[#{ITERATOR}][1]"
+          },
+          'combinedName2' => {
+            limit: 80,
+            key: "incident_source_name[#{ITERATOR}][2]"
+          },
+          'combinedAddress2' => {
+            limit: 80,
+            key: "incident_source_address[#{ITERATOR}][2]"
           },
           'incidentOverflow' => {
             key: '',
@@ -241,17 +237,14 @@ module PdfFill
       def combine_source_name_address(incident)
         return if incident.blank?
 
-        incident_sources = incident['sources']
-        combined_sources = {}
-
-        incident_sources.each_with_index do |source, index|
+        incident['sources'].each_with_index do |source, index|
           combined_source_address = combine_full_address(source['address'])
 
-          combined_sources["combinedName#{index}"] = source['name']
-          combined_sources["combinedAddress#{index}"] = combined_source_address
+          incident["combinedName#{index}"] = source['name']
+          incident["combinedAddress#{index}"] = combined_source_address
         end
 
-        incident['sources'] = combined_sources
+        incident.except!('sources')
       end
 
       def combine_other_sources_overflow(incident)
