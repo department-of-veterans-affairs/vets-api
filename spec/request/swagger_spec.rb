@@ -1363,7 +1363,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         expect(subject).to validate(:post, '/v0/user/preferences', 401)
       end
 
-
       it 'supports 400 error reporting for POST /v0/user/preferences' do
         bad_request_body = [
           {

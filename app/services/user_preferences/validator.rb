@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module UserPreferences
   class Validator
     attr_reader :requested_user_preferences
@@ -47,19 +49,23 @@ module UserPreferences
     def validate_pref_code!(requested)
       code = requested.dig 'preference', 'code'
 
-      raise Common::Exceptions::ParameterMissing.new('preference#code') if code.blank?
+      raise_missing_parameter!('preference#code') if code.blank?
     end
 
     def validate_user_pref_key!(requested)
-      raise Common::Exceptions::ParameterMissing.new('user_preferences') if requested.dig('user_preferences').blank?
+      raise_missing_parameter!('user_preferences') if requested.dig('user_preferences').blank?
     end
 
     def validate_user_pref!(user_preference)
-      raise Common::Exceptions::ParameterMissing.new('user_preferences') if user_preference.blank?
+      raise_missing_parameter!('user_preferences') if user_preference.blank?
     end
 
     def validate_user_pref_code!(user_preference)
-      raise Common::Exceptions::ParameterMissing.new('user_preference#code') if user_preference['code'].blank?
+      raise_missing_parameter!('user_preference#code') if user_preference['code'].blank?
+    end
+
+    def raise_missing_parameter!(parameter)
+      raise Common::Exceptions::ParameterMissing.new(parameter), parameter
     end
   end
 end
