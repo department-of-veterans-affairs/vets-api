@@ -9,6 +9,13 @@ class UserPreference < ActiveRecord::Base
   belongs_to :preference_choice
 
   validates :account_id, :preference_id, :preference_choice_id, presence: true
+  validates(
+    :account_id,
+    uniqueness: {
+      scope: :preference_choice_id,
+      message: 'already has a UserPreference record with this PreferenceChoice'
+    }
+  )
 
   scope :for_account, ->(account_id) { where(account_id: account_id) }
 
