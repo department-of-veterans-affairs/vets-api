@@ -6,11 +6,9 @@ module OpenidAuth
   module V0
     class ValidationController < ApplicationController
       def index
-        begin
-          render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
-        rescue StandardError => e
-          raise Common::Exceptions::InternalServerError, e
-        end
+        render json: validated_payload, serializer: OpenidAuth::ValidationSerializer
+      rescue StandardError => e
+        raise Common::Exceptions::InternalServerError, e
       end
 
       private
