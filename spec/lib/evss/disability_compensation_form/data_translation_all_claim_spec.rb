@@ -753,6 +753,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'NEW',
                 'condition' => 'new condition',
+                'specialIssues' => ['POW'],
                 'primaryDescription' => 'new condition description'
               }
             ]
@@ -765,6 +766,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'new condition',
+            'specialIssue' => 'POW',
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
           }
         ]
@@ -779,6 +781,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'WORSENED',
                 'condition' => 'worsened condition',
+                'specialIssues' => ['POW'],
                 'worsenedDescription' => 'worsened condition description',
                 'worsenedEffects' => 'worsened effects'
               }
@@ -792,6 +795,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'worsened condition',
+            'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects"
           }
@@ -807,6 +811,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'VA',
                 'condition' => 'va condition',
+                'specialIssues' => ['POW'],
                 'VAMistreatmentDescription' => 'va condition description',
                 'VAMistreatmentLocation' => 'va location',
                 'VAMistreatmentDate' => 'the third of october'
@@ -821,6 +826,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'va condition',
+            'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Caused by VA care\nEvent: va condition description\n"\
               "Location: va location\nTimeFrame: the third of october"
@@ -837,18 +843,21 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition',
+                'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability'
               },
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition2',
+                'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability2'
               },
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition3',
+                'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability2'
               }
@@ -885,6 +894,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition',
                 'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
@@ -898,11 +908,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition2',
                 'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               },
               {
                 'name' => 'secondary condition3',
                 'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
