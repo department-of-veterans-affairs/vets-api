@@ -62,7 +62,8 @@
         "cause": "SECONDARY",
         "causedByDisability": "PTSD (post traumatic stress disorder)",
         "causedByDisabilityDescription": "Lengthy description",
-        "condition": "PTSD personal trauma"
+        "condition": "PTSD personal trauma",
+        "specialIssues": ["POW"]
       }
     ],
     "otherHomelessHousing": "other living situation",
