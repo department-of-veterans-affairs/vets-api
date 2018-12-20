@@ -94,12 +94,7 @@ module Swagger
 
           parameter :authorization
 
-          response 200 do
-            key :description, 'All UserPreference records for given code have been deleted'
-            schema do
-              key :'$ref', :UserPreferences
-            end
-          end
+          response 200, description: 'All UserPreference records for given code have been deleted'
         end
       end
 
