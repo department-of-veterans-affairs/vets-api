@@ -7,7 +7,7 @@ module V0
     before_action :set_account
 
     def create
-      response = SetUserPreferences.new(account, requested_user_preferences).execute!
+      response = UserPreferences::Grantor.new(@account, requested_user_preferences).execute!
 
       render json: response, serializer: UserPreferenceSerializer
     end
