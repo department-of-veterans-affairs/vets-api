@@ -30,17 +30,16 @@
             "middle": "Fester",
             "last": "Festerson"
           },
+          "description": "Description of Dusty Tester Dusterson",
           "rank": "Inc 0 Rank 0",
-          "injuryDeath": "killedInAction",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
         },
         {
           "name": {
-            "first": "Dusty",
-            "middle": "Tester",
-            "last": "Dusterson"
+            "first": "Dusty"
           },
+          "description": "Description of Dusty Tester Dusterson",
           "rank": "Inc 0 Rank 1",
           "injuryDeath": "other",
           "injuryDeathOther": "Natural Causes",
