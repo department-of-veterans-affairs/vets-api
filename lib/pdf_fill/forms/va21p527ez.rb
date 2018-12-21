@@ -812,7 +812,7 @@ module PdfFill
         %w[bank interestBank ira stocks realProperty].each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
-        [5, 6].each { |i| net_worths[i] = { 'amount' => 0, 'recipient' => 'None' } }
+        [5, 6].each { |i| net_worths[i] = DEFAULT_FINANCIAL_ACCT }
 
         if financial_accts['additionalSources'].size < 1
           expand_additional_sources('None', [DEFAULT_FINANCIAL_ACCT], financial_accts)
