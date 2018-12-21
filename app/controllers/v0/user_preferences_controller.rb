@@ -4,9 +4,10 @@ module V0
   class UserPreferencesController < ApplicationController
     include Accountable
 
+    before_action :set_account
+
     def create
-      account  = current_user.account.presence || create_user_account
-      response = SetUserPreferences.new(account, requested_user_preferences).execute!
+      response = UserPreferences::Grantor.new(@account, requested_user_preferences).execute!
 
       render json: response, serializer: UserPreferenceSerializer
     end
@@ -16,6 +17,10 @@ module V0
     end
 
     private
+
+    def set_account
+      @account = current_user.account.presence || create_user_account
+    end
 
     def user_preference_params
       params.permit(

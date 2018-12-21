@@ -120,6 +120,71 @@ describe 'user_preferences', type: :request do
         ).to eq "The record identified by #{non_existant_code} could not be found"
       end
     end
+
+    context 'when an empty UserPreference array is supplied in the request body' do
+      let(:empty_user_preference_request) do
+        [
+          {
+            preference: {
+              code: preference_1.code
+            },
+            user_preferences: []
+          }
+        ]
+      end
+
+      it 'returns a 400 bad request with details', :aggregate_failures do
+        post '/v0/user/preferences', empty_user_preference_request.to_json, auth_header
+
+        body  = JSON.parse response.body
+        error = body['errors'].first
+
+        expect(response).to have_http_status(:bad_request)
+        expect(error['status']).to eq '400'
+        expect(error['title']).to eq 'Missing parameter'
+        expect(error['detail']).to include 'user_preferences'
+      end
+    end
+
+    context 'when a :preference is not supplied in the request body' do
+      let(:empty_preference_request) do
+        [
+          {
+            user_preferences: [{ code: choice_1.code }]
+          }
+        ]
+      end
+
+      it 'returns a 400 bad request with details', :aggregate_failures do
+        post '/v0/user/preferences', empty_preference_request.to_json, auth_header
+
+        body  = JSON.parse response.body
+        error = body['errors'].first
+
+        expect(response).to have_http_status(:bad_request)
+        expect(error['status']).to eq '400'
+        expect(error['title']).to eq 'Missing parameter'
+        expect(error['detail']).to include 'preference#code'
+      end
+    end
+
+    context 'with problems trying to destroy the existing UserPreference records' do
+      it 'returns a 422 with details', :aggregate_failures do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        post '/v0/user/preferences', request_body.to_json, auth_header
+
+        body  = JSON.parse response.body
+        error = body['errors'].first
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(error['status']).to eq '422'
+        expect(error['title']).to eq 'Unprocessable Entity'
+        expect(error['detail']).to include 'ActiveRecord::RecordNotDestroyed'
+      end
+    end
   end
 
   describe 'GET /v0/user/preferences' do
