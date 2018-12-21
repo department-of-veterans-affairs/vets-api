@@ -102,6 +102,13 @@ module Swagger
               key :'$ref', :Errors
             end
           end
+
+          response 422 do
+            key :description, 'UserPreferences not deleted. No data was modified.'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
         end
       end
 

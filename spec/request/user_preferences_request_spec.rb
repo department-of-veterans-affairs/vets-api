@@ -210,7 +210,7 @@ describe 'user_preferences', type: :request do
     end
 
     context 'when given a non existant code' do
-      it 'returns the correct status', :aggregate_failures do
+      it 'returns a 404 not found', :aggregate_failures do
         delete '/v0/user/preferences/garbagecode/delete_all', {}, auth_header
 
         expect(response).to have_http_status(:not_found)
