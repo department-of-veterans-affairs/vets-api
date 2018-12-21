@@ -171,6 +171,7 @@ locators:
   
 ppms:
   url: https://some.fakesite.com
+  timeout: 55
 
 # Settings for MyHealthEVet
 mhv:

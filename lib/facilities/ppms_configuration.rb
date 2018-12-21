@@ -6,8 +6,8 @@ require 'common/client/middleware/response/ppms_parser'
 
 module Facilities
   class PPMSConfiguration < Common::Client::Configuration::REST
-    self.open_timeout = 60
-    self.read_timeout = 60
+    self.open_timeout = Settings.ppms.timeout
+    self.read_timeout = Settings.ppms.timeout
     def base_path
       Settings.ppms.url
     end
