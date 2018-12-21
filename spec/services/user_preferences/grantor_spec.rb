@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 # rubocop:disable Metrics/LineLength
-RSpec.describe SetUserPreferences do
+RSpec.describe UserPreferences::Grantor do
   let(:user) { build(:user, :accountable) }
   let(:account) { user.account }
   let(:preference_1) { create :preference }
@@ -37,21 +37,19 @@ RSpec.describe SetUserPreferences do
 
   describe 'execute!' do
     context 'when the User does *not* already have UserPreference records for the Preference' do
-      let(:set_user_preferences) { SetUserPreferences.new(account, requested_user_preferences) }
+      let(:set_user_preferences) { UserPreferences::Grantor.new(account, requested_user_preferences) }
 
       it 'creates UserPreference records' do
         expect do
           set_user_preferences.execute!
-        end.to change { UserPreference.count }.from(0).to(4)
+        end.to change { UserPreference.count }.by(4)
       end
 
-      # rubocop:disable Rails/UniqBeforePluck
       it 'creates UserPreference records for the passed user Account' do
         set_user_preferences.execute!
 
-        expect(UserPreference.pluck(:account_id).uniq).to eq [user.account.id]
+        expect(user.account.user_preferences.count).to eq 4
       end
-      # rubocop:enable Rails/UniqBeforePluck
 
       it 'creates UserPreference records for the passed Preferences', :aggregate_failures do
         set_user_preferences.execute!
@@ -76,7 +74,7 @@ RSpec.describe SetUserPreferences do
       let!(:user_preference_2) { create_user_preference(preference_1, choice_2) }
       let!(:user_preference_3) { create_user_preference(preference_2, choice_3) }
       let!(:user_preference_4) { create_user_preference(preference_2, choice_4) }
-      let!(:existing_user_preference_ids) { UserPreference.pluck(:id) }
+      let!(:existing_user_preference_ids) { user.account.user_preferences.pluck(:id) }
       let(:choice_5) { create :preference_choice, preference: preference_1 }
       let(:choice_6) { create :preference_choice, preference: preference_1 }
       let(:choice_7) { create :preference_choice, preference: preference_2 }
@@ -103,9 +101,9 @@ RSpec.describe SetUserPreferences do
           }
         ].as_json
       end
-      let(:set_user_preferences) { SetUserPreferences.new(account, requested_user_preferences) }
+      let(:set_user_preferences) { UserPreferences::Grantor.new(account, requested_user_preferences) }
 
-      before { expect(UserPreference.count).to eq 4 }
+      before { expect(user.account.user_preferences.count).to eq 4 }
 
       it "deletes the user's existing records for the associated Preference and creates new ones", :aggregate_failures do
         set_user_preferences.execute!
@@ -118,7 +116,7 @@ RSpec.describe SetUserPreferences do
       it 'creates new UserPreference records', :aggregate_failures do
         set_user_preferences.execute!
 
-        expect(UserPreference.count).to eq 4
+        expect(user.account.user_preferences.count).to eq 4
         expect(existing_user_preference_ids).to_not match_array UserPreference.pluck(:id)
       end
 
@@ -160,7 +158,7 @@ RSpec.describe SetUserPreferences do
           }
         ].as_json
       end
-      let(:set_user_preferences) { SetUserPreferences.new(account, bad_request_body) }
+      let(:set_user_preferences) { UserPreferences::Grantor.new(account, bad_request_body) }
 
       it 'returns a 404 not found', :aggregate_failures do
         expect { set_user_preferences.execute! }.to raise_error do |error|
@@ -184,7 +182,7 @@ RSpec.describe SetUserPreferences do
           }
         ].as_json
       end
-      let(:set_user_preferences) { SetUserPreferences.new(account, bad_request_body) }
+      let(:set_user_preferences) { UserPreferences::Grantor.new(account, bad_request_body) }
 
       it 'returns a 404 not found', :aggregate_failures do
         expect { set_user_preferences.execute! }.to raise_error do |error|
@@ -194,6 +192,22 @@ RSpec.describe SetUserPreferences do
           expect(
             error.errors.first.detail
           ).to eq "The record identified by #{non_existant_code} could not be found"
+        end
+      end
+    end
+
+    context 'with problems trying to destroy the existing UserPreference records' do
+      let(:set_user_preferences) { UserPreferences::Grantor.new(account, requested_user_preferences) }
+
+      it 'raises an exception' do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        expect { set_user_preferences.execute! }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::UnprocessableEntity)
+          expect(error.status_code).to eq(422)
+          expect(error.errors.first.detail).to include 'ActiveRecord::RecordNotDestroyed'
         end
       end
     end
