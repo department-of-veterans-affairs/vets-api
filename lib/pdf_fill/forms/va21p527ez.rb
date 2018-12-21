@@ -741,7 +741,6 @@ module PdfFill
       end
 
       def expand_financial_accts(definition)
-        limit = KEY[definition.pluralize][:limit]
         financial_accts = {}
         VetsJsonSchema::SCHEMAS['21P-527EZ']['definitions'][definition]['properties'].each_key do |acct_type|
           financial_accts[acct_type] = []
@@ -771,7 +770,6 @@ module PdfFill
         monthly_incomes = []
         10.times { monthly_incomes << {} }
 
-        # binding.pry
         monthly_incomes[0] = financial_accts['socialSecurity'][0]
         monthly_incomes[1] = financial_accts['socialSecurity'][1]
 
@@ -791,7 +789,6 @@ module PdfFill
         end
 
         overflow_financial_accts(monthly_incomes, financial_accts)
-
         @form_data['monthlyIncomes'] = monthly_incomes
       end
 
