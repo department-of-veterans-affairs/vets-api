@@ -724,7 +724,7 @@ module PdfFill
           }
         end
 
-        expand_additional_sources(recipient, financial_acct['additionalSource'], financial_accts)
+        expand_additional_sources(recipient, financial_acct['additionalSources'], financial_accts)
 
         financial_accts
       end
