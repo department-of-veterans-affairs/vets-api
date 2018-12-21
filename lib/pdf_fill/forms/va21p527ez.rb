@@ -773,13 +773,7 @@ module PdfFill
         monthly_incomes[0] = financial_accts['socialSecurity'][0]
         monthly_incomes[1] = financial_accts['socialSecurity'][1]
 
-        %w[
-          civilService
-          railroad
-          blackLung
-          serviceRetirement
-          ssi
-        ].each_with_index do |acct_type, i|
+        %w[civilService railroad blackLung serviceRetirement ssi].each_with_index do |acct_type, i|
           i += 2
           monthly_incomes[i] = financial_accts[acct_type][0]
         end
