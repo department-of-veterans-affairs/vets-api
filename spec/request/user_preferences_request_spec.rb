@@ -208,6 +208,15 @@ describe 'user_preferences', type: :request do
         expect(UserPreference.where(account_id: user.account.id).count).to eq 0
       end
     end
+
+    context 'when given a non existant code' do
+      it 'returns a 404 not found' do
+        delete '/v0/user/preferences/garbagecode/delete_all', {}, auth_header
+
+        expect(response).to have_http_status(:not_found)
+        expect(error_details_for(response, key: 'title')).to eq 'Record not found'
+      end
+    end
   end
 
   describe 'GET /v0/user/preferences' do

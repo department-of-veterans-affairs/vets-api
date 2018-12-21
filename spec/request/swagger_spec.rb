@@ -1411,7 +1411,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     describe 'user preferences' do
-      let(:code) { 'benefits' }
+      let(:benefits) { create(:preference, :benefits) }
+      let(:account) { Account.first }
+      before do
+        create(
+          :user_preference,
+          account_id: account.id,
+          preference: benefits,
+          preference_choice: benefits.choices.first
+        )
+      end
 
       it 'supports getting an index of a user\'s UserPreferences' do
         expect(subject).to validate(:get, '/v0/user/preferences', 200, auth_options)
@@ -1419,8 +1428,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports deleting all of a user\'s UserPreferences' do
-        expect(subject).to validate(:delete, '/v0/user/preferences/{code}/delete_all', 200, auth_options.merge('code' => code)) # rubocop:disable Metrics/LineLength
-        expect(subject).to validate(:delete, '/v0/user/preferences/{code}/delete_all', 401, 'code' => code)
+        expect(subject).to validate(
+          :delete,
+          '/v0/user/preferences/{code}/delete_all',
+          200,
+          auth_options.merge('code' => benefits.code)
+        )
+        expect(subject).to validate(:delete, '/v0/user/preferences/{code}/delete_all', 401, 'code' => benefits.code)
+        expect(subject).to validate(
+          :delete,
+          '/v0/user/preferences/{code}/delete_all',
+          404,
+          auth_options.merge('code' => 'junk')
+        )
       end
     end
 

@@ -13,13 +13,17 @@ module V0
     end
 
     # This endpoint deletes all associated UserPreferences for a given Preference code.
+    # If the Preference doesn't exist, a 404 not_found will be returned.
     #
     # @param code - Required Preference code for UserPreferences to be deleted
     #
     def delete_all
-      preferences = UserPreference.for_preference_and_account(account.id, params[:code])
+      code = params[:code]
+      preferences = UserPreference.for_preference_and_account(account.id, code)
+      raise Common::Exceptions::RecordNotFound, code if preferences.empty?
 
-      render json: {}, serializer: UserPreferenceSerializer if preferences.destroy_all
+      preferences.destroy_all
+      render json: {}, status: :ok, serializer: UserPreferenceSerializer
     end
 
     def index
