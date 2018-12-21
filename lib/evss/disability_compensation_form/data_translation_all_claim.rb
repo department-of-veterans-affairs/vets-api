@@ -361,6 +361,10 @@ module EVSS
         { 'disabilities' => translate_new_disabilities(disabilities) }
       end
 
+      # `specialIssues` is a key that can hold an array of special issue strings
+      # for the time being, evss only accepts one special issue per disability but
+      # it is possible for every disability to have multiple issue. We are only
+      # picking the first issue out of the list until evss can accept an array instead
       def translate_new_disabilities(disabilities)
         return disabilities if input_form['newDisabilities'].blank?
 
@@ -384,38 +388,42 @@ module EVSS
         {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'NEW',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
                                 "#{input_disability['primaryDescription']}"
-        }
+        }.compact
       end
 
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'NEW',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Worsened because of military service\n"\
                                 "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
-        }
+        }.compact
       end
 
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'NEW',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by VA care\n"\
                                 "Event: #{input_disability['VAMistreatmentDescription']}\n"\
                                 "Location: #{input_disability['VAMistreatmentLocation']}\n"\
                                 "TimeFrame: #{input_disability['VAMistreatmentDate']}"
-        }
+        }.compact
       end
 
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
           'disabilityActionType' => 'SECONDARY',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by a service-connected disability\n"\
                                 "#{input_disability['causedByDisabilityDescription']}"
-        }
+        }.compact
 
         disabilities.each do |output_disability|
           if output_disability['name'] == input_disability['causedByDisability']

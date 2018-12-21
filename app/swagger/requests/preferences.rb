@@ -153,10 +153,50 @@ module Swagger
             end
           end
 
+          response 400 do
+            key :description, 'Bad request'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status]
+                  property :title, type: :string, example: 'Missing parameter'
+                  property :detail,
+                           type: :string,
+                           example: 'The required parameter "user_preferences", is missing'
+                  property :code, type: :string, example: '108'
+                  property :status, type: :string, example: '400'
+                end
+              end
+            end
+          end
+
           response 404 do
             key :description, 'Not found: Preference record not found'
             schema do
               key :'$ref', :Errors
+            end
+          end
+
+          response 422 do
+            key :description, 'Unprocessable Entity'
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :required, %i[title detail code status]
+                  property :title, type: :string, example: 'Unprocessable Entity'
+                  property :detail,
+                           type: :string,
+                           example: 'Experienced ActiveRecord::RecordNotDestroyed with this error...'
+                  property :code, type: :string, example: '422'
+                  property :status, type: :string, example: '422'
+                end
+              end
             end
           end
         end

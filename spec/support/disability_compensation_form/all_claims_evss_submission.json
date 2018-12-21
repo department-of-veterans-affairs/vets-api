@@ -18,6 +18,7 @@
                     {
                         "disabilityActionType": "SECONDARY",
                         "name": "PTSD personal trauma",
+                        "specialIssue": "POW",
                         "serviceRelevance": "Caused by a service-connected disability\nLengthy description"
                     }
                 ]
