@@ -342,7 +342,6 @@ module PdfFill
           end
         end
 
-        # incident['personsInvolved'] = Hash[*persons_involved.collect(&:to_a).flatten]
         incident['personsInvolvedArray'] = incident['personsInvolved']
 
         incident.except!('personsInvolved')
