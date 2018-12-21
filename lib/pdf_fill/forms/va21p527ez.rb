@@ -763,9 +763,8 @@ module PdfFill
       end
 
       def expand_monthly_incomes
-        limit = KEY['monthlyIncomes'][:limit]
         financial_accts = expand_financial_accts('monthlyIncome')
-        fill_financial_blanks(limit, financial_accts)
+        fill_financial_blanks(KEY['monthlyIncomes'][:limit], financial_accts)
 
         monthly_incomes = []
         10.times { monthly_incomes << {} }
@@ -810,13 +809,7 @@ module PdfFill
           net_worths << {}
         end
 
-        %w[
-          bank
-          interestBank
-          ira
-          stocks
-          realProperty
-        ].each_with_index do |acct_type, i|
+        %w[bank interestBank ira stocks realProperty].each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
         [5, 6].each { |i| net_worths[i] = { 'amount' => 0, 'recipient' => 'None' } }
@@ -833,9 +826,8 @@ module PdfFill
       end
 
       def expand_expected_incomes
-        limit = KEY['expectedIncomes'][:limit]
         financial_accts = expand_financial_accts('expectedIncome')
-        fill_financial_blanks(limit, financial_accts)
+        fill_financial_blanks(KEY['expectedIncomes'][:limit], financial_accts)
 
         expected_incomes = []
         6.times do
