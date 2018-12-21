@@ -195,6 +195,22 @@ RSpec.describe UserPreferences::Grantor do
         end
       end
     end
+
+    context 'with problems trying to destroy the existing UserPreference records' do
+      let(:set_user_preferences) { UserPreferences::Grantor.new(account, requested_user_preferences) }
+
+      it 'raises an exception' do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        expect { set_user_preferences.execute! }.to raise_error do |error|
+          expect(error).to be_a(Common::Exceptions::UnprocessableEntity)
+          expect(error.status_code).to eq(422)
+          expect(error.errors.first.detail).to include 'ActiveRecord::RecordNotDestroyed'
+        end
+      end
+    end
   end
 end
 # rubocop:enable Metrics/LineLength

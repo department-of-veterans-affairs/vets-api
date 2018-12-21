@@ -167,6 +167,24 @@ describe 'user_preferences', type: :request do
         expect(error['detail']).to include 'preference#code'
       end
     end
+
+    context 'with problems trying to destroy the existing UserPreference records' do
+      it 'returns a 422 with details', :aggregate_failures do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        post '/v0/user/preferences', request_body.to_json, auth_header
+
+        body  = JSON.parse response.body
+        error = body['errors'].first
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(error['status']).to eq '422'
+        expect(error['title']).to eq 'Unprocessable Entity'
+        expect(error['detail']).to include 'ActiveRecord::RecordNotDestroyed'
+      end
+    end
   end
 
   describe 'GET /v0/user/preferences' do

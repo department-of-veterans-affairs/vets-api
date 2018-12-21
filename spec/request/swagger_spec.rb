@@ -1332,6 +1332,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     describe 'preferences' do
       let(:preference) { create(:preference) }
       let(:route) { '/v0/user/preferences/choices' }
+      let(:preference) { create :preference }
+      let(:choice) { create :preference_choice, preference: preference }
+      let(:request_body) do
+        [
+          {
+            preference: { code: preference.code },
+            user_preferences: [{ code: choice.code }]
+          }
+        ]
+      end
 
       it 'supports getting preference data' do
         expect(subject).to validate(:get, route, 200, auth_options)
@@ -1342,15 +1352,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports creating and/or updating UserPreferences for POST /v0/user/preferences' do
-        preference = create :preference
-        choice = create :preference_choice, preference: preference
-        request_body = [
-          {
-            preference: { code: preference.code },
-            user_preferences: [{ code: choice.code }]
-          }
-        ]
-
         expect(subject).to validate(
           :post,
           '/v0/user/preferences',
@@ -1392,6 +1393,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           '/v0/user/preferences',
           404,
           auth_options.merge('_data' => { '_json' => bad_request_body.as_json })
+        )
+      end
+
+      it 'supports 422 error reporting for POST /v0/user/preferences' do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        expect(subject).to validate(
+          :post,
+          '/v0/user/preferences',
+          422,
+          auth_options.merge('_data' => { '_json' => request_body.as_json })
         )
       end
     end
