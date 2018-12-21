@@ -200,21 +200,37 @@ describe 'user_preferences', type: :request do
     end
 
     context 'when a user has UserPreferences' do
-      it 'deletes all of a User\'s UserPreferences' do
+      it 'deletes all of a User\'s UserPreferences', :aggregate_failures do
         delete '/v0/user/preferences/notifications/delete_all', {}, auth_header
 
         expect(response).to have_http_status(:ok)
-        expect(response).to match_response_schema('user_preferences')
+        expect(response).to match_response_schema('delete_all_user_preferences')
         expect(UserPreference.where(account_id: user.account.id).count).to eq 0
       end
     end
 
     context 'when given a non existant code' do
-      it 'returns a 404 not found' do
+      it 'returns the correct status', :aggregate_failures do
         delete '/v0/user/preferences/garbagecode/delete_all', {}, auth_header
 
         expect(response).to have_http_status(:not_found)
         expect(error_details_for(response, key: 'title')).to eq 'Record not found'
+        expect(error_details_for(response, key: 'status')).to eq '404'
+      end
+    end
+
+    context 'when records cannot be destroyed' do
+      it 'returns a 422 unprocessable', :aggregate_failures do
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+
+        delete '/v0/user/preferences/notifications/delete_all', {}, auth_header
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('errors')
+        expect(error_details_for(response, key: 'title')).to eq 'Unprocessable Entity'
+        expect(error_details_for(response, key: 'detail')).to include 'ActiveRecord::RecordNotDestroyed'
       end
     end
   end

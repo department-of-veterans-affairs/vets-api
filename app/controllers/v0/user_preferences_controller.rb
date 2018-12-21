@@ -19,7 +19,7 @@ module V0
     #
     def delete_all
       destroy_user_preferences!
-      render json: {}, status: :ok, serializer: UserPreferenceSerializer
+      render json: { code: params[:code] }, status: :ok, serializer: DeleteAllUserPreferencesSerializer
     end
 
     def index
@@ -33,9 +33,17 @@ module V0
     end
 
     def destroy_user_preferences!
-      preferences = UserPreference.for_preference_and_account(account.id, params[:code])
-      raise Common::Exceptions::RecordNotFound, params[:code] if preferences.empty?
-      preferences.destroy_all
+      code = params[:code]
+
+      raise Common::Exceptions::RecordNotFound, code if Preference.find_by(code: code).blank?
+      UserPreference.for_preference_and_account(@account.id, code).each(&:destroy!)
+    rescue ActiveRecord::RecordNotDestroyed => e
+      details = <<-ERR_MSG
+        "When destroying UserPreference records for Account #{@account.id} with
+        Preference code '#{code}', experienced ActiveRecord::RecordNotDestroyed
+        with this error: #{e}"
+      ERR_MSG
+      raise Common::Exceptions::UnprocessableEntity.new(detail: details, source: 'UserPreferencesController')
     end
 
     def user_preference_params

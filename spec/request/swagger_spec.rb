@@ -1441,6 +1441,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           404,
           auth_options.merge('code' => 'junk')
         )
+
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+        expect(subject).to validate(
+          :delete,
+          'v0/user/preferences/{code}/delete_all',
+          422,
+          auth_options.merge('code' => benefits.code)
+        )
       end
     end
 
