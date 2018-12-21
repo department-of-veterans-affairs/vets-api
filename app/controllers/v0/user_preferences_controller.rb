@@ -18,11 +18,7 @@ module V0
     # @param code - Required Preference code for UserPreferences to be deleted
     #
     def delete_all
-      code = params[:code]
-      preferences = UserPreference.for_preference_and_account(account.id, code)
-      raise Common::Exceptions::RecordNotFound, code if preferences.empty?
-
-      preferences.destroy_all
+      destroy_user_preferences!
       render json: {}, status: :ok, serializer: UserPreferenceSerializer
     end
 
@@ -34,6 +30,12 @@ module V0
 
     def set_account
       @account = current_user.account.presence || create_user_account
+    end
+
+    def destroy_user_preferences!
+      preferences = UserPreference.for_preference_and_account(account.id, params[:code])
+      raise Common::Exceptions::RecordNotFound, params[:code] if preferences.empty?
+      preferences.destroy_all
     end
 
     def user_preference_params
