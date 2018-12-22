@@ -94,7 +94,26 @@ module Swagger
 
           parameter :authorization
 
-          response 200, description: 'All UserPreference records for given code have been deleted'
+          response 200 do
+            key :description, 'All UserPreference records for given code have been deleted'
+            schema do
+              property :data, type: :object do
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes, type: :object do
+                  property :preference_code, type: :string
+                  property :user_preferences do
+                    key :type, :array
+                    key :description, 'An empty array'
+                    items do
+                      key :type, :string
+                    end
+                    key :example, []
+                  end
+                end
+              end
+            end
+          end
 
           response 404 do
             key :description, 'Preference not found. No data was modified.'

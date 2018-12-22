@@ -1447,7 +1447,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         )
         expect(subject).to validate(
           :delete,
-          'v0/user/preferences/{code}/delete_all',
+          '/v0/user/preferences/{code}/delete_all',
           422,
           auth_options.merge('code' => benefits.code)
         )

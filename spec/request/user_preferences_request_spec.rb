@@ -230,6 +230,7 @@ describe 'user_preferences', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
         expect(error_details_for(response, key: 'title')).to eq 'Unprocessable Entity'
+        expect(error_details_for(response, key: 'status')).to eq '422'
         expect(error_details_for(response, key: 'detail')).to include 'ActiveRecord::RecordNotDestroyed'
       end
     end
