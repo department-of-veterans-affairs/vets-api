@@ -111,6 +111,7 @@ group :test do
   gem 'simplecov', require: false
   gem 'vcr'
   gem 'webrick'
+  gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
 end
 
 group :development, :test do
