@@ -6,10 +6,6 @@ require 'support/controller_spec_helper'
 RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
   it_should_behave_like 'a controller that deletes an InProgressForm', 'vic_submission', 'vic_submission', 'VIC'
 
-  def parsed_body
-    JSON.parse(response.body)
-  end
-
   let(:user) { create(:user) }
   let(:form) { build(:vic_submission).form }
 
@@ -22,14 +18,14 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
       context 'without a user' do
         it 'creates a vic submission' do
           send_create
-          expect(parsed_body['data']['attributes']['guid']).to eq(VIC::VICSubmission.last.guid)
+          expect(JSON.parse(response.body)['data']['attributes']['guid'])
+            .to eq(VIC::VICSubmission.last.guid)
         end
       end
 
       context 'with a user' do
         before do
-          expect(controller).to receive(:authenticate_token)
-          allow(controller).to receive(:current_user).and_return(user)
+          use_authenticated_current_user(current_user: user)
           expect(controller).to receive(:clear_saved_form).with('VIC')
         end
 
@@ -62,7 +58,8 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
         post(:create, vic_submission: { form: { foo: 1 }.to_json })
 
         expect(response.status).to eq(422)
-        expect(parsed_body['errors'][0]['title'].include?('contains additional properties')).to eq(true)
+        expect(JSON.parse(response.body)['errors'][0]['title'])
+          .to include('contains additional properties')
       end
     end
   end
@@ -71,8 +68,10 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
     it 'should find a vic submission by guid' do
       vic_submission = create(:vic_submission)
       get(:show, id: vic_submission.guid)
-      expect(parsed_body['data']['id'].to_i).to eq(vic_submission.id)
-      expect(parsed_body['data']['attributes'].keys).to eq(%w[guid state response])
+      expect(JSON.parse(response.body)['data']['id'].to_i)
+        .to eq(vic_submission.id)
+      expect(JSON.parse(response.body)['data']['attributes'].keys)
+        .to eq(%w[guid state response])
     end
   end
 end

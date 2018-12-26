@@ -3,11 +3,11 @@
 module V0
   module VIC
     class VICSubmissionsController < BaseController
-      skip_before_action(:authenticate)
+      skip_before_action :authenticate
 
       def create
-        authenticate_token
-
+        validate_session
+        
         vic_submission = ::VIC::VICSubmission.new(
           params.require(:vic_submission).permit(:form)
         )
