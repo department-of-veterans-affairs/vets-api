@@ -10,8 +10,8 @@ module AuthenticatedSessionHelper
       .to receive(:current_user).at_least(:once).and_return(current_user)
   end
 
-  def sign_in(user = nil, token = nil)
-    user ||= User.create(build(:user, :loa3))
+  def sign_in(user = FactoryBot.build(:user, :loa3), token = nil)
+    user = user.persisted? ? user : User.create(user)
     token ||= 'abracadabra'
     session_object = Session.create(uuid: user.uuid, token: token)
     session_options = { key: 'api_session', secure: false, http_only: true }
