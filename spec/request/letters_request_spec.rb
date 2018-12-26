@@ -5,13 +5,10 @@ require 'rails_helper'
 RSpec.describe 'letters', type: :request do
   include SchemaMatchers
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user, :loa3) }
 
   before do
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    sign_in_as(user)
     Settings.evss.mock_letters = false
   end
 
@@ -19,7 +16,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a valid evss response' do
       it 'should match the letters schema' do
         VCR.use_cassette('evss/letters/letters') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letters')
         end
@@ -31,7 +28,7 @@ RSpec.describe 'letters', type: :request do
     unauthorized_five_hundred = { cassette_name: 'evss/letters/unauthorized' }
     context 'with an 500 unauthorized response', vcr: unauthorized_five_hundred do
       it 'should return a bad gateway response' do
-        get '/v0/letters', nil, auth_header
+        get '/v0/letters', nil
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('evss_errors', strict: false)
       end
@@ -40,7 +37,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 403 response' do
       it 'should return a not authorized response' do
         VCR.use_cassette('evss/letters/letters_403') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -50,7 +47,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a generic 500 response' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_500') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:internal_server_error)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -62,7 +59,7 @@ RSpec.describe 'letters', type: :request do
     context 'with no options' do
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download') do
-          post '/v0/letters/commissary', nil, auth_header
+          post '/v0/letters/commissary', nil
           expect(response).to have_http_status(:ok)
         end
       end
@@ -86,7 +83,7 @@ RSpec.describe 'letters', type: :request do
       end
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download_options') do
-          post '/v0/letters/commissary', options, auth_header
+          post '/v0/letters/commissary', options
           expect(response).to have_http_status(:ok)
         end
       end
@@ -102,7 +99,7 @@ RSpec.describe 'letters', type: :request do
       end
       it 'should return a 404' do
         VCR.use_cassette('evss/letters/download_404') do
-          post '/v0/letters/commissary', nil, auth_header
+          post '/v0/letters/commissary', nil
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -111,7 +108,7 @@ RSpec.describe 'letters', type: :request do
     context 'when evss returns lettergenerator.notEligible' do
       it 'should raise a 502' do
         VCR.use_cassette('evss/letters/download_not_eligible') do
-          post '/v0/letters/civil_service', nil, auth_header
+          post '/v0/letters/civil_service', nil
           expect(response).to have_http_status(:bad_gateway)
         end
       end
@@ -142,7 +139,7 @@ RSpec.describe 'letters', type: :request do
       end
       it 'should return a 502' do
         VCR.use_cassette('evss/letters/download_unexpected') do
-          post '/v0/letters/benefit_summary', options, auth_header
+          post '/v0/letters/benefit_summary', options
           expect(response).to have_http_status(:bad_gateway)
         end
       end
@@ -153,7 +150,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a valid veteran response' do
       it 'should match the letter beneficiary schema' do
         VCR.use_cassette('evss/letters/beneficiary_veteran') do
-          get '/v0/letters/beneficiary', nil, auth_header
+          get '/v0/letters/beneficiary', nil
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letter_beneficiary')
         end
@@ -163,7 +160,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a valid dependent response' do
       it 'should not include those properties' do
         VCR.use_cassette('evss/letters/beneficiary_dependent') do
-          get '/v0/letters/beneficiary', nil, auth_header
+          get '/v0/letters/beneficiary', nil
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('letter_beneficiary')
         end
@@ -173,7 +170,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 403 response' do
       it 'should return a not authorized response' do
         VCR.use_cassette('evss/letters/beneficiary_403') do
-          get '/v0/letters/beneficiary', nil, auth_header
+          get '/v0/letters/beneficiary', nil
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -183,7 +180,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a 500 response' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/beneficiary_500') do
-          get '/v0/letters/beneficiary', nil, auth_header
+          get '/v0/letters/beneficiary', nil
           expect(response).to have_http_status(:internal_server_error)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -198,7 +195,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a letter generator service error' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_letter_generator_service_error') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:service_unavailable)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -208,7 +205,7 @@ RSpec.describe 'letters', type: :request do
     context 'with one or more letter destination errors' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_letter_destination_error') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -219,7 +216,7 @@ RSpec.describe 'letters', type: :request do
       context 'when the user has not been logged' do
         it 'should log the user edipi' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
-            expect { get '/v0/letters', nil, auth_header }.to change(InvalidLetterAddressEdipi, :count).by(1)
+            expect { get '/v0/letters', nil }.to change(InvalidLetterAddressEdipi, :count).by(1)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -229,7 +226,7 @@ RSpec.describe 'letters', type: :request do
         before { InvalidLetterAddressEdipi.find_or_create_by(edipi: user.edipi) }
         it 'should not log the user edipi' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
-            expect { get '/v0/letters', nil, auth_header }.to change(InvalidLetterAddressEdipi, :count).by(0)
+            expect { get '/v0/letters', nil }.to change(InvalidLetterAddressEdipi, :count).by(0)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -239,7 +236,7 @@ RSpec.describe 'letters', type: :request do
         it 'should still return unprocessable_entity' do
           VCR.use_cassette('evss/letters/letters_invalid_address') do
             allow(InvalidLetterAddressEdipi).to receive(:find_or_create_by).and_raise(ActiveRecord::ActiveRecordError)
-            expect { get '/v0/letters', nil, auth_header }.to change(InvalidLetterAddressEdipi, :count).by(0)
+            expect { get '/v0/letters', nil }.to change(InvalidLetterAddressEdipi, :count).by(0)
             expect(response).to have_http_status(:unprocessable_entity)
           end
         end
@@ -249,7 +246,7 @@ RSpec.describe 'letters', type: :request do
     context 'with a not eligible error' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_not_eligible_error') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
@@ -279,7 +276,7 @@ RSpec.describe 'letters', type: :request do
     context 'with can not determine eligibility error' do
       it 'should return a not found response' do
         VCR.use_cassette('evss/letters/letters_determine_eligibility_error') do
-          get '/v0/letters', nil, auth_header
+          get '/v0/letters', nil
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors')
           expect(JSON.parse(response.body)).to have_deep_attributes(
@@ -313,7 +310,7 @@ RSpec.describe 'letters', type: :request do
     end
 
     it 'should return a not found response' do
-      get '/v0/letters', nil, auth_header
+      get '/v0/letters', nil
       expect(response).to have_http_status(:gateway_timeout)
       expect(JSON.parse(response.body)).to have_deep_attributes(
         'errors' => [
