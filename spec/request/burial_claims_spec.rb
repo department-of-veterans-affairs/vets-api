@@ -54,6 +54,7 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
       end
       it 'should render success' do
         subject
+        binding.pry
         expect(JSON.parse(response.body)['data']['attributes'].keys.sort)
           .to eq(%w[confirmationNumber form guid regionalOffice submittedAt])
       end

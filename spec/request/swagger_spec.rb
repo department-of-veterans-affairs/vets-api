@@ -809,7 +809,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       describe 'health_records' do
         before(:each) do
-          allow_any_instance_of(ApplicationController).to receive(:authenticate_token).and_return(true)
+          allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
           allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(mhv_user)
 
           allow(BB::Client).to receive(:new).and_return(authenticated_client)
