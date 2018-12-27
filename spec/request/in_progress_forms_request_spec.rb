@@ -7,15 +7,11 @@ RSpec.describe V0::InProgressFormsController, type: :request do
   it_should_behave_like 'a controller that does not log 404 to Sentry'
 
   context 'with a user' do
-    let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-    let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
     let(:loa3_user) { build(:user, :loa3) }
     let(:loa1_user) { build(:user, :loa1) }
 
-    before do
-      Session.create(uuid: user.uuid, token: token)
-      User.create(user)
-
+    before(:each) do
+      sign_in_as(user)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
@@ -34,7 +30,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
       subject do
-        get v0_in_progress_forms_url, nil, auth_header
+        get v0_in_progress_forms_url, nil
       end
 
       context 'when the user is not loa3' do
@@ -68,18 +64,15 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
         it 'returns a 200' do
-          get v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
+          get v0_in_progress_form_url(in_progress_form.form_id), nil
           expect(response).to have_http_status(:ok)
         end
       end
 
       context 'when a form is found' do
-        subject do
-          get v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
-        end
-
         it 'returns the form as JSON' do
-          subject
+          get v0_in_progress_form_url(in_progress_form.form_id), nil
+
           expect(response).to have_http_status(:ok)
           expect(response.body).to eq({
             'form_data' => JSON.parse(in_progress_form.form_data),
@@ -92,13 +85,9 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             { foo_bar: 1 }
           end
 
-          before do
-            auth_header['HTTP_X_KEY_INFLECTION'] = 'camel'
-            in_progress_form.update(form_data: form_data)
-          end
-
           it 'converts the json keys' do
-            subject
+            in_progress_form.update(form_data: form_data)
+            get v0_in_progress_form_url(in_progress_form.form_id), nil, { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             expect(response.body).to eq({
               form_data: form_data,
               metadata: in_progress_form.metadata
@@ -112,7 +101,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         it 'returns pre-fill data' do
           _, phone_response = stub_evss_pciu(user)
 
-          get v0_in_progress_form_url('FAKEFORM'), nil, auth_header
+          get v0_in_progress_form_url('FAKEFORM'), nil
 
           expected_data = {
             'veteranFullName' => {
@@ -143,7 +132,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when a form mapping is not found' do
         it 'returns a 500' do
-          get v0_in_progress_form_url('foo'), nil, auth_header
+          get v0_in_progress_form_url('foo'), nil
           expect(response).to have_http_status(500)
         end
       end
@@ -161,7 +150,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             put v0_in_progress_form_url(new_form.form_id), {
               form_data: new_form.form_data,
               metadata: new_form.metadata
-            }.to_json, auth_header.merge('CONTENT_TYPE' => 'application/json')
+            }.to_json, { 'CONTENT_TYPE' => 'application/json' }
             expect(response).to have_http_status(:ok)
           end
         end
@@ -171,7 +160,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             put v0_in_progress_form_url(new_form.form_id), {
               form_data: new_form.form_data,
               metadata: new_form.metadata
-            }.to_json, auth_header.merge('CONTENT_TYPE' => 'application/json')
+            }.to_json, { 'CONTENT_TYPE' => 'application/json' }
           end.to change { InProgressForm.count }.by(1)
 
           expect(response).to have_http_status(:ok)
@@ -189,7 +178,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         context 'when an error occurs' do
           it 'returns an error response' do
             allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
-            put v0_in_progress_form_url(new_form.form_id), { form_data: new_form.form_data }, auth_header
+            put v0_in_progress_form_url(new_form.form_id), { form_data: new_form.form_data }
             expect(response).to have_http_status(:error)
             expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
           end
@@ -202,7 +191,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let(:update_form) { build(:in_progress_update_form, user_uuid: user.uuid) }
 
         it 'updates the right form' do
-          put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }, auth_header
+          put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(update_form.form_data)
@@ -217,14 +206,14 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
         it 'returns a 200' do
-          delete v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
+          delete v0_in_progress_form_url(in_progress_form.form_id), nil
           expect(response).to have_http_status(:ok)
         end
       end
 
       context 'when a form is not found' do
         subject do
-          delete v0_in_progress_form_url('ksdjfkjdf'), nil, auth_header
+          delete v0_in_progress_form_url('ksdjfkjdf'), nil
         end
 
         it 'returns a 404' do
@@ -235,7 +224,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when a form is found' do
         subject do
-          delete v0_in_progress_form_url(in_progress_form.form_id), nil, auth_header
+          delete v0_in_progress_form_url(in_progress_form.form_id), nil
         end
 
         it 'returns the deleted form id' do
