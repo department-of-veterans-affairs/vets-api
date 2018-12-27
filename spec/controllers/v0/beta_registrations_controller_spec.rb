@@ -11,8 +11,8 @@ RSpec.describe V0::BetaRegistrationsController, type: :controller do
   end
 
   context 'when logged in' do
-    let(:test_user) { build(:user) }
-    
+    let(:user) { build(:user) }
+
     before(:each) do
       sign_in_as(user)
     end
@@ -25,14 +25,14 @@ RSpec.describe V0::BetaRegistrationsController, type: :controller do
     it 'enrolls user in beta successfully' do
       get :create, feature: 'profile-beta'
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body)['user']).to eq(test_user.email)
+      expect(JSON.parse(response.body)['user']).to eq(user.email)
     end
 
     it 'returns OK status if enrolled in beta' do
-      BetaRegistration.find_or_create_by(user_uuid: test_user.uuid, feature: 'profile-beta')
+      BetaRegistration.find_or_create_by(user_uuid: user.uuid, feature: 'profile-beta')
       get :show, feature: 'profile-beta'
       expect(response).to have_http_status(200)
-      expect(JSON.parse(response.body)['user']).to eq(test_user.email)
+      expect(JSON.parse(response.body)['user']).to eq(user.email)
     end
 
     it 'successfully unenrolls user from beta' do

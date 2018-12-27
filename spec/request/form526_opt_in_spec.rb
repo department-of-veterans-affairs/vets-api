@@ -3,6 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Form526 Opt In Endpoint', type: :request do
+  let(:user) { build(:user, :loa3)}
   let(:email) { { 'email' => 'test@adhocteam.us' } }
 
   before(:each) { sign_in }
