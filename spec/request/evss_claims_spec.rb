@@ -10,12 +10,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
   let(:evss_user) { create(:evss_user) }
 
   context 'for a user without evss attrs' do
-    before do
+    it 'returns a 403' do
+      sign_in_as(user)
       profile = build(:mvi_profile, edipi: nil)
       stub_mvi(profile)
-    end
-
-    it 'returns a 403' do
       get '/v0/evss_claims', nil
       expect(response).to have_http_status(:forbidden)
     end
@@ -36,6 +34,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'sets 5103 waiver when requesting a decision' do
+      sign_in_as(user)
       expect do
         post '/v0/evss_claims/600118851/request_decision', nil
       end.to change(EVSS::RequestDecision.jobs, :size).by(1)
@@ -52,6 +51,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'user cannot access claim of another user' do
+      sign_in_as(user)
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
       get '/v0/evss_claims/2', nil
@@ -59,11 +59,11 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     context '5103 waiver has not been submitted yet' do
-      before do
+      it 'has waiver_submitted set after requesting a decision' do
+        sign_in_as(user)
         claim.requested_decision = false
         claim.save
-      end
-      it 'has waiver_submitted set after requesting a decision' do
+        
         expect(claim.requested_decision).to eq(false)
         post '/v0/evss_claims/600118851/request_decision', nil
         expect(claim.reload.requested_decision).to eq(true)

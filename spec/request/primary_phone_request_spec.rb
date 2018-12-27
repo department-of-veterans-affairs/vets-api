@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe 'primary phone', type: :request do
   include SchemaMatchers
 
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   before(:each) { sign_in }
 
   describe 'GET /v0/profile/primary_phone' do
@@ -61,9 +62,7 @@ RSpec.describe 'primary phone', type: :request do
           post(
             '/v0/profile/primary_phone',
             phone.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:ok)
@@ -79,9 +78,7 @@ RSpec.describe 'primary phone', type: :request do
         post(
           '/v0/profile/primary_phone',
           phone.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -97,9 +94,7 @@ RSpec.describe 'primary phone', type: :request do
         post(
           '/v0/profile/primary_phone',
           phone.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -114,9 +109,7 @@ RSpec.describe 'primary phone', type: :request do
           post(
             '/v0/profile/primary_phone',
             phone.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:bad_request)
@@ -131,9 +124,7 @@ RSpec.describe 'primary phone', type: :request do
           post(
             '/v0/profile/primary_phone',
             phone.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:forbidden)
@@ -147,9 +138,7 @@ RSpec.describe 'primary phone', type: :request do
           post(
             '/v0/profile/primary_phone',
             phone.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:bad_gateway)

@@ -7,9 +7,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
   let(:user) { create(:user, :loa3) }
-  let(:session) { Session.create(uuid: user.uuid) }
   let(:evss_user) { create(:evss_user) }
-  let(:evss_session) { Session.create(uuid: evss_user.uuid) }
   let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
 
   context 'for a user without evss attrs' do
@@ -19,7 +17,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'returns a 403' do
-      sign_in_as(:user)
+      sign_in_as(user)
       get '/v0/evss_claims_async', nil
       expect(response).to have_http_status(:forbidden)
     end
@@ -28,7 +26,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context '#index (all user claims) is polled' do
     it 'returns empty result, kicks off job, retuns full result when job is completed' do
       # initial request
-      sign_in_as(:evss_user)
+      sign_in_as(evss_user)
       get '/v0/evss_claims_async', nil
       expect(response).to match_response_schema('evss_claims_async')
       expect(JSON.parse(response.body)['data']).to eq([])
@@ -38,7 +36,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
         EVSS::RetrieveClaimsFromRemoteJob.new.perform(user.uuid)
       end
       # subsequent request
-      sign_in_as(:evss_user)
       get '/v0/evss_claims_async', nil
       expect(response).to match_response_schema('evss_claims_async')
       expect(JSON.parse(response.body)['data']).not_to be_empty
@@ -54,7 +51,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
     it 'it returns claim from DB, kicks off job, returns updated claim when job is completed' do
       # initial request
-      sign_in_as(:evss_user)
+      sign_in_as(evss_user)
       get '/v0/evss_claims_async/600118851', nil
       expect(response).to match_response_schema('evss_claim_async')
       expect(JSON.parse(response.body)['data']['type']).to eq 'evss_claims'
@@ -65,7 +62,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
         EVSS::UpdateClaimFromRemoteJob.new.perform(user.uuid, claim.id)
       end
       # subsequent request
-      sign_in_as(:evss_user)
       get '/v0/evss_claims_async/600118851', nil
       expect(response).to match_response_schema('evss_claim_async')
       expect(JSON.parse(response.body)['data']['attributes']['phase_change_date']).to eq '2017-12-08'
@@ -74,7 +70,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'user cannot access claim of another user' do
-      sign_in_as(:user)
+      sign_in_as(user)
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
       get '/v0/evss_claims_async/2', nil
