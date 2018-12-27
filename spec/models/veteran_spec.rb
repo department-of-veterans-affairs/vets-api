@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 describe Veteran do
   context 'initialization' do
     it 'should initialize from a hash' do
-      veteran = Veteran.new social_security_number: "123456789"
-      expect(veteran.social_security_number).to eq("123456789")
+      veteran = Veteran.new social_security_number: '123456789'
+      expect(veteran.social_security_number).to eq('123456789')
     end
 
     it 'should initialize from EVSS data' do

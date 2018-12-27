@@ -8,5 +8,4 @@ class Poa < Common::Base
   attribute :code
   attribute :name
   attribute :organization
-
 end
