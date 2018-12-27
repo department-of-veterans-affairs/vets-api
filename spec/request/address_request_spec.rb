@@ -12,7 +12,7 @@ RSpec.describe 'address', type: :request do
     Rails.application.reload_routes!
   end
 
-  let(:headers) { {'Content-Type' => 'application/json', 'Accept' => 'application/json'} }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before do
     sign_in

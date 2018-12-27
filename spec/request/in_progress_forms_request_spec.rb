@@ -87,7 +87,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'converts the json keys' do
             in_progress_form.update(form_data: form_data)
-            get v0_in_progress_form_url(in_progress_form.form_id), nil, { 'HTTP_X_KEY_INFLECTION' => 'camel' }
+            get v0_in_progress_form_url(in_progress_form.form_id), nil, 'HTTP_X_KEY_INFLECTION' => 'camel'
             expect(response.body).to eq({
               form_data: form_data,
               metadata: in_progress_form.metadata
@@ -150,7 +150,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             put v0_in_progress_form_url(new_form.form_id), {
               form_data: new_form.form_data,
               metadata: new_form.metadata
-            }.to_json, { 'CONTENT_TYPE' => 'application/json' }
+            }.to_json, 'CONTENT_TYPE' => 'application/json'
             expect(response).to have_http_status(:ok)
           end
         end
@@ -160,7 +160,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
             put v0_in_progress_form_url(new_form.form_id), {
               form_data: new_form.form_data,
               metadata: new_form.metadata
-            }.to_json, { 'CONTENT_TYPE' => 'application/json' }
+            }.to_json, 'CONTENT_TYPE' => 'application/json'
           end.to change { InProgressForm.count }.by(1)
 
           expect(response).to have_http_status(:ok)
@@ -178,7 +178,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         context 'when an error occurs' do
           it 'returns an error response' do
             allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
-            put v0_in_progress_form_url(new_form.form_id), { form_data: new_form.form_data }
+            put v0_in_progress_form_url(new_form.form_id), form_data: new_form.form_data
             expect(response).to have_http_status(:error)
             expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
           end
@@ -191,7 +191,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let(:update_form) { build(:in_progress_update_form, user_uuid: user.uuid) }
 
         it 'updates the right form' do
-          put v0_in_progress_form_url(existing_form.form_id), { form_data: update_form.form_data }
+          put v0_in_progress_form_url(existing_form.form_id), form_data: update_form.form_data
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(update_form.form_data)

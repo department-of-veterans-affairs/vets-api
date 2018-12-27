@@ -8,7 +8,7 @@ RSpec.describe 'email', type: :request do
   include ErrorDetails
 
   let(:user) { build(:user, :loa3) }
-  let(:headers) { {'Content-Type' => 'application/json', 'Accept' => 'application/json'} }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   before(:each) { sign_in_as(user) }
 
   describe 'GET /v0/profile/email' do

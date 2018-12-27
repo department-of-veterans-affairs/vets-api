@@ -6,7 +6,7 @@ RSpec.describe 'person', type: :request do
   include SchemaMatchers
 
   let(:user) { build(:user_with_suffix, :loa3) }
-  let(:headers) { {'Content-Type' => 'application/json', 'Accept' => 'application/json'} }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before do
     Timecop.freeze('2018-04-09T17:52:03Z')

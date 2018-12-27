@@ -17,7 +17,6 @@ RSpec.describe V0::PreferencesController, type: :controller do
     end
 
     context 'when logged in as an LOA1 user' do
-
       before(:each) do
         sign_in_as(build(:user, :loa1))
         get :show, code: preference.code

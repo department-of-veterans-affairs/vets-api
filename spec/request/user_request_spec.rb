@@ -6,13 +6,10 @@ require 'backend_services'
 RSpec.describe 'Fetching user data', type: :request do
   include SchemaMatchers
 
-  let(:token) { 'abracadabra-open-sesame' }
-
   context 'when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
 
     before(:each) do
-      Session.create(uuid: mhv_user.uuid, token: token)
       allow_any_instance_of(MhvAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       mhv_account = double('MhvAccount', creatable?: false, upgradable?: false, account_state: 'upgraded')
       allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
@@ -20,7 +17,6 @@ RSpec.describe 'Fetching user data', type: :request do
       allow(mhv_account).to receive(:terms_and_conditions_accepted?).and_return(true)
       allow(mhv_account).to receive(:needs_terms_acceptance?).and_return(false)
       allow(mhv_account).to receive(:user=).and_return(mhv_user)
-      User.create(mhv_user)
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
       get v0_user_url, nil
@@ -183,7 +179,7 @@ RSpec.describe 'Fetching user data', type: :request do
       # skipped because breakers is active
       stub_mvi_success
       sign_in_as(new_user)
-      expect { get v0_user_url, nil}
+      expect { get v0_user_url, nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
@@ -191,7 +187,7 @@ RSpec.describe 'Fetching user data', type: :request do
       Timecop.freeze(now)
       # sufficient time has elasped that new requests are made, resulting in succses
       sign_in_as(new_user)
-      expect { get v0_user_url, nil}
+      expect { get v0_user_url, nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
@@ -202,8 +198,6 @@ RSpec.describe 'Fetching user data', type: :request do
 
   def new_user(type = :loa3)
     user = build(:user, type, uuid: rand(1000..100_000))
-    session = Session.create(uuid: user.uuid, token: token)
-    User.create(user)
     create(:account, idme_uuid: user.uuid)
     user
   end

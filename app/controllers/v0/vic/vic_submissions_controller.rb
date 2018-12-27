@@ -7,7 +7,7 @@ module V0
 
       def create
         validate_session
-        
+
         vic_submission = ::VIC::VICSubmission.new(
           params.require(:vic_submission).permit(:form)
         )

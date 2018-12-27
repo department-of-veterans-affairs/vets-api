@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Form526 Opt In Endpoint', type: :request do
-  let(:user) { build(:user, :loa3)}
+  let(:user) { build(:user, :loa3) }
   let(:email) { { 'email' => 'test@adhocteam.us' } }
 
   before(:each) { sign_in }
@@ -28,7 +28,7 @@ RSpec.describe 'Form526 Opt In Endpoint', type: :request do
 
   it 'updates table entry if called again' do
     post '/v0/form526_opt_in', email
-    post '/v0/form526_opt_in', { 'email' => 'test2@adhocteam.us' }
+    post '/v0/form526_opt_in', 'email' => 'test2@adhocteam.us'
 
     expect(Form526OptIn.find_by(user_uuid: user.uuid).email).to eq('test2@adhocteam.us')
   end

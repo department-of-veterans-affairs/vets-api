@@ -6,7 +6,7 @@ RSpec.describe 'telephone', type: :request do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }
-  let(:headers) { {'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before(:each) do
     Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
