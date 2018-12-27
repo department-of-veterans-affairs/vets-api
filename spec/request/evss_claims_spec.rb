@@ -63,7 +63,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
         sign_in_as(user)
         claim.requested_decision = false
         claim.save
-        
+
         expect(claim.requested_decision).to eq(false)
         post '/v0/evss_claims/600118851/request_decision', nil
         expect(claim.reload.requested_decision).to eq(true)
