@@ -7,15 +7,12 @@ RSpec.describe 'EVSS Claims management', type: :request do
   include SchemaMatchers
 
   let(:user) { create(:user, :loa3) }
-  let(:session) { Session.create(uuid: user.uuid) }
   let(:evss_user) { create(:evss_user) }
-  let(:evss_session) { Session.create(uuid: evss_user.uuid) }
 
   context 'for a user without evss attrs' do
     before do
       profile = build(:mvi_profile, edipi: nil)
       stub_mvi(profile)
-      sign_in_as(user)
     end
 
     it 'returns a 403' do
@@ -25,8 +22,9 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+    sign_in_as(evss_user)
     VCR.use_cassette('evss/claims/claims', VCR::MATCH_EVERYTHING) do
-      get '/v0/evss_claims', nil, 'Authorization' => "Token token=#{evss_session.token}"
+      get '/v0/evss_claims', nil
       expect(response).to match_response_schema('evss_claims')
     end
   end
@@ -46,8 +44,9 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
 
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
+      sign_in_as(evss_user)
       VCR.use_cassette('evss/claims/claim', VCR::MATCH_EVERYTHING) do
-        get '/v0/evss_claims/600118851', nil, 'Authorization' => "Token token=#{evss_session.token}"
+        get '/v0/evss_claims/600118851', nil
         expect(response).to match_response_schema('evss_claim')
       end
     end
