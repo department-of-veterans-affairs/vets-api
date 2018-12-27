@@ -7,14 +7,11 @@ RSpec.describe 'Appointments', type: :request do
   include SchemaMatchers
   include ErrorDetails
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user, :loa3) }
 
   before do
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
     allow_any_instance_of(User).to receive(:icn).and_return('1234')
+    sign_in_as(user)
   end
 
   describe 'GET /v0/appointments' do

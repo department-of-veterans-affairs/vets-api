@@ -16,10 +16,14 @@ module AuthenticatedSessionHelper
     session_object = Session.create(uuid: user.uuid, token: token)
     session_options = { key: 'api_session', secure: false, http_only: true }
     raw_session_cookie = Rails::SessionCookie::App.new(session_object.to_hash, session_options).session_cookie
-    cookies.merge(raw_session_cookie)
+    if cookies.is_a?(ActionDispatch::Cookies::CookieJar)
+      cookies['api_session'] = session_object.to_hash
+    else
+      cookies.merge(raw_session_cookie)
+    end
   end
 
-  def sign_in_as(user)
-    sign_in(user)
+  def sign_in_as(user, token = nil)
+    sign_in(user, token)
   end
 end

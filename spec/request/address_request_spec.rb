@@ -5,10 +5,6 @@ require 'rails_helper'
 RSpec.describe 'address', type: :request do
   include SchemaMatchers
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
-  let(:user) { build(:user, :loa3) }
-
   before(:all) { @cached_enabled_val = Settings.evss.reference_data_service.enabled }
   after(:all) do
     # leave the routes in the expected state for future specs
@@ -17,8 +13,7 @@ RSpec.describe 'address', type: :request do
   end
 
   before do
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    sign_in
   end
 
   context '#reference_data_service.enabled=false' do
@@ -30,7 +25,7 @@ RSpec.describe 'address', type: :request do
       context 'with a military address' do
         it 'should match the address schema' do
           VCR.use_cassette('evss/pciu_address/address') do
-            get '/v0/address', nil, auth_header
+            get '/v0/address', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
           end
@@ -41,7 +36,7 @@ RSpec.describe 'address', type: :request do
         it 'should match the address schema' do
           # domestic and international addresses are manually edited as EVSS CI only includes one military response
           VCR.use_cassette('evss/pciu_address/address_domestic') do
-            get '/v0/address', nil, auth_header
+            get '/v0/address', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
           end
@@ -52,7 +47,7 @@ RSpec.describe 'address', type: :request do
         it 'should match the address schema' do
           # domestic and international addresses are manually edited as EVSS CI only includes one military response
           VCR.use_cassette('evss/pciu_address/address_international') do
-            get '/v0/address', nil, auth_header
+            get '/v0/address', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
           end
@@ -62,7 +57,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 500 response' do
         it 'should match the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
-            get '/v0/address', nil, auth_header
+            get '/v0/address', nil
             expect(response).to have_http_status(:bad_gateway)
             expect(response).to match_response_schema('errors')
           end
@@ -76,7 +71,7 @@ RSpec.describe 'address', type: :request do
 
         it 'should match the address schema' do
           VCR.use_cassette('evss/pciu_address/address_update') do
-            put '/v0/address', domestic_address.to_json, auth_header.update(
+            put '/v0/address', domestic_address.to_json.update(
               'Content-Type' => 'application/json', 'Accept' => 'application/json'
             )
             expect(response).to have_http_status(:ok)
@@ -90,7 +85,7 @@ RSpec.describe 'address', type: :request do
 
         it 'should match the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
-            put '/v0/address', domestic_address.to_json, auth_header.update(
+            put '/v0/address', domestic_address.to_json.update(
               'Content-Type' => 'application/json', 'Accept' => 'application/json'
             )
             expect(response).to have_http_status(:unprocessable_entity)
@@ -105,7 +100,7 @@ RSpec.describe 'address', type: :request do
 
         it 'should match the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_update_invalid_format') do
-            put '/v0/address', domestic_address.to_json, auth_header.update(
+            put '/v0/address', domestic_address.to_json.update(
               'Content-Type' => 'application/json', 'Accept' => 'application/json'
             )
             expect(response).to have_http_status(:unprocessable_entity)
@@ -117,7 +112,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 500 response' do
         it 'should match the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
-            get '/v0/address', nil, auth_header
+            get '/v0/address', nil
             expect(response).to have_http_status(:bad_gateway)
             expect(response).to match_response_schema('errors')
           end
@@ -129,7 +124,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 200 response' do
         it 'should match the states schema' do
           VCR.use_cassette('evss/pciu_address/states') do
-            get '/v0/address/states', nil, auth_header
+            get '/v0/address/states', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('states')
           end
@@ -141,7 +136,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 200 response' do
         it 'should match the countries schema' do
           VCR.use_cassette('evss/pciu_address/countries') do
-            get '/v0/address/countries', nil, auth_header
+            get '/v0/address/countries', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('countries')
           end
@@ -160,7 +155,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 200 response' do
         it 'should match the countries schema' do
           VCR.use_cassette('evss/reference_data/countries') do
-            get '/v0/address/countries', nil, auth_header
+            get '/v0/address/countries', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('countries')
           end
@@ -172,7 +167,7 @@ RSpec.describe 'address', type: :request do
       context 'with a 200 response' do
         it 'should match the states schema' do
           VCR.use_cassette('evss/reference_data/states') do
-            get '/v0/address/states', nil, auth_header
+            get '/v0/address/states', nil
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('states')
           end
@@ -187,7 +182,7 @@ RSpec.describe 'address', type: :request do
           .and_return(Authorization: 'Bearer abcd12345asd')
       end
       it 'should return 502' do
-        get '/v0/address/countries', nil, auth_header
+        get '/v0/address/countries', nil
         expect(response).to have_http_status(:bad_gateway)
       end
     end
