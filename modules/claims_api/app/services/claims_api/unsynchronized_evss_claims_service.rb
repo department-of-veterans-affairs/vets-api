@@ -28,6 +28,14 @@ module ClaimsApi
       create_claim(evss_id, :data, raw_claim)
     end
 
+    def veteran
+      @veteran ||= Veteran.new(@user)
+    end
+
+    def poa
+      @veteran.poa
+    end
+
     private
 
     def client

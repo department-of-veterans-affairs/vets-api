@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
+require 'evss/auth_headers'
 
 # Veteran model
-class Veteran < Common::Base
+class Veteran < Common::RedisStore
+  include RedisForm
+
   attribute :veteran_name
   attribute :user_poa_info_available
   attribute :can_be_validated_by_group_one
@@ -18,10 +21,21 @@ class Veteran < Common::Base
 
   attr_accessor :poa
 
-  def self.from_evss(evss_data)
-    evss_data = evss_data.deep_transform_keys { |key| key.to_s.underscore }
-    veteran = new(evss_data['info'])
-    veteran.poa = Poa.new(evss_data['current_poa']) if evss_data['current_poa'].present?
-    veteran
+  def initialize(user)
+    @user = user
+    client = EVSS::CommonService.new(auth_headers)
+    build_from_json(client.get_current_info)
+  end
+
+  def build_from_json(json_data)
+    json_data = json_data.deep_transform_keys { |key| key.to_s.underscore }
+    json_data['info'].each{|key, value| self.send("#{key}=", value) if self.respond_to?("#{key}=")}
+    self.poa = Poa.new(json_data['current_poa']) if json_data['current_poa'].present?
+  end
+
+  private
+
+  def auth_headers
+    @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
   end
 end

@@ -4,16 +4,16 @@ require 'rails_helper'
 
 describe Veteran do
   context 'initialization' do
-    it 'should initialize from a hash' do
-      veteran = Veteran.new social_security_number: '123456789'
-      expect(veteran.social_security_number).to eq('123456789')
-    end
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
-    it 'should initialize from EVSS data' do
-      evss_data = get_fixture('json/veteran_with_poa')
-      veteran = Veteran.from_evss(evss_data)
-      expect(veteran.veteran_name).to eq('JEFF TERRELL WATSON')
-      expect(veteran.poa.code).to eq('A1Q')
+    it 'should initialize from a user' do
+      client_stub = instance_double('EVSS::CommonService')
+      allow(EVSS::CommonService).to receive(:new).with(auth_headers) { client_stub }
+      allow(client_stub).to receive(:get_current_info) {get_fixture('json/veteran_with_poa')}
+      veteran = Veteran.new(user)
+      expect(veteran.veteran_name).to eq("JEFF TERRELL WATSON")
+      expect(veteran.poa.code).to eq("A1Q")
     end
   end
 end
