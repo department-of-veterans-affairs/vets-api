@@ -4,8 +4,7 @@ require 'common/models/base'
 require 'evss/auth_headers'
 
 # Veteran model
-class Veteran < Common::RedisStore
-  include RedisForm
+class Veteran < Common::Base
 
   attribute :veteran_name
   attribute :user_poa_info_available
