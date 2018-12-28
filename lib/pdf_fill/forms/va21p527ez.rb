@@ -949,8 +949,8 @@ module PdfFill
           expand_marriages(@form_data, marriage_type)
         end
 
-        @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
-        @form_data['marriageCount'] = @form_data['marriages']&.length
+        @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length || 0
+        @form_data['marriageCount'] = @form_data['marriages']&.length || 0
 
         expand_spouse_addr
 
