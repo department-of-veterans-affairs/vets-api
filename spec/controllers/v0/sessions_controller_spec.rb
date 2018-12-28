@@ -14,7 +14,8 @@ RSpec.describe V0::SessionsController, type: :controller do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes)
+                    to_hash: saml_user_attributes,
+                    user_subtype: 'subtype')
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -319,7 +320,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(Raven).to receive(:tags_context).twice
 
         once = { times: 1, value: 1 }
-        callback_tags = ['status:success', 'context:dslogon']
+        callback_tags = ['status:success', 'context:dslogon', 'subtype:subtype']
         expect { post(:saml_callback) }
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)

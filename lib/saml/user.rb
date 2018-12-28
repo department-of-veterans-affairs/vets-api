@@ -43,6 +43,18 @@ module SAML
       UNKNOWN_CONTEXT
     end
 
+    # we use this for statsd tags
+    def user_subtype
+      case authn_context
+      when 'myhealthevet'
+        user_attributes.mhv_account_type
+      when 'dslogon'
+        user_attributes.dslogon_idtype
+      else
+        'idme'
+      end
+    end
+
     private
 
     # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,

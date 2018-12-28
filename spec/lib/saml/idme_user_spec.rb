@@ -114,6 +114,10 @@ RSpec.describe SAML::User do
         )
       end
 
+      it 'has a user_subtype' do
+        expect(described_instance.user_subtype).to eq('idme')
+      end
+
       it 'is not changing multifactor' do
         expect(described_instance.changing_multifactor?).to be_falsey
       end
