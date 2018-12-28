@@ -5,6 +5,7 @@ module Swagger
   module Requests
     class Preferences
       include Swagger::Blocks
+
       swagger_path '/v0/user/preferences/choices' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
@@ -76,6 +77,53 @@ module Swagger
 
           response 404 do
             key :description, 'Not found: Preference record not found'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/user/preferences/{code}/delete_all' do
+        operation :delete do
+          extend Swagger::Responses::AuthenticationError
+
+          key :description, 'Deletes all of the current user\'s UserPreference records for a given Preference code'
+          key :operationId, 'deleteAlUserPreferences'
+          key :tags, %w[preferences]
+
+          parameter :authorization
+
+          response 200 do
+            key :description, 'All UserPreference records for given code have been deleted'
+            schema do
+              property :data, type: :object do
+                property :id, type: :string
+                property :type, type: :string
+                property :attributes, type: :object do
+                  property :preference_code, type: :string
+                  property :user_preferences do
+                    key :type, :array
+                    key :description, 'An empty array'
+                    items do
+                      key :type, :string
+                    end
+                    key :example, []
+                  end
+                end
+              end
+            end
+          end
+
+          response 404 do
+            key :description, 'Preference not found. No data was modified.'
+            schema do
+              key :'$ref', :Errors
+            end
+          end
+
+          response 422 do
+            key :description, 'UserPreferences not deleted. No data was modified.'
             schema do
               key :'$ref', :Errors
             end
