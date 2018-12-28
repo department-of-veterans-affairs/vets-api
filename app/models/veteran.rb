@@ -19,7 +19,7 @@ class Veteran < Common::RedisStore
   attribute :indentity_ind
   attribute :index_ind
 
-  attr_accessor :poa
+  attr_accessor :power_of_attorney
 
   def initialize(user)
     @user = user
@@ -30,7 +30,7 @@ class Veteran < Common::RedisStore
   def build_from_json(json_data)
     json_data = json_data.deep_transform_keys { |key| key.to_s.underscore }
     json_data['info'].each{|key, value| self.send("#{key}=", value) if self.respond_to?("#{key}=")}
-    self.poa = Poa.new(json_data['current_poa']) if json_data['current_poa'].present?
+    self.power_of_attorney = PowerOfAttorney.new(json_data['current_poa']) if json_data['current_poa'].present?
   end
 
   private

@@ -2,8 +2,8 @@
 
 require 'common/models/base'
 
-# POA model
-class Poa < Common::Base
+# PowerOfAttorney model
+class PowerOfAttorney < Common::Base
   attribute :social_security_number
   attribute :code
   attribute :name
