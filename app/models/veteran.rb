@@ -5,7 +5,6 @@ require 'evss/auth_headers'
 
 # Veteran model
 class Veteran < Common::Base
-
   attribute :veteran_name
   attribute :user_poa_info_available
   attribute :can_be_validated_by_group_one
