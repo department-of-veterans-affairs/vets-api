@@ -1,13 +1,25 @@
 # frozen_string_literal: true
 
 module AuthenticatedSessionHelper
-  def use_authenticated_current_user(options = {})
-    current_user = options[:current_user] || build(:user)
+  def authenticated_user(options = {})
+    current_user = User.create(options[:current_user] || build(:user))
+    session = Session.create(uuid: current_user.uuid, token: 'abracadabra')
 
-    expect_any_instance_of(ApplicationController)
-      .to receive(:validate_session).at_least(:once).and_return(:true)
-    expect_any_instance_of(ApplicationController)
-      .to receive(:current_user).at_least(:once).and_return(current_user)
+    allow_any_instance_of(ApplicationController)
+      .to receive(:validate_session).and_return(true)
+    allow_any_instance_of(ApplicationController)
+      .to receive(:current_user).and_return(current_user)
+    allow_any_instance_of(ApplicationController)
+      .to receive(:session_object).and_return(session)
+  end
+
+  def unauthenticated_user
+    allow_any_instance_of(ApplicationController)
+      .to receive(:validate_session).and_return(false)
+    allow_any_instance_of(ApplicationController)
+      .to receive(:current_user).and_return(nil)
+    allow_any_instance_of(ApplicationController)
+      .to receive(:session).and_return(nil)
   end
 
   def sign_in(user = FactoryBot.build(:user, :loa3), token = nil)

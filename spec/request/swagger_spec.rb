@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
 require 'saml/settings_service'
-
 require 'sm/client'
 require 'support/sm_client_helpers'
-
 require 'rx/client'
 require 'support/rx_client_helpers'
-
 require 'bb/client'
 require 'support/bb_client_helpers'
 
@@ -29,19 +25,14 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
 
   let(:rubysaml_settings) { build(:rubysaml_settings) }
-  let(:token) { 'lemmein' }
   let(:mhv_user) { build(:user, :mhv) }
 
   before do
-    Session.create(uuid: mhv_user.uuid, token: token)
-    User.create(mhv_user)
     create(:account, idme_uuid: mhv_user.uuid)
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
   end
 
   context 'has valid paths' do
-    let(:auth_options) { { '_headers' => { 'Authorization' => "Token token=#{token}" } } }
-
     context 'for authentication' do
       it 'supports session mhv url' do
         expect(subject).to validate(:get, '/sessions/mhv/new', 200)
@@ -56,27 +47,33 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
       end
 
       it 'supports session mfa url' do
-        expect(subject).to validate(:get, '/sessions/mfa/new', 200, auth_options)
+        authenticated_user(current_user: mhv_user)
+        expect(subject).to validate(:get, '/sessions/mfa/new', 200)
+        unauthenticated_user
         expect(subject).to validate(:get, '/sessions/mfa/new', 401)
       end
 
       it 'supports session verify url' do
-        expect(subject).to validate(:get, '/sessions/verify/new', 200, auth_options)
+        authenticated_user(current_user: mhv_user)
+        expect(subject).to validate(:get, '/sessions/verify/new', 200)
+        unauthenticated_user
         expect(subject).to validate(:get, '/sessions/verify/new', 401)
       end
 
       it 'supports session slo url' do
-        expect(subject).to validate(:get, '/sessions/slo/new', 200, auth_options)
+        authenticated_user(current_user: mhv_user)
+        expect(subject).to validate(:get, '/sessions/slo/new', 200)
+        unauthenticated_user
         expect(subject).to validate(:get, '/sessions/slo/new', 401)
       end
     end
 
     it 'supports getting backend service status' do
-      expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, auth_options.merge('service' => 'gibs'))
+      expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, { 'service' => 'gibs' })
     end
 
     it 'supports listing in-progress forms' do
-      expect(subject).to validate(:get, '/v0/in_progress_forms', 200, auth_options)
+      expect(subject).to validate(:get, '/v0/in_progress_forms', 200)
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
     end
 
@@ -809,7 +806,7 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       describe 'health_records' do
         before(:each) do
-          allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
+          authenticated_user(current_user: mhv_user)
           allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(mhv_user)
 
           allow(BB::Client).to receive(:new).and_return(authenticated_client)
