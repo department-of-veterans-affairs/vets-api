@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 module AuthenticatedSessionHelper
-
   def sign_in(user = FactoryBot.build(:user, :loa3), token = nil, raw = false)
     user = user.persisted? ? user : User.create(user)
     token ||= 'abracadabra'

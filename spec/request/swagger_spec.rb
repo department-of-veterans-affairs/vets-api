@@ -297,14 +297,16 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
         it 'supports refilling a prescription' do
           VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
-            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 204, auth_options.merge('id' => '13650545'))
+            expect(subject).to validate(:patch, '/v0/prescriptions/{id}/refill', 204,
+                                        auth_options.merge('id' => '13650545'))
           end
         end
 
         it 'supports tracking a prescription' do
           VCR.use_cassette('rx_client/prescriptions/nested_resources/gets_tracking_for_a_prescription') do
             expect(subject).to validate(
-              :get, '/v0/prescriptions/{prescription_id}/trackings', 200, auth_options.merge('prescription_id' => '13650541')
+              :get, '/v0/prescriptions/{prescription_id}/trackings', 200,
+              auth_options.merge('prescription_id' => '13650541')
             )
           end
         end
@@ -530,20 +532,24 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           it 'supports getting information about a specific folder' do
             VCR.use_cassette('sm_client/folders/gets_a_single_folder') do
-              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 200, auth_options.merge('id' => '0'))
+              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 200,
+                                          auth_options.merge('id' => '0'))
             end
           end
 
           it 'supports creating a new folder' do
             VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-              expect(subject).to validate(:post, '/v0/messaging/health/folders',
-                                          201, auth_options.merge('_data' => { 'folder' => { 'name' => 'test folder 66745' } }))
+              expect(subject).to validate(:post, '/v0/messaging/health/folders', 201,
+                                          auth_options.merge(
+                                            '_data' => { 'folder' => { 'name' => 'test folder 66745' } }
+                                          ))
             end
           end
 
           it 'supports deleting a folder' do
             VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 204, auth_options.merge('id' => '674886'))
+              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 204,
+                                          auth_options.merge('id' => '674886'))
             end
           end
         end
@@ -551,13 +557,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         context 'unsuccessful calls' do
           it 'supports folder error messages' do
             VCR.use_cassette('sm_client/folders/gets_a_single_folder_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 404, auth_options.merge('id' => '1000'))
+              expect(subject).to validate(:get, '/v0/messaging/health/folders/{id}', 404,
+                                          auth_options.merge('id' => '1000'))
             end
           end
 
           it 'supports folder error messages' do
             VCR.use_cassette('sm_client/folders/deletes_a_folder_id_error') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404, auth_options.merge('id' => '1000'))
+              expect(subject).to validate(:delete, '/v0/messaging/health/folders/{id}', 404,
+                                          auth_options.merge('id' => '1000'))
             end
           end
 
@@ -576,13 +584,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         context 'successful calls' do
           it 'supports getting a list of all messages in a thread' do
             VCR.use_cassette('sm_client/messages/gets_a_message_thread') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200, auth_options.merge('id' => '573059'))
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 200,
+                                          auth_options.merge('id' => '573059'))
             end
           end
 
           it 'supports getting a message' do
             VCR.use_cassette('sm_client/messages/gets_a_message_with_id') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 200, auth_options.merge('id' => '573059'))
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 200,
+                                          auth_options.merge('id' => '573059'))
             end
           end
 
@@ -665,7 +675,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           it 'supports deleting a message' do
             VCR.use_cassette('sm_client/messages/deletes_the_message_with_id') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 204, auth_options.merge('id' => '573052'))
+              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 204,
+                                          auth_options.merge('id' => '573052'))
             end
           end
         end
@@ -673,13 +684,15 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
         context 'unsuccessful calls' do
           it 'supports errors for list of all messages in a thread with invalid id' do
             VCR.use_cassette('sm_client/messages/gets_a_message_thread_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 404, auth_options.merge('id' => '999999'))
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}/thread', 404,
+                                          auth_options.merge('id' => '999999'))
             end
           end
 
           it 'supports error message with invalid id' do
             VCR.use_cassette('sm_client/messages/gets_a_message_with_id_error') do
-              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 404, auth_options.merge('id' => '999999'))
+              expect(subject).to validate(:get, '/v0/messaging/health/messages/{id}', 404,
+                                          auth_options.merge('id' => '999999'))
             end
           end
 
@@ -731,7 +744,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
           it 'supports errors deleting a message' do
             VCR.use_cassette('sm_client/messages/deletes_the_message_with_id_error') do
-              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 404, auth_options.merge('id' => '999999'))
+              expect(subject).to validate(:delete, '/v0/messaging/health/messages/{id}', 404,
+                                          auth_options.merge('id' => '999999'))
             end
           end
         end
@@ -810,7 +824,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             it 'supports showing a report' do
               # Using mucked-up yml because apivore has a problem processing non-json responses
               VCR.use_cassette('bb_client/gets_a_text_report_for_apivore') do
-                expect(subject).to validate(:get, '/v0/health_records', 200, auth_options.merge('_query_string' => 'doc_type=txt'))
+                expect(subject).to validate(:get, '/v0/health_records', 200,
+                                            auth_options.merge('_query_string' => 'doc_type=txt'))
               end
             end
           end
@@ -818,7 +833,8 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
           context 'unsuccessful calls' do
             it 'handles a backend error' do
               VCR.use_cassette('bb_client/report_error_response') do
-                expect(subject).to validate(:get, '/v0/health_records', 503, auth_options.merge('_query_string' => 'doc_type=txt'))
+                expect(subject).to validate(:get, '/v0/health_records', 503,
+                                            auth_options.merge('_query_string' => 'doc_type=txt'))
               end
             end
           end
