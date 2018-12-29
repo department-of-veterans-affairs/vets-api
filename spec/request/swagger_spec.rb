@@ -1401,9 +1401,46 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
     end
 
     describe 'user preferences' do
+      let(:benefits) { create(:preference, :benefits) }
+      let(:account) { Account.first }
+      before do
+        create(
+          :user_preference,
+          account_id: account.id,
+          preference: benefits,
+          preference_choice: benefits.choices.first
+        )
+      end
+
       it 'supports getting an index of a user\'s UserPreferences' do
         expect(subject).to validate(:get, '/v0/user/preferences', 200, auth_options)
         expect(subject).to validate(:get, '/v0/user/preferences', 401)
+      end
+
+      it 'supports deleting all of a user\'s UserPreferences' do
+        expect(subject).to validate(
+          :delete,
+          '/v0/user/preferences/{code}/delete_all',
+          200,
+          auth_options.merge('code' => benefits.code)
+        )
+        expect(subject).to validate(:delete, '/v0/user/preferences/{code}/delete_all', 401, 'code' => benefits.code)
+        expect(subject).to validate(
+          :delete,
+          '/v0/user/preferences/{code}/delete_all',
+          404,
+          auth_options.merge('code' => 'junk')
+        )
+
+        allow(UserPreference).to receive(:for_preference_and_account).and_raise(
+          ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
+        )
+        expect(subject).to validate(
+          :delete,
+          '/v0/user/preferences/{code}/delete_all',
+          422,
+          auth_options.merge('code' => benefits.code)
+        )
       end
     end
 
