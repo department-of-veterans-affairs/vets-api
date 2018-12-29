@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class TermsAndConditions < ActiveRecord::Base
-  has_many :acceptances, class_name: 'TermsAndConditionsAcceptance'
+  has_many :acceptances,
+           class_name: 'TermsAndConditionsAcceptance',
+           inverse_of: :terms_and_conditions
 
   scope :latest, -> { find_by(latest: true) }
 
