@@ -27,11 +27,16 @@ class Veteran < Common::Base
 
   def build_from_json(json_data)
     json_data = json_data.deep_transform_keys { |key| key.to_s.underscore }
-    json_data['info'].each { |key, value| send("#{key}=", value) if respond_to?("#{key}=") }
+    set_attributes(json_data['info'])
     self.power_of_attorney = PowerOfAttorney.new(json_data['current_poa']) if json_data['current_poa'].present?
   end
 
   private
+
+  # since assign_attributes is not available, do our own mass assignment
+  def set_attributes(attributes_hash)
+    attributes_hash.each { |key, value| send("#{key}=", value) if respond_to?("#{key}=") }
+  end
 
   def auth_headers
     @auth_headers ||= EVSS::AuthHeaders.new(@user).to_h
