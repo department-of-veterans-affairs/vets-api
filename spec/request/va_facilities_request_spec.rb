@@ -138,18 +138,6 @@ RSpec.describe 'VA GIS Integration', type: :request do
     end
   end
 
-  it 'responds to GET #index with bbox and address' do
-    VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
-      setup_pdx
-      get BASE_QUERY_PATH + PDX_BBOX + '&address=97089'
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(11)
-      expect(json['data'][9]['id']).to eq('ccp_1700950045') # make sure provider is merged into correct position
-    end
-  end
-
   it 'responds to GET #index with success even if no providers are found' do
     VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
       get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
