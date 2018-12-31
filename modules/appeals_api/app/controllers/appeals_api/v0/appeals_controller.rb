@@ -9,6 +9,7 @@ module AppealsApi
 
       def index
         log_request
+        verify_poa
         appeals_response = Appeals::Service.new.get_appeals(
           target_veteran,
           'Consumer' => consumer,
@@ -56,10 +57,22 @@ module AppealsApi
         request.headers['X-VA-User'] || request.headers['X-Consumer-Username']
       end
 
+      def verify_poa
+        if request.headers['X-Consumer-Custom-ID']
+          unless request.headers['X-Consumer-Custom-ID'].split(',').include?(veteran_power_of_attorney)
+            raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
+          end
+        end
+      end
+
       def target_veteran
         veteran = OpenStruct.new
         veteran.ssn = ssn
         veteran
+      end
+
+      def veteran_power_of_attorney
+        'A1Q' # TODO: need to join to Charlie's PR
       end
     end
   end

@@ -9,6 +9,7 @@ module ClaimsApi
       skip_before_action(:authenticate)
 
       def index
+        verify_poa
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -56,6 +57,14 @@ module ClaimsApi
         )
       end
 
+      def verify_poa
+        if request.headers['X-Consumer-Custom-ID']
+          unless request.headers['X-Consumer-Custom-ID'].split(',').include?(veteran_power_of_attorney)
+            raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
+          end
+        end
+      end
+
       def target_veteran
         ClaimsApi::Veteran.new(
           ssn: ssn,
@@ -66,6 +75,10 @@ module ClaimsApi
           edipi: edipi,
           last_signed_in: Time.zone.now
         )
+      end
+
+      def veteran_power_of_attorney
+        'A1Q' # TODO: need to join to Charlie's PR
       end
     end
   end
