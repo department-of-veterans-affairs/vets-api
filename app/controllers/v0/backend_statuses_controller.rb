@@ -4,7 +4,7 @@ module V0
   class BackendStatusesController < ApplicationController
     skip_before_action :authenticate, only: [:show]
 
-    # GET /v0/backend_status/:service
+    # GET /v0/backend_statuses/:service
     def show
       @backend_service = params[:service]
       raise Common::Exceptions::RecordNotFound, @backend_service unless recognized_service?
