@@ -53,9 +53,7 @@ module AppealsApi
       end
 
       def requesting_va_user
-        va_user = request.headers['X-VA-User']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-User' unless va_user
-        va_user
+        request.headers['X-VA-User'] || request.headers['X-Consumer-Username']
       end
 
       def target_veteran
