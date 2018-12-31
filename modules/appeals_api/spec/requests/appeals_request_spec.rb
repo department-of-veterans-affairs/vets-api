@@ -37,13 +37,15 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
   end
 
-  context 'without the X-VA-User header supplied' do
+  context 'without the X-VA-User header supplied falls back to X-Consumer-Username' do
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals') do
         get '/services/appeals/v0/appeals', nil,
             'X-VA-SSN' => '111223333',
             'X-Consumer-Username' => 'TestConsumer'
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('appeals')
       end
     end
   end
