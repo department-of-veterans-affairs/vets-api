@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20181128183509) do
+ActiveRecord::Schema.define(version: 20181219215343) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -400,7 +400,7 @@ ActiveRecord::Schema.define(version: 20181128183509) do
   end
 
   add_index "user_preferences", ["account_id"], name: "index_user_preferences_on_account_id", using: :btree
-  add_index "user_preferences", ["preference_choice_id"], name: "index_user_preferences_on_preference_choice_id", unique: true, using: :btree
+  add_index "user_preferences", ["preference_choice_id"], name: "index_user_preferences_on_preference_choice_id", using: :btree
   add_index "user_preferences", ["preference_id"], name: "index_user_preferences_on_preference_id", using: :btree
 
   create_table "vba_documents_upload_submissions", force: :cascade do |t|

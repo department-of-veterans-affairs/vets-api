@@ -46,6 +46,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
+    add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'VaFacilities', 'modules/va_facilities/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'

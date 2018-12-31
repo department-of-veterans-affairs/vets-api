@@ -19,10 +19,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 1067172de60a32f5d268fbfe0a71292e66da3a39
+  revision: f21f65fbd63aee64f625b3e55ae03ae47649149b
   branch: master
   specs:
-    vets_json_schema (3.119.0)
+    vets_json_schema (3.121.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -38,6 +38,12 @@ PATH
   remote: modules/appeals_api
   specs:
     appeals_api (0.0.1)
+      rails (~> 4.2.11)
+
+PATH
+  remote: modules/claims_api
+  specs:
+    claims_api (0.0.1)
       rails (~> 4.2.11)
 
 PATH
@@ -1108,6 +1114,7 @@ DEPENDENCIES
   byebug
   carrierwave (~> 0.11)
   carrierwave-aws
+  claims_api!
   clam_scan
   climate_control
   config

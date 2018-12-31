@@ -35,7 +35,7 @@ module Facilities
     end
 
     def provider_caresites(site_name)
-      response = perform(:get, 'v1.0/CareSites()?', name: site_name)
+      response = perform(:get, 'v1.0/CareSites()?', name: "'#{site_name}'")
       response.body
     end
 

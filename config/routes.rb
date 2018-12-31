@@ -234,6 +234,7 @@ Rails.application.routes.draw do
 
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
     resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
+    delete 'user/preferences/:code/delete_all', to: 'user_preferences#delete_all'
 
     [
       'profile',
@@ -259,6 +260,7 @@ Rails.application.routes.draw do
   scope '/services' do
     mount VBADocuments::Engine, at: '/vba_documents'
     mount AppealsApi::Engine, at: '/appeals'
+    mount ClaimsApi::Engine, at: '/claims'
     mount VaFacilities::Engine, at: '/va_facilities'
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
