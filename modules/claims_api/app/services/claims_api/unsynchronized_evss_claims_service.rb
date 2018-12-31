@@ -31,7 +31,7 @@ module ClaimsApi
 
     def veteran
       return @veteran if defined? @veteran
-      @veteran = Veteran.new(@user)
+      @veteran = ::Veteran.new(@user)
     end
 
     private
