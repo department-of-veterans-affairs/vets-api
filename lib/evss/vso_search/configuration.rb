@@ -6,7 +6,7 @@ module EVSS
       API_VERSION = Settings.evss.versions.common
 
       def base_path
-        "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/"
+        "#{Settings.evss.url}/wss-common-services-web-#{API_VERSION}/rest/vsoSearch/11.0/"
       end
   
       def service_name
