@@ -5,7 +5,7 @@ module ClaimsApi
     include Virtus.model
     include ActiveModel::Serialization
 
-    EVIDENCE_GATHERING = 'Gathering of evidence'
+    EVIDENCE_GATHERING = 'Evidence gathering, review, and decision'
 
     PHASE_TO_STATUS = {
       1 => 'Claim recieved',
