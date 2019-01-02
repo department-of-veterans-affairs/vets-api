@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+require 'claims_api/unsynchronized_evss_claims_service'
+
+RSpec.describe 'ClaimsApi::UnsynchronizedEVSSClaimService', type: :model do
+  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
+
+  before do
+    @client_stub = instance_double('EVSS::CommonService')
+    allow(EVSS::CommonService).to receive(:new).with(auth_headers) { @client_stub }
+    allow(@client_stub).to receive(:get_current_info) { get_fixture('json/veteran_with_poa') }
+    @veteran = Veteran.new(user)
+    @veteran.power_of_attorney = PowerOfAttorney.new(ssn: '123456789')
+  end
+
+  it 'should access a veteran' do
+    service = ClaimsApi::UnsynchronizedEVSSClaimService.new user
+    expect(service.veteran.veteran_name).to eq('JEFF TERRELL WATSON')
+    expect(service.veteran.power_of_attorney.code).to eq('A1Q')
+  end
+
+  it 'should not bomb out if power of attorney is called first' do
+    service = ClaimsApi::UnsynchronizedEVSSClaimService.new user
+    expect(service.power_of_attorney.code).to eq('A1Q')
+    expect(service.veteran.veteran_name).to eq('JEFF TERRELL WATSON')
+  end
+end
