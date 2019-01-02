@@ -21,15 +21,12 @@
             "requested_decision",
             "contention_list",
             "events_timeline",
-            "phase_change_date",
             "va_representative",
             "documents_needed",
             "development_letter_sent",
             "decision_letter_sent",
             "status",
             "claim_type",
-            "ever_phase_back",
-            "current_phase_back",
             "claim_type"
           ],
           "properties": {
@@ -39,7 +36,6 @@
             "events_timeline": { "type": "array", "items": { "type": "object" } },
             "min_est_date": { "type": ["string", "null"] },
             "max_est_date": { "type": ["string", "null"] },
-            "phase_change_date": { "type": ["string", "null"] },
             "open": { "type": "boolean" },
             "va_representative": { "type": "string" },
             "waiver_submitted": { "type": "boolean" },
@@ -48,9 +44,6 @@
             "development_letter_sent": { "type": "boolean" },
             "decision_letter_sent": { "type": "boolean" },
             "status": { "type": ["string", "null"] },
-            "claim_type": { "type": "string" },
-            "ever_phase_back": { "type": "boolean" },
-            "current_phase_back": { "type": "boolean" },
             "claim_type": { "type": ["string", "null"] }
           }
         }
