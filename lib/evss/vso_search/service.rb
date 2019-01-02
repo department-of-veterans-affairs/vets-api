@@ -7,7 +7,7 @@ module EVSS
 
       def get_current_info
         with_monitoring_and_error_handling do
-          raw_response = perform(:post, 'getCurrentInfo')
+          perform(:post, 'getCurrentInfo').body
         end
       end
     end
