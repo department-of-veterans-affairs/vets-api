@@ -39,10 +39,12 @@ module EducationForm::Forms
     end
 
     def location
+      return '' if @applicant.vetTecProgramLocations.blank?
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
     def selected_programs
+      return '' if @applicant.vetTecProgram.blank?
       programs = []
 
       @applicant.vetTecProgram.each do |program|
@@ -53,11 +55,13 @@ module EducationForm::Forms
     end
 
     def high_tech_area_name
+      return '' if @applicant.highTechnologyEmploymentType.blank?
       HIGH_TECH_AREA_NAMES[@applicant.highTechnologyEmploymentType.to_sym]
     end
 
     def salary_text
-      SALARY_TEXT[applicant.currentSalary.to_sym]
+      return '' if @applicant.currentSalary.blank?
+      SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
   end
 end
