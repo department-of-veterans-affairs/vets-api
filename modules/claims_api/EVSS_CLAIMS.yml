@@ -52,12 +52,12 @@ info:
 
   termsOfService: ''
   contact:
-    name: Vets.gov
+    name: VA.gov
 tags:
   - name: claims
     description: EVSS claims status API
 servers: 
-  - url: https://dev-api.vets.gov/services/claims/{version}
+  - url: https://dev-api.va.gov/services/claims/{version}
     description: Vets.gov API development environment
     variables:
       version:
