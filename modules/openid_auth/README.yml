@@ -37,17 +37,17 @@ tags:
   - name: validated_token
     description: Oauth Validation for internal 3rd Party Services
 servers:
-  - url: dev-api.va.gov/internal/auth/{version}
+  - url: https://dev-api.va.gov/internal/auth/{version}
     description: VA.gov API development environment
     variables:
       version:
         default: v0
-  - url: staging-api.va.gov/internal/auth/{version}
+  - url: https://staging-api.va.gov/internal/auth/{version}
     description: VA.gov API staging environment
     variables:
       version:
         default: v0
-  - url: api.va.gov/internal/auth/{version}
+  - url: https://api.va.gov/internal/auth/{version}
     description: VA.gov API production environment
     variables:
       version:
