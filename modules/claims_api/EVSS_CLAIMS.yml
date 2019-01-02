@@ -56,8 +56,8 @@ info:
 tags:
   - name: claims
     description: EVSS claims status API
-servers:
-  - url: dev-api.va.gov/services/claims/{version}
+servers: 
+  - url: https://dev-api.vets.gov/services/claims/{version}
     description: Vets.gov API development environment
     variables:
       version:

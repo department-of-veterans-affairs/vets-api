@@ -45,17 +45,17 @@ tags:
   - name: veteran_confirmation_status
     description: Veteran Verification - Veteran Status
 servers:
-  - url: dev-api.va.gov/services/veteran_verification/{version}
+  - url: https://dev-api.va.gov/services/veteran_verification/{version}
     description: VA.gov API development environment
     variables:
       version:
         default: v0
-  - url: staging-api.va.gov/services/veteran_verification/{version}
+  - url: https://staging-api.va.gov/services/veteran_verification/{version}
     description: VA.gov API staging environment
     variables:
       version:
         default: v0
-  - url: api.va.gov/services/veteran_verification/{version}
+  - url: https://api.va.gov/services/veteran_verification/{version}
     description: VA.gov API production environment
     variables:
       version:
