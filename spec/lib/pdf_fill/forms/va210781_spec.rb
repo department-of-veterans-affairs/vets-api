@@ -32,31 +32,33 @@ describe PdfFill::Forms::Va210781 do
     end
 
     data = {
-      'personInvolved' => [{
-        'name' => {
-          'first' => 'B',
-          'middle' => 'B',
-          'last' => 'B'
+      'personsInvolved' => [
+        {
+          'name' => {
+            'first' => 'B',
+            'middle' => 'B',
+            'last' => 'B'
+          },
+          'rank' => 'R',
+          'injuryDeath' => 'killedInAction',
+          'injuryDeathDate' => '2000-01-01',
+          'unitAssigned' => 'abc'
         },
-        'rank' => 'R',
-        'injuryDeath' => 'K',
-        'injuryDeathDate' => '2000-01-01',
-        'unitAssigned' => 'abc'
-      },
-                           {
-                             'name' => {
-                               'first' => 'B',
-                               'middle' => 'B',
-                               'last' => 'B'
-                             },
-                             'rank' => 'R',
-                             'injuryDeath' => 'K',
-                             'injuryDeathDate' => '2000-01-01',
-                             'unitAssigned' => 'abc'
-                           }]
+        {
+          'name' => {
+            'first' => 'B',
+            'middle' => 'B',
+            'last' => 'B'
+          },
+          'rank' => 'R',
+          'injuryDeath' => 'killedInAction',
+          'injuryDeathDate' => '2000-01-01',
+          'unitAssigned' => 'abc'
+        }
+      ]
     }
     it 'should format data correctly' do
-      expect(new_form_class.send(:format_persons_involved, data)).to eq "B B B\nRank: R\nUnit Assigned: abc\nInjury or Death Date: 2000-01-01\nInjury or Death Cause: K\n\nB B B\nRank: R\nUnit Assigned: abc\nInjury or Death Date: 2000-01-01\nInjury or Death Cause: K"
+      expect(new_form_class.send(:format_persons_involved, data)).to eq "B B B\nRank: R\nUnit Assigned: abc\nInjury or Death Date: 2000-01-01\nInjury or Death Cause: Killed in Action\n\nB B B\nRank: R\nUnit Assigned: abc\nInjury or Death Date: 2000-01-01\nInjury or Death Cause: Killed in Action"
     end
   end
 
@@ -79,16 +81,94 @@ describe PdfFill::Forms::Va210781 do
   end
   # rubocop:enable Metrics/LineLength
 
+  describe '#expand_persons_involved' do
+    data = {
+      'personsInvolved' => [
+        {
+          'name' => {
+            'first' => 'John',
+            'middle' => 'H',
+            'last' => 'Doe'
+          },
+          'rank' => 'R',
+          'injuryDeath' => 'killedInAction',
+          'injuryDeathDate' => '2000-01-01',
+          'unitAssigned' => 'abc',
+          'description' => 'Description'
+        },
+        {
+          'name' => {
+            'first' => 'Jane',
+            'middle' => 'D',
+            'last' => 'Doe'
+          },
+          'rank' => 'R',
+          'injuryDeath' => 'killedInAction',
+          'injuryDeathDate' => '2000-01-01',
+          'unitAssigned' => 'abc'
+        }
+      ]
+    }
+    it 'should flatten data correctly' do
+      expect(new_form_class.send(:expand_persons_involved, data)).to eq(
+        'first0' => 'John',
+        'first1' => 'Jane',
+        'injuryDeathDateDay0' => '01',
+        'injuryDeathDateDay1' => '01',
+        'injuryDeathDateMonth0' => '01',
+        'injuryDeathDateMonth1' => '01',
+        'injuryDeathDateYear0' => '2000',
+        'injuryDeathDateYear1' => '2000',
+        'killedInAction0' => true,
+        'killedInAction1' => true,
+        'last0' => 'Doe',
+        'last1' => 'Doe',
+        'middleInitial0' => 'H',
+        'middleInitial1' => 'D',
+        'personsInvolvedArray' => [
+          {
+            'injuryDeathDateMonth0' => '01',
+            'injuryDeathDateDay0' => '01',
+            'injuryDeathDateYear0' => '2000',
+            'unitAssigned0Row0' => 'abc',
+            'first0' => 'John',
+            'middleInitial0' => 'H',
+            'last0' => 'Doe',
+            'rank0' => 'R',
+            'killedInAction0' => true,
+            'description0' => 'Description'
+          },
+          {
+            'injuryDeathDateMonth1' => '01',
+            'injuryDeathDateDay1' => '01',
+            'injuryDeathDateYear1' => '2000',
+            'unitAssigned1Row0' => 'abc',
+            'first1' => 'Jane',
+            'middleInitial1' => 'D',
+            'last1' => 'Doe',
+            'rank1' => 'R',
+            'killedInAction1' => true
+          }
+        ],
+        'rank0' => 'R',
+        'rank1' => 'R',
+        'unitAssigned0Row0' => 'abc',
+        'unitAssigned1Row0' => 'abc',
+        'description0' => 'Description'
+      )
+    end
+  end
+
   describe '#resolve_cause_injury_death' do
     it 'should resolve listed cause of death correctly' do
       expect(JSON.parse(new_form_class.send(:resolve_cause_injury_death,
-                                            { 'injuryDeath' => 'Killed in Action' }, 0).to_json)).to eq(
+                                            { 'injuryDeath' => 'killedInAction' }, 0).to_json)).to eq(
                                               'killedInAction0' => true
                                             )
     end
 
     data = {
-      'injuryDeath' => 'Other',
+      'injuryDeath' => 'other',
       'injuryDeathOther' => 'Natural Causes'
     }
     it 'should resolve other cause of death correctly' do

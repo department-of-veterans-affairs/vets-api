@@ -37,6 +37,9 @@ module Swagger
               property :type, type: :string
               property :attributes, type: :object do
                 property :services, type: :array do
+                  key :example, %w[gibs facilities hca edu-benefits evss-claims appeals-status user-profile id-card
+                                   identity-proofed vet360 rx messaging health-records mhv-accounts
+                                   form-save-in-progress form-prefill]
                   items do
                     key :type, :string
                   end
