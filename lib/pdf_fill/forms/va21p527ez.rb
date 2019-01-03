@@ -730,17 +730,13 @@ module PdfFill
       end
 
       def unfilled_multiline_acct?(acct_type, accts)
-        %w[socialSecurity salary].include?(acct_type) && accts.size == 2
-      end
-
-      def zero_multiline_accts(acct_type, accts)
-        accts.push(DEFAULT_FINANCIAL_ACCT) unless unfilled_multiline_acct?(acct_type, accts)
+        %w[socialSecurity salary].include?(acct_type) && accts.size < 2
       end
 
       def zero_financial_accts(financial_accts)
         financial_accts.each do |acct_type, accts|
           accts << DEFAULT_FINANCIAL_ACCT unless accts.any?
-          zero_multiline_accts(acct_type, accts)
+          accts << DEFAULT_FINANCIAL_ACCT if unfilled_multiline_acct?(acct_type, accts)
         end
 
         financial_accts
