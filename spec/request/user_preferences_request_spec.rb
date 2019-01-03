@@ -191,7 +191,7 @@ describe 'user_preferences', type: :request do
 
     context 'when a user has UserPreferences' do
       it 'deletes all of a User\'s UserPreferences', :aggregate_failures do
-        delete '/v0/user/preferences/notifications/delete_all', {}, auth_header
+        delete '/v0/user/preferences/notifications/delete_all', {}, headers
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('delete_all_user_preferences')
@@ -201,7 +201,7 @@ describe 'user_preferences', type: :request do
 
     context 'when given a non existant code' do
       it 'returns a 404 not found', :aggregate_failures do
-        delete '/v0/user/preferences/garbagecode/delete_all', {}, auth_header
+        delete '/v0/user/preferences/garbagecode/delete_all', {}, headers
 
         expect(response).to have_http_status(:not_found)
         expect(error_details_for(response, key: 'title')).to eq 'Record not found'
@@ -215,7 +215,7 @@ describe 'user_preferences', type: :request do
           ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
         )
 
-        delete '/v0/user/preferences/notifications/delete_all', {}, auth_header
+        delete '/v0/user/preferences/notifications/delete_all', {}, headers
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
