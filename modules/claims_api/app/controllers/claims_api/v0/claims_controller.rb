@@ -78,7 +78,8 @@ module ClaimsApi
       end
 
       def veteran_power_of_attorney
-        'A1Q' # TODO: need to join to Charlie's PR
+        service.veteran.power_of_attorney
+        # 'A1Q' # TODO: need to join to Charlie's PR
       end
     end
   end
