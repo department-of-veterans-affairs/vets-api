@@ -6,14 +6,14 @@ require 'common/client/middleware/response/ppms_parser'
 
 module Facilities
   class PPMSConfiguration < Common::Client::Configuration::REST
-    self.open_timeout = 1500
-    self.read_timeout = 1500
+    self.open_timeout = Settings.ppms.open_timeout
+    self.read_timeout = Settings.ppms.read_timeout
     def base_path
       Settings.ppms.url
     end
 
     def service_name
-      'FL'
+      'PPMS'
     end
     # ppms has strange behavior for certain url-encoded characters, no url-encoding works best
     class DoNotEncoder

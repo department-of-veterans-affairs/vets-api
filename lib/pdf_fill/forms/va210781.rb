@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ClassLength
+
 module PdfFill
   module Forms
     class Va210781 < FormBase
@@ -86,7 +88,7 @@ module PdfFill
         'veteranSecondaryPhone' => {
           key: 'form1[0].#subform[0].PreferredEmail[2]'
         },
-        'incident' => {
+        'incidents' => {
           limit: 2,
           first_key: 'incidentDescription',
           question_text: 'INCIDENTS',
@@ -158,120 +160,126 @@ module PdfFill
           'medalsCitations' => {
             key: "medalsCitations[#{INCIDENT_ITERATOR}]"
           },
-          'personInvolved' => {
-            limit: 30,
-            'first0' => {
-              key: "personInvolvedFirst[0][#{INCIDENT_ITERATOR}]",
-              limit: 12
-            },
-            'middleInitial0' => {
-              key: "personInvolvedMiddleI[0][#{INCIDENT_ITERATOR}]"
-            },
-            'last0' => {
-              key: "personInvolvedLast[0][#{INCIDENT_ITERATOR}]",
-              limit: 18
-            },
-            'rank0' => {
-              key: "personInvolvedRank[0][#{INCIDENT_ITERATOR}]"
-            },
-            'injuryDeathDateMonth0' => {
-              key: "injuryDeathDateMonth[0][#{INCIDENT_ITERATOR}]"
-            },
-            'injuryDeathDateDay0' => {
-              key: "injuryDeathDateDay[0][#{INCIDENT_ITERATOR}]"
-            },
-            'injuryDeathDateYear0' => {
-              key: "injuryDeathDateYear[0][#{INCIDENT_ITERATOR}]"
-            },
-            'killedInAction0' => {
-              key: "killedInAction0[#{INCIDENT_ITERATOR}]"
-            },
-            'killedNonBattle0' => {
-              key: "killedNonBattle0[#{INCIDENT_ITERATOR}]"
-            },
-            'woundedInAction0' => {
-              key: "woundedInAction0[#{INCIDENT_ITERATOR}]"
-            },
-            'injuredNonBattle0' => {
-              key: "injuredNonBattle0[#{INCIDENT_ITERATOR}]"
-            },
-            'other0' => {
-              key: "other0[#{INCIDENT_ITERATOR}]"
-            },
-            'otherText0' => {
-              key: "otherText0[#{INCIDENT_ITERATOR}]"
-            },
-            'unitAssigned0Row0' => {
-              key: "personUnitAssignedRow0[0][#{INCIDENT_ITERATOR}]",
-              limit: 30
-            },
-            'unitAssigned0Row1' => {
-              key: "personUnitAssignedRow1[0][#{INCIDENT_ITERATOR}]",
-              limit: 30
-            },
-            'unitAssigned0Row2' => {
-              key: "personUnitAssignedRow2[0][#{INCIDENT_ITERATOR}]",
-              limit: 30
-            },
-            'first1' => {
-              key: "personInvolvedFirst[1][#{INCIDENT_ITERATOR}]",
-              limit: 12
-            },
-            'middleInitial1' => {
-              key: "personInvolvedMiddleI[1][#{INCIDENT_ITERATOR}]"
-            },
-            'last1' => {
-              key: "personInvolvedLast[1][#{INCIDENT_ITERATOR}]",
-              limit: 18
-            },
-            'rank1' => {
-              key: "personInvolvedRank[1][#{INCIDENT_ITERATOR}]"
-            },
-            'injuryDeathDateMonth1' => {
-              key: "injuryDeathDateMonth[1][#{INCIDENT_ITERATOR}]"
-            },
-            'injuryDeathDateDay1' => {
-              key: "injuryDeathDateDay[1][#{INCIDENT_ITERATOR}]"
-            },
-            'injuryDeathDateYear1' => {
-              key: "injuryDeathDateYear[1][#{INCIDENT_ITERATOR}]"
-            },
-            'killedInAction1' => {
-              key: "killedInAction1[#{INCIDENT_ITERATOR}]"
-            },
-            'killedNonBattle1' => {
-              key: "killedNonBattle1[#{INCIDENT_ITERATOR}]"
-            },
-            'woundedInAction1' => {
-              key: "woundedInAction1[#{INCIDENT_ITERATOR}]"
-            },
-            'injuredNonBattle1' => {
-              key: "injuredNonBattle1[#{INCIDENT_ITERATOR}]"
-            },
-            'other1' => {
-              key: "other1[#{INCIDENT_ITERATOR}]"
-            },
-            'otherText1' => {
-              key: "otherText1[#{INCIDENT_ITERATOR}]"
-            },
-            'unitAssigned1Row0' => {
-              key: "personUnitAssignedRow0[1][#{INCIDENT_ITERATOR}]",
-              limit: 30
-            },
-            'unitAssigned1Row1' => {
-              key: "personUnitAssignedRow1[1][#{INCIDENT_ITERATOR}]",
-              limit: 30
-            },
-            'unitAssigned1Row2' => {
-              key: "personUnitAssignedRow2[1][#{INCIDENT_ITERATOR}]",
-              limit: 30
-            }
+          'first0' => {
+            key: "personInvolvedFirst[0][#{INCIDENT_ITERATOR}]",
+            limit: 12
+          },
+          'middleInitial0' => {
+            key: "personInvolvedMiddleI[0][#{INCIDENT_ITERATOR}]"
+          },
+          'last0' => {
+            key: "personInvolvedLast[0][#{INCIDENT_ITERATOR}]",
+            limit: 18
+          },
+          'rank0' => {
+            key: "personInvolvedRank[0][#{INCIDENT_ITERATOR}]"
+          },
+          'injuryDeathDateMonth0' => {
+            key: "injuryDeathDateMonth[0][#{INCIDENT_ITERATOR}]"
+          },
+          'injuryDeathDateDay0' => {
+            key: "injuryDeathDateDay[0][#{INCIDENT_ITERATOR}]"
+          },
+          'injuryDeathDateYear0' => {
+            key: "injuryDeathDateYear[0][#{INCIDENT_ITERATOR}]"
+          },
+          'killedInAction0' => {
+            key: "killedInAction0[#{INCIDENT_ITERATOR}]"
+          },
+          'killedNonBattle0' => {
+            key: "killedNonBattle0[#{INCIDENT_ITERATOR}]"
+          },
+          'woundedInAction0' => {
+            key: "woundedInAction0[#{INCIDENT_ITERATOR}]"
+          },
+          'injuredNonBattle0' => {
+            key: "injuredNonBattle0[#{INCIDENT_ITERATOR}]"
+          },
+          'other0' => {
+            key: "other0[#{INCIDENT_ITERATOR}]"
+          },
+          'otherText0' => {
+            key: "otherText0[#{INCIDENT_ITERATOR}]"
+          },
+          'unitAssigned0Row0' => {
+            key: "personUnitAssignedRow0[0][#{INCIDENT_ITERATOR}]",
+            limit: 30
+          },
+          'unitAssigned0Row1' => {
+            key: "personUnitAssignedRow1[0][#{INCIDENT_ITERATOR}]",
+            limit: 30
+          },
+          'unitAssigned0Row2' => {
+            key: "personUnitAssignedRow2[0][#{INCIDENT_ITERATOR}]",
+            limit: 30
+          },
+          'description0' => {
+            always_overflow: true
+          },
+          'first1' => {
+            key: "personInvolvedFirst[1][#{INCIDENT_ITERATOR}]",
+            limit: 12
+          },
+          'middleInitial1' => {
+            key: "personInvolvedMiddleI[1][#{INCIDENT_ITERATOR}]"
+          },
+          'last1' => {
+            key: "personInvolvedLast[1][#{INCIDENT_ITERATOR}]",
+            limit: 18
+          },
+          'rank1' => {
+            key: "personInvolvedRank[1][#{INCIDENT_ITERATOR}]"
+          },
+          'injuryDeathDateMonth1' => {
+            key: "injuryDeathDateMonth[1][#{INCIDENT_ITERATOR}]"
+          },
+          'injuryDeathDateDay1' => {
+            key: "injuryDeathDateDay[1][#{INCIDENT_ITERATOR}]"
+          },
+          'injuryDeathDateYear1' => {
+            key: "injuryDeathDateYear[1][#{INCIDENT_ITERATOR}]"
+          },
+          'killedInAction1' => {
+            key: "killedInAction1[#{INCIDENT_ITERATOR}]"
+          },
+          'killedNonBattle1' => {
+            key: "killedNonBattle1[#{INCIDENT_ITERATOR}]"
+          },
+          'woundedInAction1' => {
+            key: "woundedInAction1[#{INCIDENT_ITERATOR}]"
+          },
+          'injuredNonBattle1' => {
+            key: "injuredNonBattle1[#{INCIDENT_ITERATOR}]"
+          },
+          'other1' => {
+            key: "other1[#{INCIDENT_ITERATOR}]"
+          },
+          'otherText1' => {
+            key: "otherText1[#{INCIDENT_ITERATOR}]"
+          },
+          'unitAssigned1Row0' => {
+            key: "personUnitAssignedRow0[1][#{INCIDENT_ITERATOR}]",
+            limit: 30
+          },
+          'unitAssigned1Row1' => {
+            key: "personUnitAssignedRow1[1][#{INCIDENT_ITERATOR}]",
+            limit: 30
+          },
+          'unitAssigned1Row2' => {
+            key: "personUnitAssignedRow2[1][#{INCIDENT_ITERATOR}]",
+            limit: 30
+          },
+          'description1' => {
+            always_overflow: true
           },
           'incidentOverflow' => {
             key: '',
             question_text: 'INCIDENTS',
             question_num: 8,
             question_suffix: 'A'
+          },
+          'personsInvolvedArray' => {
+            limit: 2
           }
         },
         'remarks' => {
@@ -296,7 +304,7 @@ module PdfFill
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
-        expand_incidents(@form_data['incident'])
+        expand_incidents(@form_data['incidents'])
 
         expand_signature(@form_data['veteranFullName'])
         @form_data['signature'] = '/es/ ' + @form_data['signature']
@@ -320,17 +328,23 @@ module PdfFill
 
       def expand_persons_involved(incident)
         return if incident.blank?
-        return if incident['personInvolved'].blank?
+        return if incident['personsInvolved'].blank?
 
-        persons_involved = incident['personInvolved']
+        persons_involved = incident['personsInvolved']
         persons_involved.each_with_index do |person_involved, index|
           expand_injury_death_date(person_involved, index)
           split_person_unit_assignment(person_involved, index)
           flatten_person_identification(person_involved, index)
           resolve_cause_injury_death(person_involved, index)
+
+          person_involved.map do |k, v|
+            incident[k] = v
+          end
         end
 
-        incident['personInvolved'] = Hash[*persons_involved.collect(&:to_a).flatten]
+        incident['personsInvolvedArray'] = incident['personsInvolved']
+
+        incident.except!('personsInvolved')
       end
 
       def expand_injury_death_date(person_involved, index)
@@ -361,6 +375,12 @@ module PdfFill
         person_involved["first#{index}"] = person_involved['name']['first']
         person_involved["middleInitial#{index}"] = person_involved['name']['middleInitial']
         person_involved["last#{index}"] = person_involved['name']['last']
+
+        unless person_involved['description'].nil?
+          person_involved["description#{index}"] = person_involved['description']
+          person_involved.except!('description')
+        end
+
         person_involved.except!('name')
 
         person_involved["rank#{index}"] = person_involved['rank']
@@ -371,15 +391,8 @@ module PdfFill
         return if person_involved.blank?
 
         cause = person_involved['injuryDeath']
-        cause_map = {
-          'Killed in Action' => "killedInAction#{index}",
-          'Killed Non-Battle' => "killedNonBattle#{index}",
-          'Wounded in Action' => "woundedInAction#{index}",
-          'Injured Non-Battle' => "injuredNonBattle#{index}",
-          'Other' => "other#{index}"
-        }
-        person_involved[cause_map[cause]] = true
-        if cause == 'Other'
+        person_involved["#{cause}#{index}"] = true
+        if cause == 'other'
           person_involved["otherText#{index}"] = person_involved['injuryDeathOther']
           person_involved.except!('injuryDeathOther')
         end
@@ -401,7 +414,7 @@ module PdfFill
       def format_persons_involved(incident)
         return if incident.blank?
 
-        persons_involved = incident['personInvolved']
+        persons_involved = incident['personsInvolved']
         return '' if persons_involved.blank?
 
         overflow_people = []
@@ -413,14 +426,30 @@ module PdfFill
       end
 
       def format_one_person(person)
+        cause = format_cause_enum(person['injuryDeath'])
+
         overflow_person = []
         overflow_person.push(combine_full_name(person['name']))
+        overflow_person.push('Description: ' + person['description']) unless person['description'].nil?
         overflow_person.push('Rank: ' + person['rank']) unless person['rank'].nil?
         overflow_person.push('Unit Assigned: ' + person['unitAssigned']) unless person['unitAssigned'].nil?
         overflow_person.push('Injury or Death Date: ' + person['injuryDeathDate']) unless person['injuryDeathDate'].nil?
-        overflow_person.push('Injury or Death Cause: ' + person['injuryDeath']) unless person['injuryDeath'].nil?
+        overflow_person.push('Injury or Death Cause: ' + cause) unless cause.empty?
         overflow_person.join("\n")
+      end
+
+      def format_cause_enum(cause)
+        cause_map = {
+          'killedInAction' => 'Killed in Action',
+          'killedNonBattle' => 'Killed Non-Battle',
+          'woundedInAction' => 'Wounded in Action',
+          'injuredNonBattle' => 'Injured Non-Battle',
+          'other' => 'Other'
+        }
+        cause.nil? ? '' : cause_map[cause]
       end
     end
   end
 end
+
+# rubocop:enable Metrics/ClassLength
