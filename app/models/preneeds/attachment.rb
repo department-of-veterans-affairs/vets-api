@@ -22,15 +22,7 @@ module Preneeds
         attachmentType: {
           attachmentTypeId: attachment_type.attachment_type_id
         },
-        dataHandler: {
-          'inc:Include': '',
-          attributes!: {
-            'inc:Include': {
-              href: "cid:#{@data_handler}",
-              'xmlns:inc': 'http://www.w3.org/2004/08/xop/include'
-            }
-          }
-        },
+        dataHandler: @data_handler,
         description: name,
         sendingName: VETS_GOV,
         sendingSource: sending_source
