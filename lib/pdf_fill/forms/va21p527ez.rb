@@ -734,8 +734,7 @@ module PdfFill
       end
 
       def zero_multiline_accts(acct_type, accts)
-        return unless unfilled_multiline_acct?(acct_type, accts)
-        accts.push(DEFAULT_FINANCIAL_ACCT)
+        accts.push(DEFAULT_FINANCIAL_ACCT) unless unfilled_multiline_acct?(acct_type, accts)
       end
 
       def zero_financial_accts(financial_accts)
