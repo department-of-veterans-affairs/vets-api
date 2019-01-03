@@ -157,7 +157,7 @@
   "form4142": null,
   "form8940": null,
   "form0781": {
-    "incident": [
+    "incidents": [
       {
         "personalAssault": true,
         "incidentDate": "2000-01-01",
@@ -168,13 +168,9 @@
         "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
         "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
         "incidentDescription": "Lorem ipsum dolor sit amet.",
-        "source": [
+        "sources": [
           {
-            "name": {
-              "first": "Testy",
-              "middle": "Tester",
-              "last": "Testerson"
-            },
+            "name": "Testy Tester Testerson",
             "address": {
               "street": "123 Main Street",
               "street2": "1B",
@@ -185,11 +181,7 @@
             }
           },
           {
-            "name": {
-              "first": "Dusty",
-              "middle": "Tester",
-              "last": "Testerson"
-            },
+            "name": "Dusty Tester Testerson",
             "address": {
               "street": "789 Main Street",
               "street2": "1B",
@@ -200,11 +192,7 @@
             }
           },
           {
-            "name": {
-              "first": "Trusty",
-              "middle": "Tester",
-              "last": "Testerson"
-            },
+            "name": "Trusty Tester Testerson",
             "address": {
               "street": "100 Main Street",
               "street2": "1B",
@@ -223,16 +211,37 @@
           "from": "2001-01-01",
           "to": "2002-02-02"
         },
+        "personsInvolved": [
+          {
+            "name": {
+              "first": "Festy",
+              "middle": "Fester",
+              "last": "Festerson"
+            },
+            "rank": "Inc 0 Rank 0",
+            "injuryDeath": "killedInAction",
+            "injuryDeathDate": "2000-01-01",
+            "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
+          },
+          {
+            "name": {
+              "first": "Dusty",
+              "middle": "Tester",
+              "last": "Dusterson"
+            },
+            "rank": "Inc 0 Rank 1",
+            "injuryDeath": "other",
+            "injuryDeathOther": "Natural Causes",
+            "injuryDeathDate": "2000-01-01",
+            "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341"
+          }
+        ],
         "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
         "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
         "incidentDescription": "Lorem ipsum dolor sit amet.",
-        "source": [
+        "sources": [
           {
-            "name": {
-              "first": "Testy",
-              "middle": "Tester",
-              "last": "Testerson"
-            },
+            "name": "Testy Tester Testerson",
             "address": {
               "street": "123 Main Street",
               "street2": "1B",
@@ -243,11 +252,7 @@
             }
           },
           {
-            "name": {
-              "first": "Dusty",
-              "middle": "Tester",
-              "last": "Testerson"
-            },
+            "name": "Dusty Tester Testerson",
             "address": {
               "street": "789 Main Street",
               "street2": "1B",
@@ -258,11 +263,7 @@
             }
           },
           {
-            "name": {
-              "first": "Trusty",
-              "middle": "Tester",
-              "last": "Testerson"
-            },
+            "name": "Trusty Tester Testerson",
             "address": {
               "street": "100 Main Street",
               "street2": "1B",
