@@ -26,11 +26,7 @@
               "development_letter_sent",
               "decision_letter_sent",
               "status",
-              "claim_type",
-              "phase",
-              "phase_change_date",
-              "ever_phase_back",
-              "current_phase_back"
+              "claim_type"
             ],
             "properties": {
               "evss_id": { "type": "integer" },
@@ -44,11 +40,7 @@
               "development_letter_sent": { "type": "boolean" },
               "decision_letter_sent" : { "type": "boolean" },
               "status": { "type": ["string", "null"] },
-              "claim_type": { "type": ["string", "null"] },
-              "phase": { "type": ["integer", "null"] },
-              "phase_change_date": { "type": ["string", "null"] },
-              "ever_phase_back": { "type": "boolean" },
-              "current_phase_back": { "type": "boolean" }
+              "claim_type": { "type": ["string", "null"] }
             }
           }
         }
