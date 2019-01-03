@@ -8,6 +8,7 @@ module ClaimsApi
   class UnsynchronizedEVSSClaimService
     include SentryLogging
     EVSS_CLAIM_KEYS = %w[open_claims historical_claims].freeze
+    delegate :power_of_attorney, to: :veteran
 
     def initialize(user)
       @user = user
@@ -26,6 +27,11 @@ module ClaimsApi
     def update_from_remote(evss_id)
       raw_claim = client.find_claim_by_id(evss_id).body.fetch('claim', {})
       create_claim(evss_id, :data, raw_claim)
+    end
+
+    def veteran
+      return @veteran if defined? @veteran
+      @veteran = ::Veteran.new(@user)
     end
 
     private

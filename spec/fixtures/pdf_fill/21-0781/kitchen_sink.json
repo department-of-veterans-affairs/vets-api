@@ -12,7 +12,7 @@
   "veteranPhone": "2123456789",
   "veteranSecondaryPhone": "3133456789",
   "remarks": "Lorem ipsum dolor sit amet",
-  "incident": [
+  "incidents": [
     {
       "incidentDate": "2000-01-01",
       "unitAssignedDates": {
@@ -23,7 +23,7 @@
       "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
       "medalsCitations": "Lorem ipsum dolor sit amet.",
-      "personInvolved": [
+      "personsInvolved": [
         {
           "name": {
             "first": "Festy",
@@ -31,7 +31,7 @@
             "last": "Festerson"
           },
           "rank": "Inc 0 Rank 0",
-          "injuryDeath": "Killed in Action",
+          "injuryDeath": "killedInAction",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
         },
@@ -42,7 +42,7 @@
             "last": "Dusterson"
           },
           "rank": "Inc 0 Rank 1",
-          "injuryDeath": "Other",
+          "injuryDeath": "other",
           "injuryDeathOther": "Natural Causes",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341"
@@ -59,7 +59,7 @@
       "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
       "medalsCitations": "Lorem ipsum dolor sit amet.",
-      "personInvolved": [
+      "personsInvolved": [
         {
           "name": {
             "first": "Besty",
@@ -67,7 +67,7 @@
             "last": "Besterson"
           },
           "rank": "Inc 1 Rank 0",
-          "injuryDeath": "Killed Non-Battle",
+          "injuryDeath": "killedNonBattle",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
         },
@@ -78,7 +78,7 @@
             "last": "Musterson"
           },
           "rank": "Inc 1 Rank 1",
-          "injuryDeath": "Wounded in Action",
+          "injuryDeath": "woundedInAction",
           "injuryDeathDate": "2000-01-01",
           "unitAssigned": "abcdefghijklm1 opqrstuvwxyz12341 bpqrstuvwxyz12341"
         }
