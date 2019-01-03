@@ -735,7 +735,7 @@ module PdfFill
 
       def zero_financial_accts(financial_accts)
         financial_accts.each do |acct_type, accts|
-          accts << DEFAULT_FINANCIAL_ACCT unless accts.any?
+          accts << DEFAULT_FINANCIAL_ACCT unless accts.present?
           accts << DEFAULT_FINANCIAL_ACCT if unfilled_multiline_acct?(acct_type, accts)
         end
 
