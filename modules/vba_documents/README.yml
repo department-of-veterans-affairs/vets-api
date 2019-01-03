@@ -57,17 +57,17 @@ tags:
   - name: document_uploads
     description: VA Benefits document upload functionality
 servers: 
-  - url: dev-api.va.gov/services/vba_documents/{version}
+  - url: https://dev-api.va.gov/services/vba_documents/{version}
     description: VA.gov API development environment
     variables:
       version:
         default: v0
-  - url: staging-api.va.gov/services/vba_documents/{version}
+  - url: https://staging-api.va.gov/services/vba_documents/{version}
     description: VA.gov API staging environment
     variables:
       version:
         default: v0
-  - url: api.va.gov/services/vba_documents/{version}
+  - url: https://api.va.gov/services/vba_documents/{version}
     description: VA.gov API production environment
     variables:
       version:
