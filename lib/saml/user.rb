@@ -12,7 +12,9 @@ module SAML
 
     CONTEXT_MAP = { LOA::MAPPING.invert[1] => 'idme',
                     'dslogon' => 'dslogon',
+                    'dslogon_loa3' => 'dslogon',
                     'myhealthevet' => 'myhealthevet',
+                    'myhealthevet_loa3' => 'myhealthevet',
                     LOA::MAPPING.invert[3] => 'idproof',
                     'multifactor' => 'multifactor',
                     'dslogon_multifactor' => 'dslogon_multifactor',

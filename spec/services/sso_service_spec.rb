@@ -43,6 +43,15 @@ RSpec.describe SSOService do
       end
     end
 
+    context 'myhealthevet_loa3' do
+      let(:saml_response) { SAML::ResponseBuilder.saml_response('myhealthevet_loa3', 'Advanced') }
+
+      it 'has a #new_user_identity which responds to #sign_in' do
+        expect(sso_service.new_user_identity.sign_in)
+          .to eq(service_name: 'myhealthevet')
+      end
+    end
+
     context 'Premium' do
       let(:saml_response) { SAML::ResponseBuilder.saml_response('myhealthevet', 'Premium') }
 
@@ -79,6 +88,15 @@ RSpec.describe SSOService do
 
     context 'dslogon assurance 2' do
       let(:saml_response) { SAML::ResponseBuilder.saml_response('dslogon', '2') }
+
+      it 'has a #new_user_identity which responds to #sign_in' do
+        expect(sso_service.new_user_identity.sign_in)
+          .to eq(service_name: 'dslogon')
+      end
+    end
+
+   context 'dslogon assurance 3' do
+      let(:saml_response) { SAML::ResponseBuilder.saml_response('dslogon_loa3', '3') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
