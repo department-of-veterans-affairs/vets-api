@@ -95,7 +95,7 @@ RSpec.describe SSOService do
       end
     end
 
-   context 'dslogon assurance 3' do
+    context 'dslogon assurance 3' do
       let(:saml_response) { SAML::ResponseBuilder.saml_response('dslogon_loa3', '3') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
