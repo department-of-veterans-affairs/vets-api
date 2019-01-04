@@ -38,10 +38,12 @@ describe MVI::Service do
   end
 
   describe '#find_profile_with_attributes' do
-    it 'should allow searching mvi with user attributes' do
+    it 'should allow searching mvi with user attributes', run_at: 'Fri, 04 Jan 2019 20:33:04 GMT' do
+      allow(SecureRandom).to receive(:uuid).and_return('c3fa0769-70cb-419a-b3a6-d2563e7b8502')
+
       VCR.use_cassette(
         'mvi/find_candidate/find_profile_with_attributes',
-        record: :once
+        VCR::MATCH_EVERYTHING
       ) do
         res = described_class.new.find_profile_with_attributes(
           first_name: 'WESLEY',
@@ -50,6 +52,7 @@ describe MVI::Service do
           ssn: '796043735',
           gender: 'M'
         )
+        expect(res.profile.icn).to eq('1008710003V120120')
       end
     end
   end
