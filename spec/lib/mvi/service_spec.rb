@@ -37,6 +37,18 @@ describe MVI::Service do
     )
   end
 
+  describe '#find_profile_with_attributes' do
+    it 'should allow searching mvi with user attributes' do
+      res = described_class.new.find_profile_with_attributes(
+        first_name: 'WESLEY',
+        last_name: 'FORD',
+        birth_date: '1986-05-06',
+        ssn: '796043735',
+        gender: 'M'
+      )
+    end
+  end
+
   describe '.find_profile with icn', run_at: 'Wed, 21 Feb 2018 20:19:01 GMT' do
     before(:each) do
       expect(MVI::Messages::FindProfileMessageIcn).to receive(:new).once.and_call_original
