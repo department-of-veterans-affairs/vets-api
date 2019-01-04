@@ -3,6 +3,16 @@
 require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
+  describe '#user_attributes' do
+    it 'should create a mvi compatible hash of attributes' do
+      expect(create(:health_care_application).user_attributes).to eq(
+        first_name: 'FirstName', middle_name: 'MiddleName',
+        last_name: 'ZZTEST', birth_date: '1923-01-02',
+        ssn: '111111234', gender: 'F'
+      )
+    end
+  end
+
   describe 'validations' do
     it 'should validate presence of state' do
       health_care_application = described_class.new(state: nil)

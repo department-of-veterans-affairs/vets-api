@@ -52,6 +52,19 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
+  def user_attributes
+    full_name = parsed_form['veteranFullName']
+
+    {
+      first_name: full_name['first'],
+      middle_name: full_name['middle'],
+      last_name: full_name['last'],
+      birth_date: parsed_form['veteranDateOfBirth'],
+      ssn: parsed_form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
+      gender: parsed_form['gender']
+    }
+  end
+
   def set_result_on_success!(result)
     update_attributes!(
       state: 'success',
