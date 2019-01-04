@@ -247,7 +247,7 @@
 
   # VSO Search
   - :method: :post
-    :path: <%= "/wss-claims-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.0/getCurrentInfo" %>
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.0/getCurrentInfo" %>
     :file_path: "evss/vso_search/get_current_info"
     :cache_multiple_responses:
       :uid_location: header
