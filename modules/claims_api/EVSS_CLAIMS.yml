@@ -52,12 +52,12 @@ info:
 
   termsOfService: ''
   contact:
-    name: Vets.gov
+    name: VA.gov
 tags:
   - name: claims
     description: EVSS claims status API
 servers:
-  - url: dev-api.va.gov/services/claims/{version}
+  - url: https://dev-api.va.gov/services/claims/{version}
     description: Vets.gov API development environment
     variables:
       version:
@@ -233,11 +233,6 @@ components:
               format: date
               description: Maximum Estimated Claim Completion Date
               example: '2019-09-04'
-            phase_change_date:
-              type: string
-              format: date
-              example: '2018-06-04'
-              description: Date in YYYY-MM-DD the claim's phase was changed
             open:
               type: boolean
               description: Has the claim been resolved
@@ -263,29 +258,16 @@ components:
               format: date-time
               example: '2018-07-30T17:31:15.958Z'
               description: Time stamp of last change to the claim
-            phase:
-              type: number
-              format: integer
-              example: 2
-              description: |
-                Phase the claim is in. Numbers map to the following
-
-                1. 'claim received'
-                2. 'under review'
-                3. 'gathering of evidence'
-                4. 'review of evidence'
-                5. 'preparation for decision'
-                6. 'pending decision approval'
-                7. 'preparation for notification'
-                8. 'complete'
-            ever_phase_back:
-              type: boolean
-              description: This flag indicates if the claim ever phased back(went back to previous phase) at some point
-              example: false
-            current_phase_back:
-              type: boolean
-              description: This flag indicates if the current phase ever phased back(went back to previous phase) at some point
-              example: false
+            status:
+              type: string
+              example: Claim recieved
+              description: Current status of the claim (See API description for more details)
+              enum:
+                - 'Claim recieved'
+                - 'Initial review'
+                - 'Evidence gathering, review, and decision'
+                - 'Preparation for notification'
+                - 'Complete'
             requested_decision:
               type: boolean
               example: false

@@ -60,17 +60,17 @@ module EVSS
       private
 
       def get_form_0781(parsed_form)
-        parsed_form['incident'].delete_if { |incident| true if incident['personalAssault'] }
+        parsed_form['incidents'].delete_if { |incident| true if incident['personalAssault'] }
         parse_0781(parsed_form)
       end
 
       def get_form_0781a(parsed_form)
-        parsed_form['incident'].delete_if { |incident| true unless incident['personalAssault'] }
+        parsed_form['incidents'].delete_if { |incident| true unless incident['personalAssault'] }
         parse_0781(parsed_form)
       end
 
       def parse_0781(parsed_form)
-        return '' if parsed_form['incident'].empty?
+        return '' if parsed_form['incidents'].empty?
         parsed_form
       end
 
