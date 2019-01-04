@@ -12,12 +12,12 @@ module ClaimsApi
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: EVSSClaimListSerializer
+               each_serializer: ClaimsApi::ClaimListSerializer
       end
 
       def show
         claim = service.update_from_remote(params[:id])
-        render json: claim, serializer: EVSSClaimDetailSerializer
+        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
       end
 
       private
