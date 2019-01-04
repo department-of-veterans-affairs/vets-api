@@ -53,6 +53,8 @@ module SAML
       build_sso_url(LOA::MAPPING.invert[1])
     end
 
+    # Possible authn_context are:
+    # 'myhealthevet_loa3', 'dslogon_loa3', 'http://idmanagement.gov/ns/assurance/loa/3/vets'
     def idme_loa3_url
       link_authn_context = authn_context.present? ? "#{authn_context}_loa3" : LOA::MAPPING.invert[3]
       build_sso_url(link_authn_context)
