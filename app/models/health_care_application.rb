@@ -52,16 +52,22 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
-  def user_attributes
-    full_name = parsed_form['veteranFullName']
+  def self.user_icn
+    MVI::Service.new.find_profile_with_attributes(user_attributes).profile.icn
+    # TODO handle mvi down
+  rescue MVI::Errors::RecordNotFound
+  end
+
+  def self.user_attributes(form)
+    full_name = form['veteranFullName']
 
     {
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
-      birth_date: parsed_form['veteranDateOfBirth'],
-      ssn: parsed_form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
-      gender: parsed_form['gender']
+      birth_date: form['veteranDateOfBirth'],
+      ssn: form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
+      gender: form['gender']
     }
   end
 

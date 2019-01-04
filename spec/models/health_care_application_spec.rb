@@ -3,9 +3,18 @@
 require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
-  describe '#user_attributes' do
+  describe '.user_attributes' do
     it 'should create a mvi compatible hash of attributes' do
-      expect(create(:health_care_application).user_attributes).to eq(
+      expect(
+        described_class.user_attributes(
+          build(:health_care_application).parsed_form.slice(
+            'veteranFullName',
+            'veteranDateOfBirth',
+            'veteranSocialSecurityNumber',
+            'gender'
+          )
+        )
+      ).to eq(
         first_name: 'FirstName', middle_name: 'MiddleName',
         last_name: 'ZZTEST', birth_date: '1923-01-02',
         ssn: '111111234', gender: 'F'
