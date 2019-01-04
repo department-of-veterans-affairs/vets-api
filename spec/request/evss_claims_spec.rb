@@ -14,7 +14,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       sign_in_as(user)
       profile = build(:mvi_profile, edipi: nil)
       stub_mvi(profile)
-      get '/v0/evss_claims', nil
+      get '/v0/evss_claims'
       expect(response).to have_http_status(:forbidden)
     end
   end
@@ -22,7 +22,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     sign_in_as(evss_user)
     VCR.use_cassette('evss/claims/claims', VCR::MATCH_EVERYTHING) do
-      get '/v0/evss_claims', nil
+      get '/v0/evss_claims'
       expect(response).to match_response_schema('evss_claims')
     end
   end
@@ -36,7 +36,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'sets 5103 waiver when requesting a decision' do
       sign_in_as(user)
       expect do
-        post '/v0/evss_claims/600118851/request_decision', nil
+        post '/v0/evss_claims/600118851/request_decision'
       end.to change(EVSS::RequestDecision.jobs, :size).by(1)
       expect(response.status).to eq(202)
       expect(JSON.parse(response.body)['job_id']).to eq(EVSS::RequestDecision.jobs.first['jid'])
@@ -45,7 +45,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       sign_in_as(evss_user)
       VCR.use_cassette('evss/claims/claim', VCR::MATCH_EVERYTHING) do
-        get '/v0/evss_claims/600118851', nil
+        get '/v0/evss_claims/600118851'
         expect(response).to match_response_schema('evss_claim')
       end
     end
@@ -54,7 +54,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       sign_in_as(user)
       FactoryBot.create(:evss_claim, id: 2, evss_id: 189_625,
                                      user_uuid: 'xyz')
-      get '/v0/evss_claims/2', nil
+      get '/v0/evss_claims/2'
       expect(response).to have_http_status(:not_found)
     end
 
@@ -65,7 +65,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
         claim.save
 
         expect(claim.requested_decision).to eq(false)
-        post '/v0/evss_claims/600118851/request_decision', nil
+        post '/v0/evss_claims/600118851/request_decision'
         expect(claim.reload.requested_decision).to eq(true)
       end
     end

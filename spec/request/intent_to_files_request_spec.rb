@@ -13,7 +13,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a valid evss response' do
       it 'should match the intent to files schema' do
         VCR.use_cassette('evss/intent_to_file/intent_to_file') do
-          get '/v0/intent_to_file', nil
+          get '/v0/intent_to_file'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intent_to_files')
         end
@@ -23,7 +23,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 403 response' do
       it 'should return a not authorized response' do
         VCR.use_cassette('evss/intent_to_file/intent_to_file_403') do
-          get '/v0/intent_to_file', nil
+          get '/v0/intent_to_file'
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -33,7 +33,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 400 invalid intent type' do
       it 'should return a bad gateway response' do
         VCR.use_cassette('evss/intent_to_file/intent_to_file_intent_type_invalid') do
-          get '/v0/intent_to_file', nil
+          get '/v0/intent_to_file'
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -45,7 +45,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a valid evss response' do
       it 'should match the intent to file schema' do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          get '/v0/intent_to_file/compensation/active', nil
+          get '/v0/intent_to_file/compensation/active'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intent_to_file')
         end
@@ -55,7 +55,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 403 response' do
       it 'should return a not authorized response' do
         VCR.use_cassette('evss/intent_to_file/active_compensation_403') do
-          get '/v0/intent_to_file/compensation/active', nil
+          get '/v0/intent_to_file/compensation/active'
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -65,7 +65,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 502 partner service invalid' do
       it 'should return a bad gateway response' do
         VCR.use_cassette('evss/intent_to_file/active_compensation_partner_service_invalid') do
-          get '/v0/intent_to_file/compensation/active', nil
+          get '/v0/intent_to_file/compensation/active'
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -77,7 +77,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a valid evss response' do
       it 'should match the intent to file schema' do
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
-          post '/v0/intent_to_file/compensation', nil
+          post '/v0/intent_to_file/compensation'
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('intent_to_file')
         end
@@ -87,7 +87,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 403 response' do
       it 'should return a not authorized response' do
         VCR.use_cassette('evss/intent_to_file/create_compensation_403') do
-          post '/v0/intent_to_file/compensation', nil
+          post '/v0/intent_to_file/compensation'
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -97,7 +97,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 502 partner service error' do
       it 'should return a bad gateway response' do
         VCR.use_cassette('evss/intent_to_file/create_compensation_partner_service_error') do
-          post '/v0/intent_to_file/compensation', nil
+          post '/v0/intent_to_file/compensation'
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -107,7 +107,7 @@ RSpec.describe 'Intent to file', type: :request do
     context 'with a 400 intent type invalid' do
       it 'should return a bad gateway response' do
         VCR.use_cassette('evss/intent_to_file/create_compensation_type_error') do
-          post '/v0/intent_to_file/compensation', nil
+          post '/v0/intent_to_file/compensation'
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('evss_errors')
         end
@@ -118,14 +118,14 @@ RSpec.describe 'Intent to file', type: :request do
   describe 'Invalid `type` in path' do
     context 'to GET /v0/intent_to_file/{type}/active' do
       it 'should raise a bad request error' do
-        get '/v0/intent_to_file/invalid/active', nil
+        get '/v0/intent_to_file/invalid/active'
         expect(response).to have_http_status(:bad_request)
       end
     end
 
     context 'to POST /v0/intent_to_file/{type}' do
       it 'should raise a bad request error' do
-        post '/v0/intent_to_file/invalid', nil
+        post '/v0/intent_to_file/invalid'
         expect(response).to have_http_status(:bad_request)
       end
     end

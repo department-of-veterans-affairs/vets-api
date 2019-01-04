@@ -12,7 +12,7 @@ RSpec.describe 'full_name', type: :request do
   describe 'GET /v0/profile/full_name' do
     context 'with a 200 response' do
       it 'should match the full name schema' do
-        get '/v0/profile/full_name', nil
+        get '/v0/profile/full_name'
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('full_name_response')
