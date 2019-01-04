@@ -138,7 +138,9 @@ module V0
     end
 
     def saml_callback_success_tags(sso_service)
-      ['status:success', "context:#{sso_service.context_key}", "subtype:#{sso_service.saml_attributes.user_subtype}"]
+      ['status:success',
+       "context:#{sso_service.context_key}",
+       "account_type:#{sso_service.saml_attributes.account_type}"]
     end
 
     def url_service

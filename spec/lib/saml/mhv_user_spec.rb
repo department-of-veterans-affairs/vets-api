@@ -79,8 +79,8 @@ RSpec.describe SAML::User do
         )
       end
 
-      it 'has a user_subtype' do
-        expect(described_instance.user_subtype).to eq('Premium')
+      it 'has a account_type' do
+        expect(described_instance.account_type).to eq('Premium')
       end
 
       it 'is not changing multifactor' do

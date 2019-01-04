@@ -44,14 +44,14 @@ module SAML
     end
 
     # we use this for statsd tags
-    def user_subtype
+    def account_type
       case authn_context
       when 'myhealthevet'
         user_attributes.mhv_account_type
       when 'dslogon'
-        user_attributes.dslogon_idtype
+        user_attributes.dslogon_assurance
       else
-        'idme'
+        user_attributes.loa[:current]
       end
     end
 
