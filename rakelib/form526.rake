@@ -9,16 +9,35 @@ namespace :form526 do
       printf "%-24s %-24s %-15s %-10s %s\n", created_at, updated_at, id, claim_id, complete
     end
 
-    start_date = args[:start_date] || 30.days.ago.utc.to_s
-    end_date = args[:end_date] || Time.zone.now.utc.to_s
+    def print_total(header, total)
+      printf "%-20s %s\n", header, total
+    end
 
+    start_date = args[:start_date]&.to_date || 30.days.ago.utc
+    end_date = args[:end_date]&.to_date || Time.zone.now.utc
+
+    puts '------------------------------------------------------------'
     print_row('created at:', 'updated at:', 'submission id:', 'claim id:', 'workflow complete:')
 
-    Form526Submission.where('created_at BETWEEN ? AND ?', start_date, end_date)
-                     .order(created_at: :desc)
-                     .find_each do |s|
+    submissions = Form526Submission.where(
+      'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
+    )
+
+    # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
+    # This should be fine as created_at dates correlate directly to PKs
+    submissions.find_each do |s|
       print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete)
     end
+
+    total_jobs = submissions.count
+    success_jobs = submissions.group(:workflow_complete).count[true]
+    fail_jobs = total_jobs - success_jobs
+
+    puts '------------------------------------------------------------'
+    puts "* Job Success/Failure counts between #{start_date} - #{end_date} *"
+    print_total('Total Jobs: ', total_jobs)
+    print_total('Successful Jobs: ', success_jobs)
+    print_total('Failed Jobs: ', fail_jobs)
   end
 
   desc 'Get one or more submission details given an array of ids'
@@ -34,13 +53,15 @@ namespace :form526 do
       saved_claim_form['veteran'] = 'FILTERED'
 
       auth_headers = JSON.parse(submission.auth_headers_json)
+      # There have been prod instances of users not having a ssn
+      ssn = auth_headers['va_eauth_pnid'] || ''
 
       puts '------------------------------------------------------------'
       puts "Submission (#{submission.id}):\n\n"
       puts "user uuid: #{submission.user_uuid}"
       puts "user edipi: #{auth_headers['va_eauth_dodedipnid']}"
       puts "user participant id: #{auth_headers['va_eauth_pid']}"
-      puts "user ssn: #{auth_headers['va_eauth_pnid'].gsub(/(?=\d{5})\d/, '*')}"
+      puts "user ssn: #{ssn.gsub(/(?=\d{5})\d/, '*')}"
       puts "saved claim id: #{submission.saved_claim_id}"
       puts "submitted claim id: #{submission.submitted_claim_id}"
       puts "workflow complete: #{submission.workflow_complete}"
@@ -54,7 +75,7 @@ namespace :form526 do
         puts "  status: #{s.status}"
         puts "  error: #{s.error_class}" if s.error_class
         puts "    message: #{s.error_message}" if s.error_message
-        puts "  updadated at: #{s.updated_at}"
+        puts "  updated at: #{s.updated_at}"
         puts "\n"
       end
       puts '----------------------------------------'
