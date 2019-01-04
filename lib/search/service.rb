@@ -87,7 +87,7 @@ module Search
       when Common::Client::Errors::ClientError
         message = parse_messages(error).first
         save_error_details(message)
-        raise_backend_exception('SEARCH_429', self.class, error) if error.status == 429
+        handle_429!(error)
         raise_backend_exception('SEARCH_400', self.class, error) if error.status >= 400
       else
         raise error
@@ -104,6 +104,13 @@ module Search
         url: config.base_path
       )
       Raven.tags_context(search: 'general_search_query_error')
+    end
+
+    def handle_429!(error)
+      return unless error.status == 429
+
+      StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", tags: ['exception:429'])
+      raise_backend_exception('SEARCH_429', self.class, error)
     end
 
     def raise_backend_exception(key, source, error = nil)
