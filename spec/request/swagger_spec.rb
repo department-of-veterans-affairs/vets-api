@@ -621,9 +621,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/messages', 200,
                 headers.merge('_data' => { 'message' => {
-                                     'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                     'body' => 'Continuous Integration'
-                                   } })
+                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                'body' => 'Continuous Integration'
+                              } })
               )
             end
           end
@@ -633,13 +633,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/messages', 200,
                 headers.merge('id' => '674838',
-                                   '_data' => {
-                                     'message' => {
-                                       'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                       'body' => 'Continuous Integration'
-                                     },
-                                     'uploads' => uploads
-                                   })
+                              '_data' => {
+                                'message' => {
+                                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                  'body' => 'Continuous Integration'
+                                },
+                                'uploads' => uploads
+                              })
               )
             end
           end
@@ -649,10 +649,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/messages/{id}/reply', 201,
                 headers.merge('id' => '674838',
-                                   '_data' => { 'message' => {
-                                     'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                     'body' => 'Continuous Integration'
-                                   } })
+                              '_data' => { 'message' => {
+                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                'body' => 'Continuous Integration'
+                              } })
               )
             end
           end
@@ -662,13 +662,13 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/messages/{id}/reply', 201,
                 headers.merge('id' => '674838',
-                                   '_data' => {
-                                     'message' => {
-                                       'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                       'body' => 'Continuous Integration'
-                                     },
-                                     'uploads' => uploads
-                                   })
+                              '_data' => {
+                                'message' => {
+                                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                  'body' => 'Continuous Integration'
+                                },
+                                'uploads' => uploads
+                              })
               )
             end
           end
@@ -722,9 +722,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/messages', 422,
                 headers.merge('_data' => { 'message' => {
-                                     'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '1',
-                                     'body' => 'Continuous Integration'
-                                   } })
+                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '1',
+                                'body' => 'Continuous Integration'
+                              } })
               )
             end
           end
@@ -734,10 +734,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/messages/{id}/reply', 404,
                 headers.merge('id' => '999999',
-                                   '_data' => { 'message' => {
-                                     'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                     'body' => 'Continuous Integration'
-                                   } })
+                              '_data' => { 'message' => {
+                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                'body' => 'Continuous Integration'
+                              } })
               )
             end
           end
@@ -758,9 +758,9 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/message_drafts', 201,
                 headers.merge('_data' => { 'message_draft' => {
-                                     'subject' => 'Subject 1', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                     'body' => 'Body 1'
-                                   } })
+                                'subject' => 'Subject 1', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                'body' => 'Body 1'
+                              } })
               )
             end
           end
@@ -771,10 +771,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                 expect(subject).to validate(
                   op, '/v0/messaging/health/message_drafts/{id}', 204,
                   headers.merge('id' => '674942',
-                                     '_data' => { 'message_draft' => {
-                                       'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                       'body' => 'Updated Body'
-                                     } })
+                                '_data' => { 'message_draft' => {
+                                  'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                  'body' => 'Updated Body'
+                                } })
                 )
               end
             end
@@ -785,10 +785,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/messaging/health/message_drafts/{reply_id}/replydraft', 201,
                 headers.merge('reply_id' => '674874',
-                                   '_data' => { 'message_draft' => {
-                                     'subject' => 'Updated Subject', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                     'body' => 'Body 1'
-                                   } })
+                              '_data' => { 'message_draft' => {
+                                'subject' => 'Updated Subject', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                'body' => 'Body 1'
+                              } })
               )
             end
           end
@@ -798,11 +798,11 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :put, '/v0/messaging/health/message_drafts/{reply_id}/replydraft/{draft_id}', 204,
                 headers.merge('reply_id' => '674874',
-                                   'draft_id' => '674944',
-                                   '_data' => { 'message_draft' => {
-                                     'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
-                                     'body' => 'Updated Body'
-                                   } })
+                              'draft_id' => '674944',
+                              '_data' => { 'message_draft' => {
+                                'subject' => 'CI Run', 'category' => 'OTHER', 'recipient_id' => '613586',
+                                'body' => 'Updated Body'
+                              } })
               )
             end
           end
@@ -847,10 +847,10 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
                 expect(subject).to validate(
                   :post, '/v0/health_records', 202,
                   headers.merge('_data' => {
-                                       'from_date' => 10.years.ago.iso8601.to_json,
-                                       'to_date' => Time.now.iso8601.to_json,
-                                       'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                                     })
+                                  'from_date' => 10.years.ago.iso8601.to_json,
+                                  'to_date' => Time.now.iso8601.to_json,
+                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                                })
                 )
               end
             end
@@ -861,25 +861,25 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
               expect(subject).to validate(
                 :post, '/v0/health_records', 422,
                 headers.merge('_data' => {
-                                     'to_date' => Time.now.iso8601.to_json,
-                                     'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                                   })
+                                'to_date' => Time.now.iso8601.to_json,
+                                'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                              })
               )
 
               expect(subject).to validate(
                 :post, '/v0/health_records', 422,
                 headers.merge('_data' => {
-                                     'from_date' => 10.years.ago.iso8601.to_json,
-                                     'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
-                                   })
+                                'from_date' => 10.years.ago.iso8601.to_json,
+                                'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                              })
               )
 
               expect(subject).to validate(
                 :post, '/v0/health_records', 422,
                 headers.merge('_data' => {
-                                     'from_date' => 10.years.ago.iso8601.to_json,
-                                     'to_date' => Time.now.iso8601.to_json
-                                   })
+                                'from_date' => 10.years.ago.iso8601.to_json,
+                                'to_date' => Time.now.iso8601.to_json
+                              })
               )
             end
           end
