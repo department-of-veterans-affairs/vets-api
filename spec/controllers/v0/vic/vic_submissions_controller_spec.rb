@@ -25,12 +25,12 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
 
       context 'with a user' do
         before do
-          use_authenticated_current_user(current_user: user)
+          sign_in_as(user)
           expect(controller).to receive(:clear_saved_form).with('VIC')
         end
 
         it 'creates a vic submission with a user' do
-          expect_any_instance_of(VIC::VICSubmission).to receive(:user=).with(user)
+          expect_any_instance_of(VIC::VICSubmission).to receive(:user=)
           send_create
           expect(response.ok?).to eq(true)
         end
