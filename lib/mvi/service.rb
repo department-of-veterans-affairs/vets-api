@@ -32,6 +32,19 @@ module MVI
 
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
 
+    def find_profile_with_attributes(user_attributes)
+      raw_response = with_monitoring do
+        perform(
+          :post,
+          '',
+          message_user_attributes(OpenStruct.new(user_attributes)),
+          soapaction: OPERATIONS[:find_profile]
+        )
+      end
+
+      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
+    end
+
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [User] the user to query MVI for
