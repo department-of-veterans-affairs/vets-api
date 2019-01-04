@@ -499,7 +499,6 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
 
       before(:each) do
         allow(SM::Client).to receive(:new).and_return(authenticated_client)
-        # use_authenticated_current_user(current_user: mhv_user)
       end
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 

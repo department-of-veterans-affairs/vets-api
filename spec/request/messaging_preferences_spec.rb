@@ -14,7 +14,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
 
   before(:each) do
     allow(SM::Client).to receive(:new).and_return(authenticated_client)
-    use_authenticated_current_user(current_user: current_user)
+    sign_in_as(current_user)
   end
 
   context 'Basic User' do
