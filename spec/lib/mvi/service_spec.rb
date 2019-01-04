@@ -39,13 +39,18 @@ describe MVI::Service do
 
   describe '#find_profile_with_attributes' do
     it 'should allow searching mvi with user attributes' do
-      res = described_class.new.find_profile_with_attributes(
-        first_name: 'WESLEY',
-        last_name: 'FORD',
-        birth_date: '1986-05-06',
-        ssn: '796043735',
-        gender: 'M'
-      )
+      VCR.use_cassette(
+        'mvi/find_candidate/find_profile_with_attributes',
+        record: :once
+      ) do
+        res = described_class.new.find_profile_with_attributes(
+          first_name: 'WESLEY',
+          last_name: 'FORD',
+          birth_date: '1986-05-06',
+          ssn: '796043735',
+          gender: 'M'
+        )
+      end
     end
   end
 
