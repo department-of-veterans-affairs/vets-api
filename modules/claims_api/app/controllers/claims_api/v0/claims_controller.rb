@@ -78,7 +78,9 @@ module ClaimsApi
       end
 
       def veteran_power_of_attorney
-        service.veteran.power_of_attorney
+        require 'awesome_print'
+        ap service.veteran.power_of_attorney.code
+        service.veteran.power_of_attorney.code
         # 'A1Q' # TODO: need to join to Charlie's PR
       end
     end
