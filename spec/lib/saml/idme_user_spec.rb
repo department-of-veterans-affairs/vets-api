@@ -59,7 +59,7 @@ RSpec.describe SAML::User do
       end
 
       it 'has a account_type' do
-        expect(described_instance.account_type).to eq(1)
+        expect(described_instance.account_type).to eq(3)
       end
 
       it 'is not changing multifactor' do

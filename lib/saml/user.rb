@@ -51,7 +51,7 @@ module SAML
       when 'dslogon'
         user_attributes.dslogon_assurance
       else
-        user_attributes.loa[:current]
+        saml_attributes['level_of_assurance']
       end
     end
 
