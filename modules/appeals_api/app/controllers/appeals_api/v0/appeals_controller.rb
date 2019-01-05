@@ -10,11 +10,6 @@ module AppealsApi
       def index
         log_request
         verify_poa
-        appeals_response = Appeals::Service.new.get_appeals(
-          target_veteran,
-          'Consumer' => consumer,
-          'VA-User' => requesting_va_user
-        )
         log_response(appeals_response)
         render(
           json: appeals_response.body
@@ -26,6 +21,17 @@ module AppealsApi
       end
 
       private
+
+      def service
+        @service ||= Appeals::Service.new(target_veteran)
+      end
+
+      def appeals_response
+        service.get_appeals(
+          'Consumer' => consumer,
+          'VA-User' => requesting_va_user
+        )
+      end
 
       def log_request
         hashed_ssn = Digest::SHA2.hexdigest ssn

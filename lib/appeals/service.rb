@@ -11,9 +11,13 @@ module Appeals
 
     STATSD_KEY_PREFIX = 'api.appeals'
 
-    def get_appeals(user, additional_headers = {})
+    def initialize(user)
+      @user = user
+    end
+
+    def get_appeals(additional_headers = {})
       with_monitoring do
-        response = perform(:get, '/api/v2/appeals', {}, request_headers(user, additional_headers))
+        response = perform(:get, '/api/v2/appeals', {}, request_headers(additional_headers))
         Appeals::Responses::Appeals.new(response.body, response.status)
       end
     end
@@ -26,9 +30,9 @@ module Appeals
 
     private
 
-    def request_headers(user, additional_headers)
+    def request_headers(additional_headers)
       {
-        'ssn' => user.ssn,
+        'ssn' => @user.ssn,
         'Authorization' => "Token token=#{Settings.appeals.app_token}"
       }.merge(additional_headers)
     end

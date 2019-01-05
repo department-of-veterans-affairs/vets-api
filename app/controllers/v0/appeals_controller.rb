@@ -7,7 +7,7 @@ module V0
     before_action { authorize :appeals, :access? }
 
     def index
-      appeals_response = Appeals::Service.new.get_appeals(current_user)
+      appeals_response = Appeals::Service.new(current_user).get_appeals
       render(
         json: appeals_response.body
       )

@@ -49,8 +49,8 @@ module EVSS
     end
 
     def iso8601_birth_date
-      return nil unless @user[:va_profile].try(:[],:birth_date)
-      DateTime.parse(@user[:va_profile].try(:[],:birth_date)).iso8601
+      return nil unless @user[:va_profile].try(:[], :birth_date)
+      DateTime.parse(@user[:va_profile].try(:[], :birth_date)).iso8601
     end
   end
 end
