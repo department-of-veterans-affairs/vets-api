@@ -28,9 +28,13 @@ module Appeals
       end
     end
 
+    def power_of_attorney
+      EVSS::VsoSearch::Service.new(request_headers).get_current_info
+    end
+
     private
 
-    def request_headers(additional_headers)
+    def request_headers(additional_headers = {})
       {
         'ssn' => @user.ssn,
         'Authorization' => "Token token=#{Settings.appeals.app_token}"

@@ -78,7 +78,7 @@ module AppealsApi
       end
 
       def veteran_power_of_attorney
-        'A1Q' # TODO: need to join to Charlie's PR
+        service.power_of_attorney['currentPoa'].try(:[], 'code')
       end
     end
   end
