@@ -41,17 +41,17 @@ tags:
   - name: appeals
     description: Caseflow appeals status API
 servers: 
-  - url: dev-api.va.gov/services/appeals/{version}
+  - url: https://dev-api.va.gov/services/appeals/{version}
     description: VA.gov API development environment
     variables:
       version:
         default: v0
-  - url: staging-api.va.gov/services/appeals/{version}
+  - url: https://staging-api.va.gov/services/appeals/{version}
     description: VA.gov API staging environment
     variables:
       version:
         default: v0
-  - url: api.va.gov/services/appeals/{version}
+  - url: https://api.va.gov/services/appeals/{version}
     description: VA.gov API production environment
     variables:
       version:

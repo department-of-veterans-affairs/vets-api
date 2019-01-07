@@ -28,12 +28,8 @@ describe PdfFill::Forms::Va210781a do
   describe '#combine_source_name_address' do
     it 'should expand sources correctly' do
       incident = {
-        'source' => [{
-          'name' => {
-            'first' => 'Testy',
-            'middle' => 'T',
-            'last' => 'Testerson'
-          },
+        'sources' => [{
+          'name' => 'Testy T Testerson',
           'address' => {
             'street' => '123 Main Street',
             'street2' => '1B',
@@ -53,13 +49,9 @@ describe PdfFill::Forms::Va210781a do
 
     it 'should expand multiple sources correctly' do
       incident = {
-        'source' => [
+        'sources' => [
           {
-            'name' => {
-              'first' => 'Testy',
-              'middle' => 'T',
-              'last' => 'Testerson'
-            },
+            'name' => 'Testy T Testerson',
             'address' => {
               'street' => '123 Main Street',
               'street2' => '1B',
@@ -70,11 +62,7 @@ describe PdfFill::Forms::Va210781a do
             }
           },
           {
-            'name' => {
-              'first' => 'Besty',
-              'middle' => 'B',
-              'last' => 'Besterson'
-            },
+            'name' => 'Besty B Besterson',
             'address' => {
               'street' => '456 Main Street',
               'street2' => '1B',
