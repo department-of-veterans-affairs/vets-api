@@ -109,7 +109,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         let(:current_user) { build(:user, :mhv) }
 
         before do
-          use_authenticated_current_user(current_user: current_user)
+          sign_in_as(current_user)
         end
 
         let(:body) do
