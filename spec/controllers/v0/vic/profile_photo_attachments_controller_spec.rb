@@ -41,7 +41,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
       let(:user) { create(:user, :loa3) }
 
       before do
-        expect_any_instance_of(described_class).to receive(:authenticate_token).at_least(:once).and_return(true)
+        expect_any_instance_of(described_class).to receive(:validate_session).at_least(:once).and_return(true)
       end
 
       it 'allows retrieval of the file' do
