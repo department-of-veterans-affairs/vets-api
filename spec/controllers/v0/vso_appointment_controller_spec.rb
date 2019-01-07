@@ -11,14 +11,10 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
   end
 
   context 'after auth' do
-    let(:token) { 'abracadabra' }
-    let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:test_user) { FactoryBot.build(:user) }
+    let(:user) { build(:user) }
 
     before(:each) do
-      Session.create(uuid: test_user.uuid, token: token)
-      User.create(test_user)
-      request.env['HTTP_AUTHORIZATION'] = auth_header
+      sign_in_as(user)
     end
 
     it 'should reject an incomplete post' do
