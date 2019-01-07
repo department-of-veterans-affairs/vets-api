@@ -11,23 +11,16 @@ RSpec.describe V0::UsersController, type: :controller do
   end
 
   context 'when logged in as an LOA1 user' do
-    let(:token) { 'abracadabra-open-sesame' }
-    let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
-    let(:loa1_user) { build(:user, :loa1) }
-
-    before(:each) do
-      Session.create(uuid: loa1_user.uuid, token: token)
-      User.create(loa1_user)
-      FactoryBot.create(:in_progress_form, user_uuid: loa1_user.uuid, form_id: 'edu-1990')
-    end
+    let(:user) { build(:user, :loa1) }
 
     it 'returns a JSON user profile' do
-      request.env['HTTP_AUTHORIZATION'] = auth_header
+      sign_in_as(user)
+      FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
       get :show
       assert_response :success
 
       json = JSON.parse(response.body)
-      expect(json['data']['attributes']['profile']['email']).to eq(loa1_user.email)
+      expect(json['data']['attributes']['profile']['email']).to eq(user.email)
     end
   end
 end

@@ -2,7 +2,6 @@
 
 # This module only gets mixed in to one place, but is that cleanest way to organize everything in one place related
 # to this responsibility alone.
-# rubocop:disable Metrics/ModuleLength
 module AuthenticationAndSSOConcerns
   extend ActiveSupport::Concern
   include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -10,28 +9,21 @@ module AuthenticationAndSSOConcerns
 
   included do
     before_action :authenticate
-    before_action :set_api_cookie!, unless: -> { Settings.session_cookie.enabled }
+    before_action :set_api_cookie!
   end
 
   protected
 
   def authenticate
-    authenticate_token || render_unauthorized
-  end
-
-  def authenticate_token
-    return validate_session(session[:token]) if Settings.session_cookie.enabled
-    authenticate_with_http_token do |token, _options|
-      validate_session(token)
-    end
+    validate_session || render_unauthorized
   end
 
   def render_unauthorized
     raise Common::Exceptions::Unauthorized
   end
 
-  def validate_session(token)
-    @session_object = Session.find(token)
+  def validate_session
+    @session_object = Session.find(session[:token])
 
     if @session_object.nil?
       Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
