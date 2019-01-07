@@ -9,6 +9,7 @@ module ClaimsApi
       skip_before_action(:authenticate)
 
       def index
+        verify_poa
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -66,6 +67,18 @@ module ClaimsApi
           edipi: edipi,
           last_signed_in: Time.zone.now
         )
+      end
+
+      def verify_poa
+        if request.headers['X-Consumer-Custom-ID']
+          unless request.headers['X-Consumer-Custom-ID'].split(',').include?(veteran_power_of_attorney)
+            raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
+          end
+        end
+      end
+
+      def veteran_power_of_attorney
+        service.veteran.power_of_attorney.code
       end
     end
   end
