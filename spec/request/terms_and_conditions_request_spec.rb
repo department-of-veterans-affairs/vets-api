@@ -32,7 +32,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
 
   context 'with some acceptances' do
     before(:each) do
-      use_authenticated_current_user(current_user: current_user)
+      sign_in_as(current_user)
     end
 
     let!(:terms2_acceptance) do
@@ -72,7 +72,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
 
   context 'with no acceptances' do
     before(:each) do
-      use_authenticated_current_user(current_user: current_user)
+      sign_in_as(current_user)
     end
 
     describe 'getting user data' do

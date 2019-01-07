@@ -4,9 +4,6 @@ require 'rails_helper'
 
 RSpec.describe 'transactions', type: :request do
   include SchemaMatchers
-
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user, :loa3) }
 
   before do
@@ -17,8 +14,7 @@ RSpec.describe 'transactions', type: :request do
         profile: build(:mvi_profile, vet360_id: '1')
       )
     )
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    sign_in_as(user)
   end
 
   describe 'GET /v0/profile/status/:transaction_id' do
@@ -31,11 +27,7 @@ RSpec.describe 'transactions', type: :request do
         )
 
         VCR.use_cassette('vet360/contact_information/address_transaction_status') do
-          get(
-            "/v0/profile/status/#{transaction.transaction_id}",
-            nil,
-            auth_header
-          )
+          get("/v0/profile/status/#{transaction.transaction_id}")
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
           expect(response_body['data']['type']).to eq('async_transaction_vet360_address_transactions')
@@ -53,11 +45,7 @@ RSpec.describe 'transactions', type: :request do
         )
 
         VCR.use_cassette('vet360/contact_information/email_transaction_status_w_message') do
-          get(
-            "/v0/profile/status/#{transaction.transaction_id}",
-            nil,
-            auth_header
-          )
+          get("/v0/profile/status/#{transaction.transaction_id}")
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
           expect(response_body['data']['attributes']['metadata']).to be_a(Array)
@@ -76,11 +64,7 @@ RSpec.describe 'transactions', type: :request do
 
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-          get(
-            "/v0/profile/status/#{transaction.transaction_id}",
-            nil,
-            auth_header
-          )
+          get("/v0/profile/status/#{transaction.transaction_id}")
         end
       end
     end
@@ -100,11 +84,7 @@ RSpec.describe 'transactions', type: :request do
           transaction_id: '786efe0e-fd20-4da2-9019-0c00540dba4d'
         )
         VCR.use_cassette('vet360/contact_information/address_and_email_transaction_status') do
-          get(
-            '/v0/profile/status/',
-            nil,
-            auth_header
-          )
+          get('/v0/profile/status/')
           expect(response).to have_http_status(:ok)
           response_body = JSON.parse(response.body)
           expect(response_body['data'].is_a?(Array)).to eq(true)
@@ -124,7 +104,7 @@ RSpec.describe 'transactions', type: :request do
 
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-            get '/v0/profile/status/', nil, auth_header
+            get '/v0/profile/status/'
           end
         end
       end
@@ -135,7 +115,7 @@ RSpec.describe 'transactions', type: :request do
 
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-          get '/v0/profile/status/', nil, auth_header
+          get '/v0/profile/status/'
         end
       end
     end
