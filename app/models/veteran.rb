@@ -21,8 +21,7 @@ class Veteran < Common::Base
 
   def initialize(user)
     @user = user
-    client = EVSS::VsoSearch::Service.new(auth_headers)
-    build_from_json(client.get_current_info)
+    build_from_json(EVSS::VsoSearch::Service.new(user).get_current_info(auth_headers))
   end
 
   def build_from_json(json_data)
