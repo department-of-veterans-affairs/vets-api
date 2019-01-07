@@ -67,6 +67,16 @@ module SAML
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'level_of_assurance' => []
         )
+      when 'myhealthevet_loa3'
+        OneLogin::RubySaml::Attributes.new(
+          'mhv_icn' => ['1012853550V207686'],
+          'mhv_profile' => ["{\"accountType\":\"#{level}\"}"],
+          'mhv_uuid' => ['12345748'],
+          'email' => ['kam+tristanmhv@adhocteam.us'],
+          'multifactor' => [false],
+          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
+          'level_of_assurance' => ['3']
+        )
       when 'loa1', 'loa3'
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
@@ -80,7 +90,7 @@ module SAML
           'level_of_assurance' => [level],
           'multifactor'        => [true]
         )
-      when 'dslogon'
+      when 'dslogon', 'dslogon_loa3'
         OneLogin::RubySaml::Attributes.new(
           'dslogon_status' => ['DEPENDENT'],
           'dslogon_assurance' => [level],
