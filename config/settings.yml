@@ -14,7 +14,6 @@ saml:
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
 session_cookie:
-  enabled: false
   secure: false
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
@@ -168,7 +167,7 @@ locators:
   vha_access_waittime: https://www.accesstopwt.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
   providers_enabled: false
-  
+
 ppms:
   url: https://some.fakesite.com
   open_timeout: 15
