@@ -53,7 +53,7 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   def self.user_icn(form)
-    MVI::Service.new.find_profile_with_attributes(user_attributes(form)).profile.icn
+    MVI::AttrService.new.find_profile(user_attributes(form)).profile.icn
     # TODO: handle mvi down
   rescue MVI::Errors::RecordNotFound
     nil
@@ -62,14 +62,14 @@ class HealthCareApplication < ActiveRecord::Base
   def self.user_attributes(form)
     full_name = form['veteranFullName']
 
-    {
+    OpenStruct.new(
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
       birth_date: form['veteranDateOfBirth'],
       ssn: form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
       gender: form['gender']
-    }
+    )
   end
 
   def set_result_on_success!(result)

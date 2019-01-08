@@ -32,19 +32,6 @@ module MVI
 
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
 
-    def find_profile_with_attributes(user_attributes)
-      raw_response = with_monitoring do
-        perform(
-          :post,
-          '',
-          message_user_attributes(OpenStruct.new(user_attributes)),
-          soapaction: OPERATIONS[:find_profile]
-        )
-      end
-
-      MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
-    end
-
     # Given a user queries MVI and returns their VA profile.
     #
     # @param user [User] the user to query MVI for
@@ -52,7 +39,7 @@ module MVI
     # rubocop:disable Metrics/MethodLength
     def find_profile(user)
       with_monitoring do
-        Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) do
+        measure_info(user) do
           raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
@@ -78,6 +65,10 @@ module MVI
     # rubocop:enable Metrics/MethodLength
 
     private
+
+    def measure_info(user)
+      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) { yield }
+    end
 
     def mvi_error_handler(user, e)
       case e

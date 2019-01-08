@@ -11,7 +11,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'when the user is not found' do
       it 'should return nil' do
         expect_any_instance_of(MVI::Service).to receive(
-          :find_profile_with_attributes
+          :find_profile
         ).and_raise(MVI::Errors::RecordNotFound)
 
         expect(described_class.user_icn(form)).to eq(nil)
@@ -21,7 +21,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'when the user is is found' do
       it 'should return the icn' do
         expect_any_instance_of(MVI::Service).to receive(
-          :find_profile_with_attributes
+          :find_profile
         ).with(
           described_class.user_attributes(form)
         ).and_return(
@@ -42,9 +42,11 @@ RSpec.describe HealthCareApplication, type: :model do
           health_care_application.parsed_form
         )
       ).to eq(
-        first_name: 'FirstName', middle_name: 'MiddleName',
-        last_name: 'ZZTEST', birth_date: '1923-01-02',
-        ssn: '111111234', gender: 'F'
+        OpenStruct.new(
+          first_name: 'FirstName', middle_name: 'MiddleName',
+          last_name: 'ZZTEST', birth_date: '1923-01-02',
+          ssn: '111111234', gender: 'F'
+        )
       )
     end
   end
