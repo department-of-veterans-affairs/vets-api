@@ -5,7 +5,6 @@ require 'rails_helper'
 RSpec.describe V0::SessionsController, type: :controller do
   let(:uuid) { '1234abcd' }
   let(:token) { 'abracadabra-open-sesame' }
-  let(:auth_header) { ActionController::HttpAuthentication::Token.encode_credentials(token) }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
   let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
@@ -14,12 +13,13 @@ RSpec.describe V0::SessionsController, type: :controller do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes)
+                    to_hash: saml_user_attributes,
+                    account_type: 'account_type')
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
   let(:callback_url)        { "http://#{request_host}/auth/saml/callback" }
-  let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
+  let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/?success=true' }
 
   let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
@@ -154,23 +154,17 @@ RSpec.describe V0::SessionsController, type: :controller do
   end
 
   context 'when logged in' do
-    let!(:session_cookie_enabled) { Settings.session_cookie.enabled }
-
     before do
-      Settings.session_cookie.enabled = true
       allow(SAML::User).to receive(:new).and_return(saml_user)
       session_object = Session.create(uuid: uuid, token: token)
       session_object.to_hash.each { |k, v| session[k] = v }
-      User.create(loa1_user.attributes)
+      loa1 = User.create(loa1_user.attributes)
       UserIdentity.create(loa1_user.identity.attributes)
-    end
-
-    after do
-      Settings.session_cookie.enabled = session_cookie_enabled
+      sign_in_as(loa1, token)
     end
 
     describe 'new' do
-      context 'routes not requiring auth' do
+      context 'all routes' do
         %w[mhv dslogon idme mfa verify slo].each do |type|
           around(:each) do |example|
             Settings.sso.cookie_enabled = true
@@ -179,7 +173,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
 
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            request.env['HTTP_AUTHORIZATION'] = auth_header
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
             expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
@@ -197,7 +190,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
         allow(OneLogin::RubySaml::Logoutrequest).to receive(:new).and_return(logout_request)
         Session.find(token).to_hash.each { |k, v| session[k] = v }
-        request.cookies['vagov_session_dev'] = 'bar'
+        cookies['vagov_session_dev'] = 'bar'
       end
 
       around(:each) do |example|
@@ -214,7 +207,6 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           # this should not exist yet
           expect(SingleLogoutRequest.find(logout_request.uuid)).to be_nil
-
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:new, type: 'slo')
@@ -267,7 +259,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this will be destroyed
           expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
-            .to redirect_to(redirect_to(logout_redirect_url))
+            .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
@@ -319,7 +311,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         expect(Raven).to receive(:tags_context).twice
 
         once = { times: 1, value: 1 }
-        callback_tags = ['status:success', 'context:dslogon']
+        callback_tags = ['status:success', 'context:dslogon', 'account_type:account_type']
         expect { post(:saml_callback) }
           .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)

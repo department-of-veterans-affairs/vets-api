@@ -5,14 +5,12 @@ require 'rails_helper'
 RSpec.describe 'address', type: :request do
   include SchemaMatchers
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user, :loa3) }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before do
     Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    sign_in_as(user)
   end
 
   after do
@@ -28,9 +26,7 @@ RSpec.describe 'address', type: :request do
           post(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:ok)
@@ -44,9 +40,7 @@ RSpec.describe 'address', type: :request do
             post(
               '/v0/profile/addresses',
               address.to_json,
-              auth_header.update(
-                'Content-Type' => 'application/json', 'Accept' => 'application/json'
-              )
+              headers
             )
           end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
         end
@@ -59,9 +53,7 @@ RSpec.describe 'address', type: :request do
           post(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:bad_request)
@@ -78,9 +70,7 @@ RSpec.describe 'address', type: :request do
           post(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           body = JSON.parse response.body
@@ -97,9 +87,7 @@ RSpec.describe 'address', type: :request do
           post(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:forbidden)
@@ -114,9 +102,7 @@ RSpec.describe 'address', type: :request do
         post(
           '/v0/profile/addresses',
           address.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -135,9 +121,7 @@ RSpec.describe 'address', type: :request do
           put(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:ok)
@@ -151,9 +135,7 @@ RSpec.describe 'address', type: :request do
             put(
               '/v0/profile/addresses',
               address.to_json,
-              auth_header.update(
-                'Content-Type' => 'application/json', 'Accept' => 'application/json'
-              )
+              headers
             )
           end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
         end
@@ -167,9 +149,7 @@ RSpec.describe 'address', type: :request do
         put(
           '/v0/profile/addresses',
           address.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -198,9 +178,7 @@ RSpec.describe 'address', type: :request do
           put(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
@@ -228,9 +206,7 @@ RSpec.describe 'address', type: :request do
           delete(
             '/v0/profile/addresses',
             address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')

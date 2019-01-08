@@ -3,11 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe V0::DependentsApplicationsController do
-  include AuthenticatedSessionHelper
   let(:user) { create(:evss_user) }
 
   before do
-    use_authenticated_current_user(current_user: user)
+    sign_in_as(user)
   end
 
   let(:test_form) do

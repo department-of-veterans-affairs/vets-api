@@ -19,10 +19,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: f21f65fbd63aee64f625b3e55ae03ae47649149b
+  revision: 2aeedce8d4f4064ae75cc19ef2c5d7541a8c5a64
   branch: master
   specs:
-    vets_json_schema (3.121.0)
+    vets_json_schema (3.122.0)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -923,6 +923,8 @@ GEM
       rails-deprecated_sanitizer (>= 1.0.1)
     rails-html-sanitizer (1.0.4)
       loofah (~> 2.2, >= 2.2.2)
+    rails-session_cookie (0.2.2)
+      rails (>= 4.0)
     rails_semantic_logger (4.2.1)
       rails (>= 3.2)
       semantic_logger (~> 4.1)
@@ -1168,6 +1170,7 @@ DEPENDENCIES
   rack-vcr
   rails (= 4.2.11)
   rails-api
+  rails-session_cookie
   rails_semantic_logger (~> 4.2)
   rainbow
   redis

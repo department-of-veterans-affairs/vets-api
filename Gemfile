@@ -105,6 +105,7 @@ group :test do
   gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
+  gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'
