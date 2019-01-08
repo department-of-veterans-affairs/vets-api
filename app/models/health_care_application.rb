@@ -53,9 +53,9 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   def self.user_icn(form)
-    MVI::AttrService.new.find_profile(user_attributes(form)).profile.icn
+    MVI::AttrService.new.find_profile(user_attributes(form))&.profile&.icn
     # TODO: handle mvi down
-  rescue MVI::Errors::RecordNotFound
+  rescue MVI::Errors::Base
     nil
   end
 
