@@ -24,17 +24,25 @@ module ClaimsApi
     end
 
     def consumer
-      request.headers['X-Consumer-Username']
+      header(key = 'X-Consumer-Username') ? header(key) : raise_missing_header(key)
     end
 
     def ssn
-      ssn = request.headers['X-VA-SSN']
-      raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
-      ssn
+      header(key = 'X-VA-SSN') ? header(key) : raise_missing_header(key)
     end
 
     def requesting_va_user
-      request.headers['X-VA-User'] || request.headers['X-Consumer-Username']
+      header('X-VA-User') || header('X-Consumer-Username')
+    end
+
+    private
+
+    def header(key)
+      request.headers[key]
+    end
+
+    def raise_missing_header(key)
+      raise Common::Exceptions::ParameterMissing, key
     end
   end
 end
