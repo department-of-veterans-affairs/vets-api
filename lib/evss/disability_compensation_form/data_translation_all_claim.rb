@@ -2,7 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class DataTranslationAllClaim
+    class DataTranslationAllClaim # rubocop:disable Metrics/ClassLength
       HOMELESS_SITUATION_TYPE = {
         'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
         'notShelter' => 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT',
@@ -356,19 +356,31 @@ module EVSS
         { 'treatments' => treatments }
       end
 
-      def translate_disabilities
-        disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
-        { 'disabilities' => translate_new_disabilities(disabilities) }
-      end
-
       # `specialIssues` is a key that can hold an array of special issue strings
       # for the time being, evss only accepts one special issue per disability but
       # it is possible for every disability to have multiple issue. We are only
       # picking the first issue out of the list until evss can accept an array instead
-      def translate_new_disabilities(disabilities)
-        return disabilities if input_form['newDisabilities'].blank?
+      def translate_disabilities
+        rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
+        # New primary disabilities need to be added first before handling secondary
+        # disabilities because a new secondary disability can be added to a new
+        # primary disability
+        primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
+        disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
-        input_form['newDisabilities'].each do |input_disability|
+        # Strip out disabilites with ActionType eq to `None` that do not have any
+        # secondary disabilities to avoid sending extraneous data
+        disabilities.delete_if do |disability|
+          disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
+        end
+
+        { 'disabilities' => disabilities }
+      end
+
+      def translate_new_primary_disabilities(disabilities)
+        return disabilities if input_form['newPrimaryDisabilities'].blank?
+
+        input_form['newPrimaryDisabilities'].each do |input_disability|
           case input_disability['cause']
           when 'NEW'
             disabilities.append(map_new(input_disability))
@@ -376,9 +388,17 @@ module EVSS
             disabilities.append(map_worsened(input_disability))
           when 'VA'
             disabilities.append(map_va(input_disability))
-          when 'SECONDARY'
-            disabilities = map_secondary(input_disability, disabilities)
           end
+        end
+
+        disabilities
+      end
+
+      def translate_new_secondary_disabilities(disabilities)
+        return disabilities if input_form['newSecondaryDisabilities'].blank?
+
+        input_form['newSecondaryDisabilities'].each do |input_disability|
+          disabilities = map_secondary(input_disability, disabilities)
         end
 
         disabilities
@@ -426,7 +446,7 @@ module EVSS
         }.compact
 
         disabilities.each do |output_disability|
-          if output_disability['name'] == input_disability['causedByDisability']
+          if output_disability['name'].casecmp(input_disability['causedByDisability']).zero?
             output_disability['secondaryDisabilities'] = [] if output_disability['secondaryDisabilities'].blank?
             output_disability['secondaryDisabilities'].append(disability)
           end

@@ -11,7 +11,7 @@
         "disabilities": [
             {
                 "diagnosticCode": 9999,
-                "disabilityActionType": "NEW",
+                "disabilityActionType": "NONE",
                 "name": "PTSD (post traumatic stress disorder)",
                 "ratedDisabilityId": "1100583",
                 "secondaryDisabilities": [
@@ -22,6 +22,12 @@
                         "serviceRelevance": "Caused by a service-connected disability\nLengthy description"
                     }
                 ]
+            },
+            {
+                "disabilityActionType": "NEW",
+                "name": "Arthritis",
+                "specialIssue": "POW",
+                "serviceRelevance": "Caused by an in-service event, injury, or exposure\nJoints in hands"
             }
         ],
         "serviceInformation": {
