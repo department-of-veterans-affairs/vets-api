@@ -35,8 +35,6 @@ module ClaimsApi
       header('X-VA-User') || header('X-Consumer-Username')
     end
 
-    private
-
     def header(key)
       request.headers[key]
     end
