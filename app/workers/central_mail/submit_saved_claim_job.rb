@@ -63,9 +63,9 @@ module CentralMail
 
     def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
       CentralMail::DatestampPdf.new(stamped_path1).run(
-        text: 'FDC Reviewed - Vets.gov Submission',
+        text: 'FDC Reviewed - va.gov Submission',
         x: 429,
         y: 770,
         text_only: true
