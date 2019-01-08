@@ -9,6 +9,7 @@ module ClaimsApi
       skip_before_action(:authenticate)
 
       def index
+        verify_poa
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -27,27 +28,19 @@ module ClaimsApi
       end
 
       def first_name
-        first_name = request.headers['X-VA-First-Name']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-First-Name' unless first_name
-        first_name
+        header(key = 'X-VA-First-Name') ? header(key) : raise_missing_header(key)
       end
 
       def last_name
-        last_name = request.headers['X-VA-Last-Name']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-Last-Name' unless last_name
-        last_name
+        header(key = 'X-VA-Last-Name') ? header(key) : raise_missing_header(key)
       end
 
       def edipi
-        edipi = request.headers['X-VA-EDIPI']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-EDIPI' unless edipi
-        edipi
+        header(key = 'X-VA-EDIPI') ? header(key) : raise_missing_header(key)
       end
 
       def birth_date
-        birth_date = request.headers['X-VA-Birth-Date']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-Birth-Date' unless birth_date
-        birth_date
+        header(key = 'X-VA-Birth-Date') ? header(key) : raise_missing_header(key)
       end
 
       def va_profile
@@ -66,6 +59,18 @@ module ClaimsApi
           edipi: edipi,
           last_signed_in: Time.zone.now
         )
+      end
+
+      def verify_poa
+        if header(key = 'X-Consumer-Custom-ID')
+          unless header(key).split(',').include?(veteran_power_of_attorney)
+            raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
+          end
+        end
+      end
+
+      def veteran_power_of_attorney
+        service.veteran.power_of_attorney.code
       end
     end
   end
