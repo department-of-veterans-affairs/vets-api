@@ -6,7 +6,8 @@ class Form526Submission < ActiveRecord::Base
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',
-             foreign_key: 'saved_claim_id'
+             foreign_key: 'saved_claim_id',
+             inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
 

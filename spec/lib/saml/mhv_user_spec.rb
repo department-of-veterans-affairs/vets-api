@@ -48,6 +48,10 @@ RSpec.describe SAML::User do
         it 'is changing multifactor' do
           expect(described_instance.changing_multifactor?).to be_truthy
         end
+
+        it 'has a account_type' do
+          expect(described_instance.account_type).to eq('Advanced')
+        end
       end
     end
 
@@ -77,6 +81,10 @@ RSpec.describe SAML::User do
           multifactor: 'false',
           authn_context: 'myhealthevet'
         )
+      end
+
+      it 'has a account_type' do
+        expect(described_instance.account_type).to eq('Premium')
       end
 
       it 'is not changing multifactor' do
