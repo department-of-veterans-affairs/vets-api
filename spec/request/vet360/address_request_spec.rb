@@ -169,6 +169,10 @@ RSpec.describe 'address', type: :request do
       before do
         allow_any_instance_of(User).to receive(:icn).and_return('1234')
         address.id = id_in_cassette
+        address.address_line1 = '1493 Martin Luther King Rd'
+        address.city = 'Fulton'
+        address.state_code = 'MS'
+        address.zip_code = '38843'
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
@@ -196,6 +200,10 @@ RSpec.describe 'address', type: :request do
     before do
       allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
       address.id = id_in_cassette
+      address.address_line1 = '1493 Martin Luther King Rd'
+      address.city = 'Fulton'
+      address.state_code = 'MS'
+      address.zip_code = '38843'
     end
 
     context 'when the method is DELETE' do
