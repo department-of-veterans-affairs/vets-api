@@ -12,7 +12,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     'X-VA-Last-Name' => 'Consumer',
     'X-VA-EDIPI' => '12345',
     'X-VA-Birth-Date' => '11-11-1111',
-    'X-Consumer-Username' => 'CalVet'
+    'X-Consumer-Username' => 'TestConsumer'
   }.freeze
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
