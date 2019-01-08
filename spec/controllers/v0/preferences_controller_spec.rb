@@ -17,10 +17,8 @@ RSpec.describe V0::PreferencesController, type: :controller do
     end
 
     context 'when logged in as an LOA1 user' do
-      include_context 'login_as_loa1'
-
       before(:each) do
-        login_as_loa1
+        sign_in_as(build(:user, :loa1))
         get :show, code: preference.code
       end
 
@@ -64,10 +62,8 @@ RSpec.describe V0::PreferencesController, type: :controller do
     end
 
     context 'when logged in as an LOA1 user' do
-      include_context 'login_as_loa1'
-
       before(:each) do
-        login_as_loa1
+        sign_in_as(build(:user, :loa1))
         get :index
       end
 
