@@ -52,12 +52,20 @@
     "ratedDisabilities": [
       {
         "diagnosticCode": 9999,
-        "disabilityActionType": "NEW",
+        "disabilityActionType": "NONE",
         "name": "PTSD (post traumatic stress disorder)",
         "ratedDisabilityId": "1100583"
       }
     ],
-    "newDisabilities": [
+    "newPrimaryDisabilities": [
+      {
+        "cause": "NEW",
+        "condition": "Arthritis",
+        "primaryDescription": "Joints in hands",
+        "specialIssues": ["POW"]
+      }
+    ],
+    "newSecondaryDisabilities": [
       {
         "cause": "SECONDARY",
         "causedByDisability": "PTSD (post traumatic stress disorder)",
