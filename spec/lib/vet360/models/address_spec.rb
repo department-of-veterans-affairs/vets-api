@@ -22,7 +22,7 @@ describe Vet360::Models::Address do
     context 'with zip code suffix' do
       it 'return zip plus four' do
         address.zip_code_suffix = '1234'
-        expect(address.zip_plus_four).to eq('38843-1234')
+        expect(address.zip_plus_four).to eq('20011-1234')
       end
     end
   end
