@@ -248,34 +248,14 @@ module PdfFill
           }
         },
         'doctorsCareDateRanges' => {
-          limit: 6,
+          limit: 0,
           question_text: 'DATE(S) OF TREATMENT BY DOCTOR(S)',
-          question_num: 10,
-          'from' => {
-            question_num: 10,
-            question_text: 'From:',
-            key: "form1[0].#subform[0].DoctorsCareDateFrom[#{ITERATOR}]"
-          },
-          'to' => {
-            question_num: 10,
-            question_text: 'To:',
-            key: "form1[0].#subform[0].DoctorsCareDateTo[#{ITERATOR}]"
-          }
+          question_num: 10
         },
         'hospitalCareDateRanges' => {
-          limit: 6,
+          limit: 0,
           question_text: 'DATE(S) OF HOSPITALIZATION',
-          question_num: 13,
-          'from' => {
-            question_num: 13,
-            question_text: 'From:',
-            key: "form1[0].#subform[0].HospitalCareDateFrom[#{ITERATOR}]"
-          },
-          'to' => {
-            question_num: 13,
-            question_text: 'To:',
-            key: "form1[0].#subform[0].HospitalCareDateTo[#{ITERATOR}]"
-          }
+          question_num: 13
         },
         'doctorsCareDetails' => {
           limit: 1,

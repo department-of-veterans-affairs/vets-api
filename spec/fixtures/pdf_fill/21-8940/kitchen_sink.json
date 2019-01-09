@@ -30,10 +30,6 @@
           "state": "MD",
           "country": "USA",
           "postalCode": "21200-1111"
-        },
-        "dates": {
-          "from": "1994-01-01",
-          "to": "1995-01-01"
         }
       }
     ],
@@ -47,10 +43,6 @@
           "state": "MD",
           "country": "USA",
           "postalCode": "21200-1111"
-        },
-        "dates": {
-          "from": "1996-01-01",
-          "to": "1997-01-01"
         }
       }
     ],

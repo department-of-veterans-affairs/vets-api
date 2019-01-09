@@ -31,10 +31,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "dates": {
-          "from": "1994-1-1",
-          "to": "1995-1-1"
-        }
+        "dates": "1-4-1991 for a month"
       },
       {
         "name": "Doctor Care B",
@@ -46,10 +43,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "dates": {
-          "from": " 1997-1-1",
-          "to": "1998-1-1"
-        }
+        "dates": "From 1/1/2001 until 1-15-05"
       }
     ],
     "hospitalProvidedCare": [
@@ -63,10 +57,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "dates": {
-          "from": "1996-1-1",
-          "to": "1997-1-1"
-        }
+        "dates": "From this date to that date"
       },
       {
         "name": "Hospital Care B",
@@ -78,10 +69,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "dates": {
-          "from": "1999-1-1",
-          "to": "2000-1-1"
-        }
+        "dates": "From 1/1/1999 until 2003"
       }
     ],
     "disabilityAffectedEmploymentFullTimeDate": "1998-01-01",
