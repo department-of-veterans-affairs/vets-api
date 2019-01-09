@@ -158,6 +158,7 @@ RSpec.configure do |config|
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
+  config.include AuthenticatedSessionHelper, type: :controller
 
   # ability to test options
   config.include RequestHelper, type: :request
