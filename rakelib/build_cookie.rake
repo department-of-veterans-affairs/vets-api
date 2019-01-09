@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 namespace :build_cookie do
-  RAKE_SESSION_COOKIE_KEY = 'api_session'.freeze
+  RAKE_SESSION_COOKIE_KEY = 'api_session'
   RAKE_SESSION_COOKIE_DOMAIN = Settings.hostname
   RAKE_SSO_COOKIE_KEY = Settings.sso.cookie_name
   RAKE_SSO_COOKIE_DOMAIN = Settings.sso.cookie_domain
   RAKE_COOKIE_OPTIONS = { expires: nil, secure: true, http_only: true }.freeze
 
+  # rubocop:disable Metrics/LineLength
   desc 'returns cookie header for authentication'
   task :headers, [:token] => [:environment] do |_, args|
     raise 'No token provided' unless args[:token]
@@ -32,6 +33,7 @@ namespace :build_cookie do
     encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret, serializer: ActiveSupport::MessageEncryptor::NullSerializer)
     encryptor.encrypt_and_sign(ActiveSupport::JSON.encode(content))
   end
+  # rubocop:enable Metrics/LineLength
 
   # SSO COOKIE METHODS
   def rake_sso_cookie(user, session)
