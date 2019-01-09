@@ -92,8 +92,11 @@ class FormProfiles::VA526ez < FormProfile
     vet360_contact_info = Vet360Redis::ContactInformation.for_user(user)
     {
       mailing_address: convert_vets360_address(vet360_contact_info.mailing_address),
-      email_address: vet360_contact_info.email.try(:email_address),
-      primary_phone: [vet360_contact_info.home_phone.area_code, vet360_contact_info.home_phone.phone_number].join('')
+      email_address: vet360_contact_info.email&.email_address,
+      primary_phone: [
+        vet360_contact_info.home_phone&.area_code,
+        vet360_contact_info.home_phone&.phone_number
+      ].join('')
     }.compact
   end
 
