@@ -19,7 +19,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the API documentation', type: [:apivore, :request], order: :defined do
+RSpec.describe 'the API documentation', type: %i[apivore request], order: :defined do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -240,7 +240,7 @@ RSpec.describe 'the API documentation', type: [:apivore, :request], order: :defi
           200,
           '_data' => {
             'hca_dd214_attachment' => {
-              file_data: fixture_file_upload("#{Rails.root}/spec/fixtures/pdf_fill/extras.pdf")
+              file_data: fixture_file_upload(Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'))
             }
           }
         )

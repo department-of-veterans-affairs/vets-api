@@ -30,7 +30,7 @@ class HcaDd214Uploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    "dd214_attachments"
+    'dd214_attachments'
   end
 
   def filename
