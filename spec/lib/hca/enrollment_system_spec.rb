@@ -1109,6 +1109,18 @@ describe HCA::EnrollmentSystem do
       end
     end
 
+    context 'with an attachment' do
+      it 'should create the right result' do
+        health_care_application = build(:health_care_application)
+        form = health_care_application.parsed_form
+        form['dd214'] = {
+          'confirmationCode' => create(:hca_dd214_attachment).guid
+        }
+        result = described_class.veteran_to_save_submit_form(form, nil)
+        binding.pry; fail
+      end
+    end
+
     it "shouldn't modify the form template" do
       subject
 

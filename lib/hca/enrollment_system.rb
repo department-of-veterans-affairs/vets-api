@@ -680,13 +680,13 @@ module HCA
       end
     end
 
-    def add_dd214(file_path)
+    def add_dd214(file_body)
       {
         'va:document' => {
           'va:name' => 'DD214',
           'va:format' => 'PDF',
           'va:type' => '1',
-          'va:content' => Base64.encode64(File.read(file_path))
+          'va:content' => Base64.encode64(file_body)
         }
       }
     end
@@ -696,7 +696,15 @@ module HCA
 
       copy_spouse_address!(veteran)
 
+
       request = build_form_for_user(current_user)
+
+      veteran['dd214'].tap do |dd214|
+        next if dd214.blank?
+        attachment = HcaDd214Attachment.find_by(guid: dd214['confirmationCode'])
+        request['va:form']['va:attachments'] = add_dd214(attachment.get_file.read)
+      end
+
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
       request['va:form']['va:applications'] = {
         'va:applicationInfo' => [{
