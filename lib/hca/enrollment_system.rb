@@ -680,6 +680,17 @@ module HCA
       end
     end
 
+    def add_dd214(file_path)
+      {
+        'va:document' => {
+          'va:name' => 'DD214',
+          'va:format' => 'PDF',
+          'va:type' => '1',
+          'va:content' => Base64.encode64(File.read(file_path))
+        }
+      }
+    end
+
     def veteran_to_save_submit_form(veteran, current_user)
       return {} if veteran.blank?
 
