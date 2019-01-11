@@ -48,6 +48,17 @@ describe HCA::Service do
       end
     end
 
+    context 'submitting with attachment' do
+      it 'should work' do
+        VCR.use_cassette(
+          'hca/submit_with_attachment',
+          record: :once
+        ) do
+          result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
+        end
+      end
+    end
+
     context 'receives a 503 response' do
       it 'rescues and raises GatewayTimeout exception' do
         expect(service).to receive(:connection).and_return(
