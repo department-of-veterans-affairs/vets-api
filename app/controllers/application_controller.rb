@@ -155,6 +155,5 @@ class ApplicationController < ActionController::API
   def append_info_to_payload(payload)
       super
       payload[:session] = Session.obscure_token(session[:token]) if session[:token]
-      payload[:beep] = "boop"
     end
 end
