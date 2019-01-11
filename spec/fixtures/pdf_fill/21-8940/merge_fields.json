@@ -75,13 +75,13 @@
   "serviceConnectedDisability": "Unemployability Disability",
   "wasHospitalizedNo": true,
   "wasHospitalizedYes": false,
-  "doctorsCareDateRanges": ["From 1994-01-01 to 1995-01-01"],
+  "doctorsCareDateRanges": [],
   "doctorsCareDetails": [
     {
       "value": "Doctor Care A\n123 Main Street 1B\nBaltimore MD 21200-1111\nUSA"
     }
   ],
-  "hospitalCareDateRanges": ["From 1996-01-01 to 1997-01-01"],
+  "hospitalCareDateRanges": [],
   "hospitalCareDetails": [
     {
       "value": "Hospital Care A\n123 Main Street 2B\nBaltimore MD 21200-1111\nUSA"
