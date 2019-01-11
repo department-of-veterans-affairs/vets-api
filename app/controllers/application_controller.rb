@@ -153,7 +153,7 @@ class ApplicationController < ActionController::API
   end
 
   def append_info_to_payload(payload)
-      super
-      payload[:session] = Session.obscure_token(session[:token]) if session[:token]
-    end
+    super
+    payload[:session] = Session.obscure_token(session[:token]) if session[:token]
+  end
 end
