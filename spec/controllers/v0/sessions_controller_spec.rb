@@ -443,10 +443,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when NoMethodError is encountered elsewhere' do
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
-          expect(Raven).to receive(:extra_context).twice
+          expect(Raven).to receive(:extra_context).once
           expect(Raven).not_to receive(:user_context)
           expect(Raven).not_to receive(:tags_context).twice
-          expect(controller).not_to receive(:log_message_to_sentry)
+          expect(controller).to receive(:log_message_to_sentry)
           post :saml_callback
         end
       end
