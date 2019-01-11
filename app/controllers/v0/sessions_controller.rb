@@ -89,7 +89,7 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     rescue NoMethodError
-      log_message_to_sentry("NoMethodError", base64_params_saml_response: params[:SAMLResponse])
+      log_message_to_sentry('NoMethodError', base64_params_saml_response: params[:SAMLResponse])
       redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
     ensure
       StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
