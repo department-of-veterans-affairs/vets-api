@@ -131,9 +131,7 @@ module EVSS
           'payment' => {
             'serviceBranch' => service_branch(input_form['separationPayBranch'])
           },
-          'receivedDate' => {
-            'year' => input_form['separationPayDate'].to_s
-          }
+          'receivedDate' => approximate_date(input_form['separationPayDate'])
         }
       end
 
@@ -344,8 +342,8 @@ module EVSS
 
         treatments = input_form['vaTreatmentFacilities'].map do |treatment|
           {
-            'startDate' => treatment['treatmentDateRange']['from'],
-            'endDate' => treatment['treatmentDateRange']['to'],
+            'startDate' => approximate_date(treatment['treatmentDateRange']['from']),
+            'endDate' => approximate_date(treatment['treatmentDateRange']['to']),
             'treatedDisabilityNames' => treatment['treatedDisabilityNames'],
             'center' => {
               'name' => treatment['treatmentCenterName']
@@ -354,6 +352,20 @@ module EVSS
         end
 
         { 'treatments' => treatments }
+      end
+
+      def approximate_date(date)
+        year, month, day = date.split('-')
+
+        # month/day are optional and can be XXed out
+        month = nil if month == 'XX'
+        day = nil if day == 'XX'
+
+        {
+          'year' => year,
+          'month' => month,
+          'day' => day
+        }.compact
       end
 
       # `specialIssues` is a key that can hold an array of special issue strings
