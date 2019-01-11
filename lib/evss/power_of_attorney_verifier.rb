@@ -9,7 +9,7 @@ module EVSS
     end
 
     def verify(header)
-      if header.present?
+      if header.present? && header.split(",").any?
         unless header.split(',').include?(@veteran.power_of_attorney.try(:code))
           raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
         end
