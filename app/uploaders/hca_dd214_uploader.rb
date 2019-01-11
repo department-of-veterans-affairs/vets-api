@@ -15,13 +15,12 @@ class HcaDd214Uploader < CarrierWave::Uploader::Base
     @guid = guid
 
     if Rails.env.production?
-      # TODO: s3 config
-      # set_aws_config(
-      #   Settings.preneeds.s3.aws_access_key_id,
-      #   Settings.preneeds.s3.aws_secret_access_key,
-      #   Settings.preneeds.s3.region,
-      #   Settings.preneeds.s3.bucket
-      # )
+      set_aws_config(
+        Settings.hca.s3.aws_access_key_id,
+        Settings.hca.s3.aws_secret_access_key,
+        Settings.hca.s3.region,
+        Settings.hca.s3.bucket
+      )
     end
   end
 

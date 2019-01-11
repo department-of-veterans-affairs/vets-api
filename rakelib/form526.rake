@@ -30,7 +30,7 @@ namespace :form526 do
     end
 
     total_jobs = submissions.count
-    success_jobs = submissions.group(:workflow_complete).count[true]
+    success_jobs = submissions.group(:workflow_complete).count[true] || 0
     fail_jobs = total_jobs - success_jobs
 
     puts '------------------------------------------------------------'
