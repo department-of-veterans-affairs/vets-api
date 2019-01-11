@@ -132,7 +132,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'separationPayBranch' => 'Air Force',
-            'separationPayDate' => '2018'
+            'separationPayDate' => '2018-XX-XX'
           }
         }
       end
@@ -681,7 +681,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'treatmentDateRange' => {
                   'from' => '2018-01-01',
-                  'to' => '2018-02-01'
+                  'to' => '2018-02-XX'
                 },
                 'treatmentCenterName' => 'Super Hospital',
                 'treatmentCenterAddress' => {
@@ -699,8 +699,15 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       it 'should translate the data correctly' do
         expect(subject.send(:translate_treatments)).to eq 'treatments' => [
           {
-            'startDate' => '2018-01-01',
-            'endDate' => '2018-02-01',
+            'startDate' => {
+              'year' => '2018',
+              'month' => '01',
+              'day' => '01'
+            },
+            'endDate' => {
+              'year' => '2018',
+              'month' => '02'
+            },
             'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
             'center' => {
               'name' => 'Super Hospital',
