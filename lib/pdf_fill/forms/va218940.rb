@@ -123,7 +123,8 @@ module PdfFill
           key: 'form1[0].#subform[2].Signature[2]'
         },
         'signatureDate' => {
-          key: 'form1[0].#subform[2].DateSigned[0]'
+          key: 'form1[0].#subform[2].DateSigned[0]',
+          format: 'date'
         },
         'serviceConnectedDisability' => {
           key: 'form1[0].#subform[0].ServiceConnectedDisability[0]',
@@ -211,10 +212,12 @@ module PdfFill
           },
           'dates' => {
             'from' => {
-              key: 'form1[0].#subform[1].Date[7]'
+              key: 'form1[0].#subform[1].Date[7]',
+              format: 'date'
             },
             'to' => {
-              key: 'form1[0].#subform[1].Date[8]'
+              key: 'form1[0].#subform[1].Date[8]',
+              format: 'date'
             }
           },
           'otherEdPreUnemployOverflow' => {
@@ -234,10 +237,12 @@ module PdfFill
           },
           'dates' => {
             'from' => {
-              key: 'form1[0].#subform[1].Date[5]'
+              key: 'form1[0].#subform[1].Date[5]',
+              format: 'date'
             },
             'to' => {
-              key: 'form1[0].#subform[1].Date[6]'
+              key: 'form1[0].#subform[1].Date[6]',
+              format: 'date'
             }
           },
           'otherEdPostUnemployOverflow' => {
@@ -294,10 +299,12 @@ module PdfFill
             key: "hoursPerWeek[#{ITERATOR}]"
           },
           'fromDate' => {
-            key: "fromDate[#{ITERATOR}]"
+            key: "fromDate[#{ITERATOR}]",
+            format: 'date'
           },
           'toDate' => {
-            key: "toDate[#{ITERATOR}]"
+            key: "toDate[#{ITERATOR}]",
+            format: 'date'
           },
           'timeLostFromIllness' => {
             key: "timeLost[#{ITERATOR}]"
@@ -401,7 +408,8 @@ module PdfFill
             key: "workType[#{ITERATOR}]"
           },
           'date' => {
-            key: "dateApplied[#{ITERATOR}]"
+            key: "dateApplied[#{ITERATOR}]",
+            format: 'date'
           },
           'appliedEmployerOverflow' => {
             key: '',

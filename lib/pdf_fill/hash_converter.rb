@@ -14,9 +14,11 @@ module PdfFill
       @extras_generator = ExtrasGenerator.new
     end
 
-    def convert_value(v)
-      if [true, false].include?(v)
+    def convert_value(v, key_data, is_overflow = false)
+      if [true, false].include?(v) && !is_overflow
         v ? 1 : 0
+      elsif !key_data.nil? && key_data[:format] == 'date'
+        convert_val_as_date(v)
       else
         convert_val_as_string(v)
       end
@@ -31,6 +33,10 @@ module PdfFill
         return v
       end
 
+      v.to_s
+    end
+
+    def convert_val_as_date(v)
       v = v.to_s
 
       date_split = v.split('-')
@@ -39,7 +45,7 @@ module PdfFill
       if Date.valid_date?(*date_args)
         Date.new(*date_args).strftime(@date_strftime)
       else
-        v
+        convert_val_as_string(v)
       end
     end
 
@@ -71,10 +77,10 @@ module PdfFill
         i = nil if pdftk_keys[:always_overflow]
         if v.is_a?(Hash)
           v.each do |key, val|
-            add_to_extras(pdftk_keys[key], convert_val_as_string(val), i)
+            add_to_extras(pdftk_keys[key], convert_value(val, pdftk_keys[key], true), i)
           end
         else
-          add_to_extras(pdftk_keys, convert_val_as_string(v), i)
+          add_to_extras(pdftk_keys, convert_value(v, pdftk_keys, true), i)
         end
       end
     end
@@ -84,7 +90,7 @@ module PdfFill
       return if k.blank?
       k = k.gsub(ITERATOR, i.to_s) unless i.nil?
 
-      new_value = convert_value(v)
+      new_value = convert_value(v, key_data)
 
       if overflow?(key_data, new_value)
         add_to_extras(key_data, new_value, i)

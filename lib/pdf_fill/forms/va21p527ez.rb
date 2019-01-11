@@ -45,7 +45,8 @@ module PdfFill
             limit: 11,
             question_num: 33,
             question_suffix: 'B',
-            question_text: 'DATE SIGNED'
+            question_text: 'DATE SIGNED',
+            format: 'date'
           },
           'monthlySpousePayment' => {
             key: 'F[0].Page_6[0].MonthlySupport[0]',
@@ -55,7 +56,10 @@ module PdfFill
             dollar: true,
             question_text: "HOW MUCH DO YOU CONTRIBUTE MONTHLY TO YOUR SPOUSE'S SUPPORT?"
           },
-          'spouseDateOfBirth' => { key: 'F[0].Page_6[0].Date[8]' },
+          'spouseDateOfBirth' => {
+            key: 'F[0].Page_6[0].Date[8]',
+            format: 'date'
+          },
           'noLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseNo[0]' },
           'hasLiveWithSpouse' => { key: 'F[0].Page_6[0].CheckboxSpouseYes[0]' },
           'noSpouseIsVeteran' => { key: 'F[0].Page_6[0].CheckboxVetNo[0]' },
@@ -122,7 +126,8 @@ module PdfFill
             'date' => {
               question_num: 28,
               question_text: 'DATE PAID',
-              key: 'otherExpenses.date[%iterator%]'
+              key: 'otherExpenses.date[%iterator%]',
+              format: 'date'
             }
           },
           'hasPreviousNames' => { key: 'F[0].Page_5[0].YesName[0]' },
@@ -131,7 +136,10 @@ module PdfFill
           'noCombatSince911' => { key: 'F[0].Page_5[0].NoCZ[0]' },
           'hasSeverancePay' => { key: 'F[0].Page_5[0].YesSep[0]' },
           'noSeverancePay' => { key: 'F[0].Page_5[0].NoSep[0]' },
-          'veteranDateOfBirth' => { key: 'F[0].Page_5[0].Date[0]' },
+          'veteranDateOfBirth' => {
+            key: 'F[0].Page_5[0].Date[0]',
+            format: 'date'
+          },
           'spouseVaFileNumber' => { key: 'F[0].Page_6[0].SpouseVAfilenumber[0]' },
           'veteranSocialSecurityNumber' => { key: 'F[0].Page_5[0].SSN[0]' },
           'severancePay' => {
@@ -158,8 +166,14 @@ module PdfFill
           },
           'marriageCount' => { key: 'F[0].Page_6[0].Howmanytimesmarried[0]' },
           'spouseMarriageCount' => { key: 'F[0].Page_6[0].Howmanytimesspousemarried[0]' },
-          'powDateRangeStart' => { key: 'F[0].Page_5[0].Date[1]' },
-          'powDateRangeEnd' => { key: 'F[0].Page_5[0].Date[2]' },
+          'powDateRangeStart' => {
+            key: 'F[0].Page_5[0].Date[1]',
+            format: 'date'
+          },
+          'powDateRangeEnd' => {
+            key: 'F[0].Page_5[0].Date[2]',
+            format: 'date'
+          },
           'jobs' => {
             first_key: 'nameAndAddr',
             limit: 2,
@@ -189,13 +203,15 @@ module PdfFill
               key: "jobs.dateRangeStart[#{ITERATOR}]",
               question_num: 17,
               question_suffix: 'C',
-              question_text: 'WHEN DID YOUR JOB BEGIN?'
+              question_text: 'WHEN DID YOUR JOB BEGIN?',
+              format: 'date'
             },
             'dateRangeEnd' => {
               key: "jobs.dateRangeEnd[#{ITERATOR}]",
               question_num: 17,
               question_suffix: 'D',
-              question_text: 'WHEN DID YOUR JOB END?'
+              question_text: 'WHEN DID YOUR JOB END?',
+              format: 'date'
             },
             'daysMissed' => {
               limit: 9,
@@ -214,7 +230,10 @@ module PdfFill
               question_text: 'WHAT IS THE NAME AND ADDRESS OF YOUR RESERVE/NATIONAL GUARD UNIT?'
             },
             'phone' => { key: 'F[0].Page_5[0].Unittelephonenumber[0]' },
-            'date' => { key: 'F[0].Page_5[0].DateofActivation[0]' },
+            'date' => {
+              key: 'F[0].Page_5[0].DateofActivation[0]',
+              format: 'date'
+            },
             'phoneAreaCode' => { key: 'F[0].Page_5[0].Unittelephoneareacode[0]' }
           },
           'spouseAddress' => {
@@ -270,7 +289,8 @@ module PdfFill
               question_num: 23,
               question_suffix: 'B',
               question_text: 'DATE OF BIRTH',
-              key: 'children.childDateOfBirth[%iterator%]'
+              key: 'children.childDateOfBirth[%iterator%]',
+              format: 'date'
             },
             'childPlaceOfBirth' => {
               limit: 12,
@@ -358,13 +378,15 @@ module PdfFill
               question_num: 12,
               question_suffix: 'A',
               question_text: 'I ENTERED ACTIVE SERVICE ON',
-              key: 'F[0].Page_5[0].DateEnteredActiveService[0]'
+              key: 'F[0].Page_5[0].DateEnteredActiveService[0]',
+              format: 'date'
             },
             'activeServiceDateRangeEnd' => {
               question_num: 12,
               question_suffix: 'C',
               question_text: 'RELEASE DATE OR ANTICIPATED DATE OF RELEASE FROM ACTIVE SERVICE',
-              key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]'
+              key: 'F[0].Page_5[0].ReleaseDateorAnticipatedReleaseDate[0]',
+              format: 'date'
             }
           },
           'veteranAddressLine1' => {
@@ -423,7 +445,8 @@ module PdfFill
               key: "disabilities.disabilityStartDate[#{ITERATOR}]",
               question_num: 9,
               question_suffix: 'B',
-              question_text: 'DATE DISABILITY(IES) BEGAN'
+              question_text: 'DATE DISABILITY(IES) BEGAN',
+              format: 'date'
             }
           },
           'veteranFullName' => {
@@ -479,7 +502,8 @@ module PdfFill
             'dateOfMarriage' => {
               question_suffix: 'A',
               question_text: 'Date of Marriage',
-              key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]"
+              key: "#{sub_key}.dateOfMarriage[#{ITERATOR}]",
+              format: 'date'
             },
             'otherExplanations' => {
               limit: 90,
@@ -515,7 +539,8 @@ module PdfFill
             'dateOfSeparation' => {
               question_text: 'DATE MARRIAGE TERMINATED',
               question_suffix: 'E',
-              key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]"
+              key: "#{sub_key}.dateOfSeparation[#{ITERATOR}]",
+              format: 'date'
             },
             'reasonForSeparation' => {
               limit: 33,
