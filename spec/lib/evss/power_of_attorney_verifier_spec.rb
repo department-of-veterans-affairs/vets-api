@@ -16,15 +16,14 @@ describe EVSS::PowerOfAttorneyVerifier do
   end
 
   it 'should not raise an exception if poa matches' do
-    expect {
+    expect do
       EVSS::PowerOfAttorneyVerifier.new(user).verify('A1Q')
-    }.not_to raise_error
+    end.not_to raise_error
   end
 
   it 'should raise an exception if poa does not matches' do
-    expect {
+    expect do
       EVSS::PowerOfAttorneyVerifier.new(user).verify('B1Q')
-    }.to raise_error(Common::Exceptions::Unauthorized)
+    end.to raise_error(Common::Exceptions::Unauthorized)
   end
-
 end
