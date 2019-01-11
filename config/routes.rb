@@ -60,6 +60,8 @@ Rails.application.routes.draw do
       end
     end
 
+    resource :hca_dd214_attachments, only: :create
+
     resources :dependents_applications, only: %i[create show] do
       collection do
         get(:disability_rating)
