@@ -40,7 +40,7 @@ module HCA
 
     def ssl_options
       ssl = {
-        verify: false
+        verify: true
       }
       ssl[:cert_store] = HCA::Configuration::CERT_STORE if HCA::Configuration::CERT_STORE
       if ssl_cert && ssl_key

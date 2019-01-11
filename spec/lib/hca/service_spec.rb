@@ -49,12 +49,13 @@ describe HCA::Service do
     end
 
     context 'submitting with attachment' do
-      it 'should work' do
+      it 'should work', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
         VCR.use_cassette(
           'hca/submit_with_attachment',
-          record: :once
+          VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
           result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
+          expect(result[:success]).to eq(true)
         end
       end
     end
