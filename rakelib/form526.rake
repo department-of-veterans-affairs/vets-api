@@ -29,8 +29,8 @@ namespace :form526 do
       print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete)
     end
 
-    total_jobs = submissions.count
-    success_jobs = submissions.group(:workflow_complete).count[true]
+    total_jobs = submissions.count || 0
+    success_jobs = submissions.group(:workflow_complete).count[true] || 0
     fail_jobs = total_jobs - success_jobs
 
     puts '------------------------------------------------------------'
