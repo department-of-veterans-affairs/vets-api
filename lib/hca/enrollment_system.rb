@@ -696,7 +696,6 @@ module HCA
 
       copy_spouse_address!(veteran)
 
-
       request = build_form_for_user(current_user)
 
       veteran['dd214'].tap do |dd214|
