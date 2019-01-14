@@ -8,7 +8,7 @@ module V0
     before_action(:tag_rainbows)
 
     def create
-      authenticate_token
+      validate_session
 
       health_care_application = HealthCareApplication.new(params.permit(:form))
       health_care_application.async_compatible = params[:async_compatible]
