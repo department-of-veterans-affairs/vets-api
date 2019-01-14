@@ -1,0 +1,59 @@
+<%= header %>
+<%= benefit_type(@applicant) %>
+*START*
+VA Form 22-0994
+DEC 2018
+
+	APPLICATION FOR VETERAN EMPLOYMENT THROUGH TECHNOLOGY EDUCATION COURSES (VET TEC) 
+									HIGH TECHNOLOGY PROGRAM
+            --------------------------------------------------------------
+
+                    			APPLICANT INFORMATION
+                    			---------------------
+
+Name:   <%= full_name(@applicant.veteranFullName) %>  Social Security Number: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %>
+
+Mailing Address:
+<%= full_address(@applicant.veteranAddress) %>
+
+Sex of Applicant: <%= @applicant.gender %>
+
+Date of Birth (MM/DD/YYYY): <%= @applicant.veteranDateOfBirth %>
+
+Email Address:  <%= @applicant.email %>
+
+<%= parse_with_template_path('phone_numbers') %>
+
+Have you ever applied for VA education benefits? If no, you must complete and submit VA Form 22-1990 with this application. <%= yesno(@applicant.appliedForVAEducationBenefits&.yes) %>
+
+Are You Now On Active Duty?   <%= yesno(@applicant.activeDuty&.yes) %>
+
+Do You Anticipate You Will Go On Active Duty During The VET TEC Program?   <%= yesno(@applicant.activeDutyDuringVetTec&.yes) %>
+
+<%= parse_with_template_path('bank_account') %>
+
+
+                 			 	COURSE OF STUDY
+                  				---------------
+
+Select the VET TEC Program and Provider You Wish to Attend: 
+
+Location of Where You Plan to or Will Take Training: 
+
+Date You Plan to Start or Will Start Training: <%= @applicant.plannedStartDate %>
+
+
+                       			BACKGROUND INFORMATION
+                       			----------------------
+
+Are You Currently Employed?   <%= yesno(@applicant.currentEmployment&.yes) %>
+
+Are you Currently Working in the high technology industry? <%= yesno(@applicant.currentHighTechnologyEmployment&.yes) %>
+
+What is Your Current Salary Range? <%= @applicant.currentSalary) %>
+
+What is Your Highest Level of Education? <%= @applicant.highestLevelofEducation %>
+
+<%= parse_with_template_path('signatures') %>
+
+<%= parse_with_template_path('footer') %>
