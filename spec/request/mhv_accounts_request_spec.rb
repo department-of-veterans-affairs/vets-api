@@ -46,7 +46,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
 
   before(:each) do
     stub_mvi(mvi_profile)
-    use_authenticated_current_user(current_user: user)
+    sign_in_as(user)
   end
 
   shared_examples 'a failed POST #create' do |options|
