@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'net/http'
+require 'uri'
 
 namespace :build_cookie do
   RAKE_SESSION_COOKIE_KEY = 'api_session'
@@ -6,6 +8,7 @@ namespace :build_cookie do
   RAKE_SSO_COOKIE_KEY = Settings.sso.cookie_name
   RAKE_SSO_COOKIE_DOMAIN = Settings.sso.cookie_domain
   RAKE_COOKIE_OPTIONS = { expires: nil, secure: true, http_only: true }.freeze
+  RAKE_VERIFY_HEADERS = true
 
   # rubocop:disable Metrics/LineLength
   desc 'returns cookie header for authentication'
@@ -20,8 +23,14 @@ namespace :build_cookie do
 
     header = {}
     Rack::Utils.set_cookie_header!(header, RAKE_SESSION_COOKIE_KEY, session_cookie_options)
-    Rack::Utils.set_cookie_header!(header, RAKE_SSO_COOKIE_KEY, sso_cookie_options)
+    #Rack::Utils.set_cookie_header!(header, RAKE_SSO_COOKIE_KEY, sso_cookie_options)
+    verify_header(header) if RAKE_VERIFY_HEADERS
     puts header
+  end
+
+  def verify_header(headers)
+    session = ActionDispatch::Integration::Session.new(Rails.application)
+    session.get "/", nil
   end
 
   # SESSION COOKIE METHODS
@@ -30,7 +39,7 @@ namespace :build_cookie do
     key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
     secret = key_generator.generate_key(Rails.application.config.action_dispatch.encrypted_cookie_salt)
     sign_secret = key_generator.generate_key(Rails.application.config.action_dispatch.encrypted_signed_cookie_salt)
-    encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret, serializer: ActiveSupport::MessageEncryptor::NullSerializer)
+    encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret)
     encryptor.encrypt_and_sign(ActiveSupport::JSON.encode(content))
   end
   # rubocop:enable Metrics/LineLength
