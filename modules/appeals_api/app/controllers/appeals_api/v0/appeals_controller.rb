@@ -9,7 +9,8 @@ module AppealsApi
 
       def index
         log_request
-        EVSS::PowerOfAttorneyVerifier.new(target_veteran).verify(header('X-Consumer-Custom-ID'))
+        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+        verifier.verify(header('X-Consumer-Custom-ID'))
         appeals_response = Appeals::Service.new.get_appeals(
           target_veteran,
           'Consumer' => consumer,
@@ -81,7 +82,7 @@ module AppealsApi
 
       def va_profile
         OpenStruct.new(
-          birth_date: birth_date
+          birth_date: header('X-VA-Birth-Date')
         )
       end
 
@@ -89,10 +90,10 @@ module AppealsApi
         ClaimsApi::Veteran.new(
           ssn: ssn,
           loa: { current: :loa3 },
-          first_name: first_name,
-          last_name: last_name,
+          first_name: header('X-VA-First-Name'),
+          last_name: header('X-VA-Last-Name'),
           va_profile: va_profile,
-          edipi: edipi,
+          edipi: header('X-VA-EDIPI'),
           last_signed_in: Time.zone.now
         )
       end
