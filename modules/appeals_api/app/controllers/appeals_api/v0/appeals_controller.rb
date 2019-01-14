@@ -60,22 +60,6 @@ module AppealsApi
         va_user
       end
 
-      def first_name
-        header(key = 'X-VA-First-Name') ? header(key) : raise_missing_header(key)
-      end
-
-      def last_name
-        header(key = 'X-VA-Last-Name') ? header(key) : raise_missing_header(key)
-      end
-
-      def edipi
-        header(key = 'X-VA-EDIPI') ? header(key) : raise_missing_header(key)
-      end
-
-      def birth_date
-        header(key = 'X-VA-Birth-Date') ? header(key) : raise_missing_header(key)
-      end
-
       def header(key)
         request.headers[key]
       end
