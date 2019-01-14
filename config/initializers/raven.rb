@@ -8,6 +8,7 @@ Raven.configure do |config|
   config.processors << Sentry::Processor::EmailSanitizer
   config.processors << Sentry::Processor::PIISanitizer
   config.processors << Sentry::Processor::LogAsWarning
+  config.processors << Sentry::Processor::CoerceServiceExceptionMessage
 
   config.excluded_exceptions += ['Sentry::IgnoredError']
 
