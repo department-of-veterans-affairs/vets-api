@@ -9,7 +9,6 @@ module SpoolHelpers
       describe "#{form_type} #{test_name} spool test" do
         let(:file_prefix) { "spec/fixtures/education_benefits_claims/#{form_type}/#{test_name}." }
         let(:form_class) { "SavedClaim::EducationBenefits::VA#{form_type}".constantize }
-
         let(:education_benefits_claim) do
           form_class.create!(
             form: File.read("#{file_prefix}json")
