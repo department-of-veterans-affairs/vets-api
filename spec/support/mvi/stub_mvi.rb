@@ -16,6 +16,24 @@ end
 
 def stub_mvi_not_found
   allow_any_instance_of(Mvi).to receive(:response_from_redis_or_service).and_return(
-    MVI::Responses::FindProfileResponse.with_not_found
+    MVI::Responses::FindProfileResponse.with_not_found(not_found_exception)
+  )
+end
+
+def not_found_exception
+  Common::Exceptions::BackendServiceException.new(
+    'MVI_404',
+    { source: 'MVI::Service' },
+    404,
+    'some error body'
+  )
+end
+
+def server_error_exception
+  Common::Exceptions::BackendServiceException.new(
+    'MVI_503',
+    { source: 'MVI::Service' },
+    503,
+    'some error body'
   )
 end

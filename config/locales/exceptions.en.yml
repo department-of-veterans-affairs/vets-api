@@ -403,6 +403,24 @@ en:
         code: 'IHUB_102'
         detail: 'The user does not have an ICN.'
         status: 502
+      MVI_404:
+        <<: *external_defaults
+        title: Record not found
+        detail: "The record for the requested user could not be found"
+        code: 'MVI_404'
+        status: 404
+      MVI_503:
+        <<: *external_defaults
+        title: Service unavailable
+        detail: "MVI service is currently unavailable"
+        code: 'MVI_503'
+        status: 503
+      MVI_504:
+        <<: *external_defaults
+        title: Gateway timeout
+        detail: "Did not receive a timely response from an upstream server"
+        code: 'MVI_504'
+        status: 504
       MVI_BD502:
         <<: *external_defaults
         title: Unexpected response body
