@@ -10,28 +10,29 @@ module Sentry
       ].freeze
 
       def process(data)
-        return data if data[:exception].blank? && data['exception'].blank?
+        stringified_data = data.deep_stringify_keys
+        return stringified_data if stringified_data['exception'].blank?
+        return set_warning_level(stringified_data) if stringified_data['extra'].try(:[], 'log_as_warning')
 
-        exception_class = get_exception_class(data)
+        exception_class = get_exception_class(stringified_data)
 
         RELEVANT_EXCEPTIONS.each do |relevant_exception|
-          if exception_class == relevant_exception || exception_class < relevant_exception
-            data[:level] = SENTRY_LOG_LEVEL_WARNING
-            break
-          end
+          return set_warning_level(stringified_data) if exception_class <= relevant_exception
         end
 
-        data
+        stringified_data
       end
 
       private
 
+      def set_warning_level(data)
+        data['level'] = SENTRY_LOG_LEVEL_WARNING
+
+        data
+      end
+
       def get_exception_class(data)
-        if data[:exception]
-          data[:exception][:values].last[:type]
-        else
-          data['exception']['values'].last['type']
-        end.constantize
+        data['exception']['values'].last['type'].constantize
       end
     end
   end
