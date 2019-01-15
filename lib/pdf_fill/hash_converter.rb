@@ -17,7 +17,7 @@ module PdfFill
     def convert_value(v, key_data, is_overflow = false)
       if [true, false].include?(v) && !is_overflow
         v ? 1 : 0
-      elsif !key_data.nil? && key_data[:format] == 'date'
+      elsif key_data.try(:[], :format) == 'date'
         convert_val_as_date(v)
       else
         convert_val_as_string(v)
