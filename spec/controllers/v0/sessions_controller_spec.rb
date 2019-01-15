@@ -295,7 +295,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         existing_user = User.find(uuid)
         expect(existing_user.last_signed_in).to be_a(Time)
         expect(existing_user.multifactor).to be_falsey
-        expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+        expect(existing_user.loa).to eq(highest: 1, current: 1)
         expect(existing_user.ssn).to eq('796111863')
         allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
         expect(controller).to receive(:log_message_to_sentry).with(
@@ -321,7 +321,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         new_user = User.find(uuid)
         expect(new_user.ssn).to eq('796111863')
         expect(new_user.va_profile.ssn).not_to eq('155256322')
-        expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
+        expect(new_user.loa).to eq(highest: 3, current: 3)
         expect(new_user.multifactor).to be_falsey
         expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
         expect(cookies['vagov_session_dev']).not_to be_nil
@@ -360,11 +360,11 @@ RSpec.describe V0::SessionsController, type: :controller do
           existing_user = User.find(uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
           expect(existing_user.multifactor).to be_falsey
-          expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+          expect(existing_user.loa).to eq(highest: 1, current: 1)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
           post :saml_callback
           new_user = User.find(uuid)
-          expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+          expect(new_user.loa).to eq(highest: 1, current: 1)
           expect(new_user.multifactor).to be_truthy
           expect(new_user.last_signed_in).to eq(existing_user.last_signed_in)
         end
@@ -403,7 +403,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when user has LOA current 1 and highest 3' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
-            loa: { current: LOA::ONE, highest: LOA::THREE }
+            loa: { current: 1, highest: 3 }
           )
         end
 

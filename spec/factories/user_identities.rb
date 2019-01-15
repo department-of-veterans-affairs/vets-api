@@ -14,8 +14,8 @@ FactoryBot.define do
 
     loa do
       {
-        current: LOA::TWO,
-        highest: LOA::THREE
+        current: 2,
+        highest: 3
       }
     end
   end
@@ -32,8 +32,8 @@ FactoryBot.define do
 
     loa do
       {
-        current: LOA::THREE,
-        highest: LOA::THREE
+        current: 3,
+        highest: 3
       }
     end
   end

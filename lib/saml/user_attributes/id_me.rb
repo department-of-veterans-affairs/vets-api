@@ -8,6 +8,15 @@ module SAML
     class IdMe < Base
       include SentryLogging
       IDME_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name zip gender ssn birth_date].freeze
+      LOA_MAPPING = {
+        'http://idmanagement.gov/ns/assurance/loa/1/vets': 1,
+        'http://idmanagement.gov/ns/assurance/loa/3/vets': 3,
+        'myhealthevet_loa3': 3, # This is ID.me
+        'dslogon_loa3': 3, # This is ID.me
+        # 'myhealthevet_multifactor' could map to either ONE or THREE, and is ID.me
+        # 'dslogon_multifactor' could map to either ONE or THREE, and is ID.me
+        # FIXME: this is still going to cause loa_current to be nil for MFA, TODO: move merging here from sso_service
+      }.with_indifferent_access.freeze
 
       def first_name
         attributes['fname']
@@ -46,7 +55,7 @@ module SAML
       end
 
       def loa_current
-        LOA::MAPPING.fetch(real_authn_context)
+        LOA_MAPPING.fetch(real_authn_context)
       rescue KeyError
         log_loa_current_message_once
         1 # default to something safe until we can research this

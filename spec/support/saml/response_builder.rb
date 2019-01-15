@@ -6,13 +6,22 @@ module SAML
 
     attr_reader :type, :level
 
+    LEVELS = {
+      'loa1' => '1',
+      'loa3' => '3',
+      'myhealthevet_loa3' => '3',
+      'dslogon_loa3' => '3',
+      'myhealthevet_multifactor' => '3',
+      'dslogon_multifactor' => '3'
+    }.freeze
+
     def initialize(type:, level: nil)
       @type = type
       @level = level
     end
 
     def self.saml_response(type, level = nil)
-      level ||= { 'loa1' => '1', 'loa3' => '3' }.fetch(type, '1')
+      level ||= LEVELS.fetch(type, '1')
       new(type: type, level: level).saml_response
     end
 
@@ -67,30 +76,7 @@ module SAML
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'level_of_assurance' => []
         )
-      when 'myhealthevet_loa3'
-        OneLogin::RubySaml::Attributes.new(
-          'mhv_icn' => ['1012853550V207686'],
-          'mhv_profile' => ["{\"accountType\":\"#{level}\"}"],
-          'mhv_uuid' => ['12345748'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => [false],
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'level_of_assurance' => ['3']
-        )
-      when 'loa1', 'loa3'
-        OneLogin::RubySaml::Attributes.new(
-          'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'email'              => ['kam+tristanmhv@adhocteam.us'],
-          'fname'              => ['Tristan'],
-          'lname'              => ['MHV'],
-          'mname'              => [''],
-          'social'             => ['11122333'],
-          'gender'             => ['male'],
-          'birth_date'         => ['1735-10-30'],
-          'level_of_assurance' => [level],
-          'multifactor'        => [true]
-        )
-      when 'dslogon', 'dslogon_loa3'
+      when 'dslogon'
         OneLogin::RubySaml::Attributes.new(
           'dslogon_status' => ['DEPENDENT'],
           'dslogon_assurance' => [level],
@@ -106,7 +92,20 @@ module SAML
           'dslogon_fname' => ['Tristan'],
           'dslogon_lname' => ['MHV'],
           'dslogon_mname' => [''],
-          'dslogon_idvalue' => ['11122333']
+          'dslogon_idvalue' => ['111223333']
+        )
+      when 'loa1', 'loa3', 'dslogon_loa3', 'myhealthevet_loa3', 'myhealthevet_multifactor', 'dslogon_multifactor'
+        OneLogin::RubySaml::Attributes.new(
+          'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
+          'email'              => ['kam+tristanmhv@adhocteam.us'],
+          'fname'              => ['Tristan'],
+          'lname'              => ['MHV'],
+          'mname'              => [''],
+          'social'             => ['111223333'],
+          'gender'             => ['male'],
+          'birth_date'         => ['1735-10-30'],
+          'level_of_assurance' => [level],
+          'multifactor'        => [true]
         )
       end
       # rubocop:enable Metrics/MethodLength

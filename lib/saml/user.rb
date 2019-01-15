@@ -10,16 +10,17 @@ module SAML
   class User
     include SentryLogging
 
-    CONTEXT_MAP = { LOA::MAPPING.invert[1] => 'idme',
-                    'dslogon' => 'dslogon',
-                    'dslogon_loa3' => 'dslogon',
-                    'myhealthevet' => 'myhealthevet',
-                    'myhealthevet_loa3' => 'myhealthevet',
-                    LOA::MAPPING.invert[3] => 'idproof',
-                    'multifactor' => 'multifactor',
-                    'dslogon_multifactor' => 'dslogon_multifactor',
-                    'myhealthevet_multifactor' => 'myhealthevet_multifactor' }.freeze
-    UNKNOWN_CONTEXT = 'unknown'
+    AUTHN_CONTEXTS = {
+      'http://idmanagement.gov/ns/assurance/loa/1/vets' => { class: 'idme', sign_in: 'idme' },
+      'http://idmanagement.gov/ns/assurance/loa/3/vets' => { class: 'idme', sign_in: 'idme' },
+      'multifactor' => { class: 'idme', sign_in: 'idme' },
+      'myhealthevet_multifactor' => { class: 'idme', sign_in: 'myhealthevet' },
+      'myhealthevet_loa3' => { class: 'idme', sign_in: 'myhealthevet' },
+      'dslogon_multifactor' => { class: 'idme', sign_in: 'dslogon' },
+      'dslogon_loa3' => { class: 'idme', sign_in: 'dslogon' },
+      'myhealthevet' => { class: 'myhealthevet', sign_in: 'myhealthevet' },
+      'dslogon' => { class: 'dslogon', sign_in: 'dslogon' }
+    }.freeze
 
     attr_reader :saml_response, :saml_attributes, :user_attributes
 
@@ -39,12 +40,6 @@ module SAML
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
     end
 
-    def self.context_key(authn_context)
-      CONTEXT_MAP[authn_context] || UNKNOWN_CONTEXT
-    rescue StandardError
-      UNKNOWN_CONTEXT
-    end
-
     # we use this for statsd tags
     def account_type
       case authn_context
@@ -55,6 +50,12 @@ module SAML
       else
         saml_attributes['level_of_assurance']
       end
+    end
+
+    def sign_in
+      AUTHN_CONTEXTS.fetch(real_authn_context).fetch(:sign_in)
+    rescue StandardError
+      'unknown'
     end
 
     private
@@ -97,7 +98,7 @@ module SAML
       end
     end
 
-    # will be one of [loa1, loa3, multifactor, dslogon, mhv]
+    # will be one of KNOWN_AUTHN_CONTEXTS
     # this is the real authn-context returned in the response without the use of heuristics
     def real_authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text

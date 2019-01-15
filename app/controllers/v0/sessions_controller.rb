@@ -81,12 +81,10 @@ module V0
         after_login_actions
         redirect_to saml_login_redirect_url
 
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_success_tags(@sso_service))
+        stats
       else
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{@sso_service.context_key}"])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+        stats :fail
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', base64_params_saml_response: params[:SAMLResponse])
@@ -96,6 +94,17 @@ module V0
     end
 
     private
+
+    def stats(status = :ok)
+      if status == :ok
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_success_tags(@sso_service))
+      else
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:failure', "context:#{@sso_service.real_authn_context}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+      end
+    end
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
@@ -139,7 +148,7 @@ module V0
 
     def saml_callback_success_tags(sso_service)
       ['status:success',
-       "context:#{sso_service.context_key}",
+       "authn_context:#{sso_service.real_authn_context}",
        "account_type:#{sso_service.saml_attributes.account_type}"]
     end
 
