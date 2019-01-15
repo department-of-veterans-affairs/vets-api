@@ -152,8 +152,8 @@ class BaseFacility < ActiveRecord::Base
 
     def query(params)
       # TODO: Sort hours similar to `find_factility_by_id` method on line 146
-      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
       return radial_query(params) if params[:lat] && params[:long]
+      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
       return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
@@ -167,25 +167,32 @@ class BaseFacility < ActiveRecord::Base
         Float(params[:long]),
         params[:type],
         params[:services],
+        params[:ids],
         limit
       )
     end
 
-    def build_distance_result_set(lat, long, type, services, limit = nil)
+    def build_distance_result_set(lat, long, type, services, ids = nil, limit = nil)
       additional_data = <<-SQL
         base_facilities.*,
         ST_Distance(base_facilities.location,
         ST_MakePoint(#{long},#{lat})) / #{METERS_PER_MILE} AS distance
       SQL
       conditions = limit.nil? ? {} : "where distance < #{limit}"
+      ids_map = ids_for_types(ids) unless ids.nil?
       TYPES.map do |facility_type|
-        get_facility_data(
+        facilities = get_facility_data(
           conditions,
           type,
           facility_type,
           services,
           additional_data
-        ).order('distance')
+        )
+        if ids_map
+          ids_for_type = ids_map[PREFIX_MAP[TYPE_NAME_MAP[facility_type]]]
+          facilities = facilities.where(unique_id: ids_for_type)
+        end
+        facilities.order('distance')
       end.flatten
     end
 
@@ -196,15 +203,18 @@ class BaseFacility < ActiveRecord::Base
       TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
     end
 
-    def build_result_set_from_ids(ids)
-      ids_for_types = ids.split(',').each_with_object({}) do |type_id, obj|
+    def ids_for_types(ids)
+      ids.split(',').each_with_object({}) do |type_id, obj|
         facility_type, unique_id = type_id.split('_')
         if facility_type && unique_id
           obj[facility_type] ||= []
           obj[facility_type].push unique_id
         end
       end
-      ids_for_types.map do |facility_type, unique_ids|
+    end
+
+    def build_result_set_from_ids(ids)
+      ids_for_types(ids).map do |facility_type, unique_ids|
         klass = "Facilities::#{facility_type.upcase}Facility".constantize
         klass.where(unique_id: unique_ids)
       end
