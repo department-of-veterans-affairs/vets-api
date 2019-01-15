@@ -41,6 +41,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
         create(:education_benefits_submission, form_type: form_type, created_at: date)
       end
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
+      create(:education_benefits_submission, form_type: '0994', created_at: date, region: :eastern)
     end
 
     context 'with the date variable set' do
