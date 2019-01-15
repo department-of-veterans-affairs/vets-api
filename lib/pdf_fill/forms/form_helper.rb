@@ -28,7 +28,13 @@ module PdfFill
       def extract_country(address)
         return if address.blank?
         country = address['country']
-        IsoCountryCodes.find(country).alpha2
+        if country.present? && country.size == 3
+          IsoCountryCodes.find(country).alpha2
+        else
+          IsoCountryCodes.search_by_name(country)[0].alpha2
+        end
+      rescue IsoCountryCodes::UnknownCodeError
+        country
       end
 
       def split_postal_code(address)
