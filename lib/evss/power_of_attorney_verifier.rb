@@ -4,13 +4,12 @@ module EVSS
   class PowerOfAttorneyVerifier
     def initialize(user)
       @user = user
-      @use_mock = Settings.evss.power_of_attorney_verifier || false
       @veteran = Veteran.new(@user)
     end
 
-    def verify(header)
-      if header.present? && header.split(',').any?
-        unless header.split(',').include?(@veteran.power_of_attorney.try(:code))
+    def verify(custom_consumer_ids)
+      if custom_consumer_ids.present? && custom_consumer_ids.split(',').any?
+        unless custom_consumer_ids.split(',').include?(@veteran.power_of_attorney.try(:code))
           raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
         end
       end
