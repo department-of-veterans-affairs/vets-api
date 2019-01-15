@@ -18,23 +18,28 @@ module MVI
       # @return [MVI::Models::MviProfile] The parsed MVI profile
       attribute :profile, MVI::Models::MviProfile
 
+      # @return [Common::Exceptions::BackendServiceException] The rescued exception
+      attribute :error, Common::Exceptions::BackendServiceException
+
       # Builds a response with a server error status and a nil profile
       #
       # @return [MVI::Responses::FindProfileResponse] the response
-      def self.with_server_error
+      def self.with_server_error(exception = nil)
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:server_error],
-          profile: nil
+          profile: nil,
+          error: exception
         )
       end
 
       # Builds a response with a not found status and a nil profile
       #
       # @return [MVI::Responses::FindProfileResponse] the response
-      def self.with_not_found
+      def self.with_not_found(exception = nil)
         FindProfileResponse.new(
           status: FindProfileResponse::RESPONSE_STATUS[:not_found],
-          profile: nil
+          profile: nil,
+          error: exception
         )
       end
 

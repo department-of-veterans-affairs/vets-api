@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'mvi/responses/find_profile_response'
+require 'support/mvi/stub_mvi'
 
 describe MVI::Responses::FindProfileResponse do
   let(:faraday_response) { instance_double('Faraday::Response') }
@@ -19,12 +20,28 @@ describe MVI::Responses::FindProfileResponse do
       expect(error_response.status).to eq('SERVER_ERROR')
       expect(error_response.profile).to be_nil
     end
+
+    it 'optionally sets #error to the passed exception', :aggregate_failures do
+      response  = MVI::Responses::FindProfileResponse.with_server_error(server_error_exception)
+      exception = response.error.errors.first
+
+      expect(response.error).to be_present
+      expect(exception.code).to eq server_error_exception.errors.first.code
+    end
   end
 
   describe '.with_not_found' do
     it 'builds a response with a nil profile and a status of NOT_FOUND' do
       expect(not_found_response.status).to eq('NOT_FOUND')
       expect(not_found_response.profile).to be_nil
+    end
+
+    it 'optionally sets #error to the passed exception', :aggregate_failures do
+      response  = MVI::Responses::FindProfileResponse.with_not_found(not_found_exception)
+      exception = response.error.errors.first
+
+      expect(response.error).to be_present
+      expect(exception.code).to eq not_found_exception.errors.first.code
     end
   end
 
