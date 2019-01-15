@@ -37,6 +37,38 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
     end
   end
 
+  context 'with an empty response' do
+    it 'returns a successful response' do
+      VCR.use_cassette('appeals/appeals_empty') do
+        get '/services/appeals/v0/appeals', nil,
+            'X-VA-SSN' => '111223333',
+            'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-User' => 'adhoc.test.user'
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('appeals')
+      end
+    end
+
+    it 'logs appropriately' do
+      VCR.use_cassette('appeals/appeals_empty') do
+        allow(Rails.logger).to receive(:info)
+        get '/services/appeals/v0/appeals', nil,
+            'X-VA-SSN' => '111223333',
+            'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-User' => 'adhoc.test.user'
+        hash = Digest::SHA2.hexdigest '111223333'
+        expect(Rails.logger).to have_received(:info).with('Caseflow Request',
+                                                          'va_user' => 'adhoc.test.user',
+                                                          'lookup_identifier' => hash)
+        expect(Rails.logger).to have_received(:info).with('Caseflow Response',
+                                                          'va_user' => 'adhoc.test.user',
+                                                          'first_appeal_id' => nil,
+                                                          'appeal_count' => 0)
+      end
+    end
+  end
+
   context 'without the X-VA-User header supplied' do
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals') do

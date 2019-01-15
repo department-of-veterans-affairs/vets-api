@@ -34,7 +34,7 @@ module AppealsApi
       end
 
       def log_response(appeals_response)
-        first_appeal_id = appeals_response.body['data'][0]['id']
+        first_appeal_id = appeals_response.body.dig('data', 0, 'id')
         count = appeals_response.body['data'].length
         Rails.logger.info('Caseflow Response',
                           'va_user' => requesting_va_user,
