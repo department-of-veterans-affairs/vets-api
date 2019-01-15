@@ -1,59 +1,71 @@
 <%= header %>
-<%= benefit_type(@applicant) %>
 *START*
 VA Form 22-0994
-DEC 2018
+JAN 2019
 
-	APPLICATION FOR VETERAN EMPLOYMENT THROUGH TECHNOLOGY EDUCATION COURSES (VET TEC) 
-									HIGH TECHNOLOGY PROGRAM
-            --------------------------------------------------------------
+APPLICATION FOR VETERAN EMPLOYMENT THROUGH TECHNOLOGY EDUCATION COURSES
+                   (VET TEC) HIGH TECHNOLOGY PROGRAM
+        -------------------------------------------------------
 
-                    			APPLICANT INFORMATION
-                    			---------------------
+                        APPLICANT INFORMATION
+                        ---------------------
 
-Name:   <%= full_name(@applicant.veteranFullName) %>  Social Security Number: <%= value_or_na(@applicant.veteranSocialSecurityNumber) %>
+Name: <%= full_name(@applicant.applicantFullName) %>
+
+Social Security Number: <%= @applicant.applicantSocialSecurityNumber %>
 
 Mailing Address:
-<%= full_address(@applicant.veteranAddress) %>
+<%= full_address(@applicant.mailingAddress) %>
 
-Sex of Applicant: <%= @applicant.gender %>
+Sex of Applicant: <%= @applicant.applicantGender %>
 
-Date of Birth (MM/DD/YYYY): <%= @applicant.veteranDateOfBirth %>
+Date of Birth: <%= @applicant.dateOfBirth %>
 
-Email Address:  <%= @applicant.email %>
+Email Address: <%= @applicant.emailAddress %>
 
-<%= parse_with_template_path('phone_numbers') %>
+Day Time Telephone Number: <%= @applicant.dayTimePhone %>
 
-Have you ever applied for VA education benefits? If no, you must complete and submit VA Form 22-1990 with this application. <%= yesno(@applicant.appliedForVAEducationBenefits&.yes) %>
+Night Time Telephone Number: <%= @applicant.nightTimePhone %>
 
-Are You Now On Active Duty?   <%= yesno(@applicant.activeDuty&.yes) %>
+Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVAEducationBenefits) %>
 
-Do You Anticipate You Will Go On Active Duty During The VET TEC Program?   <%= yesno(@applicant.activeDutyDuringVetTec&.yes) %>
+Are you currently on active duty?: <%= yesno(@applicant.activeDuty) %>
 
-<%= parse_with_template_path('bank_account') %>
+Do you anticipate you will go on active duty during the
+VET TEC program?: <%= yesno(@applicant.activeDutyDuringVetTec) %>
 
+DIRECT DEPOSIT INFORMATION:
 
-                 			 	COURSE OF STUDY
-                  				---------------
+Routing or Transit Number: <%= @applicant.bankAccount.routingNumber %>
 
-Select the VET TEC Program and Provider You Wish to Attend: 
+Account Type: <%= @applicant.bankAccount.accountType %>
 
-Location of Where You Plan to or Will Take Training: 
+Account Number: <%= @applicant.bankAccount.accountNumber %>
 
-Date You Plan to Start or Will Start Training: <%= @applicant.plannedStartDate %>
+                          COURSE OF STUDY
+                          ---------------
 
+Select the VET TEC program and Provider you wish to attend:
+<%= selected_programs %>
 
-                       			BACKGROUND INFORMATION
-                       			----------------------
+Location of where you plan to or will take training:
+<%= location %>
 
-Are You Currently Employed?   <%= yesno(@applicant.currentEmployment&.yes) %>
+Date you plan to start or will start training: <%= @applicant.plannedStartDate %>
 
-Are you Currently Working in the high technology industry? <%= yesno(@applicant.currentHighTechnologyEmployment&.yes) %>
+                       BACKGROUND INFORMATION
+                       ----------------------
 
-What is Your Current Salary Range? <%= @applicant.currentSalary) %>
+Are you currently employed?: <%= yesno(@applicant.currentEmployment) %>
 
-What is Your Highest Level of Education? <%= @applicant.highestLevelofEducation %>
+Are you currently working in the high technology industry?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
 
-<%= parse_with_template_path('signatures') %>
+If yes, select the area: <%= high_tech_area_name %>
+
+What is your current salary range?: <%= salary_text %>
+
+What is your highest level of education?: <%= @applicant.highestLevelofEducation %>
+
+Signature of applicant:
 
 <%= parse_with_template_path('footer') %>
