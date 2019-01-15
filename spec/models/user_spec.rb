@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:loa_one) { { current: 1, highest: 1 } }
-  let(:loa_three) { { current: 3, highest: 3 } }
+  let(:loa_one) { { current: LOA::ONE, highest: LOA::ONE } }
+  let(:loa_three) { { current: LOA::THREE, highest: LOA::THREE } }
 
   describe '#ssn_mismatch?', :skip_mvi do
     let(:user) { build(:user, :loa3) }

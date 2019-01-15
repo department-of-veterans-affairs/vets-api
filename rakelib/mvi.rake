@@ -24,8 +24,8 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
         ssn: ENV['ssn'],
         email: 'foo@bar.com',
         loa: {
-          current: 3,
-          highest: 3
+          current: LOA::THREE,
+          highest: LOA::THREE
         }
       )
 
@@ -59,7 +59,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
           ssn: row['ssn'],
           email: row['email'],
           uuid: SecureRandom.uuid,
-          loa: { current: 3, highest: 3 }
+          loa: { current: LOA::THREE, highest: LOA::THREE }
         )
         if user.va_profile.nil?
           puts "Row #{i} #{row['first_name']} #{row['last_name']}: No MVI profile"

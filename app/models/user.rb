@@ -149,11 +149,11 @@ class User < Common::RedisStore
   # See also lib/saml/user_attributes/dslogon.rb
   # See also lib/saml/user_attributes/mhv
   def loa1?
-    loa[:current] == 1
+    loa[:current] == LOA::ONE
   end
 
   def loa2?
-    loa[:current] == 2
+    loa[:current] == LOA::TWO
   end
 
   # LOA3 no longer just means ID.me FICAM LOA3.
@@ -163,7 +163,7 @@ class User < Common::RedisStore
   # See also lib/saml/user_attributes/dslogon.rb
   # See also lib/saml/user_attributes/mhv
   def loa3?
-    loa[:current] == 3
+    loa[:current] == LOA::THREE
   end
 
   def ssn_mismatch?

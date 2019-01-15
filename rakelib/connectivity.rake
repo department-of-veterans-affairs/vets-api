@@ -100,8 +100,8 @@ namespace :connectivity do
         email: 'foo@bar.com',
         uuid: SecureRandom.uuid,
         loa: {
-          current: 3,
-          highest: 3
+          current: LOA::THREE,
+          highest: LOA::THREE
         }
       )
 

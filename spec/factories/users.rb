@@ -19,7 +19,7 @@ FactoryBot.define do
       va_patient nil
 
       loa do
-        { current: 2, highest: 3 }
+        { current: LOA::TWO, highest: LOA::THREE }
       end
     end
 
@@ -48,19 +48,19 @@ FactoryBot.define do
       end
 
       loa do
-        { current: 3, highest: 3 }
+        { current: LOA::THREE, highest: LOA::THREE }
       end
     end
 
     trait :loa1 do
       loa do
-        { current: 1, highest: 1 }
+        { current: LOA::ONE, highest: LOA::ONE }
       end
     end
 
     trait :loa3 do
       loa do
-        { current: 3, highest: 3 }
+        { current: LOA::THREE, highest: LOA::THREE }
       end
     end
 
@@ -168,8 +168,8 @@ FactoryBot.define do
 
       loa do
         {
-          current: 3,
-          highest: 3
+          current: LOA::THREE,
+          highest: LOA::THREE
         }
       end
 

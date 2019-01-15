@@ -39,7 +39,7 @@ RSpec.describe MhvAccount, type: :model do
            email: 'vets.gov.user+0@gmail.com')
   end
 
-  let(:user_loa) { { current: 3, highest: 3 } }
+  let(:user_loa) { { current: LOA::THREE, highest: LOA::THREE } }
   let(:user_ssn) { mvi_profile.ssn }
   let(:mhv_ids) { [] }
   let(:active_mhv_ids) { mhv_ids }
@@ -60,7 +60,7 @@ RSpec.describe MhvAccount, type: :model do
 
     context 'check_eligibility' do
       context 'user not loa3' do
-        let(:user_loa) { { current: 1, highest: 1 } }
+        let(:user_loa) { { current: LOA::ONE, highest: LOA::ONE } }
 
         it 'needs_identity_verification' do
           expect(subject.account_state).to eq('needs_identity_verification')
