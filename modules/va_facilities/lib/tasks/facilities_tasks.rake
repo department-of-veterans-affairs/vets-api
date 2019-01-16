@@ -7,6 +7,6 @@ namespace :va_facilities do
       UPDATE base_facilities
       SET location=ST_GeogFromText('SRID=4326;POINT(' || long || ' ' || lat ||')')
     SQL
-    ActiveRecord::Base.conection.execute sql
+    ActiveRecord::Base.connection.execute sql
   end
 end
