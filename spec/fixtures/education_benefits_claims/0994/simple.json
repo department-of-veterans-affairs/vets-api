@@ -24,5 +24,6 @@
     "accountType": "checking",
     "routingNumber": "123456789",
     "accountNumber": "123456"
-  }
+  },
+  "privacyAgreementAccepted": true
 }

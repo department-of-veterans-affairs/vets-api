@@ -39,5 +39,6 @@
   "currentHighTechnologyEmployment": true,
   "highTechnologyEmploymentType": "computerProgramming",
   "currentSalary": "lessThanTwenty",
-  "highestLevelofEducation": "High school"
+  "highestLevelofEducation": "High school",
+  "privacyAgreementAccepted": true
 }
