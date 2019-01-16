@@ -172,7 +172,9 @@ class BaseFacility < ActiveRecord::Base
       )
     end
 
-    def build_distance_result_set(lat, long, type, services, ids = nil, limit = nil)
+    # rubocop:disable Metrics/MethodLength
+    # rubocop:disable Metrics/ParameterLists
+    def build_distance_result_set(lat, long, type, services, ids, limit = nil)
       additional_data = <<-SQL
         base_facilities.*,
         ST_Distance(base_facilities.location,
@@ -195,6 +197,8 @@ class BaseFacility < ActiveRecord::Base
         facilities.order('distance')
       end.flatten
     end
+    # rubocop:enable Metrics/MethodLength
+    # rubocop:enable Metrics/ParameterLists
 
     def build_result_set(bbox_num, type, services)
       lats = bbox_num.values_at(1, 3)
