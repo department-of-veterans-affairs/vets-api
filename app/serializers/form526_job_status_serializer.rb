@@ -15,9 +15,9 @@ class Form526JobStatusSerializer < ActiveModel::Serializer
   end
 
   def ancillary_item_statuses
-    if object.job_class.include?("526")
-      object.submission.form526_job_statuses.select do |status|
-        status.id != object.id
+    if object.job_class.include?('526')
+      object.submission.form526_job_statuses.reject do |status|
+        status.id == object.id
       end
     end
   end
