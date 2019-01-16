@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3000/v0/sessions/new?level=1
+    uri: http://localhost:3000/sessions/idme/new
     body:
       encoding: UTF-8
       string: ''
@@ -67,7 +67,7 @@ http_interactions:
       - '1108'
     body:
       encoding: UTF-8
-      string: '{"authenticate_via_get":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVLBjtowEP2V3HxK7ABKwCJICFQJadtdQbeHXqrBGcCqY6ceh2X%2Fvk6AFYdub9b4vTdv3sycoDGtXHbhZLf4p0MKyZIIfdDOrpylrkG%2FQ3%2FWCl%2B3TxU7hdBKzo1TYE6OghwLIThEPu%2BleCybPajfLFlHLW2hF7rSKPKg1ZmuGzSwp0y55kraaXs0uNNH%2B2xvzViyWVfs1xSw3CtRpKrEIp1MRJ7OCijScQkF1tNJfZiVEUrU4cZSABsqNhJ5mYppOpp9F2M5HklR%2FGTJD%2FQ0WBllgiWXxliSffOKdd5KB6RJWmiQZFByt%2Fz6JCNQwj2LR0r7f07rXXDKGbaY92g5uPOL%2Fp36NjtjoKM7Zx8RzvkjbH7dyLcou1m%2FOKPVe7I0xr2tPELAigXfxXS%2BON9A%2BNxInuVDRdfpYYDKzlKLSh801ozf29x2jvVwAXHhAS8hWbmmBa%2BpjwsvoMJ9lEfUysRwtnhY3E4irhUsHLFBG7I4ILfEI6LzYBXGgwGe3yb9p8r17xNHH7%2BPh7r4Cw%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=GlhpUnjZlHZlxf1FW7RoL9Zoqd2ozXQ1YGtySIrGGHul56pRmtLCU4VN7uHlysf6tf749MdS4l%2B5WqRxRAG6NLJhDSdoVwjt%2BQ4GSleg2YCWutOwTZo6s%2B%2BeTFJzG9UzcA5OZeYIvo1hpqhukKTsr2OYF%2F5gIcnUfIxf%2FSyQfzVpq0OA3YgWxeeTcDQV6x9v2zq%2F6QgTN4agl%2FbXpRnW3rASR2afc%2FBcjhpgKCf0vTwf0ae0GlUgqn6ce1COxQ4BD7YQWzUcFGM5ejVk2OxHkIcXrFbruTalHHkDTLswmwh4Z%2FGL7vq5H08%2FkOMgv%2BwN9y1s444zn%2F7CwE8N4q%2BV%2Bw%3D%3D"}'
+      string: '{"url":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVLBjtowEP2V3HxK7ABKwCJICFQJadtdQbeHXqrBGcCqY6ceh2X%2Fvk6AFYdub9b4vTdv3sycoDGtXHbhZLf4p0MKyZIIfdDOrpylrkG%2FQ3%2FWCl%2B3TxU7hdBKzo1TYE6OghwLIThEPu%2BleCybPajfLFlHLW2hF7rSKPKg1ZmuGzSwp0y55kraaXs0uNNH%2B2xvzViyWVfs1xSw3CtRpKrEIp1MRJ7OCijScQkF1tNJfZiVEUrU4cZSABsqNhJ5mYppOpp9F2M5HklR%2FGTJD%2FQ0WBllgiWXxliSffOKdd5KB6RJWmiQZFByt%2Fz6JCNQwj2LR0r7f07rXXDKGbaY92g5uPOL%2Fp36NjtjoKM7Zx8RzvkjbH7dyLcou1m%2FOKPVe7I0xr2tPELAigXfxXS%2BON9A%2BNxInuVDRdfpYYDKzlKLSh801ozf29x2jvVwAXHhAS8hWbmmBa%2BpjwsvoMJ9lEfUysRwtnhY3E4irhUsHLFBG7I4ILfEI6LzYBXGgwGe3yb9p8r17xNHH7%2BPh7r4Cw%3D%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=GlhpUnjZlHZlxf1FW7RoL9Zoqd2ozXQ1YGtySIrGGHul56pRmtLCU4VN7uHlysf6tf749MdS4l%2B5WqRxRAG6NLJhDSdoVwjt%2BQ4GSleg2YCWutOwTZo6s%2B%2BeTFJzG9UzcA5OZeYIvo1hpqhukKTsr2OYF%2F5gIcnUfIxf%2FSyQfzVpq0OA3YgWxeeTcDQV6x9v2zq%2F6QgTN4agl%2FbXpRnW3rASR2afc%2FBcjhpgKCf0vTwf0ae0GlUgqn6ce1COxQ4BD7YQWzUcFGM5ejVk2OxHkIcXrFbruTalHHkDTLswmwh4Z%2FGL7vq5H08%2FkOMgv%2BwN9y1s444zn%2F7CwE8N4q%2BV%2Bw%3D%3D"}'
     http_version:
   recorded_at: Tue, 29 Aug 2017 03:32:06 GMT
 - request:
@@ -269,7 +269,7 @@ http_interactions:
   recorded_at: Tue, 29 Aug 2017 03:32:30 GMT
 - request:
     method: get
-    uri: http://localhost:3000/v0/sessions/new?level=3
+    uri: http://localhost:3000/session/verify/new
     body:
       encoding: UTF-8
       string: ''
@@ -336,7 +336,7 @@ http_interactions:
       - '1094'
     body:
       encoding: UTF-8
-      string: '{"authenticate_via_get":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVJNj9owEP0rufmUOB%2BLKBZBQqBKSNsPQdtDL6uJMwGr%2Fkg9DqX%2Fvk6AFYfu3qzxe2%2FevJklgdG9WA%2FhZPf4e0AKyZoIfVDObpylwaA%2FoD8rid%2F3zzU7hdALzrWToE%2BOgqjyPOcQ%2BXyU4rGsG5C%2FWLKNWsrCKHSlUeRBrzLVGtTQUCaduZIOyh41HtTRfrG3ZizZbWv2Us3LBrEq07JoIX3qnuYplM0snTW4mOOsW1RlHqFEA%2B4sBbChZmVezNP8Q1ouvuWVqEpRFT9Z8gM9TVbKLDIuRlsSY%2FOaDd4KB6RIWDBIIkhxWH96FhEo4J7FI6V%2Fn9N7F5x0mq2WI1pM7vxqfKe%2Bz84Y6OjO2WuES%2F4IW1438jnK7rZfnVbyb7LW2v3ZeISANQt%2BiOl8dN5AeNtIkRVTRbVpN0HFYKlHqTqFLeP3NredYztdQFx4wEtINs704BWNceEFZLiP8oja6BjOHrvV7STiWsHCEQ3akMUBuSUeEYMHKzEeDPDqNul%2FVa5%2Fbzh6%2FX081NU%2F&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=ae%2FmrMTVyxfd4KBKCD4bE9kUViMkVXBjsexadpkyjdajXMvmawyj71i9%2B%2BLwdE1naWfAUeJSkSlZpMs4SvqXPLCuyKG2l7upsHRizacM3ehBPzXza12aYgcvjXm6XmMgbY%2FvrHnx8kGGCSmjypiSbnB5KCZeOPtwk%2Fk%2BJw1eP6cra5IgdAzOzb5ajMx3tMLBzrJlN7n92V9FNbYSseMnWLDJt1NWx12vjgt6W992cVu0lDyGYrp%2F50LM9HGBTvE2wYZJzYyk4iPzy6LLGeQcrBz7XXFN7HuzNxp9rymQKjGnnOoEmDsHaXl8qHgx0JPYEhymbTcPK8Lrj272KnsVRg%3D%3D"}'
+      string: '{"url":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVJNj9owEP0rufmUOB%2BLKBZBQqBKSNsPQdtDL6uJMwGr%2Fkg9DqX%2Fvk6AFYfu3qzxe2%2FevJklgdG9WA%2FhZPf4e0AKyZoIfVDObpylwaA%2FoD8rid%2F3zzU7hdALzrWToE%2BOgqjyPOcQ%2BXyU4rGsG5C%2FWLKNWsrCKHSlUeRBrzLVGtTQUCaduZIOyh41HtTRfrG3ZizZbWv2Us3LBrEq07JoIX3qnuYplM0snTW4mOOsW1RlHqFEA%2B4sBbChZmVezNP8Q1ouvuWVqEpRFT9Z8gM9TVbKLDIuRlsSY%2FOaDd4KB6RIWDBIIkhxWH96FhEo4J7FI6V%2Fn9N7F5x0mq2WI1pM7vxqfKe%2Bz84Y6OjO2WuES%2F4IW1438jnK7rZfnVbyb7LW2v3ZeISANQt%2BiOl8dN5AeNtIkRVTRbVpN0HFYKlHqTqFLeP3NredYztdQFx4wEtINs704BWNceEFZLiP8oja6BjOHrvV7STiWsHCEQ3akMUBuSUeEYMHKzEeDPDqNul%2FVa5%2Fbzh6%2FX081NU%2F&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=ae%2FmrMTVyxfd4KBKCD4bE9kUViMkVXBjsexadpkyjdajXMvmawyj71i9%2B%2BLwdE1naWfAUeJSkSlZpMs4SvqXPLCuyKG2l7upsHRizacM3ehBPzXza12aYgcvjXm6XmMgbY%2FvrHnx8kGGCSmjypiSbnB5KCZeOPtwk%2Fk%2BJw1eP6cra5IgdAzOzb5ajMx3tMLBzrJlN7n92V9FNbYSseMnWLDJt1NWx12vjgt6W992cVu0lDyGYrp%2F50LM9HGBTvE2wYZJzYyk4iPzy6LLGeQcrBz7XXFN7HuzNxp9rymQKjGnnOoEmDsHaXl8qHgx0JPYEhymbTcPK8Lrj272KnsVRg%3D%3D"}'
     http_version:
   recorded_at: Tue, 29 Aug 2017 03:32:31 GMT
 - request:
