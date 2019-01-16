@@ -127,6 +127,7 @@ module V0
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::HealthCareApplications,
+      Swagger::Requests::HcaDd214Attachments,
       Swagger::Requests::InProgressForms,
       Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,
