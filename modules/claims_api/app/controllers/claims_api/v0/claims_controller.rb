@@ -61,7 +61,6 @@ module ClaimsApi
           last_signed_in: Time.zone.now
         )
       end
-
     end
   end
 end
