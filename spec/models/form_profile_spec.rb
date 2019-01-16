@@ -255,10 +255,8 @@ RSpec.describe FormProfile, type: :model do
 
   let(:v22_0994_expected) do
     {
-      'currentlyActiveDuty' => {
-        'yes' => true
-      },
-      'veteranAddress' => {
+      'activeDuty' => true,
+      'mailingAddress' => {
         'street' => street_check[:street],
         'street2' => street_check[:street2],
         'city' => user.va_profile[:address][:city],
@@ -266,16 +264,16 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.va_profile[:address][:country],
         'postal_code' => user.va_profile[:address][:postal_code][0..4]
       },
-      'veteranFullName' => {
+      'applicantFullName' => {
         'first' => user.first_name&.capitalize,
         'last' => user.last_name&.capitalize,
         'suffix' => user.va_profile[:suffix]
       },
-      'gender' => user.gender,
-      'homePhone' => us_phone,
-      'veteranDateOfBirth' => user.birth_date,
-      'veteranSocialSecurityNumber' => user.ssn,
-      'email' => user.pciu_email
+      'applicantGender' => user.gender,
+      'nightTimePhone' => us_phone,
+      'dateOfBirth' => user.birth_date,
+      'applicantSocialSecurityNumber' => user.ssn,
+      'emailAddress' => user.pciu_email
     }
   end
 
@@ -724,10 +722,12 @@ RSpec.describe FormProfile, type: :model do
           stub_methods_for_emis_data
           can_prefill_emis(true)
           expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
-          v22_0994_expected['bankAccountNumber'] = '*********1234'
-          v22_0994_expected['bankAccountType'] = 'Checking'
-          v22_0994_expected['bankName'] = 'Comerica'
-          v22_0994_expected['bankRoutingNumber'] = '*****2115'
+          v22_0994_expected['bankAccount'] = {
+            'bankAccountNumber' => '*********1234',
+            'bankAccountType' => 'Checking',
+            'bankName' => 'Comerica',
+            'bankRoutingNumber' => '*****2115'
+          }
         end
 
         it 'should prefill 0994 with emis and payment information' do
