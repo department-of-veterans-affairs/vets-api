@@ -172,14 +172,16 @@ class BaseFacility < ActiveRecord::Base
       )
     end
 
-    # rubocop:disable Metrics/MethodLength
-    # rubocop:disable Metrics/ParameterLists
-    def build_distance_result_set(lat, long, type, services, ids, limit = nil)
-      additional_data = <<-SQL
+    def distance_query(lat, long)
+      <<-SQL
         base_facilities.*,
         ST_Distance(base_facilities.location,
         ST_MakePoint(#{long},#{lat})) / #{METERS_PER_MILE} AS distance
       SQL
+    end
+
+    # rubocop:disable Metrics/ParameterLists
+    def build_distance_result_set(lat, long, type, services, ids, limit = nil)
       conditions = limit.nil? ? {} : "where distance < #{limit}"
       ids_map = ids_for_types(ids) unless ids.nil?
       TYPES.map do |facility_type|
@@ -188,7 +190,7 @@ class BaseFacility < ActiveRecord::Base
           type,
           facility_type,
           services,
-          additional_data
+          distance_query(lat, long)
         )
         if ids_map
           ids_for_type = ids_map[PREFIX_MAP[TYPE_NAME_MAP[facility_type]]]
@@ -197,7 +199,6 @@ class BaseFacility < ActiveRecord::Base
         facilities.order('distance')
       end.flatten
     end
-    # rubocop:enable Metrics/MethodLength
     # rubocop:enable Metrics/ParameterLists
 
     def build_result_set(bbox_num, type, services)
