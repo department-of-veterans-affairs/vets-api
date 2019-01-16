@@ -9,7 +9,8 @@ module ClaimsApi
       skip_before_action(:authenticate)
 
       def index
-        verify_poa
+        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+        verifier.verify(header('X-Consumer-Custom-ID'))
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -61,17 +62,6 @@ module ClaimsApi
         )
       end
 
-      def verify_poa
-        if header(key = 'X-Consumer-Custom-ID')
-          unless header(key).split(',').include?(veteran_power_of_attorney)
-            raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
-          end
-        end
-      end
-
-      def veteran_power_of_attorney
-        service.veteran.power_of_attorney.code
-      end
     end
   end
 end
