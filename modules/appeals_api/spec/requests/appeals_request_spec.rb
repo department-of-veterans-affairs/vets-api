@@ -55,6 +55,15 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   end
 
   context 'with an empty response' do
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
+
+    before do
+      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
+      allow(@verifier_stub).to receive(:verify)
+    end
+
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals_empty') do
         get '/services/appeals/v0/appeals', nil,

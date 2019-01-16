@@ -66,7 +66,7 @@ module AppealsApi
 
       def va_profile
         OpenStruct.new(
-          birth_date: header('X-VA-Birth-Date')
+          birth_date: (header('X-VA-Birth-Date') || nil)
         )
       end
 
@@ -76,14 +76,9 @@ module AppealsApi
           loa: { current: :loa3 },
           first_name: header('X-VA-First-Name'),
           last_name: header('X-VA-Last-Name'),
-          va_profile: va_profile,
           edipi: header('X-VA-EDIPI'),
           last_signed_in: Time.zone.now
         )
-      end
-
-      def raise_missing_header(key)
-        raise Common::Exceptions::ParameterMissing, key
       end
     end
   end
