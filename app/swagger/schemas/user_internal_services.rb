@@ -62,4 +62,3 @@ module Swagger
     end
   end
 end
-

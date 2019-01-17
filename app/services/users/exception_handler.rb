@@ -50,7 +50,9 @@ module Users
     def base_error
       exception = error.errors.first
 
-      error_template.merge(description: "#{exception.code}, #{exception.status}, #{exception.title}, #{exception.detail}")
+      error_template.merge(
+        description: "#{exception.code}, #{exception.status}, #{exception.title}, #{exception.detail}"
+      )
     end
 
     def client_error

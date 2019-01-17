@@ -60,7 +60,7 @@ module Swagger
         end
       end
 
-      swagger_schema :UserData, required: [:data, :meta] do
+      swagger_schema :UserData, required: %i[data meta] do
         allOf do
           schema do
             key :'$ref', :Vet360ContactInformation

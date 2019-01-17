@@ -34,7 +34,7 @@ RSpec.describe Users::Services do
           'edu-benefits',
           'user-profile',
           'form-save-in-progress',
-          'form-prefill',
+          'form-prefill'
         )
       end
     end

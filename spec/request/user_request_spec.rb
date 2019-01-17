@@ -6,7 +6,7 @@ require 'backend_services'
 RSpec.describe 'Fetching user data', type: :request do
   include SchemaMatchers
 
-  context 'when an LOA 3 user is logged in' do
+  context 'GET /v0/user - when an LOA 3 user is logged in' do
     let(:mhv_user) { build(:user, :mhv) }
 
     before(:each) do
@@ -88,13 +88,13 @@ RSpec.describe 'Fetching user data', type: :request do
     end
   end
 
-  context 'when an LOA 1 user is logged in', :skip_mvi do
+  context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
     before(:each) do
       sign_in_as(new_user(:loa1))
       get v0_user_url, nil
     end
 
-    it 'GET /v0/user - returns proper json' do
+    it 'returns proper json' do
       expect(response).to match_response_schema('user_loa1')
     end
 
@@ -121,12 +121,12 @@ RSpec.describe 'Fetching user data', type: :request do
     end
   end
 
-  context 'MVI Integration', :skip_mvi do
+  context 'GET /v0/user - MVI Integration', :skip_mvi do
     before(:each) do
       sign_in_as(new_user(:loa3))
     end
 
-    it 'GET /v0/user - for MVI error should only make a request to MVI one time per request!', :aggregate_failures do
+    it 'MVI error should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mvi_failure
       expect { get v0_user_url, nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
@@ -142,7 +142,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(outage['description']).to be_present
     end
 
-    it 'GET /v0/user - for MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
+    it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mvi_record_not_found
       expect { get v0_user_url, nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
@@ -158,7 +158,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(outage['description']).to be_present
     end
 
-    it 'GET /v0/user - for MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
+    it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mvi_duplicate_record
       expect { get v0_user_url, nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
@@ -174,7 +174,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(outage['description']).to be_present
     end
 
-    it 'GET /v0/user - for MVI success should only make a request to MVI one time per multiple requests!' do
+    it 'MVI success should only make a request to MVI one time per multiple requests!' do
       stub_mvi_success
       expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
       expect { get v0_user_url, nil }
@@ -185,7 +185,7 @@ RSpec.describe 'Fetching user data', type: :request do
         .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
     end
 
-    it 'GET /v0/user - for MVI raises a breakers exception after 50% failure rate', :aggregate_failures do
+    it 'MVI raises a breakers exception after 50% failure rate', :aggregate_failures do
       now = Time.current
       start_time = now - 120
       Timecop.freeze(start_time)

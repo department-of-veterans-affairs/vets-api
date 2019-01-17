@@ -7,7 +7,9 @@ module Users
   # Note that with Struct's, parameter order matters.  Namely having `outages` first
   # and `status` second.
   #
+  # rubocop:disable Style/StructInheritance
   class Scaffold < Struct.new(:outages, :status, :services, :account, :profile, :va_profile, :veteran_status,
                               :in_progress_forms, :prefills_available, :vet360_contact_information)
   end
+  # rubocop:enable Style/StructInheritance
 end

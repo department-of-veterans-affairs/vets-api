@@ -363,7 +363,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'with a rescued error' do
-        let(:message)  { 'the server responded with status 503' }
+        let(:message) { 'the server responded with status 503' }
         let(:error_body) { { 'status' => 'some service unavailable status' } }
 
         before do

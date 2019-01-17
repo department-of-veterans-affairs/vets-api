@@ -5,15 +5,13 @@ require 'support/mvi/stub_mvi'
 
 RSpec.describe Users::ExceptionHandler do
   let(:user) { build(:user, :loa3) }
-  let(:message)  { 'the server responded with status 503' }
+  let(:message) { 'the server responded with status 503' }
   let(:error_body) { { 'status' => 'some service unavailable status' } }
   let(:service) { 'Vet360' }
 
   describe '.initialize' do
     context 'when initialized without a nil error' do
       it 'raises an exception' do
-        account = build :account
-
         expect { Users::ExceptionHandler.new(nil, service) }.to raise_error(Common::Exceptions::ParameterMissing)
       end
     end
