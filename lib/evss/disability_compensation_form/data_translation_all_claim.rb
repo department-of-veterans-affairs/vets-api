@@ -135,10 +135,6 @@ module EVSS
         }
       end
 
-      def split_approximate_date(approximate_date)
-        Date.strptime(approximate_date, '%Y-%m-%d')
-      end
-
       def translate_service_info
         {
           'serviceInformation' => {
@@ -348,13 +344,15 @@ module EVSS
             'center' => {
               'name' => treatment['treatmentCenterName']
             }.merge(treatment['treatmentCenterAddress'])
-          }
+          }.compact
         end
 
         { 'treatments' => treatments }
       end
 
       def approximate_date(date)
+        return nil if date.blank?
+
         year, month, day = date.split('-')
 
         # month/day are optional and can be XXed out
