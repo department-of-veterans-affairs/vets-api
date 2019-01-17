@@ -81,7 +81,7 @@
     "previousEmployers": [
       {
         "name": "Employer A",
-        "address": {
+        "employerAddress": {
           "street": "123 Main Street",
           "street2": "1B",
           "city": "Baltimore",
@@ -89,7 +89,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "workType": "work",
+        "typeOfWork": "work",
         "hoursPerWeek": "40",
         "dates": {
           "from": "1991-01-01",
@@ -100,7 +100,7 @@
       },
       {
         "name": "Employer B",
-        "address": {
+        "employerAddress": {
           "street": "123 Main Street",
           "street2": "1C",
           "city": "Baltimore",
@@ -108,7 +108,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "workType": "work",
+        "typeOfWork": "work",
         "hoursPerWeek": "40",
         "dates": {
           "from": "1992-01-01",
@@ -119,7 +119,7 @@
       },
       {
         "name": "Employer F",
-        "address": {
+        "employerAddress": {
           "street": "123 Main Street",
           "street2": "1C",
           "city": "Baltimore",
@@ -127,7 +127,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "workType": "work",
+        "typeOfWork": "work",
         "hoursPerWeek": "40",
         "dates": {
           "from": "1992-01-01",
@@ -138,7 +138,7 @@
       },
       {
         "name": "Employer G",
-        "address": {
+        "employerAddress": {
           "street": "123 Main Street",
           "street2": "1C",
           "city": "Baltimore",
@@ -146,7 +146,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "workType": "work",
+        "typeOfWork": "work",
         "hoursPerWeek": "40",
         "dates": {
           "from": "1992-01-01",
@@ -157,7 +157,7 @@
       },
       {
         "name": "Employer H",
-        "address": {
+        "employerAddress": {
           "street": "123 Main Street",
           "street2": "1C",
           "city": "Baltimore",
@@ -165,7 +165,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "workType": "work",
+        "typeOfWork": "work",
         "hoursPerWeek": "40",
         "dates": {
           "from": "1992-01-01",
@@ -176,7 +176,7 @@
       },
       {
         "name": "Employer I",
-        "address": {
+        "employerAddress": {
           "street": "123 Main Street",
           "street2": "1C",
           "city": "Baltimore",
@@ -184,7 +184,7 @@
           "country": "USA",
           "postalCode": "21200-1111"
         },
-        "workType": "work",
+        "typeOfWork": "work",
         "hoursPerWeek": "40",
         "dates": {
           "from": "1992-01-01",

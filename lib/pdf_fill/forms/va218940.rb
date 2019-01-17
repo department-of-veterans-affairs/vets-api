@@ -292,7 +292,7 @@ module PdfFill
           'nameAndAddress' => {
             key: "employerNameAddress[#{ITERATOR}]"
           },
-          'workType' => {
+          'typeOfWork' => {
             key: "typeOfWork[#{ITERATOR}]"
           },
           'hoursPerWeek' => {
@@ -568,9 +568,9 @@ module PdfFill
 
         format_str = [
           ['Name: ', previous_employer['name']].compact.join(' '),
-          ['Address: ', combine_full_address(previous_employer['address'])].compact.join(' '),
+          ['Address: ', combine_full_address(previous_employer['employerAddress'])].compact.join(' '),
           ['Dates of Employment: ', combine_date_ranges([previous_employer['dates']])].compact.join(' '),
-          ['Type of Work: ', previous_employer['workType']].compact.join(' '),
+          ['Type of Work: ', previous_employer['typeOfWork']].compact.join(' '),
           ['Hours Per Week: ', previous_employer['hoursPerWeek']].compact.join(' '),
           ['Time Lost From Illness: ', previous_employer['timeLostFromIllness']].compact.join(' '),
           ['Highest Gross Earnings Per Month: ', previous_employer['mostEarningsInAMonth']].compact.join(' ')
@@ -580,12 +580,12 @@ module PdfFill
       end
 
       def compress_previous_employer_info(employer)
-        address = combine_full_address(employer['address'])
+        address = combine_full_address(employer['employerAddress'])
         employer['nameAndAddress'] = employer['name'] + "\n" + address
         employer['fromDate'] = employer['dates']['from']
         employer['toDate'] = employer['dates']['to']
         employer.except!('name')
-        employer.except!('address')
+        employer.except!('employerAddress')
         employer.except!('dates')
       end
 

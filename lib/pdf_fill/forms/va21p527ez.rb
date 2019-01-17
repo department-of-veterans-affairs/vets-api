@@ -560,6 +560,8 @@ module PdfFill
       # rubocop:enable Metrics/LineLength
       # rubocop:enable Metrics/BlockLength
 
+      DEFAULT_FINANCIAL_ACCT = { 'name' => 'None', 'amount' => 0, 'recipient' => 'None' }.freeze
+
       def expand_pow_date_range(pow_date_range)
         expand_checkbox(pow_date_range.present?, 'PowDateRange')
       end
@@ -752,14 +754,14 @@ module PdfFill
         financial_accts
       end
 
+      def unfilled_multiline_acct?(acct_type, accts)
+        %w[socialSecurity salary].include?(acct_type) && accts.size < 2
+      end
+
       def zero_financial_accts(financial_accts)
         financial_accts.each do |acct_type, accts|
-          if accts.size.zero? && acct_type != 'additionalSources'
-            accts << {
-              'recipient' => 'Myself',
-              'amount' => 0
-            }
-          end
+          accts << DEFAULT_FINANCIAL_ACCT if accts.blank?
+          accts << DEFAULT_FINANCIAL_ACCT if unfilled_multiline_acct?(acct_type, accts)
         end
 
         financial_accts
@@ -789,6 +791,7 @@ module PdfFill
 
       def expand_monthly_incomes
         financial_accts = expand_financial_accts('monthlyIncome')
+        fill_financial_blanks(KEY['monthlyIncomes'][:limit], financial_accts)
 
         monthly_incomes = []
         10.times { monthly_incomes << {} }
@@ -796,13 +799,7 @@ module PdfFill
         monthly_incomes[0] = financial_accts['socialSecurity'][0]
         monthly_incomes[1] = financial_accts['socialSecurity'][1]
 
-        %w[
-          civilService
-          railroad
-          blackLung
-          serviceRetirement
-          ssi
-        ].each_with_index do |acct_type, i|
+        %w[civilService railroad blackLung serviceRetirement ssi].each_with_index do |acct_type, i|
           i += 2
           monthly_incomes[i] = financial_accts[acct_type][0]
         end
@@ -812,8 +809,14 @@ module PdfFill
         end
 
         overflow_financial_accts(monthly_incomes, financial_accts)
-
         @form_data['monthlyIncomes'] = monthly_incomes
+      end
+
+      def fill_financial_blanks(limit, financial_accts)
+        padding = limit - financial_accts.except('additionalSources').size - financial_accts['additionalSources'].size
+        additional = Array.new(padding) { |_| DEFAULT_FINANCIAL_ACCT }
+        expand_additional_sources('None', additional, financial_accts)
+        financial_accts
       end
 
       def overflow_financial_accts(financial_accts, all_financial_accts)
@@ -832,15 +835,15 @@ module PdfFill
           net_worths << {}
         end
 
-        %w[
-          bank
-          interestBank
-          ira
-          stocks
-          realProperty
-        ].each_with_index do |acct_type, i|
+        %w[bank interestBank ira stocks realProperty].each_with_index do |acct_type, i|
           net_worths[i] = financial_accts[acct_type][0]
         end
+        [5, 6].each { |i| net_worths[i] = DEFAULT_FINANCIAL_ACCT }
+
+        if financial_accts['additionalSources'].size < 1
+          expand_additional_sources('None', [DEFAULT_FINANCIAL_ACCT], financial_accts)
+        end
+
         net_worths[7] = financial_accts['additionalSources'][0]
 
         overflow_financial_accts(net_worths, financial_accts)
@@ -850,6 +853,7 @@ module PdfFill
 
       def expand_expected_incomes
         financial_accts = expand_financial_accts('expectedIncome')
+        fill_financial_blanks(KEY['expectedIncomes'][:limit], financial_accts)
 
         expected_incomes = []
         6.times do
@@ -972,8 +976,8 @@ module PdfFill
           expand_marriages(@form_data, marriage_type)
         end
 
-        @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length
-        @form_data['marriageCount'] = @form_data['marriages']&.length
+        @form_data['spouseMarriageCount'] = @form_data['spouseMarriages']&.length || 0
+        @form_data['marriageCount'] = @form_data['marriages']&.length || 0
 
         expand_spouse_addr
 
