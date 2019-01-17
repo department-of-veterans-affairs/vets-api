@@ -132,7 +132,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'separationPayBranch' => 'Air Force',
-            'separationPayDate' => '2018'
+            'separationPayDate' => '2018-XX-XX'
           }
         }
       end
@@ -681,7 +681,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'treatmentDateRange' => {
                   'from' => '2018-01-01',
-                  'to' => '2018-02-01'
+                  'to' => '2018-02-XX'
                 },
                 'treatmentCenterName' => 'Super Hospital',
                 'treatmentCenterAddress' => {
@@ -699,8 +699,58 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       it 'should translate the data correctly' do
         expect(subject.send(:translate_treatments)).to eq 'treatments' => [
           {
-            'startDate' => '2018-01-01',
-            'endDate' => '2018-02-01',
+            'startDate' => {
+              'year' => '2018',
+              'month' => '01',
+              'day' => '01'
+            },
+            'endDate' => {
+              'year' => '2018',
+              'month' => '02'
+            },
+            'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
+            'center' => {
+              'name' => 'Super Hospital',
+              'country' => 'USA',
+              'city' => 'Portland',
+              'state' => 'OR'
+            }
+          }
+        ]
+      end
+    end
+
+    context 'when given a treatment center with no `to` date' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'vaTreatmentFacilities' => [
+              {
+                'treatmentDateRange' => {
+                  'from' => '2018-01-01',
+                  'to' => ''
+                },
+                'treatmentCenterName' => 'Super Hospital',
+                'treatmentCenterAddress' => {
+                  'country' => 'USA',
+                  'city' => 'Portland',
+                  'state' => 'OR'
+                },
+                'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3]
+              }
+            ]
+          }
+        }
+      end
+
+      it 'should translate the data correctly' do
+        expect(subject.send(:translate_treatments)).to eq 'treatments' => [
+          {
+            'startDate' => {
+              'year' => '2018',
+              'month' => '01',
+              'day' => '01'
+            },
             'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
             'center' => {
               'name' => 'Super Hospital',
@@ -999,6 +1049,49 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             ]
           }
         ]
+      end
+    end
+
+    describe '#approximate_date' do
+      context 'when there is a full date' do
+        let(:date) { '2099-12-01' }
+
+        it 'should return the year, month, and day' do
+          expect(subject.send(:approximate_date, date)).to include(
+            'year' => '2099',
+            'month' => '12',
+            'day' => '01'
+          )
+        end
+      end
+
+      context 'when there is a partial date (year and month)' do
+        let(:date) { '2099-12-XX' }
+
+        it 'should return the year and month' do
+          expect(subject.send(:approximate_date, date)).to include(
+            'year' => '2099',
+            'month' => '12'
+          )
+        end
+      end
+
+      context 'when there is a partial date (year only)' do
+        let(:date) { '2099-XX-XX' }
+
+        it 'should return the year' do
+          expect(subject.send(:approximate_date, date)).to include(
+            'year' => '2099'
+          )
+        end
+      end
+
+      context 'when there is no date' do
+        let(:date) { '' }
+
+        it 'should return the year' do
+          expect(subject.send(:approximate_date, date)).to eq nil
+        end
       end
     end
   end
