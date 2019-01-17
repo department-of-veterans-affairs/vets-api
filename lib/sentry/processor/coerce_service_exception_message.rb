@@ -16,15 +16,11 @@ module Sentry
       private
 
       def process_if_symbol_keys(data)
-        if RELEVANT_EXCEPTIONS.include?(data[:exception][:values].last[:type])
-          data[:message] += ' msg'
-        end
+        data[:message] += ' msg' if RELEVANT_EXCEPTIONS.include?(data[:exception][:values].last[:type])
       end
 
       def process_if_string_keys(data)
-        if RELEVANT_EXCEPTIONS.include?(data['exception']['values'].last['type'])
-          data['message'] += ' msg'
-        end
+        data['message'] += ' msg' if RELEVANT_EXCEPTIONS.include?(data['exception']['values'].last['type'])
       end
     end
   end

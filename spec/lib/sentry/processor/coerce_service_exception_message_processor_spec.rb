@@ -48,4 +48,3 @@ describe Sentry::Processor::CoerceServiceExceptionMessage do
     end
   end
 end
-
