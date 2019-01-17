@@ -61,6 +61,68 @@ RSpec.describe Users::Profile do
 
     context '#profile' do
       # --- positive tests ---
+      context 'idme user' do
+        it 'should include authn_context' do
+          expect(profile[:authn_context]).to eq(nil)
+        end
+
+        context 'multifactor' do
+          let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
+
+          it 'should include authn_context' do
+            expect(profile[:authn_context]).to eq(nil)
+          end
+        end
+      end
+
+      context 'mhv user' do
+        let(:user) { create(:user, :mhv) }
+
+        it 'should include authn_context' do
+          expect(profile[:authn_context]).to eq('myhealthevet')
+        end
+
+        context 'multifactor' do
+          let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
+
+          it 'should include authn_context' do
+            expect(profile[:authn_context]).to eq('myhealthevet')
+          end
+        end
+
+        context 'verified' do
+          let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_loa3') }
+
+          it 'should include authn_context' do
+            expect(profile[:authn_context]).to eq('myhealthevet')
+          end
+        end
+      end
+
+      context 'dslogon user' do
+        let(:user) { create(:user, :dslogon) }
+
+        it 'should include authn_context' do
+          expect(profile[:authn_context]).to eq('dslogon')
+        end
+
+        context 'multifactor' do
+          let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
+
+          it 'should include authn_context' do
+            expect(profile[:authn_context]).to eq('dslogon')
+          end
+        end
+
+        context 'verified' do
+          let(:user) { create(:user, :loa1, authn_context: 'dslogon_loa3') }
+
+          it 'should include authn_context' do
+            expect(profile[:authn_context]).to eq('dslogon')
+          end
+        end
+      end
+
       it 'should include email' do
         expect(profile[:email]).to eq(user.email)
       end
