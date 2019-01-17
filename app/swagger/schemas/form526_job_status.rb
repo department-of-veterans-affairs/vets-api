@@ -13,6 +13,7 @@ module Swagger
             property :claim_id, type: :integer
             property :job_id, type: :string
             property :status, type: :string
+            property :ancillary_item_statuses, type: :array
           end
           property :id, type: :string
           property :type, type: :string
