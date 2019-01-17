@@ -9,8 +9,9 @@ module EVSS
 
       sidekiq_options retry: RETRY
 
-      def perform(submission_id, upload_data)
+      def perform(submission_id, uploads)
         super(submission_id)
+        upload_data = uploads.shift
         guid = upload_data&.dig('confirmationCode')
         with_tracking("Form526 Upload: #{guid}", submission.saved_claim_id, submission.id) do
           file_body = SupportingEvidenceAttachment.find_by(guid: guid)&.get_file&.read
@@ -19,6 +20,7 @@ module EVSS
           client = EVSS::DocumentsService.new(submission.auth_headers)
           client.upload(file_body, document_data)
         end
+        perform_next(submission_id, uploads) if uploads.present?
       rescue StandardError => e
         # Can't send a job manually to the dead set.
         # Log and re-raise so the job ends up in the dead set and the parent batch is not marked as complete.
@@ -39,6 +41,11 @@ module EVSS
           tracked_item_id: nil,
           document_type: upload_data['attachmentId']
         )
+      end
+
+      # Uploads need to be run sequentially as per requested from EVSS
+      def perform_next(id, uploads)
+        EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, uploads)
       end
     end
   end
