@@ -40,6 +40,6 @@ class UserIdentity < Common::RedisStore
   end
 
   def default_sign_in
-    { service_name: (authn_context || 'idme') }
+    { service_name: (authn_context || 'idme'), account_type: nil }
   end
 end

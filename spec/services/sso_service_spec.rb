@@ -4,123 +4,119 @@ require 'rails_helper'
 require 'support/saml/response_builder'
 
 RSpec.describe SSOService do
-  subject(:sso_service) { described_class.new(saml_response) }
+  include SAML::ResponseBuilder
 
-  before(:each) do
-    sso_service.persist_authentication!
-  end
+  subject(:sso_service) { described_class.new(saml_response) }
 
   describe 'MHV Identity' do
     context 'Basic' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('myhealthevet', 'Basic') }
+      let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Basic') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet')
+          .to eq(service_name: 'myhealthevet', account_type: 'Basic', id_proof_type: 'not-verified')
       end
 
       context 'with ID.me LOA3' do
+        let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Basic', level_of_assurance: ['3']) }
+
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'myhealthevet')
-          saml_response_verifying_identity = SAML::ResponseBuilder.saml_response('loa3')
-          sso_service_verifying_identity = described_class.new(saml_response_verifying_identity)
-          expect(sso_service_verifying_identity.new_user_identity.sign_in)
-            .to eq(service_name: 'idme')
-          sso_service_verifying_identity.persist_authentication!
-          expect(sso_service_verifying_identity.new_user_identity.sign_in)
-            .to eq(service_name: 'myhealthevet')
+            .to eq(service_name: 'myhealthevet', account_type: 'Basic', id_proof_type: 'idme-initial')
         end
       end
     end
 
     context 'Advanced' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('myhealthevet', 'Advanced') }
+      let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Advanced') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet')
+          .to eq(service_name: 'myhealthevet', account_type: 'Advanced', id_proof_type: 'not-verified')
       end
     end
 
     context 'myhealthevet_loa3' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('myhealthevet_loa3', 'Advanced') }
+      ['Basic', 'Advanced'].each do |account_type|
+        context "with initial account type of #{account_type}" do
+          let(:saml_response) { build_saml_response(authn_context: 'myhealthevet_loa3') }
 
-      it 'has a #new_user_identity which responds to #sign_in' do
-        expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet')
+          before(:each) do
+            create_user_identity(authn_context: 'myhealthevet', account_type: account_type, level_of_assurance: ['3'])
+          end
+
+          it 'has a #new_user_identity which responds to #sign_in' do
+            expect(sso_service.new_user_identity.sign_in)
+              .to eq(service_name: 'myhealthevet', account_type: account_type, id_proof_type: 'idme')
+          end
+        end
       end
     end
 
     context 'Premium' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('myhealthevet', 'Premium') }
+      let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Premium') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet')
+          .to eq(service_name: 'myhealthevet', account_type: 'Premium', id_proof_type: 'myhealthevet')
       end
     end
   end
 
   describe 'DS Logon Identity' do
     context 'dslogon assurance 1' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('dslogon', '1') }
+      let(:saml_response) { build_saml_response(authn_context: 'dslogon', account_type: '1') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'dslogon')
+          .to eq(service_name: 'dslogon', account_type: '1', id_proof_type: 'not-verified')
       end
 
       context 'with ID.me LOA3' do
+        let(:saml_response) { build_saml_response(authn_context: 'dslogon', account_type: '1', level_of_assurance: ['3']) }
+
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'dslogon')
-          saml_response_verifying_identity = SAML::ResponseBuilder.saml_response('loa3')
-          sso_service_verifying_identity = described_class.new(saml_response_verifying_identity)
-          expect(sso_service_verifying_identity.new_user_identity.sign_in)
-            .to eq(service_name: 'idme')
-          sso_service_verifying_identity.persist_authentication!
-          expect(sso_service_verifying_identity.new_user_identity.sign_in)
-            .to eq(service_name: 'dslogon')
+            .to eq(service_name: 'dslogon', account_type: '1', id_proof_type: 'idme-initial')
         end
       end
     end
 
     context 'dslogon assurance 2' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('dslogon', '2') }
+      let(:saml_response) { build_saml_response(authn_context: 'dslogon', account_type: '2') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'dslogon')
+          .to eq(service_name: 'dslogon', account_type: '2', id_proof_type: 'dslogon')
       end
     end
 
     context 'dslogon assurance 3' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('dslogon_loa3', '3') }
+      let(:saml_response) { build_saml_response(authn_context: 'dslogon', account_type: '3') }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'dslogon')
+          .to eq(service_name: 'dslogon', account_type: '3', id_proof_type: 'dslogon')
       end
     end
   end
 
   describe 'IDme Identity' do
     context 'idme assurance 1' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('loa1') }
+      let(:saml_response) { build_saml_response(authn_context: SAML::ResponseBuilder::IDMELOA1, level_of_assurance: ['3']) }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'idme')
+          .to eq(service_name: 'idme', account_type: 'N/A', id_proof_type: 'idme-initial')
       end
     end
 
     context 'idme assurance 3' do
-      let(:saml_response) { SAML::ResponseBuilder.saml_response('loa3') }
+      let(:saml_response) { build_saml_response(authn_context: SAML::ResponseBuilder::IDMELOA3) }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'idme')
+          .to eq(service_name: 'idme', account_type: 'N/A', id_proof_type: 'idme')
       end
     end
   end

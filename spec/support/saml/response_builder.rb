@@ -1,43 +1,31 @@
 # frozen_string_literal: true
 
 module SAML
-  class ResponseBuilder
-    include RSpec::Mocks::ExampleMethods
+  module ResponseBuilder
+    IDMELOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'.freeze
+    IDMELOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'.freeze
 
-    attr_reader :type, :level
-
-    LEVELS = {
-      'loa1' => '1',
-      'loa3' => '3',
-      'myhealthevet_loa3' => '3',
-      'dslogon_loa3' => '3',
-      'myhealthevet_multifactor' => '3',
-      'dslogon_multifactor' => '3'
-    }.freeze
-
-    def initialize(type:, level: nil)
-      @type = type
-      @level = level
+    def create_user_identity(authn_context: IDMELOA1, account_type: 'N/A', level_of_assurance: ['1'])
+      saml = build_saml_response(authn_context: authn_context, account_type: account_type, level_of_assurance: level_of_assurance)
+      saml_user = SAML::User.new(saml)
+      user_identity = UserIdentity.new(saml_user.to_hash).save
+      user_identity
     end
 
-    def self.saml_response(type, level = nil)
-      level ||= LEVELS.fetch(type, '1')
-      new(type: type, level: level).saml_response
+    def saml_response_from_attributes(authn_context, attributes)
+      build_saml_response(authn_context: authn_context, attributes: attributes)
     end
 
-    def self.saml_response_from_attributes(type, attributes)
-      new(type: type).saml_response(attributes)
-    end
-
-    def saml_response(attributes = saml_attributes)
-      decrypted_document_partial = REXML::Document.new(authn_context_xml_partial)
-      instance_double(OneLogin::RubySaml::Response, attributes: attributes,
+    def build_saml_response(authn_context: IDMELOA1, account_type: 'N/A', level_of_assurance: ['1'], attributes: nil)
+      decrypted_document_partial = REXML::Document.new(authn_context_xml_partial(authn_context))
+      saml = saml_attributes(authn_context: authn_context, account_type: account_type, level_of_assurance: level_of_assurance)
+      instance_double(OneLogin::RubySaml::Response, attributes: attributes || saml,
                                                     decrypted_document: decrypted_document_partial,
                                                     is_a?: true,
                                                     is_valid?: true)
     end
 
-    def authn_context_xml_partial
+    def authn_context_xml_partial(authn_context)
       <<-XML
       <?xml version="1.0"?>
       <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">
@@ -52,49 +40,38 @@ module SAML
       XML
     end
 
-    def authn_context
-      case type
-      when 'loa1'
-        'http://idmanagement.gov/ns/assurance/loa/1/vets'
-      when 'loa3'
-        'http://idmanagement.gov/ns/assurance/loa/3/vets'
-      else
-        type
-      end
-    end
-
     # rubocop:disable Metrics/MethodLength
-    def saml_attributes
-      case type
+    def saml_attributes(authn_context: IDMELOA1, account_type: 'N/A', level_of_assurance: ['1'])
+      case authn_context
       when 'myhealthevet'
         OneLogin::RubySaml::Attributes.new(
           'mhv_icn' => ['1012853550V207686'],
-          'mhv_profile' => ["{\"accountType\":\"#{level}\"}"],
+          'mhv_profile' => ["{\"accountType\":\"#{account_type}\"}"],
           'mhv_uuid' => ['12345748'],
           'email' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => [false],
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'level_of_assurance' => []
+          'level_of_assurance' => level_of_assurance
         )
       when 'dslogon'
         OneLogin::RubySaml::Attributes.new(
           'dslogon_status' => ['DEPENDENT'],
-          'dslogon_assurance' => [level],
+          'dslogon_assurance' => [account_type],
           'dslogon_gender' => ['M'],
           'dslogon_deceased' => ['false'],
-          'dslogon_idtype' => ['ssn'],
+          'dslogon_idauthn_context' => ['ssn'],
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'dslogon_uuid' => ['1606997570'],
           'email' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => ['true'],
-          'level_of_assurance' => ['3'],
+          'level_of_assurance' => level_of_assurance,
           'dslogon_birth_date' => [],
           'dslogon_fname' => ['Tristan'],
           'dslogon_lname' => ['MHV'],
           'dslogon_mname' => [''],
           'dslogon_idvalue' => ['111223333']
         )
-      when 'loa1', 'loa3', 'dslogon_loa3', 'myhealthevet_loa3', 'myhealthevet_multifactor', 'dslogon_multifactor'
+      when IDMELOA1, IDMELOA3, 'dslogon_loa2', 'dslogon_loa3', 'myhealthevet_loa3', 'myhealthevet_multifactor', 'dslogon_multifactor'
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'email'              => ['kam+tristanmhv@adhocteam.us'],
@@ -104,7 +81,7 @@ module SAML
           'social'             => ['111223333'],
           'gender'             => ['male'],
           'birth_date'         => ['1735-10-30'],
-          'level_of_assurance' => [level],
+          'level_of_assurance' => (authn_context == 'loa1' ? ['1'] : ['3']),
           'multifactor'        => [true]
         )
       end

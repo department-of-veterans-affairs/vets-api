@@ -16,7 +16,7 @@ class SSOService
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
     @saml_response = response
-    Raven.tags_context(sso_authn_context: real_authn_context)
+
     if saml_response.is_valid?(true)
       @saml_attributes = SAML::User.new(@saml_response)
       @existing_user = User.find(saml_attributes.user_attributes.uuid)
