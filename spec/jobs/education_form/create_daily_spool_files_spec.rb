@@ -168,8 +168,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       output = subject.group_submissions_by_region(submissions)
 
-      expect(output[:eastern].length).to be(3)
-      expect(output[:western].length).to be(2)
+      expect(output[:eastern].length).to be(2)
+      expect(output[:western].length).to be(3)
       expect(output[:central].length).to be(1)
     end
   end
