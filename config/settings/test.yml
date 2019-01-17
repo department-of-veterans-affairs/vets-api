@@ -9,18 +9,13 @@ mvi:
 
 locators:
   providers_enabled: true
-  
+
 reports:
   aws:
     access_key_id: key
     bucket: bucket
     region: region
     secret_access_key: secret
-
-saml:
-  cert_path: spec/support/certificates/ruby-saml.crt
-  key_path: spec/support/certificates/ruby-saml.key
-
 
 edu:
   prefill: true

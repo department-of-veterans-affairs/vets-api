@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+# To use the integration recorder:
+# consider which settings from config/settings/test.yml you might want to temporarily add to config/settings.local.yml,
+# scuh as secret_key_base
+# start the rails server in development or test mode with the DUALDECK_INTERACTION environment vairalble set to a string
+# for example `DUALDECK_INTERACTION=authentication rails server`
+
 # This initializer has two parts.
 # Part 1. Overrides SecureRandom and is necessary in both the development and test environments.
 # It does not disable the normal behavior of SecureRandom in any way unless it is invoked.
@@ -66,7 +72,7 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
       erb: false,
       allow_playback_repeats: false
     }
-    c.cassette_library_dir = Settings.integration_recorder.base_cassette_dir
+    c.cassette_library_dir = 'spec/support/vcr_cassettes'
     c.allow_http_connections_when_no_cassette = false
     c.filter_sensitive_data('<APP_TOKEN>') { Settings.mhv.rx.app_token }
     c.filter_sensitive_data('<EVSS_BASE_URL>') { Settings.evss.url }
@@ -77,12 +83,6 @@ if Rails.env.development? && ENV['DUALDECK_INTERACTION']
     c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
     c.filter_sensitive_data('<MVI_URL>') { Settings.mvi.url }
     c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
-    c.before_record do |i|
-      %i[response request].each do |env|
-        next unless i.send(env).headers.keys.include?('Token')
-        i.send(env).headers.update('Token' => '<SESSION_TOKEN>')
-      end
-    end
   end
 
   # This is the Rack Middleware responsible for recording cassettes

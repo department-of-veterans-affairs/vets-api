@@ -1,0 +1,378 @@
+# edited lastSignedIn time due to rubocop
+---
+http_interactions:
+- request:
+    method: get
+    uri: http://localhost:3000/sessions/idme/new
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      Origin:
+      - http://localhost:3001
+      X-Key-Inflection:
+      - camel
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/71.0.3578.98 Safari/537.36
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cookie:
+      - _ga=GA1.1.1444553726.1547669828; _vagovRollup=GA1.1.1622194347.1547669828;
+        _gid=GA1.1.1369563400.1547785142; _vagovRollup_gid=GA1.1.1193245220.1547785142;
+        _gat_GSA_ENOR0=1; _gat_UA-50123418-3=1; _gat_UA-50123418-15=1; _gat_UA-69938072-4=1;
+        api_session=ZFc2ZlVPNTMva3NKSDFpS1BVbDdqM0wvaG1GYWZuK2ZBeERYcjRNMVRtc1ZlSWp0Y3Q5REZIMEpvL0VNV1ArNjV3c29Dd3BGSDkrcDVDYjQ5dHl6WXc9PS0tYXVhZnIvclF1QzVlSjFNUm1iWkpNZz09--b5c1ff5b093c98986f52f8b3520d5925d256941a
+      If-None-Match:
+      - W/"6ee98c70110733c061b0ad2184fecc7d"
+  response:
+    status:
+      code: 200
+      message:
+    headers:
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 0324288bfb0583edb54d7d3f394c9609415727f0
+      Content-Type:
+      - application/json; charset=utf-8
+      Set-Cookie:
+      - api_session=U0NYMEVHQmIxUGhhSFlrbGFkc1Zra3JoT1lnbmk2Z0tnVE94eGM4b2xXbnZpMHdRZ1g3VXBXNzdzT0YrRUpZSE0wU3pSVC9VaE95TXRvblk0TzhaMVE9PS0tbFJ4VEhkbnBkeGNhZEZtRldCRGhRZz09--844525f49a10533d93bb6fdb1c9f91525c798d58;
+        path=/; HttpOnly
+      ETag:
+      - W/"a7726660683cb9ca327f714f69162ab4"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - 044bc52e-2daf-40ee-a77d-68b8535e5de4
+      X-Runtime:
+      - '0.380781'
+      Vary:
+      - Origin
+      Content-Length:
+      - '1075'
+    body:
+      encoding: UTF-8
+      string: '{"url":"https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=fVLLjtswDPwV33SyZefRbIQ4QJCgQIDtA0nbw14KRmYSobLkinSa%2Fn2lPBY5dPcmUDPD4ZAzgtZ2atHz0W3wd4%2FE2YIIAxvvlt5R32LYYjgZjd83z7U4MndKSus12KMnVsOyLCVEvkxSMpbtDvQvka2ilnGQhK40ijzoTGGaFi3sqNC%2BvZK2xh0sbs3BfXG3ZiJbr2rxsxyNdno8wHzQwD4flYg5TCZN%2FuFp9zQejnHc4ChCiXpcO2JwXItBWU3zssqrybdqooZTVU5fRPYDA12sDIpSZOfWOlKpeS364JQHMqQctEiKtdouPj2rCFRwz%2BKR0r3P6YJnr70V81lCq4u7ME%2FvPHTFCZkO%2FlS8RjiTj7DZdSOfo%2Bx69dVbo%2F9mC2v9n2VAYKwFhz6m89GHFvh9I6limnx%2FgaouBUCMjoW8d7mtHJvLAcR9M545W%2Fq2g2AopYVn0Hyf5BG1tDGbDe7nt4uIWwUHB2xjgyLOJx3JiOgDOI3xXkBWMo1%2Bm%2Fa%2FUte%2FN2y9%2Fj4e6%2Fwf&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1&Signature=chZzDYq3hiy1coIZPM7g0GEoH%2FdLnTfV9ezKaFYG7ZCD%2BGdVG%2B1VZzkLRTzu3WeY4bDEP6sB7aU5WLmPA8Jw8ynKWsQUjzx9hRpU0uo0wayPSx4bk%2BOVCuYwhL7VNb6CVTejY3J7RG6itnjZA6UhDJXt7BU4yBufGeqa%2FCQ2eTclLCEa4JJ%2FUk2k7p4FNbKZMk4j2a55F%2BLVuG8rw5XIixCg0GfV9so70IDpriq92MCpLba4KeTGozbv3YSmLO3HORuoAoZ%2Bx3XKYPF4xuRyN1OIw07vuH%2FwPnU8DGyJBL5xTMdReEkEcoOSi6i2a6o6iCRiomzfX4ipTJkpJ4wQtA%3D%3D"}'
+    http_version:
+  recorded_at: Thu, 17 Jan 2019 17:39:09 GMT
+- request:
+    method: post
+    uri: http://localhost:3000/auth/saml/callback
+    body:
+      encoding: ASCII-8BIT
+      string: utf8=%E2%9C%93&authenticity_token=ZUyLf6rHe%2FUOoqYOi9qU7ZaugWEEktLxkL2KDdM4JRqRwoQso4C1V%2Ffzq1EryttrSyWRWY42WORWsr26LZhhHg%3D%3D&RelayState=&SAMLResponse=PHNhbWxwOlJlc3BvbnNlIHhtbG5zOnNhbWxwPSJ1cm46b2FzaXM6bmFtZXM6dGM6U0FNTDoyLjA6cHJvdG9jb2wiIHhtbG5zOnNhbWw9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDphc3NlcnRpb24iIElEPSJfZGI5NmZiMjYwMzg3NDUyNzhjNWMyNGVkZmE0ZDM5NzgiIFZlcnNpb249IjIuMCIgSXNzdWVJbnN0YW50PSIyMDE5LTAxLTE3VDE3OjM5OjE1WiIgRGVzdGluYXRpb249Imh0dHA6Ly9sb2NhbGhvc3Q6MzAwMC9hdXRoL3NhbWwvY2FsbGJhY2siIEluUmVzcG9uc2VUbz0iXzA0NGJjNTJlLTJkYWYtNDBlZS1hNzdkLTY4Yjg1MzVlNWRlNCI%2BPHNhbWw6SXNzdWVyPmFwaS5pZG1lbGFicy5jb208L3NhbWw6SXNzdWVyPjxkczpTaWduYXR1cmUgeG1sbnM6ZHM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyMiPjxkczpTaWduZWRJbmZvPjxkczpDYW5vbmljYWxpemF0aW9uTWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8xMC94bWwtZXhjLWMxNG4jIi8%2BPGRzOlNpZ25hdHVyZU1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZHNpZy1tb3JlI3JzYS1zaGEyNTYiLz48ZHM6UmVmZXJlbmNlIFVSST0iI19kYjk2ZmIyNjAzODc0NTI3OGM1YzI0ZWRmYTRkMzk3OCI%2BPGRzOlRyYW5zZm9ybXM%2BPGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvMDkveG1sZHNpZyNlbnZlbG9wZWQtc2lnbmF0dXJlIi8%2BPGRzOlRyYW5zZm9ybSBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMTAveG1sLWV4Yy1jMTRuIyIvPjwvZHM6VHJhbnNmb3Jtcz48ZHM6RGlnZXN0TWV0aG9kIEFsZ29yaXRobT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjc2hhMjU2Ii8%2BPGRzOkRpZ2VzdFZhbHVlPit1ZlVMUy9EbTJWOTJCMzU1cHhVMDYxNUpXeCtTSTNTTVcyVnArT01vaTA9PC9kczpEaWdlc3RWYWx1ZT48L2RzOlJlZmVyZW5jZT48L2RzOlNpZ25lZEluZm8%2BPGRzOlNpZ25hdHVyZVZhbHVlPmxQT2F6YVQ3Q2ZUSTV5RE9SbDdEc0JHR25SemNHcHdubDkvb0ZkTlVuSzVKeFRHbkd0YkwxeEFoeXgrMXpmTlZiRUJJR1YvSnRoRmYyMm5oaVkvdFlMMktFWXR6NmJibDVFS2ZTTHJ6aWZKZUk4Si9pT1pXclpqVTh4Z0Fyam93TE9oSXlKdmExc3lVeGczZDN4SVNmTXFjM0VTNktvU1RBbExlYUM2Tkg5QVRJb0Iva0h3MzViN1Jqc0dBWlRNM1FlOG9MRnZCQ1VkY0dnaVg5cTB6eVNvbjJXQTU4SkNLUWpCTjZNbnFqYXhvKzdOYWZpNUM3eGVxODdxZWIxeVd4bnZUZklYNUtpSHNLUVNaMENRV0luR2Q0bkZUWTc0bFZJQk1XWUwrNVUrN3IwbFY4ZXgrbjhiV0xDQlRHRHBjdGF5Y2tJb2d2cGtyWGtzRFZiZ0NkQT09PC9kczpTaWduYXR1cmVWYWx1ZT48ZHM6S2V5SW5mbz48ZHM6WDUwOURhdGE%2BPGRzOlg1MDlDZXJ0aWZpY2F0ZT5NSUlEcURDQ0FwQUNDUURGVllUY3g4V2tCREFOQmdrcWhraUc5dzBCQVFzRkFEQ0JsVEVMTUFrR0ExVUVCaE1DVlZNeEVUQVBCZ05WQkFnVENGWnBjbWRwYm1saE1ROHdEUVlEVlFRSEV3Wk5ZMHhsWVc0eERqQU1CZ05WQkFvVEJVbEVMbTFsTVJRd0VnWURWUVFMRXd0RmJtZHBibVZsY21sdVp6RWFNQmdHQTFVRUF4TVJjMmxuYm1sdVp5NXBaSEF1YVdRdWJXVXhJREFlQmdrcWhraUc5dzBCQ1FFV0VXVnVaMmx1WldWeWFXNW5RR2xrTG0xbE1CNFhEVEU0TURNeU1ERTNNVGd3TWxvWERURTVNRE15TURFM01UZ3dNbG93Z1pVeEN6QUpCZ05WQkFZVEFsVlRNUkV3RHdZRFZRUUlFd2hXYVhKbmFXNXBZVEVQTUEwR0ExVUVCeE1HVFdOTVpXRnVNUTR3REFZRFZRUUtFd1ZKUkM1dFpURVVNQklHQTFVRUN4TUxSVzVuYVc1bFpYSnBibWN4R2pBWUJnTlZCQU1URVhOcFoyNXBibWN1YVdSd0xtbGtMbTFsTVNBd0hnWUpLb1pJaHZjTkFRa0JGaEZsYm1kcGJtVmxjbWx1WjBCcFpDNXRaVENDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFMMHl4dW9SeFc3dFhWNjh2OUthNWVBcTJ5NlFJNFRJUFkrL1IxbGo3VVFteTVxVmszNEgrSnJJUmhjVGsyWC94S0ZqT1hPRGg2dkE3SGU1QnFZMElMS0FBMFQra0t0S2FsMWx5T0pFcVBzWm9XclFuR1B4bHc0akdFcHJIcWo3cXlmUEQyYzZTYXVWc2t0K1A4L3U3UmlMdDBOWFU4SUdXMmtTODFMaE9WeFRPTTR2dXVQOVBpNzJpaEVLcG9zK3ZtdWdJL3lWeERQaGt1NGFpcnlaejdKR1FmeHUxNDZTK3hRYll1czkrTzJSN3BZSWF3R2dqWmNGSU1TTmNBOFlHU3A2WjllZUt1YS9scWdCK3Vla1F2cElyc0ZRbHEwekZ1dnlPLzZsaDZPSHB4RnFvaHp2VkpGZGttZWVEenllYWxVRnJCOWIyd09BZ3lCejlQZ2VCSWNDQXdFQUFUQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFJQ0Z6VTJLaUJVcUZ1azlicmhQUm9IY3hQUXJVWXdSNkdSNEgrZHdTY2NQdC8wSW1CMVRpeFlLaExIME1UMFByb1RnZzVMaE1oZkY0UXVOb2FTSzRlQysxOUdjQUtweWk4eXUxbUg2YlVyYlRuZnRpZlJKZkFNWVF1TlVOYWd6eWZCMmVRV1M5OXQrTlR6VnNVbFJzRTloSjJWSUx4Q3FHNEpPMEUzZWlIOFlWcVdFRlhYZGhhSHN6NWZtQlZFQkpEMDVybXh5V1hkSmFjUzFUUXovUXV3cVV1dkRjdkdxYUxWb0hMbWF6QWk2MU0yVnkxcGo5SWtkUXUzV2ZoMjIvWEpQQW13TTFmT3FDcXgzbHgxUkpHZk9uWUZDVTYwSmh6N0grRXB2UWJXQzh4cXl5LzMyVGVaazVLQ1F2bG54dWFwOFJWMXpnTXFGZHBSczA1SVUwSHc9PTwvZHM6WDUwOUNlcnRpZmljYXRlPjwvZHM6WDUwOURhdGE%2BPC9kczpLZXlJbmZvPjwvZHM6U2lnbmF0dXJlPjxzYW1scDpTdGF0dXM%2BPHNhbWxwOlN0YXR1c0NvZGUgVmFsdWU9InVybjpvYXNpczpuYW1lczp0YzpTQU1MOjIuMDpzdGF0dXM6U3VjY2VzcyIvPjwvc2FtbHA6U3RhdHVzPjxzYW1sOkVuY3J5cHRlZEFzc2VydGlvbj48eGVuYzpFbmNyeXB0ZWREYXRhIHhtbG5zOnhlbmM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jIyIgSWQ9Il9jZmVjNjY1OWZkMGQ0NjllOTdkOWM1YmM4MDZhMDczYyIgVHlwZT0iaHR0cDovL3d3dy53My5vcmcvMjAwMS8wNC94bWxlbmMjRWxlbWVudCI%2BPHhlbmM6RW5jcnlwdGlvbk1ldGhvZCBBbGdvcml0aG09Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jI2FlczI1Ni1jYmMiLz48ZHM6S2V5SW5mbyB4bWxuczpkcz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC8wOS94bWxkc2lnIyI%2BPHhlbmM6RW5jcnlwdGVkS2V5IElkPSJfN2NkM2I2MjU5NmEzNGQ2MTgxNmNjMzc5NTc2NDRjZTMiIFR5cGU9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvMDQveG1sZW5jI0VsZW1lbnQiPjx4ZW5jOkVuY3J5cHRpb25NZXRob2QgQWxnb3JpdGhtPSJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGVuYyNyc2Etb2FlcC1tZ2YxcCIvPjx4ZW5jOkNpcGhlckRhdGE%2BPHhlbmM6Q2lwaGVyVmFsdWU%2BSWxHbkJDeEhkRXV1cFRpc1pvYlVLN05wcFZUaUtlTXBLZVdlYUR4YVJ1TnFkWFM4b2ZFdWV1dUQzSHJlU3RBb1ZGWFJ3emdUbXgvQkl6bFpHN3AzeHFMZnQ5UW9kd2IyOHg0eXJndWNUbnNKT0p3T04zVHBua1hvQVBBbnU4aExNTkRkampYeE1EMTRabEI4QTcxL01hbzdWNHZpMWlVTk1QM1ZyekE2V0JsRXNnUzE0K2ZXVDJ6THVBZmJVNmw4cjdnUXhwZng1cXFDbnRZeDY3bXJHRml0cVQzdG5WeUZGYXhxMmlvWFlUTE1HLzlQL3BYT3JXVE13T1B4dkZPY0dKb0d0MnZyUEFSakpVdHhVWS9GUDhmbHFuOXlCMWpaZHBUQmNGT2hiNEVLUFY0SXRxZk9TWWpjNjUzTC90NVhxTU5PQnlpK24veWFMcnAveTl5OGNBPT08L3hlbmM6Q2lwaGVyVmFsdWU%2BPC94ZW5jOkNpcGhlckRhdGE%2BPC94ZW5jOkVuY3J5cHRlZEtleT48L2RzOktleUluZm8%2BPHhlbmM6Q2lwaGVyRGF0YT48eGVuYzpDaXBoZXJWYWx1ZT45ajdMK0xIVEJ3amMyS3lqVHgzbFpVNzh6RmhLMWtKY2ZpWjJobi9ubFRGaHJnZVBWdnRBYksyV09rTTZqMW1uRDB6VS9IeWM3SzJXWjdOcTlUTW5lZWVUcnplVGtzZFc3dVBHOUJWRTZMQ0lLQmd1aUdaMkExbnhuUjZraVA3YWlaK0RjUXJ2YUpZREZ0WXZoNEZTcTROMkxLWWY0c3BDVnp3TTdNR0tYNFdEelFQcm04UzJnWFcvTEZPWGM5cXB2VXplQmNNNHhqR1F3aTB5K2loNzZBWURsWXZkVFN3dDVxZ2ZMY2l4NUFmc3BJUVk3V0g4WmJIMHhjRlIvTW9ISDgxaWJzeElrT3RTZ1diaTVRbDA2U01VZWxyMklJd0ovd2NJcEk0KzhNNkRhYWw1cjRwd3dMMVFETzBKTzZjTjJ4SjhmNkRDR1d3bUxkL0wwZjBodFNSK2xobmJSNnoxcm42U0wxMklQTXFWdkd2YVpLeDZzS0pERllJNFhiZ2JWR1RVdUtyU3cvak1VaXJTeVlyNDgxM0E4T1JlbVNSSm1YNVpWbjZmN0IwSkE4VVVERVcyTFVZYWNUZU1PRFZHTWRISDBaZ3psREJWWHFmK0xTWWNjNlhDSnFiWnNvMGhlcDh3eHBIVjF4ZUlBbnpVQnd1eWwzb29KZzdOSHZ1ajRBSDl5QVNkUGp4SXd0U0xiQjNRanpPWHlJMzVCbWsvZUN5YVF6b0hhOXJrUmpXM3pLNitkaTVzODhXNnhiKzY2MXBjVXZhYU5QSW9rRytqRllNeGd0U3lJc0pmeVdlNTk0VmFUSkVIdVc1NmR2bjIzYm9kSEFtMVBRRmZTdFl2UWp0THh2ZW44YzBLRXhOSHlXS1U4WDVlRzRGaE51dDUzcEpuQWk5R1pGWU1xcUlrYXYrMUgxbmhVS1VORzNyVks0VFgyRnBWK0t1bFJ5VDVROE1zaUF0UFdCUDNmVE5MZUFwRDlXL2dxSWNVOGp6UG5FSWVxSDdwTEcyRXlsaFQ1TzlzQWYwY011QXBwUHlLNEZ3ZlRlaWFkSDBpeHhHMURRYkVlYTkvU0lMT002aXVIcEpsWjVRY0NxTG1OcUVqUDdjeEtHdmF4eEVQZ2E5Yk5hdlp3b1lvY1ZsckVSeXlBcDlnbFJwcmdGSEdKK2V0ZWt5d0VvSCttc2ttUkVETTliVDBYVm5sQ0s2QWZIbFdTcUxON2tibG4zYXFlVy8vOFp0aGpDakpZeVl2OFFoYjdYR1FYUjYrSnBLZWdHUHZiL0Q1TzlKb2wrakZEUDBjV21CY2x4ZldNWk1mSXZJdXY5Nno3em53UXd1VERUak9YVTNvTmo4R0lrVkM0VktFOWxuMUp6Qjl5M0g3SytWNE96dEg5RHZFWTVGaVZoUFdxRnZ0RzhSdGFkcHd2cUhadEtqZ0RNQlMxWnlVd2lKWVMxN05leUVOcjBTbTQwc0g5VFJvYmkrMmVlTjB2aUtGMWJhVkpibGJPZkdCb2k1SUI3VzhGUXlmZG1TQWN2cEFQTHpjZytHdUVRRC96eG1NNUJsSE9WbkRRNm9zcEp5ZmIvUkU1ZmE1NldqN1FBOExoSXpiaUlEYUZ1d0hDT3k2NkQ5THVzUnFHWFQ4cmFqZnFDZ3BxYlpxbjFmQktEQzBCRDFPRjdSUjZKdytNY2d3UnFYZ2hFWHdLWXlBczNGS1UwQkYzQURjSEE3ZksvblZTM2ZqUGlTSU1VbVJaZWcxM0J0dDhZbVlrdTNNVWt0eERzTDlDdVRNOTZucTVyeDJ2QjZvNUZmYUdWeWpkK2xDdm1iOTlvWUs5czVhZnVSdUNReDUxZldxMmp1RE1rNTE0RTVzWWZ3K0tBbjVhNXNsRVlRN1ljb3pRRGhGTktLWHFOUlpycE9pU05FZnZEMEN6OTBWL25CWXFhcDU4VjBaOHdTclNteit6d0I1M0w1OHRNZ3NhTlJMbWxDclhVbmVLbFlXc0Q5cTEvWkI4d3RXRHQ1aTdVYWpJRkcyVmI1d0lZS09NaldaNURYRU1KZVRucFZDc3c3UkZDOUJobGEwK2g3Y2l0S1FKclRVeDdSd1c3VU1BWUNUNnhRS2ZBcDJYWFdQUS9GaEtMZTJuL2ZQTk9ZN2ZCSXNZVHdIa0I1RDNIT24vK0p6N1N5SDFjdno0azFhWUs1VDFMUVNNRUY5SXFIMW1uNnR4YlZWTkp5Q05mczU0ekk5MVFIS0xPTmpWZDlIUHk1REVWQ3pwcXh3OWhWdkFzbnZUVEJTeHJsbUhxZlpiUEQvQ3FNUm1hcFZsSmtPRHBLRVVMLzFrSTliZVBKc0c4bDhMdStxUDgrelNhK1QwQlpUL3VFV0N4cEJ0SjZhYmtBY09XbjhZRGlpZXgxKzVUTWZGWU9SRXpPNHpnb3lIZUF2NDRPa3I0cU5DemlGSHlUdGIxMzdvaForYzlnZW1KaWJJTzB3M2xDT01oTzJUZWxydkcyNDRRUkNXVGxmT2p4YUxpRFhaRGtjN09OdjZpdzJhU1pQUjlNVDZYOVZuNWZWeVcyQUx3V0wwbldkcFd1ak41RWtPTlZaK2d1K1lLVVpnNWZRS2x2M2psS1N2T1hVMkl5dW5rQ0ViR3RabDF4MmtnRDFHa0FXY2VsbnR2SVZ3NWllT3FkT2UwRjY1aGdRSDV5czhEMGdCNDdsK0xLaFZRZnFRNFQrME92dWYxdGRveHV1Nm42TjJlczdBTXZIS0w4K0dSemoyenhzUEVqeUdGK2NyMTNWdVpNRTNBOUR3eUt1U2x3MnlwMGJuU1kySGFVS1EzYWN0ODFQMHBaeDNlU3JWZzBHRDd4dzkzb05DYkJYeERCZ01lbmVmdXpSWmtaR3QwTk9rczdsQS90M3BscmFYS3dnSElLcnpROHQxTjZmZGdZRWNFYmlRb0JTRlkvRlY2YUlQQ0lBYWVScjhYTDZKUFZ2bzRja1JVb015MVJiYmc1UXUvcnU0TEUxUkFRdTdrZ0srSlV1cHRLRllzc1JUN2NxVHAzOHNHL1JPZXRFWVNueXdoQlVsRkNFS1FSU2ZkVWt0REIxMDVNK09tMzNKRXc2S2g0VTBuZlF1SnBpV2hWMmxWK1pXRDR0MTl3b3hsT29GaDAwU0ZxVitKM2krSEtvazJIUXRmeXd6VlF3aDBBa3c4VXN6ZHhza002QUl5NE03Y3FQR1ZYOVBFZTV2TFN4aEZxT2hGN0ZISExDQmR6UGFxR0xDYnhWbVd3aGVkdUdzT3hTNE5NcjNNSWRESkN6cS9POUg5eURtYU93eDJEbS9VMC9wWll4UE1XZkZocStaN21KZDNHb3FFUWE0Z3gwYXFRaHFGMjNoWjlFZGMyekl5UzNkdjJnMXZndW1mUzZCUzExeVN5enRjNzNtSUNOWDBaZ255YnlIL1pnQmZ0R2hGZ0c0WS9aN09PTlNqdEVOanFnVTlqVEVNSGVoa0RoUXpiUm1BM3dXZTUrZFl6bHFZMkhTOENvT1NhK2swZm5Nb08wSHh0Vk1SN2VRNzdtS3JITVRUaUJGYXJLTXdZUXdNcmtmaWR0ZkhxS25zSGl0bm80bEthV0ZMVVprNzV5aEltSUNTK3lDZm5YWEIyVWEvb05XaEJFbzQrUlJSZnQzSG9CUDFFVGxvYTF2RWh2U0xKTHZqL3NUak9qanMweXFxOHNVNmN3cE04eUlkK3l5bU83U3NYdUNMV01OaCt0aTlkZDY1a2xDVEltOWdKQnNtY1hDbXZXTFArUTBYaXhmN2h3LzJ4L2JyQlFOdTBLWmJ4aUs2R2JBY2E4YVZNdUFiektBcVFmdGZSb0t2YzJMTCswZHJlQzZTMThodGtJREpJZHNhbE1HZmNNUEVML2tiSWZNWXVjaFk2RHRlMndtSEVzM2hOS3V1MVdJclFncWtoRXlRZEYrNmhsQ0VRY3RxdW1oV0VucytIZjVyK2NjR2oxZWI5UnNtelM2NzAxaUpCMitpamZDcUp5WS8vNkYvd2hqMjFqU242aHNJbkt0TnB4Q3MyZTlwRUpWSkdNR0IxT2hCTHdSUEV1VjM3VWM4RXg2MjdOczlTQ1NBQkhWeW9jMFViRUZabTNDbmtZcG4rS0pwb1lmK1FSdDFaTGRRWklWdXNXdm1YcHNBVk1SUkljbjMzQjAwdS9hY0U2YUVRWlVXbXd5N2xNaHFwZ2Z5Z2V2cUxORW5CdGsvRFVPWWQ5VlNsTDJiNVlCaXlyY1E4YjliamdLaXc1NERDeURlMEMxYmo3L1dQRmNoTUNIeld5bWJSVW5nS3FlR0dndUJyblF5RU5vaUdERmJSK2ZHNE5kMlFBSmhmYnIrOXEzTDRvT1puMEk0eEdtYWFoU3Ezb3lLU3FRNkJneU9vbmxvSURBOUdFMVZCMWMrTDRtYllVZEcySmZKTGxjK3N0YWNSZ1hvL3JLWDltemdydnh4OE9pOTVVQm1BVVBpeUE0b2wzTDZlSTM5VjJyZkt1aVR0ckdoYzgrL1VEaG5pR0xjY2hvL3J2Zlk1ZlRSSDlSd3doelBkaDRrNFJqSVp4NWExWHJzU296MENFaDdqa0dYZkE3WW9LMkZWbkc5TG0xZU0wQW42VHI5MXo0SGYxZmk2Q0NmWDBvYWdVUkpWWTdGWnBmc2FlMG5md0dKTFk3OTZpdkNKa1VRM056RWhGNWNicklyWmEzRFBxa1hxQ3BZaWp1ckVtckJsTHVGZzl1WVZSWUdCdUhyOU4zekxLQlBvR3FKRVFsUFlBL3UzMWZzZzBadThJL0ZKMTZMbHV4cFVwWkVwTHJhQXJGenNMR1A3Ui9RV01STUZ1RWlYbjRmU1R6b2ZwSG1zNUh2UXV0bmRNQ04zSjVpcEZ6dUlIZmkwUVZQVmRIa2lQNnhrWnIvVlowU2hJbVpLSUZSaXpDaDlWR2ZSTUZQU1BGZHY0Y2sza3V6T01JTWJWTFpCNzN4NmlWOWZCNTBPRm4rRWxxemVQT0R4OVBLbjdlMnlIOTNGTHBuSk9EOTZKeVFKOFM0MnRBaEJpUndhenNnRFMzc2RTYmhWWHlUcmhjWW1RS1hvMmlNQkVIZmthMWViR0MxaGpHZ2JjZkorbHhpSmVNbnVWenM0ajBiK1Y0UnFYZTh0QUl6cGRHUURaNFhxczl4b2hWRWIzMEM3WnBpZHdyMjlaYVRicWRiUGU4NnA4Q3JyTVYwSmVxSmpjOW1peEUyOWNaQmNDUFFnMlFYbDZBZGlrYXhFdU9lSVMycjRwUzFTOTA4cXhtRnc5Q3JrSmFVU2s4UHlWVEprZ3BnRmhsdFpMbVhtYnArNXhCTDdCVGFxWXd1c3NmaXhncWM2dlp5NGVXWUNaNlJ4Z3JGNkNqdnZSWTViMGUvVWtrWlVQYVRPOGRTOG9KVkREdnhhRWYvNFkvMzRyNGtwdkxtVXRZZHFuRGZPNXJxcVZHcm9jZUhkU2FKaXJPcTYzazhwd0tCZmo3U3RFZkw3Y09Vd2YvdXJFZlVzYVJpdmtjbVB3RlRQdFRnZWsxeUVINHdGelRoZTIycXh1dzRONHdpQk5YVmVrWlJRaU0xZ25WMEFnMDJDekpwMmxDTThXQ1pzYUllNFNVcjBKNFpZSmtrNXZpaW5BUFc1TGhqa0QwQmJnUUR0T2pRVFdqdUFTS09JSDVRUGNoTTFaMFkxdHVsSUcvKzRTM2ZGNGFzUk00U1NzQVM4VzZWODk3MnlsbGJOMlZzRXJWRjNRbUp3RFlraFp4ajVEMVIrNlJCVXd2Zk5obEY1VWhHSGRWdFJydGx6d3JmdEFEUXEzdS92NUEyakh0T3pkT2VQSkNpbVBrTDJvVjZxL1JTNVB4bTlCa0FiTlM5Qys5VVo2K1EyTDYzbWJoQVNRUUJnRm1OamM2RzNDcDBRYmRvdDRNSXFJeEh4Mmo4d0t1RmdVOU1pblYxZ2tSZGNHQnhBQzVWSmdGQzNHVldqSFNlRXcvMjgxNUgvQXhjSkpMUDRLVytzNEdGdVJHSEhTenFxU3pueTZhSVJ1TEtEUnR1c3hXa3Q5WmU5VlhPbVRSZFVVSUMvZ3F6RlF4bG51V1FiVEl4V3RYSm9wUW5jWmh2VnJKd2pQTFRYelVKR1p0MGUxYzJzdGUxak9qWDdQSDUzN2V4c2dSY2ZQbjYyaUhpWVRxWTJpOXdIak9SUGpQN3BscWJTSlRvL1pzcnRGYk92NW1jSHY2bnVNdEdBczU5eE5oRnZidDNMZXJ6Sjd4amF0cTlobHcxNHR0M3pyVVp2S3BaS0JtMTlCOXByRkZ4Q2hUd0syK3dYQWk1WkpCWHVWMW5KbW83Y2lGWGNYd2FwRWgzOFB5alhPbVNHZ2FGbUI4U3E3SUk2TThxZ1luYmNuSlZpQmJOMi8wdVg5MkZVOC9ISyttaFhpQStOTzZXaFRNZytkTkkybXVGTE1RVWIwa0hzZHkzRGdiMkFKaW5FQ3BJR3FKYUtscFJZeVU0RmcvZDN1M2NiZVNFejNJTkFKbFhGeTJRNGlOVUFXcWt6TWw5K0hFNWdXNStPZW8wV2FKM1pDM2VOMHE2SE1jZnlqblhRWHltUkxnWTdGMTQ0QlpPWW03UkllOUxpbWxyZUZldUNKQWZ2aDVQL2JTcXdjZldxcFRXbWNKUVNZbkJWaHJNRkpJNVI5eHRCSVBmT2dlWTl6YndpNFo0L2hzVGoyRG5jVXZwRWhnWWt1TFVXY2xDWUl6YzRjTDlrelRYZEE2ZTRIVnEyKzNNSHZ0QjQyQ1M2K3M2R1JMTVh5ZGtuU0tVZnVFMjRNeW85UGN1amp3MlI1S0hKT0haRTlSTkVIUlkyekYwUVB6TlZPays0TmJUdGY5ZWxxVnpzdkdaR3FnTVhQeE95dnFzaTZ6bmxvcnBIbTdOV1pGRXZnQUhHZmhWSTgxV3pzNVFEWEVQM0NMeE1yb2JlR0tSUnJrdFhFT2g4ZTE3RTdUbjNQY2NSWTRPVWIyUXVDcmp6eXlLOVU3NHRTQ3NidzQ0UWRZb1VZbWVQS3ZJU3pKQTBPYUhTQkpNeEMvNGxHZzdVeVNoSmpCRXJqQ3llY2RUZlVtaXlPZUU0ZlVXRmZUVUZ1Mm1lRnhrMEtPWGc0ditWRlNYVDdLUHNIT0RRcTBDaUVaMi9UUUlNc2FLMXEzaUIvWWs1T2xXdzRRVmtteEtTS0Y0Q3FCVXJpakoyVnZHUjN5dHN5cDB0MHVuVWgzV0J5cTFDTGxySzA1UU5ZbVR3UmpXeFJORHRkVklzUGtENDR3ZjNVOVR2Z3NPS3ZqbDRqb3FUVFlvWTkrS1ZXNGZicFdtR25yQjFtZ3VyZUlqbVFSY2c0bE1ySVZEUDBBbEFrajRlRTJrRmpCdm5Sd2dOR3dmUzRGSWJGYXlnaUhLS2lPMnNoNkk0MmdHYW5scWRmVTNUaFhwRnN2VTkvUk5nU2pUcjFOeVdMVDZ0UXp6RUJYMjVUYk92dmZTVDlzL0txM1htaHNjcjA0TTZIeTRVa01MU0lBWng1eHhtbG5WZE1OOFFLd1pYS3FGd25MRlFBbGJBMU1IT0xOak9UT2l3Rkp1amhvazNJbFQzNkJNT0tieFI3bjlMcWwvSUFPaVNTaVI3TWVFOXY0UHcyVjg3YVZOam9haVVKdkxrQmJDdElMenRyZkhhRjlQMVRWNHh2WnhsUGRVYXZVK09NWWVGZE1SMnQvOHY1dmV0NURDTnk3YU5xR1FzeHRrdjZqRS8reHo5VUdRVUlQTUszNFYvT1gxUzNWaWM4ZjdXTHFWMGh2dDhwTEZwUVdLYlZud1kwK3UrUXlsRDVidmVCaExVa01sZDRiR0pkMzRrd0JzZjVVY0lIQXlOWXAwMWJ2Q3gyamRTK0pOVVdlKzdZUDE1K3NjTWZhTjVOZklUc2pYeE43K1JXMzhVT01LalZ3QVd0WWJpR21NcHkvc0R4ZEx4bm5jc3RqbWlUNWVWT1dqS2tsRFl0ZnBRU0p2RTJPUlR5SG9laElPRXlkcDVkdWxPcDFuUGVpQmVLTGlCMnNDRzZkMlo2clZLeFJoRENkNGQ0dHlpVVd1emxXYTd5TEFGcVMxYW5pREd2TDNYWS8vQnhtZkRHZVQwRlpTYmNSTkxTcXZ0dHRqT041RFhFVFF4QjJHV05VNnVoblg2RGpoc3cwSmN2eWhlQ0F6amoyaDB4YVY5TEQ0ZERBN1h3WlpJSlpkWVNkS05YQzA5QUJ6bEdOdjhLallmRXcvVmhvUENBZGY5VnJoVzBFa05hN3E5NU9UZGNjOEJWS1VuVGJjdEFrb3I3M0w3WmcvMk5JVENYVnFnYjd0ZWEzbEQ3Q3ZkcmpUM2Zuc1RGSGxwZjBIWko4cnJrSFpuVUdpdzJ4enZSRlMrODlsRHlrWnBLc2xFUzFTYTNXNlM5aFB1RDdldmtyd0hOK1BGdG9PNnlpcHFqbmY3alQ4SkhsUkRRQW54ZXRvNmF4TXVzUW9BOFRHQTMzSWZtbWoya2tHMkZqZnd2MEgvaXJVUW9Gd0o1K2pmVHNzbjZxSkxlQzU2SEtzUzViUEdhN2NMWHBNY1hYYnRiaENrM0hwSlV6aktGN3g2Z3VDTFNxbXdhRlJDakFqWTF5ZWRFQndEN2dBdG9Mb2dwaGtVcXpoR3V6bW5RV2ZFdWt5KzJEUko0ZUMzWHhkK3JLWldMU2tnQ0cxOGMxWGhQUFZrdUEwM0hxV0dTR0syc3ZmM21MQ3NKQlRqVEpkQUVzWGtsRzcrSFE3bE9WVlRtdjhpd0xINXQ3Mk9kdnltZHZRN202b0lRdy9ia2ZtM0ZDSUI1b2MwNTFHbkhVdXFsUmRFTzRKVlBSUnl4TW1IYTdhZUFwLzc4M2NDYzJkY0tlZmdxN1dLYy9HT3BpYVZkb21ER2ZmTFBkUHh2Q1lzaGtJNVlSRTVaYzNsYkh5N2llNkRLMGpIU3RtdDRhUWRGRXBma2Fzd3RVeUVYdTF1NFNSQStYd2MvNEtZbkZmUXYwQ0N3S05QUkZvUlMzNUFaM0lGVXYzVnd2bDlSSmVkU01JSE0yTlFkTjB1d2g4NmczRVdZTndhL25XanAwcGc1aXJFbTlCajRvN051bFRUQmNJVi9zSFIrWitnUFh4MkNUZE0wWG94aEh4dlROMEdFd3orNTJPUERlQTlkazBwSUw5SGlMY1ZoOXdEV1lqZXZtWUlPcFpzQjNDRDlYamNRd1VCcktaSTZQdFdTYjI2VndQek9hVDRyYkk0U0RyZmRGWEdNQnNXTmVISmRmM09ya0NQRjVLOHZOMlJETTMzODl1bDdFNnJzY2FCQWVuVG1Ga1NFSTlIOTJNd3d0eGhSU0FicmhpTkJPdXhQUWIwTnJaVW9uZHpzT3hFTGRxYjRnRmZORTU5czNJUVFFK0x1a3lGQTQ3MTJHalU5VDRNMUJKQVdWNHFGY0pxV3Vja2wvU3BxVXRvemVRaHZEdXFJSUcrRzJkT0krb2tFK1BrdVJGSzdiNmJJSm9YYlN2dVhvUjBMTDBJeTVVV1BOWTVpQWtDNWtmYlQ0Q09NV2p1TmFsZU1iU2hOOS9sVm9kdDRRbWV2bGhxY3gzUUxOMm1iT0kzdS93Skk2Y2VDM1Z3OHkwdTVrZ1lCRzVCZHdjRlFlbG5FQ1BTcWNXK2R2RmQzK1E9PTwveGVuYzpDaXBoZXJWYWx1ZT48L3hlbmM6Q2lwaGVyRGF0YT48L3hlbmM6RW5jcnlwdGVkRGF0YT48L3NhbWw6RW5jcnlwdGVkQXNzZXJ0aW9uPjwvc2FtbHA6UmVzcG9uc2U%2B
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      Cache-Control:
+      - max-age=0
+      Upgrade-Insecure-Requests:
+      - '1'
+      Origin:
+      - 'null'
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/71.0.3578.98 Safari/537.36
+      Accept:
+      - text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cookie:
+      - _ga=GA1.1.1444553726.1547669828; _vagovRollup=GA1.1.1622194347.1547669828;
+        _gid=GA1.1.1369563400.1547785142; _vagovRollup_gid=GA1.1.1193245220.1547785142;
+        _gat_GSA_ENOR0=1; _gat_UA-50123418-3=1; _gat_UA-50123418-15=1; _gat_UA-69938072-4=1;
+        api_session=U0NYMEVHQmIxUGhhSFlrbGFkc1Zra3JoT1lnbmk2Z0tnVE94eGM4b2xXbnZpMHdRZ1g3VXBXNzdzT0YrRUpZSE0wU3pSVC9VaE95TXRvblk0TzhaMVE9PS0tbFJ4VEhkbnBkeGNhZEZtRldCRGhRZz09--844525f49a10533d93bb6fdb1c9f91525c798d58
+      Content-Type:
+      - application/x-www-form-urlencoded
+      Content-Length:
+      - '15128'
+  response:
+    status:
+      code: 302
+      message:
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 0324288bfb0583edb54d7d3f394c9609415727f0
+      Location:
+      - http://localhost:3001/auth/login/callback?token=7YztDXCzjGx93f959_us4ne_iEZS6Qbby8EMHuid
+      Content-Type:
+      - text/html; charset=utf-8
+      Set-Cookie:
+      - |-
+        vagov_session_dev=bTBlMEU0uRd_oa-t5KBn-fICrEWxOiXBOfs50f8OGstZle2CTofYjXn26DnulriHewKC0CHr9JC5ZPPJMXMHfKAQLEqvh7wVvlR0mRyo-mFCMl_Fle5y0kWp5ccccIBmBCbv3KciIbmo4aMHV4mJSU0zyx8Bx0yVgf_zwQMA4z2wKhGbpj3aFI9LvW4sucN_; domain=localhost; path=/; HttpOnly
+        api_session=RnZvWVB5TXYvNFRtdlQ0RDJtRjYvWWVsTU0vOG9BRTlUdFduZEx0bktLQmZ4eXZlS3RValBxajA0bnp0MmpxeFNxd0ZiYnpqTElnZmFWWmgrY2lPYkg0bElmY1AxYmNIT2ZBUDVuZHJXRWw4MmpDWVdtdnNSdWczQnpLajlzS3h0RHhhNmJqZEg2K1JmRkpCMkVjaGdKUGZDblNtQVJaZlVOME10VWVQYzY1di9uUXVNelJtRXBrS0NiaXJLNSs5RFh0aWtCaTBCMWlldHNZb0orajZybW1RblZkTjg1MFNMQjdjMU5hcHlJZ0dQTHlGVExSM3pQRDNwR3gzQk9TVGU4WDRuQ0FKckFGVEhsM2txczdqN2w1YWRrUmFsZENIY1c0aklib2t5NWM9LS1wcVlKWlExd00zSDZiOVRHdlhjRUh3PT0%3D--5b9fe834f7428da2b2f624b6defd1e6eb40d3ae5; path=/; HttpOnly
+      Cache-Control:
+      - no-cache
+      X-Request-Id:
+      - ed8ced0d-70b4-4c62-bddd-ff79f7fbace2
+      X-Runtime:
+      - '0.255748'
+      Vary:
+      - Origin
+      Content-Length:
+      - '154'
+    body:
+      encoding: UTF-8
+      string: <html><body>You are being <a href="http://localhost:3001/auth/login/callback?token=7YztDXCzjGx93f959_us4ne_iEZS6Qbby8EMHuid">redirected</a>.</body></html>
+    http_version:
+  recorded_at: Thu, 17 Jan 2019 17:39:15 GMT
+- request:
+    method: options
+    uri: http://localhost:3000/v0/user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      Access-Control-Request-Method:
+      - GET
+      Origin:
+      - http://localhost:3001
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/71.0.3578.98 Safari/537.36
+      Access-Control-Request-Headers:
+      - x-key-inflection
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/auth/login/callback/?token=7YztDXCzjGx93f959_us4ne_iEZS6Qbby8EMHuid
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.9
+  response:
+    status:
+      code: 200
+      message:
+    headers:
+      Content-Type:
+      - text/plain
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      Access-Control-Allow-Headers:
+      - x-key-inflection
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version:
+  recorded_at: Thu, 17 Jan 2019 17:39:16 GMT
+- request:
+    method: get
+    uri: http://localhost:3000/v0/user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      Origin:
+      - http://localhost:3001
+      X-Key-Inflection:
+      - camel
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/71.0.3578.98 Safari/537.36
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/auth/login/callback/?token=7YztDXCzjGx93f959_us4ne_iEZS6Qbby8EMHuid
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cookie:
+      - _ga=GA1.1.1444553726.1547669828; _vagovRollup=GA1.1.1622194347.1547669828;
+        _gid=GA1.1.1369563400.1547785142; _vagovRollup_gid=GA1.1.1193245220.1547785142;
+        _gat_GSA_ENOR0=1; _gat_UA-50123418-3=1; _gat_UA-50123418-15=1; _gat_UA-69938072-4=1;
+        vagov_session_dev=bTBlMEU0uRd_oa-t5KBn-fICrEWxOiXBOfs50f8OGstZle2CTofYjXn26DnulriHewKC0CHr9JC5ZPPJMXMHfKAQLEqvh7wVvlR0mRyo-mFCMl_Fle5y0kWp5ccccIBmBCbv3KciIbmo4aMHV4mJSU0zyx8Bx0yVgf_zwQMA4z2wKhGbpj3aFI9LvW4sucN_;
+        api_session=RnZvWVB5TXYvNFRtdlQ0RDJtRjYvWWVsTU0vOG9BRTlUdFduZEx0bktLQmZ4eXZlS3RValBxajA0bnp0MmpxeFNxd0ZiYnpqTElnZmFWWmgrY2lPYkg0bElmY1AxYmNIT2ZBUDVuZHJXRWw4MmpDWVdtdnNSdWczQnpLajlzS3h0RHhhNmJqZEg2K1JmRkpCMkVjaGdKUGZDblNtQVJaZlVOME10VWVQYzY1di9uUXVNelJtRXBrS0NiaXJLNSs5RFh0aWtCaTBCMWlldHNZb0orajZybW1RblZkTjg1MFNMQjdjMU5hcHlJZ0dQTHlGVExSM3pQRDNwR3gzQk9TVGU4WDRuQ0FKckFGVEhsM2txczdqN2w1YWRrUmFsZENIY1c0aklib2t5NWM9LS1wcVlKWlExd00zSDZiOVRHdlhjRUh3PT0%3D--5b9fe834f7428da2b2f624b6defd1e6eb40d3ae5
+  response:
+    status:
+      code: 200
+      message:
+    headers:
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 0324288bfb0583edb54d7d3f394c9609415727f0
+      Content-Type:
+      - application/json; charset=utf-8
+      Set-Cookie:
+      - |-
+        vagov_session_dev=bTBlMEU0uRd_oa-t5KBn-fICrEWxOiXBOfs50f8OGstZle2CTofYjXn26DnulriHewKC0CHr9JC5ZPPJMXMHfKAQLEqvh7wVvlR0mRyo-mFCMl_Fle5y0kWp5ccccIBmBCbv3KciIbmo4aMHV4mJSU0zyx8Bx0yVgf_zwQMA4z39P2U8Ff24SN_2kIkvNi97; domain=localhost; path=/; HttpOnly
+        api_session=eXhKdlBIclJVRmFCY3ZHZ0hlbnJDdTFPaUlsdTZCbEFacm9WaU5QNFppMUdmT1hUSm9zUjJSQVI2TkhFMzRmcFhram43YnhtZUNUU1VpT1R2TGp3VWtrdmFRN2lBcjRNeERjamhLRCtlUXFzRmQ3TVVYNFh6L011MnRjZVJHUXNUYmJ4cXV6SW93UE5aWmYzTTZ5Y1RGYmJJS2FuMytGVXE2ZVM4MUFBVUk4VWpUQlVvZVVrL2Q1U2EzZ1Q0akFnR1pCS0xjVVg2aVRCQ1p4b0xlZnpsQmhQSkJhdm96SExObnRMQUp5VVI2OUpRSVRwcThoNmVLM0xiUjVoMXI4SkNJT3luMktzM3JZSWlWQURCck0xMTlKZVB0NHQ2ZHM2Mm5INFBpL3RQR2c9LS02ZCtWQk96cUZEelRTejliM3owM2pBPT0%3D--7e68ac2923753919e445b55519f0b5e11e879721; path=/; HttpOnly
+      ETag:
+      - W/"5904ee73c1e72fd208d0c71771763f6e"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - cf3dc9a8-43ba-492a-998c-4b30e98a024c
+      X-Runtime:
+      - '0.282860'
+      Vary:
+      - Origin
+      Content-Length:
+      - '756'
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"","type":"users","attributes":{"services":["facilities","hca","edu-benefits","user-profile","form-save-in-progress","form-prefill"],"account":{"accountUuid":null},"profile":{"email":"anna@adhoc.team","firstName":null,"middleName":null,"lastName":null,"birthDate":null,"gender":null,"zip":null,"lastSignedIn":"2019-01-17T17:39:15.000Z","loa":{"current":1,"highest":1},"multifactor":false,"verified":false,"authnContext":null},"vaProfile":{"status":"NOT_AUTHORIZED"},"veteranStatus":{"status":"NOT_AUTHORIZED"},"inProgressForms":[],"prefillsAvailable":["1010ez","21P-530","21P-527EZ","22-1990","22-1990N","22-1990E","22-1995","22-5490","22-5495","22-0993","FEEDBACK-TOOL","VIC","21-686C","40-10007","21-526EZ"],"vet360ContactInformation":{}}}}'
+    http_version:
+  recorded_at: Thu, 17 Jan 2019 17:39:16 GMT
+- request:
+    method: get
+    uri: http://localhost:3000/v0/user
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Version:
+      - HTTP/1.1
+      Host:
+      - localhost:3000
+      Connection:
+      - keep-alive
+      Origin:
+      - http://localhost:3001
+      User-Agent:
+      - Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_2) AppleWebKit/537.36 (KHTML,
+        like Gecko) Chrome/71.0.3578.98 Safari/537.36
+      Accept:
+      - "*/*"
+      Referer:
+      - http://localhost:3001/
+      Accept-Encoding:
+      - gzip, deflate, br
+      Accept-Language:
+      - en-US,en;q=0.9
+      Cookie:
+      - _ga=GA1.1.1444553726.1547669828; _vagovRollup=GA1.1.1622194347.1547669828;
+        _gid=GA1.1.1369563400.1547785142; _vagovRollup_gid=GA1.1.1193245220.1547785142;
+        _gat_GSA_ENOR0=1; _gat_UA-50123418-3=1; _gat_UA-50123418-15=1; _gat_UA-69938072-4=1;
+        vagov_session_dev=bTBlMEU0uRd_oa-t5KBn-fICrEWxOiXBOfs50f8OGstZle2CTofYjXn26DnulriHewKC0CHr9JC5ZPPJMXMHfKAQLEqvh7wVvlR0mRyo-mFCMl_Fle5y0kWp5ccccIBmBCbv3KciIbmo4aMHV4mJSU0zyx8Bx0yVgf_zwQMA4z39P2U8Ff24SN_2kIkvNi97;
+        api_session=eXhKdlBIclJVRmFCY3ZHZ0hlbnJDdTFPaUlsdTZCbEFacm9WaU5QNFppMUdmT1hUSm9zUjJSQVI2TkhFMzRmcFhram43YnhtZUNUU1VpT1R2TGp3VWtrdmFRN2lBcjRNeERjamhLRCtlUXFzRmQ3TVVYNFh6L011MnRjZVJHUXNUYmJ4cXV6SW93UE5aWmYzTTZ5Y1RGYmJJS2FuMytGVXE2ZVM4MUFBVUk4VWpUQlVvZVVrL2Q1U2EzZ1Q0akFnR1pCS0xjVVg2aVRCQ1p4b0xlZnpsQmhQSkJhdm96SExObnRMQUp5VVI2OUpRSVRwcThoNmVLM0xiUjVoMXI4SkNJT3luMktzM3JZSWlWQURCck0xMTlKZVB0NHQ2ZHM2Mm5INFBpL3RQR2c9LS02ZCtWQk96cUZEelRTejliM3owM2pBPT0%3D--7e68ac2923753919e445b55519f0b5e11e879721
+      If-None-Match:
+      - W/"5904ee73c1e72fd208d0c71771763f6e"
+  response:
+    status:
+      code: 200
+      message:
+    headers:
+      Access-Control-Allow-Origin:
+      - http://localhost:3001
+      Access-Control-Allow-Methods:
+      - GET, HEAD, POST, PUT, PATCH, DELETE, OPTIONS
+      Access-Control-Expose-Headers:
+      - X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset
+      Access-Control-Max-Age:
+      - '1728000'
+      Access-Control-Allow-Credentials:
+      - 'true'
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-XSS-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      X-GitHub-Repository:
+      - https://github.com/department-of-veterans-affairs/vets-api
+      X-Git-SHA:
+      - 0324288bfb0583edb54d7d3f394c9609415727f0
+      Content-Type:
+      - application/json; charset=utf-8
+      Set-Cookie:
+      - api_session=SGNPZlQ0bnRtNk4yVGZDRWVadzl4Um9kQUdLTDFOK3V4ZGpUWm5PdE1UczdBYlN4bTF1RWw1VnpLSWhENmpncmt5WU9tak5Dd0MxOTBkdGplQzNRZzFGcS9yYzcyVWpVUlozOU1JSUJwMTRjcWZRWjcvVWZybmpsUWNxQXhtVDl6c1FJSnZnOWhrenlVeHZCcmsrT0s3c09mYlgza1B5YXQ3a0dybVJTdHdVMVBoTTNWcjZZT0M1bDJ1aS9Sa0pxRnlKQ2EzTmZsYno4Tkx5UGVtY25aWTFYbGNYL1E4a0hlenFqSGtXZmxhSzBuZXF3Vi8xVitMcWFaMnYwK2NId1dkUEZoMndvdy9tTnZQUlF5ek1XVFpMelVqRnRhdmJZVm56bnVNZkxrZUE9LS1mOVluMUUzWGxHVXlGcTdWTVVVTzZBPT0%3D--eba05f3d16ce4a07dd3165b219c7e374f8235991;
+        path=/; HttpOnly
+      ETag:
+      - W/"01b46736a5fcd6f66ba3713ee2fe37e7"
+      Cache-Control:
+      - max-age=0, private, must-revalidate
+      X-Request-Id:
+      - cf3dc9a8-43ba-492a-998c-4b30e98a024c
+      X-Runtime:
+      - '0.052630'
+      Vary:
+      - Origin
+      Content-Length:
+      - '771'
+    body:
+      encoding: UTF-8
+      string: '{"data":{"id":"","type":"users","attributes":{"services":["facilities","hca","edu-benefits","user-profile","form-save-in-progress","form-prefill"],"account":{"account_uuid":null},"profile":{"email":"anna@adhoc.team","first_name":null,"middle_name":null,"last_name":null,"birth_date":null,"gender":null,"zip":null,"last_signed_in":"2019-01-17T17:39:15.000Z","loa":{"current":1,"highest":1},"multifactor":false,"verified":false,"authn_context":null},"va_profile":{"status":"NOT_AUTHORIZED"},"veteran_status":{"status":"NOT_AUTHORIZED"},"in_progress_forms":[],"prefills_available":["1010ez","21P-530","21P-527EZ","22-1990","22-1990N","22-1990E","22-1995","22-5490","22-5495","22-0993","FEEDBACK-TOOL","VIC","21-686C","40-10007","21-526EZ"],"vet360_contact_information":{}}}}'
+    http_version:
+  recorded_at: Thu, 17 Jan 2019 17:39:16 GMT
+recorded_with: VCR 3.0.3

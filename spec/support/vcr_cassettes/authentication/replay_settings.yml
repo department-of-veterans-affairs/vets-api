@@ -1,0 +1,7 @@
+---
+:replay_settings:
+  :vcr_cassette_path: spec/support/vcr_cassettes
+  :internal_cassette: authentication/internal_interactions
+  :external_cassette: authentication/external_interactions
+  :insecure_random: true
+  :time_freeze: true

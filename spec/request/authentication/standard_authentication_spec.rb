@@ -4,11 +4,11 @@ require 'rails_helper'
 
 # Note these specs MUST be run in order
 RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
-  OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
+  OUTBOUND_CASSETTE = 'authentication/external_interactions'
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
 
   EPISODES = begin
-    inbound_cassette_path = 'spec/support/vcr_cassettes/complex_interaction/internal_interactions.yml'
+    inbound_cassette_path = 'spec/support/vcr_cassettes/authentication/internal_interactions.yml'
     YAML.safe_load(File.read(inbound_cassette_path))['http_interactions'].map do |interaction|
       req = interaction['request']
       req['uri'] = URI.parse(req['uri'])
@@ -49,7 +49,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
 
     def pretty(output)
       JSON.pretty_generate(JSON.parse(output))
-    rescue
+    rescue StandardError
       output
     end
 
