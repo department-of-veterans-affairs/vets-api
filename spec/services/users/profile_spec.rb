@@ -394,7 +394,7 @@ RSpec.describe Users::Profile do
 
       context 'when user cannot access prefill data' do
         before do
-          allow(user).to receive(:can_access_prefill_data?).and_return(false)
+          allow_any_instance_of(UserIdentity).to receive(:blank?).and_return(true)
         end
 
         it 'returns an empty array' do

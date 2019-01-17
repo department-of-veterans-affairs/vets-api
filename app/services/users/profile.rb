@@ -133,7 +133,7 @@ module Users
     end
 
     def prefills_available
-      return [] unless user.identity.present? && user.can_access_prefill_data?
+      return [] if user.identity.blank?
 
       FormProfile.prefill_enabled_forms
     end

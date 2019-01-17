@@ -16,7 +16,7 @@ module Users
     #
     # @return [Array<String>] Array of names of services they have access to
     #
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     def authorizations
       @list << BackendServices::RX if user.authorize :mhv_prescriptions, :access?
       @list << BackendServices::MESSAGING if user.authorize :mhv_messaging, :access?
@@ -25,15 +25,13 @@ module Users
       @list << BackendServices::EVSS_CLAIMS if user.authorize :evss, :access?
       @list << BackendServices::USER_PROFILE if user.can_access_user_profile?
       @list << BackendServices::APPEALS_STATUS if user.authorize :appeals, :access?
-      @list << BackendServices::SAVE_IN_PROGRESS if user.can_save_partial_forms?
-      @list << BackendServices::FORM_PREFILL if user.can_access_prefill_data?
       @list << BackendServices::ID_CARD if user.can_access_id_card?
       @list << BackendServices::IDENTITY_PROOFED if user.identity_proofed?
       @list << BackendServices::VET360 if user.can_access_vet360?
       @list += BetaRegistration.where(user_uuid: user.uuid).pluck(:feature)
       @list
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity, Metrics/AbcSize
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     private
 
@@ -41,7 +39,9 @@ module Users
       [
         BackendServices::FACILITIES,
         BackendServices::HCA,
-        BackendServices::EDUCATION_BENEFITS
+        BackendServices::EDUCATION_BENEFITS,
+        BackendServices::SAVE_IN_PROGRESS,
+        BackendServices::FORM_PREFILL
       ]
     end
   end

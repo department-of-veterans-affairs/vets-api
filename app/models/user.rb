@@ -190,14 +190,6 @@ class User < Common::RedisStore
     end
   end
 
-  def can_save_partial_forms?
-    true
-  end
-
-  def can_access_prefill_data?
-    true
-  end
-
   def can_access_id_card?
     loa3? && edipi.present? &&
       ID_CARD_ALLOWED_STATUSES.include?(veteran_status.title38_status)
