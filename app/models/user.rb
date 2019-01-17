@@ -144,6 +144,10 @@ class User < Common::RedisStore
     mvi.status
   end
 
+  def va_profile_error
+    mvi.error
+  end
+
   # LOA1 no longer just means ID.me LOA1.
   # It could also be DSLogon or MHV NON PREMIUM users who have not yet done ID.me FICAM LOA3.
   # See also lib/saml/user_attributes/dslogon.rb
