@@ -29,7 +29,6 @@ info:
         * Provide the Veteran's Last Name as X-VA-Last-Name
         * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
         * Provide the Veteran's EDIPI as X-VA-EDIPI
-        * Provide the Custom Client Id as the X-Consumer-Custom-ID if requesting as a Power of Attorney
 
     2. Service Response: A JSON API object with the current status of claims
 
