@@ -19,7 +19,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the API documentation', type: :apivore, order: :defined do
+RSpec.describe 'the API documentation', type: %i[apivore request], order: :defined do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -231,6 +231,19 @@ RSpec.describe 'the API documentation', type: :apivore, order: :defined do
             200
           )
         end
+      end
+
+      it 'supports submitting a hca dd214' do
+        expect(subject).to validate(
+          :post,
+          '/v0/hca_dd214_attachments',
+          200,
+          '_data' => {
+            'hca_dd214_attachment' => {
+              file_data: fixture_file_upload(Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'))
+            }
+          }
+        )
       end
 
       it 'supports submitting a health care application', run_at: '2017-01-31' do

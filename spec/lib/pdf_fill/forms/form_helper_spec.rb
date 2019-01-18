@@ -55,6 +55,24 @@ describe PdfFill::Forms::FormHelper do
     end
   end
 
+  describe '#extract_country_if_not_usa' do
+    it 'should return the correct code for country' do
+      address = {
+        'country' => 'Ghana'
+      }
+      expect(including_class.new.extract_country(address)).to eq('GH')
+    end
+  end
+
+  describe '#extract_country_if_not_valid_code' do
+    it 'should return the passed value as country' do
+      address = {
+        'country' => 'InvalidCountry'
+      }
+      expect(including_class.new.extract_country(address)).to eq('InvalidCountry')
+    end
+  end
+
   describe '#split_postal_code' do
     it 'should return nil with blank address' do
       expect(including_class.new.split_postal_code({})).to eq(nil)

@@ -160,7 +160,8 @@ module PdfFill
           limit: 180
         },
         'burialDate' => {
-          key: 'form1[0].#subform[36].DATE_OF_BURIAL[0]'
+          key: 'form1[0].#subform[36].DATE_OF_BURIAL[0]',
+          format: 'date'
         },
         'vaFileNumber' => {
           key: 'form1[0].#subform[36].VAFileNumber[0]'
@@ -238,7 +239,8 @@ module PdfFill
             key: "toursOfDuty.dateRangeStart[#{ITERATOR}]",
             question_num: 11,
             question_suffix: 'A',
-            question_text: 'ENTERED SERVICE (date)'
+            question_text: 'ENTERED SERVICE (date)',
+            format: 'date'
           },
           'placeOfEntry' => {
             key: "toursOfDuty.placeOfEntry[#{ITERATOR}]",
@@ -258,7 +260,8 @@ module PdfFill
             key: "toursOfDuty.dateRangeEnd[#{ITERATOR}]",
             question_num: 11,
             question_suffix: 'C',
-            question_text: 'SEPARATED FROM SERVICE (date)'
+            question_text: 'SEPARATED FROM SERVICE (date)',
+            format: 'date'
           },
           'placeOfSeparation' => {
             key: "toursOfDuty.placeOfSeparation[#{ITERATOR}]",
@@ -283,10 +286,12 @@ module PdfFill
           question_text: 'PLACE OF BIRTH'
         },
         'veteranDateOfBirth' => {
-          key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]'
+          key: 'form1[0].#subform[36].DATE_OF_BIRTH[0]',
+          format: 'date'
         },
         'deathDate' => {
-          key: 'form1[0].#subform[36].DATE_OF_DEATH[0]'
+          key: 'form1[0].#subform[36].DATE_OF_DEATH[0]',
+          format: 'date'
         },
         'claimantPhone' => {
           'first' => {

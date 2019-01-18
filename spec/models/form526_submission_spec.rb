@@ -105,10 +105,10 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      it 'queues 3 upload jobs' do
+      it 'queues 1 upload jobs' do
         expect do
           subject.perform_ancillary_jobs(bid)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
       end
     end
 
