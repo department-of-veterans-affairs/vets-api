@@ -10,6 +10,7 @@ module EVSS
     def verify(custom_consumer_ids)
       if custom_consumer_ids.present? && custom_consumer_ids.split(',').any?
         unless custom_consumer_ids.split(',').include?(@veteran.power_of_attorney.try(:code))
+          Rails.logger.info("POA code of #{custom_consumer_ids} not valid for veteran code #{@veteran.power_of_attorney.try(:code)}")
           raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
         end
       end

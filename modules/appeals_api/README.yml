@@ -27,6 +27,7 @@ info:
     1. Client Request: GET https://dev-api.va.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the appeals status as the X-VA-User header
+        * Provide the Custom Client Id as the X-Consumer-Custom-ID if requesting as a Power of Attorney
     
     2. Service Response: A JSON API object with the current status of appeals
           
@@ -91,6 +92,8 @@ paths:
                     $ref: "#/components/schemas/Appeal"
         '400':
           description: Missing SSN header
+        '401':
+          description: Unauthorized
         '403':
           description: Bad API Token
         '404':
