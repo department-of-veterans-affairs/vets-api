@@ -54,7 +54,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   private
 
-  def translate_data(user, form526)
-    self.class::TRANSLATION_CLASS.new(user, form526).translate
+  def translate_data(user, form526, has_form4142)
+    self.class::TRANSLATION_CLASS.new(user, form526, has_form4142).translate
   end
 end
