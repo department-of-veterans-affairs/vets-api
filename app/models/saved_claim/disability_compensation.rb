@@ -40,12 +40,11 @@ class SavedClaim::DisabilityCompensation < SavedClaim
     form8940 = EVSS::DisabilityCompensationForm::Form8940.new(user, @form_hash.deep_dup).translate
 
     form526 = @form_hash.deep_dup
-    form526 = append_overflow_text(form526) if form4142
 
     form526_uploads = form526['form526'].delete('attachments')
 
     {
-      FORM_526 => translate_data(user, form526),
+      FORM_526 => translate_data(user, form526, form4142.present?),
       FORM_526_UPLOADS => form526_uploads,
       FORM_4142 => form4142,
       FORM_0781 => form0781,
@@ -55,13 +54,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
 
   private
 
-  def translate_data(user, form526)
-    self.class::TRANSLATION_CLASS.new(user, form526).translate
-  end
-
-  def append_overflow_text(form526)
-    form526['form526']['overflowText'] = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
-      'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
-    form526
+  def translate_data(user, form526, has_form4142)
+    self.class::TRANSLATION_CLASS.new(user, form526, has_form4142).translate
   end
 end

@@ -17,9 +17,10 @@ module EVSS
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(user, form_content)
+      def initialize(user, form_content, has_form4142)
         @user = user
         @form_content = form_content
+        @has_form4142 = has_form4142
         @translated_form = { 'form526' => {} }
       end
 
@@ -27,6 +28,8 @@ module EVSS
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
         output_form['applicationExpirationDate'] = application_expiration_date
+
+        output_form.update(append_overflow_text) if @has_form4142
 
         output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
@@ -50,6 +53,13 @@ module EVSS
 
       def output_form
         @translated_form['form526']
+      end
+
+      def append_overflow_text
+        {
+          'overflowText' => 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
+                            'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+        }
       end
 
       def translate_banking_info
