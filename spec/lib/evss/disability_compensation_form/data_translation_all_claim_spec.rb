@@ -12,7 +12,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     User.create(user)
   end
 
-  subject { described_class.new(user, form_content) }
+  subject { described_class.new(user, form_content, false) }
 
   describe '#translate' do
     before do
@@ -28,6 +28,28 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
             expect(subject.translate).to eq JSON.parse(evss_json)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#append_overflow_text' do
+    subject { described_class.new(user, form_content, true) }
+
+    before do
+      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+    end
+
+    let(:form_content) do
+      JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
+    end
+
+    it 'should append the overflowText key correctly' do
+      VCR.use_cassette('evss/ppiu/payment_information') do
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+            expect(subject.translate['form526'].key?('overflowText')).to eq true
           end
         end
       end
