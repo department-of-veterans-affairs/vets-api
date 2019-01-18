@@ -7,10 +7,9 @@ module ClaimsApi
   module V0
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
+      before_action :verify_power_of_attorney
 
       def index
-        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
-        verifier.verify(header('X-Consumer-Custom-ID'))
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -60,6 +59,11 @@ module ClaimsApi
           edipi: edipi,
           last_signed_in: Time.zone.now
         )
+      end
+
+      def verify_power_of_attorney
+        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+        verifier.verify(header('X-Consumer-Custom-ID'))
       end
     end
   end
