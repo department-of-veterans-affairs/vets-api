@@ -11,6 +11,10 @@ module EVSS
       post 'persistentPropertiesService/11.0/createUserAccount'
     end
 
+    def get_current_info
+      post 'vsoSearch/11.0/getCurrentInfo'
+    end
+
     def self.breakers_service
       BaseService.create_breakers_service(name: 'EVSS/Common', url: BASE_URL)
     end

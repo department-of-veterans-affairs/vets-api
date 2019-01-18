@@ -79,6 +79,16 @@ RSpec.describe Form526Submission do
         expect(subject.form_to_json(Form526Submission::FORM_0781)).to eq(JSON.parse(form_json)['form0781'].to_json)
       end
     end
+
+    context 'with form 8940' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_8940.json')
+      end
+
+      it 'returns the sub form as json' do
+        expect(subject.form_to_json(Form526Submission::FORM_8940)).to eq(JSON.parse(form_json)['form8940'].to_json)
+      end
+    end
   end
 
   describe '#auth_headers' do
@@ -95,10 +105,10 @@ RSpec.describe Form526Submission do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
       end
 
-      it 'queues 3 upload jobs' do
+      it 'queues 1 upload jobs' do
         expect do
           subject.perform_ancillary_jobs(bid)
-        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(3)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
       end
     end
 
@@ -123,6 +133,18 @@ RSpec.describe Form526Submission do
         expect do
           subject.perform_ancillary_jobs(bid)
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
+      end
+    end
+
+    context 'with form 8940' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_8940.json')
+      end
+
+      it 'queues a 8940 job' do
+        expect do
+          subject.perform_ancillary_jobs(bid)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end
   end

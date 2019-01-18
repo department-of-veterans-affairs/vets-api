@@ -6,7 +6,7 @@ module V0
     before_action(:tag_rainbows)
 
     def create
-      authenticate_token
+      validate_session
 
       gi_bill_feedback = GIBillFeedback.new(
         params.require(:gi_bill_feedback).permit(:form).merge(

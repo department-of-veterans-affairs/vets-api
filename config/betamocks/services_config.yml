@@ -244,6 +244,16 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  
+  # VSO Search
+  - :method: :post
+    :path: <%= "/wss-common-services-web-#{Settings.evss.versions.common}/rest/vsoSearch/11.0/getCurrentInfo" %>
+    :file_path: "evss/vso_search/get_current_info"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
+      :uid_location: header
+      :uid_locator: 'ssn'
 
 # MVI
 - :name: 'MVI'
@@ -374,6 +384,9 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: ssn
+  - :method: :get
+    :path: "/health-check"
+    :file_path: "appeals/health-check"
 
 # IHUB
 - :name: 'IHub'

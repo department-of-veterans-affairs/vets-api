@@ -50,6 +50,7 @@ services = [
   VIC::Configuration.instance.breakers_service,
   Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
   Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
+  Facilities::PPMSConfiguration.instance.breakers_service,
   VIC::Configuration.instance.breakers_service,
   GI::Configuration.instance.breakers_service,
   HCA::Configuration.instance.breakers_service,
@@ -77,3 +78,4 @@ client = Breakers::Client.new(
 # No need to prefix it when using the namespace
 Breakers.redis_prefix = ''
 Breakers.client = client
+Breakers.disabled = true if Settings.breakers_disabled

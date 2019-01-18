@@ -96,6 +96,9 @@ ActiveRecord::Migration.maintain_test_schema!
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 Sidekiq::Logging.logger = nil
+Sidekiq::Testing.server_middleware do |chain|
+  chain.add Sidekiq::ErrorTag
+end
 
 require 'shrine/storage/memory'
 
@@ -155,6 +158,7 @@ RSpec.configure do |config|
 
   # authentication_session_helper
   config.include AuthenticatedSessionHelper, type: :request
+  config.include AuthenticatedSessionHelper, type: :controller
 
   # ability to test options
   config.include RequestHelper, type: :request

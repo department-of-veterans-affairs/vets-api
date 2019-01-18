@@ -52,27 +52,36 @@
     "ratedDisabilities": [
       {
         "diagnosticCode": 9999,
-        "disabilityActionType": "NEW",
+        "disabilityActionType": "NONE",
         "name": "PTSD (post traumatic stress disorder)",
         "ratedDisabilityId": "1100583"
       }
     ],
-    "newDisabilities": [
+    "newPrimaryDisabilities": [
+      {
+        "cause": "NEW",
+        "condition": "Arthritis",
+        "primaryDescription": "Joints in hands",
+        "specialIssues": ["POW"]
+      }
+    ],
+    "newSecondaryDisabilities": [
       {
         "cause": "SECONDARY",
         "causedByDisability": "PTSD (post traumatic stress disorder)",
         "causedByDisabilityDescription": "Lengthy description",
-        "condition": "PTSD personal trauma"
+        "condition": "PTSD personal trauma",
+        "specialIssues": ["POW"]
       }
     ],
     "otherHomelessHousing": "other living situation",
     "phoneAndEmail": {
-      "phone" : "1231231231",
-      "email": "a@b.co"
+      "primaryPhone" : "1231231231",
+      "emailAddress": "a@b.co"
     },
     "privacyAgreementAccepted": true,
     "separationPayBranch": "Air Force",
-    "separationPayDate": "2000",
+    "separationPayDate": "2000-XX-XX",
     "serviceInformation": {
       "reservesNationalGuardService": {
         "obligationTermOfServiceDateRange": {
@@ -124,8 +133,8 @@
           "country": "USA"
         },
         "treatmentDateRange": {
-          "from": "2015-04-03",
-          "to": "2018-03-04"
+          "from": "2015-04-XX",
+          "to": "2018-03-XX"
         },
         "treatedDisabilityNames": [
           "PTSD personal trauma"

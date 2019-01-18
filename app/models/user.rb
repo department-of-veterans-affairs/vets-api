@@ -24,12 +24,12 @@ class User < Common::RedisStore
   validates :uuid, presence: true
 
   # conditionally validate if user is LOA3
-  with_options if: :loa3? do |loa3_user|
-    loa3_user.validates :first_name, presence: true
-    loa3_user.validates :last_name, presence: true
-    loa3_user.validates :birth_date, presence: true
-    loa3_user.validates :ssn, presence: true, format: /\A\d{9}\z/
-    loa3_user.validates :gender, format: /\A(M|F)\z/, allow_blank: true
+  with_options if: :loa3? do
+    validates :first_name, presence: true
+    validates :last_name, presence: true
+    validates :birth_date, presence: true
+    validates :ssn, presence: true, format: /\A\d{9}\z/
+    validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
   attribute :uuid
@@ -276,6 +276,10 @@ class User < Common::RedisStore
   #
   def served_in_military?
     edipi.present? && veteran? || military_person?
+  end
+
+  def power_of_attorney
+    EVSS::CommonService.get_current_info[:poa]
   end
 
   private

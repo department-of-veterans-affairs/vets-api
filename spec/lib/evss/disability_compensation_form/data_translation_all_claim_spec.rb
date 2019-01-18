@@ -132,7 +132,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         {
           'form526' => {
             'separationPayBranch' => 'Air Force',
-            'separationPayDate' => '2018'
+            'separationPayDate' => '2018-XX-XX'
           }
         }
       end
@@ -341,8 +341,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           'form526' => {
             'mailingAddress' => {},
             'phoneAndEmail' => {
-              'email' => 'tester@adhocteam.us',
-              'phone' => '5551231234'
+              'emailAddress' => 'tester@adhocteam.us',
+              'primaryPhone' => '5551231234'
             },
             'isVAEmployee' => true
           }
@@ -681,7 +681,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'treatmentDateRange' => {
                   'from' => '2018-01-01',
-                  'to' => '2018-02-01'
+                  'to' => '2018-02-XX'
                 },
                 'treatmentCenterName' => 'Super Hospital',
                 'treatmentCenterAddress' => {
@@ -699,8 +699,58 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       it 'should translate the data correctly' do
         expect(subject.send(:translate_treatments)).to eq 'treatments' => [
           {
-            'startDate' => '2018-01-01',
-            'endDate' => '2018-02-01',
+            'startDate' => {
+              'year' => '2018',
+              'month' => '01',
+              'day' => '01'
+            },
+            'endDate' => {
+              'year' => '2018',
+              'month' => '02'
+            },
+            'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
+            'center' => {
+              'name' => 'Super Hospital',
+              'country' => 'USA',
+              'city' => 'Portland',
+              'state' => 'OR'
+            }
+          }
+        ]
+      end
+    end
+
+    context 'when given a treatment center with no `to` date' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'vaTreatmentFacilities' => [
+              {
+                'treatmentDateRange' => {
+                  'from' => '2018-01-01',
+                  'to' => ''
+                },
+                'treatmentCenterName' => 'Super Hospital',
+                'treatmentCenterAddress' => {
+                  'country' => 'USA',
+                  'city' => 'Portland',
+                  'state' => 'OR'
+                },
+                'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3]
+              }
+            ]
+          }
+        }
+      end
+
+      it 'should translate the data correctly' do
+        expect(subject.send(:translate_treatments)).to eq 'treatments' => [
+          {
+            'startDate' => {
+              'year' => '2018',
+              'month' => '01',
+              'day' => '01'
+            },
             'treatedDisabilityNames' => %w[PTSD PTSD2 PTSD3],
             'center' => {
               'name' => 'Super Hospital',
@@ -722,7 +772,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'ratedDisabilities' => [
               {
                 'diagnosticCode' => 9999,
-                'disabilityActionType' => 'NEW',
+                'disabilityActionType' => 'INCREASE',
                 'name' => 'PTSD (post traumatic stress disorder)',
                 'ratedDisabilityId' => '1100583'
               }
@@ -735,9 +785,88 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         expect(subject.send(:translate_disabilities)).to eq 'disabilities' => [
           {
             'diagnosticCode' => 9999,
-            'disabilityActionType' => 'NEW',
+            'disabilityActionType' => 'INCREASE',
             'name' => 'PTSD (post traumatic stress disorder)',
             'ratedDisabilityId' => '1100583'
+          }
+        ]
+      end
+    end
+
+    context 'when there is an extraneous `NONE` action type disability' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'ratedDisabilities' => [
+              {
+                'diagnosticCode' => 9999,
+                'disabilityActionType' => 'INCREASE',
+                'name' => 'PTSD (post traumatic stress disorder)',
+                'ratedDisabilityId' => '1100583'
+              },
+              {
+                'diagnosticCode' => 9998,
+                'disabilityActionType' => 'NONE',
+                'name' => 'Arthritis',
+                'ratedDisabilityId' => '1100582'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'should not translate the disability with NONE action type' do
+        expect(subject.send(:translate_disabilities)).to eq 'disabilities' => [
+          {
+            'diagnosticCode' => 9999,
+            'disabilityActionType' => 'INCREASE',
+            'name' => 'PTSD (post traumatic stress disorder)',
+            'ratedDisabilityId' => '1100583'
+          }
+        ]
+      end
+    end
+
+    context 'when there is an  `NONE` action type disability but it has a new secondary disability' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'ratedDisabilities' => [
+              {
+                'diagnosticCode' => 9999,
+                'disabilityActionType' => 'NONE',
+                'name' => 'PTSD (post traumatic stress disorder)',
+                'ratedDisabilityId' => '1100583'
+              }
+            ],
+            'newSecondaryDisabilities' => [
+              {
+                'cause' => 'SECONDARY',
+                'condition' => 'secondary condition',
+                'specialIssues' => ['POW'],
+                'causedByDisabilityDescription' => 'secondary description',
+                'causedByDisability' => 'PTSD (post traumatic stress disorder)'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'should translate the NONE action type disability and its secondary disability' do
+        expect(subject.send(:translate_disabilities)).to eq 'disabilities' => [
+          {
+            'diagnosticCode' => 9999,
+            'disabilityActionType' => 'NONE',
+            'name' => 'PTSD (post traumatic stress disorder)',
+            'ratedDisabilityId' => '1100583',
+            'secondaryDisabilities' => [
+              {
+                'name' => 'secondary condition',
+                'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
+                'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
+              }
+            ]
           }
         ]
       end
@@ -749,10 +878,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
-            'newDisabilities' => [
+            'newPrimaryDisabilities' => [
               {
                 'cause' => 'NEW',
                 'condition' => 'new condition',
+                'specialIssues' => ['POW'],
                 'primaryDescription' => 'new condition description'
               }
             ]
@@ -761,10 +891,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'should translate only the NEW disabilities' do
-        expect(subject.send(:translate_new_disabilities, [])).to eq [
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
             'name' => 'new condition',
+            'specialIssue' => 'POW',
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
           }
         ]
@@ -775,10 +906,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
-            'newDisabilities' => [
+            'newPrimaryDisabilities' => [
               {
                 'cause' => 'WORSENED',
                 'condition' => 'worsened condition',
+                'specialIssues' => ['POW'],
                 'worsenedDescription' => 'worsened condition description',
                 'worsenedEffects' => 'worsened effects'
               }
@@ -788,10 +920,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'should translate only the WORSENED disabilities' do
-        expect(subject.send(:translate_new_disabilities, [])).to eq [
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
             'name' => 'worsened condition',
+            'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects"
           }
@@ -803,10 +936,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
-            'newDisabilities' => [
+            'newPrimaryDisabilities' => [
               {
                 'cause' => 'VA',
                 'condition' => 'va condition',
+                'specialIssues' => ['POW'],
                 'VAMistreatmentDescription' => 'va condition description',
                 'VAMistreatmentLocation' => 'va location',
                 'VAMistreatmentDate' => 'the third of october'
@@ -817,10 +951,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'should translate only the VA disabilities' do
-        expect(subject.send(:translate_new_disabilities, [])).to eq [
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
             'name' => 'va condition',
+            'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Caused by VA care\nEvent: va condition description\n"\
               "Location: va location\nTimeFrame: the third of october"
@@ -833,24 +968,27 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
-            'newDisabilities' => [
+            'newSecondaryDisabilities' => [
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition',
+                'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability'
               },
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition2',
+                'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability2'
               },
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition3',
+                'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
-                'causedByDisability' => 'PTSD disability2'
+                'causedByDisability' => 'ptsd disability2' # check that the match is case insensitive
               }
             ]
           }
@@ -875,7 +1013,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'should translate SECONDARY disability to a current disability' do
-        expect(subject.send(:translate_new_disabilities, disability)).to eq [
+        expect(subject.send(:translate_new_secondary_disabilities, disability)).to eq [
           {
             'diagnosticCode' => 9999,
             'disabilityActionType' => 'NEW',
@@ -885,6 +1023,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition',
                 'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
@@ -898,16 +1037,61 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition2',
                 'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               },
               {
                 'name' => 'secondary condition3',
                 'disabilityActionType' => 'SECONDARY',
+                'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
           }
         ]
+      end
+    end
+
+    describe '#approximate_date' do
+      context 'when there is a full date' do
+        let(:date) { '2099-12-01' }
+
+        it 'should return the year, month, and day' do
+          expect(subject.send(:approximate_date, date)).to include(
+            'year' => '2099',
+            'month' => '12',
+            'day' => '01'
+          )
+        end
+      end
+
+      context 'when there is a partial date (year and month)' do
+        let(:date) { '2099-12-XX' }
+
+        it 'should return the year and month' do
+          expect(subject.send(:approximate_date, date)).to include(
+            'year' => '2099',
+            'month' => '12'
+          )
+        end
+      end
+
+      context 'when there is a partial date (year only)' do
+        let(:date) { '2099-XX-XX' }
+
+        it 'should return the year' do
+          expect(subject.send(:approximate_date, date)).to include(
+            'year' => '2099'
+          )
+        end
+      end
+
+      context 'when there is no date' do
+        let(:date) { '' }
+
+        it 'should return the year' do
+          expect(subject.send(:approximate_date, date)).to eq nil
+        end
       end
     end
   end

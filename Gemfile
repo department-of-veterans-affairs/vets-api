@@ -3,6 +3,7 @@
 source 'https://rubygems.org'
 
 gem 'appeals_api', path: 'modules/appeals_api'
+gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
@@ -84,6 +85,7 @@ gem 'zero_downtime_migrations'
 
 group :development do
   gem 'guard-rubocop'
+  gem 'seedbank'
   gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
@@ -103,6 +105,7 @@ group :test do
   gem 'faker-medical'
   gem 'fakeredis'
   gem 'pdf-inspector'
+  gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'

@@ -22,7 +22,7 @@ module Vet360
         end
       rescue Common::Client::Errors::ClientError => error
         return PersonResponse.new(404, person: nil) if error.status == 404
-        raise
+        handle_error(error)
       rescue StandardError => e
         handle_error(e)
       end
