@@ -290,7 +290,8 @@ module PdfFill
           key: 'form1[0].#subform[2].Signature[0]'
         },
         'signatureDate' => {
-          key: 'form1[0].#subform[2].Date11[0]'
+          key: 'form1[0].#subform[2].Date11[0]',
+          format: 'date'
         },
         'additionalIncidentText' => {
           question_num: 17,
