@@ -46,7 +46,7 @@ module SAML
     end
 
     def idme_proofed?
-      verifying? && id_proofed?
+      (verifying? || changing_multifactor?) && id_proofed?
     end
 
     # True if has identity proofed in the past, not that the current saml response is verifying
@@ -55,7 +55,7 @@ module SAML
     end
 
     def existing_user_identity?
-      changing_multifactor? || verifying? && existing_user_identity.present?
+      (changing_multifactor? || verifying?) && existing_user_identity.present?
     end
 
     def existing_user_identity
@@ -70,10 +70,9 @@ module SAML
     end
 
     def id_proof_type
-      return 'idme' if idme_proofed?
-      return 'idme-initial' if user_attributes.idme_loa == 3
       return 'myhealthevet' if account_type == 'Premium'
       return 'dslogon' if %w[2 3].include?(account_type)
+      return 'idme' if idme_proofed?
       return 'error' if account_type == 'error'
       'not-verified'
     end
@@ -81,20 +80,36 @@ module SAML
     # This corresponds to "Basic", "Advanced", "Premium", "1", "3"
     def account_type
       case authn_context
+      when 'http://idmanagement.gov/ns/assurance/loa/1/vets', 'http://idmanagement.gov/ns/assurance/loa/3/vets', 'multifactor'
+        'N/A'
       when 'myhealthevet'
         user_attributes.mhv_account_type # Signed in MHV
       when 'dslogon'
         user_attributes.dslogon_assurance # Signed in DS Logon
       else
-        if existing_user_identity? # Signed in but verifying / multifactoring, fetch from original identity
-          existing_user_identity.sign_in.fetch(:account_type, 'N/A')
-        else
-          'N/A' # Signed in as ID.me (either LOA1 or LOA3)
-        end
+        raise 'NoExistingUser' unless existing_user_identity?
+        existing_user_identity.sign_in.fetch(:account_type, 'N/A')
       end
-    rescue StandardError
-      'error'
     end
+
+    # will be one of KNOWN_AUTHN_CONTEXTS
+    # this is the real authn-context returned in the response without the use of heuristics
+    def authn_context
+      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+    # this is to add additional context when we cannot parse for authn_context
+    rescue NoMethodError
+      base64encodedpayload = Base64.encode64(saml_response&.response)
+      Raven.extra_context(
+        base64encodedpayload: base64encodedpayload,
+        attributes: saml_response&.attributes&.to_h
+      )
+      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+      Rails.logger.error(
+        'SSO: No AuthnContext in SAMLResponse', saml_response: base64encodedpayload
+      )
+      raise
+    end
+    alias real_authn_context authn_context
 
     private
 
@@ -118,25 +133,6 @@ module SAML
         end
       end
     end
-
-    # will be one of KNOWN_AUTHN_CONTEXTS
-    # this is the real authn-context returned in the response without the use of heuristics
-    def authn_context
-      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-    # this is to add additional context when we cannot parse for authn_context
-    rescue NoMethodError
-      base64encodedpayload = Base64.encode64(saml_response&.response)
-      Raven.extra_context(
-        base64encodedpayload: base64encodedpayload,
-        attributes: saml_response&.attributes&.to_h
-      )
-      Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
-      Rails.logger.error(
-        'SSO: No AuthnContext in SAMLResponse', saml_response: base64encodedpayload
-      )
-      raise
-    end
-    alias real_authn_context authn_context
 
     # We want to do some logging of when and how the following issues could arise, since loa is
     # derived based on combination of these values, it could raise an exception at any time, hence
