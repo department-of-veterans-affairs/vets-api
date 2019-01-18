@@ -22,7 +22,7 @@ RSpec.describe SSOService do
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'myhealthevet', account_type: 'Basic', id_proof_type: 'idme-initial')
+            .to eq(service_name: 'myhealthevet', account_type: 'Basic', id_proof_type: 'not-verified')
         end
       end
     end
@@ -34,16 +34,21 @@ RSpec.describe SSOService do
         expect(sso_service.new_user_identity.sign_in)
           .to eq(service_name: 'myhealthevet', account_type: 'Advanced', id_proof_type: 'not-verified')
       end
+
+      context 'with ID.me LOA3' do
+        let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Advanced', level_of_assurance: ['3']) }
+
+        it 'has a #new_user_identity which responds to #sign_in' do
+          expect(sso_service.new_user_identity.sign_in)
+            .to eq(service_name: 'myhealthevet', account_type: 'Advanced', id_proof_type: 'not-verified')
+        end
+      end
     end
 
     context 'myhealthevet_loa3' do
       ['Basic', 'Advanced'].each do |account_type|
         context "with initial account type of #{account_type}" do
-          let(:saml_response) { build_saml_response(authn_context: 'myhealthevet_loa3') }
-
-          before(:each) do
-            create_user_identity(authn_context: 'myhealthevet', account_type: account_type, level_of_assurance: ['3'])
-          end
+          let(:saml_response) { build_saml_response(authn_context: 'myhealthevet_loa3', account_type: account_type, level_of_assurance: ['3']) }
 
           it 'has a #new_user_identity which responds to #sign_in' do
             expect(sso_service.new_user_identity.sign_in)
@@ -77,7 +82,7 @@ RSpec.describe SSOService do
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'dslogon', account_type: '1', id_proof_type: 'idme-initial')
+            .to eq(service_name: 'dslogon', account_type: '1', id_proof_type: 'not-verified')
         end
       end
     end
@@ -107,7 +112,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'idme', account_type: 'N/A', id_proof_type: 'idme-initial')
+          .to eq(service_name: 'idme', account_type: 'N/A', id_proof_type: 'not-verified')
       end
     end
 
