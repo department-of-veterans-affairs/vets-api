@@ -13,6 +13,19 @@ describe PdfFill::Forms::Va21p527ez do
     get_fixture('pdf_fill/21P-527EZ/kitchen_sink')
   end
 
+  let(:default_account) do
+    { 'name' => 'None', 'amount' => 0, 'recipient' => 'None' }
+  end
+
+  let(:default_additional_account) do
+    {
+      'additionalSourceName' => 'None',
+      'amount' => 0,
+      'recipient' => 'None',
+      'sourceAndAmount' => 'None: $0'
+    }
+  end
+
   describe '#expand_expected_incomes' do
     it 'should create an expectedIncomes array' do
       expect(described_class.new(
@@ -21,11 +34,11 @@ describe PdfFill::Forms::Va21p527ez do
         }
       ).expand_expected_incomes).to eq(
         [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Gross wages and salary: $1', 'amount' => 1 },
-         nil,
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         nil,
-         nil,
-         nil]
+         default_account,
+         default_account,
+         default_account,
+         default_additional_account,
+         default_additional_account]
       )
     end
   end
@@ -38,15 +51,15 @@ describe PdfFill::Forms::Va21p527ez do
         }
       ).expand_monthly_incomes).to eq(
         [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Social security: $1', 'amount' => 1 },
-         nil,
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         nil,
-         nil,
-         nil]
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_additional_account,
+         default_additional_account]
       )
     end
   end
@@ -59,13 +72,13 @@ describe PdfFill::Forms::Va21p527ez do
         }
       ).expand_net_worths).to eq(
         [{ 'recipient' => 'Myself', 'sourceAndAmount' => 'Cash/non-interest bearing bank accounts: $1', 'amount' => 1 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         { 'recipient' => 'Myself', 'amount' => 0 },
-         {},
-         {},
-         nil]
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_account,
+         default_account]
       )
     end
   end
