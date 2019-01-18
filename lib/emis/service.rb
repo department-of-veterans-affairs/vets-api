@@ -10,6 +10,7 @@ require 'common/client/middleware/response/soap_parser'
 module EMIS
   class Service < Common::Client::Base
     STATSD_KEY_PREFIX = 'api.emis'
+    include Common::Client::Concerns::LogAsWarningHelpers
 
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
@@ -42,12 +43,14 @@ module EMIS
         icn: icn,
         request_name: request_name
       )
-      raw_response = perform(
-        :post,
-        '',
-        message,
-        soapaction: "http://viers.va.gov/cdi/eMIS/#{operation.camelize(:lower)}/v1"
-      )
+      raw_response = warn_for_service_unavailable do
+        perform(
+          :post,
+          '',
+          message,
+          soapaction: "http://viers.va.gov/cdi/eMIS/#{operation.camelize(:lower)}/v1"
+        )
+      end
       response_type.new(raw_response)
       # :nocov:
     rescue Faraday::ConnectionFailed => e
