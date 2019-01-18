@@ -53,5 +53,3 @@ Rails.application.configure do
   config.rails_semantic_logger.processing = true
   config.rails_semantic_logger.rendered   = true
 end
-
-require_relative 'development_local' if File.exist?(Rails.root.join('config', 'environments', 'development_local.rb'))
