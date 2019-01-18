@@ -366,7 +366,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               'emailAddress' => 'tester@adhocteam.us',
               'primaryPhone' => '5551231234'
             },
-            'isVAEmployee' => true
+            'isVaEmployee' => true
           }
         }
       end
@@ -904,6 +904,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'NEW',
                 'condition' => 'new condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
                 'primaryDescription' => 'new condition description'
               }
@@ -917,6 +918,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'new condition',
+            'classificationCode' => 'Test Code',
             'specialIssue' => 'POW',
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
           }
@@ -932,6 +934,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'WORSENED',
                 'condition' => 'worsened condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
                 'worsenedDescription' => 'worsened condition description',
                 'worsenedEffects' => 'worsened effects'
@@ -946,6 +949,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'worsened condition',
+            'classificationCode' => 'Test Code',
             'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects"
@@ -962,10 +966,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'VA',
                 'condition' => 'va condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
-                'VAMistreatmentDescription' => 'va condition description',
-                'VAMistreatmentLocation' => 'va location',
-                'VAMistreatmentDate' => 'the third of october'
+                'vaMistreatmentDescription' => 'va condition description',
+                'vaMistreatmentLocation' => 'va location',
+                'vaMistreatmentDate' => 'the third of october'
               }
             ]
           }
@@ -977,6 +982,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'va condition',
+            'classificationCode' => 'Test Code',
             'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Caused by VA care\nEvent: va condition description\n"\
@@ -994,6 +1000,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability'
@@ -1023,6 +1030,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'diagnosticCode' => 9999,
             'disabilityActionType' => 'NEW',
             'name' => 'PTSD disability',
+            'classificationCode' => 'Test Code',
             'ratedDisabilityId' => '1100583'
           },
           {
@@ -1040,10 +1048,12 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'diagnosticCode' => 9999,
             'disabilityActionType' => 'NEW',
             'name' => 'PTSD disability',
+            'classificationCode' => 'Test Code',
             'ratedDisabilityId' => '1100583',
             'secondaryDisabilities' => [
               {
                 'name' => 'secondary condition',
+                'classificationCode' => 'Test Code',
                 'disabilityActionType' => 'SECONDARY',
                 'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"

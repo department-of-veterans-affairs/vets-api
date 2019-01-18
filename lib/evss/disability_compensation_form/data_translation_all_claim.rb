@@ -222,7 +222,7 @@ module EVSS
             'changeOfAddress' => translate_change_of_address(input_form['forwardingAddress']),
             'daytimePhone' => split_phone_number(input_form.dig('phoneAndEmail', 'primaryPhone')),
             'homelessness' => translate_homelessness,
-            'currentlyVAEmployee' => input_form['isVAEmployee']
+            'currentlyVAEmployee' => input_form['isVaEmployee']
           }.compact
         }
       end
@@ -427,6 +427,7 @@ module EVSS
       def map_new(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
@@ -437,6 +438,7 @@ module EVSS
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Worsened because of military service\n"\
@@ -447,18 +449,20 @@ module EVSS
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by VA care\n"\
-                                "Event: #{input_disability['VAMistreatmentDescription']}\n"\
-                                "Location: #{input_disability['VAMistreatmentLocation']}\n"\
-                                "TimeFrame: #{input_disability['VAMistreatmentDate']}"
+                                "Event: #{input_disability['vaMistreatmentDescription']}\n"\
+                                "Location: #{input_disability['vaMistreatmentLocation']}\n"\
+                                "TimeFrame: #{input_disability['vaMistreatmentDate']}"
         }.compact
       end
 
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by a service-connected disability\n"\
