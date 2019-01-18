@@ -184,10 +184,10 @@ RSpec.describe 'Disability compensation form', type: :request do
             'attributes' => {
               'claim_id' => 61_234_567,
               'job_id' => job_status.job_id,
+              'submission_id' => submission.id,
               'status' => 'success',
               'ancillary_item_statuses' => [{
                 'id' => ancillary_job_status.id,
-                'form526_submission_id' => submission.id,
                 'job_id' => ancillary_job_status.job_id,
                 'job_class' => 'AncillaryForm',
                 'status' => 'success',
@@ -215,6 +215,7 @@ RSpec.describe 'Disability compensation form', type: :request do
             'attributes' => {
               'claim_id' => nil,
               'job_id' => job_status.job_id,
+              'submission_id' => submission.id,
               'status' => 'retryable_error',
               'ancillary_item_statuses' => []
             }
@@ -237,6 +238,7 @@ RSpec.describe 'Disability compensation form', type: :request do
             'attributes' => {
               'claim_id' => nil,
               'job_id' => job_status.job_id,
+              'submission_id' => submission.id,
               'status' => 'non_retryable_error',
               'ancillary_item_statuses' => []
             }

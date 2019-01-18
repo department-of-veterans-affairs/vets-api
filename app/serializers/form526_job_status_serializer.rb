@@ -3,6 +3,7 @@
 class Form526JobStatusSerializer < ActiveModel::Serializer
   attribute :claim_id
   attribute :job_id
+  attribute :submission_id
   attribute :status
   attribute :ancillary_item_statuses
 
@@ -14,11 +15,17 @@ class Form526JobStatusSerializer < ActiveModel::Serializer
     object.submission.submitted_claim_id
   end
 
+  def submission_id
+    object.submission.id
+  end
+
   def ancillary_item_statuses
     if object.job_class.include?('526')
-      object.submission.form526_job_statuses.reject do |status|
-        status.id == object.id
-      end
+      object.submission.form526_job_statuses.map do |status|
+        unless status.id == object.id
+          status.attributes.except('form526_submission_id')
+        end
+      end.compact
     end
   end
 end
