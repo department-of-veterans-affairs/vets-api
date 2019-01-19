@@ -57,27 +57,27 @@ module SAML
     # 'myhealthevet_loa3', 'dslogon_loa3', 'http://idmanagement.gov/ns/assurance/loa/3/vets'
     def idme_loa3_url
       link_authn_context =
-      case authn_context
-      when 'http://idmanagement.gov/ns/assurance/loa/1/vets', 'multifactor'
-        'http://idmanagement.gov/ns/assurance/loa/3/vets'
-      when 'myhealthevet', 'myhealthevet_multifactor'
-        'myhealthevet_loa3'
-      when 'dslogon', 'dslogon_multifactor'
-        'dslogon_loa3'
-      end
+        case authn_context
+        when 'http://idmanagement.gov/ns/assurance/loa/1/vets', 'multifactor'
+          'http://idmanagement.gov/ns/assurance/loa/3/vets'
+        when 'myhealthevet', 'myhealthevet_multifactor'
+          'myhealthevet_loa3'
+        when 'dslogon', 'dslogon_multifactor'
+          'dslogon_loa3'
+        end
       build_sso_url(link_authn_context)
     end
 
     def mfa_url
       link_authn_context =
-      case authn_context
-      when 'http://idmanagement.gov/ns/assurance/loa/1/vets', 'http://idmanagement.gov/ns/assurance/loa/3/vets'
-        'multifactor'
-      when 'myhealthevet', 'myhealthevet_loa3'
-        'myhealthevet_multifactor'
-      when 'dslogon', 'dslogon_loa3'
-        'dslogon_multifactor'
-      end
+        case authn_context
+        when 'http://idmanagement.gov/ns/assurance/loa/1/vets', 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+          'multifactor'
+        when 'myhealthevet', 'myhealthevet_loa3'
+          'myhealthevet_multifactor'
+        when 'dslogon', 'dslogon_loa3'
+          'dslogon_multifactor'
+        end
       build_sso_url(link_authn_context)
     end
 
