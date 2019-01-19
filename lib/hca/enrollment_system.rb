@@ -680,12 +680,12 @@ module HCA
       end
     end
 
-    def add_attachment(file_body)
+    def add_attachment(file_body, is_dd214)
       {
         'va:document' => {
           'va:name' => 'Attachment',
           'va:format' => 'PDF',
-          'va:type' => '1',
+          'va:type' => is_dd214 ? '1' : '5',
           'va:content' => Base64.encode64(file_body)
         }
       }
