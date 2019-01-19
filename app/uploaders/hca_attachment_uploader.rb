@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HcaDd214Uploader < CarrierWave::Uploader::Base
+class HcaAttachmentUploader < CarrierWave::Uploader::Base
   include ValidateFileSize
   include SetAwsConfig
   include UploaderVirusScan
@@ -29,7 +29,7 @@ class HcaDd214Uploader < CarrierWave::Uploader::Base
   end
 
   def store_dir
-    'dd214_attachments'
+    'hca_attachments'
   end
 
   def filename
