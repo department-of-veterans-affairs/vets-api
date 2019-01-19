@@ -10,9 +10,12 @@ module SAML
   class User
     include SentryLogging
 
+    LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'
+    LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+
     AUTHN_CONTEXTS = {
-      'http://idmanagement.gov/ns/assurance/loa/1/vets' => { class: 'idme', sign_in: { service_name: 'idme' } },
-      'http://idmanagement.gov/ns/assurance/loa/3/vets' => { class: 'idme', sign_in: { service_name: 'idme' } },
+      LOA1 => { class: 'idme', sign_in: { service_name: 'idme' } },
+      LOA3 => { class: 'idme', sign_in: { service_name: 'idme' } },
       'multifactor' => { class: 'idme', sign_in: { service_name: 'idme' } },
       'myhealthevet_multifactor' => { class: 'idme', sign_in: { service_name: 'myhealthevet' } },
       'myhealthevet_loa3' => { class: 'idme', sign_in: { service_name: 'myhealthevet' } },
@@ -22,7 +25,7 @@ module SAML
       'dslogon' => { class: 'dslogon', sign_in: { service_name: 'dslogon' } }
     }.freeze
 
-    attr_reader :saml_response, :saml_attributes, :user_attributes, :existing_user_identity
+    attr_reader :saml_response, :saml_attributes, :user_attributes
 
     def initialize(saml_response)
       @saml_response = saml_response
@@ -62,9 +65,11 @@ module SAML
       @existing_user_identity ||= UserIdentity.find(user_attributes.uuid)
     end
 
-    # This includes the service name used to sign-in initially, and the account type that is associated with the sign in.
+    # This includes service_name used to sign-in initially, and the account type that is associated with the sign in.
     def sign_in
-      AUTHN_CONTEXTS.fetch(authn_context).fetch(:sign_in).merge(account_type: account_type, id_proof_type: id_proof_type)
+      AUTHN_CONTEXTS.fetch(authn_context)
+                    .fetch(:sign_in)
+                    .merge(account_type: account_type, id_proof_type: id_proof_type)
     rescue StandardError
       { service_name: 'unknown', account_type: account_type, id_proof_type: id_proof_type }
     end
@@ -80,7 +85,7 @@ module SAML
     # This corresponds to "Basic", "Advanced", "Premium", "1", "3"
     def account_type
       case authn_context
-      when 'http://idmanagement.gov/ns/assurance/loa/1/vets', 'http://idmanagement.gov/ns/assurance/loa/3/vets', 'multifactor'
+      when LOA1, LOA3, 'multifactor'
         'N/A'
       when 'myhealthevet'
         user_attributes.mhv_account_type # Signed in MHV

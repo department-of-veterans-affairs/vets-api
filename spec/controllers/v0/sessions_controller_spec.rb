@@ -20,8 +20,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                     user_attributes: user_attributes,
                     to_hash: saml_user_attributes,
                     account_type: 'N/A',
-                    id_proof_type: authn_context == LOA1 ? 'not-verified' : 'idme'
-                  )
+                    id_proof_type: authn_context == LOA1 ? 'not-verified' : 'idme')
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
