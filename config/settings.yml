@@ -143,7 +143,7 @@ evss:
 
 # Settings for GI Bill Data Service
 gids:
-  url: https://dev.vets.gov/gids
+  url: https://dev.va.gov/gids
 
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.

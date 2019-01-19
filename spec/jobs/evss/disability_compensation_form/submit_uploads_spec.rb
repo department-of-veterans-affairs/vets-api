@@ -25,7 +25,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   subject { described_class }
 
   describe 'perform' do
-    let(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS].first }
+    let(:upload_data) { [submission.form[Form526Submission::FORM_526_UPLOADS].first] }
     let(:client) { double(:client) }
     let(:document_data) { double(:document_data) }
 
@@ -47,9 +47,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           .to receive(:new)
           .with(
             evss_claim_id: submission.submitted_claim_id,
-            file_name: upload_data['name'],
+            file_name: upload_data.first['name'],
             tracked_item_id: nil,
-            document_type: upload_data['attachmentId']
+            document_type: upload_data.first['attachmentId']
           )
           .and_return(document_data)
 

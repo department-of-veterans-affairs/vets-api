@@ -12,7 +12,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslation do
     User.create(user)
   end
 
-  subject { described_class.new(user, form_content) }
+  subject { described_class.new(user, form_content, false) }
 
   describe '#translate' do
     before do
