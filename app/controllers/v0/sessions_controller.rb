@@ -42,7 +42,11 @@ module V0
               reset_session
               logout_url
             end
-      render json: { url: url }
+      if params[:json]
+        render json: { url: url }
+      else
+        redirect_to url
+      end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
