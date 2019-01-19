@@ -18,7 +18,9 @@ RSpec.describe SSOService do
       end
 
       context 'with ID.me LOA3' do
-        let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Basic', level_of_assurance: ['3']) }
+        let(:saml_response) do
+          build_saml_response(authn_context: 'myhealthevet', account_type: 'Basic', level_of_assurance: ['3'])
+        end
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
@@ -36,7 +38,9 @@ RSpec.describe SSOService do
       end
 
       context 'with ID.me LOA3' do
-        let(:saml_response) { build_saml_response(authn_context: 'myhealthevet', account_type: 'Advanced', level_of_assurance: ['3']) }
+        let(:saml_response) do
+          build_saml_response(authn_context: 'myhealthevet', account_type: 'Advanced', level_of_assurance: ['3'])
+        end
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
@@ -46,9 +50,12 @@ RSpec.describe SSOService do
     end
 
     context 'myhealthevet_loa3' do
-      ['Basic', 'Advanced'].each do |account_type|
+      %w[Basic Advanced].each do |account_type|
         context "with initial account type of #{account_type}" do
-          let(:saml_response) { build_saml_response(authn_context: 'myhealthevet_loa3', account_type: account_type, level_of_assurance: ['3']) }
+          let(:authn_context) { 'myhealthevet_loa3' }
+          let(:saml_response) do
+            build_saml_response(authn_context: authn_context, account_type: account_type, level_of_assurance: ['3'])
+          end
 
           it 'has a #new_user_identity which responds to #sign_in' do
             expect(sso_service.new_user_identity.sign_in)
@@ -78,7 +85,9 @@ RSpec.describe SSOService do
       end
 
       context 'with ID.me LOA3' do
-        let(:saml_response) { build_saml_response(authn_context: 'dslogon', account_type: '1', level_of_assurance: ['3']) }
+        let(:saml_response) do
+          build_saml_response(authn_context: 'dslogon', account_type: '1', level_of_assurance: ['3'])
+        end
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
@@ -108,7 +117,9 @@ RSpec.describe SSOService do
 
   describe 'IDme Identity' do
     context 'idme assurance 1' do
-      let(:saml_response) { build_saml_response(authn_context: SAML::ResponseBuilder::IDMELOA1, level_of_assurance: ['3']) }
+      let(:saml_response) do
+        build_saml_response(authn_context: SAML::ResponseBuilder::IDMELOA1, level_of_assurance: ['3'])
+      end
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)

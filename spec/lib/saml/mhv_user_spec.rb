@@ -10,7 +10,9 @@ RSpec.describe SAML::User do
     let(:authn_context) { 'myhealthevet' }
     let(:account_type)  { 'Basic' }
     let(:saml_attributes) { build_saml_attributes(authn_context: authn_context, account_type: account_type) }
-    let(:saml_response) { build_saml_response(authn_context: authn_context, account_type: account_type, attributes: saml_attributes) }
+    let(:saml_response) do
+      build_saml_response(authn_context: authn_context, account_type: account_type, attributes: saml_attributes)
+    end
     subject { described_class.new(saml_response) }
 
     context 'non-premium user' do

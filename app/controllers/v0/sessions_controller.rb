@@ -98,10 +98,9 @@ module V0
     def stats(status = :ok)
       if status == :ok
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_success_tags(@sso_service))
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_tags('success', @sso_service))
       else
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{@sso_service.real_authn_context}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_tags('failure', @sso_service))
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     end
@@ -146,10 +145,13 @@ module V0
       errors
     end
 
-    def saml_callback_success_tags(sso_service)
-      ['status:success',
-       "authn_context:#{sso_service.real_authn_context}",
-       "account_type:#{sso_service.saml_attributes.account_type}"]
+    def saml_callback_tags(status, sso_service)
+      [
+        "status:#{status}",
+        "authn_context:#{sso_service.authn_context || 'error'}",
+        "account_type:#{sso_service&.saml_attributes&.account_type || 'error'}",
+        "id_proof_type:#{sso_service&.saml_attributes&.id_proof_type || 'error'}"
+      ]
     end
 
     def url_service

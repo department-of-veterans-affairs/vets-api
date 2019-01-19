@@ -109,7 +109,6 @@ module SAML
       )
       raise
     end
-    alias real_authn_context authn_context
 
     private
 

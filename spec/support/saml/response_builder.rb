@@ -2,8 +2,8 @@
 
 module SAML
   module ResponseBuilder
-    IDMELOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'.freeze
-    IDMELOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'.freeze
+    IDMELOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'
+    IDMELOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'
 
     def create_user_identity(authn_context: IDMELOA1, account_type: 'N/A', level_of_assurance: ['1'], multifactor: [false])
       saml = build_saml_response(authn_context: authn_context, account_type: account_type, level_of_assurance: level_of_assurance)
@@ -27,16 +27,74 @@ module SAML
         create_user_identity(authn_context: previous_context, account_type: account_type, level_of_assurance: level_of_assurance)
       end
 
-      decrypted_document_partial = REXML::Document.new(authn_context_xml_partial(authn_context))
-      attributes = attributes ||
-        build_saml_attributes(authn_context: authn_context, account_type: account_type, level_of_assurance: level_of_assurance)
+      decrypted_document_partial = REXML::Document.new(build_xml_partial(authn_context))
+      attributes ||= build_saml_attributes(authn_context: authn_context, account_type: account_type, level_of_assurance: level_of_assurance)
       instance_double(OneLogin::RubySaml::Response, attributes: attributes,
                                                     decrypted_document: decrypted_document_partial,
                                                     is_a?: true,
                                                     is_valid?: true)
     end
 
-    def authn_context_xml_partial(authn_context)
+    def invalid_saml_response
+      instance_double(OneLogin::RubySaml::Response, is_valid?: false,
+                                                    is_a?: true,
+                                                    in_response_to: uuid,
+                                                    decrypted_document: REXML::Document.new(build_xml_partial))
+    end
+
+    def saml_response_click_deny
+      instance_double(OneLogin::RubySaml::Response, is_valid?: false,
+                                                    is_a?: true,
+                                                    in_response_to: uuid,
+                                                    errors: ['ruh roh'],
+                                                    status_message: 'Subject did not consent to attribute release',
+                                                    decrypted_document: REXML::Document.new(build_xml_partial))
+    end
+
+    def saml_response_too_late
+      instance_double(OneLogin::RubySaml::Response, is_valid?: false,
+                                                    status_message: 'Current time is on or after NotOnOrAfter condition',
+                                                    in_response_to: uuid,
+                                                    is_a?: true,
+                                                    errors: ['Current time is on or after NotOnOrAfter ' \
+                                'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
+                                                    decrypted_document: REXML::Document.new(build_xml_partial))
+    end
+
+    def saml_response_too_early
+      instance_double(OneLogin::RubySaml::Response, is_valid?: false,
+                                                    status_message: 'Current time is earlier than NotBefore condition',
+                                                    in_response_to: uuid,
+                                                    is_a?: true,
+                                                    errors: ['Current time is earlier than NotBefore ' \
+                                'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
+                                                    decrypted_document: REXML::Document.new(build_xml_partial))
+    end
+
+    def saml_response_unknown_error
+      instance_double(OneLogin::RubySaml::Response, is_valid?: false,
+                                                    status_message: SSOService::DEFAULT_ERROR_MESSAGE,
+                                                    in_response_to: uuid,
+                                                    is_a?: true,
+                                                    errors: ['The status code of the Response was not Success, ' \
+                                'was Requester => NoAuthnContext -> AuthnRequest without ' \
+                                'an authentication context.'],
+                                                    decrypted_document: REXML::Document.new(build_xml_partial))
+    end
+
+    def saml_response_multi_error
+      instance_double(OneLogin::RubySaml::Response, is_valid?: false,
+                                                    status_message: 'Subject did not consent to attribute release',
+                                                    in_response_to: uuid,
+                                                    is_a?: true,
+                                                    errors: [
+                                                      'Subject did not consent to attribute release',
+                                                      'Other random error'
+                                                    ],
+                                                    decrypted_document: REXML::Document.new(build_xml_partial))
+    end
+
+    def build_xml_partial(authn_context = '')
       <<-XML
       <?xml version="1.0"?>
       <samlp:Response xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion">

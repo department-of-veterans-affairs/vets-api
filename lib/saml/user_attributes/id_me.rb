@@ -55,7 +55,7 @@ module SAML
       end
 
       def loa_current
-        LOA_MAPPING.fetch(real_authn_context)
+        LOA_MAPPING.fetch(authn_context)
       rescue KeyError
         1
       end

@@ -69,7 +69,9 @@ RSpec.describe SAML::User do
 
     context 'LOA1 previously verified' do
       let(:saml_attributes) { build_saml_attributes(authn_context: authn_context, level_of_assurance: ['3']) }
-      let(:saml_response) { build_saml_response(authn_context: authn_context, level_of_assurance: ['3'], attributes: saml_attributes) }
+      let(:saml_response) do
+        build_saml_response(authn_context: authn_context, level_of_assurance: ['3'], attributes: saml_attributes)
+      end
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
