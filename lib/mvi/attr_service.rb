@@ -2,7 +2,7 @@
 
 module MVI
   class AttrService < Service
-    configuration MVI::Configuration
+    configuration MVI::AttrConfiguration
 
     private
 
