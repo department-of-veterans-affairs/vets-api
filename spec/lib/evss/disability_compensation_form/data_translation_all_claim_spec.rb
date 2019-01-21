@@ -12,7 +12,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     User.create(user)
   end
 
-  subject { described_class.new(user, form_content) }
+  subject { described_class.new(user, form_content, false) }
 
   describe '#translate' do
     before do
@@ -28,6 +28,28 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
           VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
             expect(subject.translate).to eq JSON.parse(evss_json)
+          end
+        end
+      end
+    end
+  end
+
+  describe '#append_overflow_text' do
+    subject { described_class.new(user, form_content, true) }
+
+    before do
+      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+    end
+
+    let(:form_content) do
+      JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
+    end
+
+    it 'should append the overflowText key correctly' do
+      VCR.use_cassette('evss/ppiu/payment_information') do
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+            expect(subject.translate['form526'].key?('overflowText')).to eq true
           end
         end
       end
@@ -344,7 +366,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               'emailAddress' => 'tester@adhocteam.us',
               'primaryPhone' => '5551231234'
             },
-            'isVAEmployee' => true
+            'isVaEmployee' => true
           }
         }
       end
@@ -882,6 +904,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'NEW',
                 'condition' => 'new condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
                 'primaryDescription' => 'new condition description'
               }
@@ -895,6 +918,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'new condition',
+            'classificationCode' => 'Test Code',
             'specialIssue' => 'POW',
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
           }
@@ -910,6 +934,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'WORSENED',
                 'condition' => 'worsened condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
                 'worsenedDescription' => 'worsened condition description',
                 'worsenedEffects' => 'worsened effects'
@@ -924,6 +949,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'worsened condition',
+            'classificationCode' => 'Test Code',
             'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects"
@@ -940,10 +966,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'VA',
                 'condition' => 'va condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
-                'VAMistreatmentDescription' => 'va condition description',
-                'VAMistreatmentLocation' => 'va location',
-                'VAMistreatmentDate' => 'the third of october'
+                'vaMistreatmentDescription' => 'va condition description',
+                'vaMistreatmentLocation' => 'va location',
+                'vaMistreatmentDate' => 'the third of october'
               }
             ]
           }
@@ -955,6 +982,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'va condition',
+            'classificationCode' => 'Test Code',
             'specialIssue' => 'POW',
             'serviceRelevance' =>
               "Caused by VA care\nEvent: va condition description\n"\
@@ -972,6 +1000,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'cause' => 'SECONDARY',
                 'condition' => 'secondary condition',
+                'classificationCode' => 'Test Code',
                 'specialIssues' => ['POW'],
                 'causedByDisabilityDescription' => 'secondary description',
                 'causedByDisability' => 'PTSD disability'
@@ -1001,6 +1030,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'diagnosticCode' => 9999,
             'disabilityActionType' => 'NEW',
             'name' => 'PTSD disability',
+            'classificationCode' => 'Test Code',
             'ratedDisabilityId' => '1100583'
           },
           {
@@ -1018,10 +1048,12 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'diagnosticCode' => 9999,
             'disabilityActionType' => 'NEW',
             'name' => 'PTSD disability',
+            'classificationCode' => 'Test Code',
             'ratedDisabilityId' => '1100583',
             'secondaryDisabilities' => [
               {
                 'name' => 'secondary condition',
+                'classificationCode' => 'Test Code',
                 'disabilityActionType' => 'SECONDARY',
                 'specialIssue' => 'POW',
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
