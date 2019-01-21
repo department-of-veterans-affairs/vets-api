@@ -6,9 +6,9 @@ class HcaAttachmentUploader < CarrierWave::Uploader::Base
   include UploaderVirusScan
   include CarrierWave::MiniMagick
 
-  MAX_FILE_SIZE = 25.megabytes
+  MAX_FILE_SIZE = 10.megabytes
 
-  process(convert: 'pdf', if: :not_pdf?)
+  process(convert: 'jpg', if: :png?)
 
   def initialize(guid)
     super
@@ -25,7 +25,8 @@ class HcaAttachmentUploader < CarrierWave::Uploader::Base
   end
 
   def extension_white_list
-    %w[pdf jpg jpeg png]
+    # accepted by enrollment system: PDF,WORD,JPG,RTF
+    %w[pdf doc docx jpg jpeg rtf png]
   end
 
   def store_dir
@@ -38,7 +39,7 @@ class HcaAttachmentUploader < CarrierWave::Uploader::Base
 
   private
 
-  def not_pdf?(file)
-    file.content_type != 'application/pdf'
+  def png?(file)
+    file.content_type == 'image/png'
   end
 end
