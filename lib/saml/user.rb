@@ -59,14 +59,6 @@ module SAML
 
     private
 
-    # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
-    # this will only ever be one of 'dslogon, mhv, or nil'
-    def authn_context
-      return 'dslogon' if dslogon?
-      return 'myhealthevet' if mhv?
-      nil
-    end
-
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
     # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
@@ -110,6 +102,7 @@ module SAML
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
+    alias authn_context real_authn_context
 
     # We want to do some logging of when and how the following issues could arise, since loa is
     # derived based on combination of these values, it could raise an exception at any time, hence

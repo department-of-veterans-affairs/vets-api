@@ -32,7 +32,8 @@ class UserSerializer < ActiveModel::Serializer
       loa: object.loa,
       multifactor: object.multifactor,
       verified: object.loa3?,
-      authn_context: object.authn_context
+      # FIXME: this wont be necessary after FE makes appropriate changes
+      authn_context: object.authn_context.scan(%r[(myhealthevet|dslogon)]).flatten[0]
     }
   end
 
