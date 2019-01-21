@@ -151,4 +151,9 @@ class ApplicationController < ActionController::API
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
   end
+
+  def append_info_to_payload(payload)
+    super
+    payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
+  end
 end

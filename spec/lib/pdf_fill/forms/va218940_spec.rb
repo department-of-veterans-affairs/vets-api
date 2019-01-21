@@ -184,10 +184,7 @@ describe PdfFill::Forms::Va218940 do
     context 'date range is not empty' do
       provided_care = [
         {
-          'dates' => {
-            'from' => '1994-01-01',
-            'to' => '1995-01-01'
-          }
+          'dates' => 'From 1994-01-01 to 1995-01-01'
         }
       ]
       it 'should expand the doctorsCare date range correctly' do
@@ -196,7 +193,7 @@ describe PdfFill::Forms::Va218940 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'doctorsCareDateRanges' => [
-            { 'from' => '1994-01-01', 'to' => '1995-01-01' }
+            'From 1994-01-01 to 1995-01-01'
           ]
         )
       end
@@ -207,10 +204,7 @@ describe PdfFill::Forms::Va218940 do
     context 'date range is not empty' do
       provided_care = [
         {
-          'dates' => {
-            'from' => '1994-01-01',
-            'to' => '1995-01-01'
-          }
+          'dates' => 'From to 1994-01-01 to 1995-01-01'
         }
       ]
       it 'should expand the doctorsCare date range correctly' do
@@ -219,7 +213,7 @@ describe PdfFill::Forms::Va218940 do
           JSON.parse(class_form_data.to_json)
         ).to eq(
           'doctorsCareDateRanges' => [
-            { 'from' => '1994-01-01', 'to' => '1995-01-01' }
+            'From to 1994-01-01 to 1995-01-01'
           ]
         )
       end
@@ -271,10 +265,7 @@ describe PdfFill::Forms::Va218940 do
             'street' => '123 Test St.',
             'state' => 'SC'
           },
-          'dates' => {
-            'from' => '1994-01-01',
-            'to' => '1995-01-01'
-          }
+          'dates' => 'From 1994-01-01 to 1995-01-01'
         },
         {
           'name' => 'Doctor Jones',
@@ -298,7 +289,7 @@ describe PdfFill::Forms::Va218940 do
             { 'value' => "Doctor Jones\n123 Test St. 4B\nTestville SC 12345\nUS" }
           ],
           'doctorsCareDateRanges' => [
-            { 'from' => '1994-01-01', 'to' => '1995-01-01' }
+            'From 1994-01-01 to 1995-01-01'
           ]
         )
       end
