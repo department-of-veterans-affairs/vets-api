@@ -3,8 +3,6 @@
 module SAML
   # rubocop:disable Metrics/MethodLength, Metrics/ModuleLength
   module ResponseBuilder
-    IDMELOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'
-    IDMELOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'
     MHV_PREMIUM_ATYPE = [
       '{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies"'\
       ',"2":"Rx Refill","12":"Blue Button (all VA data)","1":"Blue Button self entered data.","11":"Blue Button (DoD)'\
@@ -28,7 +26,7 @@ module SAML
 
     def build_saml_response(authn_context:, account_type:, level_of_assurance:, attributes: nil)
       if authn_context.include?('multifactor')
-        previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || IDMELOA1
+        previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1
         create_user_identity(
           authn_context: previous_context,
           account_type: account_type,
@@ -36,7 +34,7 @@ module SAML
         )
       end
 
-      if [IDMELOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+      if [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
         previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{\/3\/}, '/1/')
         create_user_identity(authn_context: previous_context,
                              account_type: account_type,
@@ -195,7 +193,7 @@ module SAML
           level_of_assurance: level_of_assurance,
           multifactor: multifactor
         )
-      when IDMELOA3, 'dslogon_loa3', 'myhealthevet_loa3'
+      when LOA::IDME_LOA3, 'dslogon_loa3', 'myhealthevet_loa3'
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'email'              => ['kam+tristanmhv@adhocteam.us'],
@@ -208,7 +206,7 @@ module SAML
           'level_of_assurance' => ['3'],
           'multifactor'        => [true] # always true for these types
         )
-      when IDMELOA1, 'multifactor'
+      when LOA::IDME_LOA1, 'multifactor'
         OneLogin::RubySaml::Attributes.new(
           'uuid'               => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'email'              => ['kam+tristanmhv@adhocteam.us'],
