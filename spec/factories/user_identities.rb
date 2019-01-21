@@ -16,7 +16,7 @@ FactoryBot.define do
       {
         service_name: 'idme',
         account_type: 'N/A',
-        id_proof_type: loa[:current] < loa[:highest] ? 'not-verified' : 'idme'
+        id_proof_type: 'not-verified'
       }
     end
 
@@ -42,7 +42,7 @@ FactoryBot.define do
       {
         service_name: 'myhealthevet',
         account_type: mhv_account_type,
-        id_proof_type: loa[:current] < loa[:highest] ? 'idme' : 'not-verified'
+        id_proof_type: 'not-verified'
       }
     end
 
