@@ -20,7 +20,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                     user_attributes: user_attributes,
                     to_hash: saml_user_attributes,
                     account_type: 'N/A',
-                    id_proof_type: authn_context == LOA1 ? 'not-verified' : 'idme')
+                    id_proof_type: 'not-verified')
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -258,7 +258,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).to receive(:tags_context).once
 
           once = { times: 1, value: 1 }
-          callback_tags = ['status:success', "authn_context:#{LOA3}", 'account_type:N/A', 'id_proof_type:idme']
+          callback_tags = ['status:success', "authn_context:#{LOA3}", 'account_type:N/A', 'id_proof_type:not-verified']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -275,7 +275,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq('patientIcn' => loa3_user.icn,
                    'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-                   'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'idme' },
+                   'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'not-verified' },
                    'credential_used' => 'id_me',
                    'expirationTime' => expire_at.iso8601(0))
         end
@@ -293,7 +293,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq('patientIcn' => loa3_user.icn,
                    'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-                   'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'idme' },
+                   'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'not-verified' },
                    'credential_used' => 'id_me',
                    'expirationTime' => expire_at.iso8601(0))
         end
@@ -325,7 +325,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to eq(
               'patientIcn' => nil,
               'mhvCorrelationId' => nil,
-              'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'idme' },
+              'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'not-verified' },
               'credential_used' => 'id_me',
               'expirationTime' => expire_at.iso8601(0)
             )
@@ -342,7 +342,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to eq(
               'patientIcn' => nil,
               'mhvCorrelationId' => nil,
-              'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'idme' },
+              'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'not-verified' },
               'credential_used' => 'id_me',
               'expirationTime' => expire_at.iso8601(0)
             )
@@ -368,7 +368,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to eq(
               'patientIcn' => nil,
               'mhvCorrelationId' => nil,
-              'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'idme' },
+              'signIn' => { 'serviceName' => 'idme', 'accountType' => 'N/A', 'idProofType' => 'not-verified' },
               'credential_used' => 'id_me',
               'expirationTime' => expire_at.iso8601(0)
             )
