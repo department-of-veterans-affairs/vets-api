@@ -48,12 +48,8 @@ module SentryLogging
   def rails_logger(level, message, errors = {})
     # rails logger uses 'warn' instead of 'warning'
     level = 'warn' if level == 'warning'
-    if errors.present?
-      payload = errors.first.attributes.compact.reject { |_k, v| v.empty? }
-      Rails.logger.send(level, message, payload)
-    else
-      Rails.logger.send(level, message)
-    end
+    payload = errors.first.attributes.compact.reject { |_k, v| v.empty? } if errors.present?
+    Rails.logger.send(level, message, payload)
   end
 
   def non_nil_hash?(h)
