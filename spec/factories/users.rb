@@ -5,6 +5,7 @@ FactoryBot.define do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     last_signed_in Time.now.utc
     transient do
+      authn_context 'http://idmanagement.gov/ns/assurance/loa/2/vets'
       email 'abraham.lincoln@vets.gov'
       first_name 'abraham'
       middle_name nil
@@ -25,6 +26,7 @@ FactoryBot.define do
 
     callback(:after_build, :after_stub, :after_create) do |user, t|
       user_identity = create(:user_identity,
+                             authn_context: t.authn_context,
                              uuid: user.uuid,
                              email: t.email,
                              first_name: t.first_name,
@@ -42,6 +44,7 @@ FactoryBot.define do
     end
 
     trait :accountable do
+      authn_context 'http://idmanagement.gov/ns/assurance/loa/3/vets'
       uuid { SecureRandom.uuid }
       callback(:after_build) do |user|
         create(:account, idme_uuid: user.uuid)
@@ -53,12 +56,14 @@ FactoryBot.define do
     end
 
     trait :loa1 do
+      authn_context 'http://idmanagement.gov/ns/assurance/loa/1/vets'
       loa do
         { current: LOA::ONE, highest: LOA::ONE }
       end
     end
 
     trait :loa3 do
+      authn_context 'http://idmanagement.gov/ns/assurance/loa/3/vets'
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
       end
@@ -139,6 +144,8 @@ FactoryBot.define do
     end
 
     trait :mhv_sign_in do
+      authn_context 'myhealthevet'
+      mhv_account_type 'Basic'
       email 'abraham.lincoln@vets.gov'
       first_name nil
       middle_name nil
@@ -152,6 +159,7 @@ FactoryBot.define do
     end
 
     trait :mhv do
+      authn_context 'myhealthevet'
       uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
       last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
       mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
@@ -163,6 +171,7 @@ FactoryBot.define do
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
       ssn '796111864'
       multifactor true
+      mhv_icn '1000123456V123456'
       mhv_account_type 'Premium'
       va_patient true
 
@@ -188,6 +197,42 @@ FactoryBot.define do
 
     trait :mhv_not_logged_in do
       mhv_last_signed_in nil
+    end
+
+    trait :dslogon do
+      authn_context 'dslogon'
+      uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
+      last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
+      mhv_last_signed_in nil
+      email { Faker::Internet.email }
+      first_name { Faker::Name.first_name }
+      last_name { Faker::Name.last_name }
+      gender 'M'
+      zip { Faker::Address.postcode }
+      birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
+      ssn '796111864'
+      multifactor true
+      mhv_account_type nil
+      va_patient true
+
+      loa do
+        {
+          current: LOA::THREE,
+          highest: LOA::THREE
+        }
+      end
+
+      # add an MHV correlation_id and vha_facility_ids corresponding to va_patient
+      after(:build) do |_user, t|
+        stub_mvi(
+          build(
+            :mvi_profile,
+            icn: '1000123456V123456',
+            mhv_ids: %w[12345678901],
+            vha_facility_ids: t.va_patient ? %w[358] : []
+          )
+        )
+      end
     end
   end
 end
