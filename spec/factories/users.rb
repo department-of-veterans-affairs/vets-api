@@ -5,7 +5,7 @@ FactoryBot.define do
     uuid 'b2fab2b5-6af0-45e1-a9e2-394347af91ef'
     last_signed_in Time.now.utc
     transient do
-      authn_context 'http://idmanagement.gov/ns/assurance/loa/2/vets'
+      authn_context 'http://idmanagement.gov/ns/assurance/loa/1/vets'
       email 'abraham.lincoln@vets.gov'
       first_name 'abraham'
       middle_name nil
@@ -20,7 +20,7 @@ FactoryBot.define do
       va_patient nil
 
       loa do
-        { current: LOA::TWO, highest: LOA::THREE }
+        { current: LOA::ONE, highest: LOA::THREE }
       end
     end
 

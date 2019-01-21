@@ -5,7 +5,7 @@ require 'saml/url_service'
 
 RSpec.describe SAML::URLService do
   SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
     subject { described_class.new(saml_settings, session: session, user: user) }
