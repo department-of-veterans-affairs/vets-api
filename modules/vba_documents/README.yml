@@ -47,7 +47,7 @@ info:
         integrity of the upload
 
     ### Status Simulation
-        Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios.
+    Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios.
 
 
     ## Reference
