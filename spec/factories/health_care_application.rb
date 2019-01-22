@@ -13,7 +13,7 @@ FactoryBot.define do
         form = health_care_application.parsed_form
         form['attachment'] = {
           'confirmationCode' => create(:hca_attachment).guid,
-          'dd214' => true,
+          'dd214' => true
         }
         health_care_application.form = form.to_json
         health_care_application.send(:remove_instance_variable, :@parsed_form)
