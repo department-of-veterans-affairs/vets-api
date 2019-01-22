@@ -700,8 +700,8 @@ module HCA
 
       veteran['attachment'].tap do |attachment|
         next if attachment.blank?
-        attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
-        request['va:form']['va:attachments'] = add_attachment(attachment.get_file.read)
+        hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
+        request['va:form']['va:attachments'] = add_attachment(hca_attachment.get_file.read, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
