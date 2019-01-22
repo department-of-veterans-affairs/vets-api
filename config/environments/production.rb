@@ -58,9 +58,6 @@ Rails.application.configure do
 
   config.log_tags = {
     request_id: :uuid,
-    session: proc do |request|
-      Session.obscure_token(Regexp.last_match[1]) if request.headers['Authorization'] =~ /Token token=(.*)/
-    end,
     ref: ->(_request) { AppInfo::GIT_REVISION },
     consumer_id: ->(request) { request.headers['X-Consumer-ID'] },
     consumer_username: ->(request) { request.headers['X-Consumer-Username'] },

@@ -46,7 +46,7 @@
       "name": "Jane Doe",
       "phoneNumber": "1231231231"
     },
-    "isVAEmployee": false,
+    "isVaEmployee": false,
     "militaryRetiredPayBranch": "Air Force",
     "needToLeaveHousing": true,
     "ratedDisabilities": [
@@ -61,6 +61,7 @@
       {
         "cause": "NEW",
         "condition": "Arthritis",
+        "classificationCode": "Test Code",
         "primaryDescription": "Joints in hands",
         "specialIssues": ["POW"]
       }

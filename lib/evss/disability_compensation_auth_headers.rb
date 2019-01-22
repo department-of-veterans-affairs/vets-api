@@ -9,9 +9,7 @@ module EVSS
     end
 
     def add_headers(auth_headers)
-      headers = auth_headers.merge('va_eauth_authorization' => eauth_json)
-      Raven.capture_message('disability_headers', level: :info, extra: headers)
-      headers
+      auth_headers.merge('va_eauth_authorization' => eauth_json)
     end
 
     private
@@ -32,7 +30,6 @@ module EVSS
     end
 
     def gender
-      Raven.capture_message('disability_gender', level: :info, extra: { gender: @user.gender })
       case @user.gender
       when 'F'
         'FEMALE'

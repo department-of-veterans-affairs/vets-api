@@ -120,7 +120,8 @@ module PdfFill
           key: 'F[0].#subform[1].CLAIMANT_SIGNATURE[0]'
         },
         'signatureDate' => {
-          key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]'
+          key: 'F[0].#subform[1].DateSigned_Month_Day_Year[0]',
+          format: 'date'
         },
         'printedName' => {
           key: 'F[0].#subform[1].PrintedNameOfPersonAuthorizingDisclosure[0]'
@@ -190,16 +191,20 @@ module PdfFill
             key: "F[0].provider.name[#{PROVIDER_ITERATOR}]"
           },
           'dateRangeStart0' => {
-            key: "F[0].provider.dateRangeStart0[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.dateRangeStart0[#{PROVIDER_ITERATOR}]",
+            format: 'date'
           },
           'dateRangeEnd0' => {
-            key: "F[0].provider.dateRangeEnd0[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.dateRangeEnd0[#{PROVIDER_ITERATOR}]",
+            format: 'date'
           },
           'dateRangeStart1' => {
-            key: "F[0].provider.dateRangeStart1[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.dateRangeStart1[#{PROVIDER_ITERATOR}]",
+            format: 'date'
           },
           'dateRangeEnd1' => {
-            key: "F[0].provider.dateRangeEnd1[#{PROVIDER_ITERATOR}]"
+            key: "F[0].provider.dateRangeEnd1[#{PROVIDER_ITERATOR}]",
+            format: 'date'
           },
           'street' => {
             limit: 30,

@@ -240,7 +240,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           200,
           '_data' => {
             'hca_dd214_attachment' => {
-              file_data: fixture_file_upload(Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'))
+              file_data: Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
+              )
             }
           }
         )
