@@ -20,44 +20,32 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
 
   it 'does the tests', :aggregate_failures, :skip_mvi, :skip_emis do
     EPISODES.each_with_index do |episode, _index|
-      Timecop.freeze(episode.recorded_at) do
+      @episode_time = episode.recorded_at
+      Timecop.freeze(@episode_time ) do
         VCR.use_cassette(OUTBOUND_CASSETTE, record: :new_episodes) do
           SecureRandom.with_disabled_randomness do
             make_request(episode)
           end
         end
-      end
+
+      actual_body = sanitize_json_body(response.body)
+      expected_body = sanitize_json_body(episode.response['body']['string'])
+binding.pry if response.status ==500
       expect(response.status).to eq(episode.response['status']['code'])
-      expect(response.body).to match_episode_body(episode.response['body']['string'])
-      expect(response.headers.keys).to match_episode_body(episode.response['headers'].keys)
+      expect(actual_body).to eq(expected_body)
+      expect(response.headers.keys).to eq(episode.response['headers'].keys)
+    end
     end
   end
 
   private
 
-  RSpec::Matchers.define :match_episode_body do |expected|
-    match do |actual|
-      actual == expected
-    end
-
-    failure_message do |actual|
-      message = "expected that #{actual} would match #{expected}"
-      outputs = [actual, expected].map { |a| pretty(a) }
-      message += "\nDiff:" + differ.diff_as_string(*outputs)
-      message
-    end
-
-    def pretty(output)
-      JSON.pretty_generate(JSON.parse(output))
-    rescue StandardError
-      output
-    end
-
-    def differ
-      RSpec::Support::Differ.new(
-        object_preparer: ->(object) { RSpec::Matchers::Composable.surface_descriptions_in(object) },
-        color: RSpec::Matchers.configuration.color?
-      )
+  def sanitize_json_body(body)
+    body
+    if response.content_type.symbol == :json && response.status == 200
+      JSON.parse(body)
+    else
+      body
     end
   end
 
@@ -67,6 +55,7 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
              else
                Rack::Utils.parse_nested_query(episode.uri.query)
              end
+    puts "#{episode.method} #{episode.uri.path}"
     send(episode.method, episode.uri.path, params, episode.headers)
   end
 end
