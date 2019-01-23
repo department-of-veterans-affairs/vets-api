@@ -26,7 +26,7 @@ namespace :redis do
     end
   end
 
-  desc 'Create test sessions from file and output result with curl/locust compatible header'
+  desc 'Create test sessions from json file and output result with curl/locust compatible header'
   task :create_sessions_json, [:sessions_json] => [:environment] do |_, args|
     raise 'No sessions JSON file provided' unless args[:sessions_json]
     redis = Redis.current
@@ -45,21 +45,17 @@ namespace :redis do
         redis.set "mvi-profile-response:#{uuid}", sdata['mvi-profile-response'].to_json
         redis.set "user_identities:#{uuid}", sdata['user_identities'].to_json
       end
-      users = sessions.map do |session|
-        {
-          uuid: session.uuid,
-          curl_header: Cookies.new(session).to_curl_header
-        }
-      end
-      puts JSON.pretty_generate(users)
+
+      puts generate_cookies_sessions(sessions)
     end
   end
 
-  desc 'Create test sessions'
+  desc 'Create test sessions and output result with curl/locust compatible header'
   task :create_sessions, %i[count mhv_id] => [:environment] do |_, args|
     args.with_defaults(count: 50, mhv_id: nil)
     redis = Redis.current
 
+    sessions = []
     args[:count].to_i.times do
       uuid = SecureRandom.uuid.delete '-'
       token = SecureRandom.uuid.delete '-'
@@ -67,8 +63,15 @@ namespace :redis do
 
       session = Session.new(token: token, uuid: uuid)
       session.save
+      sessions << session
 
-      redis.set "users:#{uuid}", {
+      redis.set "users_b:#{uuid}", {
+        ":uuid": uuid,
+        ":last_signed_in": { "^t": Time.now.utc },
+        ":mhv_last_signed_in": nil
+      }.to_json
+
+      redis.set "user_identities:#{uuid}", {
         ":uuid": uuid,
         ":email": "vets.gov.user+#{rand(200)}@gmail.com",
         ":first_name": 'TEST',
@@ -82,39 +85,46 @@ namespace :redis do
           ":current": 3,
           ":highest": 3
         },
-        ":last_signed_in": { "^t": Time.now.utc },
-        ":mhv_last_signed_in": nil
+        ":multifactor": true,
+        ":authn_context": nil,
+        ":mhv_icn": nil,
+        ":mhv_correlation_id": mhv_ids.first
       }.to_json
 
       redis.set "mvi-profile-response:#{uuid}", {
         ":uuid": uuid,
-        ":status": 'OK',
-        ":profile": {
-          "^o": 'MVI::Models::MviProfile',
-          "birth_date": '19700101',
-          "edipi": '1005079124',
-          "family_name": 'USER',
-          "gender": 'F',
-          "given_names": %w[TEST T],
-          "icn": '1008710255V058302',
-          "mhv_ids": mhv_ids,
-          "ssn": '123456789',
-          "suffix": nil,
-          "address": {
-            "^o": 'MVI::Models::MviProfileAddress',
-            "street": '123 Fake Street',
-            "city": 'Springfield',
-            "state": 'OR',
-            "postal_code": '99999',
-            "country": 'USA'
-          },
-          "home_phone": nil,
-          "participant_id": '600062099'
+        ":response": {
+          "^o": "MVI::Responses::FindProfileResponse",
+          ":status": 'OK',
+          ":profile": {
+            "^o": 'MVI::Models::MviProfile',
+            "given_names": %w[TEST T],
+            "family_name": 'USER',
+            "suffix": nil,
+            "gender": 'F',
+            "birth_date": '19700101',
+            "ssn": '123456789',
+            "address": {
+              "^o": 'MVI::Models::MviProfileAddress',
+              "street": '123 Fake Street',
+              "city": 'Springfield',
+              "state": 'OR',
+              "postal_code": '99999',
+              "country": 'USA'
+            },
+            "home_phone": nil,
+            "icn": '1008710255V058302',
+            "mhv_ids": mhv_ids,
+            "edipi": '1005079124',
+            "participant_id": '600062099',
+            "vha_facility_ids": %w(984 992 987 983 200ESR 556 668 200MHS),
+            "birls_id": "796104437"
+          }
         }
       }.to_json
-
-      puts "#{token} - #{uuid}"
     end
+
+    puts generate_cookies_sessions(sessions)
   end
 
   namespace :audit do
@@ -219,4 +229,14 @@ def addressee?(addr)
   return false if addr.country.blank?
   return false if addr.state.blank?
   true
+end
+
+def generate_cookies_sessions(sessions)
+  sessions.map! do |session|
+    {
+      uuid: session.uuid,
+      curl_header: Cookies.new(session).to_curl_header
+    }
+  end
+  JSON.pretty_generate(sessions)
 end
