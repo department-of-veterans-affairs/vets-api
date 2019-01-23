@@ -2,6 +2,7 @@
 
 require 'emis/responses/response'
 require 'emis/responses/get_veteran_status_response'
+require './rakelib/support/cookies.rb'
 
 namespace :redis do
   desc 'Flush Vets.gov User/Sessions'
@@ -25,12 +26,12 @@ namespace :redis do
     end
   end
 
-  desc 'Load test sessions from file'
+  desc 'Create test sessions from file'
   task :create_sessions_json, [:sessions_json] => [:environment] do |_, args|
     raise 'No sessions JSON file provided' unless args[:sessions_json]
     redis = Redis.current
     File.open(args[:sessions_json]) do |file|
-      session_ids = []
+      sessions = []
       session_data = JSON.parse(file.read)
       session_data.each do |sdata|
         token = SecureRandom.uuid.delete '-'
@@ -38,13 +39,14 @@ namespace :redis do
 
         session = Session.new(token: token, uuid: uuid)
         session.save
-        session_ids << session
+        sessions << session
 
         redis.set "users_b:#{uuid}", sdata['users_b'].to_json
         redis.set "mvi-profile-response:#{uuid}", sdata['mvi-profile-response'].to_json
         redis.set "user_identities:#{uuid}", sdata['user_identities'].to_json
       end
-      session_ids.each { |s| puts "#{s.token}\t#{s.uuid}" }
+      users = sessions.map { |session| { uuid: session.uuid, cookie_header: Cookies.bake(session) } }
+      puts JSON.pretty_generate(users)
     end
   end
 
@@ -106,7 +108,7 @@ namespace :redis do
         }
       }.to_json
 
-      puts token
+      puts "#{token} - #{uuid}"
     end
   end
 

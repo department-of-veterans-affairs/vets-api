@@ -17,13 +17,12 @@ namespace :build_cookie do
     session = Session.find(args[:token])
     raise 'No session available for token' unless session.is_a?(Session)
     user = User.find(session.uuid)
-
-    session_cookie_options = RAKE_COOKIE_OPTIONS.merge(value: rake_session_cookie(session), domain: RAKE_SESSION_COOKIE_DOMAIN)
-    sso_cookie_options = RAKE_COOKIE_OPTIONS.merge(value: rake_sso_cookie(user, session), domain: RAKE_SSO_COOKIE_DOMAIN)
+    session_cookie_options = RAKE_COOKIE_OPTIONS.merge(value: encrypt_api_session_cookie(session), domain: RAKE_SESSION_COOKIE_DOMAIN)
+    sso_cookie_options = RAKE_COOKIE_OPTIONS.merge(value: encrypt_sso_cookie(user, session), domain: RAKE_SSO_COOKIE_DOMAIN)
 
     header = {}
     Rack::Utils.set_cookie_header!(header, RAKE_SESSION_COOKIE_KEY, session_cookie_options)
-    #Rack::Utils.set_cookie_header!(header, RAKE_SSO_COOKIE_KEY, sso_cookie_options)
+    Rack::Utils.set_cookie_header!(header, RAKE_SSO_COOKIE_KEY, sso_cookie_options)
     verify_header(header) if RAKE_VERIFY_HEADERS
     puts header
   end
@@ -33,19 +32,17 @@ namespace :build_cookie do
     session.get "/", nil
   end
 
-  # SESSION COOKIE METHODS
-  def rake_session_cookie(session)
-    content = session.to_hash.reverse_merge(session_id: SecureRandom.hex(32))
+  def encrypt_api_session_cookie(session)
+    salt = Rails.application.config.action_dispatch.encrypted_cookie_salt
+    signed_salt = Rails.application.config.action_dispatch.encrypted_signed_cookie_salt
     key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
-    secret = key_generator.generate_key(Rails.application.config.action_dispatch.encrypted_cookie_salt)
-    sign_secret = key_generator.generate_key(Rails.application.config.action_dispatch.encrypted_signed_cookie_salt)
+    secret = key_generator.generate_key(salt)[0, ActiveSupport::MessageEncryptor.key_len]
+    sign_secret = key_generator.generate_key(signed_salt)
     encryptor = ActiveSupport::MessageEncryptor.new(secret, sign_secret)
-    encryptor.encrypt_and_sign(ActiveSupport::JSON.encode(content))
+    encryptor.encrypt_and_sign(session.to_hash.reverse_merge(session_id: SecureRandom.hex(32)))
   end
-  # rubocop:enable Metrics/LineLength
 
-  # SSO COOKIE METHODS
-  def rake_sso_cookie(user, session)
+  def encrypt_sso_cookie(user, session)
     content = {
       'patientIcn' => (user.mhv_icn || user.icn),
       'mhvCorrelationId' => user.mhv_correlation_id,
