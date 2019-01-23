@@ -22,7 +22,7 @@ module VBADocuments
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
-        if Rails.env.development? && request.headers['Status-Override']
+        if Settings.vba_documents.enable_status_override && request.headers['Status-Override']
           submission.status = request.headers['Status-Override']
           submission.save
         end
