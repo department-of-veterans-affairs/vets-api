@@ -122,8 +122,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and returns JSON" do
-            request.headers[:Accept] = 'application/json'
-            get(:new, type: type)
+            get(:new, type: type, format: :json)
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
@@ -135,8 +134,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true and returns JSON' do
-          request.headers[:Accept] = 'application/json'
-          get(:new, type: :idme, signup: true)
+          get(:new, type: :idme, signup: true, format: :json)
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
         end
@@ -185,8 +183,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
 
           it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and returns JSON" do
-            request.headers[:Accept] = 'application/json'
-            get(:new, type: type)
+            get(:new, type: type, format: :json)
             expect(response).to have_http_status(:ok)
             expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             expect(JSON.parse(response.body).keys).to eq %w[url]
