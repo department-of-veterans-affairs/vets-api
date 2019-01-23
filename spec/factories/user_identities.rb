@@ -14,6 +14,12 @@ FactoryBot.define do
     mhv_icn nil
     mhv_account_type nil
 
+    sign_in do
+      {
+        service_name: 'idme'
+      }
+    end
+
     loa do
       {
         current: LOA::ONE,
@@ -35,6 +41,12 @@ FactoryBot.define do
     mhv_icn nil
     mhv_account_type 'Basic'
 
+    sign_in do
+      {
+        service_name: 'myhealthevet'
+      }
+    end
+
     loa do
       {
         current: LOA::ONE,
@@ -55,6 +67,12 @@ FactoryBot.define do
     ssn nil
     mhv_icn nil
     mhv_account_type nil
+
+    sign_in do
+      {
+        service_name: 'dslogon'
+      }
+    end
 
     loa do
       {

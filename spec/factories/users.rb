@@ -20,7 +20,12 @@ FactoryBot.define do
       mhv_account_type nil
       dslogon_edipi nil
       va_patient nil
-      sign_in nil
+
+      sign_in do
+        {
+          service_name: 'idme'
+        }
+      end
 
       loa do
         { current: LOA::ONE, highest: LOA::THREE }
@@ -76,6 +81,12 @@ FactoryBot.define do
         create(:account, idme_uuid: user.uuid)
       end
 
+      sign_in do
+        {
+          service_name: 'idme'
+        }
+      end
+
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
       end
@@ -83,6 +94,12 @@ FactoryBot.define do
 
     trait :loa1 do
       authn_context 'http://idmanagement.gov/ns/assurance/loa/1/vets'
+      sign_in do
+        {
+          service_name: 'idme'
+        }
+      end
+
       loa do
         { current: LOA::ONE, highest: LOA::ONE }
       end
@@ -90,6 +107,13 @@ FactoryBot.define do
 
     trait :loa3 do
       authn_context 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+
+      sign_in do
+        {
+          service_name: 'idme'
+        }
+      end
+
       loa do
         { current: LOA::THREE, highest: LOA::THREE }
       end
@@ -200,6 +224,12 @@ FactoryBot.define do
       mhv_account_type 'Premium'
       va_patient true
 
+      sign_in do
+        {
+          service_name: 'myhealthevet'
+        }
+      end
+
       loa do
         {
           current: LOA::THREE,
@@ -239,6 +269,12 @@ FactoryBot.define do
       multifactor true
       mhv_account_type nil
       va_patient true
+
+      sign_in do
+        {
+          service_name: 'dslogon'
+        }
+      end
 
       loa do
         {

@@ -41,8 +41,8 @@ module SAML
       # This includes service_name used to sign-in initially, and the account type that is associated with the sign in.
       def sign_in
         SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
-                                 .fetch(:sign_in)
-      #          TODO            .merge(account_type: account_type, id_proof_type: id_proof_type)
+                                  .fetch(:sign_in)
+      #          TODO             .merge(account_type: account_type, id_proof_type: id_proof_type)
       rescue StandardError
         { service_name: 'unknown' }
       end

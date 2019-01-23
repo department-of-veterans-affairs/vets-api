@@ -26,7 +26,7 @@ class UserIdentity < Common::RedisStore
   attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
   attribute :mhv_account_type # this is only available for MHV sign-in users
   attribute :dslogon_edipi # this is only available for dslogon users
-  attribute :sign_in, Hash # original sign_in
+  attribute :sign_in, Hash, default: :default_sign_in # original sign_in (see sso_service#mergable_identity_attributes)
 
   validates :uuid, presence: true
   validates :email, presence: true
@@ -37,5 +37,9 @@ class UserIdentity < Common::RedisStore
 
   def loa_highest_present
     errors.add(:loa, 'loa[:highest] is not present!') if loa[:highest].blank?
+  end
+
+  def default_sign_in
+    { service_name: (authn_context || 'idme') }
   end
 end
