@@ -10,16 +10,20 @@ module SAML
   class User
     include SentryLogging
 
-    CONTEXT_MAP = { LOA::MAPPING.invert[1] => 'idme',
-                    'dslogon' => 'dslogon',
-                    'dslogon_loa3' => 'dslogon',
-                    'myhealthevet' => 'myhealthevet',
-                    'myhealthevet_loa3' => 'myhealthevet',
-                    LOA::MAPPING.invert[3] => 'idproof',
-                    'multifactor' => 'multifactor',
-                    'dslogon_multifactor' => 'dslogon_multifactor',
-                    'myhealthevet_multifactor' => 'myhealthevet_multifactor' }.freeze
-    UNKNOWN_CONTEXT = 'unknown'
+    LOA1 = LOA::IDME_LOA1
+    LOA3 = LOA::IDME_LOA3
+
+    AUTHN_CONTEXTS = {
+      LOA1 => { class: 'idme', loa_current: '1', sign_in: { service_name: 'idme' } },
+      LOA3 => { class: 'idme', loa_current: '3', sign_in: { service_name: 'idme' } },
+      'multifactor' => { class: 'idme', loa_current: nil, sign_in: { service_name: 'idme' } },
+      'myhealthevet_multifactor' => { class: 'idme', loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'myhealthevet_loa3' => { class: 'idme', loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
+      'dslogon_multifactor' => { class: 'idme', loa_current: nil, sign_in: { service_name: 'dslogon' } },
+      'dslogon_loa3' => { class: 'idme', loa_current: '3', sign_in: { service_name: 'dslogon' } },
+      'myhealthevet' => { class: 'myhealthevet', loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'dslogon' => { class: 'dslogon', loa_current: nil, sign_in: { service_name: 'dslogon' } }
+    }.freeze
 
     attr_reader :saml_response, :saml_attributes, :user_attributes
 
@@ -53,7 +57,7 @@ module SAML
       when 'dslogon'
         user_attributes.dslogon_assurance
       else
-        saml_attributes['level_of_assurance']
+        nil
       end
     end
 

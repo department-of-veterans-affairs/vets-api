@@ -5,11 +5,11 @@ module SAML
     class Base
       REQUIRED_ATTRIBUTES = %i[email uuid loa multifactor].freeze
 
-      attr_reader :attributes, :real_authn_context
+      attr_reader :attributes, :authn_context
 
-      def initialize(saml_attributes, real_authn_context)
+      def initialize(saml_attributes, authn_context)
         @attributes = saml_attributes
-        @real_authn_context = real_authn_context
+        @authn_context = authn_context
       end
 
       # Common Attributes

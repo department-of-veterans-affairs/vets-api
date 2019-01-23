@@ -16,8 +16,11 @@ FactoryBot.define do
       ssn '796111863'
       mhv_icn nil
       multifactor false
+      mhv_correlation_id nil
       mhv_account_type nil
+      dslogon_edipi nil
       va_patient nil
+      sign_in nil
 
       loa do
         { current: LOA::ONE, highest: LOA::THREE }
@@ -39,8 +42,31 @@ FactoryBot.define do
                              mhv_icn: t.mhv_icn,
                              loa: t.loa,
                              multifactor: t.multifactor,
-                             mhv_account_type: t.mhv_account_type)
+                             mhv_correlation_id: t.mhv_correlation_id,
+                             mhv_account_type: t.mhv_account_type,
+                             dslogon_edipi: t.dslogon_edipi,
+                             sign_in: t.sign_in
+                           )
       user.instance_variable_set(:@identity, user_identity)
+    end
+
+    # This is used by the response_builder helper to build a user from saml attributes
+    trait :response_builder do
+      authn_context nil
+      uuid nil
+      last_signed_in { Faker::Time.between(2.years.ago, 1.week.ago, :all) }
+      mhv_last_signed_in { Faker::Time.between(1.week.ago, 1.minute.ago, :all) }
+      email nil
+      first_name nil
+      last_name nil
+      gender nil
+      zip nil
+      birth_date nil
+      ssn nil
+      multifactor nil
+      mhv_account_type nil
+      va_patient nil
+      loa nil
     end
 
     trait :accountable do
@@ -171,7 +197,6 @@ FactoryBot.define do
       birth_date { Faker::Time.between(40.years.ago, 10.years.ago, :all) }
       ssn '796111864'
       multifactor true
-      mhv_icn '1000123456V123456'
       mhv_account_type 'Premium'
       va_patient true
 

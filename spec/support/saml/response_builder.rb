@@ -9,42 +9,50 @@ module SAML
       ' Military Service Information"}}'
     ].freeze
 
-    def create_user_identity(authn_context:, account_type:, level_of_assurance:)
+    def create_user_identity(authn_context:, account_type:, level_of_assurance:, multifactor:)
       saml = build_saml_response(
         authn_context: authn_context,
         account_type: account_type,
-        level_of_assurance: level_of_assurance
+        level_of_assurance: level_of_assurance,
+        multifactor: multifactor
       )
       saml_user = SAML::User.new(saml)
-      user_identity = UserIdentity.new(saml_user.to_hash).save
-      user_identity
+      binding.pry if account_type == 'Premium'
+      user = create(:user, :response_builder, saml_user.to_hash)
+      user.identity
     end
 
     def saml_response_from_attributes(authn_context, attributes)
       build_saml_response(authn_context: authn_context, attributes: attributes)
     end
 
-    def build_saml_response(authn_context:, account_type:, level_of_assurance:, attributes: nil)
+    def build_saml_response(authn_context:, account_type:, level_of_assurance:, multifactor:, attributes: nil)
       if authn_context.include?('multifactor')
         previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1
         create_user_identity(
           authn_context: previous_context,
           account_type: account_type,
-          level_of_assurance: level_of_assurance
+          level_of_assurance: level_of_assurance,
+          multifactor: [false]
         )
       end
 
-      if [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+      verifying = [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
+      if verifying
         previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{\/3\/}, '/1/')
-        create_user_identity(authn_context: previous_context,
-                             account_type: account_type,
-                             level_of_assurance: level_of_assurance)
+        create_user_identity(
+          authn_context: previous_context,
+          account_type: account_type,
+          level_of_assurance: '1',
+          multifactor: multifactor
+        )
       end
 
       attributes ||= build_saml_attributes(
         authn_context: authn_context,
         account_type: account_type,
-        level_of_assurance: level_of_assurance
+        level_of_assurance: verifying ? ['3'] : level_of_assurance,
+        multifactor: multifactor
       )
       instance_double(OneLogin::RubySaml::Response, attributes: attributes,
                                                     decrypted_document: document_partial(authn_context),
@@ -168,7 +176,7 @@ module SAML
           'email' => ['kam+tristanmhv@adhocteam.us'],
           'multifactor' => (authn_context.include?('multifactor') ? [true] : multifactor),
           'level_of_assurance' => level_of_assurance,
-          'dslogon_birth_date' => [],
+          'dslogon_birth_date' => ['1735-10-30'],
           'dslogon_fname' => ['Tristan'],
           'dslogon_lname' => ['MHV'],
           'dslogon_mname' => [''],

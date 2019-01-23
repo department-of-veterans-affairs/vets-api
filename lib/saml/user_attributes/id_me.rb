@@ -37,18 +37,35 @@ module SAML
         attributes['birth_date']
       end
 
+      # This includes service_name used to sign-in initially, and the account type that is associated with the sign in.
+      def sign_in
+        SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
+                                 .fetch(:sign_in)
+      #          TODO            .merge(account_type: account_type, id_proof_type: id_proof_type)
+      rescue StandardError
+        { service_name: 'unknown' }
+      end
+
       private
 
       # These methods are required to be implemented on each child class
 
       def serializable_attributes
-        IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
+        IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES + [:sign_in]
+      end
+
+      def existing_user_identity
+        @existing_user_identity ||= UserIdentity.find(uuid)
       end
 
       def loa_current
-        LOA::MAPPING.fetch(real_authn_context)
-      rescue KeyError
-        log_loa_current_message_once
+        if authn_context.include?('multifactor')
+          existing_user_identity.loa.fetch(:current, 1).to_i
+        else
+          SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
+        end
+      rescue NoMethodError, KeyError => error
+        log_loa_current_message_once(error)
         1 # default to something safe until we can research this
       end
 
@@ -57,14 +74,15 @@ module SAML
         [loa_current, loa_highest].max
       end
 
-      def log_loa_current_message_once
+      def log_loa_current_message_once(error)
         return if @logged_loa_current_message
+        binding.pry
         extra_context = {
           uuid: attributes['uuid'],
           idme_level_of_assurance: attributes['level_of_assurance'],
-          real_authn_context: real_authn_context
+          authn_context: authn_context
         }
-        log_message_to_sentry('loa_current is mapping to nil', :info, extra_context)
+        log_message_to_sentry("loa_current error: #{error.message}", :info, extra_context)
         @logged_loa_current_message = true
       end
     end

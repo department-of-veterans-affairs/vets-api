@@ -9,10 +9,4 @@ module LOA
   IDME_LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'
   IDME_LOA2 = 'http://idmanagement.gov/ns/assurance/loa/2/vets'
   IDME_LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'
-
-  MAPPING = {
-    IDME_LOA1 => ONE,
-    IDME_LOA2 => TWO,
-    IDME_LOA3 => THREE
-  }.freeze
 end
