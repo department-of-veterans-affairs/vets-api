@@ -3,14 +3,15 @@
 require 'rails_helper'
 
 RSpec.describe MhvAccountTypeService do
-  let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil) }
+  let(:sign_in) { { service_name: 'myhealthevet' } }
+  let(:user_identity) { instance_double('UserIdentity', mhv_account_type: nil, sign_in: sign_in) }
   let(:user) do
     instance_double(
       'User',
       mhv_correlation_id: '12210827',
       identity: user_identity,
       uuid: 1,
-      authn_context: 'mhv',
+      authn_context: 'myhealthevet',
       va_patient?: true
     )
   end
@@ -29,7 +30,7 @@ RSpec.describe MhvAccountTypeService do
   end
 
   context 'known mhv_account_type' do
-    let(:user_identity) { instance_double('UserIdentity', mhv_account_type: 'Whatever') }
+    let(:user_identity) { instance_double('UserIdentity', mhv_account_type: 'Whatever', sign_in: sign_in) }
 
     it '#mhv_account_type returns known account type' do
       VCR.use_cassette('mhv_account_type_service/premium') do
@@ -101,7 +102,7 @@ RSpec.describe MhvAccountTypeService do
         known_account_type: user.identity.mhv_account_type
       }
     end
-    let(:tags_context) { { sign_in_method: { service_name: 'mhv' } } }
+    let(:tags_context) { { sign_in_method: { service_name: 'myhealthevet' } } }
 
     context 'error fetching eligible data classes' do
       let(:error_message) { described_class::MHV_DOWN_MESSAGE }
