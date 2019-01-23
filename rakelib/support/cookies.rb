@@ -1,14 +1,26 @@
 # frozen_string_literal: true
 
 class Cookies
-  def self.bake(session)
-    user = User.find(session.uuid)
-    api_session = encrypt_api_session_cookie(session)
-    sso_session = encrypt_sso_cookie(user, session)
-    "Cookie: api_session=#{api_session}; #{Settings.sso.cookie_name}=#{sso_session}"
+  def initialize(session)
+    @session = session
+    @user = User.find(session.uuid)
   end
 
-  def self.encrypt_api_session_cookie(session)
+  def to_curl_header
+    "Cookie: #{api_cookie_header}; #{sso_cookie_header}"
+  end
+
+  def api_cookie_header
+    "api_session=#{encrypt_api_session_cookie(@session)}"
+  end
+
+  def sso_cookie_header
+    "#{Settings.sso.cookie_name}=#{encrypt_sso_cookie(@session, @user)}"
+  end
+
+  private
+
+  def encrypt_api_session_cookie(session)
     salt = Rails.application.config.action_dispatch.encrypted_cookie_salt
     signed_salt = Rails.application.config.action_dispatch.encrypted_signed_cookie_salt
     key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
@@ -18,7 +30,7 @@ class Cookies
     encryptor.encrypt_and_sign(session.to_hash.reverse_merge(session_id: SecureRandom.hex(32)))
   end
 
-  def self.encrypt_sso_cookie(user, session)
+  def encrypt_sso_cookie(session, user)
     content = {
       'patientIcn' => (user.mhv_icn || user.icn),
       'mhvCorrelationId' => user.mhv_correlation_id,

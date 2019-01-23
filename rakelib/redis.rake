@@ -26,7 +26,7 @@ namespace :redis do
     end
   end
 
-  desc 'Create test sessions from file'
+  desc 'Create test sessions from file and output result with curl/locust compatible header'
   task :create_sessions_json, [:sessions_json] => [:environment] do |_, args|
     raise 'No sessions JSON file provided' unless args[:sessions_json]
     redis = Redis.current
@@ -45,7 +45,12 @@ namespace :redis do
         redis.set "mvi-profile-response:#{uuid}", sdata['mvi-profile-response'].to_json
         redis.set "user_identities:#{uuid}", sdata['user_identities'].to_json
       end
-      users = sessions.map { |session| { uuid: session.uuid, cookie_header: Cookies.bake(session) } }
+      users = sessions.map do |session|
+        {
+          uuid: session.uuid,
+          curl_header: Cookies.new(session).to_curl_header
+        }
+      end
       puts JSON.pretty_generate(users)
     end
   end
