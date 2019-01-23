@@ -45,13 +45,12 @@ module SentryLogging
     level
   end
 
-  def rails_logger(level, message, errors = {}, backtrace = nil)
+  def rails_logger(level, message, errors = nil, backtrace = nil)
     # rails logger uses 'warn' instead of 'warning'
     level = 'warn' if level == 'warning'
-
     if errors.present?
-      payload = errors.first.attributes.compact.reject { |_k, v| v.empty? }
-      Rails.logger.send(level, message, payload.merge(backtrace: backtrace))
+      error_details = errors.first.attributes.compact.reject { |_k, v| v.empty? }
+      Rails.logger.send(level, message, error_details.merge(backtrace: backtrace))
     else
       Rails.logger.send(level, message)
     end
