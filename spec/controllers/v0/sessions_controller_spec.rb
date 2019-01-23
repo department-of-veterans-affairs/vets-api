@@ -121,17 +121,29 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'new' do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and returns JSON" do
+            request.headers[:Accept] = 'application/json'
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body).keys).to eq %w[url]
           end
+
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and redirects" do
+            get(:new, type: type)
+            expect(response).to have_http_status(:found)
+          end
         end
 
-        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signin: true' do
+        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true and returns JSON' do
+          request.headers[:Accept] = 'application/json'
           get(:new, type: :idme, signup: true)
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
+        end
+
+        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true and redirects' do
+          get(:new, type: :idme, signup: true)
+          expect(response).to have_http_status(:found)
         end
       end
 
@@ -172,11 +184,18 @@ RSpec.describe V0::SessionsController, type: :controller do
             Settings.sso.cookie_enabled = false
           end
 
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and returns JSON" do
+            request.headers[:Accept] = 'application/json'
             get(:new, type: type)
             expect(response).to have_http_status(:ok)
             expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             expect(JSON.parse(response.body).keys).to eq %w[url]
+          end
+
+          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and redirects" do
+            get(:new, type: type)
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
           end
         end
       end
@@ -210,7 +229,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:new, type: 'slo')
-          expect(JSON.parse(response.body)['url'])
+          expect(response.location)
             .to match('https://api.idmelabs.com/saml/SingleLogoutService')
 
           # these should be destroyed.
