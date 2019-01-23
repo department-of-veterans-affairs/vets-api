@@ -253,6 +253,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_0994_expected) do
+    {
+      'activeDuty' => true,
+      'mailingAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'applicantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'applicantGender' => user.gender,
+      'nightTimePhone' => us_phone,
+      'dateOfBirth' => user.birth_date,
+      'applicantSocialSecurityNumber' => user.ssn,
+      'emailAddress' => user.pciu_email
+    }
+  end
+
   let(:v22_1990_n_expected) do
     {
       'toursOfDuty' => [
@@ -678,6 +702,42 @@ RSpec.describe FormProfile, type: :model do
 
         after do
           Settings.vet360.prefill = false
+        end
+      end
+
+      context 'with emis prefill for 0994' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'should prefill 0994' do
+          expect_prefilled('22-0994')
+        end
+      end
+
+      context 'with emis and ppiu prefill for 0994' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_0994_expected['bankAccount'] = {
+            'bankAccountNumber' => '*********1234',
+            'bankAccountType' => 'Checking',
+            'bankName' => 'Comerica',
+            'bankRoutingNumber' => '*****2115'
+          }
+        end
+
+        it 'should prefill 0994 with emis and payment information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/ppiu/payment_information') do
+                expect_prefilled('22-0994')
+              end
+            end
+          end
         end
       end
 
