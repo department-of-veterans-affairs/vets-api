@@ -1,8 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/saml/response_builder'
 
 RSpec.describe V0::SessionsController, type: :controller do
+  include SAML::ResponseBuilder
+  LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'
+  LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+
   let(:uuid) { '1234abcd' }
   let(:token) { 'abracadabra-open-sesame' }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
@@ -14,7 +19,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
                     to_hash: saml_user_attributes,
-                    account_type: 'account_type')
+                    account_type: 'N/A')
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
@@ -24,71 +29,6 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
-  let(:response_xml_stub) { REXML::Document.new(File.read('spec/support/saml/saml_response_dslogon.xml')) }
-  let(:valid_saml_response) do
-    double('saml_response', is_valid?: true, errors: [],
-                            is_a?: true,
-                            in_response_to: uuid,
-                            status_message: '',
-                            decrypted_document: response_xml_stub)
-  end
-  let(:invalid_saml_response) do
-    double('saml_response', is_valid?: false,
-                            is_a?: true,
-                            in_response_to: uuid,
-                            decrypted_document: response_xml_stub)
-  end
-  let(:saml_response_click_deny) do
-    double('saml_response', is_valid?: false,
-                            is_a?: true,
-                            in_response_to: uuid,
-                            errors: ['ruh roh'],
-                            status_message: 'Subject did not consent to attribute release',
-                            decrypted_document: response_xml_stub)
-  end
-  let(:saml_response_too_late) do
-    double('saml_response', is_valid?: false,
-                            status_message: 'Current time is on or after NotOnOrAfter condition',
-                            in_response_to: uuid,
-                            is_a?: true,
-                            errors: ['Current time is on or after NotOnOrAfter ' \
-                              'condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'],
-                            decrypted_document: response_xml_stub)
-  end
-  # "Current time is earlier than NotBefore condition #{(now + allowed_clock_drift)} < #{not_before})"
-  let(:saml_response_too_early) do
-    double('saml_response', is_valid?: false,
-                            status_message: 'Current time is earlier than NotBefore condition',
-                            in_response_to: uuid,
-                            is_a?: true,
-                            errors: ['Current time is earlier than NotBefore ' \
-                              'condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'],
-                            decrypted_document: response_xml_stub)
-  end
-
-  let(:saml_response_unknown_error) do
-    double('saml_response', is_valid?: false,
-                            status_message: SSOService::DEFAULT_ERROR_MESSAGE,
-                            in_response_to: uuid,
-                            is_a?: true,
-                            errors: ['The status code of the Response was not Success, ' \
-                              'was Requester => NoAuthnContext -> AuthnRequest without ' \
-                              'an authentication context.'],
-                            decrypted_document: response_xml_stub)
-  end
-
-  let(:saml_response_multi_error) do
-    double('saml_response', is_valid?: false,
-                            status_message: 'Subject did not consent to attribute release',
-                            in_response_to: uuid,
-                            is_a?: true,
-                            errors: [
-                              'Subject did not consent to attribute release',
-                              'Other random error'
-                            ],
-                            decrypted_document: response_xml_stub)
-  end
-
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) do
     double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
@@ -96,8 +36,16 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:succesful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
-
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
+  let(:authn_context) { LOA1 }
+  let(:valid_saml_response) do
+    build_saml_response(
+      authn_context: authn_context,
+      account_type: 'N/A',
+      level_of_assurance: ['3'],
+      multifactor: [false]
+    )
+  end
 
   def verify_session_cookie
     token = session[:token]
@@ -291,67 +239,72 @@ RSpec.describe V0::SessionsController, type: :controller do
         verify_session_cookie
       end
 
-      it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
-        existing_user = User.find(uuid)
-        expect(existing_user.last_signed_in).to be_a(Time)
-        expect(existing_user.multifactor).to be_falsey
-        expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
-        expect(existing_user.ssn).to eq('796111863')
-        allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
-        expect(controller).to receive(:log_message_to_sentry).with(
-          'SSNS DO NOT MATCH!!',
-          :warn,
-          identity_compared_with_mvi: {
-            length: [9, 9],
-            only_digits: [true, true],
-            encoding: ['UTF-8', 'UTF-8'],
-            levenshtein_distance: 8
-          }
-        )
-        expect(Raven).to receive(:tags_context).twice
+      context 'verifying' do
+        let(:authn_context) { LOA3 }
 
-        once = { times: 1, value: 1 }
-        callback_tags = ['status:success', 'context:dslogon', 'account_type:account_type']
-        expect { post(:saml_callback) }
-          .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
-          .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
+          existing_user = User.find(uuid)
+          expect(existing_user.last_signed_in).to be_a(Time)
+          expect(existing_user.multifactor).to be_falsey
+          expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
+          expect(existing_user.ssn).to eq('796111863')
+          allow(StringHelpers).to receive(:levenshtein_distance).and_return(8)
+          expect(controller).to receive(:log_message_to_sentry).with(
+            'SSNS DO NOT MATCH!!',
+            :warn,
+            identity_compared_with_mvi: {
+              length: [9, 9],
+              only_digits: [true, true],
+              encoding: ['UTF-8', 'UTF-8'],
+              levenshtein_distance: 8
+            }
+          )
+          expect(Raven).to receive(:tags_context).once
 
-        expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
+          once = { times: 1, value: 1 }
+          callback_tags = ['status:success', "authn_context:#{LOA3}"]
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
-        new_user = User.find(uuid)
-        expect(new_user.ssn).to eq('796111863')
-        expect(new_user.va_profile.ssn).not_to eq('155256322')
-        expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
-        expect(new_user.multifactor).to be_falsey
-        expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
-        expect(cookies['vagov_session_dev']).not_to be_nil
-        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-          .to eq('patientIcn' => loa3_user.icn,
-                 'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-                 'signIn' => { 'serviceName' => 'idme' },
-                 'credential_used' => 'id_me',
-                 'expirationTime' => expire_at.iso8601(0))
-      end
+          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
 
-      it 'does not log to sentry when SSN matches', :aggregate_failures do
-        existing_user = User.find(uuid)
-        allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
-        expect(existing_user.ssn).to eq('796111863')
-        expect_any_instance_of(SSOService).not_to receive(:log_message_to_sentry)
-        post :saml_callback
-        new_user = User.find(uuid)
-        expect(new_user.ssn).to eq('796111863')
-        expect(new_user.va_profile.ssn).to eq('796111863')
-        expect(cookies['vagov_session_dev']).not_to be_nil
-        expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-          .to eq('patientIcn' => loa3_user.icn,
-                 'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-                 'signIn' => { 'serviceName' => 'idme' },
-                 'credential_used' => 'id_me',
-                 'expirationTime' => expire_at.iso8601(0))
+          new_user = User.find(uuid)
+          expect(new_user.ssn).to eq('796111863')
+          expect(new_user.va_profile.ssn).not_to eq('155256322')
+          expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
+          expect(new_user.multifactor).to be_falsey
+          expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq('patientIcn' => loa3_user.icn,
+                   'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+                   'signIn' => { 'serviceName' => 'idme' },
+                   'credential_used' => 'id_me',
+                   'expirationTime' => expire_at.iso8601(0))
+        end
+
+        it 'does not log to sentry when SSN matches', :aggregate_failures do
+          existing_user = User.find(uuid)
+          allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
+          expect(existing_user.ssn).to eq('796111863')
+          expect_any_instance_of(SSOService).not_to receive(:log_message_to_sentry)
+          post :saml_callback
+          new_user = User.find(uuid)
+          expect(new_user.ssn).to eq('796111863')
+          expect(new_user.va_profile.ssn).to eq('796111863')
+          expect(cookies['vagov_session_dev']).not_to be_nil
+          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
+            .to eq('patientIcn' => loa3_user.icn,
+                   'mhvCorrelationId' => loa3_user.mhv_correlation_id,
+                   'signIn' => { 'serviceName' => 'idme' },
+                   'credential_used' => 'id_me',
+                   'expirationTime' => expire_at.iso8601(0))
+        end
       end
 
       context 'changing multifactor' do
+        let(:authn_context) { 'multifactor' }
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
         end
@@ -445,7 +398,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
           expect(Raven).to receive(:extra_context).once
           expect(Raven).not_to receive(:user_context)
-          expect(Raven).not_to receive(:tags_context).twice
+          expect(Raven).not_to receive(:tags_context).once
           expect(controller).to receive(:log_message_to_sentry)
           post :saml_callback
         end
@@ -455,7 +408,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(OneLogin::RubySaml::Response).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
-          expect(Raven).to receive(:tags_context).twice
+          expect(Raven).to receive(:tags_context).once
           expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
@@ -485,7 +438,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'context:dslogon']
+          callback_tags = ['status:failure', 'authn_context:unknown']
           failed_tags = ['error:auth_too_early']
 
           expect { post(:saml_callback) }
@@ -517,7 +470,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'context:dslogon']
+          callback_tags = ['status:failure', 'authn_context:unknown']
           failed_tags = ['error:unknown']
 
           expect { post(:saml_callback) }
@@ -549,7 +502,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'context:dslogon']
+          callback_tags = ['status:failure', 'authn_context:unknown']
           failed_tags = ['error:multiple']
 
           expect { post(:saml_callback) }
@@ -583,7 +536,7 @@ RSpec.describe V0::SessionsController, type: :controller do
               identity: {
                 valid: false,
                 errors: ["Uuid can't be blank"],
-                authn_context: nil,
+                authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                 loa: { current: 1, highest: 1 }
               }
             )
@@ -594,7 +547,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'context:dslogon']
+          callback_tags = ['status:failure', "authn_context:#{LOA1}"]
           failed_tags = ['error:validations_failed']
 
           expect { post(:saml_callback) }

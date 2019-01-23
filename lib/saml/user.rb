@@ -43,12 +43,6 @@ module SAML
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
     end
 
-    def self.context_key(authn_context)
-      CONTEXT_MAP[authn_context] || UNKNOWN_CONTEXT
-    rescue StandardError
-      UNKNOWN_CONTEXT
-    end
-
     # we use this for statsd tags
     def account_type
       case authn_context

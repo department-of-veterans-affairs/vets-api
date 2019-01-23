@@ -63,8 +63,8 @@ class SSOService
     existing_user.present?
   end
 
-  def real_authn_context
-    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+  def authn_context
+    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text || 'unknown'
   end
 
   private

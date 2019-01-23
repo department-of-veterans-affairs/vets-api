@@ -85,7 +85,7 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_success_tags(@sso_service))
       else
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{@sso_service.context_key}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "authn_context:#{@sso_service.authn_context}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       end
     rescue NoMethodError
@@ -139,8 +139,7 @@ module V0
 
     def saml_callback_success_tags(sso_service)
       ['status:success',
-       "context:#{sso_service.context_key}",
-       "account_type:#{sso_service.saml_attributes.account_type}"]
+       "authn_context:#{sso_service.authn_context}"]
     end
 
     def url_service
