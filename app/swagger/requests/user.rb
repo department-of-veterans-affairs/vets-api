@@ -25,7 +25,7 @@ module Swagger
           end
 
           response 296 do
-            key :description, 'Get user data with some external service outages'
+            key :description, 'Get user data with some external service errors'
             schema do
               allOf do
                 schema do
@@ -42,8 +42,8 @@ module Swagger
                     end
                   end
                   property :meta, type: :object do
-                    key :required, [:outages]
-                    property :outages do
+                    key :required, [:errors]
+                    property :errors do
                       key :type, :array
                       items do
                         property :external_service, type: :string
@@ -93,8 +93,8 @@ module Swagger
               end
             end
             property :meta, type: :object do
-              key :required, [:outages]
-              property :outages, type: :null
+              key :required, [:errors]
+              property :errors, type: :null
             end
           end
         end

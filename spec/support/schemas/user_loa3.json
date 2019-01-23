@@ -121,9 +121,9 @@
     },
     "meta": {
       "type": "object",
-      "required": ["outages"],
+      "required": ["errors"],
       "properties": {
-        "outages": { "type": ["array", null] }
+        "errors": { "type": ["array", null] }
       }
     }
   }

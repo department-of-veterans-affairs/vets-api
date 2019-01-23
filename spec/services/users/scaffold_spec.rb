@@ -8,8 +8,8 @@ RSpec.describe Users::Scaffold do
   subject { Users::Scaffold.new([], http_ok) }
 
   context 'an instance of Scaffold' do
-    it 'has #outages as the first parameter' do
-      expect(subject.outages).to eq []
+    it 'has #errors as the first parameter' do
+      expect(subject.errors).to eq []
     end
 
     it 'has #status as the second parameter' do

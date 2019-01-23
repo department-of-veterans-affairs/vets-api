@@ -9,7 +9,7 @@ module V0
         json: pre_serialized_profile,
         status: pre_serialized_profile.status,
         serializer: UserSerializer,
-        meta: { outages: pre_serialized_profile.outages }
+        meta: { errors: pre_serialized_profile.errors }
       )
     end
   end

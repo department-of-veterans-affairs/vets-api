@@ -59,7 +59,7 @@ RSpec.describe 'Fetching user data', type: :request do
       )
     end
 
-    context 'with an outage from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
+    context 'with an error from a 503 raised by Vet360::ContactInformation::Service#get_person', skip_vet360: true do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -79,11 +79,11 @@ RSpec.describe 'Fetching user data', type: :request do
         expect(body.dig('data', 'attributes', 'vet360_contact_information')).to be_nil
       end
 
-      it 'returns meta.outages information', :aggregate_failures do
-        outage = body.dig('meta', 'outages').first
+      it 'returns meta.errors information', :aggregate_failures do
+        error = body.dig('meta', 'errors').first
 
-        expect(outage['external_service']).to eq 'Vet360'
-        expect(outage['description']).to be_present
+        expect(error['external_service']).to eq 'Vet360'
+        expect(error['description']).to be_present
       end
     end
   end
@@ -98,13 +98,13 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(response).to match_response_schema('user_loa1')
     end
 
-    it 'returns a status of 296 with outages', :aggregate_failures do
+    it 'returns a status of 296 with errors', :aggregate_failures do
       body   = JSON.parse(response.body)
-      outage = body.dig('meta', 'outages').first
+      error = body.dig('meta', 'errors').first
 
       expect(response.status).to eq 296
-      expect(outage['external_service']).to eq 'MVI'
-      expect(outage['description']).to be_present
+      expect(error['external_service']).to eq 'MVI'
+      expect(error['description']).to be_present
     end
 
     it 'gives me the list of available services' do
@@ -134,12 +134,12 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
 
       body   = JSON.parse(response.body)
-      outage = body.dig('meta', 'outages').first
+      error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
-      expect(outage['external_service']).to eq 'MVI'
-      expect(outage['description']).to be_present
+      expect(error['external_service']).to eq 'MVI'
+      expect(error['description']).to be_present
     end
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
@@ -150,12 +150,12 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
 
       body   = JSON.parse(response.body)
-      outage = body.dig('meta', 'outages').first
+      error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
-      expect(outage['external_service']).to eq 'MVI'
-      expect(outage['description']).to be_present
+      expect(error['external_service']).to eq 'MVI'
+      expect(error['description']).to be_present
     end
 
     it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
@@ -166,12 +166,12 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
 
       body   = JSON.parse(response.body)
-      outage = body.dig('meta', 'outages').first
+      error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
-      expect(outage['external_service']).to eq 'MVI'
-      expect(outage['description']).to be_present
+      expect(error['external_service']).to eq 'MVI'
+      expect(error['description']).to be_present
     end
 
     it 'MVI success should only make a request to MVI one time per multiple requests!' do

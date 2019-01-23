@@ -101,10 +101,10 @@
     },
     "meta": {
       "type": "object",
-      "required": ["outages"],
+      "required": ["errors"],
       "properties": {
-        "outages": {
-          "description": "Array of the potential external service outage details",
+        "errors": {
+          "description": "Array of the potential external service error details",
           "type": "array",
           "items": {
             "type": "object",

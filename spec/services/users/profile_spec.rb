@@ -13,8 +13,8 @@ RSpec.describe Users::Profile do
       expect(users_profile.scaffold.status).to eq 200
     end
 
-    it 'sets #scaffold.outages to an empty array' do
-      expect(users_profile.scaffold.outages).to eq []
+    it 'sets #scaffold.errors to an empty array' do
+      expect(users_profile.scaffold.errors).to eq []
     end
 
     context 'when initialized with a non-User object' do
@@ -43,8 +43,8 @@ RSpec.describe Users::Profile do
       expect(subject.status).to eq 200
     end
 
-    it 'sets the outages to nil' do
-      expect(subject.outages).to be_nil
+    it 'sets the errors to nil' do
+      expect(subject.errors).to be_nil
     end
 
     context '#in_progress_forms' do
@@ -203,12 +203,12 @@ RSpec.describe Users::Profile do
           expect(va_profile).to be_nil
         end
 
-        it 'populates the #outages array with the serialized error', :aggregate_failures do
-          outage = subject.outages.first
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          error = subject.errors.first
 
-          expect(outage[:external_service]).to eq 'MVI'
-          expect(outage[:start_time]).to be_present
-          expect(outage[:description]).to include 'Not authorized'
+          expect(error[:external_service]).to eq 'MVI'
+          expect(error[:start_time]).to be_present
+          expect(error[:description]).to include 'Not authorized'
         end
 
         it 'sets the status to 296' do
@@ -223,12 +223,12 @@ RSpec.describe Users::Profile do
           expect(va_profile).to be_nil
         end
 
-        it 'populates the #outages array with the serialized error', :aggregate_failures do
-          outage = subject.outages.first
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          error = subject.errors.first
 
-          expect(outage[:external_service]).to eq 'MVI'
-          expect(outage[:start_time]).to be_present
-          expect(outage[:description]).to include 'Record not found'
+          expect(error[:external_service]).to eq 'MVI'
+          expect(error[:start_time]).to be_present
+          expect(error[:description]).to include 'Record not found'
         end
 
         it 'sets the status to 296' do
@@ -267,12 +267,12 @@ RSpec.describe Users::Profile do
           expect(veteran_status).to be_nil
         end
 
-        it 'populates the #outages array with the serialized error', :aggregate_failures do
-          outage = subject.outages.first
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          error = subject.errors.first
 
-          expect(outage[:external_service]).to eq 'EMIS'
-          expect(outage[:start_time]).to be_present
-          expect(outage[:description]).to include 'NOT_FOUND'
+          expect(error[:external_service]).to eq 'EMIS'
+          expect(error[:start_time]).to be_present
+          expect(error[:description]).to include 'NOT_FOUND'
         end
 
         it 'sets the status to 296' do
@@ -291,12 +291,12 @@ RSpec.describe Users::Profile do
           expect(veteran_status).to be_nil
         end
 
-        it 'populates the #outages array with the serialized error', :aggregate_failures do
-          outage = subject.outages.first
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          error = subject.errors.first
 
-          expect(outage[:external_service]).to eq 'EMIS'
-          expect(outage[:start_time]).to be_present
-          expect(outage[:description]).to be_present
+          expect(error[:external_service]).to eq 'EMIS'
+          expect(error[:start_time]).to be_present
+          expect(error[:description]).to be_present
         end
 
         it 'sets the status to 296' do
@@ -317,12 +317,12 @@ RSpec.describe Users::Profile do
           expect(veteran_status).to be_nil
         end
 
-        it 'populates the #outages array with the serialized error', :aggregate_failures do
-          emis_outage = subject.outages.last
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
+          emis_error = subject.errors.last
 
-          expect(emis_outage[:external_service]).to eq 'EMIS'
-          expect(emis_outage[:start_time]).to be_present
-          expect(emis_outage[:description]).to include 'NOT_AUTHORIZED'
+          expect(emis_error[:external_service]).to eq 'EMIS'
+          expect(emis_error[:start_time]).to be_present
+          expect(emis_error[:description]).to include 'NOT_AUTHORIZED'
         end
 
         it 'sets the status to 296' do
@@ -372,13 +372,13 @@ RSpec.describe Users::Profile do
           )
         end
 
-        it 'populates the #outages array with the serialized error', :aggregate_failures do
+        it 'populates the #errors array with the serialized error', :aggregate_failures do
           results = Users::Profile.new(user).pre_serialize
-          outage  = results.outages.first
+          error  = results.errors.first
 
-          expect(outage[:external_service]).to eq 'Vet360'
-          expect(outage[:start_time]).to be_present
-          expect(outage[:description]).to be_present
+          expect(error[:external_service]).to eq 'Vet360'
+          expect(error[:start_time]).to be_present
+          expect(error[:description]).to be_present
         end
 
         it 'sets the status to 296' do

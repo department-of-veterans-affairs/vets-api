@@ -5,7 +5,7 @@ module Users
     include Common::Client::ServiceStatus
 
     HTTP_OK = 200
-    HTTP_SOME_OUTAGES = 296
+    HTTP_SOME_ERRORS = 296
 
     attr_reader :user, :scaffold
 
@@ -18,17 +18,17 @@ module Users
     # is returned in the '/v0/user' endpoint.
     #
     # If there are no external service errors, the status property is set to 200,
-    # and the outages property is set to nil.
+    # and the `errors` property is set to nil.
     #
     # If there *are* errors from any associated external services, the status
     # property is set to 296, and serialized versions of the errors are
-    # added to the `outages` array.
+    # added to the `errors` array.
     #
     # @return [Struct] A Struct composed of the fetched, serialized profile data.
     #
     def pre_serialize
       fetch_and_serialize_profile
-      update_status_and_outages
+      update_status_and_errors
       scaffold
     end
 
@@ -90,7 +90,7 @@ module Users
         fax_number: person.fax_number
       }
     rescue StandardError => e
-      scaffold.outages << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'Vet360').serialize_error
       nil
     end
 
@@ -106,7 +106,7 @@ module Users
           given_names: user.va_profile.given_names
         }
       else
-        scaffold.outages << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
+        scaffold.errors << Users::ExceptionHandler.new(user.va_profile_error, 'MVI').serialize_error
         nil
       end
     end
@@ -118,7 +118,7 @@ module Users
         served_in_military: user.served_in_military?
       }
     rescue StandardError => e
-      scaffold.outages << Users::ExceptionHandler.new(e, 'EMIS').serialize_error
+      scaffold.errors << Users::ExceptionHandler.new(e, 'EMIS').serialize_error
       nil
     end
 
@@ -142,11 +142,11 @@ module Users
       Users::Services.new(user).authorizations
     end
 
-    def update_status_and_outages
-      if scaffold.outages.present?
-        scaffold.status = HTTP_SOME_OUTAGES
+    def update_status_and_errors
+      if scaffold.errors.present?
+        scaffold.status = HTTP_SOME_ERRORS
       else
-        scaffold.outages = nil
+        scaffold.errors = nil
       end
     end
   end
