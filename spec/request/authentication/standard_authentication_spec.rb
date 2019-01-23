@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 # Note these specs MUST be run in order
-RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
+RSpec.describe 'authenticating loa1 user', type: :request, order: :defined do
   OUTBOUND_CASSETTE = 'authentication/external_interactions'
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)
 
@@ -30,7 +30,6 @@ RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
 
       actual_body = sanitize_json_body(response.body)
       expected_body = sanitize_json_body(episode.response['body']['string'])
-binding.pry if response.status ==500
       expect(response.status).to eq(episode.response['status']['code'])
       expect(actual_body).to eq(expected_body)
       expect(response.headers.keys).to eq(episode.response['headers'].keys)
@@ -41,12 +40,13 @@ binding.pry if response.status ==500
   private
 
   def sanitize_json_body(body)
-    body
-    if response.content_type.symbol == :json && response.status == 200
-      JSON.parse(body)
-    else
-      body
+    if response.status == 200 && response.content_type.symbol == :json
+      body = JSON.parse(body)
+      #timecop messes with last_signed_in, so we're changing it to nil for a quick comparison.
+      body["data"]["attributes"]["profile"]["lastSignedIn"] = nil if   body["data"].present? && body.dig("data", "attributes", "profile", "lastSignedIn")
+      body["data"]["attributes"]["profile"]["last_signed_in"] = nil if   body["data"].present? && body.dig("data", "attributes", "profile", "last_signed_in")
     end
+    body
   end
 
   def make_request(episode)
@@ -55,7 +55,6 @@ binding.pry if response.status ==500
              else
                Rack::Utils.parse_nested_query(episode.uri.query)
              end
-    puts "#{episode.method} #{episode.uri.path}"
     send(episode.method, episode.uri.path, params, episode.headers)
   end
 end
