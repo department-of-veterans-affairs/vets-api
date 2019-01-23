@@ -50,8 +50,7 @@ FactoryBot.define do
                              mhv_correlation_id: t.mhv_correlation_id,
                              mhv_account_type: t.mhv_account_type,
                              dslogon_edipi: t.dslogon_edipi,
-                             sign_in: t.sign_in
-                           )
+                             sign_in: t.sign_in)
       user.instance_variable_set(:@identity, user_identity)
     end
 

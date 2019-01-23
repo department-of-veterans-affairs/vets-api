@@ -67,7 +67,6 @@ module SAML
 
       def log_loa_current_message_once(error)
         return if @logged_loa_current_message
-        binding.pry
         extra_context = {
           uuid: attributes['uuid'],
           idme_level_of_assurance: attributes['level_of_assurance'],

@@ -21,7 +21,7 @@ RSpec.describe SSOService do
     let(:highest_attained_loa) { '1' }
 
     context 'Basic' do
-      let(:account_type)  { 'Basic' }
+      let(:account_type) { 'Basic' }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
@@ -39,7 +39,7 @@ RSpec.describe SSOService do
     end
 
     context 'Advanced' do
-      let(:account_type)  { 'Advanced' }
+      let(:account_type) { 'Advanced' }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
@@ -87,7 +87,7 @@ RSpec.describe SSOService do
     end
 
     context 'Premium' do
-      let(:account_type)  { 'Premium' }
+      let(:account_type) { 'Premium' }
       let(:highest_attained_loa) { '3' }
 
       it 'has a #new_user_identity which responds to #sign_in' do
@@ -102,7 +102,7 @@ RSpec.describe SSOService do
     let(:highest_attained_loa) { '1' }
 
     context 'dslogon assurance 1' do
-      let(:account_type)  { '1' }
+      let(:account_type) { '1' }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
@@ -152,7 +152,7 @@ RSpec.describe SSOService do
     end
 
     context 'dslogon assurance 2' do
-      let(:account_type)  { '2' }
+      let(:account_type) { '2' }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
@@ -161,7 +161,7 @@ RSpec.describe SSOService do
     end
 
     context 'dslogon assurance 3' do
-      let(:account_type)  { '3' }
+      let(:account_type) { '3' }
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
@@ -171,7 +171,7 @@ RSpec.describe SSOService do
   end
 
   describe 'IDme Identity' do
-    let(:account_type)  { 'N/A' }
+    let(:account_type) { 'N/A' }
     let(:highest_attained_loa) { '1' }
 
     context 'idme assurance 1' do
