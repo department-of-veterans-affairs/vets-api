@@ -28,7 +28,7 @@ module SentryLogging
     end
 
     if exception.is_a? Common::Exceptions::BackendServiceException
-      rails_logger(level, exception.message, exception.errors)
+      rails_logger(level, exception.message, exception.errors, exception.backtrace)
     else
       rails_logger(level, "#{exception.message}.")
     end
@@ -45,12 +45,13 @@ module SentryLogging
     level
   end
 
-  def rails_logger(level, message, errors = {})
+  def rails_logger(level, message, errors = {}, backtrace = nil)
     # rails logger uses 'warn' instead of 'warning'
     level = 'warn' if level == 'warning'
+
     if errors.present?
       payload = errors.first.attributes.compact.reject { |_k, v| v.empty? }
-      Rails.logger.send(level, message, payload)
+      Rails.logger.send(level, message, payload.merge(backtrace: backtrace))
     else
       Rails.logger.send(level, message)
     end
