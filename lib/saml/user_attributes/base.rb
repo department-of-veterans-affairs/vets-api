@@ -3,7 +3,7 @@
 module SAML
   module UserAttributes
     class Base
-      REQUIRED_ATTRIBUTES = %i[email uuid loa multifactor].freeze
+      REQUIRED_ATTRIBUTES = %i[email uuid loa sign_in multifactor].freeze
 
       attr_reader :attributes, :authn_context
 
@@ -36,6 +36,15 @@ module SAML
       # This field is derived from methods implemented on child classes
       def loa
         { current: loa_current, highest: loa_highest }
+      end
+
+      # This includes service_name used to sign-in initially, and the account type that is associated with the sign in.
+      def sign_in
+        SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
+                                 .fetch(:sign_in)
+      #          TODO            .merge(account_type: account_type, id_proof_type: id_proof_type)
+      rescue StandardError
+        { service_name: 'unknown' }
       end
 
       def to_hash

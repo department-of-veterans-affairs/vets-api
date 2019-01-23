@@ -56,7 +56,7 @@ class SSOService
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
     # Also we want the original sign-in, NOT the one from ID.me LOA3
-    %w[mhv_correlation_id mhv_icn dslogon_edipi sign_in]
+    %w[mhv_correlation_id mhv_icn dslogon_edipi]
   end
 
   def new_login?

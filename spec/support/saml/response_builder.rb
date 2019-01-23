@@ -17,7 +17,6 @@ module SAML
         multifactor: multifactor
       )
       saml_user = SAML::User.new(saml)
-      binding.pry if account_type == 'Premium'
       user = create(:user, :response_builder, saml_user.to_hash)
       user.identity
     end
