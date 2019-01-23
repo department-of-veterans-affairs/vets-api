@@ -209,6 +209,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'MVI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Not authorized'
+          expect(error[:status]).to eq '401'
         end
 
         it 'sets the status to 296' do
@@ -229,6 +230,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'MVI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Record not found'
+          expect(error[:status]).to eq '404'
         end
 
         it 'sets the status to 296' do
@@ -273,6 +275,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'EMIS'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'NOT_FOUND'
+          expect(error[:status]).to eq 'NOT_FOUND'
         end
 
         it 'sets the status to 296' do
@@ -284,7 +287,7 @@ RSpec.describe Users::Profile do
         before(:each) do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
+          ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError.new(nil, 503))
         end
 
         it 'sets veteran_status to nil' do
@@ -297,6 +300,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'EMIS'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
+          expect(error[:status]).to eq '503'
         end
 
         it 'sets the status to 296' do
@@ -323,6 +327,7 @@ RSpec.describe Users::Profile do
           expect(emis_error[:external_service]).to eq 'EMIS'
           expect(emis_error[:start_time]).to be_present
           expect(emis_error[:description]).to include 'NOT_AUTHORIZED'
+          expect(emis_error[:status]).to eq 'NOT_AUTHORIZED'
         end
 
         it 'sets the status to 296' do
@@ -374,11 +379,12 @@ RSpec.describe Users::Profile do
 
         it 'populates the #errors array with the serialized error', :aggregate_failures do
           results = Users::Profile.new(user).pre_serialize
-          error  = results.errors.first
+          error   = results.errors.first
 
           expect(error[:external_service]).to eq 'Vet360'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
+          expect(error[:status]).to eq '503'
         end
 
         it 'sets the status to 296' do

@@ -33,6 +33,10 @@ RSpec.describe Users::ExceptionHandler do
       it 'sets the start_time' do
         expect(results[:start_time]).to be_present
       end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq '503'
+      end
     end
 
     context 'with a Common::Exceptions::GatewayTimeout' do
@@ -41,6 +45,10 @@ RSpec.describe Users::ExceptionHandler do
 
       it 'returns a serialized version of the error' do
         expect(results[:description]).to include 'Gateway timeout', '504'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq '504'
       end
     end
 
@@ -51,6 +59,10 @@ RSpec.describe Users::ExceptionHandler do
       it 'returns a serialized version of the error' do
         expect(results[:description]).to include 'MVI_503', '503', 'Service unavailable'
       end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq '503'
+      end
     end
 
     context 'with a EMISRedis::VeteranStatus::NotAuthorized' do
@@ -59,6 +71,10 @@ RSpec.describe Users::ExceptionHandler do
 
       it 'returns a serialized version of the error' do
         expect(results[:description]).to include 'NOT_AUTHORIZED', 'EMISRedis::VeteranStatus::NotAuthorized'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 'NOT_AUTHORIZED'
       end
     end
 
@@ -69,6 +85,10 @@ RSpec.describe Users::ExceptionHandler do
       it 'returns a serialized version of the error' do
         expect(results[:description]).to include 'NOT_FOUND', 'EMISRedis::VeteranStatus::RecordNotFound'
       end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq 'NOT_FOUND'
+      end
     end
 
     context 'with a StandardError' do
@@ -77,6 +97,10 @@ RSpec.describe Users::ExceptionHandler do
 
       it 'returns a serialized version of the error' do
         expect(results[:description]).to include message, 'StandardError'
+      end
+
+      it 'returns a status' do
+        expect(results[:status]).to eq '503'
       end
     end
   end

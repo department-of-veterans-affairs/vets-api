@@ -84,6 +84,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
         expect(error['external_service']).to eq 'Vet360'
         expect(error['description']).to be_present
+        expect(error['status']).to eq '502'
       end
     end
   end
@@ -99,12 +100,13 @@ RSpec.describe 'Fetching user data', type: :request do
     end
 
     it 'returns a status of 296 with errors', :aggregate_failures do
-      body   = JSON.parse(response.body)
+      body  = JSON.parse(response.body)
       error = body.dig('meta', 'errors').first
 
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
+      expect(error['status']).to eq '401'
     end
 
     it 'gives me the list of available services' do
@@ -133,13 +135,14 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
 
-      body   = JSON.parse(response.body)
+      body  = JSON.parse(response.body)
       error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
+      expect(error['status']).to eq '504'
     end
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
@@ -149,13 +152,14 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
 
-      body   = JSON.parse(response.body)
+      body  = JSON.parse(response.body)
       error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
+      expect(error['status']).to eq '404'
     end
 
     it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
@@ -165,13 +169,14 @@ RSpec.describe 'Fetching user data', type: :request do
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
 
-      body   = JSON.parse(response.body)
+      body  = JSON.parse(response.body)
       error = body.dig('meta', 'errors').first
 
       expect(body['data']['attributes']['va_profile']).to be_nil
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
+      expect(error['status']).to eq '404'
     end
 
     it 'MVI success should only make a request to MVI one time per multiple requests!' do

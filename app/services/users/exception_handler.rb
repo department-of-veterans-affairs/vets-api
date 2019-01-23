@@ -51,20 +51,30 @@ module Users
       exception = error.errors.first
 
       error_template.merge(
-        description: "#{exception.code}, #{exception.status}, #{exception.title}, #{exception.detail}"
+        description: "#{exception.code}, #{exception.status}, #{exception.title}, #{exception.detail}",
+        status: exception.status.to_s
       )
     end
 
     def client_error
-      error_template.merge(description: "#{error.class}, #{error.status}, #{error.message}, #{error.body}")
+      error_template.merge(
+        description: "#{error.class}, #{error.status}, #{error.message}, #{error.body}",
+        status: error.status.to_s
+      )
     end
 
     def emis_error(type)
-      error_template.merge(description: "#{error.class}, #{RESPONSE_STATUS[type]}")
+      error_template.merge(
+        description: "#{error.class}, #{RESPONSE_STATUS[type]}",
+        status: RESPONSE_STATUS[type]
+      )
     end
 
     def standard_error
-      error_template.merge(description: "#{error.class}, #{error.message}, #{error}")
+      error_template.merge(
+        description: "#{error.class}, #{error.message}, #{error}",
+        status: standard_error_status(error)
+      )
     end
 
     def error_template
@@ -72,8 +82,16 @@ module Users
         external_service: service,
         start_time: Time.current.iso8601,
         end_time: nil,
-        description: nil
+        description: nil,
+        status: nil
       }
+    end
+
+    def standard_error_status(error)
+      error.try(:status).to_s.presence ||
+        error.try(:status_code).to_s.presence ||
+        error.try(:code).to_s.presence ||
+        '503'
     end
   end
 end

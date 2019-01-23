@@ -50,6 +50,7 @@ module Swagger
                         property :start_time, type: :string
                         property :end_time, type: %i[string null]
                         property :description, type: :string
+                        property :status, type: :string
                       end
                     end
                   end
