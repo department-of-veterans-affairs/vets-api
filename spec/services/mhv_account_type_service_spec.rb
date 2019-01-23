@@ -101,7 +101,7 @@ RSpec.describe MhvAccountTypeService do
         known_account_type: user.identity.mhv_account_type
       }
     end
-    let(:tags_context) { { sign_in_method: 'mhv' } }
+    let(:tags_context) { { sign_in_method: { service_name: 'mhv' } } }
 
     context 'error fetching eligible data classes' do
       let(:error_message) { described_class::MHV_DOWN_MESSAGE }

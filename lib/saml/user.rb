@@ -30,13 +30,13 @@ module SAML
     def initialize(saml_response)
       @saml_response = saml_response
       @saml_attributes = saml_response.attributes
-      @user_attributes = user_attributes_class.new(saml_attributes, real_authn_context)
+      @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
       log_warnings_to_sentry!
     end
 
     def changing_multifactor?
-      return false if real_authn_context.nil?
-      real_authn_context.include?('multifactor')
+      return false if authn_context.nil?
+      authn_context.include?('multifactor')
     end
 
     def to_hash
@@ -83,19 +83,18 @@ module SAML
       suppress(Exception) do
         if (warnings = warnings_for_sentry).any?
           warning_context = {
-            real_authn_context: real_authn_context,
             authn_context: authn_context,
             warnings: warnings.join(', '),
             loa: user_attributes.loa
           }
-          log_message_to_sentry("Issues in SAML Response - #{real_authn_context}", :warn, warning_context)
+          log_message_to_sentry("Issues in SAML Response - #{authn_context}", :warn, warning_context)
         end
       end
     end
 
     # will be one of [loa1, loa3, multifactor, dslogon, mhv]
     # this is the real authn-context returned in the response without the use of heuristics
-    def real_authn_context
+    def authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
     # this is to add additional context when we cannot parse for authn_context
     rescue NoMethodError
@@ -106,7 +105,6 @@ module SAML
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
-    alias authn_context real_authn_context
 
     # We want to do some logging of when and how the following issues could arise, since loa is
     # derived based on combination of these values, it could raise an exception at any time, hence
