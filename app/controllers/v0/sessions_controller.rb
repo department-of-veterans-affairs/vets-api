@@ -5,6 +5,8 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
+    include ActionController::MimeResponds
+
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -42,10 +44,9 @@ module V0
               reset_session
               logout_url
             end
-      if params[:json]
-        render json: { url: url }
-      else
-        redirect_to url
+      respond_to do |format|
+        format.html { redirect_to url }
+        format.json { render json: { url: url } }
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
