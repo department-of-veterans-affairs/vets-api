@@ -51,14 +51,6 @@ module SAML
       %i[authn_context]
     end
 
-    def dslogon?
-      saml_attributes.to_h.keys.include?('dslogon_uuid')
-    end
-
-    def mhv?
-      saml_attributes.to_h.keys.include?('mhv_uuid')
-    end
-
     # see warnings
     # NOTE: The actual exception, if any, should get raised when to_hash is called. Hence "suppress"
     def log_warnings_to_sentry!
@@ -74,15 +66,15 @@ module SAML
       end
     end
 
-    # will be one of [loa1, loa3, multifactor, dslogon, mhv]
+    # will be one of AUTHN_CONTEXTS.keys
     # this is the real authn-context returned in the response without the use of heuristics
     def authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
     # this is to add additional context when we cannot parse for authn_context
     rescue NoMethodError
       Raven.extra_context(
-        base64encodedpayload: Base64.encode64(saml_response.response),
-        attributes: saml_response.attributes.to_h
+        base64encodedpayload: Base64.encode64(saml_response&.response),
+        attributes: saml_response&.attributes&.to_h
       )
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
