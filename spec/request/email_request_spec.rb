@@ -7,20 +7,15 @@ RSpec.describe 'email', type: :request do
   include SchemaMatchers
   include ErrorDetails
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user, :loa3) }
-
-  before do
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
-  end
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+  before(:each) { sign_in_as(user) }
 
   describe 'GET /v0/profile/email' do
     context 'with a 200 response' do
       it 'should match the email schema' do
         VCR.use_cassette('evss/pciu/email') do
-          get '/v0/profile/email', nil, auth_header
+          get '/v0/profile/email'
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('email_address_response')
@@ -31,7 +26,7 @@ RSpec.describe 'email', type: :request do
     context 'with a 400 response' do
       it 'should match the errors schema' do
         VCR.use_cassette('evss/pciu/email_status_400') do
-          get '/v0/profile/email', nil, auth_header
+          get '/v0/profile/email'
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -42,7 +37,7 @@ RSpec.describe 'email', type: :request do
     context 'with a 403 response' do
       it 'should return a forbidden response' do
         VCR.use_cassette('evss/pciu/email_status_403') do
-          get '/v0/profile/email', nil, auth_header
+          get '/v0/profile/email'
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -52,7 +47,7 @@ RSpec.describe 'email', type: :request do
     context 'with a 500 response' do
       it 'should match the errors schema' do
         VCR.use_cassette('evss/pciu/email_status_500') do
-          get '/v0/profile/email', nil, auth_header
+          get '/v0/profile/email'
 
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('errors')
@@ -61,21 +56,17 @@ RSpec.describe 'email', type: :request do
     end
 
     context 'when authorization requirements are not met' do
-      before do
-        user = build(:unauthorized_evss_user, :loa3)
-        Session.create(uuid: user.uuid, token: token)
-        User.create(user)
-      end
+      let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'should match the errors schema', :aggregate_failures do
-        get '/v0/profile/email', nil, auth_header
+        get '/v0/profile/email'
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')
       end
 
       it 'should include the missing values in the response detail', :aggregate_failures do
-        get '/v0/profile/email', nil, auth_header
+        get '/v0/profile/email'
 
         expect(error_details_for(response)).to include 'corp_id'
         expect(error_details_for(response)).to include 'edipi'
@@ -92,9 +83,7 @@ RSpec.describe 'email', type: :request do
           post(
             '/v0/profile/email',
             email_address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:ok)
@@ -110,9 +99,7 @@ RSpec.describe 'email', type: :request do
         post(
           '/v0/profile/email',
           email_address.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -128,9 +115,7 @@ RSpec.describe 'email', type: :request do
         post(
           '/v0/profile/email',
           email_address.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -145,9 +130,7 @@ RSpec.describe 'email', type: :request do
           post(
             '/v0/profile/email',
             email_address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:bad_request)
@@ -162,9 +145,7 @@ RSpec.describe 'email', type: :request do
           post(
             '/v0/profile/email',
             email_address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:forbidden)
@@ -178,9 +159,7 @@ RSpec.describe 'email', type: :request do
           post(
             '/v0/profile/email',
             email_address.to_json,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:bad_gateway)
@@ -190,19 +169,13 @@ RSpec.describe 'email', type: :request do
     end
 
     context 'when authorization requirements are not met' do
-      before do
-        user = build(:unauthorized_evss_user, :loa3)
-        Session.create(uuid: user.uuid, token: token)
-        User.create(user)
-      end
+      let(:user) { build(:unauthorized_evss_user, :loa3) }
 
       it 'should match the errors schema', :aggregate_failures do
         post(
           '/v0/profile/email',
           email_address.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(response).to have_http_status(:forbidden)
@@ -213,9 +186,7 @@ RSpec.describe 'email', type: :request do
         post(
           '/v0/profile/email',
           email_address.to_json,
-          auth_header.update(
-            'Content-Type' => 'application/json', 'Accept' => 'application/json'
-          )
+          headers
         )
 
         expect(error_details_for(response)).to include 'corp_id'

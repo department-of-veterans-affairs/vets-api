@@ -10,11 +10,11 @@ module V0
       key :swagger, '2.0'
       info do
         key :version, '1.0.0'
-        key :title, 'vets.gov API'
-        key :description, 'The API for managing vets.gov'
+        key :title, 'va.gov API'
+        key :description, 'The API for managing va.gov'
         key :termsOfService, ''
         contact do
-          key :name, 'vets.gov team'
+          key :name, 'va.gov team'
         end
         license do
           key :name, 'Creative Commons Zero v1.0 Universal'
@@ -127,6 +127,7 @@ module V0
       Swagger::Requests::Gibct::CalculatorConstants,
       Swagger::Requests::Gibct::Institutions,
       Swagger::Requests::HealthCareApplications,
+      Swagger::Requests::HcaDd214Attachments,
       Swagger::Requests::InProgressForms,
       Swagger::Requests::IntentToFile,
       Swagger::Requests::Letters,

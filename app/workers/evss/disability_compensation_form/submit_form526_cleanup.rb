@@ -6,6 +6,7 @@ module EVSS
       include Sidekiq::Worker
 
       FORM_ID = '21-526EZ'
+      STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup'
 
       def perform(submission_id)
         super(submission_id)

@@ -86,7 +86,7 @@ module PdfFill
         'veteranSecondaryPhone' => {
           key: 'F[0].Page_1[0].PreferredEmail[2]'
         },
-        'incident' => {
+        'incidents' => {
           limit: 2,
           first_key: 'incidentDescription',
           question_text: 'INCIDENTS',
@@ -155,27 +155,29 @@ module PdfFill
           'incidentDescription' => {
             key: "incidentDescription[#{ITERATOR}]"
           },
-          'source' => {
-            limit: 6,
-            first_key: 'combinedName0',
-            'combinedName0' => {
-              key: "incident_source_name[#{ITERATOR}][0]"
-            },
-            'combinedAddress0' => {
-              key: "incident_source_address[#{ITERATOR}][0]"
-            },
-            'combinedName1' => {
-              key: "incident_source_name[#{ITERATOR}][1]"
-            },
-            'combinedAddress1' => {
-              key: "incident_source_address[#{ITERATOR}][1]"
-            },
-            'combinedName2' => {
-              key: "incident_source_name[#{ITERATOR}][2]"
-            },
-            'combinedAddress2' => {
-              key: "incident_source_address[#{ITERATOR}][2]"
-            }
+          'combinedName0' => {
+            limit: 80,
+            key: "incident_source_name[#{ITERATOR}][0]"
+          },
+          'combinedAddress0' => {
+            limit: 80,
+            key: "incident_source_address[#{ITERATOR}][0]"
+          },
+          'combinedName1' => {
+            limit: 80,
+            key: "incident_source_name[#{ITERATOR}][1]"
+          },
+          'combinedAddress1' => {
+            limit: 80,
+            key: "incident_source_address[#{ITERATOR}][1]"
+          },
+          'combinedName2' => {
+            limit: 80,
+            key: "incident_source_name[#{ITERATOR}][2]"
+          },
+          'combinedAddress2' => {
+            limit: 80,
+            key: "incident_source_address[#{ITERATOR}][2]"
           },
           'incidentOverflow' => {
             key: '',
@@ -200,9 +202,10 @@ module PdfFill
           key: 'F[0].Page_3[0].signature8[0]'
         },
         'signatureDate' => {
-          key: 'F[0].Page_3[0].date9[0]'
+          key: 'F[0].Page_3[0].date9[0]',
+          format: 'date'
         },
-        'additionalIncidentText' => {
+        'additionalSecondaryIncidentText' => {
           question_num: 15,
           question_text: 'ADDITIONAL INCIDENTS',
           limit: 0,
@@ -214,7 +217,7 @@ module PdfFill
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
-        expand_incidents(@form_data['incident'])
+        expand_incidents(@form_data['incidents'])
         expand_other_information
 
         expand_signature(@form_data['veteranFullName'])
@@ -235,28 +238,24 @@ module PdfFill
       def combine_source_name_address(incident)
         return if incident.blank?
 
-        incident_sources = incident['source']
-        combined_sources = {}
-
-        incident_sources.each_with_index do |source, index|
-          combined_source_name = combine_full_name(source['name'])
+        incident['sources'].each_with_index do |source, index|
           combined_source_address = combine_full_address(source['address'])
 
-          combined_sources["combinedName#{index}"] = combined_source_name
-          combined_sources["combinedAddress#{index}"] = combined_source_address
+          incident["combinedName#{index}"] = source['name']
+          incident["combinedAddress#{index}"] = combined_source_address
         end
 
-        incident['source'] = combined_sources
+        incident.except!('sources')
       end
 
       def combine_other_sources_overflow(incident)
-        return if incident.blank? || incident['source'].blank?
+        return if incident.blank? || incident['sources'].blank?
 
-        sources = incident['source']
+        sources = incident['sources']
         overflow_sources = []
 
         sources.each do |source|
-          overflow = combine_full_name(source['name']) + " \n " + combine_full_address(source['address'])
+          overflow = source['name'] + " \n " + combine_full_address(source['address'])
           overflow_sources.push(overflow)
         end
 

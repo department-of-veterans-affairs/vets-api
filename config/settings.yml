@@ -14,7 +14,6 @@ saml:
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
 session_cookie:
-  enabled: false
   secure: false
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
@@ -129,6 +128,7 @@ evss:
   mock_ppiu: true
   mock_itf: true
   mock_disabilities_form: true
+  mock_vso_search: false
   aws:
     url: http://fake.evss-reference-data-service.dev/v1
     cert_path: ~
@@ -143,7 +143,7 @@ evss:
 
 # Settings for GI Bill Data Service
 gids:
-  url: https://dev.vets.gov/gids
+  url: https://dev.va.gov/gids
 
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.
@@ -168,9 +168,11 @@ locators:
   vha_access_waittime: https://www.accesstopwt.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
   providers_enabled: false
-  
+
 ppms:
   url: https://some.fakesite.com
+  open_timeout: 15
+  read_timeout: 55
 
 # Settings for MyHealthEVet
 mhv:

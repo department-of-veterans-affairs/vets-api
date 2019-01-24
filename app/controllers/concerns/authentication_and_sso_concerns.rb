@@ -9,28 +9,21 @@ module AuthenticationAndSSOConcerns
 
   included do
     before_action :authenticate
-    before_action :set_api_cookie!, unless: -> { Settings.session_cookie.enabled }
+    before_action :set_api_cookie!
   end
 
   protected
 
   def authenticate
-    authenticate_token || render_unauthorized
-  end
-
-  def authenticate_token
-    return validate_session(session[:token]) if Settings.session_cookie.enabled
-    authenticate_with_http_token do |token, _options|
-      validate_session(token)
-    end
+    validate_session || render_unauthorized
   end
 
   def render_unauthorized
     raise Common::Exceptions::Unauthorized
   end
 
-  def validate_session(token)
-    @session_object = Session.find(token)
+  def validate_session
+    @session_object = Session.find(session[:token])
 
     if @session_object.nil?
       Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
@@ -108,12 +101,22 @@ module AuthenticationAndSSOConcerns
   # https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SSO/CookieSpecs-20180906.docx
   def sso_cookie_content
     return nil if @current_user.blank?
-
     {
       'patientIcn' => (@current_user.mhv_icn || @current_user.icn),
       'mhvCorrelationId' => @current_user.mhv_correlation_id,
+      'signIn' => @current_user.identity.sign_in.deep_transform_keys { |key| key.to_s.camelize(:lower) },
+      'credential_used' => sso_cookie_sign_credential_used,
       'expirationTime' => @session_object.ttl_in_time.iso8601(0)
     }
+  end
+
+  # Temporary solution for MHV having already coded this attribute differently than expected.
+  def sso_cookie_sign_credential_used
+    {
+      'myhealthevet' => 'my_healthe_vet',
+      'dslogon' => 'ds_logon',
+      'idme' => 'id_me'
+    }.fetch(@current_user.identity.sign_in.fetch(:service_name))
   end
 
   # Info for logging purposes related to SSO.
@@ -127,3 +130,4 @@ module AuthenticationAndSSOConcerns
     }
   end
 end
+# rubocop:enable Metrics/ModuleLength

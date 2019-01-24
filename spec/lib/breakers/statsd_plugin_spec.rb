@@ -42,8 +42,14 @@ describe Breakers::StatsdPlugin do
         request.url = URI(test_host + '/foo/aaaaaaaa/11A22222')
         expect(subject.get_tags(request)).to include('endpoint:/foo/aaaaaaaa/xxx')
 
+        request.url = URI(test_host + '/v1/foo/0123456789V123456%5ENI%5E200M%5EUSVHA')
+        expect(subject.get_tags(request)).to include('endpoint:/v1/foo/xxx')
+
         request.url = URI(test_host + '/foo/-1')
         expect(subject.get_tags(request)).to include('endpoint:/foo/xxx')
+
+        request.url = URI(test_host + '/v0.0/Providers(1234567890)/bar')
+        expect(subject.get_tags(request)).to include('endpoint:/v0.0/xxx/bar')
       end
     end
   end

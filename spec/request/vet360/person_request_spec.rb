@@ -5,14 +5,12 @@ require 'rails_helper'
 RSpec.describe 'person', type: :request do
   include SchemaMatchers
 
-  let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
-  let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:user) { build(:user_with_suffix, :loa3) }
+  let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
   before do
     Timecop.freeze('2018-04-09T17:52:03Z')
-    Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    sign_in_as(user)
   end
 
   after { Timecop.return }
@@ -36,9 +34,7 @@ RSpec.describe 'person', type: :request do
           post(
             '/v0/profile/initialize_vet360_id',
             empty_body,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:ok)
@@ -52,9 +48,7 @@ RSpec.describe 'person', type: :request do
             post(
               '/v0/profile/initialize_vet360_id',
               empty_body,
-              auth_header.update(
-                'Content-Type' => 'application/json', 'Accept' => 'application/json'
-              )
+              headers
             )
           end.to change { AsyncTransaction::Vet360::InitializePersonTransaction.count }.from(0).to(1)
 
@@ -69,9 +63,7 @@ RSpec.describe 'person', type: :request do
           post(
             '/v0/profile/initialize_vet360_id',
             empty_body,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
         end
       end
@@ -83,9 +75,7 @@ RSpec.describe 'person', type: :request do
           post(
             '/v0/profile/initialize_vet360_id',
             empty_body,
-            auth_header.update(
-              'Content-Type' => 'application/json', 'Accept' => 'application/json'
-            )
+            headers
           )
 
           expect(response).to have_http_status(:bad_request)
@@ -108,7 +98,7 @@ RSpec.describe 'person', type: :request do
         get(
           "/v0/profile/person/status/#{transaction.transaction_id}",
           nil,
-          auth_header
+          headers
         )
 
         expect(response).to have_http_status(:ok)
@@ -129,7 +119,7 @@ RSpec.describe 'person', type: :request do
           get(
             "/v0/profile/person/status/#{transaction.transaction_id}",
             nil,
-            auth_header
+            headers
           )
 
           expect(response).to have_http_status(:bad_request)

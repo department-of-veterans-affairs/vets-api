@@ -1,5 +1,5 @@
 {
-  "incident": [
+  "incidents": [
     {
       "personalAssault": true,
       "incidentDate": "2000-01-01",
@@ -10,7 +10,7 @@
       "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
-      "source": [
+      "sources": [
         {
           "name": {
             "first": "Testy",
@@ -68,7 +68,7 @@
       "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
-      "source": [
+      "sources": [
         {
           "name": {
             "first": "Testy",

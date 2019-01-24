@@ -2,7 +2,7 @@
 
 module EVSS
   module DisabilityCompensationForm
-    class DataTranslationAllClaim
+    class DataTranslationAllClaim # rubocop:disable Metrics/ClassLength
       HOMELESS_SITUATION_TYPE = {
         'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
         'notShelter' => 'NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT',
@@ -17,9 +17,10 @@ module EVSS
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(user, form_content)
+      def initialize(user, form_content, has_form4142)
         @user = user
         @form_content = form_content
+        @has_form4142 = has_form4142
         @translated_form = { 'form526' => {} }
       end
 
@@ -27,6 +28,8 @@ module EVSS
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
         output_form['applicationExpirationDate'] = application_expiration_date
+
+        output_form.update(append_overflow_text) if @has_form4142
 
         output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
@@ -50,6 +53,13 @@ module EVSS
 
       def output_form
         @translated_form['form526']
+      end
+
+      def append_overflow_text
+        {
+          'overflowText' => 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
+                            'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+        }
       end
 
       def translate_banking_info
@@ -131,14 +141,8 @@ module EVSS
           'payment' => {
             'serviceBranch' => service_branch(input_form['separationPayBranch'])
           },
-          'receivedDate' => {
-            'year' => input_form['separationPayDate'].to_s
-          }
+          'receivedDate' => approximate_date(input_form['separationPayDate'])
         }
-      end
-
-      def split_approximate_date(approximate_date)
-        Date.strptime(approximate_date, '%Y-%m-%d')
       end
 
       def translate_service_info
@@ -218,7 +222,7 @@ module EVSS
             'changeOfAddress' => translate_change_of_address(input_form['forwardingAddress']),
             'daytimePhone' => split_phone_number(input_form.dig('phoneAndEmail', 'primaryPhone')),
             'homelessness' => translate_homelessness,
-            'currentlyVAEmployee' => input_form['isVAEmployee']
+            'currentlyVAEmployee' => input_form['isVaEmployee']
           }.compact
         }
       end
@@ -344,27 +348,59 @@ module EVSS
 
         treatments = input_form['vaTreatmentFacilities'].map do |treatment|
           {
-            'startDate' => treatment['treatmentDateRange']['from'],
-            'endDate' => treatment['treatmentDateRange']['to'],
+            'startDate' => approximate_date(treatment['treatmentDateRange']['from']),
+            'endDate' => approximate_date(treatment['treatmentDateRange']['to']),
             'treatedDisabilityNames' => treatment['treatedDisabilityNames'],
             'center' => {
               'name' => treatment['treatmentCenterName']
             }.merge(treatment['treatmentCenterAddress'])
-          }
+          }.compact
         end
 
         { 'treatments' => treatments }
       end
 
-      def translate_disabilities
-        disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
-        { 'disabilities' => translate_new_disabilities(disabilities) }
+      def approximate_date(date)
+        return nil if date.blank?
+
+        year, month, day = date.split('-')
+
+        # month/day are optional and can be XXed out
+        month = nil if month == 'XX'
+        day = nil if day == 'XX'
+
+        {
+          'year' => year,
+          'month' => month,
+          'day' => day
+        }.compact
       end
 
-      def translate_new_disabilities(disabilities)
-        return disabilities if input_form['newDisabilities'].blank?
+      # `specialIssues` is a key that can hold an array of special issue strings
+      # for the time being, evss only accepts one special issue per disability but
+      # it is possible for every disability to have multiple issue. We are only
+      # picking the first issue out of the list until evss can accept an array instead
+      def translate_disabilities
+        rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
+        # New primary disabilities need to be added first before handling secondary
+        # disabilities because a new secondary disability can be added to a new
+        # primary disability
+        primary_disabilities = translate_new_primary_disabilities(rated_disabilities)
+        disabilities = translate_new_secondary_disabilities(primary_disabilities)
 
-        input_form['newDisabilities'].each do |input_disability|
+        # Strip out disabilites with ActionType eq to `None` that do not have any
+        # secondary disabilities to avoid sending extraneous data
+        disabilities.delete_if do |disability|
+          disability['disabilityActionType'] == 'NONE' && disability['secondaryDisabilities'].blank?
+        end
+
+        { 'disabilities' => disabilities }
+      end
+
+      def translate_new_primary_disabilities(disabilities)
+        return disabilities if input_form['newPrimaryDisabilities'].blank?
+
+        input_form['newPrimaryDisabilities'].each do |input_disability|
           case input_disability['cause']
           when 'NEW'
             disabilities.append(map_new(input_disability))
@@ -372,9 +408,17 @@ module EVSS
             disabilities.append(map_worsened(input_disability))
           when 'VA'
             disabilities.append(map_va(input_disability))
-          when 'SECONDARY'
-            disabilities = map_secondary(input_disability, disabilities)
           end
+        end
+
+        disabilities
+      end
+
+      def translate_new_secondary_disabilities(disabilities)
+        return disabilities if input_form['newSecondaryDisabilities'].blank?
+
+        input_form['newSecondaryDisabilities'].each do |input_disability|
+          disabilities = map_secondary(input_disability, disabilities)
         end
 
         disabilities
@@ -383,42 +427,50 @@ module EVSS
       def map_new(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
                                 "#{input_disability['primaryDescription']}"
-        }
+        }.compact
       end
 
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Worsened because of military service\n"\
                                 "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
-        }
+        }.compact
       end
 
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by VA care\n"\
-                                "Event: #{input_disability['VAMistreatmentDescription']}\n"\
-                                "Location: #{input_disability['VAMistreatmentLocation']}\n"\
-                                "TimeFrame: #{input_disability['VAMistreatmentDate']}"
-        }
+                                "Event: #{input_disability['vaMistreatmentDescription']}\n"\
+                                "Location: #{input_disability['vaMistreatmentLocation']}\n"\
+                                "TimeFrame: #{input_disability['vaMistreatmentDate']}"
+        }.compact
       end
 
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
+          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by a service-connected disability\n"\
                                 "#{input_disability['causedByDisabilityDescription']}"
-        }
+        }.compact
 
         disabilities.each do |output_disability|
-          if output_disability['name'] == input_disability['causedByDisability']
+          if output_disability['name'].casecmp(input_disability['causedByDisability']).zero?
             output_disability['secondaryDisabilities'] = [] if output_disability['secondaryDisabilities'].blank?
             output_disability['secondaryDisabilities'].append(disability)
           end

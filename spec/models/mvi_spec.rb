@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'common/exceptions'
+require 'support/mvi/stub_mvi'
 
 describe Mvi, skip_mvi: true do
   let(:user) { build(:user, :loa3) }
@@ -13,8 +14,8 @@ describe Mvi, skip_mvi: true do
       profile: mvi_profile
     )
   end
-  let(:profile_response_error) { MVI::Responses::FindProfileResponse.with_server_error }
-  let(:profile_response_not_found) { MVI::Responses::FindProfileResponse.with_not_found }
+  let(:profile_response_error) { MVI::Responses::FindProfileResponse.with_server_error(server_error_exception) }
+  let(:profile_response_not_found) { MVI::Responses::FindProfileResponse.with_not_found(not_found_exception) }
 
   let(:default_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['each_ttl'] }
   let(:failure_ttl) { REDIS_CONFIG[Mvi::REDIS_CONFIG_KEY.to_s]['failure_ttl'] }
