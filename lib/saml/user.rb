@@ -43,16 +43,6 @@ module SAML
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
     end
 
-    # we use this for statsd tags
-    def account_type
-      case authn_context
-      when 'myhealthevet'
-        user_attributes.mhv_account_type
-      when 'dslogon'
-        user_attributes.dslogon_assurance
-      end
-    end
-
     private
 
     # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different

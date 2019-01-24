@@ -45,10 +45,6 @@ module SAML
         IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
       end
 
-      def existing_user_identity
-        @existing_user_identity ||= UserIdentity.find(uuid)
-      end
-
       def loa_current
         if authn_context.include?('multifactor')
           existing_user_identity.loa.fetch(:current, 1).to_i

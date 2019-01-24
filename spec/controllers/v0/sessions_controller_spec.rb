@@ -18,8 +18,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     instance_double('SAML::User',
                     changing_multifactor?: false,
                     user_attributes: user_attributes,
-                    to_hash: saml_user_attributes,
-                    account_type: 'N/A')
+                    to_hash: saml_user_attributes)
   end
 
   let(:request_host)        { '127.0.0.1:3000' }
