@@ -261,7 +261,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).to receive(:tags_context).once
 
           once = { times: 1, value: 1 }
-          callback_tags = ['status:success', "authn_context:#{LOA3}"]
+          callback_tags = ['status:success', "authn_context:#{LOA::IDME_LOA3}"]
+
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -274,24 +275,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(new_user.loa).to eq(highest: LOA::THREE, current: LOA::THREE)
           expect(new_user.multifactor).to be_falsey
           expect(new_user.last_signed_in).not_to eq(existing_user.last_signed_in)
-          expect(cookies['vagov_session_dev']).not_to be_nil
-          expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
-            .to eq('patientIcn' => loa3_user.icn,
-                   'mhvCorrelationId' => loa3_user.mhv_correlation_id,
-                   'signIn' => { 'serviceName' => 'idme' },
-                   'credential_used' => 'id_me',
-                   'expirationTime' => expire_at.iso8601(0))
-        end
-
-        it 'does not log to sentry when SSN matches', :aggregate_failures do
-          existing_user = User.find(uuid)
-          allow_any_instance_of(User).to receive_message_chain('va_profile.ssn').and_return('796111863')
-          expect(existing_user.ssn).to eq('796111863')
-          expect_any_instance_of(SSOService).not_to receive(:log_message_to_sentry)
-          post :saml_callback
-          new_user = User.find(uuid)
-          expect(new_user.ssn).to eq('796111863')
-          expect(new_user.va_profile.ssn).to eq('796111863')
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq('patientIcn' => loa3_user.icn,

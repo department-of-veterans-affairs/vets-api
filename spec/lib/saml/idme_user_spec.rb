@@ -34,7 +34,7 @@ RSpec.describe SAML::User do
           ssn: nil,
           zip: nil,
           loa: { current: 1, highest: 1 },
-          sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sign_in: { service_name: 'idme' },
           multifactor: false,
           authn_context: LOA::IDME_LOA1
         )
@@ -52,7 +52,7 @@ RSpec.describe SAML::User do
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
             loa: { current: 1, highest: 1 },
-            sign_in: { service_name: 'idme', account_type: 'N/A' },
+            sign_in: { service_name: 'idme' },
             birth_date: nil,
             first_name: nil,
             last_name: nil,
@@ -86,7 +86,7 @@ RSpec.describe SAML::User do
           ssn: nil,
           zip: nil,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sign_in: { service_name: 'idme' },
           multifactor: false,
           authn_context: LOA::IDME_LOA1
         )
@@ -104,7 +104,7 @@ RSpec.describe SAML::User do
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
             loa: { current: 1, highest: 3 },
-            sign_in: { service_name: 'idme', account_type: 'N/A' },
+            sign_in: { service_name: 'idme' },
             birth_date: nil,
             first_name: nil,
             last_name: nil,
@@ -139,7 +139,7 @@ RSpec.describe SAML::User do
           ssn: '111223333',
           zip: nil,
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'idme', account_type: 'N/A' },
+          sign_in: { service_name: 'idme' },
           multifactor: true,
           authn_context: LOA::IDME_LOA3
         )

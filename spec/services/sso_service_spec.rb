@@ -25,7 +25,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet', account_type: account_type)
+          .to eq(service_name: 'myhealthevet')
       end
 
       context 'with highest ID.me LOA 3' do
@@ -33,7 +33,7 @@ RSpec.describe SSOService do
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'myhealthevet', account_type: account_type)
+            .to eq(service_name: 'myhealthevet')
         end
       end
     end
@@ -43,13 +43,13 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet', account_type: account_type)
+          .to eq(service_name: 'myhealthevet')
       end
 
       context 'with ID.me LOA3' do
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'myhealthevet', account_type: account_type)
+            .to eq(service_name: 'myhealthevet')
         end
       end
     end
@@ -64,7 +64,7 @@ RSpec.describe SSOService do
 
           it 'has a #new_user_identity which responds to #sign_in' do
             expect(sso_service.new_user_identity.sign_in)
-              .to eq(service_name: 'myhealthevet', account_type: account_type)
+              .to eq(service_name: 'myhealthevet')
           end
         end
       end
@@ -80,7 +80,7 @@ RSpec.describe SSOService do
 
           it 'has a #new_user_identity which responds to #sign_in' do
             expect(sso_service.new_user_identity.sign_in)
-              .to eq(service_name: 'myhealthevet', account_type: account_type)
+              .to eq(service_name: 'myhealthevet')
           end
         end
       end
@@ -92,7 +92,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'myhealthevet', account_type: account_type)
+          .to eq(service_name: 'myhealthevet')
       end
     end
   end
@@ -106,7 +106,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'dslogon', account_type: account_type)
+          .to eq(service_name: 'dslogon')
       end
 
       context 'with ID.me LOA3' do
@@ -114,7 +114,7 @@ RSpec.describe SSOService do
 
         it 'has a #new_user_identity which responds to #sign_in' do
           expect(sso_service.new_user_identity.sign_in)
-            .to eq(service_name: 'dslogon', account_type: account_type)
+            .to eq(service_name: 'dslogon')
         end
       end
     end
@@ -129,7 +129,7 @@ RSpec.describe SSOService do
 
           it 'has a #new_user_identity which responds to #sign_in' do
             expect(sso_service.new_user_identity.sign_in)
-              .to eq(service_name: 'dslogon', account_type: account_type)
+              .to eq(service_name: 'dslogon')
           end
         end
       end
@@ -145,7 +145,7 @@ RSpec.describe SSOService do
 
           it 'has a #new_user_identity which responds to #sign_in' do
             expect(sso_service.new_user_identity.sign_in)
-              .to eq(service_name: 'dslogon', account_type: account_type)
+              .to eq(service_name: 'dslogon')
           end
         end
       end
@@ -156,7 +156,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'dslogon', account_type: account_type)
+          .to eq(service_name: 'dslogon')
       end
     end
 
@@ -165,7 +165,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'dslogon', account_type: account_type)
+          .to eq(service_name: 'dslogon')
       end
     end
   end
@@ -179,7 +179,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'idme', account_type: 'N/A')
+          .to eq(service_name: 'idme')
       end
     end
 
@@ -189,7 +189,7 @@ RSpec.describe SSOService do
 
       it 'has a #new_user_identity which responds to #sign_in' do
         expect(sso_service.new_user_identity.sign_in)
-          .to eq(service_name: 'idme', account_type: 'N/A')
+          .to eq(service_name: 'idme')
       end
     end
   end

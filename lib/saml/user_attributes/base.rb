@@ -42,9 +42,8 @@ module SAML
       def sign_in
         SAML::User::AUTHN_CONTEXTS.fetch(authn_context)
                                   .fetch(:sign_in)
-                                  .merge(account_type: account_type)
       rescue StandardError
-        { service_name: 'unknown', account_type: 'unknown' }
+        { service_name: 'unknown' }
       end
 
       def to_hash
@@ -55,25 +54,6 @@ module SAML
 
       def existing_user_identity
         @existing_user_identity ||= UserIdentity.find(uuid)
-      end
-
-      def existing_user_identity?
-        existing_user_identity.present?
-      end
-
-      # This corresponds to "Basic", "Advanced", "Premium", "1", "3"
-      def account_type
-        case authn_context
-        when LOA1, LOA3, 'multifactor'
-          'N/A'
-        when 'myhealthevet'
-          mhv_account_type # Signed in MHV
-        when 'dslogon'
-          dslogon_assurance # Signed in DS Logon
-        else
-          raise 'NoExistingUser' unless existing_user_identity?
-          existing_user_identity.sign_in.fetch(:account_type, 'N/A')
-        end
       end
     end
   end
