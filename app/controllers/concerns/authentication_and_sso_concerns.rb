@@ -24,7 +24,6 @@ module AuthenticationAndSSOConcerns
 
   def validate_session
     @session_object = Session.find(session[:token])
-    Rails.logger.info('session object', session: @session_object)
 
     if @session_object.nil?
       Rails.logger.info('SSO: INVALID SESSION', sso_logging_info)
@@ -79,7 +78,6 @@ module AuthenticationAndSSOConcerns
   # Ensures that we maintain session of currently signed-in user before switch to session cookies
   def set_api_cookie!
     return unless @session_object
-    Rails.logger.info('api cookie', api_cookie: @session_object.to_hash)
     @session_object.to_hash.each { |k, v| session[k] = v }
   end
 
@@ -90,13 +88,6 @@ module AuthenticationAndSSOConcerns
     return unless Settings.sso.cookie_enabled && @session_object.present?
     encryptor = SSOEncryptor
     encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
-    Rails.logger.info('sso cookie', Settings.sso.cookie_name => {
-                        value: encrypted_value,
-                        expires: nil,
-                        secure: Settings.sso.cookie_secure,
-                        httponly: true,
-                        domain: Settings.sso.cookie_domain
-                      })
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
       expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.

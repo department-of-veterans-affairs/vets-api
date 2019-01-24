@@ -3,12 +3,12 @@
 require './rakelib/support/sessions_arg_serializer.rb'
 
 class SessionsFileSerializer < SessionsSerializer
-  def load(file)
+  def initialize(file)
+    super
     File.open(file) do |f|
       session_data = JSON.parse(f.read)
       session_data.each { |data| add(data) }
     end
-    self
   end
 
   private

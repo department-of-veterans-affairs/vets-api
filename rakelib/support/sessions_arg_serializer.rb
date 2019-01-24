@@ -5,10 +5,10 @@ require './rakelib/support/sessions_serializer.rb'
 class SessionsArgSerializer < SessionsSerializer
   MHV_IDS = %w[12210827 10894456 13408508 13492196].freeze
 
-  def load(args)
+  def initialize(args)
+    super
     args.with_defaults(count: 50, mhv_id: nil)
     args[:count].to_i.times { add(args[:mhv_id]) }
-    self
   end
 
   private
@@ -27,6 +27,7 @@ class SessionsArgSerializer < SessionsSerializer
     }
   end
 
+  # rubocop:disable Metrics/MethodLength
   def mvi_profile_data(uuid)
     {
       ":uuid": uuid,
@@ -60,6 +61,7 @@ class SessionsArgSerializer < SessionsSerializer
       }
     }
   end
+  # rubocop:enable Metrics/MethodLength
 
   def identity_data(uuid)
     {

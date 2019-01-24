@@ -7,14 +7,14 @@ class Cookies
   end
 
   def to_header
-    "#{api_cookie_header}; #{sso_cookie_header}"
+    "#{api_session_header}; #{sso_session_header}"
   end
 
-  def api_cookie_header
+  def api_session_header
     "api_session=#{encrypt_api_session_cookie(@session)}"
   end
 
-  def sso_cookie_header
+  def sso_session_header
     "#{Settings.sso.cookie_name}=#{encrypt_sso_cookie(@session, @user)}"
   end
 

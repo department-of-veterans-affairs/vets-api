@@ -3,7 +3,7 @@
 require './rakelib/support/cookies.rb'
 
 class SessionsSerializer
-  def initialize
+  def initialize(_arg)
     @sessions = []
     @redis = Redis.current
   end
