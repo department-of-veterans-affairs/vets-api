@@ -5,6 +5,7 @@ OpenidAuth::Engine.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     get 'validation', to: 'validation#index'
+    get 'mvi-user', to: 'mvi_users#show'
   end
 
   namespace :docs do
