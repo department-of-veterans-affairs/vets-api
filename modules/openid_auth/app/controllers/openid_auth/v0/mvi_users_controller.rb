@@ -9,18 +9,26 @@ module OpenidAuth
 
       def show
         user_identity = UserIdentity.create(uuid: request.headers['x-va-ssn'],
-                                            email: params['user_email'],
+                                            email: request.headers['x-va-user-email'],
                                             first_name: request.headers['x-va-first-name'],
                                             last_name: request.headers['x-va-last-name'],
                                             birth_date: request.headers['x-va-dob'],
                                             ssn: request.headers['x-va-ssn'],
                                             loa:
-                                              { current: params[:loa][:current].to_i, highest: params[:loa][:highest].to_i }
-                                           )
-        user = User.new user_identity
-        Mvi.for_user(user)
-        if user.icn.present?
-          render json:
+                                            { current: request.headers['x-va-level-of-assurance'].to_i })
+        @user = User.new user_identity
+        Mvi.for_user(@user)
+        if @user.icn.present?
+          icn_found
+        else
+          icn_not_found
+        end
+      end
+
+      private
+
+      def icn_found
+        render json:
           {
             "id": user.icn,
             "type": 'user-mvi-icn',
@@ -30,8 +38,10 @@ module OpenidAuth
               }
             }
           }
-        else
-          render json:
+      end
+
+      def icn_not_found
+        render json:
           {
             "id": user.icn,
             "type": 'user-mvi-icn',
@@ -41,10 +51,7 @@ module OpenidAuth
               }
             }
           }
-        end
       end
-
-      private
 
       def validated_payload
         @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: @current_user.icn }))
