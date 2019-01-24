@@ -29,6 +29,11 @@ describe PdfFill::HashConverter do
       hash_converter.set_value(*final_args)
     end
 
+    def call_set_custom_value(value, *args)
+      final_args = [value] + args
+      hash_converter.set_value(*final_args)
+    end
+
     context 'with a dollar value' do
       it 'should add text to the extras page' do
         verify_extras_text('$bar', question_num: 1, question_text: 'foo', i: nil)
@@ -54,6 +59,58 @@ describe PdfFill::HashConverter do
           {
             key: :foo,
             limit: 2,
+            question_num: 1,
+            question_text: 'foo'
+          },
+          nil
+        )
+
+        verify_hash(foo: "See add'l info page")
+      end
+
+      it 'should format date' do
+        verify_extras_text('02/15/1995', question_num: 1, question_text: 'foo', i: nil)
+
+        call_set_custom_value(
+          '1995-2-15',
+          {
+            limit: 2,
+            key: 'foo',
+            format: 'date',
+            question_num: 1,
+            question_text: 'foo'
+          },
+          nil
+        )
+
+        verify_hash('foo' => "See add'l info page")
+      end
+
+      it 'should not format string with date' do
+        verify_extras_text('It was on 1995-2-15', question_num: 1, question_text: 'foo', i: nil)
+
+        call_set_custom_value(
+          'It was on 1995-2-15',
+          {
+            limit: 2,
+            key: 'foo',
+            question_num: 1,
+            question_text: 'foo'
+          },
+          nil
+        )
+
+        verify_hash('foo' => "See add'l info page")
+      end
+
+      it 'should display boolean as string' do
+        verify_extras_text('true', question_num: 1, question_text: 'foo', i: nil)
+
+        call_set_custom_value(
+          [true],
+          {
+            key: :foo,
+            limit: 0,
             question_num: 1,
             question_text: 'foo'
           },
@@ -105,21 +162,27 @@ describe PdfFill::HashConverter do
             discharge: 'honorable',
             foo: nil,
             nestedHash: {
-              dutyType: 'title 10'
+              dutyType: 'title 10',
+              nestedTourDate: '2010-09-09',
+              nestedBoolean: true
             }
           },
           {
             discharge: 'medical',
             nestedHash: {
-              dutyType: 'title 32'
+              dutyType: 'title 32',
+              nestedTourDate: '2010-10-10',
+              nestedBoolean: false
             }
           }
         ],
         date: '2017-06-06',
+        stringWithDate: 'It was 2017-06-06',
         veteranFullName: 'bob bob',
         nestedHash: {
           nestedHash: {
-            married: true
+            married: true,
+            nestedDate: '2010-08-05'
           }
         },
         bankAccount: {
@@ -131,7 +194,13 @@ describe PdfFill::HashConverter do
 
     let(:pdftk_keys) do
       {
-        date: { key: 'form.date' },
+        date: {
+          key: 'form.date',
+          format: 'date'
+        },
+        stringWithDate: {
+          key: 'form.stringWithDate'
+        },
         veteranFullName: { key: 'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]' },
         bankAccount: {
           accountNumber: { key: 'form1[0].#subform[0].EnterACCOUNTNUMBER[0]' },
@@ -139,14 +208,25 @@ describe PdfFill::HashConverter do
         },
         nestedHash: {
           nestedHash: {
-            married: { key: 'form1[0].#subform[1].CheckBoxYes6B[0]' }
+            married: { key: 'form1[0].#subform[1].CheckBoxYes6B[0]' },
+            nestedDate: {
+              key: 'form1[0].#subform[1].NestedDate[0]',
+              format: 'date'
+            }
           }
         },
         toursOfDuty: {
           limit: 10,
           discharge: { key: "form1[0].#subform[1].EnterCharacterD#{PdfFill::HashConverter::ITERATOR}[0]" },
           nestedHash: {
-            dutyType: { key: "form1[0].#subform[1].EnterTypeOfDutyE#{PdfFill::HashConverter::ITERATOR}[0]" }
+            dutyType: { key: "form1[0].#subform[1].EnterTypeOfDutyE#{PdfFill::HashConverter::ITERATOR}[0]" },
+            nestedTourDate: {
+              key: "form1[0].#subform[1].NestedTourDate[#{PdfFill::HashConverter::ITERATOR}]",
+              format: 'date'
+            },
+            nestedBoolean: {
+              key: "form1[0].#subform[1].NestedBoolean[#{PdfFill::HashConverter::ITERATOR}]"
+            }
           }
         }
       }
@@ -164,10 +244,16 @@ describe PdfFill::HashConverter do
         'form1[0].#subform[1].EnterCharacterD1[0]' => 'medical',
         'form1[0].#subform[1].EnterTypeOfDutyE1[0]' => 'title 32',
         'form.date' => '06/06/2017',
+        'form.stringWithDate' => 'It was 2017-06-06',
         'form1[0].#subform[0].EnterNameOfApplicantFirstMiddleLast[0]' => 'bob bob',
         'form1[0].#subform[1].CheckBoxYes6B[0]' => 1,
+        'form1[0].#subform[1].NestedDate[0]' => '08/05/2010',
         'form1[0].#subform[0].EnterACCOUNTNUMBER[0]' => '34343434',
-        'form1[0].#subform[0].CheckBoxChecking[0]' => 1
+        'form1[0].#subform[0].CheckBoxChecking[0]' => 1,
+        'form1[0].#subform[1].NestedTourDate[0]' => '09/09/2010',
+        'form1[0].#subform[1].NestedBoolean[0]' => 1,
+        'form1[0].#subform[1].NestedTourDate[1]' => '10/10/2010',
+        'form1[0].#subform[1].NestedBoolean[1]' => 0
       )
     end
   end

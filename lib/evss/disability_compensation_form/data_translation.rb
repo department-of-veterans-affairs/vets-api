@@ -3,7 +3,7 @@
 module EVSS
   module DisabilityCompensationForm
     class DataTranslation
-      def initialize(user, form_content)
+      def initialize(user, form_content, _)
         @user = user
         @form_content = form_content
       end
