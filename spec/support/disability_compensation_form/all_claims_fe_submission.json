@@ -46,7 +46,7 @@
       "name": "Jane Doe",
       "phoneNumber": "1231231231"
     },
-    "isVAEmployee": false,
+    "isVaEmployee": false,
     "militaryRetiredPayBranch": "Air Force",
     "needToLeaveHousing": true,
     "ratedDisabilities": [
@@ -61,6 +61,7 @@
       {
         "cause": "NEW",
         "condition": "Arthritis",
+        "classificationCode": "Test Code",
         "primaryDescription": "Joints in hands",
         "specialIssues": ["POW"]
       }
@@ -81,7 +82,7 @@
     },
     "privacyAgreementAccepted": true,
     "separationPayBranch": "Air Force",
-    "separationPayDate": "2000",
+    "separationPayDate": "2000-XX-XX",
     "serviceInformation": {
       "reservesNationalGuardService": {
         "obligationTermOfServiceDateRange": {
@@ -133,8 +134,8 @@
           "country": "USA"
         },
         "treatmentDateRange": {
-          "from": "2015-04-03",
-          "to": "2018-03-04"
+          "from": "2015-04-XX",
+          "to": "2018-03-XX"
         },
         "treatedDisabilityNames": [
           "PTSD personal trauma"

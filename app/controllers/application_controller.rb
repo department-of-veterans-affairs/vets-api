@@ -64,8 +64,7 @@ class ApplicationController < ActionController::API
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if skip_sentry_exception_types.include?(exception.class)
-      Rails.logger.error "#{exception.message}."
-      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+      Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
     else
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
@@ -150,5 +149,10 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def append_info_to_payload(payload)
+    super
+    payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
   end
 end

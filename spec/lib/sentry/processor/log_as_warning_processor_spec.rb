@@ -41,27 +41,38 @@ RSpec.describe Sentry::Processor::LogAsWarning do
     }
   end
 
-  context 'for Common::Exceptions::GatewayTimeout errors' do
-    let(:exception) { Common::Exceptions::GatewayTimeout.to_s }
+  def self.assert_sets_level_to_warning
     it 'sets the :level to 30 (warning)' do
-      expect(processor.process(data)[:level]).to eq(30)
-      expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
+      expect(processor.process(data)['level']).to eq(30)
     end
   end
 
-  context 'for EVSS::ErrorMiddleware::EVSSError errors' do
-    let(:exception) { EVSS::ErrorMiddleware::EVSSError.to_s }
-    it 'sets the :level to 30 (warning)' do
-      expect(processor.process(data)[:level]).to eq(30)
-      expect(processor.process(data.deep_stringify_keys)['level']).to eq(30)
+  let(:exception) { RuntimeError.to_s }
+
+  %w[
+    Common::Exceptions::GatewayTimeout
+    EVSS::ErrorMiddleware::EVSSError
+    EVSS::DisabilityCompensationForm::GatewayTimeout
+  ].each do |error|
+    context "for #{error} errors" do
+      let(:exception) { error }
+
+      assert_sets_level_to_warning
     end
+  end
+
+  context 'when log_as_warning extra context is set' do
+    before do
+      data[:extra][:log_as_warning] = true
+    end
+
+    assert_sets_level_to_warning
   end
 
   context 'for all other errors' do
     let(:exception) { NoMethodError.to_s }
     it 'does not change the :level' do
-      expect(processor.process(data)[:level]).to eq(40)
-      expect(processor.process(data.deep_stringify_keys)['level']).to eq(40)
+      expect(processor.process(data)['level']).to eq(40)
     end
   end
 end

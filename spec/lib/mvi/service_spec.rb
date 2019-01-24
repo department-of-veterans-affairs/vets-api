@@ -17,6 +17,8 @@ describe MVI::Service do
 
   let(:user) { build(:user, :loa3, user_hash) }
   let(:icn_with_aaid) { '1008714701V416111^NI^200M^USVHA' }
+  let(:not_found) { MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:not_found] }
+  let(:server_error) { MVI::Responses::FindProfileResponse::RESPONSE_STATUS[:server_error] }
 
   let(:mvi_profile) do
     build(
@@ -105,30 +107,42 @@ describe MVI::Service do
           expect(response.profile['historical_icns']).to eq([])
         end
       end
+
+      it 'returns no errors' do
+        allow(user).to receive(:mhv_icn).and_return('1008714701V416111^NI^200M^USVHA^P')
+
+        VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+          response = subject.find_profile(user)
+
+          expect(response.error).to be_nil
+        end
+      end
     end
 
     context 'invalid requests' do
-      it 'responds with a SERVER_ERROR if ICN is invalid' do
+      it 'responds with a SERVER_ERROR if ICN is invalid', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('invalid-icn-is-here^NI')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request (Possible RecordNotFound)', :error
         )
 
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_503_expectations_for(response)
         end
       end
 
-      it 'responds with a SERVER_ERROR if ICN has no matches' do
+      it 'responds with a SERVER_ERROR if ICN has no matches', :aggregate_failures do
         allow(user).to receive(:mhv_icn).and_return('1008714781V416999')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request (Possible RecordNotFound)', :error
         )
 
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_503_expectations_for(response)
         end
       end
     end
@@ -234,53 +248,58 @@ describe MVI::Service do
     end
 
     context 'when a MVI invalid request response is returned' do
-      it 'should raise a invalid request error' do
+      it 'should raise a invalid request error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Invalid Request', :error
         )
         VCR.use_cassette('mvi/find_candidate/invalid') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_503_expectations_for(response)
         end
       end
     end
 
     context 'when a MVI failure response is returned' do
-      it 'should raise a request failure error' do
+      it 'should raise a request failure error', :aggregate_failures do
         invalid_xml = File.read('spec/support/mvi/find_candidate_invalid_request.xml')
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return(invalid_xml)
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Failed Request', :error
         )
         VCR.use_cassette('mvi/find_candidate/failure') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_503_expectations_for(response)
         end
       end
     end
 
     context 'with an MVI timeout' do
       let(:base_path) { MVI::Configuration.instance.base_path }
-      it 'should raise a service error' do
+      it 'should raise a service error', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(Rails.logger).to receive(:error).with('MVI find_profile error: Gateway timeout')
-        expect(subject.find_profile(user))
-          .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+
+        response = subject.find_profile(user)
+
+        server_error_504_expectations_for(response)
       end
     end
 
     context 'when a status of 500 is returned' do
-      it 'should raise a request failure error' do
+      it 'should raise a request failure error', :aggregate_failures do
         allow_any_instance_of(MVI::Service).to receive(:create_profile_message).and_return('<nobeuno></nobeuno>')
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP HTTP call failed',
           :error
         )
         VCR.use_cassette('mvi/find_candidate/five_hundred') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_504_expectations_for(response)
         end
       end
     end
@@ -300,10 +319,12 @@ describe MVI::Service do
         }
       end
 
-      it 'returns not found, does not log sentry' do
+      it 'returns not found, does not log sentry', :aggregate_failures do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           expect(subject).not_to receive(:log_message_to_sentry)
-          expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+          response = subject.find_profile(user)
+
+          record_not_found_404_expectations_for(response)
         end
       end
 
@@ -323,20 +344,20 @@ describe MVI::Service do
 
           VCR.use_cassette('mvi/find_candidate/historical_icns_user_not_found', VCR::MATCH_EVERYTHING) do
             expect(subject).not_to receive(:log_message_to_sentry)
-            expect(subject.find_profile(user)).to have_deep_attributes(
-              MVI::Responses::FindProfileResponse.with_not_found
-            )
+            response = subject.find_profile(user)
+
+            record_not_found_404_expectations_for(response)
           end
         end
       end
 
       context 'with an ongoing breakers outage' do
-        it 'returns the correct thing' do
+        it 'returns the correct thing', :aggregate_failures do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
           expect(Raven).to receive(:extra_context).once
-          profile = subject.find_profile(user)
-          expect(profile)
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_503_expectations_for(response)
         end
       end
     end
@@ -346,14 +367,15 @@ describe MVI::Service do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
-      it 'raises an Common::Client::Errors::HTTPError' do
+      it 'raises an Common::Client::Errors::HTTPError', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI find_profile error: SOAP service returned internal server error',
           :error
         )
         VCR.use_cassette('mvi/find_candidate/internal_server_error') do
-          expect(subject.find_profile(user))
-            .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+          response = subject.find_profile(user)
+
+          server_error_504_expectations_for(response)
         end
       end
     end
@@ -363,13 +385,15 @@ describe MVI::Service do
         expect(MVI::Messages::FindProfileMessage).to receive(:new).once.and_call_original
       end
 
-      it 'raises MVI::Errors::RecordNotFound' do
+      it 'raises MVI::Errors::RecordNotFound', :aggregate_failures do
         expect(subject).to receive(:log_message_to_sentry).with(
           'MVI Duplicate Record', :warn
         )
 
         VCR.use_cassette('mvi/find_candidate/failure_multiple_matches') do
-          expect(subject.find_profile(user)).to have_deep_attributes(MVI::Responses::FindProfileResponse.with_not_found)
+          response = subject.find_profile(user)
+
+          record_not_found_404_expectations_for(response)
         end
       end
     end
@@ -399,15 +423,52 @@ describe MVI::Service do
     end
 
     context 'with an unsuccessful request' do
-      it 'should increment find_profile fail and total' do
+      it 'should increment find_profile fail and total', :aggregate_failures do
         allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
         expect(StatsD).to receive(:increment).once.with(
           'api.mvi.find_profile.fail', tags: ['error:Common::Exceptions::GatewayTimeout']
         )
         expect(StatsD).to receive(:increment).once.with('api.mvi.find_profile.total')
-        expect(subject.find_profile(user))
-          .to have_deep_attributes(MVI::Responses::FindProfileResponse.with_server_error)
+        response = subject.find_profile(user)
+
+        server_error_504_expectations_for(response)
       end
     end
   end
+end
+
+def server_error_503_expectations_for(response)
+  exception = response.error.errors.first
+
+  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.status).to eq server_error
+  expect(response.profile).to be_nil
+  expect(exception.title).to eq 'Service unavailable'
+  expect(exception.code).to eq 'MVI_503'
+  expect(exception.status).to eq '503'
+  expect(exception.source).to eq MVI::Service
+end
+
+def server_error_504_expectations_for(response)
+  exception = response.error.errors.first
+
+  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.status).to eq server_error
+  expect(response.profile).to be_nil
+  expect(exception.title).to eq 'Gateway timeout'
+  expect(exception.code).to eq 'MVI_504'
+  expect(exception.status).to eq '504'
+  expect(exception.source).to eq MVI::Service
+end
+
+def record_not_found_404_expectations_for(response)
+  exception = response.error.errors.first
+
+  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.status).to eq not_found
+  expect(response.profile).to be_nil
+  expect(exception.title).to eq 'Record not found'
+  expect(exception.code).to eq 'MVI_404'
+  expect(exception.status).to eq '404'
+  expect(exception.source).to eq MVI::Service
 end
