@@ -15,7 +15,10 @@ module OpenidAuth
                                             birth_date: request.headers['x-va-dob'],
                                             ssn: request.headers['x-va-ssn'],
                                             loa:
-                                            { current: request.headers['x-va-level-of-assurance'].to_i })
+                                            {
+                                              current: request.headers['x-va-current-level-of-assurance'].to_i,
+                                              highest: request.headers['x-va-highest-level-of-assurance'].to_i
+                                            })
         @user = User.new user_identity
         Mvi.for_user(@user)
         if @user.icn.present?
@@ -30,11 +33,11 @@ module OpenidAuth
       def icn_found
         render json:
           {
-            "id": user.icn,
+            "id": @user.icn,
             "type": 'user-mvi-icn',
             "data": {
               "attributes": {
-                "icn": user.icn
+                "icn": @user.icn
               }
             }
           }
@@ -43,7 +46,7 @@ module OpenidAuth
       def icn_not_found
         render json:
           {
-            "id": user.icn,
+            "id": 'not_found',
             "type": 'user-mvi-icn',
             "data": {
               "errors": {
