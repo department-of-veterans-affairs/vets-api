@@ -91,12 +91,12 @@ module AuthenticationAndSSOConcerns
     encryptor = SSOEncryptor
     encrypted_value = encryptor.encrypt(ActiveSupport::JSON.encode(sso_cookie_content))
     Rails.logger.info('sso cookie', Settings.sso.cookie_name => {
-      value: encrypted_value,
-      expires: nil,
-      secure: Settings.sso.cookie_secure,
-      httponly: true,
-      domain: Settings.sso.cookie_domain
-    })
+                        value: encrypted_value,
+                        expires: nil,
+                        secure: Settings.sso.cookie_secure,
+                        httponly: true,
+                        domain: Settings.sso.cookie_domain
+                      })
     cookies[Settings.sso.cookie_name] = {
       value: encrypted_value,
       expires: nil, # NOTE: we track expiration as an attribute in "value." nil here means kill cookie on browser close.

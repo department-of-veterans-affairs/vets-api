@@ -6,8 +6,8 @@ class Cookies
     @user = User.find(session.uuid)
   end
 
-  def to_curl_header
-    "Cookie: #{api_cookie_header}; #{sso_cookie_header}"
+  def to_header
+    "#{api_cookie_header}; #{sso_cookie_header}"
   end
 
   def api_cookie_header
