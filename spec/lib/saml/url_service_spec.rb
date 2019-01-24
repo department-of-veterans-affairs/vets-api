@@ -29,8 +29,27 @@ RSpec.describe SAML::URLService do
         expect(subject.idme_loa1_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
       end
 
-      it 'has sign in url: idme_loa3_url' do
-        expect(subject.idme_loa3_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+      context 'idme_loa3_url' do
+        it 'has sign in url: with (default authn_context)' do
+          expect(user.authn_context).to be_nil
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
+          expect(subject.idme_loa3_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+        end
+
+        it 'has sign in url: with (myhealthevet authn_context)' do
+          allow(user).to receive(:authn_context).and_return('myhealthevet')
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context=).with('myhealthevet_loa3')
+          expect(subject.idme_loa3_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+        end
+
+        it 'has sign in url: with (dslogon authn_context)' do
+          allow(user).to receive(:authn_context).and_return('dslogon')
+          expect_any_instance_of(OneLogin::RubySaml::Settings)
+            .to receive(:authn_context=).with('dslogon_loa3')
+          expect(subject.idme_loa3_url).to include('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+        end
       end
 
       it 'has sign in url: mfa_url' do

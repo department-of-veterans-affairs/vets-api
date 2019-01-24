@@ -25,7 +25,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
           'X-Consumer-Username' => 'TestConsumer',
           'X-VA-User' => 'adhoc.test.user',
           'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
-      expect(response).to match_response_schema('evss_claims_service')
+      expect(response).to match_response_schema('claims_api/claims')
     end
   end
 
@@ -40,7 +40,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
             'X-Consumer-Username' => 'TestConsumer',
             'X-VA-User' => 'adhoc.test.user',
             'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
-        expect(response).to match_response_schema('evss_claim_service')
+        expect(response).to match_response_schema('claims_api/claim')
       end
     end
   end

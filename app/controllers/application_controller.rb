@@ -37,7 +37,7 @@ class ApplicationController < ActionController::API
   end
 
   def clear_saved_form(form_id)
-    InProgressForm.form_for_user(form_id, @current_user)&.destroy if @current_user
+    InProgressForm.form_for_user(form_id, current_user)&.destroy if current_user
   end
 
   # I'm commenting this out for now, we can put it back in if we encounter it
@@ -70,9 +70,9 @@ class ApplicationController < ActionController::API
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
         # Add additional user specific context to the logs
-        if @current_user.present?
-          extra[:icn] = @current_user.icn
-          extra[:mhv_correlation_id] = @current_user.mhv_correlation_id
+        if current_user.present?
+          extra[:icn] = current_user.icn
+          extra[:mhv_correlation_id] = current_user.mhv_correlation_id
         end
         # Warn about VA900 needing to be added to exception.en.yml
         if exception.generic_error?
@@ -109,23 +109,23 @@ class ApplicationController < ActionController::API
   def set_tags_and_extra_context
     Thread.current['request_id'] = request.uuid
     Raven.extra_context(request_uuid: request.uuid)
-    Raven.user_context(user_context) if @current_user
+    Raven.user_context(user_context) if current_user
     Raven.tags_context(tags_context)
   end
 
   def user_context
     {
-      uuid: @current_user&.uuid,
-      authn_context: @current_user&.authn_context,
-      loa: @current_user&.loa,
-      mhv_icn: @current_user&.mhv_icn
+      uuid: current_user&.uuid,
+      authn_context: current_user&.authn_context,
+      loa: current_user&.loa,
+      mhv_icn: current_user&.mhv_icn
     }
   end
 
   def tags_context
     {
       controller_name: controller_name,
-      sign_in_method: @current_user.present? ? @current_user.authn_context || 'idme' : 'not-signed-in'
+      sign_in_method: current_user.present? ? current_user.authn_context || 'idme' : 'not-signed-in'
     }
   end
 
@@ -150,5 +150,10 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def append_info_to_payload(payload)
+    super
+    payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
   end
 end

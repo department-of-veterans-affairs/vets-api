@@ -31,6 +31,7 @@ module MVI
     configuration MVI::Configuration
 
     STATSD_KEY_PREFIX = 'api.mvi' unless const_defined?(:STATSD_KEY_PREFIX)
+    SERVER_ERROR = 'server_error'
 
     # Given a user queries MVI and returns their VA profile.
     #
@@ -47,19 +48,19 @@ module MVI
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
       log_console_and_sentry('MVI find_profile connection failed.', :error)
-      MVI::Responses::FindProfileResponse.with_server_error
+      mvi_profile_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
       log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
-      MVI::Responses::FindProfileResponse.with_server_error
+      mvi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
-      MVI::Responses::FindProfileResponse.with_server_error
+      mvi_profile_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
       mvi_error_handler(user, e)
       if e.is_a?(MVI::Errors::RecordNotFound)
-        MVI::Responses::FindProfileResponse.with_not_found
+        mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
-        MVI::Responses::FindProfileResponse.with_server_error
+        mvi_profile_exception_response_for('MVI_503', e)
       end
     end
     # rubocop:enable Metrics/MethodLength
@@ -68,6 +69,25 @@ module MVI
 
     def measure_info(user)
       Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) { yield }
+    end
+
+    def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
+      exception = build_exception(key, error)
+
+      if type == SERVER_ERROR
+        MVI::Responses::FindProfileResponse.with_server_error(exception)
+      else
+        MVI::Responses::FindProfileResponse.with_not_found(exception)
+      end
+    end
+
+    def build_exception(key, error)
+      Common::Exceptions::BackendServiceException.new(
+        key,
+        { source: self.class },
+        error.try(:status),
+        error.try(:body)
+      )
     end
 
     def mvi_error_handler(user, e)

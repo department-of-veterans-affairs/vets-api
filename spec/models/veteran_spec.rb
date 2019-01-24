@@ -8,8 +8,8 @@ describe Veteran do
     let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
 
     before do
-      @client_stub = instance_double('EVSS::CommonService')
-      allow(EVSS::CommonService).to receive(:new).with(auth_headers) { @client_stub }
+      @client_stub = instance_double('EVSS::VsoSearch::Service')
+      allow(EVSS::VsoSearch::Service).to receive(:new).with(user) { @client_stub }
     end
 
     it 'should initialize from a user' do

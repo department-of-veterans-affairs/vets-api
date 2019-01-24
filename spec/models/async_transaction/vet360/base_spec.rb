@@ -95,6 +95,10 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     it 'returns an instance with the user uuid', :aggregate_failures do
       VCR.use_cassette('vet360/contact_information/post_address_success', VCR::MATCH_EVERYTHING) do
         service = Vet360::ContactInformation::Service.new(user)
+        address.address_line1 = '1493 Martin Luther King Rd'
+        address.city = 'Fulton'
+        address.state_code = 'MS'
+        address.zip_code = '38843'
         response = service.post_address(address)
         transaction = AsyncTransaction::Vet360::Base.start(user, response)
         expect(transaction.user_uuid).to eq(user.uuid)

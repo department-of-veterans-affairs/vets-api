@@ -6,7 +6,8 @@ class Form526Submission < ActiveRecord::Base
 
   belongs_to :saved_claim,
              class_name: 'SavedClaim::DisabilityCompensation',
-             foreign_key: 'saved_claim_id'
+             foreign_key: 'saved_claim_id',
+             inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
 
@@ -67,9 +68,8 @@ class Form526Submission < ActiveRecord::Base
   private
 
   def submit_uploads
-    form[FORM_526_UPLOADS].each do |upload_data|
-      EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, upload_data)
-    end
+    # Put uploads on a one minute delay because of shared workload with EVSS
+    EVSS::DisabilityCompensationForm::SubmitUploads.perform_in(60.seconds, id, form[FORM_526_UPLOADS])
   end
 
   def submit_form_4142

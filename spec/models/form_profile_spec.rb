@@ -253,6 +253,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:v22_0994_expected) do
+    {
+      'activeDuty' => true,
+      'mailingAddress' => {
+        'street' => street_check[:street],
+        'street2' => street_check[:street2],
+        'city' => user.va_profile[:address][:city],
+        'state' => user.va_profile[:address][:state],
+        'country' => user.va_profile[:address][:country],
+        'postal_code' => user.va_profile[:address][:postal_code][0..4]
+      },
+      'applicantFullName' => {
+        'first' => user.first_name&.capitalize,
+        'last' => user.last_name&.capitalize,
+        'suffix' => user.va_profile[:suffix]
+      },
+      'applicantGender' => user.gender,
+      'nightTimePhone' => us_phone,
+      'dateOfBirth' => user.birth_date,
+      'applicantSocialSecurityNumber' => user.ssn,
+      'emailAddress' => user.pciu_email
+    }
+  end
+
   let(:v22_1990_n_expected) do
     {
       'toursOfDuty' => [
@@ -664,11 +688,11 @@ RSpec.describe FormProfile, type: :model do
           v22_1990_expected['homePhone'] = '3035551234'
           v22_1990_expected['mobilePhone'] = '3035551234'
           v22_1990_expected['veteranAddress'] = {
-            'street' => '1493 Martin Luther King Rd',
-            'city' => 'Fulton',
-            'state' => 'MS',
+            'street' => '140 Rock Creek Rd',
+            'city' => 'Washington',
+            'state' => 'DC',
             'country' => 'USA',
-            'postalCode' => '38843'
+            'postalCode' => '20011'
           }
         end
 
@@ -678,6 +702,42 @@ RSpec.describe FormProfile, type: :model do
 
         after do
           Settings.vet360.prefill = false
+        end
+      end
+
+      context 'with emis prefill for 0994' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+        end
+
+        it 'should prefill 0994' do
+          expect_prefilled('22-0994')
+        end
+      end
+
+      context 'with emis and ppiu prefill for 0994' do
+        before do
+          stub_methods_for_emis_data
+          can_prefill_emis(true)
+          expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+          v22_0994_expected['bankAccount'] = {
+            'bankAccountNumber' => '*********1234',
+            'bankAccountType' => 'Checking',
+            'bankName' => 'Comerica',
+            'bankRoutingNumber' => '*****2115'
+          }
+        end
+
+        it 'should prefill 0994 with emis and payment information' do
+          VCR.use_cassette('evss/pciu_address/address_domestic') do
+            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+              VCR.use_cassette('evss/ppiu/payment_information') do
+                expect_prefilled('22-0994')
+              end
+            end
+          end
         end
       end
 
@@ -711,13 +771,38 @@ RSpec.describe FormProfile, type: :model do
           end
 
           # Note: `increase only` and `all claims` use the same form prefilling
-          it 'returns prefilled 21-526EZ' do
-            VCR.use_cassette('evss/pciu_address/address_domestic') do
-              VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-                VCR.use_cassette('evss/ppiu/payment_information') do
-                  expect_prefilled('21-526EZ')
+          context 'when Vet360 prefill is disabled' do
+            it 'returns prefilled 21-526EZ' do
+              VCR.use_cassette('evss/pciu_address/address_domestic') do
+                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                  VCR.use_cassette('evss/ppiu/payment_information') do
+                    expect_prefilled('21-526EZ')
+                  end
                 end
               end
+            end
+          end
+
+          context 'when Vet360 prefill is enabled' do
+            before do
+              Settings.vet360.prefill = true
+              expected_veteran_info = v21_526_ez_expected['veteran']
+              expected_veteran_info['emailAddress'] = Vet360Redis::ContactInformation.for_user(user).email.email_address
+              expected_veteran_info['primaryPhone'] = '3035551234'
+            end
+
+            it 'returns prefilled 21-526EZ' do
+              VCR.use_cassette('evss/pciu_address/address_domestic') do
+                VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
+                  VCR.use_cassette('evss/ppiu/payment_information') do
+                    expect_prefilled('21-526EZ')
+                  end
+                end
+              end
+            end
+
+            after do
+              Settings.vet360.prefill = false
             end
           end
 
