@@ -10,8 +10,8 @@ namespace :load_test do
   end
 
   desc 'Create test sessions from json file and output result with a merged curl/locust compatible header'
-  task :sessions_from_file, [:sessions_json] => [:environment] do |_, args|
-    raise 'No sessions JSON file provided' unless args[:sessions_json]
-    puts SessionsFileSerializer.new(args[:sessions_json]).generate_cookies_sessions
+  task :sessions_from_file, [:sessions_json_file] => [:environment] do |_, args|
+    raise 'No sessions JSON file provided' unless args[:sessions_json_file]
+    puts SessionsFileSerializer.new(args[:sessions_json_file]).generate_cookies_sessions
   end
 end
