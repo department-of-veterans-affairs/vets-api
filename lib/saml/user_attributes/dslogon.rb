@@ -39,17 +39,18 @@ module SAML
         attributes['dslogon_uuid']
       end
 
-      def dslogon_status
-        attributes['dslogon_status']
-      end
-
-      def dslogon_deceased
-        attributes['dslogon_deceased']
-      end
-
-      def dslogon_idtype
-        attributes['dslogon_idtype']
-      end
+      # These methods are available but not currently being used.
+      # def dslogon_status
+      #   attributes['dslogon_status']
+      # end
+      #
+      # def dslogon_deceased
+      #   attributes['dslogon_deceased']
+      # end
+      #
+      # def dslogon_idtype
+      #   attributes['dslogon_idtype']
+      # end
 
       def dslogon_assurance
         attributes['dslogon_assurance']

@@ -14,15 +14,15 @@ module SAML
     LOA3 = LOA::IDME_LOA3
 
     AUTHN_CONTEXTS = {
-      LOA1 => { class: 'idme', loa_current: '1', sign_in: { service_name: 'idme' } },
-      LOA3 => { class: 'idme', loa_current: '3', sign_in: { service_name: 'idme' } },
-      'multifactor' => { class: 'idme', loa_current: nil, sign_in: { service_name: 'idme' } },
-      'myhealthevet_multifactor' => { class: 'idme', loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
-      'myhealthevet_loa3' => { class: 'idme', loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
-      'dslogon_multifactor' => { class: 'idme', loa_current: nil, sign_in: { service_name: 'dslogon' } },
-      'dslogon_loa3' => { class: 'idme', loa_current: '3', sign_in: { service_name: 'dslogon' } },
-      'myhealthevet' => { class: 'myhealthevet', loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
-      'dslogon' => { class: 'dslogon', loa_current: nil, sign_in: { service_name: 'dslogon' } }
+      LOA1 => { loa_current: '1', sign_in: { service_name: 'idme' } },
+      LOA3 => { loa_current: '3', sign_in: { service_name: 'idme' } },
+      'multifactor' => { loa_current: nil, sign_in: { service_name: 'idme' } },
+      'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'myhealthevet_loa3' => { loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
+      'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
+      'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
+      'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
 
     attr_reader :saml_response, :saml_attributes, :user_attributes
@@ -31,7 +31,7 @@ module SAML
       @saml_response = saml_response
       @saml_attributes = saml_response.attributes
       @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
-      log_warnings_to_sentry!
+      set_raven_context_and_log_warnings_to_sentry
     end
 
     def changing_multifactor?
@@ -51,17 +51,20 @@ module SAML
       %i[authn_context]
     end
 
-    # see warnings
     # NOTE: The actual exception, if any, should get raised when to_hash is called. Hence "suppress"
-    def log_warnings_to_sentry!
+    def set_raven_context_and_log_warnings_to_sentry
       suppress(Exception) do
-        if (warnings = warnings_for_sentry).any?
-          warning_context = {
-            authn_context: authn_context,
-            warnings: warnings.join(', '),
-            loa: user_attributes.loa
-          }
-          log_message_to_sentry("Issues in SAML Response - #{authn_context}", :warn, warning_context)
+        extra_context = {
+          uuid: attributes['uuid'],
+          loa: user_attributes.loa,
+          idme_level_of_assurance: attributes['level_of_assurance'],
+          authn_context: authn_context
+        }
+        Raven.extra_context(extra_context)
+
+        if user_attributes.warnings.any?
+          warning_context = { warnings: warnings.uniq.join(', ') }
+          log_message_to_sentry("SAML RESPONSE WARNINGS  - #{authn_context}", :warn, warning_context)
         end
       end
     end
@@ -70,8 +73,7 @@ module SAML
     # this is the real authn-context returned in the response without the use of heuristics
     def authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-    # this is to add additional context when we cannot parse for authn_context
-    rescue NoMethodError
+    rescue StandardError
       Raven.extra_context(
         base64encodedpayload: Base64.encode64(saml_response&.response),
         attributes: saml_response&.attributes&.to_h
@@ -80,23 +82,16 @@ module SAML
       raise
     end
 
-    # We want to do some logging of when and how the following issues could arise, since loa is
-    # derived based on combination of these values, it could raise an exception at any time, hence
-    # why we use try/catch.
-    def warnings_for_sentry
-      warnings = []
-      warnings << 'LOA Current Nil' if user_attributes.loa_current.blank?
-      warnings << 'LOA Highest Nil' if user_attributes.loa_highest.blank?
-      warnings
-    end
-
     # should eventually have a special case for multifactor policy and refactor all of this
     # but session controller refactor is premature and can't handle it right now.
     def user_attributes_class
       case authn_context
       when 'myhealthevet'; then SAML::UserAttributes::MHV
       when 'dslogon'; then SAML::UserAttributes::DSLogon
+      when 'myhealthevet_loa3', 'myhealthevet_multifactor', 'dslogon_loa3', 'dslogon_multifactor', LOA1, LOA3
+        SAML::UserAttributes::IdMe
       else
+        log_message_to_sentry("INVALID AUTHN_CONTEXT - #{authn_context}", :warn)
         SAML::UserAttributes::IdMe
       end
     end
