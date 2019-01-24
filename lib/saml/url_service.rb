@@ -92,10 +92,6 @@ module SAML
 
     private
 
-    def idme?
-      authn_context.include?('http://idmanagement.gov/ns/assurance/loa/')
-    end
-
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
