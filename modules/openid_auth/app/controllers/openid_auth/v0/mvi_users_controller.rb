@@ -6,6 +6,7 @@ module OpenidAuth
   module V0
     class MviUsersController < ApplicationController
       skip_before_action :authenticate
+      before_action :check_required_headers
 
       def show
         if request.headers['x-va-ssn'].present?
@@ -31,8 +32,8 @@ module OpenidAuth
                                              ssn: request.headers['x-va-edipi'],
                                              loa:
                                              {
-                                               current: request.headers['x-va-current-level-of-assurance'].to_i,
-                                               highest: request.headers['x-va-highest-level-of-assurance'].to_i
+                                               current: request.headers['x-va-level-of-assurance'].to_i,
+                                               highest: highest_loa
                                              })
       end
 
@@ -45,8 +46,8 @@ module OpenidAuth
                                              ssn: request.headers['x-va-ssn'],
                                              loa:
                                              {
-                                               current: request.headers['x-va-current-level-of-assurance'].to_i,
-                                               highest: request.headers['x-va-highest-level-of-assurance'].to_i
+                                               current: request.headers['x-va-level-of-assurance'].to_i,
+                                               highest: highest_loa
                                              })
       end
 
@@ -76,8 +77,26 @@ module OpenidAuth
           }
       end
 
-      def validated_payload
-        @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: @current_user.icn }))
+      def highest_loa
+        request.headers['x-va-level-of-assurance'].to_i == 3 ? 3 : 1
+      end
+
+      def check_required_headers
+        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN or X-VA-EDIPI' if missing_ssn_or_edipi
+        raise Common::Exceptions::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
+        raise Common::Exceptions::ParameterMissing, 'x-va-user-email' if missing_email
+      end
+
+      def missing_ssn_or_edipi
+        request.headers['x-va-ssn'].blank? && request.headers['x-va-edipi'].blank?
+      end
+
+      def missing_email
+        request.headers['x-va-user-email'].blank?
+      end
+
+      def missing_loa
+        request.headers['x-va-level-of-assurance'].blank?
       end
     end
   end

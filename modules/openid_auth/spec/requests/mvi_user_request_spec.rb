@@ -15,8 +15,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         'x-va-last-name' => 'Paget',
         'x-va-dob' => '1/23/1990',
         'x-va-gender' => 'male',
-        'x-va-current-level-of-assurance' => 3,
-        'x-va-highest-level-of-assurance' => 3,
+        'x-va-level-of-assurance' => 3,
         'x-va-user-email' => 'test@123.com'
       }
     end
@@ -29,7 +28,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     end
 
     it 'should return an error if icn is missing' do
-      auth_headers['x-va-current-level-of-assurance'] = 1
+      auth_headers['x-va-level-of-assurance'] = 1
       get '/internal/auth/v0/mvi-user', nil, auth_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to be_a(String)
@@ -43,8 +42,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       {
         'apiKey' => 'saml-key',
         'x-va-edipi' => '123456789',
-        'x-va-current-level-of-assurance' => 3,
-        'x-va-highest-level-of-assurance' => 3,
+        'x-va-level-of-assurance' => 3,
         'x-va-user-email' => 'test@123.com'
       }
     end
@@ -58,12 +56,35 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     end
 
     it 'should return an error if icn is missing' do
-      auth_headers['x-va-current-level-of-assurance'] = 1
+      auth_headers['x-va-level-of-assurance'] = 1
       get '/internal/auth/v0/mvi-user', nil, auth_headers
       expect(response).to have_http_status(:ok)
       expect(response.body).to be_a(String)
       expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
       expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+    end
+  end
+
+  context 'raising errors when missing parameters' do
+    it 'should require either ssn or edipi' do
+      get '/internal/auth/v0/mvi-user'
+      data = JSON.parse(response.body)
+      expect(data['errors'].first['title']).to eq('Missing parameter')
+    end
+
+    it 'should require level of assurance' do
+      get '/internal/auth/v0/mvi-user', nil, 'x-va-ssn' => '123456789'
+      data = JSON.parse(response.body)
+      expect(data['errors'].first['title']).to eq('Missing parameter')
+      expect(data['errors'].first['detail']).to include('x-va-level-of-assurance')
+    end
+
+    it 'should require user email' do
+      headers = { 'x-va-ssn' => '123456789', 'x-va-level-of-assurance' => '3' }
+      get '/internal/auth/v0/mvi-user', nil, headers
+      data = JSON.parse(response.body)
+      expect(data['errors'].first['title']).to eq('Missing parameter')
+      expect(data['errors'].first['detail']).to include('x-va-user-email')
     end
   end
 end
