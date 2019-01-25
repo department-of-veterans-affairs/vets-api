@@ -5,8 +5,6 @@ require 'support/saml/response_builder'
 
 RSpec.describe V0::SessionsController, type: :controller do
   include SAML::ResponseBuilder
-  LOA1 = 'http://idmanagement.gov/ns/assurance/loa/1/vets'
-  LOA3 = 'http://idmanagement.gov/ns/assurance/loa/3/vets'
 
   let(:uuid) { '1234abcd' }
   let(:token) { 'abracadabra-open-sesame' }
@@ -36,7 +34,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
-  let(:authn_context) { LOA1 }
+  let(:authn_context) { LOA::IDME_LOA1 }
   let(:valid_saml_response) do
     build_saml_response(
       authn_context: authn_context,
@@ -239,7 +237,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'verifying' do
-        let(:authn_context) { LOA3 }
+        let(:authn_context) { LOA::IDME_LOA3 }
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           existing_user = User.find(uuid)
@@ -529,7 +527,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', "authn_context:#{LOA1}"]
+          callback_tags = ['status:failure', "authn_context:#{LOA::IDME_LOA1}"]
           failed_tags = ['error:validations_failed']
 
           expect { post(:saml_callback) }

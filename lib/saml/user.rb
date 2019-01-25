@@ -10,12 +10,9 @@ module SAML
   class User
     include SentryLogging
 
-    LOA1 = LOA::IDME_LOA1
-    LOA3 = LOA::IDME_LOA3
-
     AUTHN_CONTEXTS = {
-      LOA1 => { loa_current: '1', sign_in: { service_name: 'idme' } },
-      LOA3 => { loa_current: '3', sign_in: { service_name: 'idme' } },
+      LOA::IDME_LOA1 => { loa_current: '1', sign_in: { service_name: 'idme' } },
+      LOA::IDME_LOA3 => { loa_current: '3', sign_in: { service_name: 'idme' } },
       'multifactor' => { loa_current: nil, sign_in: { service_name: 'idme' } },
       'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
       'myhealthevet_loa3' => { loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
@@ -88,9 +85,9 @@ module SAML
       when 'dslogon'; then SAML::UserAttributes::DSLogon
       when 'myhealthevet_multifactor', 'dslogon_multifactor', 'multifactor'
         SAML::UserAttributes::IdMe
-      when 'dslogon_loa3', 'myhealthevet_loa3', LOA3
+      when 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3
         SAML::UserAttributes::IdMe
-      when LOA1
+      when LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
       else
         Raven.extra_context(authn_context: authn_context)
