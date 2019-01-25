@@ -15,8 +15,13 @@ module OpenidAuth
 
       private
 
+      def payload_object
+        @payload_object ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: nil }))
+      end
+
       def validated_payload
-        @validated_payload ||= OpenStruct.new(token_payload.merge(va_identifiers: { icn: @current_user.icn }))
+        payload_object.va_identifiers[:icn] = payload_object.try(:icn) || @current_user.icn
+        payload_object
       end
     end
   end
