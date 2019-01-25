@@ -88,6 +88,7 @@ module V0
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', base64_params_saml_response: params[:SAMLResponse])
       redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
+      stats(:failed_unknown)
     ensure
       stats(:total)
     end
@@ -99,11 +100,15 @@ module V0
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "authn_context:#{@sso_service.authn_context}"])
+                         tags: ['status:success', "context:#{@sso_service.authn_context}"])
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "authn_context:#{@sso_service.authn_context}"])
+                         tags: ['status:failure', "context:#{@sso_service.authn_context}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+      when :failed_unknown
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:failure', 'context:unknown'])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown'])
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
       end

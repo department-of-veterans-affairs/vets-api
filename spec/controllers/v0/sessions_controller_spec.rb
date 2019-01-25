@@ -259,7 +259,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).to receive(:tags_context).once
 
           once = { times: 1, value: 1 }
-          callback_tags = ['status:success', "authn_context:#{LOA::IDME_LOA3}"]
+          callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -418,7 +418,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'authn_context:unknown']
+          callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:auth_too_early']
 
           expect { post(:saml_callback) }
@@ -450,7 +450,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'authn_context:unknown']
+          callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:unknown']
 
           expect { post(:saml_callback) }
@@ -482,7 +482,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', 'authn_context:unknown']
+          callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:multiple']
 
           expect { post(:saml_callback) }
@@ -527,7 +527,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           once = { times: 1, value: 1 }
-          callback_tags = ['status:failure', "authn_context:#{LOA::IDME_LOA1}"]
+          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1}"]
           failed_tags = ['error:validations_failed']
 
           expect { post(:saml_callback) }
