@@ -124,7 +124,7 @@ class ApplicationController < ActionController::API
   def tags_context
     {
       controller_name: controller_name,
-      sign_in_method: current_user.present? ? current_user.authn_context || 'idme' : 'not-signed-in'
+      sign_in_method: current_user.present? ? current_user.identity.sign_in : 'not-signed-in'
     }
   end
 

@@ -6,7 +6,7 @@ FactoryBot.define do
     private_key                     Settings.saml.key
     issuer                          Settings.saml.issuer
     assertion_consumer_service_url  Settings.saml.callback_url
-    authn_context                   LOA::MAPPING.invert[1]
+    authn_context                   LOA::IDME_LOA1
     idp_cert                        File.read("#{::Rails.root}/spec/fixtures/files/idme_cert.crt")
     idp_cert_fingerprint            '74:DC:33:BE:D6:92:69:3F:81:65:F6:CF:ED:55:82:E0:A5:65:B3:32'
     idp_entity_id                   'api.idmelabs.com'

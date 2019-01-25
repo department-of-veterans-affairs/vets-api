@@ -16,7 +16,7 @@ class SSOService
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
     @saml_response = response
-    Raven.tags_context(sso_authn_context: context_key)
+
     if saml_response.is_valid?(true)
       @saml_attributes = SAML::User.new(@saml_response)
       @existing_user = User.find(saml_attributes.user_attributes.uuid)
@@ -56,21 +56,15 @@ class SSOService
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
     # Also we want the original sign-in, NOT the one from ID.me LOA3
-    %w[mhv_correlation_id mhv_icn dslogon_edipi sign_in]
+    %w[mhv_correlation_id mhv_icn dslogon_edipi]
   end
 
   def new_login?
     existing_user.present?
   end
 
-  def real_authn_context
-    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-  end
-
-  def context_key
-    SAML::User.context_key(real_authn_context) || SAML::User::UNKNOWN_CONTEXT
-  rescue StandardError
-    SAML::User::UNKNOWN_CONTEXT
+  def authn_context
+    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text || 'unknown'
   end
 
   private
