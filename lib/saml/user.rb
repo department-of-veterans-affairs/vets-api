@@ -45,18 +45,6 @@ module SAML
       UNKNOWN_CONTEXT
     end
 
-    # we use this for statsd tags
-    def account_type
-      case authn_context
-      when 'myhealthevet'
-        user_attributes.mhv_account_type
-      when 'dslogon'
-        user_attributes.dslogon_assurance
-      else
-        saml_attributes['level_of_assurance']
-      end
-    end
-
     private
 
     # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
