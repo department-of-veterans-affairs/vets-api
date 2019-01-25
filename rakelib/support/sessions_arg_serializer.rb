@@ -8,7 +8,10 @@ class SessionsArgSerializer < SessionsSerializer
   def initialize(args)
     super
     args.with_defaults(count: 50, mhv_id: nil)
-    args[:count].to_i.times { add(args[:mhv_id]) }
+    count = args[:count].to_i
+    mhv_id = args[:mhv_id]
+    @uids = (0..[count, 200].max).to_a.shuffle.take(count)
+    count.times { add(mhv_id) }
   end
 
   private
@@ -66,7 +69,7 @@ class SessionsArgSerializer < SessionsSerializer
   def identity_data(uuid)
     {
       ":uuid": uuid,
-      ":email": "vets.gov.user+#{rand(200)}@gmail.com",
+      ":email": "vets.gov.user+#{@uids.pop}@gmail.com",
       ":first_name": 'TEST',
       ":middle_name": 'T',
       ":last_name": 'USER',

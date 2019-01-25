@@ -8,10 +8,6 @@ class SessionsSerializer
     @redis = Redis.current
   end
 
-  def load
-    raise 'subclass must implement #load'
-  end
-
   def generate_cookies_sessions
     sessions = @sessions.map do |session|
       {
