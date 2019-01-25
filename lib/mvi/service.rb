@@ -40,7 +40,7 @@ module MVI
     # rubocop:disable Metrics/MethodLength
     def find_profile(user)
       with_monitoring do
-        Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) do
+        measure_info(user) do
           raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
@@ -66,6 +66,10 @@ module MVI
     # rubocop:enable Metrics/MethodLength
 
     private
+
+    def measure_info(user)
+      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) { yield }
+    end
 
     def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
       exception = build_exception(key, error)
