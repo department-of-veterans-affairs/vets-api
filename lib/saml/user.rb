@@ -21,7 +21,7 @@ module SAML
       'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
       'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
     }.freeze
-
+    UNKNOWN_AUTHN_CONTEXT = 'unknown'
     attr_reader :saml_response, :saml_attributes, :user_attributes
 
     def initialize(saml_response)

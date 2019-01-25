@@ -70,17 +70,19 @@ module SAML
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
     def build_invalid_saml_response(options)
-      options = options.reverse_merge(is_valid?: false, is_a?: true, decrypted_document: document_partial)
+      options = options.reverse_merge(is_valid?: false, is_a?: true)
       instance_double(OneLogin::RubySaml::Response, options)
     end
 
     def invalid_saml_response
-      build_invalid_saml_response(in_response_to: uuid)
+      build_invalid_saml_response(in_response_to: uuid,
+                                  decrypted_document: document_partial)
     end
 
     def saml_response_click_deny
       build_invalid_saml_response(
         in_response_to: uuid,
+        decrypted_document: nil,
         errors: ['ruh roh'],
         status_message: 'Subject did not consent to attribute release'
       )
