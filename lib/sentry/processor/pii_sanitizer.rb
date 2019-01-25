@@ -20,6 +20,10 @@ module Sentry
           accountNumber
           routingNumber
           bankName
+          ssn
+          birth_date
+          social
+          dslogon_idvalue
         ]
       )
 
