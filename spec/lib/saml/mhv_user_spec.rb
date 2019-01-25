@@ -4,92 +4,140 @@ require 'rails_helper'
 require 'support/saml/response_builder'
 
 RSpec.describe SAML::User do
+  include SAML::ResponseBuilder
+
   describe 'MHV Logon' do
+    let(:authn_context) { 'myhealthevet' }
+    let(:account_type)  { 'Basic' }
+    let(:highest_attained_loa) { '3' }
+
     let(:saml_response) do
-      SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet', saml_attributes)
+      build_saml_response(
+        authn_context: authn_context,
+        account_type: account_type,
+        level_of_assurance: [highest_attained_loa],
+        multifactor: [false]
+      )
     end
-    let(:described_instance) { described_class.new(saml_response) }
+    subject { described_class.new(saml_response) }
 
     context 'non-premium user' do
-      let(:saml_attributes) do
-        OneLogin::RubySaml::Attributes.new(
-          'mhv_icn' => ['1012853550V207686'],
-          'mhv_profile' => ['{"accountType":"Advanced","availableServices":{"1":"Blue Button self entered data."}}'],
-          'mhv_uuid' => ['12345748'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => ['true'],
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'level_of_assurance' => []
-        )
-      end
-
       it 'has various important attributes' do
-        expect(described_instance.to_hash).to eq(
+        expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
-          loa: { current: 1, highest: 1 },
-          mhv_account_type: 'Advanced',
+          loa: { current: 1, highest: 3 },
+          sign_in: { service_name: 'myhealthevet' },
+          mhv_account_type: 'Basic',
           mhv_correlation_id: '12345748',
-          mhv_icn: '1012853550V207686',
-          multifactor: 'true',
+          mhv_icn: '',
+          multifactor: false,
           authn_context: 'myhealthevet'
         )
       end
 
       it 'is not changing multifactor' do
-        expect(described_instance.changing_multifactor?).to be_falsey
+        expect(subject.changing_multifactor?).to be_falsey
       end
 
       context 'multifactor' do
-        let(:saml_response) do
-          SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet_multifactor', saml_attributes)
+        let(:authn_context) { 'myhealthevet_multifactor' }
+
+        it 'has various important attributes' do
+          expect(subject.to_hash).to eq(
+            uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+            email: 'kam+tristanmhv@adhocteam.us',
+            loa: { current: 1, highest: 3 },
+            sign_in: { service_name: 'myhealthevet' },
+            birth_date: nil,
+            first_name: nil,
+            last_name: nil,
+            middle_name: nil,
+            gender: nil,
+            ssn: nil,
+            zip: nil,
+            multifactor: true,
+            authn_context: 'myhealthevet_multifactor'
+          )
         end
 
         it 'is changing multifactor' do
-          expect(described_instance.changing_multifactor?).to be_truthy
+          expect(subject.changing_multifactor?).to be_truthy
+        end
+      end
+
+      context 'verifying' do
+        let(:authn_context) { 'myhealthevet_loa3' }
+        let(:account_type) { 'Advanced' }
+
+        it 'has various important attributes' do
+          expect(subject.to_hash).to eq(
+            uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+            email: 'kam+tristanmhv@adhocteam.us',
+            first_name: 'Tristan',
+            middle_name: '',
+            last_name: 'MHV',
+            gender: 'M',
+            birth_date: '1735-10-30',
+            ssn: '111223333',
+            zip: nil,
+            loa: { current: 3, highest: 3 },
+            sign_in: { service_name: 'myhealthevet' },
+            multifactor: true,
+            authn_context: 'myhealthevet_loa3'
+          )
+        end
+
+        it 'is changing multifactor' do
+          expect(subject.changing_multifactor?).to be_falsey
         end
       end
     end
 
     context 'premium user' do
-      let(:saml_attributes) do
-        OneLogin::RubySaml::Attributes.new(
-          'mhv_icn' => ['1012853550V207686'],
-          # rubocop:disable LineLength
-          'mhv_profile' => ['{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies","2":"Rx Refill","12":"Blue Button (all VA data)","1":"Blue Button self entered data.","11":"Blue Button (DoD) Military Service Information"}}'],
-          # rubocop:enable LineLength
-          'mhv_uuid' => ['12345748'],
-          'email' => ['kam+tristanmhv@adhocteam.us'],
-          'multifactor' => ['false'],
-          'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
-          'level_of_assurance' => []
-        )
-      end
+      let(:account_type) { 'Premium' }
 
       it 'has various important attributes' do
-        expect(described_instance.to_hash).to eq(
+        expect(subject.to_hash).to eq(
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
+          sign_in: { service_name: 'myhealthevet' },
           mhv_account_type: 'Premium',
           mhv_correlation_id: '12345748',
           mhv_icn: '1012853550V207686',
-          multifactor: 'false',
+          multifactor: false,
           authn_context: 'myhealthevet'
         )
       end
 
       it 'is not changing multifactor' do
-        expect(described_instance.changing_multifactor?).to be_falsey
+        expect(subject.changing_multifactor?).to be_falsey
       end
 
       context 'multifactor' do
-        let(:saml_response) do
-          SAML::ResponseBuilder.saml_response_from_attributes('myhealthevet_multifactor', saml_attributes)
+        let(:authn_context) { 'myhealthevet_multifactor' }
+
+        it 'has various important attributes' do
+          expect(subject.to_hash).to eq(
+            uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+            email: 'kam+tristanmhv@adhocteam.us',
+            loa: { current: 3, highest: 3 },
+            sign_in: { service_name: 'myhealthevet' },
+            birth_date: nil,
+            first_name: nil,
+            last_name: nil,
+            middle_name: nil,
+            gender: nil,
+            ssn: nil,
+            zip: nil,
+            multifactor: true,
+            authn_context: 'myhealthevet_multifactor'
+          )
         end
 
         it 'is changing multifactor' do
-          expect(described_instance.changing_multifactor?).to be_truthy
+          expect(subject.changing_multifactor?).to be_truthy
         end
       end
     end
