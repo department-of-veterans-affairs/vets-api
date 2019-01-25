@@ -216,19 +216,5 @@
     "western": {
       "all": 1
     }
-  },
-  "0994": {
-    "eastern": {
-      "all": 1
-    },
-    "southern": {
-      "all": 0
-    },
-    "central": {
-      "all": 0
-    },
-    "western": {
-      "all": 0
-    }
   }
 }
