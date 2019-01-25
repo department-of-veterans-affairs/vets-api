@@ -23,9 +23,9 @@ module Appeals
         faraday.use :breakers
         faraday.request :json
 
-        faraday.response :betamocks if mock_enabled?
         faraday.response :raise_error, error_prefix: service_name
         faraday.response :appeals_errors
+        faraday.response :betamocks if mock_enabled?
         faraday.response :json
         faraday.adapter Faraday.default_adapter
       end
