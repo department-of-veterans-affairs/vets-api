@@ -50,11 +50,10 @@ RSpec.describe SAML::User do
             saml_attributes: nil,
             saml_response: Base64.encode64('mock-response')
           ).ordered
-          expect(Raven).to receive(:extra_context).once.with(
-            authn_context: 'unknown_authn_context'
-          ).ordered
           expect(Raven).to receive(:tags_context).once.with(
-            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+            authn_context: 'unknown_authn_context',
+            controller_name: 'sessions',
+            sign_in_method: 'not-signed-in:error'
           )
           expect { subject.to_hash }.to raise_exception(RuntimeError)
         end
@@ -68,11 +67,10 @@ RSpec.describe SAML::User do
             saml_attributes: nil,
             saml_response: Base64.encode64('mock-response')
           ).ordered
-          expect(Raven).to receive(:extra_context).once.with(
-            authn_context: nil
-          ).ordered
           expect(Raven).to receive(:tags_context).once.with(
-            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+            authn_context: nil,
+            controller_name: 'sessions',
+            sign_in_method: 'not-signed-in:error'
           )
           expect { subject.to_hash }.to raise_exception(RuntimeError)
         end
