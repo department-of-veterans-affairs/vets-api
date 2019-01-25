@@ -2,7 +2,6 @@
 
 require 'emis/responses/response'
 require 'emis/responses/get_veteran_status_response'
-require './rakelib/support/cookies.rb'
 
 namespace :redis do
   desc 'Flush Vets.gov User/Sessions'
