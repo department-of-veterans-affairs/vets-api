@@ -134,7 +134,10 @@ module EducationForm
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
       application_types.each_with_index do |application_type, i|
-        on_last_index = i == (application_types.size - 1)
+        next if application_type == 'vettec' && region != :eastern
+
+        on_last_index = i == (application_types.size - (region == :eastern ? 1 : 2))
+
         row = [
           i.zero? ? EducationFacility::RPO_NAMES[region] : '',
           application_type.humanize(capitalize: false)

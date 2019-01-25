@@ -4,6 +4,9 @@ require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
 
+  # 'vettec' type MUST be the last value in the array. If it isn't the last value,
+  # then it would impact the EducationForm::CreateDailyFiscalYearToDateReport and CreateDailyYearToDateReport
+  # classes for on_last_index
   APPLICATION_TYPES = %w[
     chapter33
     chapter1607
@@ -12,6 +15,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     chapter35
     transfer_of_entitlement
     chapter30
+    vettec
   ].freeze
 
   belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)
@@ -111,6 +115,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
       benefits = parsed_form.slice(*APPLICATION_TYPES)
     when '1990n'
       return benefits
+    when '0994'
+      benefits['vettec'] = true
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?
