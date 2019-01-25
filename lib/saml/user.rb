@@ -10,125 +10,86 @@ module SAML
   class User
     include SentryLogging
 
-    CONTEXT_MAP = { LOA::MAPPING.invert[1] => 'idme',
-                    'dslogon' => 'dslogon',
-                    'dslogon_loa3' => 'dslogon',
-                    'myhealthevet' => 'myhealthevet',
-                    'myhealthevet_loa3' => 'myhealthevet',
-                    LOA::MAPPING.invert[3] => 'idproof',
-                    'multifactor' => 'multifactor',
-                    'dslogon_multifactor' => 'dslogon_multifactor',
-                    'myhealthevet_multifactor' => 'myhealthevet_multifactor' }.freeze
-    UNKNOWN_CONTEXT = 'unknown'
-
+    AUTHN_CONTEXTS = {
+      LOA::IDME_LOA1 => { loa_current: '1', sign_in: { service_name: 'idme' } },
+      LOA::IDME_LOA3 => { loa_current: '3', sign_in: { service_name: 'idme' } },
+      'multifactor' => { loa_current: nil, sign_in: { service_name: 'idme' } },
+      'myhealthevet_multifactor' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'myhealthevet_loa3' => { loa_current: '3', sign_in: { service_name: 'myhealthevet' } },
+      'dslogon_multifactor' => { loa_current: nil, sign_in: { service_name: 'dslogon' } },
+      'dslogon_loa3' => { loa_current: '3', sign_in: { service_name: 'dslogon' } },
+      'myhealthevet' => { loa_current: nil, sign_in: { service_name: 'myhealthevet' } },
+      'dslogon' => { loa_current: nil, sign_in: { service_name: 'dslogon' } }
+    }.freeze
+    UNKNOWN_AUTHN_CONTEXT = 'unknown'
     attr_reader :saml_response, :saml_attributes, :user_attributes
 
     def initialize(saml_response)
       @saml_response = saml_response
       @saml_attributes = saml_response.attributes
-      @user_attributes = user_attributes_class.new(saml_attributes, real_authn_context)
-      log_warnings_to_sentry!
+
+      Raven.extra_context(
+        saml_attributes: saml_attributes&.to_h,
+        saml_response: Base64.encode64(saml_response&.response || '')
+      )
+
+      @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
+      log_warnings_to_sentry
     end
 
     def changing_multifactor?
-      return false if real_authn_context.nil?
-      real_authn_context.include?('multifactor')
+      return false if authn_context.nil?
+      authn_context.include?('multifactor')
     end
 
     def to_hash
       user_attributes.to_hash.merge(Hash[serializable_attributes.map { |k| [k, send(k)] }])
     end
 
-    def self.context_key(authn_context)
-      CONTEXT_MAP[authn_context] || UNKNOWN_CONTEXT
-    rescue StandardError
-      UNKNOWN_CONTEXT
-    end
-
-    # we use this for statsd tags
-    def account_type
-      case authn_context
-      when 'myhealthevet'
-        user_attributes.mhv_account_type
-      when 'dslogon'
-        user_attributes.dslogon_assurance
-      else
-        saml_attributes['level_of_assurance']
-      end
-    end
-
     private
 
-    # we serialize user.rb with this value, in the case of everything other than mhv/dslogon,
-    # this will only ever be one of 'dslogon, mhv, or nil'
-    def authn_context
-      return 'dslogon' if dslogon?
-      return 'myhealthevet' if mhv?
-      nil
-    end
-
-    # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
-    # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
       %i[authn_context]
     end
 
-    def dslogon?
-      saml_attributes.to_h.keys.include?('dslogon_uuid')
-    end
+    def log_warnings_to_sentry
+      user_attributes.to_hash
 
-    def mhv?
-      saml_attributes.to_h.keys.include?('mhv_uuid')
-    end
+      if user_attributes.warnings.any?
+        warning_context = {
+          authn_context: authn_context,
+          warnings: user_attributes.warnings.uniq.join(', ')
+        }
 
-    # see warnings
-    # NOTE: The actual exception, if any, should get raised when to_hash is called. Hence "suppress"
-    def log_warnings_to_sentry!
-      suppress(Exception) do
-        if (warnings = warnings_for_sentry).any?
-          warning_context = {
-            real_authn_context: real_authn_context,
-            authn_context: authn_context,
-            warnings: warnings.join(', '),
-            loa: user_attributes.loa
-          }
-          log_message_to_sentry("Issues in SAML Response - #{real_authn_context}", :warn, warning_context)
-        end
+        log_message_to_sentry('SAML RESPONSE WARNINGS', :warn, warning_context)
       end
     end
 
-    # will be one of [loa1, loa3, multifactor, dslogon, mhv]
-    # this is the real authn-context returned in the response without the use of heuristics
-    def real_authn_context
+    # will be one of AUTHN_CONTEXTS.keys
+    def authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-    # this is to add additional context when we cannot parse for authn_context
-    rescue NoMethodError
-      Raven.extra_context(
-        base64encodedpayload: Base64.encode64(saml_response.response),
-        attributes: saml_response.attributes.to_h
-      )
+    rescue StandardError
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
     end
 
-    # We want to do some logging of when and how the following issues could arise, since loa is
-    # derived based on combination of these values, it could raise an exception at any time, hence
-    # why we use try/catch.
-    def warnings_for_sentry
-      warnings = []
-      warnings << 'LOA Current Nil' if user_attributes.loa_current.blank?
-      warnings << 'LOA Highest Nil' if user_attributes.loa_highest.blank?
-      warnings
-    end
-
-    # should eventually have a special case for multifactor policy and refactor all of this
-    # but session controller refactor is premature and can't handle it right now.
     def user_attributes_class
       case authn_context
       when 'myhealthevet'; then SAML::UserAttributes::MHV
       when 'dslogon'; then SAML::UserAttributes::DSLogon
-      else
+      when 'myhealthevet_multifactor', 'dslogon_multifactor', 'multifactor'
         SAML::UserAttributes::IdMe
+      when 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3
+        SAML::UserAttributes::IdMe
+      when LOA::IDME_LOA1
+        SAML::UserAttributes::IdMe
+      else
+        Raven.tags_context(
+          authn_context: authn_context,
+          controller_name: 'sessions',
+          sign_in_method: 'not-signed-in:error'
+        )
+        raise 'InvalidAuthnContext'
       end
     end
   end

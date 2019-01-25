@@ -3,7 +3,11 @@
 module EducationForm::Forms
   class VA0994 < Base
     def header_form_type
-      'VE0994'
+      'V0994'
+    end
+
+    def benefit_type
+      'VetTec'
     end
 
     PROGRAM_NAMES = {
