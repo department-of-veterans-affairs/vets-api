@@ -48,13 +48,10 @@ module SAML
 
     private
 
-    # returns the attributes that are defined below, could be from one of 3 distinct policies, each having different
-    # saml responses, hence this weird decorating mechanism, needs improved abstraction to be less weird.
     def serializable_attributes
       %i[authn_context]
     end
 
-    # NOTE: The actual exception, if any, should get raised when to_hash is called. Hence "suppress"
     def log_warnings_to_sentry
       user_attributes.to_hash
 
@@ -69,7 +66,6 @@ module SAML
     end
 
     # will be one of AUTHN_CONTEXTS.keys
-    # this is the real authn-context returned in the response without the use of heuristics
     def authn_context
       REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
     rescue StandardError
@@ -77,8 +73,6 @@ module SAML
       raise
     end
 
-    # should eventually have a special case for multifactor policy and refactor all of this
-    # but session controller refactor is premature and can't handle it right now.
     def user_attributes_class
       case authn_context
       when 'myhealthevet'; then SAML::UserAttributes::MHV
