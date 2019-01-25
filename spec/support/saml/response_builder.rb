@@ -25,26 +25,33 @@ module SAML
       build_saml_response(authn_context: authn_context, attributes: attributes)
     end
 
-    def build_saml_response(authn_context:, account_type:, level_of_assurance:, multifactor:, attributes: nil)
-      if authn_context.include?('multifactor')
-        previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1
-        create_user_identity(
-          authn_context: previous_context,
-          account_type: account_type,
-          level_of_assurance: level_of_assurance,
-          multifactor: [false]
-        )
-      end
+    def build_saml_response_with_existing_user_identity?
+      true
+    end
 
+    def build_saml_response(authn_context:, account_type:, level_of_assurance:, multifactor:, attributes: nil)
       verifying = [LOA::IDME_LOA3, 'myhealthevet_loa3', 'dslogon_loa3'].include?(authn_context)
-      if verifying
-        previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{\/3\/}, '/1/')
-        create_user_identity(
-          authn_context: previous_context,
-          account_type: account_type,
-          level_of_assurance: '1',
-          multifactor: multifactor
-        )
+
+      if authn_context.present?
+        if authn_context.include?('multifactor') && build_saml_response_with_existing_user_identity?
+          previous_context = authn_context.gsub(/multifactor|_multifactor/, '').presence || LOA::IDME_LOA1
+          create_user_identity(
+            authn_context: previous_context,
+            account_type: account_type,
+            level_of_assurance: level_of_assurance,
+            multifactor: [false]
+          )
+        end
+
+        if verifying && build_saml_response_with_existing_user_identity?
+          previous_context = authn_context.gsub(/_loa3/, '').gsub(%r{\/3\/}, '/1/')
+          create_user_identity(
+            authn_context: previous_context,
+            account_type: account_type,
+            level_of_assurance: '1',
+            multifactor: multifactor
+          )
+        end
       end
 
       attributes ||= build_saml_attributes(
@@ -56,7 +63,9 @@ module SAML
       instance_double(OneLogin::RubySaml::Response, attributes: attributes,
                                                     decrypted_document: document_partial(authn_context),
                                                     is_a?: true,
-                                                    is_valid?: true)
+                                                    is_valid?: true,
+                                                    response: 'mock-response'
+                                                  )
     end
 
     def build_invalid_saml_response(options)

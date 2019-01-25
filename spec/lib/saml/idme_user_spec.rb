@@ -21,6 +21,64 @@ RSpec.describe SAML::User do
     end
     subject { described_class.new(saml_response) }
 
+    context 'handles invalid authn_contexts' do
+      context 'no decrypted document' do
+        it 'has various important attributes' do
+          allow(saml_response).to receive(:decrypted_document).and_return(nil)
+
+          expect(Raven).to receive(:extra_context).once.with(
+            saml_attributes: {
+              "uuid"=>["0e1bb5723d7c4f0686f46ca4505642ad"],
+              "email"=>["kam+tristanmhv@adhocteam.us"],
+              "multifactor"=>[false],
+              "level_of_assurance"=>["1"]
+            },
+            saml_response: Base64.encode64('mock-response')
+          )
+          expect(Raven).to receive(:tags_context).once.with(
+            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+          )
+          expect{ subject.to_hash }.to raise_exception(NoMethodError)
+        end
+      end
+
+      context 'authn_context equal to something unknown' do
+        let(:authn_context) { 'unknown_authn_context' }
+
+        it 'has various important attributes' do
+          expect(Raven).to receive(:extra_context).once.with(
+            saml_attributes: nil,
+            saml_response: Base64.encode64('mock-response')
+          ).ordered
+          expect(Raven).to receive(:extra_context).once.with(
+            authn_context: 'unknown_authn_context'
+          ).ordered
+          expect(Raven).to receive(:tags_context).once.with(
+            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+          )
+          expect{ subject.to_hash }.to raise_exception(RuntimeError)
+        end
+      end
+
+      context 'authn_context equal to nil' do
+        let(:authn_context) { nil }
+
+        it 'has various important attributes' do
+          expect(Raven).to receive(:extra_context).once.with(
+            saml_attributes: nil,
+            saml_response: Base64.encode64('mock-response')
+          ).ordered
+          expect(Raven).to receive(:extra_context).once.with(
+            authn_context: nil
+          ).ordered
+          expect(Raven).to receive(:tags_context).once.with(
+            controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
+          )
+          expect{ subject.to_hash }.to raise_exception(RuntimeError)
+        end
+      end
+    end
+
     context 'LOA1 user' do
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
@@ -67,6 +125,35 @@ RSpec.describe SAML::User do
 
         it 'is changing multifactor' do
           expect(subject.changing_multifactor?).to be_truthy
+        end
+
+        context 'without an already persisted UserIdentity' do
+          let(:build_saml_response_with_existing_user_identity?) { false }
+
+          it 'still returns attributes defaulting LOA to 1' do
+            expect_any_instance_of(SAML::User).to receive(:log_message_to_sentry).with(
+              'SAML RESPONSE WARNINGS', :warn, {
+                authn_context: 'multifactor',
+                warnings: "loa_current error: undefined method `loa' for nil:NilClass"
+              }
+            )
+
+            expect(subject.to_hash).to eq(
+              uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
+              email: 'kam+tristanmhv@adhocteam.us',
+              loa: { current: 1, highest: 1 },
+              sign_in: { service_name: 'idme' },
+              birth_date: nil,
+              first_name: nil,
+              last_name: nil,
+              middle_name: nil,
+              gender: nil,
+              ssn: nil,
+              zip: nil,
+              multifactor: true,
+              authn_context: 'multifactor'
+            )
+          end
         end
       end
     end
