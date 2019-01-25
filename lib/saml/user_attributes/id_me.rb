@@ -46,26 +46,20 @@ module SAML
       end
 
       def loa_current
-        LOA::MAPPING.fetch(real_authn_context)
-      rescue KeyError
-        log_loa_current_message_once
-        1 # default to something safe until we can research this
+        @loa_current ||=
+          if authn_context.include?('multifactor')
+            existing_user_identity.loa.fetch(:current, 1).to_i
+          else
+            SAML::User::AUTHN_CONTEXTS.fetch(authn_context).fetch(:loa_current, 1).to_i
+          end
+      rescue NoMethodError, KeyError => error
+        @warnings << "loa_current error: #{error.message}"
+        @loa_current = 1 # default to something safe until we can research this
       end
 
       def loa_highest
         loa_highest = idme_loa || loa_current
         [loa_current, loa_highest].max
-      end
-
-      def log_loa_current_message_once
-        return if @logged_loa_current_message
-        extra_context = {
-          uuid: attributes['uuid'],
-          idme_level_of_assurance: attributes['level_of_assurance'],
-          real_authn_context: real_authn_context
-        }
-        log_message_to_sentry('loa_current is mapping to nil', :info, extra_context)
-        @logged_loa_current_message = true
       end
     end
   end

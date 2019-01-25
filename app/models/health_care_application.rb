@@ -52,6 +52,25 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
+  def self.user_icn(form)
+    MVI::AttrService.new.find_profile(user_attributes(form))&.profile&.icn
+  rescue MVI::Errors::Base
+    nil
+  end
+
+  def self.user_attributes(form)
+    full_name = form['veteranFullName']
+
+    OpenStruct.new(
+      first_name: full_name['first'],
+      middle_name: full_name['middle'],
+      last_name: full_name['last'],
+      birth_date: form['veteranDateOfBirth'],
+      ssn: form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
+      gender: form['gender']
+    )
+  end
+
   def set_result_on_success!(result)
     update_attributes!(
       state: 'success',
