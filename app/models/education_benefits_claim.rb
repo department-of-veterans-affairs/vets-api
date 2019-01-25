@@ -2,7 +2,9 @@
 
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993].freeze
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
+  # TODO: TO BE REMOVED IN NEXT PR WHEN REPORTING CAN INCLUDE 0994
+  FORM_TYPES_MINUS_0994 = %w[1990 1995 1990e 5490 5495 1990n 0993].freeze
 
   APPLICATION_TYPES = %w[
     chapter33
