@@ -7,8 +7,12 @@ module Appeals
       attribute :status, Integer
 
       def initialize(body, status)
-        self.body = body if json_format_is_valid?(body)
         self.status = status
+        if self.status == 404
+          self.body = { 'data' => [] }
+        elsif json_format_is_valid?(body)
+          self.body = body
+        end
       end
 
       private
