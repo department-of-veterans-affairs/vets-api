@@ -90,8 +90,11 @@ module SAML
       when LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
       else
-        Raven.extra_context(authn_context: authn_context)
-        Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
+        Raven.tags_context(
+          authn_context: authn_context,
+          controller_name: 'sessions',
+          sign_in_method: 'not-signed-in:error'
+        )
         raise 'InvalidAuthnContext'
       end
     end
