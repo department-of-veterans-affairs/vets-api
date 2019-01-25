@@ -64,7 +64,12 @@ class SSOService
   end
 
   def authn_context
-    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text || 'unknown'
+    if saml_response.decrypted_document
+      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text ||
+        SAML::User::UNKNOWN_AUTHN_CONTEXT
+    else
+      SAML::User::UNKNOWN_AUTHN_CONTEXT
+    end
   end
 
   private
