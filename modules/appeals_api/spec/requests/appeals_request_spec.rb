@@ -99,4 +99,17 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       end
     end
   end
+
+  context 'with a not found response' do
+    it 'returns a 404 and logs an info level message' do
+      VCR.use_cassette('appeals/not_found') do
+        get '/services/appeals/v0/appeals', nil,
+            'X-VA-SSN' => '111223333',
+            'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-User' => 'adhoc.test.user'
+        expect(response).to have_http_status(:not_found)
+        expect(response).to match_response_schema('errors')
+      end
+    end
+  end
 end
