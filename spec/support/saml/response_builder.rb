@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SAML
-  # rubocop:disable Metrics/MethodLength, Metrics/ModuleLength
+  # rubocop:disable Metrics/MethodLength, Metrics/ModuleLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
   module ResponseBuilder
     MHV_PREMIUM_ATYPE = [
       '{"accountType":"Premium","availableServices":{"21":"VA Medications","4":"Secure Messaging","3":"VA Allergies"'\
@@ -64,8 +64,7 @@ module SAML
                                                     decrypted_document: document_partial(authn_context),
                                                     is_a?: true,
                                                     is_valid?: true,
-                                                    response: 'mock-response'
-                                                  )
+                                                    response: 'mock-response')
     end
 
     def build_invalid_saml_response(options)
@@ -232,5 +231,5 @@ module SAML
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/ModuleLength
+  # Metrics/MethodLength, Metrics/ModuleLength, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 end

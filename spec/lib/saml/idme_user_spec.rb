@@ -28,17 +28,17 @@ RSpec.describe SAML::User do
 
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: {
-              "uuid"=>["0e1bb5723d7c4f0686f46ca4505642ad"],
-              "email"=>["kam+tristanmhv@adhocteam.us"],
-              "multifactor"=>[false],
-              "level_of_assurance"=>["1"]
+              'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
+              'email' => ['kam+tristanmhv@adhocteam.us'],
+              'multifactor' => [false],
+              'level_of_assurance' => ['1']
             },
             saml_response: Base64.encode64('mock-response')
           )
           expect(Raven).to receive(:tags_context).once.with(
             controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
           )
-          expect{ subject.to_hash }.to raise_exception(NoMethodError)
+          expect { subject.to_hash }.to raise_exception(NoMethodError)
         end
       end
 
@@ -56,7 +56,7 @@ RSpec.describe SAML::User do
           expect(Raven).to receive(:tags_context).once.with(
             controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
           )
-          expect{ subject.to_hash }.to raise_exception(RuntimeError)
+          expect { subject.to_hash }.to raise_exception(RuntimeError)
         end
       end
 
@@ -74,7 +74,7 @@ RSpec.describe SAML::User do
           expect(Raven).to receive(:tags_context).once.with(
             controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
           )
-          expect{ subject.to_hash }.to raise_exception(RuntimeError)
+          expect { subject.to_hash }.to raise_exception(RuntimeError)
         end
       end
     end
@@ -132,10 +132,9 @@ RSpec.describe SAML::User do
 
           it 'still returns attributes defaulting LOA to 1' do
             expect_any_instance_of(SAML::User).to receive(:log_message_to_sentry).with(
-              'SAML RESPONSE WARNINGS', :warn, {
-                authn_context: 'multifactor',
-                warnings: "loa_current error: undefined method `loa' for nil:NilClass"
-              }
+              'SAML RESPONSE WARNINGS', :warn,
+              authn_context: 'multifactor',
+              warnings: "loa_current error: undefined method `loa' for nil:NilClass"
             )
 
             expect(subject.to_hash).to eq(

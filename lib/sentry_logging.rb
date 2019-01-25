@@ -5,7 +5,7 @@ module SentryLogging
     level = normalize_level(level)
     formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
     rails_logger(level, formatted_message)
-    
+
     if Settings.sentry.dsn.present?
       Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
       Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
