@@ -3,8 +3,7 @@ module HCA
     module_function
 
     def truncate_ssn(ssn)
-      split_ssn = ssn.split('-')
-      "#{split_ssn[0]}#{split_ssn[2]}"
+      "#{ssn[0..2]}#{ssn[5..8]}"
     end
 
     def combine_traits(user_attributes)
@@ -13,8 +12,8 @@ module HCA
     end
 
     def create_rate_limited_searches(user_attributes)
-      RateLimitedSearch.create_or_increment_count("ssn:#{truncate_ssn(user_attributes.ssn)}")
-      RateLimitedSearch.create_or_increment_count("traits:#{combine_traits(user_attributes)}")
+      ::RateLimitedSearch.create_or_increment_count("ssn:#{truncate_ssn(user_attributes.ssn)}")
+      ::RateLimitedSearch.create_or_increment_count("traits:#{combine_traits(user_attributes)}")
     end
   end
 end

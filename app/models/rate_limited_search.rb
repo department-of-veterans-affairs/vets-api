@@ -11,11 +11,6 @@ class RateLimitedSearch < Common::RedisStore
   class RateLimitedError < StandardError
   end
 
-  def self.truncate_ssn(ssn)
-    split_ssn = ssn.split('-')
-    "#{split_ssn[0]}#{split_ssn[2]}"
-  end
-
   def self.create_or_increment_count(search_params)
     rate_limited_search = self.find(search_params)
 
