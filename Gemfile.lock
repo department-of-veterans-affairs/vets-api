@@ -18,6 +18,15 @@ GIT
       puma (~> 3.12)
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/ruby-bgs.git
+  revision: 3cab7050e942428724412dff1ccaa887a8190bf5
+  branch: master
+  specs:
+    bgs (0.2)
+      nokogiri (~> 1.8.2)
+      savon (~> 2.11)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
   revision: 9b5bd9ecc5f1b13fd21743df9356e1ce8aec8520
   branch: master
@@ -1110,6 +1119,7 @@ DEPENDENCIES
   awrence
   aws-sdk (~> 3)
   betamocks!
+  bgs!
   brakeman
   breakers
   bundler-audit
