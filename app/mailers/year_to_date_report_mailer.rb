@@ -27,7 +27,8 @@ class YearToDateReportMailer < ApplicationMailer
 
     opt = {}
     if FeatureFlipper.staging_email?
-      opt[:to] = 'lihan@adhocteam.us'
+      opt[:to] = ['lihan@adhocteam.us', 'akulkarni@meetveracity.com',
+                  'Hoffmaster_David@bah.com', 'Turner_Desiree@bah.com', 'Delli-Gatti_Michael@bah.com']
     else
       opt = VA_STAKEHOLDERS.clone
     end

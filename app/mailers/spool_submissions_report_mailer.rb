@@ -16,7 +16,8 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     opt = {}
     opt[:to] =
       if FeatureFlipper.staging_email?
-        'lihan@adhocteam.us'
+        ['lihan@adhocteam.us', 'akulkarni@meetveracity.com',
+         'Hoffmaster_David@bah.com', 'Turner_Desiree@bah.com', 'Delli-Gatti_Michael@bah.com']
       else
         RECIPIENTS.clone
       end
