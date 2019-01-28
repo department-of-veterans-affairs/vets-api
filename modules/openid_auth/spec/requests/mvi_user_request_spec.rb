@@ -45,10 +45,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       VCR.use_cassette('mvi/find_candidate/failure') do
         auth_headers['x-va-level-of-assurance'] = 1
         get '/internal/auth/v0/mvi-user', nil, auth_headers
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
-        expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
@@ -81,10 +78,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       VCR.use_cassette('mvi/find_candidate/failure') do
         auth_headers['x-va-level-of-assurance'] = 1
         get '/internal/auth/v0/mvi-user', nil, auth_headers
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
-        expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+        expect(response).to have_http_status(:not_found)
       end
     end
   end
@@ -125,13 +119,10 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         'x-va-last-name' => 'Paget'
       }
     end
-    it 'should respond properly' do
+    it 'should respond properly when MVI is down' do
       allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-      expect(Rails.logger).to receive(:error).with('MVI find_profile error: Gateway timeout')
       get '/internal/auth/v0/mvi-user', nil, auth_headers
-      expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
-      expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

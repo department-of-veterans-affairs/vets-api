@@ -20,7 +20,7 @@ module OpenidAuth
         if @mvi_response.profile.try(:icn).present?
           icn_found
         else
-          icn_not_found
+          raise Common::Exceptions::RecordNotFound, 'ICN Not Found'
         end
       end
 
@@ -59,19 +59,6 @@ module OpenidAuth
             "data": {
               "attributes": {
                 "icn": @mvi_response.profile.icn
-              }
-            }
-          }
-      end
-
-      def icn_not_found
-        render json:
-          {
-            "id": 'not_found',
-            "type": 'user-mvi-icn',
-            "data": {
-              "errors": {
-                "icn": 'could not locate ICN'
               }
             }
           }
