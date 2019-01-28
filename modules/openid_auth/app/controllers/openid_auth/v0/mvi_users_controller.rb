@@ -17,11 +17,8 @@ module OpenidAuth
         end
         service = MVI::Service.new
         @mvi_response = service.find_profile(@user)
-        if @mvi_response.profile.try(:icn).present?
-          icn_found
-        else
-          raise Common::Exceptions::RecordNotFound, 'ICN Not Found'
-        end
+        raise @mvi_response.error if @mvi_response.error
+        icn_found
       end
 
       private

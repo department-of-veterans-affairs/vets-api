@@ -42,7 +42,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     end
 
     it 'should return an error if icn is missing' do
-      VCR.use_cassette('mvi/find_candidate/failure') do
+      VCR.use_cassette('mvi/find_candidate/no_subject') do
         auth_headers['x-va-level-of-assurance'] = 1
         get '/internal/auth/v0/mvi-user', nil, auth_headers
         expect(response).to have_http_status(:not_found)
@@ -75,7 +75,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     end
 
     it 'should return an error if icn is missing' do
-      VCR.use_cassette('mvi/find_candidate/failure') do
+      VCR.use_cassette('mvi/find_candidate/no_subject') do
         auth_headers['x-va-level-of-assurance'] = 1
         get '/internal/auth/v0/mvi-user', nil, auth_headers
         expect(response).to have_http_status(:not_found)
@@ -120,9 +120,10 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       }
     end
     it 'should respond properly when MVI is down' do
-      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
-      get '/internal/auth/v0/mvi-user', nil, auth_headers
-      expect(response).to have_http_status(:not_found)
+      VCR.use_cassette('mvi/find_candidate/failure') do
+        get '/internal/auth/v0/mvi-user', nil, auth_headers
+        expect(response).to have_http_status(:service_unavailable)
+      end
     end
   end
 end
