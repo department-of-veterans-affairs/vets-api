@@ -10,7 +10,9 @@ describe Sidekiq::ErrorTag do
   end
 
   it 'should tag raven before each sidekiq job' do
+    Thread.current['request_id'] = '123'
     TestJob.perform_async
+    expect(Raven).to receive(:tags_context).with(request_id: '123')
     expect(Raven).to receive(:tags_context).with(job: 'TestJob')
     TestJob.drain
   end

@@ -680,12 +680,12 @@ module HCA
       end
     end
 
-    def add_dd214(file_body)
+    def add_attachment(file_body, is_dd214)
       {
         'va:document' => {
-          'va:name' => 'DD214',
+          'va:name' => 'Attachment',
           'va:format' => 'PDF',
-          'va:type' => '1',
+          'va:type' => is_dd214 ? '1' : '5',
           'va:content' => Base64.encode64(file_body)
         }
       }
@@ -698,10 +698,10 @@ module HCA
 
       request = build_form_for_user(current_user)
 
-      veteran['dd214'].tap do |dd214|
-        next if dd214.blank?
-        attachment = HcaDd214Attachment.find_by(guid: dd214['confirmationCode'])
-        request['va:form']['va:attachments'] = add_dd214(attachment.get_file.read)
+      veteran['attachment'].tap do |attachment|
+        next if attachment.blank?
+        hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
+        request['va:form']['va:attachments'] = add_attachment(hca_attachment.get_file.read, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)

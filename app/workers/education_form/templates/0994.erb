@@ -1,0 +1,72 @@
+<%= header %>
+<%= benefit_type %>
+*START*
+VA Form 22-0994
+JAN 2019
+
+APPLICATION FOR VETERAN EMPLOYMENT THROUGH TECHNOLOGY EDUCATION COURSES
+                   (VET TEC) HIGH TECHNOLOGY PROGRAM
+        -------------------------------------------------------
+
+                        APPLICANT INFORMATION
+                        ---------------------
+
+Name: <%= full_name(@applicant.applicantFullName) %>
+
+Social Security Number: <%= @applicant.applicantSocialSecurityNumber %>
+
+Mailing Address:
+<%= full_address(@applicant.mailingAddress) %>
+
+Sex of Applicant: <%= @applicant.applicantGender %>
+
+Date of Birth: <%= @applicant.dateOfBirth %>
+
+Email Address: <%= @applicant.emailAddress %>
+
+Day Time Telephone Number: <%= @applicant.dayTimePhone %>
+
+Night Time Telephone Number: <%= @applicant.nightTimePhone %>
+
+Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVAEducationBenefits) %>
+
+Are you currently on active duty?: <%= yesno(@applicant.activeDuty) %>
+
+Do you anticipate you will go on active duty during the
+VET TEC program?: <%= yesno(@applicant.activeDutyDuringVetTec) %>
+
+DIRECT DEPOSIT INFORMATION:
+
+Routing or Transit Number: <%= @applicant.bankAccount.routingNumber %>
+
+Account Type: <%= @applicant.bankAccount.accountType %>
+
+Account Number: <%= @applicant.bankAccount.accountNumber %>
+
+                          COURSE OF STUDY
+                          ---------------
+
+Select the VET TEC program and Provider you wish to attend:
+<%= selected_programs %>
+
+Location of where you plan to or will take training:
+<%= location %>
+
+Date you plan to start or will start training: <%= @applicant.plannedStartDate %>
+
+                       BACKGROUND INFORMATION
+                       ----------------------
+
+Are you currently employed?: <%= yesno(@applicant.currentEmployment) %>
+
+Are you currently working in the high technology industry?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
+
+If yes, select the area: <%= high_tech_area_name %>
+
+What is your current salary range?: <%= salary_text %>
+
+What is your highest level of education?: <%= @applicant.highestLevelofEducation %>
+
+Signature of applicant:
+
+<%= parse_with_template_path('footer') %>
