@@ -5,35 +5,51 @@ require 'rails_helper'
 RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true do
   include SchemaMatchers
 
+  let(:user_hash) do
+    {
+      first_name: 'Mitchell',
+      last_name: 'Jenkins',
+      middle_name: 'G',
+      birth_date: '1949-03-04',
+      ssn: '796122306'
+    }
+  end
+
+  let(:user) { build(:user, :loa3, user_hash) }
+
   context 'looking up with an SSN' do
     let(:auth_headers) do
       {
         'apiKey' => 'saml-key',
-        'x-va-ssn' => '333-99-9999',
+        'x-va-ssn' => '796122306',
+        'x-va-dob' => '1949-03-04',
         'x-va-first-name' => 'Edward',
         'x-va-middle-name' => 'John',
         'x-va-last-name' => 'Paget',
-        'x-va-dob' => '1/23/1990',
         'x-va-gender' => 'male',
         'x-va-level-of-assurance' => 3,
         'x-va-user-email' => 'test@123.com'
       }
     end
     it 'should return the icn data for a user' do
-      get '/internal/auth/v0/mvi-user', nil, auth_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to be_a(String)
-      expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(['icn'])
-      expect(JSON.parse(response.body)['data']['attributes'].values).to_not eq([nil])
+      VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        get '/internal/auth/v0/mvi-user', nil, auth_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(['icn'])
+        expect(JSON.parse(response.body)['data']['attributes'].values).to eq(['1008714701V416111'])
+      end
     end
 
     it 'should return an error if icn is missing' do
-      auth_headers['x-va-level-of-assurance'] = 1
-      get '/internal/auth/v0/mvi-user', nil, auth_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to be_a(String)
-      expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
-      expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+      VCR.use_cassette('mvi/find_candidate/failure') do
+        auth_headers['x-va-level-of-assurance'] = 1
+        get '/internal/auth/v0/mvi-user', nil, auth_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
+        expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+      end
     end
   end
 
@@ -41,27 +57,35 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     let(:auth_headers) do
       {
         'apiKey' => 'saml-key',
-        'x-va-edipi' => '123456789',
+        'x-va-edipi' => '796122306',
         'x-va-level-of-assurance' => 3,
-        'x-va-user-email' => 'test@123.com'
+        'x-va-user-email' => 'test@123.com',
+        'x-va-dob' => '1949-03-04',
+        'x-va-first-name' => 'Edward',
+        'x-va-middle-name' => 'John',
+        'x-va-last-name' => 'Paget'
       }
     end
 
     it 'should return the icn data for a user' do
-      get '/internal/auth/v0/mvi-user', nil, auth_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to be_a(String)
-      expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(['icn'])
-      expect(JSON.parse(response.body)['data']['attributes'].values).to_not eq([nil])
+      VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        get '/internal/auth/v0/mvi-user', nil, auth_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(['icn'])
+        expect(JSON.parse(response.body)['data']['attributes'].values).to_not eq([nil])
+      end
     end
 
     it 'should return an error if icn is missing' do
-      auth_headers['x-va-level-of-assurance'] = 1
-      get '/internal/auth/v0/mvi-user', nil, auth_headers
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to be_a(String)
-      expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
-      expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+      VCR.use_cassette('mvi/find_candidate/failure') do
+        auth_headers['x-va-level-of-assurance'] = 1
+        get '/internal/auth/v0/mvi-user', nil, auth_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
+        expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
+      end
     end
   end
 
@@ -85,6 +109,29 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       data = JSON.parse(response.body)
       expect(data['errors'].first['title']).to eq('Missing parameter')
       expect(data['errors'].first['detail']).to include('x-va-user-email')
+    end
+  end
+
+  context 'MVI communication issues' do
+    let(:auth_headers) do
+      {
+        'apiKey' => 'saml-key',
+        'x-va-edipi' => '796122306',
+        'x-va-level-of-assurance' => 3,
+        'x-va-user-email' => 'test@123.com',
+        'x-va-dob' => '1949-03-04',
+        'x-va-first-name' => 'Edward',
+        'x-va-middle-name' => 'John',
+        'x-va-last-name' => 'Paget'
+      }
+    end
+    it 'should respond properly' do
+      allow_any_instance_of(Faraday::Connection).to receive(:post).and_raise(Faraday::TimeoutError)
+      expect(Rails.logger).to receive(:error).with('MVI find_profile error: Gateway timeout')
+      get '/internal/auth/v0/mvi-user', nil, auth_headers
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)['data']['errors'].keys).to eq(['icn'])
+      expect(JSON.parse(response.body)['data']['errors'].values).to eq(['could not locate ICN'])
     end
   end
 end

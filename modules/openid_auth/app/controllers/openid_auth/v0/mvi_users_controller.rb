@@ -7,6 +7,7 @@ module OpenidAuth
     class MviUsersController < ApplicationController
       skip_before_action :authenticate
       before_action :check_required_headers
+      before_action :build_identity
 
       def show
         if request.headers['x-va-ssn'].present?
@@ -14,10 +15,9 @@ module OpenidAuth
         else
           build_edipi_user
         end
-        @user = User.new @user_identity
-        Mvi.for_user(@user)
-
-        if @user.icn.present?
+        service = MVI::Service.new
+        @mvi_response = service.find_profile(@user)
+        if @mvi_response.profile.try(:icn).present?
           icn_found
         else
           icn_not_found
@@ -27,38 +27,38 @@ module OpenidAuth
       private
 
       def build_edipi_user
-        @user_identity = UserIdentity.create(uuid: request.headers['x-va-edipi'],
-                                             email: request.headers['x-va-user-email'],
-                                             ssn: request.headers['x-va-edipi'],
-                                             loa:
-                                             {
-                                               current: request.headers['x-va-level-of-assurance'].to_i,
-                                               highest: highest_loa
-                                             })
+        @user = User.create(uuid: request.headers['x-va-edipi'],
+                            email: request.headers['x-va-user-email'],
+                            ssn: request.headers['x-va-edipi'],
+                            loa:
+                            {
+                              current: request.headers['x-va-level-of-assurance'].to_i,
+                              highest: highest_loa
+                            })
       end
 
       def build_ssn_user
-        @user_identity = UserIdentity.create(uuid: request.headers['x-va-ssn'],
-                                             email: request.headers['x-va-user-email'],
-                                             first_name: request.headers['x-va-first-name'],
-                                             last_name: request.headers['x-va-last-name'],
-                                             birth_date: request.headers['x-va-dob'],
-                                             ssn: request.headers['x-va-ssn'],
-                                             loa:
-                                             {
-                                               current: request.headers['x-va-level-of-assurance'].to_i,
-                                               highest: highest_loa
-                                             })
+        @user = User.create(uuid: request.headers['x-va-ssn'],
+                            email: request.headers['x-va-user-email'],
+                            first_name: request.headers['x-va-first-name'],
+                            last_name: request.headers['x-va-last-name'],
+                            birth_date: request.headers['x-va-dob'],
+                            ssn: request.headers['x-va-ssn'],
+                            loa:
+                            {
+                              current: request.headers['x-va-level-of-assurance'].to_i,
+                              highest: highest_loa
+                            })
       end
 
       def icn_found
         render json:
           {
-            "id": @user.icn,
+            "id": @mvi_response.profile.icn,
             "type": 'user-mvi-icn',
             "data": {
               "attributes": {
-                "icn": @user.icn
+                "icn": @mvi_response.profile.icn
               }
             }
           }
@@ -97,6 +97,24 @@ module OpenidAuth
 
       def missing_loa
         request.headers['x-va-level-of-assurance'].blank?
+      end
+
+      def build_identity
+        UserIdentity.create(uuid: ssn_or_edipi,
+                            email: request.headers['x-va-user-email'],
+                            first_name: request.headers['x-va-first-name'],
+                            last_name: request.headers['x-va-last-name'],
+                            birth_date: request.headers['x-va-dob'],
+                            ssn: ssn_or_edipi,
+                            loa:
+                            {
+                              current: request.headers['x-va-level-of-assurance'].to_i,
+                              highest: highest_loa
+                            })
+      end
+
+      def ssn_or_edipi
+        request.headers['x-va-ssn'].presence ? request.headers['x-va-ssn'] : request.headers['x-va-edipi']
       end
     end
   end
