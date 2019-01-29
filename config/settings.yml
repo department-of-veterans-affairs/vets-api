@@ -113,6 +113,7 @@ evss:
     region: evss_s3_region
   disability_compensation_form:
     timeout: 55
+    submit_timeout: 355
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
