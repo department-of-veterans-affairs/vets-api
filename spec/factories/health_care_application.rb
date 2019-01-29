@@ -7,5 +7,17 @@ FactoryBot.define do
         Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
       )
     )
+
+    factory(:hca_app_with_attachment) do
+      after(:build) do |health_care_application|
+        form = health_care_application.parsed_form
+        form['attachment'] = {
+          'confirmationCode' => create(:hca_attachment).guid,
+          'dd214' => true
+        }
+        health_care_application.form = form.to_json
+        health_care_application.send(:remove_instance_variable, :@parsed_form)
+      end
+    end
   end
 end

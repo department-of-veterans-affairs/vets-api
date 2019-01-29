@@ -1109,6 +1109,14 @@ describe HCA::EnrollmentSystem do
       end
     end
 
+    context 'with an attachment' do
+      it 'should create the right result', run_at: '2019-01-11 14:19:04 -0800' do
+        health_care_application = build(:hca_app_with_attachment)
+        result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil)
+        expect(result.to_json).to eq(get_fixture('hca/result_with_attachment').to_json)
+      end
+    end
+
     it "shouldn't modify the form template" do
       subject
 

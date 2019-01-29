@@ -109,6 +109,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
         FactoryBot.create(:va1995_full_form)
+        FactoryBot.create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 3 regions..
@@ -117,8 +118,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'it processes the valid messages' do
         expect(subject).to receive(:log_exception_to_sentry).once
-        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(3).to(1)
-        expect(Dir[spool_files].count).to eq(2)
+        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(1)
+        expect(Dir[spool_files].count).to eq(3)
       end
     end
 
@@ -167,14 +168,15 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       ).education_benefits_claim
 
       output = subject.group_submissions_by_region(submissions)
+
       expect(output[:eastern].length).to be(2)
       expect(output[:western].length).to be(3)
       expect(output[:central].length).to be(1)
     end
   end
 
-  context 'write_files', run_at: '2016-09-16 03:00:00 EDT' do
-    let(:filename) { '307_09162016_070000_vetsgov.spl' }
+  context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
+    let(:filename) { '307_09172016_070000_vetsgov.spl' }
     let!(:second_record) { FactoryBot.create(:va1995) }
 
     context 'in the development env' do

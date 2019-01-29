@@ -145,6 +145,9 @@ evss:
 gids:
   url: https://dev.va.gov/gids
 
+mvi_hca:
+  url: http://example.com
+
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.
 hca:
