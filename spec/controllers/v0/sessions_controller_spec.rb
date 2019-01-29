@@ -440,7 +440,8 @@ RSpec.describe V0::SessionsController, type: :controller do
                 errors: [
                   'The status code of the Response was not Success, was Requester => NoAuthnContext ' \
                   '-> AuthnRequest without an authentication context.'
-                ]
+                ],
+                code: '007'
               }
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
@@ -472,7 +473,8 @@ RSpec.describe V0::SessionsController, type: :controller do
                 errors: [
                   'Subject did not consent to attribute release',
                   'Other random error'
-                ]
+                ],
+                code: '001'
               }
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')

@@ -42,7 +42,8 @@ module SAML
       context = {
         saml_response: {
           status_message: @saml_response.status_message,
-          errors: @saml_response.errors
+          errors: @saml_response.errors,
+          code: @code || '007'
         }
       }
       set_sentry_params('Other SAML Response Error(s)', :error, context)
@@ -50,16 +51,19 @@ module SAML
 
     def clicked_deny?
       return false unless only_one_error? && @saml_response.status_message == CLICKED_DENY_MSG
+      @code = '001'
       set_sentry_params(CLICKED_DENY_MSG, :warn)
     end
 
     def auth_too_late?
       return false unless only_one_error? && @saml_response.errors[0].include?(TOO_LATE_MSG)
+      @code = '002'
       set_sentry_params(TOO_LATE_MSG, :warn, @saml_response.errors[0])
     end
 
     def auth_too_early?
       return false unless only_one_error? && @saml_response.errors[0].include?(TOO_EARLY_MSG)
+      @code = '003'
       set_sentry_params(TOO_EARLY_MSG, :error, @saml_response.errors[0])
     end
 
