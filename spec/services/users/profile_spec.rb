@@ -262,7 +262,7 @@ RSpec.describe Users::Profile do
         before(:each) do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
+          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound.new(status: 404))
         end
 
         it 'sets veteran_status to nil' do
@@ -275,7 +275,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'EMIS'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'NOT_FOUND'
-          expect(error[:status]).to eq 'NOT_FOUND'
+          expect(error[:status]).to eq 404
         end
 
         it 'sets the status to 296' do
@@ -314,7 +314,7 @@ RSpec.describe Users::Profile do
         before do
           allow_any_instance_of(
             EMISRedis::VeteranStatus
-          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized)
+          ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized.new(status: 401))
         end
 
         it 'returns va_profile as null' do
@@ -327,7 +327,7 @@ RSpec.describe Users::Profile do
           expect(emis_error[:external_service]).to eq 'EMIS'
           expect(emis_error[:start_time]).to be_present
           expect(emis_error[:description]).to include 'NOT_AUTHORIZED'
-          expect(emis_error[:status]).to eq 'NOT_AUTHORIZED'
+          expect(emis_error[:status]).to eq 401
         end
 
         it 'sets the status to 296' do

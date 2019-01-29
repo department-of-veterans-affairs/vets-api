@@ -66,7 +66,7 @@ RSpec.describe Users::ExceptionHandler do
     end
 
     context 'with a EMISRedis::VeteranStatus::NotAuthorized' do
-      let(:error) { EMISRedis::VeteranStatus::NotAuthorized.new }
+      let(:error) { EMISRedis::VeteranStatus::NotAuthorized.new(status: 401) }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 
       it 'returns a serialized version of the error' do
@@ -74,12 +74,12 @@ RSpec.describe Users::ExceptionHandler do
       end
 
       it 'returns a status' do
-        expect(results[:status]).to eq 'NOT_AUTHORIZED'
+        expect(results[:status]).to eq 401
       end
     end
 
     context 'with a EMISRedis::VeteranStatus::RecordNotFound' do
-      let(:error) { EMISRedis::VeteranStatus::RecordNotFound.new }
+      let(:error) { EMISRedis::VeteranStatus::RecordNotFound.new(status: 404) }
       let(:results) { Users::ExceptionHandler.new(error, service).serialize_error }
 
       it 'returns a serialized version of the error' do
@@ -87,7 +87,7 @@ RSpec.describe Users::ExceptionHandler do
       end
 
       it 'returns a status' do
-        expect(results[:status]).to eq 'NOT_FOUND'
+        expect(results[:status]).to eq 404
       end
     end
 

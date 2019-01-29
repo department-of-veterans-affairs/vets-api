@@ -66,7 +66,7 @@ module Users
     def emis_error(type)
       error_template.merge(
         description: "#{error.class}, #{RESPONSE_STATUS[type]}",
-        status: RESPONSE_STATUS[type]
+        status: error.status.to_i
       )
     end
 
