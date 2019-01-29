@@ -14,7 +14,7 @@ RSpec.describe HealthCareApplication, type: :model do
           :find_profile
         ).and_raise(MVI::Errors::RecordNotFound)
 
-        expect(described_class.user_icn(form)).to eq(nil)
+        expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
       end
     end
 
@@ -28,7 +28,7 @@ RSpec.describe HealthCareApplication, type: :model do
           )
         )
 
-        expect(described_class.user_icn(form)).to eq('123')
+        expect(described_class.user_icn(described_class.user_attributes(form))).to eq('123')
       end
     end
   end
