@@ -22,8 +22,6 @@ RSpec.describe HealthCareApplication, type: :model do
       it 'should return the icn' do
         expect_any_instance_of(MVI::Service).to receive(
           :find_profile
-        ).with(
-          described_class.user_attributes(form)
         ).and_return(
           OpenStruct.new(
             profile: OpenStruct.new(icn: '123')
@@ -40,13 +38,11 @@ RSpec.describe HealthCareApplication, type: :model do
       expect(
         described_class.user_attributes(
           health_care_application.parsed_form
-        )
+        ).to_h
       ).to eq(
-        OpenStruct.new(
-          first_name: 'FirstName', middle_name: 'MiddleName',
-          last_name: 'ZZTEST', birth_date: '1923-01-02',
-          ssn: '111111234', gender: 'F'
-        )
+        first_name: 'FirstName', middle_name: 'MiddleName',
+        last_name: 'ZZTEST', birth_date: '1923-01-02',
+        ssn: '111111234', gender: 'F'
       )
     end
   end

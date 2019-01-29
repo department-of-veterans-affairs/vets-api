@@ -58,15 +58,19 @@ class HealthCareApplication < ActiveRecord::Base
     nil
   end
 
+  def self.verify_user_attributes(user_attributes)
+    user_attributes.to_h.except(:middle_name)
+  end
+
   def self.user_attributes(form)
     full_name = form['veteranFullName']
 
-    OpenStruct.new(
+    HCA::UserAttributes.new(
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
       birth_date: form['veteranDateOfBirth'],
-      ssn: form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
+      ssn: form['veteranSocialSecurityNumber'],
       gender: form['gender']
     )
   end
