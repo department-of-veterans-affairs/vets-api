@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class RateLimitedSearch < Common::RedisStore
   COUNT_LIMIT = 3
 
@@ -12,16 +14,14 @@ class RateLimitedSearch < Common::RedisStore
   end
 
   def self.create_or_increment_count(search_params)
-    rate_limited_search = self.find(search_params)
+    rate_limited_search = find(search_params)
 
     if rate_limited_search
-      if rate_limited_search.count >= COUNT_LIMIT
-        raise RateLimitedError
-      end
+      raise RateLimitedError if rate_limited_search.count >= COUNT_LIMIT
       rate_limited_search.count += 1
       rate_limited_search.save!
     else
-      self.create(search_params: search_params)
+      create(search_params: search_params)
     end
   end
 end

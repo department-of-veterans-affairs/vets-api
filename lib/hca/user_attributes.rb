@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class HCA::UserAttributes
   include ActiveModel::Validations
   include Virtus.model(nullify_blank: true)
