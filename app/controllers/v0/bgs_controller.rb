@@ -13,6 +13,6 @@ class V0::BgsController < ApplicationController
       log: true,
       forward_proxy_url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447'
     )
-    service.org.find_poas_by_claim_id('123')
+    service.org.find_poas_by_claim_id('600118851')
   end
 end
