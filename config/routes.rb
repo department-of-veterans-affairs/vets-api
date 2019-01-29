@@ -2,10 +2,6 @@
 
 require 'feature_flipper'
 Rails.application.routes.draw do
-  namespace :v0 do
-  get 'bgs/index'
-  end
-
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -18,6 +14,7 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
+    get 'bgs/index'
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents
