@@ -21,6 +21,10 @@ module EVSS
       end
 
       def submit_form526(form_content)
+        # EVSS is bound to VBMSs response times and, therefore, the timeout has to be extended
+        # to ~6 minutes to match their upstream timeout.
+        config.read_timeout = Settings.evss.disability_compensation_form.submit_timeout || 355
+
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
           raw_response = perform(:post, 'submit', form_content, headers)
