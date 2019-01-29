@@ -113,7 +113,7 @@
               "start_time": { "type": "string" },
               "end_time": { "type": ["string", null] },
               "description":{ "type": "string" },
-              "status":{ "type": "string" }
+              "status":{ "type": "integer" }
             }
           }
         }

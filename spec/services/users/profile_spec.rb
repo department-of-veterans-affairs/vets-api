@@ -209,7 +209,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'MVI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Not authorized'
-          expect(error[:status]).to eq '401'
+          expect(error[:status]).to eq 401
         end
 
         it 'sets the status to 296' do
@@ -230,7 +230,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'MVI'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to include 'Record not found'
-          expect(error[:status]).to eq '404'
+          expect(error[:status]).to eq 404
         end
 
         it 'sets the status to 296' do
@@ -300,7 +300,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'EMIS'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
-          expect(error[:status]).to eq '503'
+          expect(error[:status]).to eq 503
         end
 
         it 'sets the status to 296' do
@@ -384,7 +384,7 @@ RSpec.describe Users::Profile do
           expect(error[:external_service]).to eq 'Vet360'
           expect(error[:start_time]).to be_present
           expect(error[:description]).to be_present
-          expect(error[:status]).to eq '503'
+          expect(error[:status]).to eq 503
         end
 
         it 'sets the status to 296' do

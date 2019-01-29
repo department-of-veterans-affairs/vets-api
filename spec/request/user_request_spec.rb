@@ -84,7 +84,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
         expect(error['external_service']).to eq 'Vet360'
         expect(error['description']).to be_present
-        expect(error['status']).to eq '502'
+        expect(error['status']).to eq 502
       end
     end
   end
@@ -106,7 +106,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
-      expect(error['status']).to eq '401'
+      expect(error['status']).to eq 401
     end
 
     it 'gives me the list of available services' do
@@ -142,7 +142,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
-      expect(error['status']).to eq '504'
+      expect(error['status']).to eq 504
     end
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
@@ -159,7 +159,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
-      expect(error['status']).to eq '404'
+      expect(error['status']).to eq 404
     end
 
     it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
@@ -176,7 +176,7 @@ RSpec.describe 'Fetching user data', type: :request do
       expect(response.status).to eq 296
       expect(error['external_service']).to eq 'MVI'
       expect(error['description']).to be_present
-      expect(error['status']).to eq '404'
+      expect(error['status']).to eq 404
     end
 
     it 'MVI success should only make a request to MVI one time per multiple requests!' do

@@ -52,14 +52,14 @@ module Users
 
       error_template.merge(
         description: "#{exception.code}, #{exception.status}, #{exception.title}, #{exception.detail}",
-        status: exception.status.to_s
+        status: exception.status.to_i
       )
     end
 
     def client_error
       error_template.merge(
         description: "#{error.class}, #{error.status}, #{error.message}, #{error.body}",
-        status: error.status.to_s
+        status: error.status.to_i
       )
     end
 
@@ -88,10 +88,10 @@ module Users
     end
 
     def standard_error_status(error)
-      error.try(:status).to_s.presence ||
-        error.try(:status_code).to_s.presence ||
-        error.try(:code).to_s.presence ||
-        '503'
+      error.try(:status).presence ||
+        error.try(:status_code).presence ||
+        error.try(:code).presence ||
+        503
     end
   end
 end

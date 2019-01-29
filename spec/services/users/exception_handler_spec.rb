@@ -35,7 +35,7 @@ RSpec.describe Users::ExceptionHandler do
       end
 
       it 'returns a status' do
-        expect(results[:status]).to eq '503'
+        expect(results[:status]).to eq 503
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe Users::ExceptionHandler do
       end
 
       it 'returns a status' do
-        expect(results[:status]).to eq '504'
+        expect(results[:status]).to eq 504
       end
     end
 
@@ -61,7 +61,7 @@ RSpec.describe Users::ExceptionHandler do
       end
 
       it 'returns a status' do
-        expect(results[:status]).to eq '503'
+        expect(results[:status]).to eq 503
       end
     end
 
@@ -100,7 +100,7 @@ RSpec.describe Users::ExceptionHandler do
       end
 
       it 'returns a status' do
-        expect(results[:status]).to eq '503'
+        expect(results[:status]).to eq 503
       end
     end
   end
