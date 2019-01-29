@@ -2,6 +2,10 @@
 
 require 'feature_flipper'
 Rails.application.routes.draw do
+  namespace :v0 do
+  get 'bgs/index'
+  end
+
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 

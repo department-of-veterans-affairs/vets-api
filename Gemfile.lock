@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/charleystran/ruby-bgs.git
+  revision: ff5e8d827a47e66e47539a027a929a131f6568f2
+  branch: add_poa_endpoint_for_orgs
+  specs:
+    bgs (0.2)
+      nokogiri (~> 1.8.2)
+      savon (~> 2.11)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: dfeb140c9571020239807477e34ec58ad2b38b32
   branch: master
@@ -16,15 +25,6 @@ GIT
     puma-plugin-statsd (0.0.1)
       json
       puma (~> 3.12)
-
-GIT
-  remote: https://github.com/department-of-veterans-affairs/ruby-bgs.git
-  revision: 3cab7050e942428724412dff1ccaa887a8190bf5
-  branch: master
-  specs:
-    bgs (0.2)
-      nokogiri (~> 1.8.2)
-      savon (~> 2.11)
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
@@ -810,7 +810,7 @@ GEM
     hashie (3.5.7)
     holidays (5.4.0)
     httpclient (2.8.3)
-    httpi (2.4.2)
+    httpi (2.4.4)
       rack
       socksify
     i18n (0.9.5)
@@ -1001,12 +1001,12 @@ GEM
     rufus-scheduler (3.1.10)
     safe_shell (1.0.3)
     safe_yaml (1.0.4)
-    savon (2.11.1)
+    savon (2.12.0)
       akami (~> 1.2)
       builder (>= 2.1.2)
       gyoku (~> 1.2)
       httpi (~> 2.3)
-      nokogiri (>= 1.4.0)
+      nokogiri (>= 1.8.1)
       nori (~> 2.4)
       wasabi (~> 3.4)
     sawyer (0.8.1)
@@ -1056,7 +1056,7 @@ GEM
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
     slop (3.6.0)
-    socksify (1.7.0)
+    socksify (1.7.1)
     spring (2.0.2)
       activesupport (>= 4.2)
     spring-commands-rspec (1.0.4)
@@ -1228,4 +1228,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.17.1
+   1.17.3
