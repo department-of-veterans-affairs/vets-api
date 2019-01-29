@@ -31,6 +31,7 @@ module SAML
     private
 
     def initialize_errors!
+      @code = '007'
       KNOWN_ERRORS.each do |known_error|
         break if send("#{known_error}?")
       end
@@ -43,7 +44,7 @@ module SAML
         saml_response: {
           status_message: @saml_response.status_message,
           errors: @saml_response.errors,
-          code: @code || '007'
+          code: @code
         }
       }
       set_sentry_params('Other SAML Response Error(s)', :error, context)

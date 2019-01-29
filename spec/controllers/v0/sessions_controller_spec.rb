@@ -474,10 +474,10 @@ RSpec.describe V0::SessionsController, type: :controller do
                   'Subject did not consent to attribute release',
                   'Other random error'
                 ],
-                code: '001'
+                code: '007'
               }
             )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
