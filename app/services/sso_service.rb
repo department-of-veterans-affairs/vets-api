@@ -118,6 +118,7 @@ class SSOService
     fail_handler = SAML::AuthFailHandler.new(saml_response)
     @auth_error_code = AUTH_ERRORS[DEFAULT_ERROR_MESSAGE]
     if fail_handler.errors?
+      # fixme status_message is nil for too early/late
       @auth_error_code = AUTH_ERRORS[fail_handler.context[:saml_response][:status_message]]
       @failure_instrumentation_tag = "error:#{fail_handler.error}"
       log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
