@@ -28,7 +28,7 @@ module EducationForm
     end
 
     def show_individual_benefits(form_type)
-      !%w[1990n 0993 0994].include?(form_type)
+      !%w[1990n 0993].include?(form_type)
     end
 
     def calculate_submissions(range_type: :year, status: :processed)
@@ -104,8 +104,7 @@ module EducationForm
       application_types = EducationBenefitsClaim::APPLICATION_TYPES
 
       application_types.each_with_index do |application_type, i|
-        next if application_type == 'vettec' && region != :eastern
-        on_last_index = i == (application_types.size - (region == :eastern ? 1 : 2))
+        on_last_index = i == (application_types.size - 1)
         row = [
           i.zero? ? EducationFacility::RPO_NAMES[region] : '',
           application_type.humanize(capitalize: false)
