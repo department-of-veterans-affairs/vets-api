@@ -22,16 +22,25 @@ class YearToDateReportMailer < ApplicationMailer
     ]
   }.freeze
 
+  STAGING_RECIPIENTS = {
+    to: %w[
+      lihan@adhocteam.us
+      akulkarni@meetveracity.com
+      Hoffmaster_David@bah.com
+      Turner_Desiree@bah.com
+      Delli-Gatti_Michael@bah.com
+      Walter_Jenny@bah.com
+    ]
+  }.freeze
+
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)
 
-    opt = {}
-    if FeatureFlipper.staging_email?
-      opt[:to] = ['lihan@adhocteam.us', 'akulkarni@meetveracity.com',
-                  'Hoffmaster_David@bah.com', 'Turner_Desiree@bah.com', 'Delli-Gatti_Michael@bah.com']
-    else
-      opt = VA_STAKEHOLDERS.clone
-    end
+    opt = if FeatureFlipper.staging_email?
+            STAGING_RECIPIENTS.clone
+          else
+            VA_STAKEHOLDERS.clone
+          end
 
     mail(
       opt.merge(

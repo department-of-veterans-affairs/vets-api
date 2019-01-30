@@ -9,6 +9,14 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     shay.norton@va.gov
     DONALD.NOBLE2@va.gov
   ].freeze
+  STAGING_RECIPIENTS = %w[
+    lihan@adhocteam.us
+    akulkarni@meetveracity.com
+    Hoffmaster_David@bah.com
+    Turner_Desiree@bah.com
+    Delli-Gatti_Michael@bah.com
+    Walter_Jenny@bah.com
+  ].freeze
 
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)
@@ -16,8 +24,7 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     opt = {}
     opt[:to] =
       if FeatureFlipper.staging_email?
-        ['lihan@adhocteam.us', 'akulkarni@meetveracity.com',
-         'Hoffmaster_David@bah.com', 'Turner_Desiree@bah.com', 'Delli-Gatti_Michael@bah.com']
+        STAGING_RECIPIENTS.clone
       else
         RECIPIENTS.clone
       end
