@@ -58,7 +58,7 @@ module Common
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
         connection.send(method.to_sym, path, params) do |request|
           request.headers.update(headers)
-          options.each { |m, v| requests.options.send(m, v) }
+          options.each { |option, value| request.options.send("#{option}=", value) }
         end.env
       rescue Common::Exceptions::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
