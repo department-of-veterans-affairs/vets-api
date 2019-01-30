@@ -48,6 +48,11 @@ info:
         submitted payload. This can be compared to the submitted payload to ensure data
         integrity of the upload
 
+    ### Sample Payloads
+    Sample Payloads can be found here:
+    1. [Example with metadata and PDF](https://developer.va.gov/sample-payloads/benefits/valid_multipart_pdf)
+    1. [Example with metadata and PDF and PDF attachments](https://developer.va.gov/sample-payloads/benefits/valid_multipart_pdf_attachments)
+
     ### Status Simulation
     Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `recieved`, `processing`, `success`, `error`.
 
