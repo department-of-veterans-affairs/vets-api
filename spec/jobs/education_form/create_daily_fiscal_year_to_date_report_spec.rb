@@ -132,7 +132,7 @@ RSpec.describe EducationForm::CreateDailyFiscalYearToDateReport, type: :aws_help
 
     describe '#perform' do
       after do
-        # File.delete(filename)
+        File.delete(filename)
       end
 
       let(:filename) { "tmp/daily_reports/#{date}.csv" }
