@@ -4,9 +4,6 @@ require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
   FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
 
-  # 'vettec' type MUST be the last value in the array. If it isn't the last value,
-  # then it would impact the {EducationForm::CreateDailyFiscalYearToDateReport}
-  # and {EducationForm::CreateDailyYearToDateReport} classes for on_last_index
   APPLICATION_TYPES = %w[
     chapter33
     chapter1607
