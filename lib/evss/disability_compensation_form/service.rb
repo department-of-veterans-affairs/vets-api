@@ -23,7 +23,10 @@ module EVSS
       def submit_form526(form_content)
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
-          raw_response = perform(:post, 'submit', form_content, headers)
+          # EVSS is bound to VBMSs response times and, therefore, the timeout has to be extended
+          # to ~6 minutes to match their upstream timeout.
+          options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
+          raw_response = perform(:post, 'submit', form_content, headers, options)
           FormSubmitResponse.new(raw_response.status, raw_response)
         end
       end
