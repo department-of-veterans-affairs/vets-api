@@ -3,9 +3,13 @@
 module Sentry
   module Processor
     class PIISanitizer < Raven::Processor
-      SANITIZED_FIELDS = %w[ city country gender phone postalCode zipCode fileNumber state street vaEauthPnid
-                             vaEauthBirthdate accountType accountNumber routingNumber bankName ssn birth_date
-                             social fname lname mname dslogon_idvalue ].uniq.freeze
+      SANITIZED_FIELDS =
+        %w[
+          city country gender phone postalCode zipCode fileNumber state street vaEauthPnid vaEauthBirthdate
+          accountType accountNumber routingNumber bankName ssn birth_date social fname lname mname dslogon_idvalue
+        ].freeze
+
+      PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }.uniq).freeze
 
       JSON_STARTS_WITH = ['[', '{'].freeze
 
@@ -14,8 +18,7 @@ module Sentry
       FILTER_MASK_BLANK = FILTER_MASK + '-BLANK'
 
       def process(unsanitized_object)
-        object = unsanitized_object.dup
-        sanitize(object)
+        sanitize(unsanitized_object.dup)
       end
 
       private
@@ -31,7 +34,7 @@ module Sentry
             object[index] = sanitize(value)
           end
         when String
-          if object.match(pattern) && (json = parse_json_or_nil(object))
+          if object.match(PATTERN) && (json = parse_json_or_nil(object))
             object = sanitize(json).to_json
           else
             object
@@ -40,14 +43,9 @@ module Sentry
           object
         end
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
-
-      def pattern
-        @pattern ||= Regexp.union(SANITIZED_FIELDS.map { |field| field.tr('_', '').downcase })
-      end
 
       def filter(key, unsanitized_value)
-        if key.to_s.tr('_', '').downcase.match(pattern)
+        if key.to_s.tr('_', '').downcase.match(PATTERN)
           if unsanitized_value.is_a?(Array)
             unsanitized_value.map { |element| filter(key, element) }
           else
