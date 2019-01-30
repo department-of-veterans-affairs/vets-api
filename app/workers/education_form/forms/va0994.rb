@@ -55,17 +55,6 @@ module EducationForm::Forms
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
-    def selected_programs
-      return '' if @applicant.vetTecProgram.blank?
-      programs = []
-
-      @applicant.vetTecProgram.each do |program|
-        programs.push(PROGRAM_NAMES[program.to_sym])
-      end
-
-      programs.join(', ')
-    end
-
     def high_tech_area_names
       return '' if @applicant.highTechnologyEmploymentTypes.blank?
 
