@@ -9,7 +9,7 @@ module Sentry
           accountNumber routingNumber bankName ssn birth_date social fname lname mname dslogon_idvalue
         ].freeze
 
-      PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }.uniq).freeze
+      PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }).freeze
 
       JSON_STARTS_WITH = ['[', '{'].freeze
 
