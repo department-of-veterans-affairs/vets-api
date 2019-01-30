@@ -140,11 +140,11 @@ RSpec.describe Sentry::Processor::PIISanitizer do
           dslogon_lname: ['Walsh'],
           dslogon_mname: ['Brady'],
           dslogon_status: ['VETERAN'],
-          dslogon_uuid: ['1259442512'],
+          dslogon_uuid: ['11111111111'],
           email: ['whatever@whatever.com'],
           level_of_assurance: [0],
           multifactor: [true],
-          uuid: ['7ff6f2e7ac774ddc8354faa7fe4c9815']
+          uuid: ['7ff6f2e7ac774ddc835sdfkjhsdflkj']
         }
       end
 
@@ -161,11 +161,11 @@ RSpec.describe Sentry::Processor::PIISanitizer do
             dslogon_lname: ['FILTERED-CLIENTSIDE'],
             dslogon_mname: ['FILTERED-CLIENTSIDE'],
             dslogon_status: ['VETERAN'],
-            dslogon_uuid: ['1259442512'],
+            dslogon_uuid: ['11111111111'],
             email: ['whatever@whatever.com'],
             level_of_assurance: [0],
             multifactor: [true],
-            uuid: ['7ff6f2e7ac774ddc8354faa7fe4c9815']
+            uuid: ['7ff6f2e7ac774ddc835sdfkjhsdflkj']
           )
       end
     end
@@ -181,7 +181,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     context 'handles an array with a blank value or nil value' do
       let(:data) { { 'dslogon_idvalue' => ['', nil] } }
 
-      it 'does not filter since no value present' do
+      it 'filters blank and nil differently' do
         expect(result['dslogon_idvalue']).to eq(['FILTERED-CLIENTSIDE-BLANK', 'FILTERED-CLIENTSIDE-NIL'])
       end
     end
@@ -189,7 +189,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     context 'handles an array with mixed values' do
       let(:data) { { 'dslogon_idvalue' => ['ssn', '', nil, ['ssn', nil], []] } }
 
-      it 'does not filter since no value present' do
+      it 'filters blank, nil, and empty array differently' do
         expect(result['dslogon_idvalue']).to eq([
                                                   'FILTERED-CLIENTSIDE',
                                                   'FILTERED-CLIENTSIDE-BLANK',
