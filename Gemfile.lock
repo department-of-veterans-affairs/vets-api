@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/charleystran/ruby-bgs.git
-  revision: ff5e8d827a47e66e47539a027a929a131f6568f2
+  revision: a8850b6829568e835f49215642b14626c3ad620d
   branch: add_poa_endpoint_for_orgs
   specs:
     bgs (0.2)
