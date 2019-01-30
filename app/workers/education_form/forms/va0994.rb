@@ -80,6 +80,7 @@ module EducationForm::Forms
 
     def education_level_name
       return '' if @applicant.highestLevelofEducation.blank?
+      return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
       EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
     end
 
