@@ -13,9 +13,9 @@ module EVSS
       @headers = headers_for_user(@user)
     end
 
-    def perform(method, path, body = nil, headers = {})
+    def perform(method, path, body = nil, headers = {}, options = {})
       merged_headers = @headers.merge(headers)
-      super(method, path, body, merged_headers)
+      super(method, path, body, merged_headers, options)
     end
 
     def headers
