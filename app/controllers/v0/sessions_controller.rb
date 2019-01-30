@@ -85,22 +85,39 @@ module V0
         set_cookies
         after_login_actions
         redirect_to saml_login_redirect_url
-
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: saml_callback_success_tags(@sso_service))
+        stats(:success)
       else
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags: ['status:failure', "context:#{@sso_service.context_key}"])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+        stats(:failure)
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', base64_params_saml_response: params[:SAMLResponse])
       redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
+      stats(:failed_unknown)
     ensure
-      StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
+      stats(:total)
     end
 
     private
+
+    def stats(status)
+      case status
+      when :success
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:success', "context:#{@sso_service.authn_context}"])
+      when :failure
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:failure', "context:#{@sso_service.authn_context}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+      when :failed_unknown
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:failure', 'context:unknown'])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown'])
+      when :total
+        StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
+      end
+    end
 
     def set_cookies
       Rails.logger.info('SSO: LOGIN', sso_logging_info)
@@ -140,12 +157,6 @@ module V0
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
       errors
-    end
-
-    def saml_callback_success_tags(sso_service)
-      ['status:success',
-       "context:#{sso_service.context_key}",
-       "account_type:#{sso_service.saml_attributes.account_type}"]
     end
 
     def url_service

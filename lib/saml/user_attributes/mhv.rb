@@ -16,10 +16,6 @@ module SAML
         mhv_profile['accountType']
       end
 
-      def mhv_available_services
-        mhv_profile['availableServices']
-      end
-
       def mhv_correlation_id
         attributes['mhv_uuid']
       end

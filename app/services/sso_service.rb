@@ -8,15 +8,11 @@ class SSOService
   include ActiveModel::Validations
   attr_reader :auth_error_code
   DEFAULT_ERROR_MESSAGE = 'Default generic identity provider error'
-  AUTH_ERRORS = { 'Subject did not consent to attribute release' => '001',
-                  'Current time is on or after NotOnOrAfter condition' => '002',
-                  'Current time is earlier than NotBefore condition' => '003',
-                  # 004, 005 and 006 are user persistence errors
-                  DEFAULT_ERROR_MESSAGE => '007' }.freeze
+
   def initialize(response)
     raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
     @saml_response = response
-    Raven.tags_context(sso_authn_context: context_key)
+
     if saml_response.is_valid?(true)
       @saml_attributes = SAML::User.new(@saml_response)
       @existing_user = User.find(saml_attributes.user_attributes.uuid)
@@ -56,21 +52,20 @@ class SSOService
     # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
     # signed in session.
     # Also we want the original sign-in, NOT the one from ID.me LOA3
-    %w[mhv_correlation_id mhv_icn dslogon_edipi sign_in]
+    %w[mhv_correlation_id mhv_icn dslogon_edipi]
   end
 
   def new_login?
     existing_user.present?
   end
 
-  def real_authn_context
-    REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
-  end
-
-  def context_key
-    SAML::User.context_key(real_authn_context) || SAML::User::UNKNOWN_CONTEXT
-  rescue StandardError
-    SAML::User::UNKNOWN_CONTEXT
+  def authn_context
+    if saml_response.decrypted_document
+      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text ||
+        SAML::User::UNKNOWN_AUTHN_CONTEXT
+    else
+      SAML::User::UNKNOWN_AUTHN_CONTEXT
+    end
   end
 
   private
@@ -117,12 +112,12 @@ class SSOService
   def invalid_saml_response_handler
     return if saml_response.is_valid?
     fail_handler = SAML::AuthFailHandler.new(saml_response)
-    @auth_error_code = AUTH_ERRORS[DEFAULT_ERROR_MESSAGE]
     if fail_handler.errors?
-      @auth_error_code = AUTH_ERRORS[fail_handler.context[:saml_response][:status_message]]
+      @auth_error_code = fail_handler.context[:saml_response][:code]
       @failure_instrumentation_tag = "error:#{fail_handler.error}"
       log_message_to_sentry(fail_handler.message, fail_handler.level, fail_handler.context)
     else
+      @auth_error_code = '007'
       @failure_instrumentation_tag = 'error:unknown'
       log_message_to_sentry('Unknown SAML Login Error', :error, error_context)
     end
