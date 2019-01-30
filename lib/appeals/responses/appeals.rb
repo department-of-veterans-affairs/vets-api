@@ -14,7 +14,7 @@ module Appeals
       private
 
       def json_format_is_valid?(body)
-        JSON::Validator.validate!('lib/appeals/schema/appeals.json', body, strict: true)
+        JSON::Validator.validate!('lib/appeals/schema/appeals.json', body, strict: false)
       end
     end
   end
