@@ -13,9 +13,9 @@ class V0::BgsController < ApplicationController
       log: true,
       forward_proxy_url: 'https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447'
     )
-    Rails.logger.warn '-----------'
-    Rails.logger.warn service.inspect
-    Rails.logger.warn '-----------'
+    Rails.logger.info '-----------'
+    Rails.logger.info service.inspect
+    Rails.logger.info '-----------'
     service.org.find_poas_by_claim_id('600118851')
   end
 end
