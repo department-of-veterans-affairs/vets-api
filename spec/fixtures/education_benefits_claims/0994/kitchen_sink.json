@@ -25,20 +25,32 @@
     "routingNumber": "123456789",
     "accountNumber": "123456"
   },
-  "vetTecProgram": [
-    "program1",
-    "program2",
-    "program4"
+  "vetTecPrograms": [
+    {
+      "providerName": "Provider A",
+      "programName": "Program A",
+      "courseType": "inPerson",
+      "location": {
+        "city": "Test",
+        "state": "TN"
+      },
+      "plannedStartDate": "2019-06-01"
+    },
+    {
+      "providerName": "Provider B",
+      "programName": "Program B",
+      "courseType": "online",
+      "location": {
+        "city": "Test",
+        "state": "AK"
+      },
+      "plannedStartDate": "2020-06-01"
+    }
   ],
-  "vetTecProgramLocations": {
-    "city": "Test",
-    "state": "TN"
-  },
-  "plannedStartDate": "2019-06-01",
   "currentEmployment": true,
   "currentHighTechnologyEmployment": true,
-  "highTechnologyEmploymentType": "computerProgramming",
+  "highTechnologyEmploymentTypes": ["computerProgramming", "computerSoftware"],
   "currentSalary": "lessThanTwenty",
-  "highestLevelofEducation": "High school",
+  "highestLevelofEducation": "high_school_diploma_or_GED",
   "privacyAgreementAccepted": true
 }

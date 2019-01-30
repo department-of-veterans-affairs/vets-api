@@ -10,14 +10,6 @@ module EducationForm::Forms
       'VetTec'
     end
 
-    PROGRAM_NAMES = {
-      'program1': 'Program 1',
-      'program2': 'Program 2',
-      'program3': 'Program 3',
-      'program4': 'Program 4',
-      'program5': 'Program 5'
-    }.freeze
-
     HIGH_TECH_AREA_NAMES = {
       'computerProgramming': 'Computer Programming',
       'dataProcessing': 'Data Processing',
@@ -32,6 +24,22 @@ module EducationForm::Forms
       'thirtyFiveToFifty': '$35,001-$50,000',
       'fiftyToSeventyFive': '$50,001-$75,000',
       'moreThanSeventyFive': '>$75,000'
+    }.freeze
+
+    EDUCATION_TEXT = {
+      'high_school_diploma_or_GED': 'High school diploma or GED',
+      'some_college': 'Some college',
+      'associates_degree': 'Associate’s degree',
+      'bachelors_degree': 'Bachelor’s degree',
+      'masters_degree': 'Master’s degree',
+      'doctoral_degree': 'Doctoral degree',
+      'other': 'Other'
+    }.freeze
+
+    COURSE_TYPE_TEXT = {
+      'inPerson': 'In Person',
+      'online': 'Online',
+      'both': 'Both'
     }.freeze
 
     def applicant_name
@@ -58,9 +66,26 @@ module EducationForm::Forms
       programs.join(', ')
     end
 
-    def high_tech_area_name
-      return '' if @applicant.highTechnologyEmploymentType.blank?
-      HIGH_TECH_AREA_NAMES[@applicant.highTechnologyEmploymentType.to_sym]
+    def high_tech_area_names
+      return '' if @applicant.highTechnologyEmploymentTypes.blank?
+
+      areas = []
+
+      @applicant.highTechnologyEmploymentTypes.each do |area|
+        areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
+      end
+
+      areas.join(', ')
+    end
+
+    def education_level_name
+      return '' if @applicant.highestLevelofEducation.blank?
+      EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
+    end
+
+    def course_type_name(course_type)
+      return '' if course_type.blank?
+      COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
     def salary_text

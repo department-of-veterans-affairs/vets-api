@@ -46,14 +46,16 @@ Account Number: <%= @applicant.bankAccount.accountNumber %>
                           COURSE OF STUDY
                           ---------------
 
-Select the VET TEC program and Provider you wish to attend:
-<%= selected_programs %>
-
-Location of where you plan to or will take training:
-<%= location %>
-
-Date you plan to start or will start training: <%= @applicant.plannedStartDate %>
-
+VET TEC programs:
+<% Array(@applicant.vetTecPrograms).each do |program| %>
+  Provider name: <%= program.providerName %>
+  Program name: <%= program.programName %>
+  Course type: <%= course_type_name(program.courseType) %>
+  Location:
+    City: <%= program.location.city %>
+    State: <%= program.location.state %>
+  Planned start date: <%= program.plannedStartDate %>
+<% end %>
                        BACKGROUND INFORMATION
                        ----------------------
 
@@ -61,11 +63,12 @@ Are you currently employed?: <%= yesno(@applicant.currentEmployment) %>
 
 Are you currently working in the high technology industry?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
 
-If yes, select the area: <%= high_tech_area_name %>
+If yes, select the area:
+<%= high_tech_area_names %>
 
 What is your current salary range?: <%= salary_text %>
 
-What is your highest level of education?: <%= @applicant.highestLevelofEducation %>
+What is your highest level of education?: <%= education_level_name %>
 
 Signature of applicant:
 
