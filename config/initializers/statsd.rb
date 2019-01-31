@@ -28,7 +28,7 @@ StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags
     StatsD.increment(
       V0::SessionsController::STATSD_SSO_CALLBACK_KEY,
       0,
-      tags: ["status:#{s}", "authn_context:#{ctx}"]
+      tags: ["status:#{s}", "context:#{ctx}"]
     )
   end
 end
