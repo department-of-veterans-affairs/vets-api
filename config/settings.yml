@@ -112,7 +112,8 @@ evss:
     bucket: evss_s3_bucket
     region: evss_s3_region
   disability_compensation_form:
-    timeout: 55
+    timeout: 55 # ~1 minute
+    submit_timeout: 355 # ~6 minutes
   letters:
     url: https://csraciapp6.evss.srarad.com
     timeout: 55
@@ -144,6 +145,9 @@ evss:
 # Settings for GI Bill Data Service
 gids:
   url: https://dev.va.gov/gids
+
+mvi_hca:
+  url: http://example.com
 
 # Settings for Healthcare Application
 # This CA chain is nonsense but allows local development to work with pre-prod environment.

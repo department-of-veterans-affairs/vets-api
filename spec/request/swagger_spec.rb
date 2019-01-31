@@ -233,14 +233,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports submitting a hca dd214' do
+      it 'supports submitting a hca attachment' do
         expect(subject).to validate(
           :post,
-          '/v0/hca_dd214_attachments',
+          '/v0/hca_attachments',
           200,
           '_data' => {
-            'hca_dd214_attachment' => {
-              file_data: fixture_file_upload(Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'))
+            'hca_attachment' => {
+              file_data: Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
+              )
             }
           }
         )

@@ -50,18 +50,32 @@ module SAML
     end
 
     def idme_loa1_url
-      build_sso_url(LOA::MAPPING.invert[1])
+      build_sso_url(LOA::IDME_LOA1)
     end
 
-    # Possible authn_context are:
-    # 'myhealthevet_loa3', 'dslogon_loa3', 'http://idmanagement.gov/ns/assurance/loa/3/vets'
     def idme_loa3_url
-      link_authn_context = authn_context.present? ? "#{authn_context}_loa3" : LOA::MAPPING.invert[3]
+      link_authn_context =
+        case authn_context
+        when LOA::IDME_LOA1, 'multifactor'
+          LOA::IDME_LOA3
+        when 'myhealthevet', 'myhealthevet_multifactor'
+          'myhealthevet_loa3'
+        when 'dslogon', 'dslogon_multifactor'
+          'dslogon_loa3'
+        end
       build_sso_url(link_authn_context)
     end
 
     def mfa_url
-      link_authn_context = authn_context.present? ? "#{authn_context}_multifactor" : 'multifactor'
+      link_authn_context =
+        case authn_context
+        when LOA::IDME_LOA1, LOA::IDME_LOA3
+          'multifactor'
+        when 'myhealthevet', 'myhealthevet_loa3'
+          'myhealthevet_multifactor'
+        when 'dslogon', 'dslogon_loa3'
+          'dslogon_multifactor'
+        end
       build_sso_url(link_authn_context)
     end
 

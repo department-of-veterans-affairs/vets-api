@@ -11,7 +11,9 @@ RSpec.describe 'prescriptions', type: :request do
   include SchemaMatchers
 
   let(:va_patient) { true }
-  let(:current_user) { build(:user, :mhv, va_patient: va_patient, mhv_account_type: mhv_account_type) }
+  let(:current_user) do
+    build(:user, :mhv, authn_context: LOA::IDME_LOA3, va_patient: va_patient, mhv_account_type: mhv_account_type)
+  end
 
   before(:each) do
     allow(Rx::Client).to receive(:new).and_return(authenticated_client)

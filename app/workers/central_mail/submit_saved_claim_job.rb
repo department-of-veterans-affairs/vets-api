@@ -63,9 +63,9 @@ module CentralMail
 
     def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VETS.GOV', x: 5, y: 5)
+      stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5)
       CentralMail::DatestampPdf.new(stamped_path1).run(
-        text: 'FDC Reviewed - Vets.gov Submission',
+        text: 'FDC Reviewed - va.gov Submission',
         x: 429,
         y: 770,
         text_only: true
@@ -95,7 +95,7 @@ module CentralMail
         'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => @claim.guid,
         'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
-        'source' => 'Vets.gov',
+        'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => number_attachments,
         'docType' => @claim.form_id,

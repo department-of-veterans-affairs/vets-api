@@ -68,9 +68,18 @@ module EducationForm
     def self.region_for(model)
       record = model.open_struct_form
       address = routing_address(record, form_type: model.form_type)
-      # special case Philippines
-      return :western if address&.country == 'PHL' || model.form_type == '0993'
 
+      # special case Philippines
+      if address&.country == 'PHL' || model.form_type == '0993'
+        return :western
+      elsif model.form_type == '0994'
+        return :eastern
+      end
+
+      check_area(address)
+    end
+
+    def self.check_area(address)
       area = address&.state
       case area
       when *EASTERN
