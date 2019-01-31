@@ -107,7 +107,7 @@ paths:
           requried: true
           schema:
             type: string
-          description: Veteran's EIDPI number
+          description: Veteran's EDIPI number
       responses:
         '200':
           description: Appeals retrieved successfully
@@ -173,7 +173,7 @@ paths:
           requried: true
           schema:
             type: string
-          description: Veteran's EIDPI number
+          description: Veteran's EDIPI number
       responses:
         '200':
           description: Appeals retrieved successfully
