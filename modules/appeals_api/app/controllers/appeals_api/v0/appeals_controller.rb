@@ -18,7 +18,7 @@ module AppealsApi
           'Consumer' => consumer,
           'VA-User' => requesting_va_user
         )
-        #log_response(appeals_response)
+        log_response(appeals_response)
         render(
           json: appeals_response.body
         )
