@@ -5,7 +5,7 @@ class V0::BgsController < ApplicationController
 
   def index
     service = BGS::Services.new(
-      env: 'webtest',
+      env: 'internal-dsva-vagov-dev-fwdproxy-1893365470',
       client_ip: '172.30.2.135',
       client_station_id: '281',
       client_username: 'VAgovAPI',
