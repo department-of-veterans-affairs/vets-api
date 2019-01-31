@@ -91,6 +91,8 @@ paths:
                     $ref: "#/components/schemas/Appeal"
         '400':
           description: Missing SSN header
+        '401':
+          description: Unauthorized
         '403':
           description: Bad API Token
         '404':
