@@ -11,8 +11,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
     chapter32
     chapter35
     transfer_of_entitlement
-    chapter30
     vettec
+    chapter30
   ].freeze
 
   belongs_to(:saved_claim, class_name: 'SavedClaim::EducationBenefits', inverse_of: :education_benefits_claim)

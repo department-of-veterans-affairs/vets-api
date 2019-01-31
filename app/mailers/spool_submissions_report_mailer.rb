@@ -8,6 +8,10 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     Jennifer.Waltz2@va.gov
     shay.norton@va.gov
     DONALD.NOBLE2@va.gov
+    Darla.VanNieukerk@va.gov
+    Walter_Jenny@bah.com
+    Hoffmaster_David@bah.com
+    akulkarni@meetveracity.com
   ].freeze
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
