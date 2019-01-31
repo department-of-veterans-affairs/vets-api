@@ -6,10 +6,40 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   include SchemaMatchers
 
   context 'with the X-VA-SSN and X-VA-User header supplied ' do
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
+
+    before do
+      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
+      allow(@verifier_stub).to receive(:verify)
+    end
+
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals') do
         get '/services/appeals/v0/appeals', nil,
             'X-VA-SSN' => '111223333',
+            'X-VA-First-Name' => 'Test',
+            'X-VA-Last-Name' => 'Test',
+            'X-VA-EDIPI' => 'Test',
+            'X-VA-Birth-Date' => '1985-01-01',
+            'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-User' => 'adhoc.test.user'
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('appeals')
+      end
+    end
+
+    it 'checks PoA when present?' do
+      VCR.use_cassette('appeals/appeals') do
+        get '/services/appeals/v0/appeals', nil,
+            'X-VA-SSN' => '111223333',
+            'X-VA-First-Name' => 'Test',
+            'X-VA-Last-Name' => 'Test',
+            'X-VA-EDIPI' => 'Test',
+            'X-Consumer-PoA' => 'A1Q',
+            'X-VA-Birth-Date' => '1985-01-01',
             'X-Consumer-Username' => 'TestConsumer',
             'X-VA-User' => 'adhoc.test.user'
         expect(response).to have_http_status(:ok)
@@ -24,6 +54,10 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
         get '/services/appeals/v0/appeals', nil,
             'X-VA-SSN' => '111223333',
             'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-First-Name' => 'Test',
+            'X-VA-Last-Name' => 'Test',
+            'X-VA-EDIPI' => 'Test',
+            'X-VA-Birth-Date' => '1985-01-01',
             'X-VA-User' => 'adhoc.test.user'
         hash = Digest::SHA2.hexdigest '111223333'
         expect(Rails.logger).to have_received(:info).with('Caseflow Request',
@@ -38,6 +72,15 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
   end
 
   context 'with an empty response' do
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
+
+    before do
+      @verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { @verifier_stub }
+      allow(@verifier_stub).to receive(:verify)
+    end
+
     it 'returns a successful response' do
       VCR.use_cassette('appeals/appeals_empty') do
         get '/services/appeals/v0/appeals', nil,
