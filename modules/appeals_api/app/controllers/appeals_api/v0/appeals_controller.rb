@@ -9,14 +9,16 @@ module AppealsApi
 
       def index
         log_request
-        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
-        verifier.verify(header('X-Consumer-Custom-ID'))
+        if header('X-Consumer-PoA').present?
+          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+          verifier.verify(header('X-Consumer-PoA'))
+        end
         appeals_response = Appeals::Service.new.get_appeals(
           target_veteran,
           'Consumer' => consumer,
           'VA-User' => requesting_va_user
         )
-        log_response(appeals_response)
+        #log_response(appeals_response)
         render(
           json: appeals_response.body
         )
@@ -60,25 +62,41 @@ module AppealsApi
         va_user
       end
 
+      def first_name
+        va_first_name = header('X-VA-First-Name')
+        raise Common::Exceptions::ParameterMissing, 'X-VA-First-Name' unless va_first_name
+        va_first_name
+      end
+
+      def last_name
+        va_last_name = header('X-VA-Last-Name')
+        raise Common::Exceptions::ParameterMissing, 'X-VA-Last-Name' unless va_last_name
+        va_last_name
+      end
+
+      def edipi
+        va_edipi = header('X-VA-EDIPI')
+        raise Common::Exceptions::ParameterMissing, 'X-VA-EDIPI' unless va_edipi
+        va_edipi
+      end
+
       def header(key)
         request.headers[key]
       end
 
-      def va_profile
-        OpenStruct.new(
-          birth_date: (header('X-VA-Birth-Date') || nil)
-        )
-      end
-
       def target_veteran
-        ClaimsApi::Veteran.new(
-          ssn: ssn,
-          loa: { current: :loa3 },
-          first_name: header('X-VA-First-Name'),
-          last_name: header('X-VA-Last-Name'),
-          edipi: header('X-VA-EDIPI'),
-          last_signed_in: Time.zone.now
-        )
+        if header('X-Consumer-PoA').present?
+          ClaimsApi::Veteran.new(
+            ssn: ssn,
+            loa: { current: :loa3 },
+            first_name: first_name,
+            last_name: last_name,
+            edipi: edipi,
+            last_signed_in: Time.zone.now
+          )
+        else
+          OpenStruct.new(ssn: ssn)
+        end
       end
     end
   end
