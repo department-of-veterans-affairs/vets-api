@@ -409,6 +409,12 @@ en:
         detail: "The record for the requested user could not be found"
         code: 'MVI_404'
         status: 404
+      MVI_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        detail: "MVI service returned an invalid response"
+        code: 'MVI_502'
+        status: 502
       MVI_503:
         <<: *external_defaults
         title: Service unavailable
