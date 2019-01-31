@@ -62,8 +62,10 @@ module ClaimsApi
       end
 
       def verify_power_of_attorney
-        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
-        verifier.verify(header('X-Consumer-Custom-ID'))
+        if header('X-Consumer-PoA').present?
+          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+          verifier.verify(header('X-Consumer-PoA'))
+        end
       end
     end
   end
