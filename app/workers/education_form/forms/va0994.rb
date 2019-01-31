@@ -50,36 +50,49 @@ module EducationForm::Forms
       @applicant.applicantSocialSecurityNumber
     end
 
+    def bank_routing_number
+      return 'N/A' if @applicant.bankAccount.blank?
+      value_or_na(@applicant.bankAccount.routingNumber)
+    end
+
+    def bank_account_number
+      return 'N/A' if @applicant.bankAccount.blank?
+      value_or_na(@applicant.bankAccount.accountNumber)
+    end
+
+    def bank_account_type
+      return 'N/A' if @applicant.bankAccount.blank?
+      value_or_na(@applicant.bankAccount.accountType)
+    end
+
     def location
-      return '' if @applicant.vetTecProgramLocations.blank?
+      return 'N/A' if @applicant.vetTecProgramLocations.blank?
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
     def high_tech_area_names
-      return '' if @applicant.highTechnologyEmploymentTypes.blank?
+      return 'N/A' if @applicant.highTechnologyEmploymentTypes.blank?
 
       areas = []
-
       @applicant.highTechnologyEmploymentTypes.each do |area|
         areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
       end
-
       areas.join(', ')
     end
 
     def education_level_name
-      return '' if @applicant.highestLevelofEducation.blank?
+      return 'N/A' if @applicant.highestLevelofEducation.blank?
       return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
       EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
     end
 
     def course_type_name(course_type)
-      return '' if course_type.blank?
+      return 'N/A' if course_type.blank?
       COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
     def salary_text
-      return '' if @applicant.currentSalary.blank?
+      return 'N/A' if @applicant.currentSalary.blank?
       SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
   end

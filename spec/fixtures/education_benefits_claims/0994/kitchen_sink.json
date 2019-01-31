@@ -28,23 +28,17 @@
   "vetTecPrograms": [
     {
       "providerName": "Provider A",
-      "programName": "Program A",
       "courseType": "inPerson",
       "location": {
-        "city": "Test",
-        "state": "TN"
+        "city": "Test"
       },
       "plannedStartDate": "2019-06-01"
     },
     {
-      "providerName": "Provider B",
       "programName": "Program B",
-      "courseType": "online",
       "location": {
-        "city": "Test",
         "state": "AK"
-      },
-      "plannedStartDate": "2020-06-01"
+      }
     }
   ],
   "currentEmployment": true,

@@ -60,20 +60,20 @@ Account Number: 123456
 VET TEC programs:
 
   Provider name: Provider A
-  Program name: Program A
+  Program name: N/A
   Course type: In Person
   Location:
     City: Test
-    State: TN
+    State: N/A
   Planned start date: 2019-06-01
 
-  Provider name: Provider B
+  Provider name: N/A
   Program name: Program B
-  Course type: Online
+  Course type: N/A
   Location:
-    City: Test
+    City: N/A
     State: AK
-  Planned start date: 2020-06-01
+  Planned start date: N/A
 
                        BACKGROUND INFORMATION
                        ----------------------
