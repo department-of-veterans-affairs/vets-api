@@ -401,6 +401,13 @@ module EVSS
         return disabilities if input_form['newPrimaryDisabilities'].blank?
 
         input_form['newPrimaryDisabilities'].each do |input_disability|
+          # Disabilities that do not exist in the mapped list (disabilities without
+          # a classification code) need to be scrubbed of characters not allowed by
+          # EVSS's validation.
+          if input_disability['classificationCode'].blank?
+            input_disability['condition'] = scrub_disability_condition(input_disability['condition'])
+          end
+
           case input_disability['cause']
           when 'NEW'
             disabilities.append(map_new(input_disability))
@@ -412,6 +419,12 @@ module EVSS
         end
 
         disabilities
+      end
+
+      def scrub_disability_condition(condition)
+        # Note: the right single quote is intentional - apostrophes are not allowed.
+        re = %r{([a-zA-Z0-9\-’.,\/() ]+)}
+        condition.scan(re).join.squish
       end
 
       def translate_new_secondary_disabilities(disabilities)
