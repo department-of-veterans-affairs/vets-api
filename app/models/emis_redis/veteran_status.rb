@@ -37,6 +37,8 @@ module EMISRedis
     class NotAuthorized < StandardError
       attr_reader :status
 
+      # @param status [Integer] An HTTP status code
+      #
       def initialize(status: nil)
         @status = status
       end
@@ -45,6 +47,8 @@ module EMISRedis
     class RecordNotFound < StandardError
       attr_reader :status
 
+      # @param status [Integer] An HTTP status code
+      #
       def initialize(status: nil)
         @status = status
       end

@@ -187,6 +187,7 @@ module V0
       Swagger::Schemas::UploadSupportingEvidence,
       Swagger::Schemas::VAFacilities,
       Swagger::Schemas::CCProviders,
+      Swagger::Schemas::UserInternalServices,
       Swagger::Schemas::Vet360::Address,
       Swagger::Schemas::Vet360::Email,
       Swagger::Schemas::Vet360::Telephone,
