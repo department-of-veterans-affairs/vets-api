@@ -11,7 +11,8 @@ describe HCA::SOAPParser do
 
     subject do
       env = double
-      allow(env).to receive(:url).and_raise(Common::Client::Errors::HTTPError)
+      allow(env).to receive(:url)
+      allow(env).to receive(:body=).and_raise(Common::Client::Errors::HTTPError)
       allow(env).to receive(:body).and_return(body)
       allow(env).to receive(:status).and_return(status)
 
