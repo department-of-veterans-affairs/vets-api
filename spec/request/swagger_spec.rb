@@ -34,34 +34,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
-    context 'for authentication' do
-      it 'supports session mhv url' do
-        expect(subject).to validate(:get, '/sessions/mhv/new', 200)
-      end
-
-      it 'supports session dslogon urs' do
-        expect(subject).to validate(:get, '/sessions/dslogon/new', 200)
-      end
-
-      it 'supports session idme url' do
-        expect(subject).to validate(:get, '/sessions/idme/new', 200)
-      end
-
-      it 'supports session mfa url' do
-        expect(subject).to validate(:get, '/sessions/mfa/new', 200, headers)
-        expect(subject).to validate(:get, '/sessions/mfa/new', 401)
-      end
-
-      it 'supports session verify url' do
-        expect(subject).to validate(:get, '/sessions/verify/new', 200, headers)
-        expect(subject).to validate(:get, '/sessions/verify/new', 401)
-      end
-
-      it 'supports session slo url' do
-        expect(subject).to validate(:get, '/sessions/slo/new', 200, headers)
-        expect(subject).to validate(:get, '/sessions/slo/new', 401)
-      end
-    end
 
     it 'supports getting backend service status' do
       expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
