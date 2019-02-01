@@ -66,27 +66,31 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'new' do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and returns JSON" do
-            get(:new, type: type, format: :json)
+          context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            it 'returns JSON' do
+              get(:new, type: type, format: :json)
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body).keys).to eq %w[url]
+            end
+
+            it 'redirects' do
+              get(:new, type: type)
+              expect(response).to have_http_status(:found)
+            end
+          end
+        end
+
+        context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
+          it 'returns JSON' do
+            get(:new, type: :idme, signup: true, format: :json)
             expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body).keys).to eq %w[url]
+            expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
           end
 
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type} and redirects" do
-            get(:new, type: type)
+          it 'redirects' do
+            get(:new, type: :idme, signup: true)
             expect(response).to have_http_status(:found)
           end
-        end
-
-        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true and returns JSON' do
-          get(:new, type: :idme, signup: true, format: :json)
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
-        end
-
-        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true and redirects' do
-          get(:new, type: :idme, signup: true)
-          expect(response).to have_http_status(:found)
         end
       end
 
