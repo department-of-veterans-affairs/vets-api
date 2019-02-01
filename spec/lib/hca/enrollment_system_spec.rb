@@ -827,6 +827,12 @@ describe HCA::EnrollmentSystem do
     'veteran_to_financials_info',
     [
       [
+        {},
+        {
+          'incomeTest' => { 'discloseFinancialInformation' => false }
+        }
+      ],
+      [
         {
           "deductibleMedicalExpenses": 33.3,
           "deductibleFuneralExpenses": 44.44,
