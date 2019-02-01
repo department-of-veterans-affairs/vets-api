@@ -1084,6 +1084,50 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
+    context 'when there is a new disability without a classificationCode' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'newPrimaryDisabilities' => [
+              {
+                'cause' => 'NEW',
+                'condition' => '  brand [new] disability { to  be } rated',
+                'primaryDescription' => 'new condition description'
+              }
+            ]
+          }
+        }
+      end
+
+      it 'should translate only the NEW disabilities' do
+        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
+          {
+            'disabilityActionType' => 'NEW',
+            'name' => 'brand new disability to be rated',
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
+          }
+        ]
+      end
+    end
+
+    describe '#scrub_disability_condition' do
+      context 'when given a condition name' do
+        let(:condition1) { 'this is only a test' }
+        let(:condition2) { '  this    is only     a      test ' }
+        let(:condition3) { '[ this  is ] (only) a ’test’' }
+        let(:condition4) { 'this-is,only.a-test' }
+        let(:condition5) { 'this ¢is onÈly a töest' }
+
+        it 'should scrub out any illegal characters' do
+          expect(subject.send(:scrub_disability_condition, condition1)).to eq 'this is only a test'
+          expect(subject.send(:scrub_disability_condition, condition2)).to eq 'this is only a test'
+          expect(subject.send(:scrub_disability_condition, condition3)).to eq 'this is (only) a ’test’'
+          expect(subject.send(:scrub_disability_condition, condition4)).to eq 'this-is,only.a-test'
+          expect(subject.send(:scrub_disability_condition, condition5)).to eq 'this is only a test'
+        end
+      end
+    end
+
     describe '#approximate_date' do
       context 'when there is a full date' do
         let(:date) { '2099-12-01' }
