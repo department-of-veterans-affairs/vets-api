@@ -234,4 +234,16 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       end
     end
   end
+
+  context 'without a user' do
+    describe '#show' do
+      let(:in_progress_form) { FactoryBot.create(:in_progress_form) }
+
+      it 'returns a 401' do
+        get v0_in_progress_form_url(in_progress_form.form_id), nil
+
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
 end
