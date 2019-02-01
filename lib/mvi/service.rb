@@ -60,7 +60,7 @@ module MVI
       if e.is_a?(MVI::Errors::RecordNotFound)
         mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
-        mvi_profile_exception_response_for('MVI_503', e)
+        mvi_profile_exception_response_for('MVI_502', e)
       end
     end
     # rubocop:enable Metrics/MethodLength

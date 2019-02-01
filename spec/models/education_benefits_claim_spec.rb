@@ -81,6 +81,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         'status' => 'submitted',
         'transfer_of_entitlement' => false,
         'chapter1607' => false,
+        'vettec' => false,
         'education_benefits_claim_id' => subject.education_benefits_claim.id
       }
     end

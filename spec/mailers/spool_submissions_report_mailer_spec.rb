@@ -17,7 +17,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
       text = described_class::REPORT_TEXT
       expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
       expect(mail.subject).to eq(text)
-      expect(mail.to).to eq(['lihan@adhocteam.us'])
+      expect(mail.to).to include('lihan@adhocteam.us')
     end
 
     context 'when not sending staging emails' do
@@ -35,6 +35,10 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             Jennifer.Waltz2@va.gov
             shay.norton@va.gov
             DONALD.NOBLE2@va.gov
+            Darla.VanNieukerk@va.gov
+            Walter_Jenny@bah.com
+            Hoffmaster_David@bah.com
+            akulkarni@meetveracity.com
           ]
         )
       end
