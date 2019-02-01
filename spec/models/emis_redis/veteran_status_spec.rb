@@ -25,21 +25,21 @@ describe EMISRedis::VeteranStatus, skip_emis: true do
     end
 
     context 'when the user doesnt have an edipi' do
-      it 'raises VeteranStatus::NotAuthorized' do
+      it 'raises VeteranStatus::NotAuthorized', :aggregate_failures do
         expect(user).to receive(:edipi).and_return(nil)
 
-        expect do
-          subject.veteran?
-        end.to raise_error(described_class::NotAuthorized)
+        expect { subject.veteran? }.to raise_error(described_class::NotAuthorized) do |e|
+          expect(e.status).to eq 401
+        end
       end
     end
 
-    context 'when a record can not be found' do
-      it 'raises VeteranStatus::RecordNotFound' do
+    context 'when a record cannot be found' do
+      it 'raises VeteranStatus::RecordNotFound', :aggregate_failures do
         VCR.use_cassette('emis/get_veteran_status/missing_edipi') do
-          expect do
-            subject.veteran?
-          end.to raise_error(described_class::RecordNotFound)
+          expect { subject.veteran? }.to raise_error(described_class::RecordNotFound) do |e|
+            expect(e.status).to eq 404
+          end
         end
       end
     end

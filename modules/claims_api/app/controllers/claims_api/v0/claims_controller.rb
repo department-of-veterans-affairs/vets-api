@@ -7,9 +7,9 @@ module ClaimsApi
   module V0
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
+      before_action :verify_power_of_attorney
 
       def index
-        verify_poa
         claims = service.all
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
@@ -61,16 +61,11 @@ module ClaimsApi
         )
       end
 
-      def verify_poa
-        if header(key = 'X-Consumer-Custom-ID')
-          unless header(key).split(',').include?(veteran_power_of_attorney)
-            raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
-          end
+      def verify_power_of_attorney
+        if header('X-Consumer-PoA').present?
+          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+          verifier.verify(header('X-Consumer-PoA'))
         end
-      end
-
-      def veteran_power_of_attorney
-        service.veteran.power_of_attorney.code
       end
     end
   end
