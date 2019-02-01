@@ -132,14 +132,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
 
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it "returns JSON" do
+            it 'returns JSON' do
               get(:new, type: type, format: :json)
               expect(response).to have_http_status(:ok)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
               expect(JSON.parse(response.body).keys).to eq %w[url]
             end
 
-            it "redirects" do
+            it 'redirects' do
               get(:new, type: type)
               expect(response).to have_http_status(:found)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
