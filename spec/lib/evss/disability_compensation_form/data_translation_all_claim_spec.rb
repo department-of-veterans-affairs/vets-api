@@ -1114,7 +1114,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       context 'when given a condition name' do
         let(:condition1) { 'this is only a test' }
         let(:condition2) { '  this    is only     a      test ' }
-        let(:condition3) { '[ this  is ] (only) a ’test’' }
+        let(:condition3) { '[ \'this\'  is ] (only) a ’test’' }
         let(:condition4) { 'this-is,only.a-test' }
         let(:condition5) { 'this ¢is onÈly a töest' }
 
