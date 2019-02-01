@@ -270,7 +270,7 @@ RSpec.describe FormProfile, type: :model do
         'suffix' => user.va_profile[:suffix]
       },
       'applicantGender' => user.gender,
-      'nightTimePhone' => us_phone,
+      'dayTimePhone' => us_phone,
       'dateOfBirth' => user.birth_date,
       'applicantSocialSecurityNumber' => user.ssn,
       'emailAddress' => user.pciu_email
