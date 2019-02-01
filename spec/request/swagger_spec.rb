@@ -1074,6 +1074,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       expect(subject).to validate(:get, '/v0/user', 401)
     end
 
+    context '/v0/user endpoint with some external service errors' do
+      let(:user) { build(:user) }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+      it 'supports getting user with some external errors', skip_mvi: true do
+        expect(subject).to validate(:get, '/v0/user', 296, headers)
+      end
+    end
+
     context '#feedback' do
       before(:all) do
         Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
