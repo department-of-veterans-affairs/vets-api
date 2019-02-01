@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/charleystran/ruby-bgs.git
-  revision: 1b389c5b91bddce8176763c0889e4fc6d20dcbc2
+  revision: 8685ee3da3eb670490fb8a5cd4461a47fefb3e72
   branch: add_poa_endpoint_for_orgs
   specs:
-    bgs (0.2.1)
+    bgs (0.2.1.1)
       nokogiri (~> 1.8.2)
       savon (~> 2.11)
 
