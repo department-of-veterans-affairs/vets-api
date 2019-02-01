@@ -18,7 +18,7 @@ module Facilities
 
     def download
       query = { 'location' => '*' }
-      perform(:get, 'Main/getRawData', query, nil).body
+      perform(:get, 'Shep/getRawData', query, nil).body
     end
   end
 end
