@@ -25,7 +25,7 @@ describe HCA::RateLimitedSearch do
     it 'should create rate limited search models' do
       described_class.create_rate_limited_searches(user_attributes)
       %w[ssn:1111234 traits:firstnamezztest1923-01-02f].each do |key|
-        expect(RateLimitedSearch.find(key).count).to eq(1)
+        expect(RateLimitedSearch.find(Digest::SHA2.hexdigest(key)).count).to eq(1)
       end
     end
   end
