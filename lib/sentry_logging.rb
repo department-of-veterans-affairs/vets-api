@@ -5,6 +5,7 @@ module SentryLogging
     level = normalize_level(level)
     formatted_message = extra_context.empty? ? message : message + ' : ' + extra_context.to_s
     rails_logger(level, formatted_message)
+
     if Settings.sentry.dsn.present?
       Raven.extra_context(extra_context) if non_nil_hash?(extra_context)
       Raven.tags_context(tags_context) if non_nil_hash?(tags_context)
@@ -49,7 +50,7 @@ module SentryLogging
     # rails logger uses 'warn' instead of 'warning'
     level = 'warn' if level == 'warning'
     if errors.present?
-      error_details = errors.first.attributes.compact.reject { |_k, v| v.empty? }
+      error_details = errors.first.attributes.compact.reject { |_k, v| v.try(:empty?) }
       Rails.logger.send(level, message, error_details.merge(backtrace: backtrace))
     else
       Rails.logger.send(level, message)

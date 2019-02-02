@@ -2,7 +2,7 @@
 
 require 'attr_encrypted'
 class EducationBenefitsClaim < ActiveRecord::Base
-  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993].freeze
+  FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
 
   APPLICATION_TYPES = %w[
     chapter33
@@ -11,6 +11,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
     chapter32
     chapter35
     transfer_of_entitlement
+    vettec
     chapter30
   ].freeze
 
@@ -111,6 +112,8 @@ class EducationBenefitsClaim < ActiveRecord::Base
       benefits = parsed_form.slice(*APPLICATION_TYPES)
     when '1990n'
       return benefits
+    when '0994'
+      benefits['vettec'] = true
     else
       benefit = parsed_form['benefit']&.underscore
       benefits[benefit] = true if benefit.present?

@@ -48,15 +48,18 @@ module Common
         end.call
       end
 
-      def perform(method, path, params, headers = nil)
+      def perform(method, path, params, headers = nil, options = nil)
         raise NoMethodError, "#{method} not implemented" unless config.request_types.include?(method)
-        send(method, path, params || {}, headers || {})
+        send(method, path, params || {}, headers || {}, options || {})
       end
 
-      def request(method, path, params = {}, headers = {})
+      def request(method, path, params = {}, headers = {}, options = {}) # rubocop:disable Metrics/MethodLength
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) { |request| request.headers.update(headers) }.env
+        connection.send(method.to_sym, path, params) do |request|
+          request.headers.update(headers)
+          options.each { |option, value| request.options.send("#{option}=", value) }
+        end.env
       rescue Common::Exceptions::BackendServiceException => e
         # convert BackendServiceException into a more meaningful exception title for Sentry
         raise config.service_exception.new(
@@ -90,20 +93,20 @@ module Common
         end
       end
 
-      def get(path, params, headers)
-        request(:get, path, params, headers)
+      def get(path, params, headers, options)
+        request(:get, path, params, headers, options)
       end
 
-      def post(path, params, headers)
-        request(:post, path, params, headers)
+      def post(path, params, headers, options)
+        request(:post, path, params, headers, options)
       end
 
-      def put(path, params, headers)
-        request(:put, path, params, headers)
+      def put(path, params, headers, options)
+        request(:put, path, params, headers, options)
       end
 
-      def delete(path, params, headers)
-        request(:delete, path, params, headers)
+      def delete(path, params, headers, options)
+        request(:delete, path, params, headers, options)
       end
 
       def raise_not_authenticated

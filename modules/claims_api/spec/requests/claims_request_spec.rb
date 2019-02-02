@@ -16,6 +16,9 @@ RSpec.describe 'EVSS Claims management', type: :request do
   }.freeze
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+    verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+    allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+    allow(verifier_stub).to receive(:verify)
     VCR.use_cassette('evss/claims/claims') do
       get '/services/claims/v0/claims', nil,
           'X-VA-SSN' => '796043735',
