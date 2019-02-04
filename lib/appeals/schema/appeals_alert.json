@@ -14,7 +14,9 @@
           "decision_soon",
           "blocked_by_vso",
           "scheduled_dro_hearing",
-          "dro_hearing_no_show"
+          "dro_hearing_no_show",
+          "evidentiary_period",
+          "ama_post_decision"
         ]
       }
     },
