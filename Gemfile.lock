@@ -1,13 +1,4 @@
 GIT
-  remote: https://github.com/charleystran/ruby-bgs.git
-  revision: 2c4ef83555e13f16be475d783e72a4c4f6431d34
-  branch: add_poa_endpoint_for_orgs
-  specs:
-    bgs (0.2.1.2)
-      nokogiri (~> 1.8.2)
-      savon (~> 2.11)
-
-GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: dfeb140c9571020239807477e34ec58ad2b38b32
   branch: master
@@ -1119,7 +1110,6 @@ DEPENDENCIES
   awrence
   aws-sdk (~> 3)
   betamocks!
-  bgs!
   brakeman
   breakers
   bundler-audit
