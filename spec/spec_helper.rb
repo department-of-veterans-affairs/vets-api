@@ -54,6 +54,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'version.rb'
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
     add_filter 'app/controllers/v0/bgs_controller.rb'
+    add_filter 'src/vets-api/lib/bgs.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end
