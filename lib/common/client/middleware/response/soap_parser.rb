@@ -6,24 +6,28 @@ module Common
       module Response
         class SOAPParser < Faraday::Response::Middleware
           def on_complete(env)
-            Raven.extra_context(
-              url: env.url.to_s,
-              body: env.body
-            )
-
             case env.status
             when 200
               doc = parse_doc(env.body)
               if doc_includes_error?(doc)
+                log_error_details(env)
                 raise Common::Client::Errors::HTTPError.new('SOAP service returned internal server error', 500)
               end
               env.body = doc
             else
+              log_error_details(env)
               raise Common::Client::Errors::HTTPError.new('SOAP HTTP call failed', env.status)
             end
           end
 
           private
+
+          def log_error_details(env)
+            Raven.extra_context(
+              url: env.url.to_s,
+              body: env.body
+            )
+          end
 
           def parse_doc(body)
             Ox.parse(ensure_xml_prolog(body))

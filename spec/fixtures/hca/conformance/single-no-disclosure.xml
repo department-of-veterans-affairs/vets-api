@@ -63,6 +63,11 @@
           <eeSummary:radiationExposureInd>true</eeSummary:radiationExposureInd>
         </eeSummary:specialFactors>
       </eeSummary:enrollmentDeterminationInfo>
+      <eeSummary:financialsInfo xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas">
+        <eeSummary:incomeTest>
+          <eeSummary:discloseFinancialInformation>false</eeSummary:discloseFinancialInformation>
+        </eeSummary:incomeTest>
+      </eeSummary:financialsInfo>
       <eeSummary:insuranceList xmlns:eeSummary="http://jaxws.webservices.esr.med.va.gov/schemas">
         <eeSummary:insurance>
           <eeSummary:companyName>MyInsruance</eeSummary:companyName>

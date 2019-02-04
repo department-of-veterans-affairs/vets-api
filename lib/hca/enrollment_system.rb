@@ -492,32 +492,36 @@ module HCA
 
     # rubocop:disable Metrics/MethodLength
     def veteran_to_financials_info(veteran)
-      return unless financial_flag?(veteran)
+      if financial_flag?(veteran)
+        incomes = resource_to_income_collection(
+          'grossIncome' => veteran['veteranGrossIncome'],
+          'netIncome' => veteran['veteranNetIncome'],
+          'otherIncome' => veteran['veteranOtherIncome']
+        )
 
-      incomes = resource_to_income_collection(
-        'grossIncome' => veteran['veteranGrossIncome'],
-        'netIncome' => veteran['veteranNetIncome'],
-        'otherIncome' => veteran['veteranOtherIncome']
-      )
-
-      {
-        'incomeTest' => { 'discloseFinancialInformation' => true },
-        'financialStatement' => {
-          'expenses' => resource_to_expense_collection(
-            {
-              'educationExpense' => veteran['deductibleEducationExpenses'],
-              'funeralExpense' => veteran['deductibleFuneralExpenses'],
-              'medicalExpense' => veteran['deductibleMedicalExpenses']
-            },
-            income_collection_total(incomes)
-          ),
-          'incomes' => incomes,
-          'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
-          'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
-          'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
-          'numberOfDependentChildren' => veteran['dependents']&.size
+        {
+          'incomeTest' => { 'discloseFinancialInformation' => true },
+          'financialStatement' => {
+            'expenses' => resource_to_expense_collection(
+              {
+                'educationExpense' => veteran['deductibleEducationExpenses'],
+                'funeralExpense' => veteran['deductibleFuneralExpenses'],
+                'medicalExpense' => veteran['deductibleMedicalExpenses']
+              },
+              income_collection_total(incomes)
+            ),
+            'incomes' => incomes,
+            'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
+            'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
+            'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
+            'numberOfDependentChildren' => veteran['dependents']&.size
+          }
         }
-      }
+      else
+        {
+          'incomeTest' => { 'discloseFinancialInformation' => false }
+        }
+      end
     end
     # rubocop:enable Metrics/MethodLength
 

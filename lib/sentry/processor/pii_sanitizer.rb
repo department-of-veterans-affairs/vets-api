@@ -3,57 +3,59 @@
 module Sentry
   module Processor
     class PIISanitizer < Raven::Processor
-      SANITIZED_FIELDS = Set.new(
+      SANITIZED_FIELDS =
         %w[
-          city
-          country
-          gender
-          phone
-          postalCode
-          zipCode
-          fileNumber
-          state
-          street
-          vaEauthPnid
-          vaEauthBirthdate
-          accountType
-          accountNumber
-          routingNumber
-          bankName
-          ssn
-          birth_date
-          social
-          dslogon_idvalue
-        ]
-      )
+          accountType city country gender phone postalCode zipCode fileNumber state street vaEauthPnid
+          accountNumber routingNumber bankName ssn birth_date social fname lname mname dslogon_idvalue
+        ].freeze
+
+      PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }).freeze
 
       JSON_STARTS_WITH = ['[', '{'].freeze
 
-      # rubocop:disable Metrics/CyclomaticComplexity
-      def process(value, key = nil)
-        case value
-        when Hash
-          !value.frozen? ? value.merge!(value) { |k, v| process v, k } : value.merge(value) { |k, v| process v, k }
-        when Array
-          !value.frozen? ? value.map! { |v| process v } : value.map { |v| process v }
-        when String
-          # if this string is actually a json obj, convert and sanitize
-          # taken from: https://github.com/getsentry/raven-ruby/blob/master/lib/raven/processor/sanitizedata.rb#L29
-          if SANITIZED_FIELDS.any? { |field| value.include?(field) } && (json = parse_json_or_nil(value))
-            process(json).to_json
-          else
-            filter_values(key, value)
-          end
-        else
-          filter_values(key, value)
-        end
+      FILTER_MASK = 'FILTERED-CLIENTSIDE'
+      FILTER_MASK_NIL = FILTER_MASK + '-NIL'
+      FILTER_MASK_BLANK = FILTER_MASK + '-BLANK'
+
+      def process(unsanitized_object)
+        sanitize(unsanitized_object.dup)
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
 
       private
 
-      def filter_values(key, value)
-        SANITIZED_FIELDS.include?(key.to_s.camelize(:lower)) ? 'FILTERED' : value
+      def sanitize(object)
+        case object
+        when Hash
+          object.each do |k, v|
+            object[k] = filter(k, sanitize(v))
+          end
+        when Array
+          object.each_with_index do |value, index|
+            object[index] = sanitize(value)
+          end
+        when String
+          if object.match(PATTERN) && (json = parse_json_or_nil(object))
+            object = sanitize(json).to_json
+          else
+            object
+          end
+        else
+          object
+        end
+      end
+
+      def filter(key, unsanitized_value)
+        if key.to_s.tr('_', '').downcase.match(PATTERN)
+          if unsanitized_value.is_a?(Array)
+            unsanitized_value.map { |element| filter(key, element) }
+          else
+            return FILTER_MASK_NIL if unsanitized_value.nil?
+            return FILTER_MASK_BLANK if unsanitized_value.blank?
+            FILTER_MASK
+          end
+        else
+          unsanitized_value
+        end
       end
 
       def parse_json_or_nil(string)
