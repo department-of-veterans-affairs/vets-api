@@ -10,14 +10,6 @@ module EducationForm::Forms
       'VetTec'
     end
 
-    PROGRAM_NAMES = {
-      'program1': 'Program 1',
-      'program2': 'Program 2',
-      'program3': 'Program 3',
-      'program4': 'Program 4',
-      'program5': 'Program 5'
-    }.freeze
-
     HIGH_TECH_AREA_NAMES = {
       'computerProgramming': 'Computer Programming',
       'dataProcessing': 'Data Processing',
@@ -34,6 +26,22 @@ module EducationForm::Forms
       'moreThanSeventyFive': '>$75,000'
     }.freeze
 
+    EDUCATION_TEXT = {
+      'high_school_diploma_or_GED': 'High school diploma or GED',
+      'some_college': 'Some college',
+      'associates_degree': 'Associate’s degree',
+      'bachelors_degree': 'Bachelor’s degree',
+      'masters_degree': 'Master’s degree',
+      'doctoral_degree': 'Doctoral degree',
+      'other': 'Other'
+    }.freeze
+
+    COURSE_TYPE_TEXT = {
+      'inPerson': 'In Person',
+      'online': 'Online',
+      'both': 'Both'
+    }.freeze
+
     def applicant_name
       @applicant.applicantFullName
     end
@@ -42,29 +50,49 @@ module EducationForm::Forms
       @applicant.applicantSocialSecurityNumber
     end
 
+    def bank_routing_number
+      return 'N/A' if @applicant.bankAccount.blank?
+      value_or_na(@applicant.bankAccount.routingNumber)
+    end
+
+    def bank_account_number
+      return 'N/A' if @applicant.bankAccount.blank?
+      value_or_na(@applicant.bankAccount.accountNumber)
+    end
+
+    def bank_account_type
+      return 'N/A' if @applicant.bankAccount.blank?
+      value_or_na(@applicant.bankAccount.accountType)
+    end
+
     def location
-      return '' if @applicant.vetTecProgramLocations.blank?
+      return 'N/A' if @applicant.vetTecProgramLocations.blank?
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
-    def selected_programs
-      return '' if @applicant.vetTecProgram.blank?
-      programs = []
+    def high_tech_area_names
+      return 'N/A' if @applicant.highTechnologyEmploymentTypes.blank?
 
-      @applicant.vetTecProgram.each do |program|
-        programs.push(PROGRAM_NAMES[program.to_sym])
+      areas = []
+      @applicant.highTechnologyEmploymentTypes.each do |area|
+        areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
       end
-
-      programs.join(', ')
+      areas.join(', ')
     end
 
-    def high_tech_area_name
-      return '' if @applicant.highTechnologyEmploymentType.blank?
-      HIGH_TECH_AREA_NAMES[@applicant.highTechnologyEmploymentType.to_sym]
+    def education_level_name
+      return 'N/A' if @applicant.highestLevelofEducation.blank?
+      return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
+      EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
+    end
+
+    def course_type_name(course_type)
+      return 'N/A' if course_type.blank?
+      COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
     def salary_text
-      return '' if @applicant.currentSalary.blank?
+      return 'N/A' if @applicant.currentSalary.blank?
       SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
   end
