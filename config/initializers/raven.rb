@@ -11,7 +11,7 @@ Raven.configure do |config|
 
   config.excluded_exceptions += ['Sentry::IgnoredError']
 
-  config.before_send = -> event, hint do
+  config.before_send = lambda do |event, hint|
     return event unless hint[:exception] && hint[:exception].is_a?(Common::Exceptions::BackendServiceException)
 
     event.fingerprint = hint[:exception].key
@@ -19,5 +19,5 @@ Raven.configure do |config|
     event
   end
 
-  config.async = -> event { SentryJob.perform_async(event) }
+  config.async = ->(event) { SentryJob.perform_async(event) }
 end
