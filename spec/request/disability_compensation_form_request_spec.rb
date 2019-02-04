@@ -168,6 +168,11 @@ RSpec.describe 'Disability compensation form', type: :request do
     context 'with a success status' do
       let(:submission) { create(:form526_submission, submitted_claim_id: 61_234_567) }
       let(:job_status) { create(:form526_job_status, form526_submission_id: submission.id) }
+      let!(:ancillary_job_status) do
+        create(:form526_job_status,
+               form526_submission_id: submission.id,
+               job_class: 'AncillaryForm')
+      end
 
       it 'should return the job status and response', :aggregate_failures do
         get "/v0/disability_compensation_form/submission_status/#{job_status.job_id}", nil, headers
@@ -179,7 +184,17 @@ RSpec.describe 'Disability compensation form', type: :request do
             'attributes' => {
               'claim_id' => 61_234_567,
               'job_id' => job_status.job_id,
-              'status' => 'success'
+              'submission_id' => submission.id,
+              'status' => 'success',
+              'ancillary_item_statuses' => [{
+                'id' => ancillary_job_status.id,
+                'job_id' => ancillary_job_status.job_id,
+                'job_class' => 'AncillaryForm',
+                'status' => 'success',
+                'error_class' => nil,
+                'error_message' => nil,
+                'updated_at' => ancillary_job_status.updated_at
+              }]
             }
           }
         )
@@ -200,7 +215,9 @@ RSpec.describe 'Disability compensation form', type: :request do
             'attributes' => {
               'claim_id' => nil,
               'job_id' => job_status.job_id,
-              'status' => 'retryable_error'
+              'submission_id' => submission.id,
+              'status' => 'retryable_error',
+              'ancillary_item_statuses' => []
             }
           }
         )
@@ -221,7 +238,9 @@ RSpec.describe 'Disability compensation form', type: :request do
             'attributes' => {
               'claim_id' => nil,
               'job_id' => job_status.job_id,
-              'status' => 'non_retryable_error'
+              'submission_id' => submission.id,
+              'status' => 'non_retryable_error',
+              'ancillary_item_statuses' => []
             }
           }
         )

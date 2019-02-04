@@ -122,7 +122,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     it 'should respond properly when MVI is down' do
       VCR.use_cassette('mvi/find_candidate/failure') do
         get '/internal/auth/v0/mvi-user', nil, auth_headers
-        expect(response).to have_http_status(:service_unavailable)
+        expect(response).to have_http_status(:bad_gateway)
       end
     end
   end

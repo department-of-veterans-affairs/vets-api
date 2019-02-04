@@ -5,8 +5,8 @@ require 'pp'
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
   task :submissions, %i[start_date end_date] => [:environment] do |_, args|
-    def print_row(created_at, updated_at, id, claim_id, complete)
-      printf "%-24s %-24s %-15s %-10s %s\n", created_at, updated_at, id, claim_id, complete
+    def print_row(created_at, updated_at, id, claim_id, complete, version) # rubocop:disable Metrics/ParameterLists
+      printf "%-24s %-24s %-15s %-10s %-10s %s\n", created_at, updated_at, id, claim_id, complete, version
     end
 
     def print_total(header, total)
@@ -17,7 +17,7 @@ namespace :form526 do
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
 
     puts '------------------------------------------------------------'
-    print_row('created at:', 'updated at:', 'submission id:', 'claim id:', 'workflow complete:')
+    print_row('created at:', 'updated at:', 'submission id:', 'claim id:', 'workflow complete:', 'form version:')
 
     submissions = Form526Submission.where(
       'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
@@ -26,7 +26,11 @@ namespace :form526 do
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
     submissions.find_each do |s|
-      print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete)
+      version = 'version 1: IO'
+      s.form526_job_statuses.each do |j|
+        version = 'version 2: AC' if j.job_class == 'SubmitForm526AllClaim'
+      end
+      print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete, version)
     end
 
     total_jobs = submissions.count

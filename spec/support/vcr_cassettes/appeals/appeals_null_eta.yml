@@ -57,7 +57,7 @@ http_interactions:
           "data": [
             {
               "id": "XXXXXXX",
-              "type": "appealSeries",
+              "type": "legacyAppeal",
               "attributes": {
                 "appealIds": [
                   "XXXXXXX"
@@ -109,7 +109,7 @@ http_interactions:
             },
             {
               "id": "XXXXXXX",
-              "type": "appealSeries",
+              "type": "legacyAppeal",
               "attributes": {
                 "appealIds": [
                   "XXXXXXX"
