@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/saml/response_builder'
 
 RSpec.describe Sentry::Processor::PIISanitizer do
+  include SAML::ResponseBuilder
+
   let(:client) { double('client') }
   let(:processor) { Sentry::Processor::PIISanitizer.new(client) }
   let(:result) { processor.process(data) }
@@ -35,43 +38,43 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     end
 
     it 'should filter zipcode' do
-      expect(result[:zipCode]).to eq('FILTERED')
+      expect(result[:zipCode]).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter fileNumber' do
-      expect(result[:fileNumber]).to eq('FILTERED')
+      expect(result[:fileNumber]).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter address data' do
-      result[:veteran_address].each_value { |v| expect(v).to eq('FILTERED') }
+      result[:veteran_address].each_value { |v| expect(v).to eq('FILTERED-CLIENTSIDE') }
     end
 
     it 'should filter direct deposit data' do
-      result[:directDeposit].each_value { |v| expect(v).to eq('FILTERED') }
+      result[:directDeposit].each_value { |v| expect(v).to eq('FILTERED-CLIENTSIDE') }
     end
 
     it 'should filter gender data' do
-      expect(result[:gender]).to eq('FILTERED')
+      expect(result[:gender]).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter phone data' do
-      expect(result[:phone]).to eq('FILTERED')
+      expect(result[:phone]).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter json blobs' do
-      expect(result[:json]).to include('FILTERED')
+      expect(result[:json]).to include('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter arrays' do
-      expect(result[:array_of_json].first).to include('FILTERED')
+      expect(result[:array_of_json].first).to include('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter EVSS va_eauth_birthdate data' do
-      expect(result[:va_eauth_birthdate]).to eq('FILTERED')
+      expect(result[:va_eauth_birthdate]).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter EVSS va_eauth_pnid data' do
-      expect(result[:va_eauth_pnid]).to eq('FILTERED')
+      expect(result[:va_eauth_pnid]).to eq('FILTERED-CLIENTSIDE')
     end
   end
 
@@ -95,31 +98,106 @@ RSpec.describe Sentry::Processor::PIISanitizer do
     end
 
     it 'should filter address data' do
-      result['veteranAddress'].each_value { |v| expect(v).to eq('FILTERED') }
+      result['veteranAddress'].each_value { |v| expect(v).to eq('FILTERED-CLIENTSIDE') }
     end
 
     it 'should filter gender data' do
-      expect(result['gender']).to eq('FILTERED')
+      expect(result['gender']).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter phone data' do
-      expect(result['phone']).to eq('FILTERED')
+      expect(result['phone']).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter json blobs' do
-      expect(result['json']).to include('FILTERED')
+      expect(result['json']).to include('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter arrays' do
-      expect(result['arrayOfJson'].first).to include('FILTERED')
+      expect(result['arrayOfJson'].first).to include('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter EVSS va_eauth_birthdate data' do
-      expect(result['va_eauth_birthdate']).to eq('FILTERED')
+      expect(result['va_eauth_birthdate']).to eq('FILTERED-CLIENTSIDE')
     end
 
     it 'should filter EVSS va_eauth_pnid data' do
-      expect(result['va_eauth_pnid']).to eq('FILTERED')
+      expect(result['va_eauth_pnid']).to eq('FILTERED-CLIENTSIDE')
+    end
+  end
+
+  context 'saml_response attributes' do
+    context 'handles array values' do
+      let(:data) do
+        {
+          dslogon_assurance: ['2'],
+          dslogon_birth_date: ['1984-02-10'],
+          dslogon_deceased: ['false'],
+          dslogon_fname: ['Bill'],
+          dslogon_gender: ['M'],
+          dslogon_idtype: ['ssn'],
+          dslogon_idvalue: ['333224444'],
+          dslogon_lname: ['Walsh'],
+          dslogon_mname: ['Brady'],
+          dslogon_status: ['VETERAN'],
+          dslogon_uuid: ['11111111111'],
+          email: ['whatever@whatever.com'],
+          level_of_assurance: [0],
+          multifactor: [true],
+          uuid: ['7ff6f2e7ac774ddc835sdfkjhsdflkj']
+        }
+      end
+
+      it 'correctly filters pii from saml response attributes' do
+        expect(result)
+          .to eq(
+            dslogon_assurance: ['2'],
+            dslogon_birth_date: ['FILTERED-CLIENTSIDE'],
+            dslogon_deceased: ['false'],
+            dslogon_fname: ['FILTERED-CLIENTSIDE'],
+            dslogon_gender: ['FILTERED-CLIENTSIDE'],
+            dslogon_idtype: ['ssn'],
+            dslogon_idvalue: ['FILTERED-CLIENTSIDE'],
+            dslogon_lname: ['FILTERED-CLIENTSIDE'],
+            dslogon_mname: ['FILTERED-CLIENTSIDE'],
+            dslogon_status: ['VETERAN'],
+            dslogon_uuid: ['11111111111'],
+            email: ['whatever@whatever.com'],
+            level_of_assurance: [0],
+            multifactor: [true],
+            uuid: ['7ff6f2e7ac774ddc835sdfkjhsdflkj']
+          )
+      end
+    end
+
+    context 'handles an empty array' do
+      let(:data) { { 'dslogon_idvalue' => [] } }
+
+      it 'does not filter since no value present' do
+        expect(result['dslogon_idvalue']).to eq([])
+      end
+    end
+
+    context 'handles an array with a blank value or nil value' do
+      let(:data) { { 'dslogon_idvalue' => ['', nil] } }
+
+      it 'filters blank and nil differently' do
+        expect(result['dslogon_idvalue']).to eq(['FILTERED-CLIENTSIDE-BLANK', 'FILTERED-CLIENTSIDE-NIL'])
+      end
+    end
+
+    context 'handles an array with mixed values' do
+      let(:data) { { 'dslogon_idvalue' => ['ssn', '', nil, ['ssn', nil], []] } }
+
+      it 'filters blank, nil, and empty array differently' do
+        expect(result['dslogon_idvalue']).to eq([
+                                                  'FILTERED-CLIENTSIDE',
+                                                  'FILTERED-CLIENTSIDE-BLANK',
+                                                  'FILTERED-CLIENTSIDE-NIL',
+                                                  ['FILTERED-CLIENTSIDE', 'FILTERED-CLIENTSIDE-NIL'],
+                                                  []
+                                                ])
+      end
     end
   end
 end

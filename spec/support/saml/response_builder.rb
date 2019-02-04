@@ -90,7 +90,8 @@ module SAML
 
     def saml_response_too_late
       build_invalid_saml_response(
-        status_message: 'Current time is on or after NotOnOrAfter condition', in_response_to: uuid,
+        status_message: nil,
+        in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
           'Current time is on or after NotOnOrAfter condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'
@@ -100,7 +101,8 @@ module SAML
 
     def saml_response_too_early
       build_invalid_saml_response(
-        status_message: 'Current time is earlier than NotBefore condition', in_response_to: uuid,
+        status_message: nil,
+        in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
           'Current time is earlier than NotBefore condition (2017-02-10 17:03:30 UTC) < 2017-02-10 17:03:40 UTC)'

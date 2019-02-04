@@ -28,43 +28,53 @@ describe Mvi, skip_mvi: true do
 
   describe '#profile' do
     context 'when the cache is empty' do
-      it 'should cache and return an :ok response' do
+      it 'should cache and return an :ok response', :aggregate_failures do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response)
         expect(mvi).to receive(:save).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('OK')
         expect(mvi.send(:record_ttl)).to eq(86_400)
+        expect(mvi.error).to be_nil
       end
-      it 'should return an :error response but not cache it' do
+      it 'should return an :error response but not cache it', :aggregate_failures do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
         expect(mvi).to_not receive(:save)
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('SERVER_ERROR')
+        expect(mvi.error).to be_present
+        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
-      it 'should return a :not_found response and cache it for a shorter time' do
+      it 'should return a :not_found response and cache it for a shorter time', :aggregate_failures do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_not_found)
         expect(mvi).to receive(:save).once
         expect_any_instance_of(MVI::Service).to receive(:find_profile).once
         expect(mvi.status).to eq('NOT_FOUND')
         expect(mvi.send(:record_ttl)).to eq(1800)
+        expect(mvi.error).to be_present
+        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
     end
 
     context 'when there is cached data' do
-      it 'returns the cached data for :ok response' do
+      it 'returns the cached data for :ok response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response)
         expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
         expect(mvi.profile).to have_deep_attributes(mvi_profile)
+        expect(mvi.error).to be_nil
       end
-      it 'returns the cached data for :error response' do
+      it 'returns the cached data for :error response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response_error)
         expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
         expect(mvi.profile).to be_nil
+        expect(mvi.error).to be_present
+        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
-      it 'returns the cached data for :not_found response' do
+      it 'returns the cached data for :not_found response', :aggregate_failures do
         mvi.cache(user.uuid, profile_response_not_found)
         expect_any_instance_of(MVI::Service).to_not receive(:find_profile)
         expect(mvi.profile).to be_nil
+        expect(mvi.error).to be_present
+        expect(mvi.error.class).to eq Common::Exceptions::BackendServiceException
       end
     end
   end
@@ -115,6 +125,10 @@ describe Mvi, skip_mvi: true do
     context 'with an error response' do
       before(:each) do
         allow_any_instance_of(MVI::Service).to receive(:find_profile).and_return(profile_response_error)
+      end
+
+      it 'captures the error in #error' do
+        expect(mvi.error).to be_present
       end
 
       describe '#edipi' do

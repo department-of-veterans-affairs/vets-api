@@ -88,6 +88,14 @@ class Mvi < Common::RedisStore
     mvi_response.status
   end
 
+  # The error experienced when reaching out to the MVI service.
+  #
+  # @return [Common::Exceptions::BackendServiceException]
+  def error
+    return Common::Exceptions::Unauthorized.new(source: self.class) unless user.loa3?
+    mvi_response.try(:error)
+  end
+
   # @return [MVI::Responses::FindProfileResponse] the response returned from MVI
   def mvi_response
     @mvi_response ||= response_from_redis_or_service

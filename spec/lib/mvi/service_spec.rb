@@ -129,7 +129,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/invalid_icn') do
           response = subject.find_profile(user)
 
-          server_error_503_expectations_for(response)
+          server_error_502_expectations_for(response)
         end
       end
 
@@ -142,7 +142,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/icn_not_found') do
           response = subject.find_profile(user)
 
-          server_error_503_expectations_for(response)
+          server_error_502_expectations_for(response)
         end
       end
     end
@@ -257,7 +257,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/invalid') do
           response = subject.find_profile(user)
 
-          server_error_503_expectations_for(response)
+          server_error_502_expectations_for(response)
         end
       end
     end
@@ -272,7 +272,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/failure') do
           response = subject.find_profile(user)
 
-          server_error_503_expectations_for(response)
+          server_error_502_expectations_for(response)
         end
       end
     end
@@ -435,6 +435,18 @@ describe MVI::Service do
       end
     end
   end
+end
+
+def server_error_502_expectations_for(response)
+  exception = response.error.errors.first
+
+  expect(response.class).to eq MVI::Responses::FindProfileResponse
+  expect(response.status).to eq server_error
+  expect(response.profile).to be_nil
+  expect(exception.title).to eq 'Bad Gateway'
+  expect(exception.code).to eq 'MVI_502'
+  expect(exception.status).to eq '502'
+  expect(exception.source).to eq MVI::Service
 end
 
 def server_error_503_expectations_for(response)
