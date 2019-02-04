@@ -50,7 +50,7 @@ module OpenidAuth
                             email: request.headers['x-va-user-email'],
                             first_name: request.headers['x-va-first-name'],
                             last_name: request.headers['x-va-last-name'],
-                            # TODO break this out into a method that handles unknown gender
+                            # TODO: break this out into a method that handles unknown gender
                             gender: request.headers['x-va-gender']&.chars&.first&.upcase,
                             birth_date: request.headers['x-va-dob'],
                             ssn: request.headers['x-va-ssn'],
