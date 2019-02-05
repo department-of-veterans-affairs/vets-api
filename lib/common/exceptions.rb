@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-# require 'require_all'
-# require_all 'lib/common/exceptions/**/*.rb'
-
-module Common
-  module Exceptions
-  end
-end
-
 require_dependency 'common/exceptions/base_error'
 require_dependency 'common/exceptions/serializable_error'
 require_dependency 'common/exceptions/internal/invalid_resource'
