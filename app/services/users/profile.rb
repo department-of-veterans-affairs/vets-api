@@ -70,6 +70,7 @@ module Users
         loa: user.loa,
         multifactor: user.multifactor,
         verified: user.loa3?,
+        sign_in: user.identity.sign_in,
         # FIXME: this wont be necessary after FE makes appropriate changes
         authn_context: user.authn_context.scan(/(myhealthevet|dslogon)/).flatten[0]
       }
