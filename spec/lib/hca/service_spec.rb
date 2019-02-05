@@ -36,8 +36,8 @@ describe HCA::Service do
           service =
             if form =~ /authenticated/
               described_class.new(
-              HealthCareApplication.get_user_identifier(current_user)
-            )
+                HealthCareApplication.get_user_identifier(current_user)
+              )
             else
               described_class.new
             end
