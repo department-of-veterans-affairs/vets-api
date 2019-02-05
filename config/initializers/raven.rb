@@ -15,7 +15,7 @@ Raven.configure do |config|
     return event unless hint[:exception] && hint[:exception].is_a?(Common::Exceptions::BackendServiceException)
 
     event.fingerprint = hint[:exception].key
-    event.tags = event.tags.merge!(key: hint[:exception].key)
+    event.tags.merge!(key: hint[:exception].key)
     event
   end
 
