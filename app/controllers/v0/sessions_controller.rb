@@ -86,7 +86,7 @@ module V0
         stats(:failure)
       end
     rescue NoMethodError
-      log_message_to_sentry('NoMethodError', base64_params_saml_response: params[:SAMLResponse])
+      log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
       redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
       stats(:failed_unknown)
     ensure
