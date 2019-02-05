@@ -8,7 +8,7 @@ module Common
   end
 end
 
-require_dependency 'common/exceptions/base_error.rb'
+require_dependency 'common/exceptions/base_error'
 require_dependency 'common/exceptions/serializable_error'
 require_dependency 'common/exceptions/internal/invalid_resource'
 require_dependency 'common/exceptions/internal/unknown_format'
@@ -30,8 +30,6 @@ require_dependency 'common/exceptions/internal/unauthorized'
 require_dependency 'common/exceptions/internal/forbidden'
 require_dependency 'common/exceptions/internal/unexpected_forbidden'
 require_dependency 'common/exceptions/internal/internal_server_error'
-require_dependency 'common/exceptions/serializable_error'
-require_dependency 'common/exceptions/base_error'
 require_dependency 'common/exceptions/external/backend_service_exception'
 require_dependency 'common/exceptions/external/service_error'
 require_dependency 'common/exceptions/external/resource_not_found'
