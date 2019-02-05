@@ -165,6 +165,7 @@ components:
               - medical
               - burial
               - bva
+              - fiduciary
               - other
               - multiple
             description:
@@ -370,6 +371,7 @@ components:
           - dro_hearing_no_show
           - ama_nod
           - docket_change
+          - distributed_to_vlj
           - bva_decision_effectuation
           - dta_decision
           - sc_request
