@@ -52,8 +52,8 @@ VET TEC programs:
   Program name: <%= value_or_na(program.programName) %>
   Course type: <%= course_type_name(program.courseType) %>
   Location:
-    City: <%= value_or_na(program.location.city) %>
-    State: <%= value_or_na(program.location.state) %>
+    City: <%= value_or_na(program.location&.city) %>
+    State: <%= value_or_na(program.location&.state) %>
   Planned start date: <%= value_or_na(program.plannedStartDate) %>
 <% end %>
                        BACKGROUND INFORMATION
