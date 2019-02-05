@@ -53,7 +53,12 @@ class HealthCareApplication < ActiveRecord::Base
 
     if parsed_form['email'].present? && async_compatible
       save!
-      HCA::SubmissionJob.perform_async(self.class.get_user_identifier(user), parsed_form, id, google_analytics_client_id)
+      HCA::SubmissionJob.perform_async(
+        self.class.get_user_identifier(user),
+        parsed_form,
+        id,
+        google_analytics_client_id
+      )
 
       self
     else
