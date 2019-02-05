@@ -15,6 +15,15 @@ class HealthCareApplication < ActiveRecord::Base
 
   after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
 
+  def self.get_user_identifier(user)
+    return if user.nil?
+
+    {
+      'icn' => user.icn,
+      'edipi' => user.edipi
+    }
+  end
+
   def success?
     state == 'success'
   end

@@ -644,16 +644,19 @@ module HCA
       hash.delete_if { |_k, v| v.blank? }
     end
 
-    def build_form_for_user(current_user)
+    def build_form_for_user(user_identifier)
       form = FORM_TEMPLATE.deep_dup
-      return form if current_user.nil?
-      (user_id, id_type) = if current_user.icn
-                             [current_user.icn, 1]
-                           elsif current_user.edipi
-                             [current_user.edipi, 2]
-                           else
-                             [nil, nil]
-                           end
+      return form if user_identifier.blank?
+      icn = user_identifier['icn']
+      edipi = user_identifier['edipi']
+      (user_id, id_type) =
+        if icn
+          [icn, 1]
+        elsif edipi
+          [edipi, 2]
+        else
+          [nil, nil]
+        end
       return form if user_id.nil?
 
       authentication_level = form['va:identity']['va:authenticationLevel']
