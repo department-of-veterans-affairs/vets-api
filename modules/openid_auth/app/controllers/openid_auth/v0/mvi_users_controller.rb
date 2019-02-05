@@ -8,33 +8,31 @@ module OpenidAuth
       skip_before_action :authenticate
       before_action :check_required_headers
 
+      # Allows MVI lookups based on user identity traits (presumably obtained from the upstream
+      # identity provider). Returns a 200 response when the MVI lookup succeeds. Raises an error
+      # otherwise.
       def show
-        user = build_user(build_identity)
+        user_identity = save_requested_identity
         service = MVI::Service.new
-        @mvi_response = service.find_profile(user)
+        @mvi_response = service.find_profile(user_identity)
         raise @mvi_response.error if @mvi_response.error
-        icn_found
+        render json: response_with_icn
       end
 
       private
 
-      def build_user(user_identity)
-        User.new(user_identity.attributes)
-      end
-
-      def icn_found
-        render json:
-          {
-            "id": @mvi_response.profile.icn,
-            "type": 'user-mvi-icn',
-            "data": {
-              "attributes": {
-                "icn": @mvi_response.profile.icn,
-                "first_name": @mvi_response.profile&.given_names&.first,
-                "last_name": @mvi_response.profile&.family_name
-              }
+      def response_with_icn
+        {
+          "id": @mvi_response.profile.icn,
+          "type": 'user-mvi-icn',
+          "data": {
+            "attributes": {
+              "icn": @mvi_response.profile.icn,
+              "first_name": @mvi_response.profile&.given_names&.first,
+              "last_name": @mvi_response.profile&.family_name
             }
           }
+        }
       end
 
       def check_required_headers
@@ -45,22 +43,28 @@ module OpenidAuth
         request.headers['x-va-level-of-assurance'].blank?
       end
 
-      def build_identity
-        UserIdentity.create(uuid: request.headers['x-va-idp-uuid'],
-                            email: request.headers['x-va-user-email'],
-                            first_name: request.headers['x-va-first-name'],
-                            last_name: request.headers['x-va-last-name'],
-                            # TODO: break this out into a method that handles unknown gender
-                            gender: request.headers['x-va-gender']&.chars&.first&.upcase,
-                            birth_date: request.headers['x-va-dob'],
-                            ssn: request.headers['x-va-ssn'],
-                            mhv_icn: request.headers['x-va-mhv-icn'],
-                            dslogon_edipi: request.headers['x-va-dslogon-edipi'],
-                            loa:
-                            {
-                              current: request.headers['x-va-level-of-assurance'].to_i,
-                              highest: request.headers['x-va-level-of-assurance'].to_i
-                            })
+      def save_requested_identity
+        # In addition to constructing the the identity object, we save it in order to prime the
+        # identity cache. This is done because this endpoint is primarily called by the saml-proxy
+        # during the login process. If a user is logging in, usually a client app will make use of
+        # the openid token soon.
+        OpenidUserIdentity.create(
+          uuid: request.headers['x-va-idp-uuid'],
+          email: request.headers['x-va-user-email'],
+          first_name: request.headers['x-va-first-name'],
+          last_name: request.headers['x-va-last-name'],
+          # TODO: break this out into a method that handles unknown gender
+          gender: request.headers['x-va-gender']&.chars&.first&.upcase,
+          birth_date: request.headers['x-va-dob'],
+          ssn: request.headers['x-va-ssn'],
+          mhv_icn: request.headers['x-va-mhv-icn'],
+          dslogon_edipi: request.headers['x-va-dslogon-edipi'],
+          loa:
+          {
+            current: request.headers['x-va-level-of-assurance'].to_i,
+            highest: request.headers['x-va-level-of-assurance'].to_i
+          }
+        )
       end
     end
   end

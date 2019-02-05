@@ -24,12 +24,12 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
     }]
   end
   let(:auth_header) { { 'Authorization' => "Bearer #{token}" } }
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3)) }
 
   before(:each) do
     allow(JWT).to receive(:decode).and_return(jwt)
     Session.create(uuid: user.uuid, token: token)
-    User.create(user)
+    OpenidUser.create(user)
   end
 
   context 'with valid emis responses' do

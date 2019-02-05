@@ -35,13 +35,13 @@ module MVI
 
     # Given a user queries MVI and returns their VA profile.
     #
-    # @param user [User] the user to query MVI for
+    # @param user [UserIdentity] the user to query MVI for
     # @return [MVI::Responses::FindProfileResponse] the parsed response from MVI.
     # rubocop:disable Metrics/MethodLength
-    def find_profile(user)
+    def find_profile(user_identity)
       with_monitoring do
-        measure_info(user) do
-          raw_response = perform(:post, '', create_profile_message(user), soapaction: OPERATIONS[:find_profile])
+        measure_info(user_identity) do
+          raw_response = perform(:post, '', create_profile_message(user_identity), soapaction: OPERATIONS[:find_profile])
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
       end
@@ -56,7 +56,7 @@ module MVI
       log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue MVI::Errors::Base => e
-      mvi_error_handler(user, e)
+      mvi_error_handler(user_identity, e)
       if e.is_a?(MVI::Errors::RecordNotFound)
         mvi_profile_exception_response_for('MVI_404', e, type: 'not_found')
       else
@@ -123,7 +123,7 @@ module MVI
     def create_profile_message(user)
       return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
       return message_edipi(user) if user.dslogon_edipi.present? && Settings.mvi.edipi_search
-      raise Common::Exceptions::ValidationErrors, user unless user.valid?(:loa3_user)
+      raise Common::Exceptions::ValidationErrors, user unless user.valid?
       message_user_attributes(user)
     end
 

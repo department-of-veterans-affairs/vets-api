@@ -33,7 +33,7 @@ class OpenidApplicationController < ApplicationController
     @session = Session.find(token)
     establish_session if @session.nil?
     return false if @session.nil?
-    @current_user = User.find(@session.uuid)
+    @current_user = OpenidUser.find(@session.uuid)
   end
 
   def token_from_request
@@ -43,12 +43,12 @@ class OpenidApplicationController < ApplicationController
   end
 
   def establish_session
-    return false unless token_payload
     validate_token
     ttl = token_payload['exp'] - Time.current.utc.to_i
-    user_identity = user_identity_from_profile(ttl)
-    @current_user = user_from_identity(user_identity, ttl)
-    @session = session_from_claims(ttl)
+    profile = fetch_profile(token_identifiers.okta_uid)
+    user_identity = build_user_identity(token_identifiers.uuid, profile, ttl)
+    @current_user = build_user(user_identity, ttl)
+    @session = build_session(token, token_identifiers.uuid, ttl)
     @session.save && user_identity.save && @current_user.save
   rescue StandardError => e
     Rails.logger.warn(e)
@@ -67,19 +67,16 @@ class OpenidApplicationController < ApplicationController
   end
 
   def validate_token
+    raise 'Validation error: no payload to validate' unless token_payload
     raise 'Validation error: issuer' unless token_payload['iss'] == Settings.oidc.issuer
     raise 'Validation error: audience' unless token_payload['aud'] == Settings.oidc.audience
     raise 'Validation error: ttl' unless token_payload['exp'] >= Time.current.utc.to_i
   end
 
-  def user_identity_from_profile(ttl)
-    uid = token_payload['uid']
+  def fetch_profile(uid)
     profile_response = Okta::Service.new.user(uid)
     if profile_response.success?
-      profile = profile_response.body['profile']
-      user_identity = UserIdentity.new(profile_to_attributes(token_payload, profile))
-      user_identity.expire(ttl)
-      user_identity
+      profile_response.body['profile']
     else
       log_message_to_sentry('Error retrieving profile for OIDC token', :error,
                             body: profile_response.body)
@@ -87,16 +84,18 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
-  def profile_to_attributes(token_payload, profile)
-    {
-      uuid: token_payload['uid'],
+  def build_user_identity(uuid, profile, ttl)
+    identity = OpenidUserIdentity.new(
+      uuid: uuid,
       email: profile['email'],
       first_name: profile['firstName'],
       middle_name: profile['middleName'],
       last_name: profile['lastName'],
       mhv_icn: profile['icn'],
       loa: derive_loa(profile)
-    }
+    )
+    identity.expire(ttl)
+    identity
   end
 
   def derive_loa(profile)
@@ -111,21 +110,35 @@ class OpenidApplicationController < ApplicationController
     end
   end
 
-  def user_from_identity(user_identity, ttl)
-    user = User.new(user_identity.attributes)
+  def token_identifiers
+    # Here the `sub` field is the same value as the `uuid` field from the original upstream ID.me
+    # SAML response. We use this as the primary identifier of the user because, despite openid user
+    # records being controlled by okta, we want to remain consistent with the va.gov SSO process
+    # that consumes the SAML response directly, outside the openid flow.
+    # Example of an upstream uuid for the user: cfa32244569841a090ad9d2f0524cf38
+    # Example of an okta uid for the user: 00u2p9far4ihDAEX82p7
+    @token_identifiers ||= OpenStruct.new(
+      uuid: token_payload['sub'],
+      okta_uid: token_payload['uid'],
+    )
+  end
+
+  def build_user(user_identity, ttl)
+    user = OpenidUser.new(user_identity.attributes)
     user.last_signed_in = Time.current.utc
     user.expire(ttl)
     user
   end
 
-  def session_from_claims(ttl)
-    session = Session.new(token: token, uuid: token_payload['uid'])
+  def build_session(token, uuid, ttl)
+    session = Session.new(token: token, uuid: uuid)
     session.expire(ttl)
     session
   end
 
   def expected_key(token)
-    kid = (JWT.decode token, nil, false, algorithm: 'RS256')[1]['kid']
+    decoded_token = JWT.decode(token, nil, false, algorithm: 'RS256')
+    kid = decoded_token[1]['kid']
     OIDC::KeyService.get_key(kid)
   end
 
