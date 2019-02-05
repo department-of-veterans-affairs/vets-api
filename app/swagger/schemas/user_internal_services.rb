@@ -45,6 +45,10 @@ module Swagger
               property :gender, type: :string
               property :zip, type: :string
               property :last_signed_in, type: :string
+              property :authn_context, type: :object
+                property :type: type: :string
+              property :sign_in, type: :object
+                property :service_name, type: :string
               property :loa, type: :object do
                 property :current, type: :integer, format: :int32
                 property :highest, type: :integer, format: :int32
