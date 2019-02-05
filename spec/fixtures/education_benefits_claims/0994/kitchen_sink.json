@@ -17,7 +17,7 @@
   "emailAddress": "test@test.com",
   "dayTimePhone": "5551234567",
   "nightTimePhone": "5551231234",
-  "appliedForVAEducationBenefits": true,
+  "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "activeDutyDuringVetTec": true,
   "bankAccount": {
