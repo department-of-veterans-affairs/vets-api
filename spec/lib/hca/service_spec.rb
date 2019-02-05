@@ -33,7 +33,9 @@ describe HCA::Service do
       Dir[File.join(root, '*.json')].map { |f| File.basename(f, '.json') }.each do |form|
         it "properly formats #{form} for transmission" do
           allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
-          service = form =~ /authenticated/ ? described_class.new(current_user) : described_class.new
+          service = form =~ /authenticated/ ? described_class.new(
+            HealthCareApplication.get_user_identifier(current_user)
+          ) : described_class.new
           json = JSON.parse(open(root.join("#{form}.json")).read)
           expect(json).to match_vets_schema('10-10EZ')
           xml = File.read(root.join("#{form}.xml"))
