@@ -12,18 +12,12 @@
     "postalCode": "12345",
     "country": "USA"
   },
-  "applicantGender": "F",
-  "dateOfBirth": "1970-01-01",
   "emailAddress": "test@test.com",
   "dayTimePhone": "5551234567",
-  "nightTimePhone": "5551231234",
+  "applicantGender": "F",
+  "dateOfBirth": "1970-01-01",
   "appliedForVAEducationBenefits": true,
   "activeDuty": true,
-  "activeDutyDuringVetTec": true,
-  "bankAccount": {
-    "accountType": "checking",
-    "routingNumber": "123456789",
-    "accountNumber": "123456"
-  },
+  "highestLevelofEducation": "high_school_diploma_or_GED",
   "privacyAgreementAccepted": true
 }

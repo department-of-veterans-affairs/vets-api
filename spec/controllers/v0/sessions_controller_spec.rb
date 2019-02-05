@@ -402,7 +402,20 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).not_to receive(:user_context)
           expect(Raven).not_to receive(:tags_context).once
           expect(controller).to receive(:log_message_to_sentry)
-          post :saml_callback
+          expect(post(:saml_callback))
+            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=7')
+        end
+
+        it 'increments the failed and total statsd counters' do
+          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          once = { times: 1, value: 1 }
+          callback_tags = ['status:failure', 'context:unknown']
+          failed_tags = ['error:unknown']
+
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 
