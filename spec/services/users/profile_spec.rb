@@ -68,7 +68,7 @@ RSpec.describe Users::Profile do
 
         it 'should include sign_in.service_name' do
           expect(profile[:sign_in][:service_name]).to eq('idme')
-        end 
+        end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'multifactor') }
@@ -79,7 +79,7 @@ RSpec.describe Users::Profile do
 
           it 'should include sign_in.service_name' do
             expect(profile[:sign_in][:service_name]).to eq('idme')
-          end 
+          end
         end
       end
 
@@ -92,7 +92,7 @@ RSpec.describe Users::Profile do
 
         it 'should include sign_in.service_name' do
           expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
-        end 
+        end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'myhealthevet_multifactor') }
@@ -120,7 +120,7 @@ RSpec.describe Users::Profile do
 
         it 'should include sign_in.service_name' do
           expect(profile[:sign_in][:service_name]).to eq('dslogon')
-        end 
+        end
 
         context 'multifactor' do
           let(:user) { create(:user, :loa1, authn_context: 'dslogon_multifactor') }
