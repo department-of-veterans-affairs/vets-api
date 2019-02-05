@@ -244,6 +244,9 @@ class User < Common::RedisStore
       okta_model
     end
   end
+  def identity=(ident)
+    @identity = ident
+  end
 
   def identity
     @identity ||= UserIdentity.find(uuid)

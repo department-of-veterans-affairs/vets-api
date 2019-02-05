@@ -6,7 +6,7 @@ require 'support/saml/response_builder'
 RSpec.describe V0::SessionsController, type: :controller do
   include SAML::ResponseBuilder
 
-  let(:uuid) { '1234abcd' }
+  let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
