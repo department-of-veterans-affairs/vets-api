@@ -7,15 +7,36 @@
       "type": "array",
       "items": {
         "type": "object",
+        "required": ["id", "type", "attributes"],
         "properties": {
           "id": {
             "type": "string"
           },
           "type": {
-            "type": "string"
+            "type": {
+              "enum": [
+                "legacyAppeal",
+                "appeal",
+                "supplementalClaim",
+                "higherLevelReview"
+              ]
+            }
           },
           "attributes": {
             "type": "object",
+            "required": [
+              "appealIds",
+              "updated",
+              "active",
+              "aoj",
+              "programArea",
+              "description",
+              "location",
+              "status",
+              "issues",
+              "alerts",
+              "events"
+            ],
             "properties": {
               "appealIds": {
                 "type": "array"
@@ -111,7 +132,18 @@
                         "other_close",
                         "remand_ssoc",
                         "remand",
-                        "merged"
+                        "merged",
+                        "evidentiary_period",
+                        "ama_remand",
+                        "post_bva_dta_decision",
+                        "bva_decision_effectuation",
+                        "sc_received",
+                        "sc_decision",
+                        "sc_closed",
+                        "hlr_received",
+                        "hlr_dta_error",
+                        "hlr_decision",
+                        "hlr_closed"
                       ]
                     }
                   }
@@ -120,6 +152,16 @@
               "docket": {
                 "type": ["object", "null" ],
                 "properties": {
+                  "type": {
+                    "type": {
+                      "enum": [
+                        "direct_review",
+                        "evidence_submission",
+                        "hearing",
+                        "legacy"
+                      ]
+                    }
+                  },
                   "month": {
                     "type": "string"
                   },
@@ -132,6 +174,9 @@
                   "total": {
                     "type": "integer"
                   },
+                  "totalAllDockets": {
+                    "type": "integer"
+                  },
                   "ahead": {
                     "type": "integer"
                   },
@@ -139,7 +184,13 @@
                     "type": "integer"
                   },
                   "eta": {
-                    "type": ["string", "null"]
+                    "type": ["object", "null"]
+                  },
+                  "eligibleToSwitch": {
+                    "type": "boolean"
+                  },
+                  "switchDueDate": {
+                    "type": "string"
                   }
                 }
               },

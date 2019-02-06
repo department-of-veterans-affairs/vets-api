@@ -18,15 +18,15 @@ Social Security Number: <%= @applicant.applicantSocialSecurityNumber %>
 Mailing Address:
 <%= full_address(@applicant.mailingAddress) %>
 
-Sex of Applicant: <%= @applicant.applicantGender %>
+Sex of Applicant: <%= value_or_na(@applicant.applicantGender) %>
 
-Date of Birth: <%= @applicant.dateOfBirth %>
+Date of Birth: <%= value_or_na(@applicant.dateOfBirth) %>
 
 Email Address: <%= @applicant.emailAddress %>
 
 Day Time Telephone Number: <%= @applicant.dayTimePhone %>
 
-Night Time Telephone Number: <%= @applicant.nightTimePhone %>
+Night Time Telephone Number: <%= value_or_na(@applicant.nightTimePhone) %>
 
 Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVAEducationBenefits) %>
 
@@ -37,23 +37,25 @@ VET TEC program?: <%= yesno(@applicant.activeDutyDuringVetTec) %>
 
 DIRECT DEPOSIT INFORMATION:
 
-Routing or Transit Number: <%= @applicant.bankAccount.routingNumber %>
+Routing or Transit Number: <%= bank_routing_number %>
 
-Account Type: <%= @applicant.bankAccount.accountType %>
+Account Type: <%= bank_account_type %>
 
-Account Number: <%= @applicant.bankAccount.accountNumber %>
+Account Number: <%= bank_account_number %>
 
                           COURSE OF STUDY
                           ---------------
 
-Select the VET TEC program and Provider you wish to attend:
-<%= selected_programs %>
-
-Location of where you plan to or will take training:
-<%= location %>
-
-Date you plan to start or will start training: <%= @applicant.plannedStartDate %>
-
+VET TEC programs:
+<% Array(@applicant.vetTecPrograms).each do |program| %>
+  Provider name: <%= value_or_na(program.providerName) %>
+  Program name: <%= value_or_na(program.programName) %>
+  Course type: <%= course_type_name(program.courseType) %>
+  Location:
+    City: <%= value_or_na(program.location.city) %>
+    State: <%= value_or_na(program.location.state) %>
+  Planned start date: <%= value_or_na(program.plannedStartDate) %>
+<% end %>
                        BACKGROUND INFORMATION
                        ----------------------
 
@@ -61,11 +63,12 @@ Are you currently employed?: <%= yesno(@applicant.currentEmployment) %>
 
 Are you currently working in the high technology industry?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
 
-If yes, select the area: <%= high_tech_area_name %>
+If yes, select the area:
+<%= high_tech_area_names %>
 
 What is your current salary range?: <%= salary_text %>
 
-What is your highest level of education?: <%= @applicant.highestLevelofEducation %>
+What is your highest level of education?: <%= education_level_name %>
 
 Signature of applicant:
 
