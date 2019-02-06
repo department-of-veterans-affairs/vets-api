@@ -26,8 +26,9 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     url = Reports::Uploader.get_s3_link(report_file)
 
     opt = {}
+    # just send email for staging as dev doesn't have SFTP enabled
     opt[:to] =
-      if FeatureFlipper.staging_email?
+      if FeatureFlipper.staging_email? && Settings.hostname.include('staging')
         STAGING_RECIPIENTS.clone
       else
         RECIPIENTS.clone

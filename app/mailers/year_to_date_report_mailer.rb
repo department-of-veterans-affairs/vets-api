@@ -40,7 +40,8 @@ class YearToDateReportMailer < ApplicationMailer
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)
 
-    opt = if FeatureFlipper.staging_email?
+    # just send email for staging as dev doesn't have SFTP enabled
+    opt = if FeatureFlipper.staging_email? && Settings.hostname.include('staging')
             STAGING_RECIPIENTS.clone
           else
             VA_STAKEHOLDERS.clone
