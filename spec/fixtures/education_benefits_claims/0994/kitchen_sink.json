@@ -46,7 +46,7 @@
       "plannedStartDate": "2020-06-01"
     }
   ],
-  "currentEmployment": true,
+  "pastHighTechnologyEmployment": true,
   "currentHighTechnologyEmployment": true,
   "highTechnologyEmploymentTypes": ["computerProgramming", "computerSoftware"],
   "currentSalary": "lessThanTwenty",
