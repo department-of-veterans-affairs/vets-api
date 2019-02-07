@@ -28,7 +28,7 @@ Day Time Telephone Number: <%= @applicant.dayTimePhone %>
 
 Night Time Telephone Number: <%= value_or_na(@applicant.nightTimePhone) %>
 
-Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVAEducationBenefits) %>
+Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVaEducationBenefits) %>
 
 Are you currently on active duty?: <%= yesno(@applicant.activeDuty) %>
 
@@ -52,16 +52,16 @@ VET TEC programs:
   Program name: <%= value_or_na(program.programName) %>
   Course type: <%= course_type_name(program.courseType) %>
   Location:
-    City: <%= value_or_na(program.location.city) %>
-    State: <%= value_or_na(program.location.state) %>
+    City: <%= value_or_na(program.location&.city) %>
+    State: <%= value_or_na(program.location&.state) %>
   Planned start date: <%= value_or_na(program.plannedStartDate) %>
 <% end %>
                        BACKGROUND INFORMATION
                        ----------------------
 
-Are you currently employed?: <%= yesno(@applicant.currentEmployment) %>
+Are you working in a high-tech industry now?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
 
-Are you currently working in the high technology industry?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
+Have you worked in a high-tech industry in the past?: <%= yesno(@applicant.pastHighTechnologyEmployment) %>
 
 If yes, select the area:
 <%= high_tech_area_names %>
