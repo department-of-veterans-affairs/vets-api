@@ -4,7 +4,7 @@ module HCA
   module EE
     class Configuration < Common::Client::Configuration::SOAP
       def base_path
-        Settings.hca.endpoint
+        Settings.hca.ee.endpoint
       end
 
       def service_name

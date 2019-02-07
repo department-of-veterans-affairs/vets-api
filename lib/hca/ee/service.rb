@@ -2,7 +2,7 @@ module HCA
   module EE
     class Service < Common::Client::Base
       def lookup_user(icn)
-        body = build_lookup_user_xml(icn)
+        perform(:post, '', build_lookup_user_xml(icn))
       end
 
       private
