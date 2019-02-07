@@ -10,5 +10,6 @@ ActiveSupport::Inflector.inflections do |inflect|
   inflect.acronym 'PPIU'
   inflect.acronym 'VBA'
   inflect.acronym 'VIC'
+  inflect.acronym 'EE'
   inflect.uncountable 'terms_and_conditions'
 end
