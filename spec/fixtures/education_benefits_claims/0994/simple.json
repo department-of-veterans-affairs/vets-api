@@ -16,7 +16,7 @@
   "dayTimePhone": "5551234567",
   "applicantGender": "F",
   "dateOfBirth": "1970-01-01",
-  "appliedForVAEducationBenefits": true,
+  "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "highestLevelofEducation": "high_school_diploma_or_GED",
   "privacyAgreementAccepted": true
