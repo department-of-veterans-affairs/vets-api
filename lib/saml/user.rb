@@ -34,8 +34,10 @@ module SAML
       )
 
       @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
-      Raven.tags_context(sign_in_service_name: user_attributes.sign_in[:service_name])
-      Raven.tags_context(sign_in_account_type: user_attributes.sign_in[:account_type])
+      Raven.tags_context(
+        sign_in_service_name: user_attributes.sign_in.fetch(:service_name, nil),
+        sign_in_account_type: user_attributes.sign_in.fetch(:account_type, nil)
+      )
       log_warnings_to_sentry
     end
 
