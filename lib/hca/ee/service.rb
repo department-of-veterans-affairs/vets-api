@@ -1,6 +1,8 @@
 module HCA
   module EE
     class Service < Common::Client::Base
+      configuration HCA::EE::Configuration
+
       def lookup_user(icn)
         perform(:post, '', build_lookup_user_xml(icn))
       end
