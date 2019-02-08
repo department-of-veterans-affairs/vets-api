@@ -177,6 +177,11 @@ ppms:
   url: https://some.fakesite.com
   open_timeout: 15
   read_timeout: 55
+  authority: some.fakeauthority.com
+  client_id: 123
+  client_secret: abc
+  tenant: tenant
+  resource: https://some.fakesite.com/resource
 
 # Settings for MyHealthEVet
 mhv:

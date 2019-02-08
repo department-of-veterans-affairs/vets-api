@@ -50,12 +50,12 @@ module Facilities
       return token if token
       azure_client = Faraday.new("https://#{Settings.ppms.authority}")
       auth_body = { 'encoding': 'utf8', 'api-version': '1.0',
-                 'client_id': Settings.ppms.client_id, 'client_secret': Settings.ppms.client_secret,
-                 'grant_type': 'client_credentials', 'resource': Settings.ppms.resource }
+                    'client_id': Settings.ppms.client_id, 'client_secret': Settings.ppms.client_secret,
+                    'grant_type': 'client_credentials', 'resource': Settings.ppms.resource }
       token_response = azure_client.post "/#{Settings.ppms.tenant}/oauth2/token", auth_body
       token_hash = JSON.parse(token_response)
-      token = token_response['access_token']
-      redis.set('ppms-token', token, 'EX': token_response['expires_in'].to_i - 30)
+      token = token_hash['access_token']
+      redis.set('ppms-token', token, 'EX': token_hash['expires_in'].to_i - 30)
       token
     end
 
