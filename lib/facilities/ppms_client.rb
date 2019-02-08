@@ -53,7 +53,7 @@ module Facilities
                     'client_id': Settings.ppms.client_id, 'client_secret': Settings.ppms.client_secret,
                     'grant_type': 'client_credentials', 'resource': Settings.ppms.resource }
       token_response = azure_client.post "/#{Settings.ppms.tenant}/oauth2/token", auth_body
-      token_hash = JSON.parse(token_response)
+      token_hash = JSON.parse(token_response.body)
       token = token_hash['access_token']
       redis.set('ppms-token', token, 'EX': token_hash['expires_in'].to_i - 30)
       token

@@ -55,7 +55,7 @@ module Facilities
       end
 
       it 'should get the token then get data' do
-        VCR.use_casette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
+        VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.caresites_test
           expect(r.length).to be > 0
         end
