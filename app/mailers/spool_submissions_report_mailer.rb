@@ -26,6 +26,7 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     url = Reports::Uploader.get_s3_link(report_file)
 
     opt = {}
+
     opt[:to] =
       if FeatureFlipper.staging_email?
         STAGING_RECIPIENTS.clone
