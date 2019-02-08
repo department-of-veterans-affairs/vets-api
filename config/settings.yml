@@ -156,6 +156,10 @@ hca:
   endpoint: https://test-foo.vets.gov
   cert_path: /fake/client/cert/path
   key_path: /fake/client/key/path
+  ee:
+    endpoint: 'http://example.com'
+    user: "HCASvcUsr"
+    pass: "password"
   ca:
     - 'VA Internal Root CA.pem'
     - 'VA Internal Subordinate CA 1.pem'

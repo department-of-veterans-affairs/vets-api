@@ -4,7 +4,8 @@ module HCA
       configuration HCA::EE::Configuration
 
       def lookup_user(icn)
-        perform(:post, '', build_lookup_user_xml(icn))
+        result = perform(:post, '', build_lookup_user_xml(icn))
+        binding.pry; fail
       end
 
       private
