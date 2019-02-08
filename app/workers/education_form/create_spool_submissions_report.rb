@@ -49,7 +49,7 @@ module EducationForm
         end
       end
 
-      return unless FeatureFlipper.send_email?
+      return unless FeatureFlipper.send_email? && !Settings.hostname.include?('dev-api')
       SpoolSubmissionsReportMailer.build(filename).deliver_now
     end
   end
