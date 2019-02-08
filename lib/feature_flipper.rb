@@ -8,8 +8,4 @@ module FeatureFlipper
   def self.staging_email?
     Settings.reports.server.include?('stage')
   end
-
-  def self.staging_host?
-    Settings.hostname.include?('staging')
-  end
 end

@@ -12,11 +12,30 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
       end
     end
 
-    it 'should send the right email' do
-      subject
-      text = described_class::REPORT_TEXT
-      expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
-      expect(mail.subject).to eq(text)
+    context 'when sending staging emails' do
+      before do
+        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
+      end
+      it 'should send the right email' do
+        subject
+        text = described_class::REPORT_TEXT
+        expect(mail.body.encoded).to eq("#{text} (link expires in one week)<br>#{subject}")
+        expect(mail.subject).to eq(text)
+      end
+      it 'should email the the right staging recipients' do
+        subject
+
+        expect(mail.to).to eq(
+          %w[
+            lihan@adhocteam.us
+            akulkarni@meetveracity.com
+            Hoffmaster_David@bah.com
+            Turner_Desiree@bah.com
+            Delli-Gatti_Michael@bah.com
+            Walter_Jenny@bah.com
+          ]
+        )
+      end
     end
 
     context 'when not sending staging emails' do
@@ -46,45 +65,6 @@ RSpec.describe YearToDateReportMailer, type: %i[mailer aws_helpers] do
             Walter_Jenny@bah.com
             Hoffmaster_David@bah.com
             akulkarni@meetveracity.com
-          ]
-        )
-      end
-    end
-
-    context 'when sending staging emails' do
-      before do
-        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
-        expect(FeatureFlipper).to receive(:staging_host?).once.and_return(true)
-      end
-
-      it 'should email the the right staging recipients' do
-        subject
-
-        expect(mail.to).to eq(
-          %w[
-            lihan@adhocteam.us
-            akulkarni@meetveracity.com
-            Hoffmaster_David@bah.com
-            Turner_Desiree@bah.com
-            Delli-Gatti_Michael@bah.com
-            Walter_Jenny@bah.com
-          ]
-        )
-      end
-    end
-
-    context 'when sending dev emails' do
-      before do
-        expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)
-        expect(FeatureFlipper).to receive(:staging_host?).once.and_return(false)
-      end
-
-      it 'should email the the right staging recipients' do
-        subject
-
-        expect(mail.to).to eq(
-          %w[
-            lihan@adhocteam.us
           ]
         )
       end
