@@ -21,6 +21,9 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     Delli-Gatti_Michael@bah.com
     Walter_Jenny@bah.com
   ].freeze
+  DEV_RECIPIENTS = %w[
+    lihan@adhocteam.us
+  ].freeze
 
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)
@@ -28,8 +31,12 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     opt = {}
     # just send email for staging as dev doesn't have SFTP enabled
     opt[:to] =
-      if FeatureFlipper.staging_email? && Settings.hostname.include?('staging')
-        STAGING_RECIPIENTS.clone
+      if FeatureFlipper.staging_email?
+        if FeatureFlipper.staging_host?
+          STAGING_RECIPIENTS.clone
+        else
+          DEV_RECIPIENTS.clone
+        end
       else
         RECIPIENTS.clone
       end

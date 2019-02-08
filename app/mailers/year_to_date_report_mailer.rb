@@ -37,12 +37,22 @@ class YearToDateReportMailer < ApplicationMailer
     ]
   }.freeze
 
+  DEV_RECIPIENTS = {
+    to: %w[
+      lihan@adhocteam.us
+    ]
+  }.freeze
+
   def build(report_file)
     url = Reports::Uploader.get_s3_link(report_file)
 
     # just send email for staging as dev doesn't have SFTP enabled
-    opt = if FeatureFlipper.staging_email? && Settings.hostname.include?('staging')
-            STAGING_RECIPIENTS.clone
+    opt = if FeatureFlipper.staging_email?
+            if FeatureFlipper.staging_host?
+              STAGING_RECIPIENTS.clone
+            else
+              DEV_RECIPIENTS.clone
+            end
           else
             VA_STAKEHOLDERS.clone
           end
