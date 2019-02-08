@@ -44,6 +44,27 @@ module Facilities
       response.body
     end
 
+    def fetch_token
+      redis = Redis.new
+      token = redis.get('ppms-token')
+      return token if token
+      azure_client = Faraday.new("https://#{Settings.ppms.authority}")
+      auth_body = { 'encoding': 'utf8', 'api-version': '1.0',
+                 'client_id': Settings.ppms.client_id, 'client_secret': Settings.ppms.client_secret,
+                 'grant_type': 'client_credentials', 'resource': Settings.ppms.resource }
+      token_response = azure_client.post "/#{Settings.ppms.tenant}/oauth2/token", auth_body
+      token_hash = JSON.parse(token_response)
+      token = token_response['access_token']
+      redis.set('ppms-token', token, 'EX': token_response['expires_in'].to_i - 30)
+      token
+    end
+
+    def caresites_test
+      token = fetch_token
+      response = perform(:get, 'v1.0/CareSites', {}, 'Authorization': "Bearer #{token}")
+      response.body
+    end
+
     # https://dev.dws.ppms.va.gov/swagger/ui/index#!/Specialties/Specialties_Get_0
     def specialties
       response = perform(:get, 'v1.0/Specialties', {})

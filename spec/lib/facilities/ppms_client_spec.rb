@@ -54,6 +54,13 @@ module Facilities
         end
       end
 
+      it 'should get the token then get data' do
+        VCR.use_casette('facilities/va/ppms', match_requests_on:[regex_matcher]) do
+          r = PPMSClient.new.caresites_test
+          expect(r.length).to be > 0
+        end
+      end
+
       it 'should edit the parameters' do
         params = PPMSClient.new.build_params('bbox': [73, -60, 74, -61])
         Rails.logger.info(params)
