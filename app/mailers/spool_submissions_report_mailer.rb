@@ -27,7 +27,6 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
 
     opt = {}
 
-    # just send email for staging as dev doesn't have SFTP enabled
     opt[:to] =
       if FeatureFlipper.staging_email?
         STAGING_RECIPIENTS.clone

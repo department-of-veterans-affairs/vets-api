@@ -234,7 +234,7 @@ module EducationForm
     def perform
       Sentry::TagRainbows.tag
       filename = generate_csv
-      return unless FeatureFlipper.send_email && !Rails.env.development?
+      return unless FeatureFlipper.send_email? && !Settings.hostname.include?('dev-api')
       YearToDateReportMailer.build(filename).deliver_now
     end
   end
