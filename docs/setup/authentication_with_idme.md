@@ -32,16 +32,14 @@ Start the `vets-api` rails server:
 bundle exec rails s
 ```
 
-1. Curl or browse to `http://localhost:3000/v0/sessions/authn_urls`
+1. Curl or browse to `http://localhost:3000/sessions/idme/new`
 2. The response takes the form:
 ```
 {
-  "mhv":"<MHV_URL>",
-  "dslogon":"<DSLOGON_URL>",
-  "idme":<IDME_URL>
+  "url": "https://very.long.url/with/a/bunch/of/crypto/stuff"
 }
 ```
-Copy and paste the `idme` URL into your browser.
+Copy and paste the URL into your browser.
 
 3. Enter ID.me credentials using one of our 
     [test accounts](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv). If you do not have access to the vets.gov-team repository, you may optionally create your own account with ID.me.
