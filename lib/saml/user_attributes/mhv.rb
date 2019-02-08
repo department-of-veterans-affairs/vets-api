@@ -22,7 +22,9 @@ module SAML
 
       private
 
-      # These methods are required to be implemented on each child class
+      def account_type
+        mhv_account_type
+      end
 
       # NOTE: this will always be a JSON object, see above
       def mhv_profile

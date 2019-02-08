@@ -58,7 +58,9 @@ module SAML
 
       private
 
-      # These methods are required to be implemented on each child class
+      def account_type
+        dslogon_assurance
+      end
 
       def serializable_attributes
         DSLOGON_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
