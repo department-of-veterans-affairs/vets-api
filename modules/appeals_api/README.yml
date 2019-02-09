@@ -244,10 +244,10 @@ components:
                   type: string
                   description: Indicates the docket of the appeal
                   enum:
-                  - direct_review
-                  - evidence_submission
-                  - hearing
-                  example: hearing
+                  - directReview
+                  - evidenceSubmission
+                  - hearingRequest
+                  example: hearingRequest
                 month:
                   type: string
                   format: date

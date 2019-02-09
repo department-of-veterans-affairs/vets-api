@@ -156,9 +156,9 @@
                   "type": {
                     "type": {
                       "enum": [
-                        "direct_review",
-                        "evidence_submission",
-                        "hearing",
+                        "directReview",
+                        "evidenceSubmission",
+                        "hearingRequest",
                         "legacy"
                       ]
                     }
