@@ -366,9 +366,6 @@ components:
           - ramp_notice
           - transcript
           - remand_return
-          - dro_hearing_held
-          - dro_hearing_cancelled
-          - dro_hearing_no_show
           - ama_nod
           - docket_change
           - distributed_to_vlj
@@ -381,6 +378,7 @@ components:
           - hlr_decision
           - hlr_dta_error
           - hlr_other_close
+          - statutory_opt_in
         date:
           type: string
           format: date
