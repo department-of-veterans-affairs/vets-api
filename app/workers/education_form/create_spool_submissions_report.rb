@@ -49,7 +49,7 @@ module EducationForm
         end
       end
 
-      return unless FeatureFlipper.send_email? && !Settings.hostname.include?('dev-api')
+      return unless FeatureFlipper.send_email? && !Settings.hostname.include?('vetsgov-internal')
       SpoolSubmissionsReportMailer.build(filename).deliver_now
     end
   end
