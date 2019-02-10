@@ -12,7 +12,7 @@ describe MVI::AttrService do
         VCR::MATCH_EVERYTHING
       ) do
         res = described_class.new.find_profile(
-          OpenStruct.new(
+          HCA::UserAttributes.new(
             first_name: 'WESLEY',
             last_name: 'FORD',
             birth_date: '1986-05-06',
