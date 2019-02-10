@@ -233,6 +233,7 @@ components:
                   - hlr_dta_error
                   - hlr_decision
                   - hlr_closed
+                  - statutory_opt_in
                 details:
                   type: object
                   description: Further information about the process step the appeal is in

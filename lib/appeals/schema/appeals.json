@@ -144,7 +144,8 @@
                         "hlr_received",
                         "hlr_dta_error",
                         "hlr_decision",
-                        "hlr_closed"
+                        "hlr_closed",
+                        "statutory_opt_in"
                       ]
                     }
                   }
