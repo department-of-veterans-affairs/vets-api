@@ -138,6 +138,12 @@ paths:
       security:
         - api_key: []
       parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the claim being requested
         - in: header
           name: X-VA-SSN
           required: true
