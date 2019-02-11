@@ -239,7 +239,7 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         filtered_values = Facilities::VHAFacility.pluck(:hours)
                                                  .map(&:values)
                                                  .flatten
-                                                 .reject { |hours| %r{ am|pm|24/7 }i.match(hours) }
+                                                 .reject { |hours| %r{am|pm|24/7}i.match(hours) }
         expect(filtered_values.uniq.length).to be <= 1
         expect(filtered_values.uniq[0]).to eq('Closed') if filtered_values.uniq.length == 1
       end
