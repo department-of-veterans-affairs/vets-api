@@ -45,7 +45,6 @@ class YearToDateReportMailer < ApplicationMailer
           else
             VA_STAKEHOLDERS.clone
           end
-
     mail(
       opt.merge(
         subject: REPORT_TEXT,

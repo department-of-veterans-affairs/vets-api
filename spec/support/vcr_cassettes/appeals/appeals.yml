@@ -99,7 +99,7 @@ http_interactions:
                 "updated": "2018-01-19T10:20:42-05:00"
               },
               "id": "1196201",
-              "type": "appealSeries"
+              "type": "legacyAppeal"
             },
             {
               "attributes": {
@@ -231,7 +231,7 @@ http_interactions:
                 "updated": "2018-01-19T10:20:42-05:00"
               },
               "id": "3294289",
-              "type": "appealSeries"
+              "type": "legacyAppeal"
             },
             {
               "attributes": {
@@ -280,7 +280,7 @@ http_interactions:
                 "updated": "2018-01-19T10:20:42-05:00"
               },
               "id": "2348605",
-              "type": "appealSeries"
+              "type": "legacyAppeal"
             }
           ]
         }

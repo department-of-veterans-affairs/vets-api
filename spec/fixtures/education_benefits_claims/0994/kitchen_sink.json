@@ -17,7 +17,7 @@
   "emailAddress": "test@test.com",
   "dayTimePhone": "5551234567",
   "nightTimePhone": "5551231234",
-  "appliedForVAEducationBenefits": true,
+  "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "activeDutyDuringVetTec": true,
   "bankAccount": {
@@ -25,20 +25,32 @@
     "routingNumber": "123456789",
     "accountNumber": "123456"
   },
-  "vetTecProgram": [
-    "program1",
-    "program2",
-    "program4"
+  "vetTecPrograms": [
+    {
+      "providerName": "Provider A",
+      "courseType": "inPerson",
+      "location": {
+        "city": "Test"
+      },
+      "plannedStartDate": "2019-06-01"
+    },
+    {
+      "programName": "Program B",
+      "location": {
+        "state": "AK"
+      }
+    },
+    {
+      "providerName": "Provider C",
+      "courseType": "online",
+      "plannedStartDate": "2020-06-01"
+    }
   ],
-  "vetTecProgramLocations": {
-    "city": "Test",
-    "state": "TN"
-  },
-  "plannedStartDate": "2019-06-01",
-  "currentEmployment": true,
+  "pastHighTechnologyEmployment": true,
   "currentHighTechnologyEmployment": true,
-  "highTechnologyEmploymentType": "computerProgramming",
+  "highTechnologyEmploymentTypes": ["computerProgramming", "computerSoftware"],
   "currentSalary": "lessThanTwenty",
-  "highestLevelofEducation": "High school",
+  "highestLevelofEducation": "other",
+  "otherEducation": "Other Education Type",
   "privacyAgreementAccepted": true
 }
