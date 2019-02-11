@@ -45,8 +45,7 @@ module Facilities
     end
 
     def fetch_token
-      redis = Redis.new
-      token = redis.get('ppms-token')
+      token = Redis.current.get('ppms-token')
       return token if token
       azure_client = Faraday.new("https://#{Settings.ppms.authority}")
       auth_body = { 'encoding': 'utf8', 'api-version': '1.0',
@@ -55,7 +54,7 @@ module Facilities
       token_response = azure_client.post "/#{Settings.ppms.tenant}/oauth2/token", auth_body
       token_hash = JSON.parse(token_response.body)
       token = token_hash['access_token']
-      redis.set('ppms-token', token, 'EX': token_hash['expires_in'].to_i - 30)
+      Redis.current.set('ppms-token', token, 'EX': token_hash['expires_in'].to_i - 30)
       token
     end
 
