@@ -39,15 +39,7 @@ module ClaimsApi
         # Also it's very broken and references other functions, I just didn't
         # want to muddy the waters
         def target_veteran
-          ClaimsApi::Veteran.new(
-            ssn: ssn,
-            loa: { current: :loa3 },
-            first_name: first_name,
-            last_name: last_name,
-            va_profile: va_profile,
-            edipi: edipi,
-            last_signed_in: Time.zone.now
-          )
+          ClaimsApi::Veteran.from_headers(request.headers)
         end
 
         def auth_headers

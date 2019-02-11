@@ -28,5 +28,28 @@ module ClaimsApi
       raise Common::Exceptions::ParameterMissing 'X-VA-Birth-Date' unless matches
       super(new_va_profile)
     end
+
+    def self.from_headers(headers)
+      new(
+        ssn: ensure_header(headers, 'X-VA-SSN'),
+        loa: { current: :loa3 },
+        first_name: ensure_header(headers, 'X-VA-First-Name'),
+        last_name: ensure_header(headers, 'X-VA-Last-Name'),
+        va_profile: build_profile(headers),
+        edipi: ensure_header(headers, 'X-VA-EDIPI'),
+        last_signed_in: Time.zone.now
+      )
+    end
+
+    def self.build_profile(headers)
+      OpenStruct.new(
+        birth_date: ensure_header(headers, 'X-VA-Birth-Date')
+      )
+    end
+
+    def self.ensure_header(headers, key)
+      raise Common::Exceptions::ParameterMissing, key unless headers[key]
+      headers[key]
+    end
   end
 end

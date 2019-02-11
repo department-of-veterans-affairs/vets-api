@@ -27,38 +27,8 @@ module ClaimsApi
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
       end
 
-      def first_name
-        header(key = 'X-VA-First-Name') ? header(key) : raise_missing_header(key)
-      end
-
-      def last_name
-        header(key = 'X-VA-Last-Name') ? header(key) : raise_missing_header(key)
-      end
-
-      def edipi
-        header(key = 'X-VA-EDIPI') ? header(key) : raise_missing_header(key)
-      end
-
-      def birth_date
-        header(key = 'X-VA-Birth-Date') ? header(key) : raise_missing_header(key)
-      end
-
-      def va_profile
-        OpenStruct.new(
-          birth_date: birth_date
-        )
-      end
-
       def target_veteran
-        ClaimsApi::Veteran.new(
-          ssn: ssn,
-          loa: { current: :loa3 },
-          first_name: first_name,
-          last_name: last_name,
-          va_profile: va_profile,
-          edipi: edipi,
-          last_signed_in: Time.zone.now
-        )
+        ClaimsApi::Veteran.from_headers(request.headers)
       end
 
       def verify_power_of_attorney
