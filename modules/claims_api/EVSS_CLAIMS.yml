@@ -86,25 +86,25 @@ paths:
           description: VA username of the person making the request
         - in: header
           name: X-VA-First-Name
-          requried: true
+          required: true
           schema:
             type: string
           description: First name of Veteran
         - in: header
           name: X-VA-Last-Name
-          requried: true
+          required: true
           schema:
             type: string
           description: Last name of Veteran
         - in: header
           name: X-VA-Birth-Date
-          requried: true
+          required: true
           schema:
             type: string
           description: Birth date for Veteran in iso8601 format
         - in: header
           name: X-VA-EDIPI
-          requried: true
+          required: true
           schema:
             type: string
           description: Veteran's EDIPI number
