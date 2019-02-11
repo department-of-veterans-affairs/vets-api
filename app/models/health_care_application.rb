@@ -52,6 +52,26 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
+  def self.user_icn(user_attributes)
+    HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes)
+    MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
+  rescue MVI::Errors::Base
+    nil
+  end
+
+  def self.user_attributes(form)
+    full_name = form['veteranFullName']
+
+    HCA::UserAttributes.new(
+      first_name: full_name['first'],
+      middle_name: full_name['middle'],
+      last_name: full_name['last'],
+      birth_date: form['veteranDateOfBirth'],
+      ssn: form['veteranSocialSecurityNumber'],
+      gender: form['gender']
+    )
+  end
+
   def set_result_on_success!(result)
     update_attributes!(
       state: 'success',

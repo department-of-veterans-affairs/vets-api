@@ -34,34 +34,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
-    context 'for authentication' do
-      it 'supports session mhv url' do
-        expect(subject).to validate(:get, '/sessions/mhv/new', 200)
-      end
-
-      it 'supports session dslogon urs' do
-        expect(subject).to validate(:get, '/sessions/dslogon/new', 200)
-      end
-
-      it 'supports session idme url' do
-        expect(subject).to validate(:get, '/sessions/idme/new', 200)
-      end
-
-      it 'supports session mfa url' do
-        expect(subject).to validate(:get, '/sessions/mfa/new', 200, headers)
-        expect(subject).to validate(:get, '/sessions/mfa/new', 401)
-      end
-
-      it 'supports session verify url' do
-        expect(subject).to validate(:get, '/sessions/verify/new', 200, headers)
-        expect(subject).to validate(:get, '/sessions/verify/new', 401)
-      end
-
-      it 'supports session slo url' do
-        expect(subject).to validate(:get, '/sessions/slo/new', 200, headers)
-        expect(subject).to validate(:get, '/sessions/slo/new', 401)
-      end
-    end
 
     it 'supports getting backend service status' do
       expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
@@ -233,14 +205,16 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
-      it 'supports submitting a hca dd214' do
+      it 'supports submitting a hca attachment' do
         expect(subject).to validate(
           :post,
-          '/v0/hca_dd214_attachments',
+          '/v0/hca_attachments',
           200,
           '_data' => {
-            'hca_dd214_attachment' => {
-              file_data: fixture_file_upload(Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'))
+            'hca_attachment' => {
+              file_data: Rack::Test::UploadedFile.new(
+                Rails.root.join('spec', 'fixtures', 'pdf_fill', 'extras.pdf'), 'application/pdf'
+              )
             }
           }
         )
@@ -1070,6 +1044,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     it 'supports getting the user data' do
       expect(subject).to validate(:get, '/v0/user', 200, headers)
       expect(subject).to validate(:get, '/v0/user', 401)
+    end
+
+    context '/v0/user endpoint with some external service errors' do
+      let(:user) { build(:user) }
+      let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
+
+      it 'supports getting user with some external errors', skip_mvi: true do
+        expect(subject).to validate(:get, '/v0/user', 296, headers)
+      end
     end
 
     context '#feedback' do

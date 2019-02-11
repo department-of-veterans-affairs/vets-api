@@ -492,32 +492,36 @@ module HCA
 
     # rubocop:disable Metrics/MethodLength
     def veteran_to_financials_info(veteran)
-      return unless financial_flag?(veteran)
+      if financial_flag?(veteran)
+        incomes = resource_to_income_collection(
+          'grossIncome' => veteran['veteranGrossIncome'],
+          'netIncome' => veteran['veteranNetIncome'],
+          'otherIncome' => veteran['veteranOtherIncome']
+        )
 
-      incomes = resource_to_income_collection(
-        'grossIncome' => veteran['veteranGrossIncome'],
-        'netIncome' => veteran['veteranNetIncome'],
-        'otherIncome' => veteran['veteranOtherIncome']
-      )
-
-      {
-        'incomeTest' => { 'discloseFinancialInformation' => true },
-        'financialStatement' => {
-          'expenses' => resource_to_expense_collection(
-            {
-              'educationExpense' => veteran['deductibleEducationExpenses'],
-              'funeralExpense' => veteran['deductibleFuneralExpenses'],
-              'medicalExpense' => veteran['deductibleMedicalExpenses']
-            },
-            income_collection_total(incomes)
-          ),
-          'incomes' => incomes,
-          'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
-          'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
-          'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
-          'numberOfDependentChildren' => veteran['dependents']&.size
+        {
+          'incomeTest' => { 'discloseFinancialInformation' => true },
+          'financialStatement' => {
+            'expenses' => resource_to_expense_collection(
+              {
+                'educationExpense' => veteran['deductibleEducationExpenses'],
+                'funeralExpense' => veteran['deductibleFuneralExpenses'],
+                'medicalExpense' => veteran['deductibleMedicalExpenses']
+              },
+              income_collection_total(incomes)
+            ),
+            'incomes' => incomes,
+            'spouseFinancialsList' => veteran_to_spouse_financials(veteran),
+            'marriedLastCalendarYear' => veteran['maritalStatus'] == 'Married',
+            'dependentFinancialsList' => veteran_to_dependent_financials_collection(veteran),
+            'numberOfDependentChildren' => veteran['dependents']&.size
+          }
         }
-      }
+      else
+        {
+          'incomeTest' => { 'discloseFinancialInformation' => false }
+        }
+      end
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -680,12 +684,12 @@ module HCA
       end
     end
 
-    def add_dd214(file_body)
+    def add_attachment(file_body, is_dd214)
       {
         'va:document' => {
-          'va:name' => 'DD214',
+          'va:name' => 'Attachment',
           'va:format' => 'PDF',
-          'va:type' => '1',
+          'va:type' => is_dd214 ? '1' : '5',
           'va:content' => Base64.encode64(file_body)
         }
       }
@@ -698,10 +702,10 @@ module HCA
 
       request = build_form_for_user(current_user)
 
-      veteran['dd214'].tap do |dd214|
-        next if dd214.blank?
-        attachment = HcaDd214Attachment.find_by(guid: dd214['confirmationCode'])
-        request['va:form']['va:attachments'] = add_dd214(attachment.get_file.read)
+      veteran['attachment'].tap do |attachment|
+        next if attachment.blank?
+        hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
+        request['va:form']['va:attachments'] = add_attachment(hca_attachment.get_file.read, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)

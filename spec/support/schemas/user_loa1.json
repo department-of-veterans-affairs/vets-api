@@ -1,7 +1,7 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": ["data", "meta"],
   "properties": {
     "data": {
       "type": "object",
@@ -45,7 +45,8 @@
                 "loa",
                 "multifactor",
                 "verified",
-                "authn_context"
+                "authn_context",
+                "sign_in"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -66,30 +67,17 @@
                 },
                 "multifactor": { "type": "boolean" },
                 "verified": { "type": "boolean" },
-                "authn_context": { "type": [ "string", null ] }
+                "authn_context": { "type": [ "string", null ] },
+                "sign_in": { 
+                  "type": "object",
+                  "properties":  {
+                    "service_name": { "type": "string" }
+                  }
+                }
               }
             },
             "va_profile": {
-              "type": ["object", "null"],
-              "required": [
-                "status"
-              ],
-              "oneOf": [
-                {
-                  "properties": {
-                    "status": { "type": [ "string" ]  }
-                  }
-                },
-                {
-                  "properties": {
-                    "birth_date": { "type": "string" },
-                    "family_name": { "type": "string" },
-                    "gender": { "type": "string" },
-                    "given_names": { "type": "array" },
-                    "status": { "type": "string"  }
-                  }
-                }
-              ]
+              "type": ["object", "null"]
             },
             "veteran_status": {
               "type": ["object", "null"],
@@ -113,6 +101,26 @@
             },
             "vet360_contact_information": {
               "type": ["object", "null"]
+            }
+          }
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["errors"],
+      "properties": {
+        "errors": {
+          "description": "Array of the potential external service error details",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "external_service": { "type": "string" },
+              "start_time": { "type": "string" },
+              "end_time": { "type": ["string", null] },
+              "description":{ "type": "string" },
+              "status":{ "type": "integer" }
             }
           }
         }

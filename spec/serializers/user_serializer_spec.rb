@@ -4,221 +4,48 @@ require 'rails_helper'
 
 RSpec.describe UserSerializer, type: :serializer do
   let(:user) { create(:user, :loa3) }
+  let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
+  let(:pre_serialized_profile) { Users::Profile.new(user).pre_serialize }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
-  let(:account) { attributes['account'] }
-  let(:profile) { attributes['profile'] }
-  let(:va_profile) { attributes['va_profile'] }
-  let(:veteran_status) { attributes['veteran_status'] }
 
-  subject { serialize(user, serializer_class: described_class) }
+  subject { serialize(pre_serialized_profile, serializer_class: described_class) }
 
-  it 'should not include ssn anywhere' do
-    expect(attributes['ssn']).to be_nil
-    expect(profile['ssn']).to be_nil
-    expect(va_profile['ssn']).to be_nil
-  end
-
-  describe '#in_progress_forms' do
-    let!(:in_progress_form) { create(:in_progress_form, user_uuid: user.uuid) }
-
-    it 'should include metadata' do
-      expect(attributes['in_progress_forms'][0]['metadata']).to eq(in_progress_form.metadata)
+  context 'when initialized with an object that cannot be called by each of the attributes' do
+    it 'raises an error' do
+      expect { serialize(user, serializer_class: described_class) }.to raise_error(NoMethodError)
     end
   end
 
-  describe '#account' do
-    let(:user) { create(:user, :accountable) }
-    it 'should include account uuid' do
-      expect(account['account_uuid']).to eq(user.account_uuid)
-    end
+  it 'returns serialized #services data' do
+    expect(attributes.dig('services')).to be_present
   end
 
-  describe '#profile' do
-    # --- positive tests ---
-    it 'should include email' do
-      expect(profile['email']).to eq(user.email)
-    end
-    it 'should include first_name' do
-      expect(profile['first_name']).to eq(user.first_name)
-    end
-    it 'should include middle_name' do
-      expect(profile['middle_name']).to eq(user.middle_name)
-    end
-    it 'should include last_name' do
-      expect(profile['last_name']).to eq(user.last_name)
-    end
-    it 'should include birth_date' do
-      expect(profile['birth_date']).to eq(user.birth_date)
-    end
-    it 'should include gender' do
-      expect(profile['gender']).to eq(user.gender)
-    end
-    it 'should include zip' do
-      expect(profile['zip']).to eq(user.zip)
-    end
-    it 'should include last_signed_in' do
-      expect(Time.zone.parse(profile['last_signed_in']).httpdate).to eq(user.last_signed_in.httpdate)
-    end
-
-    # --- negative tests ---
-    it 'should not include uuid in the profile' do
-      expect(profile['uuid']).to be_nil
-    end
-    it 'should not include edipi in the profile' do
-      expect(profile['edipi']).to be_nil
-    end
-    it 'should not include participant_id in the profile' do
-      expect(profile['participant_id']).to be_nil
-    end
+  it 'returns serialized #account data' do
+    expect(attributes.dig('account')).to be_present
   end
 
-  describe '#va_profile' do
-    context 'when user.mvi is not nil' do
-      it 'should include birth_date' do
-        expect(va_profile['birth_date']).to eq(user.va_profile[:birth_date])
-      end
-      it 'should include family_name' do
-        expect(va_profile['family_name']).to eq(user.va_profile[:family_name])
-      end
-      it 'should include gender' do
-        expect(va_profile['gender']).to eq(user.va_profile[:gender])
-      end
-      it 'should include given_names' do
-        expect(va_profile['given_names']).to eq(user.va_profile[:given_names])
-      end
-      it 'should include status' do
-        expect(va_profile['status']).to eq('OK')
-      end
-    end
-
-    context 'when user.mvi is nil' do
-      let(:user) { create :user }
-      let(:data) { JSON.parse(subject)['data'] }
-      let(:attributes) { data['attributes'] }
-      let(:va_profile) { attributes['va_profile'] }
-
-      it 'returns va_profile as null' do
-        expect(va_profile).to eq(
-          'status' => 'NOT_AUTHORIZED'
-        )
-      end
-    end
-
-    context 'when user.mvi is not found' do
-      before { stub_mvi_not_found }
-
-      let(:data) { JSON.parse(subject)['data'] }
-      let(:attributes) { data['attributes'] }
-      let(:va_profile) { attributes['va_profile'] }
-
-      it 'returns va_profile as null' do
-        expect(va_profile).to eq(
-          'status' => 'NOT_FOUND'
-        )
-      end
-    end
+  it 'returns serialized #profile data' do
+    expect(attributes.dig('profile')).to be_present
   end
 
-  describe '#veteran_status' do
-    context 'when a veteran status is succesfully returned' do
-      it 'should include is_veteran' do
-        expect(veteran_status['is_veteran']).to eq(user.veteran?)
-      end
-
-      it 'should include status' do
-        expect(veteran_status['status']).to eq('OK')
-      end
-
-      it 'should include served_in_military' do
-        expect(veteran_status['served_in_military']).to eq(user.served_in_military?)
-      end
-    end
-
-    context 'when a veteran status is not found' do
-      before(:each) do
-        allow_any_instance_of(
-          EMISRedis::VeteranStatus
-        ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::RecordNotFound)
-      end
-
-      it 'should include is_veteran' do
-        expect(veteran_status['is_veteran']).to be_nil
-      end
-
-      it 'should include status' do
-        expect(veteran_status['status']).to eq('NOT_FOUND')
-      end
-    end
-
-    context 'when a veteran status call returns an error' do
-      before(:each) do
-        allow_any_instance_of(
-          EMISRedis::VeteranStatus
-        ).to receive(:veteran?).and_raise(Common::Client::Errors::ClientError)
-      end
-
-      it 'should include is_veteran' do
-        expect(veteran_status['is_veteran']).to be_nil
-      end
-
-      it 'should include status' do
-        expect(veteran_status['status']).to eq('SERVER_ERROR')
-      end
-    end
-
-    context 'with a LOA1 user' do
-      let(:user) { create(:user, :loa1) }
-      let(:serialized_user) { serialize(user, serializer_class: described_class) }
-      let(:expected) { JSON.parse(serialized_user) }
-
-      it 'returns va_profile as null' do
-        allow_any_instance_of(
-          EMISRedis::VeteranStatus
-        ).to receive(:veteran?).and_raise(EMISRedis::VeteranStatus::NotAuthorized)
-        expect(expected['data']['attributes']['veteran_status']).to eq(
-          'status' => 'NOT_AUTHORIZED'
-        )
-      end
-    end
+  it 'returns serialized #va_profile data' do
+    expect(attributes.dig('va_profile')).to be_present
   end
 
-  describe '#vet360_contact_information' do
-    context 'with an loa1 user' do
-      let(:user) { create(:user, :loa1) }
+  it 'returns serialized #veteran_status data' do
+    expect(attributes.dig('veteran_status')).to be_present
+  end
 
-      it 'should return nil' do
-        expect(user.vet360_contact_info).to be_nil
-        expect(attributes['vet360_contact_information']).to eq({})
-      end
-    end
+  it 'returns serialized #in_progress_forms data' do
+    expect(attributes.dig('in_progress_forms')).to be_present
+  end
 
-    context 'with a valid user' do
-      let(:user) { create(:user, :loa3) }
-      let(:json) { attributes['vet360_contact_information'] }
+  it 'returns serialized #prefills_available data' do
+    expect(attributes.dig('prefills_available')).to be_present
+  end
 
-      it 'should be populated' do
-        expect(user.vet360_contact_info).not_to be_nil
-        expect(json).to include(
-          'email',
-          'residential_address',
-          'mailing_address',
-          'home_phone',
-          'mobile_phone',
-          'work_phone',
-          'fax_number',
-          'temporary_phone'
-        )
-
-        expect(json['email']).not_to be_nil
-        expect(json['residential_address']).not_to be_nil
-        expect(json['mailing_address']).not_to be_nil
-        expect(json['home_phone']).not_to be_nil
-        expect(json['mobile_phone']).not_to be_nil
-        expect(json['work_phone']).not_to be_nil
-        expect(json['fax_number']).not_to be_nil
-        expect(json['temporary_phone']).not_to be_nil
-      end
-    end
+  it 'returns serialized #vet360_contact_information data' do
+    expect(attributes.dig('vet360_contact_information')).to be_present
   end
 end

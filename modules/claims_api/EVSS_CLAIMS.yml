@@ -22,7 +22,7 @@ info:
 
     Allows a client to check claims status from EVSS.
 
-    1. Client Request: GET https://api.va.gov/services/claims/v0/claims
+    1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the claim status as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
@@ -36,7 +36,7 @@ info:
 
     Allows a client to retrieve claim status by EVSS id.
 
-    1. Client Request: GET https://api.va.gov/services/claims/v0/claims/123123
+    1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims/123123
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the claim status as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
@@ -86,28 +86,28 @@ paths:
           description: VA username of the person making the request
         - in: header
           name: X-VA-First-Name
-          requried: true
+          required: true
           schema:
             type: string
           description: First name of Veteran
         - in: header
           name: X-VA-Last-Name
-          requried: true
+          required: true
           schema:
             type: string
           description: Last name of Veteran
         - in: header
           name: X-VA-Birth-Date
-          requried: true
+          required: true
           schema:
             type: string
           description: Birth date for Veteran in iso8601 format
         - in: header
           name: X-VA-EDIPI
-          requried: true
+          required: true
           schema:
             type: string
-          description: Veteran's EIDPI number
+          description: Veteran's EDIPI number
       responses:
         '200':
           description: Appeals retrieved successfully
@@ -138,6 +138,12 @@ paths:
       security:
         - api_key: []
       parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the claim being requested
         - in: header
           name: X-VA-SSN
           required: true
@@ -152,28 +158,28 @@ paths:
           description: VA username of the person making the request
         - in: header
           name: X-VA-First-Name
-          requried: true
+          required: true
           schema:
             type: string
           description: First name of Veteran
         - in: header
           name: X-VA-Last-Name
-          requried: true
+          required: true
           schema:
             type: string
           description: Last name of Veteran
         - in: header
           name: X-VA-Birth-Date
-          requried: true
+          required: true
           schema:
             type: string
           description: Birth date for Veteran in iso8601 format
         - in: header
           name: X-VA-EDIPI
-          requried: true
+          required: true
           schema:
             type: string
-          description: Veteran's EIDPI number
+          description: Veteran's EDIPI number
       responses:
         '200':
           description: Appeals retrieved successfully

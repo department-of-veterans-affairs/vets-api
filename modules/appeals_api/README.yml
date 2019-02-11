@@ -1,10 +1,10 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: Appeals 
+  title: Appeals
   description: |
     Caseflow Appeals Status
-    
+
     ## Background
 
     This API is being provided as a proof of concept for a general-purpose VA API gateway. The use case allows authorized third-party developers to request the status of a Veteran’s benefit appeals.
@@ -15,21 +15,21 @@ info:
     Because this application is designed to allow third-parties to request information on behalf of a Veteran, we are not using VA Authentication Federation Infrastructure (VAAFI) headers or Single Sign On External (SSOe).
 
     ## Design
-    
+
     ### Authorization
-    
+
     API requests are authorized through a symmetric API token, provided in an HTTP header with name "apikey".
 
     ### Status Request
-    
+
     Allows a client to check benefit appeals status
 
     1. Client Request: GET https://dev-api.va.gov/services/appeals/v0/appeals
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the person requesting the appeals status as the X-VA-User header
-    
+
     2. Service Response: A JSON API object with the current status of appeals
-          
+
       ## Reference
 
       Raw Open API Spec: http://dev-api.va.gov/services/appeals/docs/v0/api
@@ -40,7 +40,7 @@ info:
 tags:
   - name: appeals
     description: Caseflow appeals status API
-servers: 
+servers:
   - url: https://dev-api.va.gov/services/appeals/{version}
     description: VA.gov API development environment
     variables:
@@ -60,7 +60,7 @@ paths:
   /appeals:
     get:
       tags:
-        - appeals_status 
+        - appeals_status
       summary: Retrieve appeals status for the Veteran with the supplied ssn
       operationId: getAppealStatus
       security:
@@ -91,6 +91,8 @@ paths:
                     $ref: "#/components/schemas/Appeal"
         '400':
           description: Missing SSN header
+        '401':
+          description: Unauthorized
         '403':
           description: Bad API Token
         '404':
@@ -105,24 +107,27 @@ components:
       in: query
   schemas:
     Appeal:
-      description: |
-        Appeal and supporting information for the supplied Veteran SSN
       type: object
       properties:
         id:
           type: string
-          description: ID from VACOLS (Veteran Appeals Control and Locator Service)
+          description: ID from VACOLS (Veteran Appeals Control and Locator Service) or Caseflow
           example: '7387389'
         type:
           type: string
-          example: appealSeries
-          description: Required by JSON API standard
+          description: The decision review option chosen by the appellant
+          example: legacyAppeal
+          enum:
+          - legacyAppeal
+          - appeal
+          - supplementalClaim
+          - higherLevelReview
         attributes:
           type: object
           properties:
             appealIds:
               format: array
-              description: An array of the individual VACOLS (Veteran Appeals Control and Locator Service) IDs that are combined into this appeal
+              description: An array of the individual IDs that are combined into this appeal
               items:
                 type: string
                 example: '1234567'
@@ -149,9 +154,8 @@ components:
               - other
             programArea:
               type: string
-              description: Type of service or benefit being appealed
               example: pension
-              enum: 
+              enum:
               - compensation
               - pension
               - insurance
@@ -165,7 +169,7 @@ components:
               - multiple
             description:
               type: string
-              description: 
+              description:
               example: Service connection, tinnitus, and 3 others
             type:
               type: string
@@ -179,7 +183,7 @@ components:
             aod:
               type: boolean
               example: false
-              description: Advanced on Docket, whether this appeals have been given precedence due to Veteran age or urgency.
+              description: Advanced on Docket, whether this appeal was prioritized due to Veteran age or urgency.
             location:
               type: string
               example: bva
@@ -193,7 +197,7 @@ components:
               properties:
                 type:
                   type: string
-                  description: 
+                  description:
                   enum:
                   - scheduled_hearing
                   - pending_hearing_scheduling
@@ -217,6 +221,17 @@ components:
                   - remand_ssoc
                   - remand
                   - merged
+                  - evidentiary_period
+                  - ama_remand
+                  - post_bva_dta_decision
+                  - bva_decision_effectuation
+                  - sc_received
+                  - sc_decision
+                  - sc_closed
+                  - hlr_received
+                  - hlr_dta_error
+                  - hlr_decision
+                  - hlr_closed
                 details:
                   type: object
                   description: Further information about the process step the appeal is in
@@ -224,6 +239,14 @@ components:
               type: object
               description: Represents the appeals' position in line for a decision and the expected timing of the decision
               properties:
+                type:
+                  type: string
+                  description: Indicates the docket of the appeal
+                  enum:
+                  - direct_review
+                  - evidence_submission
+                  - hearing
+                  example: hearing
                 month:
                   type: string
                   format: date
@@ -238,6 +261,9 @@ components:
                 total:
                   type: number
                   example: 206900
+                totalAllDockets:
+                  type: number
+                  example: 420012
                 ahead:
                   type: number
                   example: 109203
@@ -245,9 +271,14 @@ components:
                   type: number
                   example: 22109
                 eta:
+                  $ref: '#/components/schemas/Eta'
+                eligibleToSwitch:
+                  type: boolean
+                  example: true
+                switchDueDate:
                   type: string
                   format: date
-                  example: '2019-08-31'
+                  example: '2020-06-01'
             issues:
               type: array
               items:
@@ -264,13 +295,26 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Evidence'
+    Eta:
+      type: object
+      description: Estimated decision dates for each docket.
+      properties:
+        directReview:
+          format: date
+          example: '2020-02-01'
+        evidenceSubmission:
+          format: date
+          example: '2024-06-01'
+        hearing:
+          format: date
+          example: '2024-06-01'
     Alert:
       type: object
       description: Notification of a request for more information or of a change in the appeal status that requires action.
       properties:
         type:
           type: string
-          description: Enum of notifications for an appeal. Acronyms used include cavc (Court of Appeals for Veteran Claims), vso (Veteran Service Organization), and dro (Decision Review Officer). 
+          description: Enum of notifications for an appeal. Acronyms used include cavc (Court of Appeals for Veteran Claims), vso (Veteran Service Organization), and dro (Decision Review Officer).
           example: form9_needed
           enum:
           - form9_needed
@@ -284,6 +328,8 @@ components:
           - blocked_by_vso
           - scheduled_dro_hearing
           - dro_hearing_no_show
+          - evidentiary_period
+          - ama_post_decision
         details:
           description: Further information about the alert
           type: object
@@ -294,7 +340,7 @@ components:
         type:
           type: string
           example: soc
-          description: Enum of possible event types. Acronyms used include, nod (Notice of Disagreement), soc (Statement of Case), ssoc (Supplemental Statement of Case), ftr (Failed to Report), bva (Board of Veteran Appeals), cavc (Court of Appeals for Veteran Claims), and dro (Decision Review Officer). 
+          description: Enum of possible event types. Acronyms used include, nod (Notice of Disagreement), soc (Statement of Case), ssoc (Supplemental Statement of Case), ftr (Failed to Report), bva (Board of Veteran Appeals), cavc (Court of Appeals for Veteran Claims), and dro (Decision Review Officer).
           enum:
           - claim_decision
           - nod
@@ -322,6 +368,17 @@ components:
           - dro_hearing_held
           - dro_hearing_cancelled
           - dro_hearing_no_show
+          - ama_nod
+          - docket_change
+          - bva_decision_effectuation
+          - dta_decision
+          - sc_request
+          - sc_decision
+          - sc_other_close
+          - hlr_request
+          - hlr_decision
+          - hlr_dta_error
+          - hlr_other_close
         date:
           type: string
           format: date
@@ -359,7 +416,7 @@ components:
         date:
           type: string
           format: date
-          description: "Date issue was submitted"
+          description: The date of the most recent decision on the issue
           example: '2016-05-30'
     Evidence:
       type: object

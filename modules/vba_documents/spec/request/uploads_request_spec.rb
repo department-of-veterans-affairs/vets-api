@@ -62,5 +62,23 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       get "/services/vba_documents/v0/uploads/#{upload.guid}"
       expect(response).to have_http_status(:not_found)
     end
+
+    context 'in dev environment' do
+      before do
+        allow(Rails).to receive(:env).and_return(ActiveSupport::StringInquirer.new('development'))
+      end
+
+      it 'should allow updating of the status' do
+        with_settings(
+          Settings.vba_documents,
+          enable_status_override: true
+        ) do
+          starting_status = upload.status
+          get "/services/vba_documents/v0/uploads/#{upload.guid}", nil, 'Status-Override' => 'success'
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
+        end
+      end
+    end
   end
 end

@@ -1,7 +1,7 @@
 {
   "$schema" : "http://json-schema.org/draft-04/schema#",
   "type": "object",
-  "required": ["data"],
+  "required": ["data", "meta"],
   "properties": {
     "data": {
       "type": "object",
@@ -46,7 +46,8 @@
                 "loa",
                 "multifactor",
                 "verified",
-                "authn_context"
+                "authn_context",
+                "sign_in"
               ],
               "properties": {
                 "email": { "type": "string"},
@@ -67,7 +68,13 @@
                 },
                 "multifactor": { "type": "boolean" },
                 "verified": { "type": "boolean" },
-                "authn_context": { "type": [ "string", null ] }
+                "authn_context": { "type": [ "string", null ] },
+                "sign_in": { 
+                  "type": "object",
+                  "properties":  {
+                    "service_name": { "type": "string" }
+                  }
+                }
               }
             },
             "va_profile": {
@@ -117,6 +124,13 @@
             }
           }
         }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["errors"],
+      "properties": {
+        "errors": { "type": ["array", null] }
       }
     }
   }

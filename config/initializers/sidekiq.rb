@@ -17,6 +17,13 @@ Sidekiq.configure_server do |config|
   config.client_middleware do |chain|
     chain.add Sidekiq::Instrument::ClientMiddleware
   end
+
+  SemanticLogger.on_log do |log|
+    Raven.tags_context[:request_id].tap do |request_id|
+      next if request_id.blank?
+      log.named_tags[:request_id] = request_id
+    end
+  end
 end
 
 Sidekiq.configure_client do |config|
@@ -24,6 +31,7 @@ Sidekiq.configure_client do |config|
 
   config.client_middleware do |chain|
     chain.add Sidekiq::Instrument::ClientMiddleware
+    chain.add Sidekiq::SetRequestId
   end
 
   # Remove the default error handler

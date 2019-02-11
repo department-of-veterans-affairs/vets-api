@@ -20,7 +20,7 @@ class ApplicationController < ActionController::API
   ].freeze
 
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
-  # See Also AuthenticationAndSSOConcerns for more before filters
+  # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   before_action :set_tags_and_extra_context
 
@@ -64,8 +64,7 @@ class ApplicationController < ActionController::API
   rescue_from 'Exception' do |exception|
     # report the original 'cause' of the exception when present
     if skip_sentry_exception_types.include?(exception.class)
-      Rails.logger.error "#{exception.message}."
-      Rails.logger.error exception.backtrace.join("\n") unless exception.backtrace.nil?
+      Rails.logger.error "#{exception.message}.", backtrace: exception.backtrace
     else
       extra = exception.respond_to?(:errors) ? { errors: exception.errors.map(&:to_hash) } : {}
       if exception.is_a?(Common::Exceptions::BackendServiceException)
@@ -125,7 +124,7 @@ class ApplicationController < ActionController::API
   def tags_context
     {
       controller_name: controller_name,
-      sign_in_method: current_user.present? ? current_user.authn_context || 'idme' : 'not-signed-in'
+      sign_in_method: current_user.present? ? current_user.identity.sign_in : 'not-signed-in'
     }
   end
 
@@ -150,5 +149,10 @@ class ApplicationController < ActionController::API
 
   def render_job_id(jid)
     render json: { job_id: jid }, status: 202
+  end
+
+  def append_info_to_payload(payload)
+    super
+    payload[:session] = Session.obscure_token(session[:token]) if session && session[:token]
   end
 end

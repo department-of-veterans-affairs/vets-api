@@ -7,7 +7,7 @@ module SAML
     class DSLogon < Base
       PREMIUM_LOAS = %w[2 3].freeze
       DSLOGON_SERIALIZABLE_ATTRIBUTES = %i[first_name middle_name last_name gender ssn birth_date
-                                           dslogon_edipi dslogon_status dslogon_deceased].freeze
+                                           dslogon_edipi].freeze
 
       def first_name
         attributes['dslogon_fname']
@@ -39,17 +39,18 @@ module SAML
         attributes['dslogon_uuid']
       end
 
-      def dslogon_status
-        attributes['dslogon_status']
-      end
-
-      def dslogon_deceased
-        attributes['dslogon_deceased']
-      end
-
-      def dslogon_idtype
-        attributes['dslogon_idtype']
-      end
+      # These methods are available but not currently being used.
+      # def dslogon_status
+      #   attributes['dslogon_status']
+      # end
+      #
+      # def dslogon_deceased
+      #   attributes['dslogon_deceased']
+      # end
+      #
+      # def dslogon_idtype
+      #   attributes['dslogon_idtype']
+      # end
 
       def dslogon_assurance
         attributes['dslogon_assurance']
@@ -57,7 +58,9 @@ module SAML
 
       private
 
-      # These methods are required to be implemented on each child class
+      def account_type
+        dslogon_assurance
+      end
 
       def serializable_attributes
         DSLOGON_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES

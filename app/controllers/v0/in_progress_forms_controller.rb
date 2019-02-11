@@ -4,7 +4,6 @@ module V0
   class InProgressFormsController < ApplicationController
     include IgnoreNotFound
 
-    before_action :check_access_denied
     before_action(:tag_rainbows)
 
     def index
@@ -13,13 +12,12 @@ module V0
 
     def show
       form_id = params[:id]
-      form = InProgressForm.form_for_user(form_id, @current_user)
+      form    = InProgressForm.form_for_user(form_id, @current_user)
+
       if form
         render json: form.data_and_metadata
-      elsif @current_user.can_access_prefill_data?
-        render json: FormProfile.for(form_id).prefill(@current_user)
       else
-        head 404
+        render json: FormProfile.for(form_id).prefill(@current_user)
       end
     end
 
@@ -34,13 +32,6 @@ module V0
       raise Common::Exceptions::RecordNotFound, params[:id] if form.blank?
       form.destroy
       render json: form
-    end
-
-    private
-
-    def check_access_denied
-      return if @current_user.can_save_partial_forms?
-      raise Common::Exceptions::Unauthorized, detail: 'You do not have access to save in progress forms'
     end
   end
 end

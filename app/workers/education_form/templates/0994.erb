@@ -1,0 +1,75 @@
+<%= header %>
+<%= benefit_type %>
+*START*
+VA Form 22-0994
+JAN 2019
+
+APPLICATION FOR VETERAN EMPLOYMENT THROUGH TECHNOLOGY EDUCATION COURSES
+                   (VET TEC) HIGH TECHNOLOGY PROGRAM
+        -------------------------------------------------------
+
+                        APPLICANT INFORMATION
+                        ---------------------
+
+Name: <%= full_name(@applicant.applicantFullName) %>
+
+Social Security Number: <%= @applicant.applicantSocialSecurityNumber %>
+
+Mailing Address:
+<%= full_address(@applicant.mailingAddress) %>
+
+Sex of Applicant: <%= value_or_na(@applicant.applicantGender) %>
+
+Date of Birth: <%= value_or_na(@applicant.dateOfBirth) %>
+
+Email Address: <%= @applicant.emailAddress %>
+
+Day Time Telephone Number: <%= @applicant.dayTimePhone %>
+
+Night Time Telephone Number: <%= value_or_na(@applicant.nightTimePhone) %>
+
+Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVaEducationBenefits) %>
+
+Are you currently on active duty?: <%= yesno(@applicant.activeDuty) %>
+
+Do you anticipate you will go on active duty during the
+VET TEC program?: <%= yesno(@applicant.activeDutyDuringVetTec) %>
+
+DIRECT DEPOSIT INFORMATION:
+
+Routing or Transit Number: <%= bank_routing_number %>
+
+Account Type: <%= bank_account_type %>
+
+Account Number: <%= bank_account_number %>
+
+                          COURSE OF STUDY
+                          ---------------
+
+VET TEC programs:
+<% Array(@applicant.vetTecPrograms).each do |program| %>
+  Provider name: <%= value_or_na(program.providerName) %>
+  Program name: <%= value_or_na(program.programName) %>
+  Course type: <%= course_type_name(program.courseType) %>
+  Location:
+    City: <%= value_or_na(program.location&.city) %>
+    State: <%= value_or_na(program.location&.state) %>
+  Planned start date: <%= value_or_na(program.plannedStartDate) %>
+<% end %>
+                       BACKGROUND INFORMATION
+                       ----------------------
+
+Are you working in a high-tech industry now?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
+
+Have you worked in a high-tech industry in the past?: <%= yesno(@applicant.pastHighTechnologyEmployment) %>
+
+If yes, select the area:
+<%= high_tech_area_names %>
+
+What is your current salary range?: <%= salary_text %>
+
+What is your highest level of education?: <%= education_level_name %>
+
+Signature of applicant:
+
+<%= parse_with_template_path('footer') %>

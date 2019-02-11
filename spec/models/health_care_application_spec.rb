@@ -3,6 +3,50 @@
 require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
+  let(:health_care_application) { create(:health_care_application) }
+
+  describe '.user_icn' do
+    let(:form) { health_care_application.parsed_form }
+
+    context 'when the user is not found' do
+      it 'should return nil' do
+        expect_any_instance_of(MVI::Service).to receive(
+          :find_profile
+        ).and_raise(MVI::Errors::RecordNotFound)
+
+        expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
+      end
+    end
+
+    context 'when the user is is found' do
+      it 'should return the icn' do
+        expect_any_instance_of(MVI::Service).to receive(
+          :find_profile
+        ).and_return(
+          OpenStruct.new(
+            profile: OpenStruct.new(icn: '123')
+          )
+        )
+
+        expect(described_class.user_icn(described_class.user_attributes(form))).to eq('123')
+      end
+    end
+  end
+
+  describe '.user_attributes' do
+    it 'should create a mvi compatible hash of attributes' do
+      expect(
+        described_class.user_attributes(
+          health_care_application.parsed_form
+        ).to_h
+      ).to eq(
+        first_name: 'FirstName', middle_name: 'MiddleName',
+        last_name: 'ZZTEST', birth_date: '1923-01-02',
+        ssn: '111111234', gender: 'F'
+      )
+    end
+  end
+
   describe 'validations' do
     it 'should validate presence of state' do
       health_care_application = described_class.new(state: nil)

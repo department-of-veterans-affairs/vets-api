@@ -17,9 +17,10 @@ module EVSS
         'other' => 'OTHER'
       }.freeze
 
-      def initialize(user, form_content)
+      def initialize(user, form_content, has_form4142)
         @user = user
         @form_content = form_content
+        @has_form4142 = has_form4142
         @translated_form = { 'form526' => {} }
       end
 
@@ -27,6 +28,8 @@ module EVSS
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
         output_form['applicationExpirationDate'] = application_expiration_date
+
+        output_form.update(append_overflow_text) if @has_form4142
 
         output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
@@ -50,6 +53,13 @@ module EVSS
 
       def output_form
         @translated_form['form526']
+      end
+
+      def append_overflow_text
+        {
+          'overflowText' => 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
+                            'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+        }
       end
 
       def translate_banking_info
@@ -212,7 +222,7 @@ module EVSS
             'changeOfAddress' => translate_change_of_address(input_form['forwardingAddress']),
             'daytimePhone' => split_phone_number(input_form.dig('phoneAndEmail', 'primaryPhone')),
             'homelessness' => translate_homelessness,
-            'currentlyVAEmployee' => input_form['isVAEmployee']
+            'currentlyVAEmployee' => input_form['isVaEmployee']
           }.compact
         }
       end
@@ -391,6 +401,13 @@ module EVSS
         return disabilities if input_form['newPrimaryDisabilities'].blank?
 
         input_form['newPrimaryDisabilities'].each do |input_disability|
+          # Disabilities that do not exist in the mapped list (disabilities without
+          # a classification code) need to be scrubbed of characters not allowed by
+          # EVSS's validation.
+          if input_disability['classificationCode'].blank?
+            input_disability['condition'] = scrub_disability_condition(input_disability['condition'])
+          end
+
           case input_disability['cause']
           when 'NEW'
             disabilities.append(map_new(input_disability))
@@ -402,6 +419,12 @@ module EVSS
         end
 
         disabilities
+      end
+
+      def scrub_disability_condition(condition)
+        # Note: the right single quote is intentional - apostrophes are not allowed.
+        re = %r{([a-zA-Z0-9\-’.,\/() ]+)}
+        condition.scan(re).join.squish
       end
 
       def translate_new_secondary_disabilities(disabilities)
@@ -417,6 +440,7 @@ module EVSS
       def map_new(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
@@ -427,6 +451,7 @@ module EVSS
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Worsened because of military service\n"\
@@ -437,18 +462,20 @@ module EVSS
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by VA care\n"\
-                                "Event: #{input_disability['VAMistreatmentDescription']}\n"\
-                                "Location: #{input_disability['VAMistreatmentLocation']}\n"\
-                                "TimeFrame: #{input_disability['VAMistreatmentDate']}"
+                                "Event: #{input_disability['vaMistreatmentDescription']}\n"\
+                                "Location: #{input_disability['vaMistreatmentLocation']}\n"\
+                                "TimeFrame: #{input_disability['vaMistreatmentDate']}"
         }.compact
       end
 
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
+          'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
           'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
           'serviceRelevance' => "Caused by a service-connected disability\n"\

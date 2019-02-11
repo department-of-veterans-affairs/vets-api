@@ -26,6 +26,7 @@
             {
                 "disabilityActionType": "NEW",
                 "name": "Arthritis",
+                "classificationCode": "Test Code",
                 "specialIssue": "POW",
                 "serviceRelevance": "Caused by an in-service event, injury, or exposure\nJoints in hands"
             }

@@ -35,9 +35,23 @@ module EMISRedis
     end
 
     class NotAuthorized < StandardError
+      attr_reader :status
+
+      # @param status [Integer] An HTTP status code
+      #
+      def initialize(status: nil)
+        @status = status
+      end
     end
 
     class RecordNotFound < StandardError
+      attr_reader :status
+
+      # @param status [Integer] An HTTP status code
+      #
+      def initialize(status: nil)
+        @status = status
+      end
     end
 
     private
@@ -57,10 +71,10 @@ module EMISRedis
     # @return [Hash] A hash of veteran status properties
     #
     def validated_response
-      raise VeteranStatus::NotAuthorized if !@user.loa3? || !@user.authorize(:emis, :access?)
+      raise VeteranStatus::NotAuthorized.new(status: 401) if !@user.loa3? || !@user.authorize(:emis, :access?)
       response = emis_response('get_veteran_status')
 
-      raise VeteranStatus::RecordNotFound if response.empty?
+      raise VeteranStatus::RecordNotFound.new(status: 404) if response.empty?
       response.items.first
     end
   end
