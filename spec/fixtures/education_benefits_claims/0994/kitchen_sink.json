@@ -17,7 +17,7 @@
   "emailAddress": "test@test.com",
   "dayTimePhone": "5551234567",
   "nightTimePhone": "5551231234",
-  "appliedForVAEducationBenefits": true,
+  "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "activeDutyDuringVetTec": true,
   "bankAccount": {
@@ -39,9 +39,14 @@
       "location": {
         "state": "AK"
       }
+    },
+    {
+      "providerName": "Provider C",
+      "courseType": "online",
+      "plannedStartDate": "2020-06-01"
     }
   ],
-  "currentEmployment": true,
+  "pastHighTechnologyEmployment": true,
   "currentHighTechnologyEmployment": true,
   "highTechnologyEmploymentTypes": ["computerProgramming", "computerSoftware"],
   "currentSalary": "lessThanTwenty",

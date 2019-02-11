@@ -71,7 +71,8 @@ class SSOService
   private
 
   def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
-    new_user = User.new(user_identity.attributes)
+    new_user = User.new(uuid: user_identity.attributes[:uuid])
+    new_user.instance_variable_set(:@identity, @new_user_identity)
     if multifactor_change
       new_user.mhv_last_signed_in = existing_user.last_signed_in
       new_user.last_signed_in = existing_user.last_signed_in
