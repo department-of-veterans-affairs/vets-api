@@ -1,4 +1,4 @@
-api.env: dev
+api_env: dev
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
 
