@@ -183,7 +183,7 @@ module SAML
           'dslogon_assurance' => [account_type],
           'dslogon_gender' => ['M'],
           'dslogon_deceased' => ['false'],
-          'dslogon_idauthn_context' => ['ssn'],
+          'dslogon_idtype' => ['ssn'],
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'dslogon_uuid' => ['1606997570'],
           'email' => ['kam+tristanmhv@adhocteam.us'],
