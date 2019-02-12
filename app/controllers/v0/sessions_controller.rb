@@ -30,7 +30,7 @@ module V0
               url_service.dslogon_url
             when 'idme'
               reset_session
-              url_service.idme_loa1_url + (params[:signup] ? '&op=signup' : '')
+              url_service.idme_loa1_url(signup: params[:signup])
             when 'mfa'
               authenticate
               url_service.mfa_url
