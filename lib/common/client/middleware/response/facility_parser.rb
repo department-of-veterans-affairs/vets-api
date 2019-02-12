@@ -38,20 +38,20 @@ module Common
               attributes[name] = strip(location['attributes'][mapping[name]])
             end
           end
-          
+
           def make_complex_mappings(location, mapping)
             %w[access feedback phone].each_with_object({}) do |name, attributes|
               attributes[name] = complex_mapping(mapping[name], location['attributes'])
             end
           end
-          
+
           def make_address_mappings(location, mapping)
             attributes = {}
             attributes['physical'] = complex_mapping(mapping['physical'], location['attributes'])
             attributes['mailing'] = complex_mapping(mapping['mailing'], location['attributes'])
             { 'address' => attributes }
           end
-          
+
           def make_benefits_mappings(location, mapping, id)
             attributes = {}
             attributes['benefits'] = {
@@ -61,7 +61,7 @@ module Common
             attributes['benefits']['standard'] << 'Pensions' if BaseFacility::PENSION_LOCATIONS.include?(id)
             { 'services' => attributes }
           end
-          
+
           def make_hours_mappings(location, mapping)
             attributes = {}
             attributes['hours'] = complex_mapping(mapping['hours'], location['attributes'])
