@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'socket'
 
 class V0::BgsController < ApplicationController
@@ -20,6 +21,6 @@ class V0::BgsController < ApplicationController
   end
 
   def server_ip_address
-    Socket::getaddrinfo(Socket.gethostname,"echo",Socket::AF_INET)[0][3]
+    Socket.getaddrinfo(Socket.gethostname, 'echo', Socket::AF_INET)[0][3]
   end
 end
