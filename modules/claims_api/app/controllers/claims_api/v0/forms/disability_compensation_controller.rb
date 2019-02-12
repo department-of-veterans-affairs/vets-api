@@ -32,9 +32,6 @@ module ClaimsApi
           params[:data][:attributes]
         end
 
-        # This was copy pasta from claims_controller. lets abstract better
-        # Also it's very broken and references other functions, I just didn't
-        # want to muddy the waters
         def target_veteran
           ClaimsApi::Veteran.from_headers(request.headers, true)
         end
