@@ -283,6 +283,7 @@ redis:
 
 # Settings for Education Benefits report uploading
 reports:
+  env: dev 
   server: stage-tms.govdelivery.com
   token: ~
   aws:
