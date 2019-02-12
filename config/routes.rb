@@ -14,7 +14,7 @@ Rails.application.routes.draw do
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
-    get 'bgs/index'
+    get 'bgs/find_poa_for_claim/:id'
     resources :in_progress_forms, only: %i[index show update destroy]
     resource :claim_documents, only: [:create]
     resource :claim_attachments, only: [:create], controller: :claim_documents

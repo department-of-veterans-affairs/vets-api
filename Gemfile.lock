@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/bastosmichael/ruby-bgs
+  revision: 8aa099d586652661b9f5671c01161295017b265e
+  branch: master
+  specs:
+    bgs (0.2)
+      nokogiri (~> 1.8.2)
+      savon (~> 2.11)
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/betamocks
   revision: dfeb140c9571020239807477e34ec58ad2b38b32
   branch: master
@@ -1110,6 +1119,7 @@ DEPENDENCIES
   awrence
   aws-sdk (~> 3)
   betamocks!
+  bgs!
   brakeman
   breakers
   bundler-audit
