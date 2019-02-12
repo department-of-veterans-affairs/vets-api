@@ -9,18 +9,15 @@ module ClaimsApi
         skip_before_action(:authenticate)
 
         def form_526
-          # build internal payload here
-          internal_payload = ClaimsApi::Form526.new(form_attributes).to_internal
+          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
+            status: ClaimsApi::AutoEstablishedClaim::PENDING,
+            auth_headers_encrypted: auth_headers,
+            form_data_encrypted: form_attributes
+          )
 
-          # not sure if auth headers will pass in through job, or store on model
-          auth = auth_headers
+          ClaimsApi::ClaimEstablisher.perform(auto_claim.id)
 
-          # This model id will come from the model that stores the claim submission status
-          model_id = nil
-          ClaimsApi::ClaimEstablisher.perform(model_id)
-
-          # This will likely be a serialized version of the model
-          render {}.to_json
+          render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
         def form_4142; end
@@ -39,7 +36,7 @@ module ClaimsApi
         # Also it's very broken and references other functions, I just didn't
         # want to muddy the waters
         def target_veteran
-          ClaimsApi::Veteran.from_headers(request.headers)
+          ClaimsApi::Veteran.from_headers(request.headers, true)
         end
 
         def auth_headers

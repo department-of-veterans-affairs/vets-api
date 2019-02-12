@@ -10,6 +10,7 @@ module ClaimsApi
        last_name
        edipi
        birls_id
+       gender
        participant_id].each do |attr|
       attribute attr, String
     end
@@ -29,8 +30,8 @@ module ClaimsApi
       super(new_va_profile)
     end
 
-    def self.from_headers(headers)
-      new(
+    def self.from_headers(headers, with_gender = false)
+      veteran = new(
         ssn: ensure_header(headers, 'X-VA-SSN'),
         loa: { current: :loa3 },
         first_name: ensure_header(headers, 'X-VA-First-Name'),
@@ -39,6 +40,9 @@ module ClaimsApi
         edipi: ensure_header(headers, 'X-VA-EDIPI'),
         last_signed_in: Time.zone.now
       )
+      veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
+
+      veteran
     end
 
     def self.build_profile(headers)
