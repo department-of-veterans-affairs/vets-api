@@ -82,7 +82,7 @@ module SAML
       when 'myhealthevet', 'myhealthevet_multifactor'
         SAML::UserAttributes::MHV
       when 'dslogon', 'dslogon_multifactor'
-       SAML::UserAttributes::DSLogon
+        SAML::UserAttributes::DSLogon
       when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
       else
