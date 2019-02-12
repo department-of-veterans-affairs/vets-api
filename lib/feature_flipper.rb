@@ -10,6 +10,6 @@ module FeatureFlipper
   end
 
   def self.send_edu_report_email?
-    send_email? && (Settings.reports.env.blank? || Settings.reports.env != 'review')
+    send_email? && (Settings.api.env.blank? || Settings.api.env != 'review')
   end
 end
