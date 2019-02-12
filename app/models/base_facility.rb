@@ -139,18 +139,7 @@ class BaseFacility < ActiveRecord::Base
     def pull_source_data
       metadata = Facilities::MetadataClient.new.get_metadata(FACILITY_SORT_FIELDS[name].first)
       max_record_count = metadata['maxRecordCount']
-      raw_array = Facilities::Client.new.get_all_facilities(*FACILITY_SORT_FIELDS[name], max_record_count)
-      transformed_array = raw_array.map do |facility|
-        facility['hours'].transform_values! do |hours|
-          if /closed/i.match(hours) || hours == '-'
-            'Closed'
-          else
-            hours
-          end
-        end
-        facility
-      end
-      transformed_array.map(&method(:new))
+      Facilities::Client.new.get_all_facilities(*FACILITY_SORT_FIELDS[name], max_record_count).map(&method(:new))
     end
 
     def find_facility_by_id(id)
