@@ -202,7 +202,7 @@ mhv:
 mvi:
   url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
   open_timeout: 15
-  timeout: 15
+  timeout: 30
   mock: false
   processing_code: T
   client_cert_path: /fake/client/cert/path
