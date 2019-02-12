@@ -4,11 +4,24 @@ module HCA
       configuration HCA::EE::Configuration
 
       def lookup_user(icn)
-        result = perform(:post, '', build_lookup_user_xml(icn))
-        binding.pry; fail
+        response = perform(:post, '', build_lookup_user_xml(icn)).body
+
+        {
+          enrollment_status: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/enrollmentStatus'),
+          application_date: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/applicationDate'),
+          enrollment_date: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/enrollmentDate'),
+          preferred_facility: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/demographics/preferredFacility'),
+          ineligibility_reason: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/ineligibilityFactor/reason')
+        }
       end
 
       private
+
+      def get_xpath(response, xpath)
+        node = response.locate(xpath)
+        return if node.blank?
+        node[0].nodes[0]
+      end
 
       def build_lookup_user_xml(icn)
         Nokogiri::XML::Builder.new do |xml|
