@@ -39,8 +39,6 @@ module SAML
 
       private
 
-      # These methods are required to be implemented on each child class
-
       def serializable_attributes
         IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
       end
