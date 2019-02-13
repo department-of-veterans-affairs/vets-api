@@ -4,6 +4,7 @@ require 'rails_helper'
 
 RSpec.describe HCA::SubmissionJob, type: :job do
   let(:user) { create(:user) }
+  let(:user_identifier) { HealthCareApplication.get_user_identifier(user) }
   let(:health_care_application) { create(:health_care_application) }
   let(:form) { { foo: true, email: 'foo@example.com' } }
   let(:result) do
@@ -31,14 +32,11 @@ RSpec.describe HCA::SubmissionJob, type: :job do
 
   describe '#perform' do
     before do
-      # this line is needed to make stub in next line work because the found user
-      # is not == to another instance of itself
-      expect(User).to receive(:find).with(user.uuid).once.and_return(user)
-      expect(HCA::Service).to receive(:new).with(user).once.and_return(hca_service)
+      expect(HCA::Service).to receive(:new).with(user_identifier).once.and_return(hca_service)
     end
 
     subject do
-      described_class.new.perform(user.uuid, form, health_care_application.id, '123456789')
+      described_class.new.perform(user_identifier, form, health_care_application.id, '123456789')
     end
 
     context 'when submission has an error' do
