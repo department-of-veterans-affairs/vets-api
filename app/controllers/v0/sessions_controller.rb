@@ -86,6 +86,9 @@ module V0
         after_login_actions
         redirect_to saml_login_redirect_url
         stats(:success)
+      elsif @sso_service.auth_error_code == '002' && validate_session
+        stats(:success)
+        redirect_to '' # todo
       else
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
@@ -114,6 +117,9 @@ module V0
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown'])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown'])
+      when :replay
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
+                         tags: ['status:replay', "context:#{@sso_service.authn_context}"])
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY)
       end

@@ -23,7 +23,7 @@ StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags
 StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ['error:unknown'])
 StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ['error:validations_failed'])
 
-%w[success failure].each do |s|
+%w[success failure replay].each do |s|
   (SAML::User::AUTHN_CONTEXTS.keys + [SAML::User::UNKNOWN_AUTHN_CONTEXT]).each do |ctx|
     StatsD.increment(
       V0::SessionsController::STATSD_SSO_CALLBACK_KEY,
