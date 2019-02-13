@@ -8,7 +8,7 @@ describe HCA::EE::Service do
       it 'should get the ineligibility_reason' do
         VCR.use_cassette(
           'hca/ee/lookup_user_ineligibility_reason',
-          record: :always
+          record: :all
         ) do
           described_class.new.lookup_user('0000001013030524V532318000000')
         end
