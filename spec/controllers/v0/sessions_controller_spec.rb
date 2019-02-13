@@ -6,7 +6,7 @@ require 'support/saml/response_builder'
 RSpec.describe V0::SessionsController, type: :controller do
   include SAML::ResponseBuilder
 
-  let(:uuid) { '1234abcd' }
+  let(:uuid) { SecureRandom.uuid }
   let(:token) { 'abracadabra-open-sesame' }
   let(:loa1_user) { build(:user, :loa1, uuid: uuid) }
   let(:loa3_user) { build(:user, :loa3, uuid: uuid) }
@@ -66,17 +66,31 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'new' do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            get(:new, type: type)
-            expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body).keys).to eq %w[url]
+          context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            it 'returns JSON' do
+              get(:new, type: type, format: :json)
+              expect(response).to have_http_status(:ok)
+              expect(JSON.parse(response.body).keys).to eq %w[url]
+            end
+
+            it 'redirects' do
+              get(:new, type: type)
+              expect(response).to have_http_status(:found)
+            end
           end
         end
 
-        it 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signin: true' do
-          get(:new, type: :idme, signup: true)
-          expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
+        context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
+          it 'returns JSON' do
+            get(:new, type: :idme, signup: true, format: :json)
+            expect(response).to have_http_status(:ok)
+            expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
+          end
+
+          it 'redirects' do
+            get(:new, type: :idme, signup: true)
+            expect(response).to have_http_status(:found)
+          end
         end
       end
 
@@ -117,11 +131,19 @@ RSpec.describe V0::SessionsController, type: :controller do
             Settings.sso.cookie_enabled = false
           end
 
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            get(:new, type: type)
-            expect(response).to have_http_status(:ok)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
-            expect(JSON.parse(response.body).keys).to eq %w[url]
+          context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
+            it 'returns JSON' do
+              get(:new, type: type, format: :json)
+              expect(response).to have_http_status(:ok)
+              expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+              expect(JSON.parse(response.body).keys).to eq %w[url]
+            end
+
+            it 'redirects' do
+              get(:new, type: type)
+              expect(response).to have_http_status(:found)
+              expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            end
           end
         end
       end
@@ -155,7 +177,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           # it has the cookie set
           expect(cookies['vagov_session_dev']).to_not be_nil
           get(:new, type: 'slo')
-          expect(JSON.parse(response.body)['url'])
+          expect(response.location)
             .to match('https://api.idmelabs.com/saml/SingleLogoutService')
 
           # these should be destroyed.
@@ -380,7 +402,20 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).not_to receive(:user_context)
           expect(Raven).not_to receive(:tags_context).once
           expect(controller).to receive(:log_message_to_sentry)
-          post :saml_callback
+          expect(post(:saml_callback))
+            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=7')
+        end
+
+        it 'increments the failed and total statsd counters' do
+          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          once = { times: 1, value: 1 }
+          callback_tags = ['status:failure', 'context:unknown']
+          failed_tags = ['error:unknown']
+
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
         end
       end
 

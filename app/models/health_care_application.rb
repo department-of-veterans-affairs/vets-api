@@ -66,8 +66,9 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
-  def self.user_icn(form)
-    MVI::AttrService.new.find_profile(user_attributes(form))&.profile&.icn
+  def self.user_icn(user_attributes)
+    HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes)
+    MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
   rescue MVI::Errors::Base
     nil
   end
@@ -75,12 +76,12 @@ class HealthCareApplication < ActiveRecord::Base
   def self.user_attributes(form)
     full_name = form['veteranFullName']
 
-    OpenStruct.new(
+    HCA::UserAttributes.new(
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
       birth_date: form['veteranDateOfBirth'],
-      ssn: form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
+      ssn: form['veteranSocialSecurityNumber'],
       gender: form['gender']
     )
   end

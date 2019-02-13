@@ -5,6 +5,8 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
+    include ActionController::MimeResponds
+
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -42,7 +44,10 @@ module V0
               reset_session
               logout_url
             end
-      render json: { url: url }
+      respond_to do |format|
+        format.html { redirect_to url }
+        format.json { render json: { url: url } }
+      end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
@@ -86,7 +91,7 @@ module V0
         stats(:failure)
       end
     rescue NoMethodError
-      log_message_to_sentry('NoMethodError', base64_params_saml_response: params[:SAMLResponse])
+      log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
       redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
       stats(:failed_unknown)
     ensure

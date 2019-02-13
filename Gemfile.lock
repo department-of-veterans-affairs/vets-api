@@ -19,10 +19,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 9b5bd9ecc5f1b13fd21743df9356e1ce8aec8520
+  revision: 80639f08a091dde36a73f29061ba4c4058fa3df0
   branch: master
   specs:
-    vets_json_schema (3.133.0)
+    vets_json_schema (3.136.3)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -1185,7 +1185,7 @@ DEPENDENCIES
   savon
   sdoc (~> 0.4.0)
   seedbank
-  sentry-raven
+  sentry-raven (= 2.7.4)
   shrine
   shrine-memory
   sidekiq
