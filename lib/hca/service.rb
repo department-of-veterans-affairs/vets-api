@@ -7,12 +7,12 @@ module HCA
   class Service < Common::Client::Base
     configuration HCA::Configuration
 
-    def initialize(current_user = nil)
-      @current_user = current_user
+    def initialize(user_identifier = nil)
+      @user_identifier = user_identifier
     end
 
     def submit_form(form)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @current_user)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(form, @user_identifier)
       content = Gyoku.xml(formatted)
       submission = soap.build_request(:save_submit_form, message: content)
       response = perform(:post, '', submission.body)
