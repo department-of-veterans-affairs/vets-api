@@ -5,12 +5,20 @@ require 'rails_helper'
 describe HCA::EE::Service do
   describe '#lookup_user' do
     context 'with a user that has an ineligibility_reason' do
-      it 'should get the ineligibility_reason' do
+      it 'should get the ineligibility_reason', run_at: 'Wed, 13 Feb 2019 09:20:47 GMT' do
         VCR.use_cassette(
           'hca/ee/lookup_user_ineligibility_reason',
-          record: :all
+          VCR::MATCH_EVERYTHING.merge(erb: true)
         ) do
-          described_class.new.lookup_user('0000001013030524V532318000000')
+          expect(
+            described_class.new.lookup_user('0000001013030524V532318000000')
+          ).to eq(
+            {:enrollment_status=>"Not Eligible; Ineligible Date",
+             :application_date=>"2018-01-24T00:00:00.000-06:00",
+             :enrollment_date=>nil,
+             :preferred_facility=>"987 - CHEY6",
+             :ineligibility_reason=>"for testing"}
+          )
         end
       end
     end
@@ -20,7 +28,15 @@ describe HCA::EE::Service do
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
       ) do
-        described_class.new.lookup_user('1013032368V065534')
+        expect(
+          described_class.new.lookup_user('1013032368V065534')
+        ).to eq(
+          {:enrollment_status=>"Verified",
+           :application_date=>"2018-12-27T00:00:00.000-06:00",
+           :enrollment_date=>"2018-12-27T17:15:39.000-06:00",
+           :preferred_facility=>"988 - DAYT20",
+           :ineligibility_reason=>nil}
+        )
       end
     end
   end
