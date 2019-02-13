@@ -440,7 +440,7 @@ module EVSS
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :primaryDescription The disabilities description
-      # @return [Hash] Transformed disability to match EVVSS's validation
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_new(input_disability)
         {
           'name' => input_disability['condition'],
@@ -460,7 +460,7 @@ module EVSS
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :worsenedDescription The disabilities description
       # @option input_disability [String] :worsenedEffects The disabilites effects
-      # @return [Hash] Transformed disability to match EVVSS's validation
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
@@ -481,7 +481,7 @@ module EVSS
       # @option input_disability [String] :vaMistreatmentDescription The disabilities description
       # @option input_disability [String] :vaMistreatmentLocation The location the disability occurred
       # @option input_disability [String] :vaMistreatmentDate The Date the disability occurred
-      # @return [Hash] Transformed disability to match EVVSS's validation
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
@@ -503,7 +503,7 @@ module EVSS
       # @option input_disability [String] :classificationCode Optional classification code
       # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
       # @option input_disability [String] :causedByDisabilityDescription The disabilities description
-      # @return [Hash] Transformed disability to match EVVSS's validation
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
