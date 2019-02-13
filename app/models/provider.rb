@@ -40,12 +40,12 @@ class Provider < Common::Base
     self.ProviderSpecialties = prov_info['ProviderSpecialties']
   end
 
-  def add_caresite(caresite)
-    self.AddressStreet = caresite['Street']
-    self.AddressCity = caresite['City']
-    self.AddressPostalCode = caresite['ZipCode']
-    self.AddressStateProvince = caresite['State']
-    self.Longitude = caresite['Longitude']
-    self.Latitude = caresite['Latitude']
+  def add_provider_service(provider_service)
+    self.AddressStreet = provider_service['CareSiteAddressStreet']
+    self.AddressCity = provider_service['CareSiteAddressCity']
+    self.AddressPostalCode = provider_service['CareSiteAddressZipCode']
+    self.AddressStateProvince = provider_service['CareSiteAddressState']
+    self.Longitude = provider_service['Longitude']
+    self.Latitude = provider_service['Latitude']
   end
 end
