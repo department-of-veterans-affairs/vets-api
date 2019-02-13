@@ -18,7 +18,7 @@
                     {
                         "disabilityActionType": "SECONDARY",
                         "name": "PTSD personal trauma",
-                        "specialIssue": "POW",
+                        "specialIssues": ["POW"],
                         "serviceRelevance": "Caused by a service-connected disability\nLengthy description"
                     }
                 ]
@@ -27,7 +27,7 @@
                 "disabilityActionType": "NEW",
                 "name": "Arthritis",
                 "classificationCode": "Test Code",
-                "specialIssue": "POW",
+                "specialIssues": ["POW"],
                 "serviceRelevance": "Caused by an in-service event, injury, or exposure\nJoints in hands"
             }
         ],
