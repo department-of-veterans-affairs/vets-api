@@ -87,7 +87,7 @@ module V0
         redirect_to saml_login_redirect_url
         stats(:success)
       elsif @sso_service.auth_error_code == '002' && validate_session
-        stats(:success)
+        stats(:replay)
         redirect_to '' # todo
       else
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
