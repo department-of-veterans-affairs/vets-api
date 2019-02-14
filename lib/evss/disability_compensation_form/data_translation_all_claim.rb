@@ -376,10 +376,6 @@ module EVSS
         }.compact
       end
 
-      # `specialIssues` is a key that can hold an array of special issue strings
-      # for the time being, evss only accepts one special issue per disability but
-      # it is possible for every disability to have multiple issue. We are only
-      # picking the first issue out of the list until evss can accept an array instead
       def translate_disabilities
         rated_disabilities = input_form['ratedDisabilities'].deep_dup.presence || []
         # New primary disabilities need to be added first before handling secondary
@@ -437,34 +433,61 @@ module EVSS
         disabilities
       end
 
+      # Map 'NEW' type disability to EVSS required disability fields
+      #
+      # @param input_disability [Hash] The newly submitted disability
+      # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :classificationCode Optional classification code
+      # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
+      # @option input_disability [String] :primaryDescription The disabilities description
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_new(input_disability)
         {
           'name' => input_disability['condition'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
-          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
+          'specialIssues' => input_disability['specialIssues'].presence,
           'serviceRelevance' => "Caused by an in-service event, injury, or exposure\n"\
                                 "#{input_disability['primaryDescription']}"
         }.compact
       end
 
+      # Map 'WORSENED' type disability to EVSS required disability fields
+      #
+      # @param input_disability [Hash] The newly submitted disability
+      # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :classificationCode Optional classification code
+      # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
+      # @option input_disability [String] :worsenedDescription The disabilities description
+      # @option input_disability [String] :worsenedEffects The disabilites effects
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_worsened(input_disability)
         {
           'name' => input_disability['condition'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
-          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
+          'specialIssues' => input_disability['specialIssues'].presence,
           'serviceRelevance' => "Worsened because of military service\n"\
                                 "#{input_disability['worsenedDescription']}: #{input_disability['worsenedEffects']}"
         }.compact
       end
 
+      # Map 'VA' type disability to EVSS required disability fields
+      #
+      # @param input_disability [Hash] The newly submitted disability
+      # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :classificationCode Optional classification code
+      # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
+      # @option input_disability [String] :vaMistreatmentDescription The disabilities description
+      # @option input_disability [String] :vaMistreatmentLocation The location the disability occurred
+      # @option input_disability [String] :vaMistreatmentDate The Date the disability occurred
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_va(input_disability)
         {
           'name' => input_disability['condition'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'NEW',
-          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
+          'specialIssues' => input_disability['specialIssues'].presence,
           'serviceRelevance' => "Caused by VA care\n"\
                                 "Event: #{input_disability['vaMistreatmentDescription']}\n"\
                                 "Location: #{input_disability['vaMistreatmentLocation']}\n"\
@@ -472,12 +495,21 @@ module EVSS
         }.compact
       end
 
+      # Map 'SECONDARY' type disability to EVSS required disability fields and
+      # attach it to preexisting disability
+      #
+      # @param input_disability [Hash] The newly submitted disability
+      # @option input_disability [String] :condition The name of the disability
+      # @option input_disability [String] :classificationCode Optional classification code
+      # @option input_disability [Array<String>] :specialIssues Optional list of associated special issues
+      # @option input_disability [String] :causedByDisabilityDescription The disabilities description
+      # @return [Hash] Transformed disability to match EVSS's validation
       def map_secondary(input_disability, disabilities)
         disability = {
           'name' => input_disability['condition'],
           'classificationCode' => input_disability['classificationCode'],
           'disabilityActionType' => 'SECONDARY',
-          'specialIssue' => input_disability['specialIssues'].present? ? input_disability['specialIssues'].first : nil,
+          'specialIssues' => input_disability['specialIssues'].presence,
           'serviceRelevance' => "Caused by a service-connected disability\n"\
                                 "#{input_disability['causedByDisabilityDescription']}"
         }.compact
