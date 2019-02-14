@@ -2,8 +2,8 @@
 
 module ClaimsApi
   class AutoEstablishedClaim < ActiveRecord::Base
-    attr_encrypted(:form_data_encrypted, key: Settings.db_encryption_key)
-    attr_encrypted(:auth_headers_encrypted, key: Settings.db_encryption_key)
+    attr_encrypted(:form_data, key: Settings.db_encryption_key)
+    attr_encrypted(:auth_headers, key: Settings.db_encryption_key)
 
     PENDING = 'pending'
     SUBMITTED = 'submitted'
@@ -11,7 +11,7 @@ module ClaimsApi
     ERRORED = 'errored'
 
     def form
-      @form ||= ClaimsApi::Form526.new(data: JSON.parse(form_data_encrypted))
+      @form ||= ClaimsApi::Form526.new(data: JSON.parse(form_data))
     end
   end
 end
