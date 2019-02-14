@@ -77,6 +77,16 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         end
       end
     end
+
+    it 'standardizes closed days to "Closed"' do
+      VCR.use_cassette('facilities/va/nca_facilities') do
+        Facilities::FacilityLocationDownloadJob.new.perform('nca')
+        filtered_values = Facilities::NCAFacility.pluck(:hours).map(&:values)
+                                                 .flatten.reject { |hours| /am|pm|sunrise|nil/i.match(hours) }
+        expect(filtered_values.uniq.length).to be <= 1
+        expect(filtered_values.uniq[0]).to eq('Closed') if filtered_values.uniq.length == 1
+      end
+    end
   end
 
   describe 'VBA Facilities' do
@@ -109,6 +119,16 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VBAFacility.count).to eq(count)
       end
     end
+
+    it 'standardizes closed days to "Closed"' do
+      VCR.use_cassette('facilities/va/vba_facilities') do
+        Facilities::FacilityLocationDownloadJob.new.perform('vba')
+        filtered_values = Facilities::VBAFacility.pluck(:hours).map(&:values).flatten
+                                                 .reject { |hours| /am|pm|only|call|itinerant/i.match(hours) }
+        expect(filtered_values.uniq.length).to be <= 1
+        expect(filtered_values.uniq[0]).to eq('Closed') if filtered_values.uniq.length == 1
+      end
+    end
   end
 
   describe 'VC Facilities' do
@@ -128,6 +148,18 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expect(Facilities::VCFacility.count).to eq(count - 5)
         Facilities::FacilityLocationDownloadJob.new.perform('vc')
         expect(Facilities::VCFacility.count).to eq(count)
+      end
+    end
+
+    it 'standardizes closed days to "Closed"' do
+      VCR.use_cassette('facilities/va/vc_facilities') do
+        Facilities::FacilityLocationDownloadJob.new.perform('vc')
+        filtered_values = Facilities::VCFacility.pluck(:hours)
+                                                .map(&:values)
+                                                .flatten
+                                                .reject { |hours| /am|pm/i.match(hours) }
+        expect(filtered_values.uniq.length).to be <= 1
+        expect(filtered_values.uniq[0]).to eq('Closed') if filtered_values.uniq.length == 1
       end
     end
   end
@@ -198,6 +230,18 @@ RSpec.describe Facilities::FacilityLocationDownloadJob, type: :job do
         expected_services = %w[WomensHealth Audiology Cardiology Dermatology Gastroenterology
                                Gynecology Ophthalmology Optometry Orthopedics Urology]
         expect(services).to include(*expected_services)
+      end
+    end
+
+    it 'standardizes closed days to "Closed"' do
+      VCR.use_cassette('facilities/va/vha_facilities') do
+        Facilities::FacilityLocationDownloadJob.new.perform('vha')
+        filtered_values = Facilities::VHAFacility.pluck(:hours)
+                                                 .map(&:values)
+                                                 .flatten
+                                                 .reject { |hours| %r{am|pm|24/7}i.match(hours) }
+        expect(filtered_values.uniq.length).to be <= 1
+        expect(filtered_values.uniq[0]).to eq('Closed') if filtered_values.uniq.length == 1
       end
     end
   end
