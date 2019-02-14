@@ -8,6 +8,7 @@ module V0
     include ActionController::MimeResponds
 
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
+    before_action :set_originating_request_id, only: %i[saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
 
@@ -36,14 +37,14 @@ module V0
               url_service.mfa_url
             when 'verify'
               authenticate
-              url_service.idme_loa3_url
+              url_service.idme_loa3_url(verifying: true)
             when 'slo'
               authenticate
               logout_url = url_service.slo_url
-              Rails.logger.info('SSO: LOGOUT', sso_logging_info)
               reset_session
               logout_url
             end
+      Rails.logger.info("SSO: new #{params[:type]&.upcase} flow initiated", sso_logging_info.merge(url: url))
       respond_to do |format|
         format.html { redirect_to url }
         format.json { render json: { url: url } }
@@ -66,13 +67,7 @@ module V0
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
-
-      # In the future, the FE shouldn't count on ?success=true.
-      if Settings.session_cookie.enabled
-        redirect_to url_service.logout_redirect_url
-      else
-        redirect_to url_service.logout_redirect_url(success: true)
-      end
+      redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
@@ -87,12 +82,12 @@ module V0
         redirect_to saml_login_redirect_url
         stats(:success)
       else
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
+      redirect_to saml_login_redirect_url(auth: 'fail', code: 7) unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
@@ -125,14 +120,29 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def saml_login_redirect_url
-      if current_user.loa[:current] < current_user.loa[:highest]
-        url_service.idme_loa3_url
-      elsif Settings.session_cookie.enabled
-        url_service.login_redirect_url
+    def saml_login_redirect_url(auth: 'success', code: nil)
+      if auth == 'fail'
+        url_service.login_redirect_url(auth: 'fail', code: code)
       else
-        url_service.login_redirect_url(token: @session_object.token)
+        if current_user.loa[:current] < current_user.loa[:highest]
+          url_service.idme_loa3_url
+        else
+          url_service.login_redirect_url
+        end
       end
+    end
+
+    # This is important so that idme_loa3_url maintains the original request_id for the completion of the flow.
+    # See also UrlService where it is used.
+    def set_originating_request_id
+      Thread.current['originating_request_id'] = saml_response_relay_state_params['originating_request_id']
+    end
+
+    def saml_response_relay_state_params
+      @relay_state_params ||= params['RelayState'].present? ? JSON.parse(params['RelayState']) : {}
+    rescue
+      log_message_to_sentry('RelayState could not be parsed', :warn)
+      {}
     end
 
     def after_login_actions

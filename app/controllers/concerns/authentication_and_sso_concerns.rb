@@ -126,6 +126,7 @@ module AuthenticationAndSSOConcerns
       sso_cookies_signout_enabled: Settings.sso.cookie_signout_enabled,
       sso_cookie_name: Settings.sso.cookie_name,
       sso_cookie_contents: sso_cookie_content,
+      uuid: @current_user&.uuid,
       request_host: request.host
     }
   end
