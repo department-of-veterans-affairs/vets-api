@@ -87,6 +87,7 @@ module V0
         redirect_to saml_login_redirect_url
         stats(:success)
       else
+        log_auth_too_late if @sso_service.auth_error_code == '002'
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
@@ -149,6 +150,17 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
+    end
+
+    def log_auth_too_late
+      session_object = Session.find(session[:token])
+      last_signed_in = User.find(session_object&.uuid)&.last_signed_in
+
+      log_message_to_sentry('Signin errror for user who was already signed in',
+                            :warn,
+                            code: @sso_service.auth_error_code,
+                            errors: @sso_service.errors.messages,
+                            last_signed_in: last_signed_in)
     end
 
     def build_logout_errors(logout_response, logout_request)
