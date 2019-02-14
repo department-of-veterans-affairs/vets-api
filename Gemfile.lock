@@ -1011,7 +1011,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.2.2)
       concurrent-ruby (~> 1.0)
-    sentry-raven (2.9.0)
+    sentry-raven (2.7.4)
       faraday (>= 0.7.6, < 1.0)
     shellany (0.0.1)
     shrine (2.6.1)
@@ -1185,7 +1185,7 @@ DEPENDENCIES
   savon
   sdoc (~> 0.4.0)
   seedbank
-  sentry-raven (= 2.9.0)
+  sentry-raven (= 2.7.4)
   shrine
   shrine-memory
   sidekiq
