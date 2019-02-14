@@ -154,13 +154,14 @@ module V0
 
     def log_auth_too_late
       session_object = Session.find(session[:token])
-      last_signed_in = User.find(session_object&.uuid)&.last_signed_in
+      user = User.find(session_object&.uuid)
 
-      log_message_to_sentry('Signin errror for user who was already signed in',
+      log_message_to_sentry('auth_too_late ',
                             :warn,
                             code: @sso_service.auth_error_code,
                             errors: @sso_service.errors.messages,
-                            last_signed_in: last_signed_in)
+                            last_signed_in_if_logged_in: user&.last_signed_in,
+                            authn_context: user&.authn_context)
     end
 
     def build_logout_errors(logout_response, logout_request)
