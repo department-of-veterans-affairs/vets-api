@@ -1185,7 +1185,7 @@ DEPENDENCIES
   savon
   sdoc (~> 0.4.0)
   seedbank
-  sentry-raven
+  sentry-raven (= 2.7.4)
   shrine
   shrine-memory
   sidekiq
