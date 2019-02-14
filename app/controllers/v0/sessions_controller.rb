@@ -152,6 +152,7 @@ module V0
       end
     end
 
+    # this method is intended to be temporary as we gather more information on the auth_too_late SAML error
     def log_auth_too_late
       session_object = Session.find(session[:token])
       user = User.find(session_object&.uuid)
