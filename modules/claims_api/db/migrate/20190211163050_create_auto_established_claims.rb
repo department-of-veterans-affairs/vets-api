@@ -2,7 +2,7 @@
 
 class CreateAutoEstablishedClaims < ActiveRecord::Migration
   def change
-    create_table :auto_established_claims do |t|
+    create_table :claims_api_auto_established_claims do |t|
       t.string :status
       t.string :form_data_encrypted
       t.string :form_data_encrypted_iv

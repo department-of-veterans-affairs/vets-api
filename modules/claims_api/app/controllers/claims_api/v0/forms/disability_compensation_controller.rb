@@ -15,7 +15,7 @@ module ClaimsApi
             form_data_encrypted: form_attributes
           )
 
-          ClaimsApi::ClaimEstablisher.perform(auto_claim.id)
+          ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
