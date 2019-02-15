@@ -7,6 +7,7 @@ module Sentry
         %w[
           accountType city country gender phone postalCode zipCode fileNumber state street vaEauthPnid
           accountNumber routingNumber bankName ssn birth_date social fname lname mname dslogon_idvalue
+          icn edipi
         ].freeze
 
       PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }).freeze

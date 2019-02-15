@@ -270,7 +270,13 @@
     :file_path: "mvi/profile_icn"
     :cache_multiple_responses:
       :uid_location: body
-      :uid_locator: '(?:root="2.16.840.1.113883.4.349" )?extension="(\d{10}V\d{6})"(?: root="2.16.840.1.113883.4.349")?'
+      :uid_locator: 'id extension="([V0-9]*)"(?: root="2.16.840.1.113883.4.349")'
+  - :method: :post
+    :path: <%= URI(Settings.mvi.url).path %>
+    :file_path: "mvi/profile_icn"
+    :cache_multiple_responses:
+      :uid_location: body
+      :uid_locator: 'id (?:root="2.16.840.1.113883.4.349" )extension="([V0-9]*)"'
   - :method: :post
     :path: <%= URI(Settings.mvi.url).path %>
     :file_path: "mvi/profile_edipi"
