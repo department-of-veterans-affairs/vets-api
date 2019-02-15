@@ -195,7 +195,7 @@ RSpec.describe SSOService do
   end
 
   context 'invalid saml response' do
-    let(:saml_response) { OneLogin::RubySaml::Response.new('') }
+    let(:saml_response) { SAML::Response.new('') }
 
     it 'has Blank response error' do
       expect(sso_service.valid?).to be_falsey

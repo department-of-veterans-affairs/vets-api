@@ -61,7 +61,7 @@ module SAML
         level_of_assurance: verifying ? ['3'] : level_of_assurance,
         multifactor: multifactor
       )
-      instance_double(OneLogin::RubySaml::Response, attributes: attributes,
+      instance_double(SAML::Response, attributes: attributes,
                                                     decrypted_document: document_partial(authn_context),
                                                     is_a?: true,
                                                     is_valid?: true,
@@ -71,7 +71,7 @@ module SAML
 
     def build_invalid_saml_response(options)
       options = options.reverse_merge(is_valid?: false, is_a?: true)
-      instance_double(OneLogin::RubySaml::Response, options)
+      instance_double(SAML::Response, options)
     end
 
     def invalid_saml_response

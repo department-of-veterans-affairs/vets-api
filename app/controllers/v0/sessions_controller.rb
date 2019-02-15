@@ -76,7 +76,7 @@ module V0
     end
 
     def saml_callback
-      saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
+      saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user

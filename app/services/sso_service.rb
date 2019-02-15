@@ -10,7 +10,7 @@ class SSOService
   DEFAULT_ERROR_MESSAGE = 'Default generic identity provider error'
 
   def initialize(response)
-    raise 'SAML Response is not a OneLogin::RubySaml::Response' unless response.is_a?(OneLogin::RubySaml::Response)
+    raise 'SAML Response is not a SAML::Response' unless response.is_a?(SAML::Response)
     @saml_response = response
 
     if saml_response.is_valid?(true)
