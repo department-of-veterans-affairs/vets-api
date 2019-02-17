@@ -71,7 +71,7 @@ module SAML
 
     # will be one of AUTHN_CONTEXTS.keys
     def authn_context
-      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+      saml_response.authn_context
     rescue StandardError
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise

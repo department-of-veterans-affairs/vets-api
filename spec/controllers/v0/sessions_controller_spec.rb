@@ -424,7 +424,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects to an auth failure page' do
           expect(Raven).to receive(:tags_context).once
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::CLICKED_DENY_MSG}/)
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:clicked_deny][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
@@ -434,7 +434,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::Response).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::AuthFailHandler::TOO_LATE_MSG}/).twice
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:auth_too_late][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -445,7 +445,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::Response).to receive(:new).and_return(saml_response_too_early) }
 
         it 'redirects to an auth failure page', :aggregate_failures do
-          expect(Rails.logger).to receive(:error).with(/#{SAML::AuthFailHandler::TOO_EARLY_MSG}/)
+          expect(Rails.logger).to receive(:error).with(/#{SAML::Response::ERRORS[:auth_too_early][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -470,14 +470,13 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
-              :error,                 saml_response: {
-                status_message: SSOService::DEFAULT_ERROR_MESSAGE,
-                errors: [
-                  'The status code of the Response was not Success, was Requester => NoAuthnContext ' \
-                  '-> AuthnRequest without an authentication context.'
-                ],
-                code: '007'
-              }
+              :error,
+              [{ code: '007',
+                 tag: :unknown,
+                 short_message: 'Other SAML Response Error(s)',
+                 level: :error,
+                 full_message: 'The status code of the Response was not Success, was Requester => NoAuthnContext ->'\
+                               ' AuthnRequest without an authentication context.' }]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
@@ -498,19 +497,15 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(SAML::Response).to receive(:new).and_return(saml_response_multi_error) }
-
         it 'logs a generic error' do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
-              'Login Fail! Other SAML Response Error(s)',
-              :error,                 saml_response: {
-                status_message: 'Subject did not consent to attribute release',
-                errors: [
-                  'Subject did not consent to attribute release',
-                  'Other random error'
-                ],
-                code: '007'
-              }
+              'Login Fail! Multiple SAML Errors',
+              :error, [{ code: '001', tag: :clicked_deny, short_message: 'Subject did not consent to attribute release',
+                         level: :warn, full_message: 'Subject did not consent to attribute release' },
+                       { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)', level: :error,
+                         full_message: 'Other random error' },
+                       { code: '007', tag: :multiple, short_message: 'Multiple SAML Errors', level: :error }]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)

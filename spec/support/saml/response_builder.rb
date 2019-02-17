@@ -88,7 +88,7 @@ module SAML
       build_invalid_saml_response(
         in_response_to: uuid,
         decrypted_document: nil,
-        errors: ['ruh roh'],
+        errors: ['Subject did not consent to attribute release'],
         status_message: 'Subject did not consent to attribute release'
       )
     end
@@ -117,7 +117,7 @@ module SAML
 
     def saml_response_unknown_error
       build_invalid_saml_response(
-        status_message: SSOService::DEFAULT_ERROR_MESSAGE,
+        status_message: 'Default generic identity provider error',
         in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
