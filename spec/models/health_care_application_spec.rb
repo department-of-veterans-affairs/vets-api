@@ -18,7 +18,7 @@ RSpec.describe HealthCareApplication, type: :model do
       end
     end
 
-    context 'when the user is is found' do
+    context 'when the user is found' do
       it 'should return the icn' do
         expect_any_instance_of(MVI::Service).to receive(
           :find_profile

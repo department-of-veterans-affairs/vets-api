@@ -52,6 +52,18 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
+  def self.enrollment_status(user_attributes)
+    icn = user_icn(user_attributes)
+    ee_data = HCA::EE::Service.new.lookup_user(icn)
+    parsed_status = HCA::EE::StatusMatcher.parse(ee_data[:enrollment_status], ee_data[:ineligibility_reason])
+
+    ee_data.slice(
+      :application_date,
+      :enrollment_date,
+      :preferred_facility
+    ).merge(parsed_status: parsed_status)
+  end
+
   def self.user_icn(user_attributes)
     HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes)
     MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
@@ -60,9 +72,10 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   def self.user_attributes(form)
+    form.deep_transform_keys! { |k| k.camelize(:lower) }
     full_name = form['veteranFullName']
 
-    HCA::UserAttributes.new(
+    return_val = HCA::UserAttributes.new(
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
@@ -70,6 +83,10 @@ class HealthCareApplication < ActiveRecord::Base
       ssn: form['veteranSocialSecurityNumber'],
       gender: form['gender']
     )
+
+    raise Common::Exceptions::ValidationErrors, return_val unless return_val.valid?
+
+    return_val
   end
 
   def set_result_on_success!(result)

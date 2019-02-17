@@ -22,6 +22,9 @@ module V0
       render(json: result)
     end
 
+    def enrollment_status
+    end
+
     def healthcheck
       render(json: HCA::Service.new.health_check)
     end
