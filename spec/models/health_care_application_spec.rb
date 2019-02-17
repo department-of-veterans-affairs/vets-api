@@ -5,6 +5,26 @@ require 'rails_helper'
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
 
+  describe '.enrollment_status' do
+    it 'should return parsed enrollment status' do
+      expect_any_instance_of(HCA::EE::Service).to receive(:lookup_user).with(
+        '123'
+      ).and_return(
+        {:enrollment_status=>"Not Eligible; Ineligible Date",
+         :application_date=>"2018-01-24T00:00:00.000-06:00",
+         :enrollment_date=>nil,
+         :preferred_facility=>"987 - CHEY6",
+         :ineligibility_reason=>"OTH"}
+      )
+      expect(described_class.enrollment_status('123')).to eq(
+        {:application_date=>"2018-01-24T00:00:00.000-06:00",
+         :enrollment_date=>nil,
+         :preferred_facility=>"987 - CHEY6",
+         :parsed_status=>:inelig_character_of_discharge}
+      )
+    end
+  end
+
   describe '.user_icn' do
     let(:form) { health_care_application.parsed_form }
 

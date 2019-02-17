@@ -52,8 +52,7 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
-  def self.enrollment_status(user_attributes)
-    icn = user_icn(user_attributes)
+  def self.enrollment_status(icn)
     ee_data = HCA::EE::Service.new.lookup_user(icn)
     parsed_status = HCA::EE::StatusMatcher.parse(ee_data[:enrollment_status], ee_data[:ineligibility_reason])
 
