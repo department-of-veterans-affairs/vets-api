@@ -72,6 +72,7 @@
                     "medical",
                     "burial",
                     "bva",
+                    "fiduciary",
                     "other",
                     "multiple"
                   ]
@@ -143,7 +144,8 @@
                         "hlr_received",
                         "hlr_dta_error",
                         "hlr_decision",
-                        "hlr_closed"
+                        "hlr_closed",
+                        "statutory_opt_in"
                       ]
                     }
                   }
@@ -155,9 +157,9 @@
                   "type": {
                     "type": {
                       "enum": [
-                        "direct_review",
-                        "evidence_submission",
-                        "hearing",
+                        "directReview",
+                        "evidenceSubmission",
+                        "hearingRequest",
                         "legacy"
                       ]
                     }

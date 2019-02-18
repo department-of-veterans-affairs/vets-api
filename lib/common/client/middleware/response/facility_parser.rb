@@ -28,6 +28,7 @@ module Common
             facility.merge!(make_complex_mappings(location, mapping))
             facility.merge!(make_address_mappings(location, mapping))
             facility.merge!(make_benefits_mappings(location, mapping, facility['unique_id'])) if mapping['benefits']
+            facility.merge!(make_hours_mappings(location, mapping))
             facility.merge!(make_service_mappings(location, mapping)) if mapping['services']
             facility
           end
@@ -39,7 +40,7 @@ module Common
           end
 
           def make_complex_mappings(location, mapping)
-            %w[hours access feedback phone].each_with_object({}) do |name, attributes|
+            %w[access feedback phone].each_with_object({}) do |name, attributes|
               attributes[name] = complex_mapping(mapping[name], location['attributes'])
             end
           end
@@ -59,6 +60,19 @@ module Common
             }
             attributes['benefits']['standard'] << 'Pensions' if BaseFacility::PENSION_LOCATIONS.include?(id)
             { 'services' => attributes }
+          end
+
+          def make_hours_mappings(location, mapping)
+            attributes = {}
+            attributes['hours'] = complex_mapping(mapping['hours'], location['attributes'])
+            attributes['hours'].transform_values! do |hours|
+              if /closed/i.match(hours) || hours == '-'
+                'Closed'
+              else
+                hours
+              end
+            end
+            attributes
           end
 
           def make_service_mappings(location, mapping)

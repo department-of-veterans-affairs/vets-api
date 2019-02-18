@@ -35,7 +35,7 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           multifactor: false,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'dslogon' },
+          sign_in: { service_name: 'dslogon', account_type: '1' },
           authn_context: 'dslogon'
         )
       end
@@ -52,16 +52,16 @@ RSpec.describe SAML::User do
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
             loa: { current: 1, highest: 3 },
-            sign_in: { service_name: 'dslogon' },
+            sign_in: { service_name: 'dslogon', account_type: '1' },
             birth_date: nil,
             first_name: nil,
             last_name: nil,
             middle_name: nil,
             gender: nil,
             ssn: nil,
-            zip: nil,
             multifactor: true,
-            authn_context: 'dslogon_multifactor'
+            authn_context: 'dslogon_multifactor',
+            dslogon_edipi: '1606997570'
           )
         end
 
@@ -85,7 +85,7 @@ RSpec.describe SAML::User do
             ssn: '111223333',
             zip: nil,
             loa: { current: 3, highest: 3 },
-            sign_in: { service_name: 'dslogon' },
+            sign_in: { service_name: 'dslogon', account_type: '1' },
             multifactor: true,
             authn_context: 'dslogon_loa3'
           )
@@ -113,7 +113,7 @@ RSpec.describe SAML::User do
           uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
           email: 'kam+tristanmhv@adhocteam.us',
           loa: { current: 3, highest: 3 },
-          sign_in: { service_name: 'dslogon' },
+          sign_in: { service_name: 'dslogon', account_type: '2' },
           multifactor: false,
           authn_context: 'dslogon'
         )
@@ -131,16 +131,16 @@ RSpec.describe SAML::User do
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
             loa: { current: 3, highest: 3 },
-            sign_in: { service_name: 'dslogon' },
-            birth_date: nil,
-            first_name: nil,
-            last_name: nil,
-            middle_name: nil,
-            gender: nil,
-            ssn: nil,
-            zip: nil,
+            sign_in: { service_name: 'dslogon', account_type: '2' },
+            birth_date: '1735-10-30',
+            first_name: 'Tristan',
+            last_name: 'MHV',
+            middle_name: '',
+            gender: 'M',
+            ssn: '111223333',
             multifactor: true,
-            authn_context: 'dslogon_multifactor'
+            authn_context: 'dslogon_multifactor',
+            dslogon_edipi: '1606997570'
           )
         end
 

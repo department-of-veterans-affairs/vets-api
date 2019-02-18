@@ -68,7 +68,7 @@ gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
 gem 'savon'
-gem 'sentry-raven'
+gem 'sentry-raven', '2.7.4' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
 gem 'sidekiq-unique-jobs'

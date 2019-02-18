@@ -21,6 +21,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     let(:auth_headers) do
       {
         'apiKey' => 'saml-key',
+        'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
         'x-va-ssn' => '796122306',
         'x-va-dob' => '1949-03-04',
         'x-va-first-name' => 'Edward',
@@ -36,8 +37,8 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         get '/internal/auth/v0/mvi-user', nil, auth_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(['icn'])
-        expect(JSON.parse(response.body)['data']['attributes'].values).to eq(['1008714701V416111'])
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
+        expect(JSON.parse(response.body)['data']['attributes']['icn']).to eq('1008714701V416111')
       end
     end
 
@@ -50,14 +51,39 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     end
   end
 
+  context 'looking up with an icn' do
+    let(:auth_headers) do
+      {
+        'apiKey' => 'saml-key',
+        'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+        'x-va-level-of-assurance' => 3,
+        'x-va-user-email' => 'test@123.com',
+        'x-va-mhv-icn' => '1008714701V416111'
+      }
+    end
+
+    it 'should return the first and last names for a user' do
+      VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
+        get '/internal/auth/v0/mvi-user', nil, auth_headers
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to be_a(String)
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
+        expect(JSON.parse(response.body)['data']['attributes']['first_name']).to eq('Mitchell')
+      end
+    end
+  end
+
   context 'looking up with an edipi' do
     let(:auth_headers) do
       {
         'apiKey' => 'saml-key',
-        'x-va-edipi' => '796122306',
+        'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+        'x-va-dslogon-edipi' => '7961223060',
+        'x-va-ssn' => '796122306',
         'x-va-level-of-assurance' => 3,
         'x-va-user-email' => 'test@123.com',
         'x-va-dob' => '1949-03-04',
+        'x-va-gender' => 'male',
         'x-va-first-name' => 'Edward',
         'x-va-middle-name' => 'John',
         'x-va-last-name' => 'Paget'
@@ -69,8 +95,8 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
         get '/internal/auth/v0/mvi-user', nil, auth_headers
         expect(response).to have_http_status(:ok)
         expect(response.body).to be_a(String)
-        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(['icn'])
-        expect(JSON.parse(response.body)['data']['attributes'].values).to_not eq([nil])
+        expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
+        expect(JSON.parse(response.body)['data']['attributes']['icn']).to_not eq(nil)
       end
     end
 
@@ -84,25 +110,13 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
   end
 
   context 'raising errors when missing parameters' do
-    it 'should require either ssn or edipi' do
-      get '/internal/auth/v0/mvi-user'
-      data = JSON.parse(response.body)
-      expect(data['errors'].first['title']).to eq('Missing parameter')
-    end
-
     it 'should require level of assurance' do
-      get '/internal/auth/v0/mvi-user', nil, 'x-va-ssn' => '123456789'
+      get '/internal/auth/v0/mvi-user', nil,
+          'x-va-ssn' => '123456789',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2'
       data = JSON.parse(response.body)
       expect(data['errors'].first['title']).to eq('Missing parameter')
       expect(data['errors'].first['detail']).to include('x-va-level-of-assurance')
-    end
-
-    it 'should require user email' do
-      headers = { 'x-va-ssn' => '123456789', 'x-va-level-of-assurance' => '3' }
-      get '/internal/auth/v0/mvi-user', nil, headers
-      data = JSON.parse(response.body)
-      expect(data['errors'].first['title']).to eq('Missing parameter')
-      expect(data['errors'].first['detail']).to include('x-va-user-email')
     end
   end
 
@@ -110,6 +124,8 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     let(:auth_headers) do
       {
         'apiKey' => 'saml-key',
+        'x-va-idp-uuid' =>  'ae9ff5f4e4b741389904087d94cd19b2',
+        'x-va-ssn' => '796122306',
         'x-va-edipi' => '796122306',
         'x-va-level-of-assurance' => 3,
         'x-va-user-email' => 'test@123.com',

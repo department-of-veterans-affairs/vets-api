@@ -5,6 +5,8 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
+    include ActionController::MimeResponds
+
     skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -42,7 +44,10 @@ module V0
               reset_session
               logout_url
             end
-      render json: { url: url }
+      respond_to do |format|
+        format.html { redirect_to url }
+        format.json { render json: { url: url } }
+      end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
@@ -82,6 +87,7 @@ module V0
         redirect_to saml_login_redirect_url
         stats(:success)
       else
+        log_auth_too_late if @sso_service.auth_error_code == '002'
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
@@ -144,6 +150,19 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
+    end
+
+    # this method is intended to be temporary as we gather more information on the auth_too_late SAML error
+    def log_auth_too_late
+      session_object = Session.find(session[:token])
+      user = User.find(session_object&.uuid)
+
+      log_message_to_sentry('auth_too_late ',
+                            :warn,
+                            code: @sso_service.auth_error_code,
+                            errors: @sso_service.errors.messages,
+                            last_signed_in_if_logged_in: user&.last_signed_in,
+                            authn_context: user&.authn_context)
     end
 
     def build_logout_errors(logout_response, logout_request)

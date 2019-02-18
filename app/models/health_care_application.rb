@@ -15,6 +15,15 @@ class HealthCareApplication < ActiveRecord::Base
 
   after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
 
+  def self.get_user_identifier(user)
+    return if user.nil?
+
+    {
+      'icn' => user.icn,
+      'edipi' => user.edipi
+    }
+  end
+
   def success?
     state == 'success'
   end
@@ -44,7 +53,12 @@ class HealthCareApplication < ActiveRecord::Base
 
     if parsed_form['email'].present? && async_compatible
       save!
-      HCA::SubmissionJob.perform_async(user&.uuid, parsed_form, id, google_analytics_client_id)
+      HCA::SubmissionJob.perform_async(
+        self.class.get_user_identifier(user),
+        parsed_form,
+        id,
+        google_analytics_client_id
+      )
 
       self
     else
@@ -52,8 +66,9 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
-  def self.user_icn(form)
-    MVI::AttrService.new.find_profile(user_attributes(form))&.profile&.icn
+  def self.user_icn(user_attributes)
+    HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes)
+    MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
   rescue MVI::Errors::Base
     nil
   end
@@ -61,12 +76,12 @@ class HealthCareApplication < ActiveRecord::Base
   def self.user_attributes(form)
     full_name = form['veteranFullName']
 
-    OpenStruct.new(
+    HCA::UserAttributes.new(
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
       birth_date: form['veteranDateOfBirth'],
-      ssn: form['veteranSocialSecurityNumber'].gsub(/\D/, ''),
+      ssn: form['veteranSocialSecurityNumber'],
       gender: form['gender']
     )
   end
