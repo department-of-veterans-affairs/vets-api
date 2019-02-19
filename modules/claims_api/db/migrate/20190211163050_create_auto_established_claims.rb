@@ -2,7 +2,9 @@
 
 class CreateAutoEstablishedClaims < ActiveRecord::Migration
   def change
-    create_table :claims_api_auto_established_claims do |t|
+    enable_extension 'uuid-ossp'
+
+    create_table :claims_api_auto_established_claims, id: :uuid do |t|
       t.string :status
       t.string :encrypted_form_data
       t.string :encrypted_form_data_iv

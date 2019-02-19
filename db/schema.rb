@@ -91,7 +91,7 @@ ActiveRecord::Schema.define(version: 20190211163050) do
   add_index "central_mail_submissions", ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id", using: :btree
   add_index "central_mail_submissions", ["state"], name: "index_central_mail_submissions_on_state", using: :btree
 
-  create_table "claims_api_auto_established_claims", force: :cascade do |t|
+  create_table "claims_api_auto_established_claims", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
     t.string   "status"
     t.string   "encrypted_form_data"
     t.string   "encrypted_form_data_iv"

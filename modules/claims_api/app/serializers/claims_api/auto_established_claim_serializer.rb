@@ -2,7 +2,7 @@
 
 module ClaimsApi
   class AutoEstablishedClaimSerializer < ActiveModel::Serializer
-    attribute :id
+    attribute :token
     attribute :status
     attribute :evss_id
   end
