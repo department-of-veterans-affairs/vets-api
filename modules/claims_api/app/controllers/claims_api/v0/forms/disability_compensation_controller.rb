@@ -11,8 +11,8 @@ module ClaimsApi
         def form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers_encrypted: auth_headers,
-            form_data_encrypted: form_attributes
+            auth_headers: auth_headers,
+            form_data: form_attributes
           )
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
