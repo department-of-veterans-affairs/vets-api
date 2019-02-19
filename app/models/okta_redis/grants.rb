@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# We need to ensure that the response class is defined before we ask Common::RedisStore.find to
+# deserialize one.
+require_dependency 'okta/response'
+
 module OktaRedis
   class Grants < Model
     CLASS_NAME = 'GrantsService'
