@@ -53,6 +53,41 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         expect(response.body).to eq(success_response.to_json)
       end
     end
+
+    context 'with a signed in user' do
+      let(:current_user) { build(:user, :loa3) }
+
+      before do
+        sign_in_as(current_user)
+      end
+
+      context 'with a user with no icn' do
+        before do
+          allow_any_instance_of(User).to receive(:icn).and_return(nil)
+        end
+
+        it 'should return 404' do
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            userAttributes: build(:health_care_application).parsed_form
+          )
+          expect(response.status).to eq(404)
+        end
+      end
+
+      it 'should return the enrollment status data' do
+        expect(HealthCareApplication).to receive(:enrollment_status).with(
+          current_user.icn
+        ).and_return(success_response)
+
+        get(
+          enrollment_status_v0_health_care_applications_path,
+          userAttributes: build(:health_care_application).parsed_form
+        )
+
+        expect(response.body).to eq(success_response.to_json)
+      end
+    end
   end
 
   describe 'POST create' do
