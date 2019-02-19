@@ -10,9 +10,9 @@ module ClaimsApi
       {
         "form526": @data,
         "form526_uploads": [],
-        "form4142": null,
-        "form0781": null,
-        "form8940": null
+        "form4142": nil,
+        "form0781": nil,
+        "form8940": nil
       }
     end
   end
