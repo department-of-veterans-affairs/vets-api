@@ -48,16 +48,12 @@ RSpec.describe SAML::User do
             uuid: '0e1bb5723d7c4f0686f46ca4505642ad',
             email: 'kam+tristanmhv@adhocteam.us',
             loa: { current: 1, highest: 3 },
-            sign_in: { service_name: 'myhealthevet', account_type: 'Basic' },
-            birth_date: nil,
-            first_name: nil,
-            last_name: nil,
-            middle_name: nil,
-            gender: nil,
-            ssn: nil,
-            zip: nil,
             multifactor: true,
-            authn_context: 'myhealthevet_multifactor'
+            authn_context: 'myhealthevet_multifactor',
+            mhv_account_type: 'Basic',
+            mhv_correlation_id: '12345748',
+            mhv_icn: '',
+            sign_in: { service_name: 'myhealthevet', account_type: 'Basic' }
           )
         end
 
@@ -124,15 +120,11 @@ RSpec.describe SAML::User do
             email: 'kam+tristanmhv@adhocteam.us',
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'myhealthevet', account_type: 'Premium' },
-            birth_date: nil,
-            first_name: nil,
-            last_name: nil,
-            middle_name: nil,
-            gender: nil,
-            ssn: nil,
-            zip: nil,
             multifactor: true,
-            authn_context: 'myhealthevet_multifactor'
+            authn_context: 'myhealthevet_multifactor',
+            mhv_account_type: 'Premium',
+            mhv_correlation_id: '12345748',
+            mhv_icn: '1012853550V207686'
           )
         end
 
