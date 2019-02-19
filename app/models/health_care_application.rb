@@ -71,7 +71,6 @@ class HealthCareApplication < ActiveRecord::Base
   end
 
   def self.user_attributes(form)
-    form.deep_transform_keys! { |k| k.camelize(:lower) }
     full_name = form['veteranFullName']
 
     return_val = HCA::UserAttributes.new(
