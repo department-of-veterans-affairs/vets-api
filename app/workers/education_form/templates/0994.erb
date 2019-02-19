@@ -16,7 +16,7 @@ Name: <%= full_name(@applicant.applicantFullName) %>
 Social Security Number: <%= @applicant.applicantSocialSecurityNumber %>
 
 Mailing Address:
-<%= full_address(@applicant.mailingAddress) %>
+<%= full_address_with_street3(@applicant.mailingAddress) %>
 
 Sex of Applicant: <%= value_or_na(@applicant.applicantGender) %>
 
@@ -59,7 +59,7 @@ VET TEC programs:
                        BACKGROUND INFORMATION
                        ----------------------
 
-Are you working in a high-tech industry now?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
+Are you working in a high-tech field now?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
 
 Have you worked in a high-tech industry in the past?: <%= yesno(@applicant.pastHighTechnologyEmployment) %>
 
