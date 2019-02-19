@@ -943,7 +943,6 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
-    require_all (1.4.0)
     restforce (3.0.0)
       faraday (>= 0.9.0, <= 1.0)
       faraday_middleware (>= 0.8.8, <= 1.0)
@@ -1175,7 +1174,6 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
-  require_all
   restforce
   rspec-rails (~> 3.5)
   rspec_junit_formatter
@@ -1185,7 +1183,7 @@ DEPENDENCIES
   savon
   sdoc (~> 0.4.0)
   seedbank
-  sentry-raven
+  sentry-raven (= 2.7.4)
   shrine
   shrine-memory
   sidekiq

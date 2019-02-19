@@ -165,6 +165,7 @@ components:
               - medical
               - burial
               - bva
+              - fiduciary
               - other
               - multiple
             description:
@@ -232,6 +233,7 @@ components:
                   - hlr_dta_error
                   - hlr_decision
                   - hlr_closed
+                  - statutory_opt_in
                 details:
                   type: object
                   description: Further information about the process step the appeal is in
@@ -243,10 +245,10 @@ components:
                   type: string
                   description: Indicates the docket of the appeal
                   enum:
-                  - direct_review
-                  - evidence_submission
-                  - hearing
-                  example: hearing
+                  - directReview
+                  - evidenceSubmission
+                  - hearingRequest
+                  example: hearingRequest
                 month:
                   type: string
                   format: date
@@ -365,11 +367,9 @@ components:
           - ramp_notice
           - transcript
           - remand_return
-          - dro_hearing_held
-          - dro_hearing_cancelled
-          - dro_hearing_no_show
           - ama_nod
           - docket_change
+          - distributed_to_vlj
           - bva_decision_effectuation
           - dta_decision
           - sc_request
@@ -379,6 +379,7 @@ components:
           - hlr_decision
           - hlr_dta_error
           - hlr_other_close
+          - statutory_opt_in
         date:
           type: string
           format: date
