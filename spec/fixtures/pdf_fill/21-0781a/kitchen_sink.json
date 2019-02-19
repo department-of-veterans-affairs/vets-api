@@ -18,40 +18,40 @@
       "from": "2001-01-01",
       "to": "2002-02-02"
     },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
+    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "incidentDescription": "Lorem ipsum dolor sit amet.",
     "sources": [{
       "name": "Testy Tester Testerson",
       "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
+        "addressLine1": "123 Main Street",
+        "addressLine2": "1B",
         "city": "Baltimore",
         "state": "MD",
         "country": "USA",
-        "postalCode": "21200-1111"
+        "zipCode": "21200-1111"
       }
     },
     {
       "name": "Dusty Tester Testerson",
       "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
+        "addressLine1": "789 Main Street",
+        "addressLine2": "1B",
         "city": "Baltimore",
         "state": "MD",
         "country": "USA",
-        "postalCode": "21200-1111"
+        "zipCode": "21200-1111"
       }
     },
     {
       "name": "Trusty Tester Testerson",
       "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
+        "addressLine1": "100 Main Street",
+        "addressLine2": "1B",
         "city": "Baltimore",
         "state": "MD",
         "country": "USA",
-        "postalCode": "21200-1111"
+        "zipCode": "21200-1111"
       }
     }]
   },
@@ -62,40 +62,40 @@
       "from": "2001-01-01",
       "to": "2002-02-02"
     },
-    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a", 
+    "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "incidentDescription": "Lorem ipsum dolor sit amet.",
     "sources": [{
       "name": "Testy Tester Testerson",
       "address": {
-        "street": "123 Main Street",
-        "street2": "1B",
+        "addressLine1": "123 Main Street",
+        "addressLine2": "1B",
         "city": "Baltimore",
         "state": "MD",
         "country": "USA",
-        "postalCode": "21200-1111"
+        "zipCode": "21200-1111"
       }
     },
     {
       "name": "Dusty Tester Testerson",
       "address": {
-        "street": "789 Main Street",
-        "street2": "1B",
+        "addressLine1": "789 Main Street",
+        "addressLine2": "1B",
         "city": "Baltimore",
         "state": "MD",
         "country": "USA",
-        "postalCode": "21200-1111"
+        "zipCode": "21200-1111"
       }
     },
     {
       "name": "Trusty Tester Testerson",
       "address": {
-        "street": "100 Main Street",
-        "street2": "1B",
+        "addressLine1": "100 Main Street",
+        "addressLine2": "1B",
         "city": "Baltimore",
         "state": "MD",
         "country": "USA",
-        "postalCode": "21200-1111"
+        "zipCode": "21200-1111"
       }
     }]
   }],

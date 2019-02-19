@@ -31,12 +31,12 @@ describe PdfFill::Forms::Va210781a do
         'sources' => [{
           'name' => 'Testy T Testerson',
           'address' => {
-            'street' => '123 Main Street',
-            'street2' => '1B',
+            'addressLine1' => '123 Main Street',
+            'addressLine2' => '1B',
             'city' => 'Baltimore',
             'state' => 'MD',
             'country' => 'USA',
-            'postalCode' => '21200-1111'
+            'zipCode' => '21200-1111'
           }
         }]
       }
@@ -53,23 +53,23 @@ describe PdfFill::Forms::Va210781a do
           {
             'name' => 'Testy T Testerson',
             'address' => {
-              'street' => '123 Main Street',
-              'street2' => '1B',
+              'addressLine1' => '123 Main Street',
+              'addressLine2' => '1B',
               'city' => 'Baltimore',
               'state' => 'MD',
               'country' => 'USA',
-              'postalCode' => '21200-1111'
+              'zipCode' => '21200-1111'
             }
           },
           {
             'name' => 'Besty B Besterson',
             'address' => {
-              'street' => '456 Main Street',
-              'street2' => '1B',
+              'addressLine1' => '456 Main Street',
+              'addressLine2' => '1B',
               'city' => 'Baltimore',
               'state' => 'MD',
               'country' => 'USA',
-              'postalCode' => '21200-1111'
+              'zipCode' => '21200-1111'
             }
           }
         ]
