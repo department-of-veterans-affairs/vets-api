@@ -20,12 +20,6 @@ module ClaimsApi
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         end
 
-        def form_4142; end
-
-        def form_0781; end
-
-        def form_8940; end
-
         private
 
         def form_attributes
