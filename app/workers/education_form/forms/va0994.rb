@@ -53,30 +53,24 @@ module EducationForm::Forms
     def bank_routing_number
       if @applicant.bankAccount&.routingNumber.present?
         @applicant.bankAccount.routingNumber
-      elsif @applicant.prefillBankAccount.present?
-        value_or_na(@applicant.prefillBankAccount.bankRoutingNumber)
       else
-        'N/A'
+        value_or_na(@applicant.prefillBankAccount&.bankRoutingNumber)
       end
     end
 
     def bank_account_number
       if @applicant.bankAccount&.accountNumber.present?
         @applicant.bankAccount.accountNumber
-      elsif @applicant.prefillBankAccount.present?
-        value_or_na(@applicant.prefillBankAccount.bankAccountNumber)
       else
-        'N/A'
+        value_or_na(@applicant.prefillBankAccount&.bankAccountNumber)
       end
     end
 
     def bank_account_type
       if @applicant.bankAccount&.accountType.present?
         @applicant.bankAccount.accountType
-      elsif @applicant.prefillBankAccount.present?
-        value_or_na(@applicant.prefillBankAccount.bankAccountType)
       else
-        'N/A'
+        value_or_na(@applicant.prefillBankAccount&.bankAccountType)
       end
     end
 
