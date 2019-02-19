@@ -13,7 +13,7 @@ module ClaimsApi
         "form4142": nil,
         "form0781": nil,
         "form8940": nil
-      }
+      }.to_json
     end
   end
 end

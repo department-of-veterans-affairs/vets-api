@@ -119,6 +119,7 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'factory_bot_rails'
+  gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
   # TODO: switch to a version number once that version is released
   gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
@@ -128,7 +129,6 @@ group :development, :test do
   gem 'foreman'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
-  gem 'pry-nav'
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'

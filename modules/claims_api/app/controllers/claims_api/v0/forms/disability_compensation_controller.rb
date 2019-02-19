@@ -35,7 +35,7 @@ module ClaimsApi
             .new(target_veteran)
             .add_headers(
               EVSS::AuthHeaders.new(target_veteran).to_h
-            )
+            ).to_json
         end
       end
     end
