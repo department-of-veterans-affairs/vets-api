@@ -4,9 +4,10 @@
     "last": "Personage"
   },
   "applicantSocialSecurityNumber": "123456789",
-  "mailingAddress" :{
+  "mailingAddress": {
     "street": "123 Test St",
     "street2": "Apt B",
+    "street3": "and a half",
     "city": "Test",
     "state": "TN",
     "postalCode": "12345",
@@ -48,7 +49,10 @@
   ],
   "pastHighTechnologyEmployment": true,
   "currentHighTechnologyEmployment": true,
-  "highTechnologyEmploymentTypes": ["computerProgramming", "computerSoftware"],
+  "highTechnologyEmploymentTypes": [
+    "computerProgramming",
+    "computerSoftware"
+  ],
   "currentSalary": "lessThanTwenty",
   "highestLevelofEducation": "other",
   "otherEducation": "Other Education Type",

@@ -7,7 +7,7 @@ RSpec.describe EducationForm::Forms::VA0994 do
 
   subject { described_class.new(education_benefits_claim) }
 
-  %w[kitchen_sink simple].each do |form|
+  %w[kitchen_sink prefill simple].each do |form|
     test_spool_file('0994', form)
   end
 end
