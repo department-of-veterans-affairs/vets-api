@@ -23,7 +23,7 @@ describe HCA::EE::Service do
       end
     end
 
-    it 'should lookup the user in the hca ee user', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
+    it 'should lookup the user through the hca ee api', run_at: 'Fri, 08 Feb 2019 02:50:45 GMT' do
       VCR.use_cassette(
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
