@@ -15,7 +15,7 @@ module ClaimsApi
     alias token id
 
     def form
-      @form ||= ClaimsApi::Form526.new(data: JSON.parse(form_data))
+      @form ||= ClaimsApi::Form526.new(JSON.parse(form_data).deep_symbolize_keys)
     end
   end
 end
