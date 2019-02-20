@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HCA
-  module EE
+  module EnrollmentEligibility
     class Configuration < Common::Client::Configuration::SOAP
       def base_path
         Settings.hca.ee.endpoint

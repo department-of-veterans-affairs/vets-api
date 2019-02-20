@@ -38,7 +38,6 @@ module Swagger
 
       swagger_path '/v0/health_care_applications/enrollment_status' do
         operation :get do
-
           key :description, 'Check the status of a health care application'
           key :operationId, 'enrollmentStatusHealthCareApplication'
           key :tags, %w[benefits_forms]
@@ -88,9 +87,9 @@ module Swagger
             key :description, 'enrollment_status response'
 
             schema do
-              property :application_date, type: [:string, :null]
-              property :enrollment_date, type: [:string, :null]
-              property :preferred_facility, type: [:string, :null]
+              property :application_date, type: %i[string null]
+              property :enrollment_date, type: %i[string null]
+              property :preferred_facility, type: %i[string null]
               property :parsed_status, type: :string
             end
           end

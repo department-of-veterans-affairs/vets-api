@@ -34,7 +34,7 @@ module V0
           )
         end
 
-      raise Common::Exceptions::RecordNotFound.new(nil) if icn.blank?
+      raise Common::Exceptions::RecordNotFound, nil if icn.blank?
 
       render(json: HealthCareApplication.enrollment_status(icn))
     end

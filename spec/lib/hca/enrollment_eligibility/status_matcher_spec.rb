@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe HCA::EE::StatusMatcher do
+describe HCA::EnrollmentEligibility::StatusMatcher do
   describe '#parse' do
     subject do
       described_class.parse(enrollment_status, ineligibility_reason)
@@ -56,7 +56,7 @@ describe HCA::EE::StatusMatcher do
           ['citizen', :inelig_citizens],
           ['filipino', :inelig_filipinoscouts],
           ['disability', :rejected_sc_wrongentry],
-          ['income', :rejected_inc_wrongentry],
+          ['income', :rejected_inc_wrongentry]
         ].each do |test_data|
           context "when text includes #{test_data[0]}" do
             let(:ineligibility_reason) { "abc #{test_data[0]}." }

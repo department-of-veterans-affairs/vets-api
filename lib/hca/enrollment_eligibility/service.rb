@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module HCA
-  module EE
+  module EnrollmentEligibility
     class Service < Common::Client::Base
-      configuration HCA::EE::Configuration
+      configuration HCA::EnrollmentEligibility::Configuration
 
       def lookup_user(icn)
         response = perform(:post, '', build_lookup_user_xml(icn)).body
@@ -63,4 +65,3 @@ module HCA
     end
   end
 end
-

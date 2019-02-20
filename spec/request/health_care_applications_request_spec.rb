@@ -32,10 +32,10 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
   describe 'GET enrollment_status' do
     let(:success_response) do
-      {:application_date=>"2018-01-24T00:00:00.000-06:00",
-           :enrollment_date=>nil,
-           :preferred_facility=>"987 - CHEY6",
-           :parsed_status=>:inelig_character_of_discharge}
+      { application_date: '2018-01-24T00:00:00.000-06:00',
+        enrollment_date: nil,
+        preferred_facility: '987 - CHEY6',
+        parsed_status: :inelig_character_of_discharge }
     end
 
     context 'with user attributes' do

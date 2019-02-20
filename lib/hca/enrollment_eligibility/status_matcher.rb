@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 module HCA
-  module EE
+  module EnrollmentEligibility
     module StatusMatcher
       module_function
 
@@ -13,25 +15,25 @@ module HCA
           text_matches: [
             {
               category: :inelig_not_enough_time,
-              strings: ["24 months", "less than", "24 mos", "24months", "two years"]
+              strings: ['24 months', 'less than', '24 mos', '24months', 'two years']
             },
             {
               category: :inelig_training_only,
-              strings: ["training only", "trng only"],
-              acronyms: ["ADT", "ACDUTRA", "ADUTRA"]
+              strings: ['training only', 'trng only'],
+              acronyms: %w[ADT ACDUTRA ADUTRA]
             },
             {
               category: :inelig_character_of_discharge,
-              strings: ["other than honorable", "dishonorable", "dishonorable for va purposes", "bad conduct", "dis for va pur"],
-              acronyms: ['OTH', 'DVA']
+              strings: ['other than honorable', 'dishonorable', 'dishonorable for va purposes', 'bad conduct', 'dis for va pur'],
+              acronyms: %w[OTH DVA]
             },
             {
               category: :inelig_not_verified,
-              strings: ["no proof", "no record", "non-vet", "non vet", "unable to verify", "not a veteran", "214"]
+              strings: ['no proof', 'no record', 'non-vet', 'non vet', 'unable to verify', 'not a veteran', '214']
             },
             {
               category: :inelig_guard_reserve,
-              strings: ["guard", "reserve", "reservist", "national guard"]
+              strings: ['guard', 'reserve', 'reservist', 'national guard']
             },
             {
               category: :inelig_champva,
@@ -59,7 +61,7 @@ module HCA
             },
             {
               category: :rejected_sc_wrongentry,
-              strings: ["disability"]
+              strings: ['disability']
             },
             {
               category: :rejected_inc_wrongentry,
@@ -103,7 +105,7 @@ module HCA
           enrollment_status: 'cancelled/declined',
           category: :canceled_declined
         }
-      ]
+      ].freeze
 
       def parse(enrollment_status, ineligibility_reason = '')
         enrollment_status = enrollment_status.downcase.strip
@@ -138,13 +140,10 @@ module HCA
           end
         end
 
-        if enrollment_status.include?('rejected')
-          return :rejected_rightentry
-        end
+        return :rejected_rightentry if enrollment_status.include?('rejected')
 
         :none_of_the_above
       end
     end
   end
 end
-
