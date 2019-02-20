@@ -119,7 +119,7 @@ class OpenidApplicationController < ApplicationController
     # Example of an okta uid for the user: 00u2p9far4ihDAEX82p7
     @token_identifiers ||= OpenStruct.new(
       uuid: token_payload['sub'],
-      okta_uid: token_payload['uid'],
+      okta_uid: token_payload['uid']
     )
   end
 

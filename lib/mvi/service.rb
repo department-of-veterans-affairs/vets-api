@@ -41,7 +41,11 @@ module MVI
     def find_profile(user_identity)
       with_monitoring do
         measure_info(user_identity) do
-          raw_response = perform(:post, '', create_profile_message(user_identity), soapaction: OPERATIONS[:find_profile])
+          raw_response = perform(
+            :post, '',
+            create_profile_message(user_identity),
+            soapaction: OPERATIONS[:find_profile]
+          )
           MVI::Responses::FindProfileResponse.with_parsed_response(raw_response)
         end
       end
