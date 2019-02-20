@@ -13,16 +13,16 @@ module ClaimsApi
     attribute :serviceInformation, Hash
     attribute :disabilities, Hash
 
-    # validates_presence_of :veteran, 
-    #                       :claimantCertification, 
-    #                       :standardClaim, 
-    #                       :applicationExpirationDate, 
-    #                       :serviceInformation, 
+    # validates_presence_of :veteran,
+    #                       :claimantCertification,
+    #                       :standardClaim,
+    #                       :applicationExpirationDate,
+    #                       :serviceInformation,
     #                       :disabilities
 
     def to_internal
       {
-        "form526": self.attributes,
+        "form526": attributes,
         "form526_uploads": [],
         "form4142": nil,
         "form0781": nil,
