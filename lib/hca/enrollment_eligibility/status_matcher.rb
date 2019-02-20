@@ -139,14 +139,14 @@ module HCA
           return enroll_status == statuses
         end
 
-        CATEGORIES.find { |c| category_matcher.call(c[:enrollment_status], enrollment_status) }.tap do |cat|
-          next unless cat
-          if cat[:text_matches]
-            process_text_match(cat[:text_matches], ineligibility_reason).tap do |category|
+        CATEGORIES.find { |c| category_matcher.call(c[:enrollment_status], enrollment_status) }.tap do |category_data|
+          next unless category_data
+          if category_data[:text_matches]
+            process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
               return category if category.present?
             end
           else
-            return cat[:category]
+            return category_data[:category]
           end
         end
 
