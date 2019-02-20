@@ -13,9 +13,5 @@ module ClaimsApi
     ERRORED = 'errored'
 
     alias token id
-
-    def form
-      @form ||= ClaimsApi::Form526.new(JSON.parse(form_data).deep_symbolize_keys)
-    end
   end
 end
