@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module HCA
   module EnrollmentEligibility
     module StatusMatcher
@@ -24,7 +25,10 @@ module HCA
             },
             {
               category: :inelig_character_of_discharge,
-              strings: ['other than honorable', 'dishonorable', 'dishonorable for va purposes', 'bad conduct', 'dis for va pur'],
+              strings: [
+                'other than honorable', 'dishonorable',
+                'dishonorable for va purposes', 'bad conduct', 'dis for va pur'
+              ],
               acronyms: %w[OTH DVA]
             },
             {
@@ -107,6 +111,28 @@ module HCA
         }
       ].freeze
 
+      def process_text_match(text_matches, ineligibility_reason)
+        text_matches.each do |text_match_data|
+          category = text_match_data[:category]
+
+          text_match_data[:strings].each do |string|
+            return category if ineligibility_reason.downcase.include?(string)
+          end
+
+          text_match_data[:acronyms].tap do |acronyms|
+            next if acronyms.blank?
+
+            acronyms.each do |acronym|
+              return category if ineligibility_reason.include?(acronym)
+            end
+          end
+        end
+
+        nil
+      end
+
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       def parse(enrollment_status, ineligibility_reason = '')
         enrollment_status = enrollment_status.downcase.strip
 
@@ -120,20 +146,8 @@ module HCA
           end
 
           if category_data[:text_matches]
-            category_data[:text_matches].each do |text_match_data|
-              category = text_match_data[:category]
-
-              text_match_data[:strings].each do |string|
-                return category if ineligibility_reason.downcase.include?(string)
-              end
-
-              text_match_data[:acronyms].tap do |acronyms|
-                next if acronyms.blank?
-
-                acronyms.each do |acronym|
-                  return category if ineligibility_reason.include?(acronym)
-                end
-              end
+            process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
+              return category if category.present?
             end
           else
             return category_data[:category]
@@ -144,6 +158,9 @@ module HCA
 
         :none_of_the_above
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
