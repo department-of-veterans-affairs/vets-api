@@ -45,6 +45,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/search/response.rb'
     add_filter 'spec'
     add_filter 'vendor'
+    add_filter 'modules/claims_api/app/workers/claims_api/claim_establisher.rb'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'AppealsApi', 'modules/appeals_api/'
