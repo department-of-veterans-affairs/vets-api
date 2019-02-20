@@ -61,17 +61,22 @@ module SAML
         level_of_assurance: verifying ? ['3'] : level_of_assurance,
         multifactor: multifactor
       )
-      instance_double(SAML::Response, attributes: attributes,
-                                                    decrypted_document: document_partial(authn_context),
-                                                    is_a?: true,
-                                                    is_valid?: true,
-                                                    response: 'mock-response')
+      saml_response = SAML::Response.new(document_partial(authn_context).to_s)
+      allow(saml_response).to receive(:attributes).and_return(attributes)
+      allow(saml_response).to receive(:is_valid?).and_return(true)
+      allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
+      saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-    def build_invalid_saml_response(options)
-      options = options.reverse_merge(is_valid?: false, is_a?: true)
-      instance_double(SAML::Response, options)
+    def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
+      saml_response = SAML::Response.new(decrypted_document.to_s)
+      allow(saml_response).to receive(:is_valid?).and_return(false)
+      allow(saml_response).to receive(:errors).and_return(errors)
+      allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
+      allow(saml_response).to receive(:decrypted_document).and_return(decrypted_document)
+      allow(saml_response).to receive(:status_message).and_return(status_message)
+      saml_response
     end
 
     def invalid_saml_response
@@ -112,7 +117,8 @@ module SAML
 
     def saml_response_unknown_error
       build_invalid_saml_response(
-        status_message: SSOService::DEFAULT_ERROR_MESSAGE, in_response_to: uuid,
+        status_message: SSOService::DEFAULT_ERROR_MESSAGE,
+        in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
           'The status code of the Response was not Success, was Requester => NoAuthnContext -> AuthnRequest without ' \
@@ -123,7 +129,8 @@ module SAML
 
     def saml_response_multi_error
       build_invalid_saml_response(
-        status_message: 'Subject did not consent to attribute release', in_response_to: uuid,
+        status_message: 'Subject did not consent to attribute release',
+        in_response_to: uuid,
         decrypted_document: document_partial,
         errors: ['Subject did not consent to attribute release', 'Other random error']
       )
