@@ -5,6 +5,17 @@ require 'ostruct'
 
 describe MVI::Responses::IdParser do
   describe '#parse' do
+    context 'vba_corp_id' do
+      let(:vba_corp_ids) do
+        [correlation_id('87654321^PI^200CORP^USVBA^H'),
+         correlation_id('87654322^PI^200CORP^USVBA^L'),
+         correlation_id('12345678^PI^200CORP^USVBA^A')]
+      end
+      it 'matches correctly on all valid ID statuses (i.e. P and A)' do
+        expect(MVI::Responses::IdParser.new.parse(vba_corp_ids)[:vba_corp_id]).to eq '12345678'
+      end
+    end
+
     context 'icn_with_aaid' do
       let(:non_icn_id) { 'TKIP123456^PI^200IP^USVHA^A' }
 
