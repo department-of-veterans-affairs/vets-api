@@ -15,6 +15,15 @@ class HealthCareApplication < ActiveRecord::Base
 
   after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
 
+  def self.get_user_identifier(user)
+    return if user.nil?
+
+    {
+      'icn' => user.icn,
+      'edipi' => user.edipi
+    }
+  end
+
   def success?
     state == 'success'
   end
@@ -44,7 +53,12 @@ class HealthCareApplication < ActiveRecord::Base
 
     if parsed_form['email'].present? && async_compatible
       save!
-      HCA::SubmissionJob.perform_async(user&.uuid, parsed_form, id, google_analytics_client_id)
+      HCA::SubmissionJob.perform_async(
+        self.class.get_user_identifier(user),
+        parsed_form,
+        id,
+        google_analytics_client_id
+      )
 
       self
     else

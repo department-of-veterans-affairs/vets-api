@@ -4,7 +4,7 @@
     "last": "Personage"
   },
   "applicantSocialSecurityNumber": "123456789",
-  "mailingAddress" :{
+  "mailingAddress": {
     "street": "123 Test St",
     "street2": "Apt B",
     "city": "Test",
@@ -19,5 +19,11 @@
   "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "highestLevelofEducation": "high_school_diploma_or_GED",
-  "privacyAgreementAccepted": true
+  "privacyAgreementAccepted": true,
+  "prefillBankAccount": {
+    "bankAccountType": "checking",
+    "bankAccountNumber": "*********1234",
+    "bankRoutingNumber": "*****2115",
+    "bankName": "Comerica"
+  }
 }

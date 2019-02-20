@@ -19,10 +19,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: c35df1107382d72dfda8e005b429865b4a6704f2
+  revision: 811b7c3f23bd49d166c302326b80cce2b3789595
   branch: master
   specs:
-    vets_json_schema (3.136.1)
+    vets_json_schema (3.136.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -943,7 +943,6 @@ GEM
     redis (3.3.3)
     redis-namespace (1.5.3)
       redis (~> 3.0, >= 3.0.4)
-    require_all (1.4.0)
     restforce (3.0.0)
       faraday (>= 0.9.0, <= 1.0)
       faraday_middleware (>= 0.8.8, <= 1.0)
@@ -1175,7 +1174,6 @@ DEPENDENCIES
   rainbow
   redis
   redis-namespace
-  require_all
   restforce
   rspec-rails (~> 3.5)
   rspec_junit_formatter
@@ -1185,7 +1183,7 @@ DEPENDENCIES
   savon
   sdoc (~> 0.4.0)
   seedbank
-  sentry-raven
+  sentry-raven (= 2.7.4)
   shrine
   shrine-memory
   sidekiq

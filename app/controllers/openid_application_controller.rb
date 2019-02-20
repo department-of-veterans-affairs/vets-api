@@ -94,12 +94,7 @@ class OpenidApplicationController < ApplicationController
       first_name: profile['firstName'],
       middle_name: profile['middleName'],
       last_name: profile['lastName'],
-      gender: profile['gender']&.chars&.first&.upcase,
-      birth_date: profile['dob'],
-      ssn: profile['ssn'],
-      mhv_correlation_id: profile['mhv_uuid'],
-      mhv_icn: profile['mhv_icn'],
-      dslogon_edipi: profile['dslogon_edipi'],
+      mhv_icn: profile['icn'],
       loa: derive_loa(profile)
     }
   end

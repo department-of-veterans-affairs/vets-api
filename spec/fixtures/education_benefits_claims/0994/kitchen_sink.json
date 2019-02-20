@@ -4,9 +4,10 @@
     "last": "Personage"
   },
   "applicantSocialSecurityNumber": "123456789",
-  "mailingAddress" :{
+  "mailingAddress": {
     "street": "123 Test St",
     "street2": "Apt B",
+    "street3": "and a half",
     "city": "Test",
     "state": "TN",
     "postalCode": "12345",
@@ -17,7 +18,7 @@
   "emailAddress": "test@test.com",
   "dayTimePhone": "5551234567",
   "nightTimePhone": "5551231234",
-  "appliedForVAEducationBenefits": true,
+  "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "activeDutyDuringVetTec": true,
   "bankAccount": {
@@ -39,11 +40,19 @@
       "location": {
         "state": "AK"
       }
+    },
+    {
+      "providerName": "Provider C",
+      "courseType": "online",
+      "plannedStartDate": "2020-06-01"
     }
   ],
-  "currentEmployment": true,
+  "pastHighTechnologyEmployment": true,
   "currentHighTechnologyEmployment": true,
-  "highTechnologyEmploymentTypes": ["computerProgramming", "computerSoftware"],
+  "highTechnologyEmploymentTypes": [
+    "computerProgramming",
+    "computerSoftware"
+  ],
   "currentSalary": "lessThanTwenty",
   "highestLevelofEducation": "other",
   "otherEducation": "Other Education Type",

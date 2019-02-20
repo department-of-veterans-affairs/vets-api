@@ -10,7 +10,14 @@ module MVI
 
       # MVI correlation id source id relationships:
       # {source id}^{id type}^{assigning facility}^{assigning authority}^{id status}
-      # NI = national identifier, PI = patient identifier
+      # id type - NI = national identifier
+      #           PI = patient identifier
+      # id status -  A = active
+      #              P = permanent
+      #              H = deprecated(do not use)
+      #              L = pending local merge (do not use)
+      #              PCE = ??
+
       def parse(ids)
         ids = ids.map(&:attributes)
 
@@ -20,7 +27,8 @@ module MVI
           mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^\w+$/, CORRELATION_ROOT_ID)),
           active_mhv_ids: select_ids(select_extension(ids, /^\w+\^PI\^200MH.{0,1}\^\w+\^A$/, CORRELATION_ROOT_ID)),
           edipi: select_ids(select_extension(ids, /^\w+\^NI\^200DOD\^USDOD\^\w+$/, EDIPI_ROOT_ID))&.first,
-          vba_corp_id: select_ids(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
+          vba_corp_id: select_ids_except(select_extension(ids, /^\w+\^PI\^200CORP\^USVBA\^\w+$/, CORRELATION_ROOT_ID),
+                                         %w[H L])&.first,
           vha_facility_ids: select_facilities(select_extension(ids, /^\w+\^PI\^\w+\^USVHA\^\w+$/, CORRELATION_ROOT_ID)),
           birls_id: select_ids(select_extension(ids, /^\w+\^PI\^200BRLS\^USVBA\^\w+$/, CORRELATION_ROOT_ID))&.first,
           vet360_id: select_ids(select_extension(ids, /^\w+\^PI\^200VETS\^USDVA\^\w+$/, CORRELATION_ROOT_ID))&.first,
@@ -33,6 +41,15 @@ module MVI
       end
 
       private
+
+      def select_ids_except(extensions, reject_status)
+        # ultaimately, I'd rather have a list complete list of statuses to accept, but for now we can reject
+        return nil if extensions.empty?
+        extensions.map do |e|
+          split_extension = e[:extension].split('^')
+          split_extension&.first unless split_extension[4] && reject_status.include?(split_extension[4])
+        end.compact
+      end
 
       def select_ids(extensions)
         return nil if extensions.empty?

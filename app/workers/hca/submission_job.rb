@@ -14,14 +14,13 @@ module HCA
       )
     end
 
-    def perform(user_uuid, form, health_care_application_id, google_analytics_client_id)
+    def perform(user_identifier, form, health_care_application_id, google_analytics_client_id)
       Sentry::TagRainbows.tag
       Raven.tags_context(job: 'hca_submission')
       health_care_application = HealthCareApplication.find(health_care_application_id)
-      user = User.find(user_uuid)
 
       begin
-        result = HCA::Service.new(user).submit_form(form)
+        result = HCA::Service.new(user_identifier).submit_form(form)
       rescue VALIDATION_ERROR
         PersonalInformationLog.create!(data: { form: form }, error_class: VALIDATION_ERROR.to_s)
 

@@ -34,6 +34,10 @@ module SAML
       )
 
       @user_attributes = user_attributes_class.new(saml_attributes, authn_context)
+      Raven.tags_context(
+        sign_in_service_name: user_attributes.sign_in&.fetch(:service_name, nil),
+        sign_in_account_type: user_attributes.sign_in&.fetch(:account_type, nil)
+      )
       log_warnings_to_sentry
     end
 
@@ -75,13 +79,11 @@ module SAML
 
     def user_attributes_class
       case authn_context
-      when 'myhealthevet'; then SAML::UserAttributes::MHV
-      when 'dslogon'; then SAML::UserAttributes::DSLogon
-      when 'myhealthevet_multifactor', 'dslogon_multifactor', 'multifactor'
-        SAML::UserAttributes::IdMe
-      when 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3
-        SAML::UserAttributes::IdMe
-      when LOA::IDME_LOA1
+      when 'myhealthevet', 'myhealthevet_multifactor'
+        SAML::UserAttributes::MHV
+      when 'dslogon', 'dslogon_multifactor'
+        SAML::UserAttributes::DSLogon
+      when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
       else
         Raven.tags_context(

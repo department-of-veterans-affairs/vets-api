@@ -23,12 +23,19 @@ namespace :form526 do
       'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
     )
 
+    outage_errors = 0
+    other_errors = 0
+
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
     submissions.find_each do |s|
       version = 'version 1: IO'
       s.form526_job_statuses.each do |j|
         version = 'version 2: AC' if j.job_class == 'SubmitForm526AllClaim'
+        if (j.job_class == 'SubmitForm526IncreaseOnly' || j.job_class == 'SubmitForm526AllClaim') &&
+           j.error_message.present?
+          j.error_message.include?('submit.establishClaim.serviceError') ? (outage_errors += 1) : (other_errors += 1)
+        end
       end
       print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete, version)
     end
@@ -42,6 +49,10 @@ namespace :form526 do
     print_total('Total Jobs: ', total_jobs)
     print_total('Successful Jobs: ', success_jobs)
     print_total('Failed Jobs: ', fail_jobs)
+    puts '------------------------------------------------------------'
+    puts '* Failure Report for form526 Submission Job (not including uploads/cleanup/etc...) *'
+    print_total('Outage Failures: ', outage_errors)
+    print_total('Other Failures: ', other_errors)
   end
 
   desc 'Get one or more submission details given an array of ids'
