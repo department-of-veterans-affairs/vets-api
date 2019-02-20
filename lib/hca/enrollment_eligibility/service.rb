@@ -3,19 +3,37 @@
 module HCA
   module EnrollmentEligibility
     class Service < Common::Client::Base
+      XPATH_PREFIX = 'env:Envelope/env:Body/getEESummaryResponse/summary/'
       configuration HCA::EnrollmentEligibility::Configuration
 
+      # rubocop:disable Metrics/MethodLength
       def lookup_user(icn)
         response = perform(:post, '', build_lookup_user_xml(icn)).body
 
         {
-          enrollment_status: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/enrollmentStatus'),
-          application_date: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/applicationDate'),
-          enrollment_date: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/enrollmentDate'),
-          preferred_facility: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/demographics/preferredFacility'),
-          ineligibility_reason: get_xpath(response, 'env:Envelope/env:Body/getEESummaryResponse/summary/enrollmentDeterminationInfo/ineligibilityFactor/reason')
+          enrollment_status: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/enrollmentStatus"
+          ),
+          application_date: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/applicationDate"
+          ),
+          enrollment_date: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/enrollmentDate"
+          ),
+          preferred_facility: get_xpath(
+            response,
+            "#{XPATH_PREFIX}demographics/preferredFacility"
+          ),
+          ineligibility_reason: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/ineligibilityFactor/reason"
+          )
         }
       end
+      # rubocop:enable Metrics/MethodLength
 
       private
 
@@ -25,6 +43,8 @@ module HCA
         node[0].nodes[0]
       end
 
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/BlockLength
       def build_lookup_user_xml(icn)
         Nokogiri::XML::Builder.new do |xml|
           xml.public_send(
@@ -62,6 +82,8 @@ module HCA
           end
         end.to_xml
       end
+      # rubocop:enable Metrics/BlockLength
+      # rubocop:enable Metrics/MethodLength
     end
   end
 end
