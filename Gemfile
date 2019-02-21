@@ -12,7 +12,7 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '4.2.11'
+gem 'rails', '~> 5.0.7.1'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
@@ -22,7 +22,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
-gem 'activerecord-postgis-adapter', '~> 3'
+gem 'activerecord-postgis-adapter', '~> 4'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
@@ -49,7 +49,7 @@ gem 'liquid'
 gem 'memoist'
 gem 'mini_magick'
 gem 'net-sftp'
-gem 'nokogiri', '1.8.5'
+gem 'nokogiri', '1.10.1'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
@@ -61,8 +61,7 @@ gem 'prawn'
 gem 'pundit'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails-api'
-gem 'rails_semantic_logger', '~> 4.2'
+gem 'rails_semantic_logger', '~> 4.4'
 gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
