@@ -27,7 +27,7 @@ module HCA
               category: :inelig_character_of_discharge,
               strings: [
                 'other than honorable', 'dishonorable',
-                'dishonorable for va purposes', 'bad conduct', 'dis for va pur'
+                'bad conduct', 'dis for va pur'
               ],
               acronyms: %w[OTH DVA]
             },
