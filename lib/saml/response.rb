@@ -14,10 +14,6 @@ module SAML
                                  tag: :auth_too_early,
                                  short_message: 'Current time is earlier than NotBefore condition',
                                  level: :error },
-               multiple:       { code: '007',
-                                 tag: :multiple,
-                                 short_message: 'Multiple SAML Errors',
-                                 level: :error },
                blank:           { code: '007',
                                   tag: :blank,
                                   short_message: 'Blank response',
@@ -38,7 +34,6 @@ module SAML
       errors.each do |error_message|
         normalized_errors << normalize_error(error_message)
       end.compact
-      normalized_errors << ERRORS[:multiple] if normalized_errors.length > 1
       is_valid_result
     end
 

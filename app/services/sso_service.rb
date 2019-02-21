@@ -85,16 +85,19 @@ class SSOService
   end
 
   def handle_error_reporting_and_instrumentation
+    message = 'Login Fail! '
     if saml_response.normalized_errors.present?
-      error_hash = saml_response.normalized_errors.last
+      error_hash = saml_response.normalized_errors.first
       error_context = saml_response.normalized_errors
+      message += error_hash[:short_message]
+      message += ' Multiple SAML Errors' if saml_response.normalized_errors.count > 1
     else
       error_hash = ERRORS[:validations_failed]
       error_context = validation_error_context
+      message += error_hash[:short_message]
     end
     @auth_error_code = error_hash[:code]
     @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
-    message = 'Login Fail! ' + error_hash[:short_message]
     log_message_to_sentry(message, error_hash[:level], error_context)
   end
 

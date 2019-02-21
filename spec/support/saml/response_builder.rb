@@ -88,7 +88,13 @@ module SAML
       build_invalid_saml_response(
         in_response_to: uuid,
         decrypted_document: nil,
-        errors: ['Subject did not consent to attribute release'],
+        errors: ['The status code of the Response was not Success, was Responder => AuthnFailed '\
+                 '-> Subject did not consent to attribute release',
+                 'SAML Response must contain 1 assertion',
+                 'The Assertion must include one Conditions element',
+                 'The Assertion must include one AuthnStatement element',
+                 'Issuer of the Assertion not found or multiple.',
+                 'A valid SubjectConfirmation was not found on this Response'],
         status_message: 'Subject did not consent to attribute release'
       )
     end
@@ -99,7 +105,8 @@ module SAML
         in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
-          'Current time is on or after NotOnOrAfter condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'
+          'Current time is on or after NotOnOrAfter condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)',
+          'A valid SubjectConfirmation was not found on this Response'
         ]
       )
     end
