@@ -3,24 +3,45 @@
 
 module ClaimsApi
   class Form526
-    include Virtus.model
-    extend ActiveModel::Validations
+    include ActiveModel::Validations
+    include ActiveModel::Serialization
+    include ActiveModel::Conversion
+    extend ActiveModel::Naming
 
-    attribute :veteran, Hash
-    attribute :claimantCertification, Hash
-    attribute :standardClaim, Hash
-    attribute :applicationExpirationDate, Hash
-    attribute :serviceInformation, Hash
-    attribute :disabilities, Hash
+    attr_accessor :veteran,
+                  :claimantCertification,
+                  :standardClaim,
+                  :applicationExpirationDate,
+                  :serviceInformation,
+                  :disabilities,
+                  :directDeposit,
+                  :servicePay,
+                  :treatments
 
-    # validates_presence_of :veteran,
-    #                       :claimantCertification,
-    #                       :standardClaim,
-    #                       :applicationExpirationDate,
-    #                       :serviceInformation,
-    #                       :disabilities
+    validates :veteran, :presence => true
+    validates :claimantCertification, :presence => true
+    validates :applicationExpirationDate, :presence => true
+    validates :serviceInformation, :presence => true
+    validates :disabilities, :presence => true
+
+    def initialize(params = {})
+      @attributes = []
+      params.each do |name, value|
+        @attributes << name.to_sym 
+        send("#{name}=", value) rescue raise "#{name} is not a valid attribute"
+      end
+    end
+
+    def persisted?
+      false
+    end
+
+    def attributes
+      @attributes.map {|method| {method => send(method)}}.reduce(:merge)
+    end
 
     def to_internal
+      raise self.errors.messages.to_s unless self.valid?
       {
         "form526": attributes,
         "form526_uploads": [],
