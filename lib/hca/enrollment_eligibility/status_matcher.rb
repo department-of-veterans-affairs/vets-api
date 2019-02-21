@@ -37,7 +37,7 @@ module HCA
             },
             {
               category: :inelig_guard_reserve,
-              strings: ['guard', 'reserve', 'reservist']
+              strings: %w[guard reserve reservist]
             },
             {
               category: :inelig_champva,
