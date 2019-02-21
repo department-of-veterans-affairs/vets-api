@@ -54,10 +54,13 @@ module SAML
       error_hash
     end
 
+    def authn_context_text
+      REXML::XPath.first(decrypted_document, '//saml:AuthnContextClassRef')&.text
+    end
+
     def authn_context
       if decrypted_document
-        REXML::XPath.first(decrypted_document, '//saml:AuthnContextClassRef')&.text ||
-          SAML::User::UNKNOWN_AUTHN_CONTEXT
+        authn_context_text || SAML::User::UNKNOWN_AUTHN_CONTEXT
       else
         SAML::User::UNKNOWN_AUTHN_CONTEXT
       end

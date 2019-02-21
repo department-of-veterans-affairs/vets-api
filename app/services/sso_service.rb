@@ -7,10 +7,16 @@ class SSOService
   include ActiveModel::Validations
   attr_reader :auth_error_code
   DEFAULT_ERROR_MESSAGE = 'Default generic identity provider error'
-  ERRORS = {validations_failed: { code: '004',
-                                  tag: :validations_failed,
-                                  short_message: 'on User/Session Validation',
-                                  level: :error }}
+  ERRORS = { validations_failed: { code: '004',
+                                   tag: :validations_failed,
+                                   short_message: 'on User/Session Validation',
+                                   level: :error } }.freeze
+
+  # We don't want to persist the mhv_account_type because then we would have to change it when we
+  # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
+  # signed in session.
+  # Also we want the original sign-in, NOT the one from ID.me LOA3
+  MERGABLE_IDENTITY_ATTRIBUTES = %w[mhv_correlation_id mhv_icn dslogon_edipi].freeze
 
   def initialize(response)
     raise 'SAML Response is not a SAML::Response' unless response.is_a?(SAML::Response)
@@ -37,7 +43,7 @@ class SSOService
         # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
         # merged? MHV LOA1 -> IDME LOA3 is ok, DS Logon LOA1 -> IDME LOA3 is ok, everything else is not.
         # because user, session, user_identity all have the same TTL, this is probably not a problem.
-        mergable_identity_attributes.each do |attribute|
+        MERGABLE_IDENTITY_ATTRIBUTES.each do |attribute|
           new_user_identity.send(attribute + '=', existing_user.identity.send(attribute))
         end
       end
@@ -46,14 +52,6 @@ class SSOService
       handle_error_reporting_and_instrumentation
       return false
     end
-  end
-
-  def mergable_identity_attributes
-    # We don't want to persist the mhv_account_type because then we would have to change it when we
-    # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
-    # signed in session.
-    # Also we want the original sign-in, NOT the one from ID.me LOA3
-    %w[mhv_correlation_id mhv_icn dslogon_edipi]
   end
 
   def new_login?
@@ -117,7 +115,6 @@ class SSOService
         authn_context: new_user_identity&.authn_context,
         loa: new_user_identity&.loa
       }
-
     }
   end
 end
