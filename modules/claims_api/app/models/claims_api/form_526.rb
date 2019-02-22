@@ -7,20 +7,20 @@ module ClaimsApi
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
-    REQUIRED_FIELDS = [
-                        :veteran,
-                        :claimantCertification,
-                        :standardClaim,
-                        :applicationExpirationDate,
-                        :serviceInformation,
-                        :disabilities
-                      ]
+    REQUIRED_FIELDS = %i[
+      veteran
+      claimantCertification
+      standardClaim
+      applicationExpirationDate
+      serviceInformation
+      disabilities
+    ].freeze
 
-    NOT_REQUIRED_FIELDS = [
-                            :directDeposit,
-                            :servicePay,
-                            :treatments
-                          ]
+    NOT_REQUIRED_FIELDS = %i[
+      directDeposit
+      servicePay
+      treatments
+    ].freeze
 
     (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |method|
       attr_accessor method.to_sym
