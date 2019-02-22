@@ -18,17 +18,21 @@ module ClaimsApi
                   :servicePay,
                   :treatments
 
-    validates :veteran, :presence => true
-    validates :claimantCertification, :presence => true
-    validates :applicationExpirationDate, :presence => true
-    validates :serviceInformation, :presence => true
-    validates :disabilities, :presence => true
+    validates :veteran, presence: true
+    validates :claimantCertification, presence: true
+    validates :applicationExpirationDate, presence: true
+    validates :serviceInformation, presence: true
+    validates :disabilities, presence: true
 
     def initialize(params = {})
       @attributes = []
       params.each do |name, value|
-        @attributes << name.to_sym 
-        send("#{name}=", value) rescue raise "#{name} is not a valid attribute"
+        @attributes << name.to_sym
+        begin
+          send("#{name}=", value)
+        rescue StandardError
+          raise "#{name} is not a valid attribute"
+        end
       end
     end
 
@@ -37,11 +41,11 @@ module ClaimsApi
     end
 
     def attributes
-      @attributes.map {|method| {method => send(method)}}.reduce(:merge)
+      @attributes.map { |method| { method => send(method) } }.reduce(:merge)
     end
 
     def to_internal
-      raise self.errors.messages.to_s unless self.valid?
+      raise errors.messages.to_s unless valid?
       {
         "form526": attributes,
         "form526_uploads": [],
