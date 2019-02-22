@@ -6,7 +6,7 @@ module ClaimsApi
       obj.to_json
     end
 
-    def load(attribute)
+    def self.load(attribute)
       JSON.parse(attribute)
     end
   end
