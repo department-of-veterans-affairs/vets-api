@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190201211124) do
+ActiveRecord::Schema.define(version: 20190222000434) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -158,6 +158,21 @@ ActiveRecord::Schema.define(version: 20190201211124) do
 
   add_index "education_benefits_submissions", ["education_benefits_claim_id"], name: "index_education_benefits_claim_id", unique: true, using: :btree
   add_index "education_benefits_submissions", ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd", using: :btree
+
+  create_table "event_logs", force: :cascade do |t|
+    t.uuid     "request_id",      null: false
+    t.string   "type"
+    t.string   "ip_address"
+    t.string   "state"
+    t.string   "user_uuid"
+    t.string   "session_id"
+    t.string   "description"
+    t.string   "reference_class"
+    t.string   "reference_id"
+    t.jsonb    "data"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+  end
 
   create_table "evss_claims", force: :cascade do |t|
     t.integer  "evss_id",                            null: false
