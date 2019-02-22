@@ -83,6 +83,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<PRENEEDS_HOST>') { Settings.preneeds.host }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<OKTA_TOKEN>') { Settings.oidc.base_api_token }
+  c.filter_sensitive_data('<EE_PASS>') { Settings.hca.ee.pass }
   c.before_record do |i|
     %i[response request].each do |env|
       next unless i.send(env).headers.keys.include?('Token')
