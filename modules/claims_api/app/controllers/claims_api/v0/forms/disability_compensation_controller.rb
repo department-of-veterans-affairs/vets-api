@@ -36,7 +36,9 @@ module ClaimsApi
         end
 
         def target_veteran
-          ClaimsApi::Veteran.from_headers(request.headers, true)
+          vet = ClaimsApi::Veteran.from_headers(request.headers, true)
+          vet.loa = { current: 2 }
+          vet
         end
 
         def auth_headers
