@@ -10,7 +10,7 @@ module ClaimsApi
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
       form_data = auto_claim.form.to_internal
-      auth_headers = JSON.parse(auto_claim.auth_headers)
+      auth_headers = auto_claim.auth_headers
 
       response = service(auth_headers).submit_form526(form_data)
 
