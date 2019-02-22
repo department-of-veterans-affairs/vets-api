@@ -6,7 +6,7 @@ FactoryBot.define do
     evss_id nil
     auth_headers nil
     form_data do
-      File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526.json")
+      File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_json_api.json")
     end
   end
 end
