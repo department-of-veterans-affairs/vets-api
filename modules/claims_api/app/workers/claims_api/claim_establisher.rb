@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'sidekiq'
+require_relative '../../../lib/claims_api/form_526_submitter'
 
 module ClaimsApi
   class ClaimEstablisher
