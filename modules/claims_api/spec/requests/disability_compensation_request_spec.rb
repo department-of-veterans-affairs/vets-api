@@ -13,7 +13,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
-  let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526.json')) }
+  let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
 
   it 'should return a successful response with all the data' do
     post '/services/claims/v0/forms/526', JSON.parse(data), headers
