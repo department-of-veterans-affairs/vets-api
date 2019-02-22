@@ -4,25 +4,31 @@
 module ClaimsApi
   class Form526
     include ActiveModel::Validations
-    include ActiveModel::Serialization
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
-    attr_accessor :veteran,
-                  :claimantCertification,
-                  :standardClaim,
-                  :applicationExpirationDate,
-                  :serviceInformation,
-                  :disabilities,
-                  :directDeposit,
-                  :servicePay,
-                  :treatments
+    REQUIRED_FIELDS = [
+                        :veteran,
+                        :claimantCertification,
+                        :standardClaim,
+                        :applicationExpirationDate,
+                        :serviceInformation,
+                        :disabilities
+                      ]
 
-    validates :veteran, presence: true
-    validates :claimantCertification, presence: true
-    validates :applicationExpirationDate, presence: true
-    validates :serviceInformation, presence: true
-    validates :disabilities, presence: true
+    NOT_REQUIRED_FIELDS = [
+                            :directDeposit,
+                            :servicePay,
+                            :treatments
+                          ]
+
+    (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |method|
+      attr_accessor method.to_sym
+    end
+
+    REQUIRED_FIELDS.each do |method|
+      validates method.to_sym, presence: true
+    end
 
     def initialize(params = {})
       @attributes = []
