@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'pp'
-require_relative '../modules/claims_api/lib/claims_api/form_526_submitter'
 
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
@@ -185,11 +184,5 @@ namespace :form526 do
     end
 
     puts "Submissions migrated: #{migrated}"
-  end
-
-  desc 'test a submit'
-  task test_submit: :environment do
-    auto_claim = ClaimsApi::AutoEstablishedClaim.last
-    ClaimsApi::Form526Submitter.submit_claim(auto_claim.id)
   end
 end
