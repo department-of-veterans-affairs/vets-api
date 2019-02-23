@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class InProgressForm < ActiveRecord::Base
+class InProgressForm < ApplicationRecord
   class CleanUUID < ActiveRecord::Type::String
     def type_cast_for_database(value)
       value.to_s.delete('-')

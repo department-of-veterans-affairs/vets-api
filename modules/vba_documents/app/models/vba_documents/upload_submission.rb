@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VBADocuments
-  class UploadSubmission < ActiveRecord::Base
+  class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
 

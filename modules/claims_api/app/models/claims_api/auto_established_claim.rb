@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class AutoEstablishedClaim < ActiveRecord::Base
+  class AutoEstablishedClaim < ApplicationRecord
     attr_encrypted(:form_data, key: Settings.db_encryption_key)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key)
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class EducationBenefitsSubmission < ActiveRecord::Base
+class EducationBenefitsSubmission < ApplicationRecord
   # don't delete this table, we need to keep the data for a report
   validates(:region, :education_benefits_claim, presence: true)
   validates(:region, inclusion: EducationForm::EducationFacility::REGIONS.map(&:to_s))
