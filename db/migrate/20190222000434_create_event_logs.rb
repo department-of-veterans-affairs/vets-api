@@ -7,11 +7,12 @@ class CreateEventLogs < ActiveRecord::Migration
       t.string :type
       t.string :ip_address
       t.string :state
-      t.integer :account_id
       t.string :description
-      t.string :reference_class
-      t.string :reference_id
       t.jsonb  :data
+
+      # Optional Foreign Key Ids
+      t.integer :account_id
+      t.integer :event_log_id # polymorphic relationship to other STI subclasses
 
       t.timestamps null: false
     end

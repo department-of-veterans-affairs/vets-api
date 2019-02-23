@@ -160,17 +160,16 @@ ActiveRecord::Schema.define(version: 20190222000434) do
   add_index "education_benefits_submissions", ["region", "created_at", "form_type"], name: "index_edu_benefits_subs_ytd", using: :btree
 
   create_table "event_logs", force: :cascade do |t|
-    t.uuid     "request_id",      null: false
+    t.uuid     "request_id",   null: false
     t.string   "type"
     t.string   "ip_address"
     t.string   "state"
-    t.integer  "account_id"
     t.string   "description"
-    t.string   "reference_class"
-    t.string   "reference_id"
     t.jsonb    "data"
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.integer  "account_id"
+    t.integer  "event_log_id"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
   end
 
   create_table "evss_claims", force: :cascade do |t|

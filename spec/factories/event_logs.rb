@@ -6,11 +6,10 @@ FactoryBot.define do
     type ''
     ip_address { [Faker::Internet.ip_v4_address, Faker::Internet.ip_v6_address].sample }
     state nil
-    account_id nil
     description nil
-    reference_class nil
-    reference_id nil
     data { {} }
+    account_id nil
+    event_log_id nil
   end
 
   factory :login_init_log, parent: :event_log, class: 'EventLog::LoginInitLog' do
