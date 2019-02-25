@@ -10,7 +10,6 @@ module ClaimsApi
     REQUIRED_FIELDS = %i[
       veteran
       claimantCertification
-      standardClaim
       applicationExpirationDate
       serviceInformation
       disabilities
@@ -29,6 +28,8 @@ module ClaimsApi
     REQUIRED_FIELDS.each do |method|
       validates method.to_sym, presence: true
     end
+
+    validates :standardClaim, inclusion: { in: [true, false] }
 
     def initialize(params = {})
       @attributes = []
