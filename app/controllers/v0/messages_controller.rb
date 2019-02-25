@@ -7,7 +7,7 @@ module V0
     def index
       resource = client.get_folder_messages(params[:folder_id].to_s)
       raise Common::Exceptions::RecordNotFound, params[:folder_id] if resource.blank?
-      resource = params[:filter].present? ? resource.find_by(params[:filter]) : resource
+      resource = params[:filter].present? ? resource.find_by(filter_params) : resource
       resource = resource.sort(params[:sort])
       resource = resource.paginate(pagination_params)
 
