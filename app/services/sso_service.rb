@@ -5,7 +5,7 @@ require 'sentry_logging'
 class SSOService
   include SentryLogging
   include ActiveModel::Validations
-  attr_reader :auth_error_code
+
   DEFAULT_ERROR_MESSAGE = 'Default generic identity provider error'
   ERRORS = { validations_failed: { code: '004',
                                    tag: :validations_failed,
@@ -31,7 +31,7 @@ class SSOService
   end
 
   attr_reader :new_session, :new_user, :new_user_identity, :saml_attributes, :saml_response, :existing_user,
-              :failure_instrumentation_tag
+              :failure_instrumentation_tag, :auth_error_code
 
   validate :composite_validations
 

@@ -32,21 +32,16 @@ module SAML
       # passing true collects all validation errors
       is_valid_result = is_valid?(true)
       errors.each do |error_message|
-        normalized_errors << normalize_error(error_message)
-      end.compact
+        normalized_errors << map_message_to_error(error_message).merge(full_message: error_message)
+      end
       is_valid_result
     end
 
-    def normalize_error(error_message)
-      error_hash = ERRORS[:unknown]
+    def map_message_to_error(error_message)
       ERRORS.each_key do |key|
-        if error_message.include?(ERRORS[key][:short_message])
-          error_hash = ERRORS[key]
-          break
-        end
+        return ERRORS[key] if error_message.include?(ERRORS[key][:short_message])
       end
-      error_hash[:full_message] = error_message
-      error_hash
+      ERRORS[:unknown]
     end
 
     def authn_context_text
