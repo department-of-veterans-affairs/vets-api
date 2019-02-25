@@ -30,6 +30,69 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     end
   end
 
+  describe 'GET enrollment_status' do
+    let(:success_response) do
+      { application_date: '2018-01-24T00:00:00.000-06:00',
+        enrollment_date: nil,
+        preferred_facility: '987 - CHEY6',
+        parsed_status: :inelig_character_of_discharge }
+    end
+
+    context 'with user attributes' do
+      it 'should return the enrollment status data' do
+        expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+        expect(HealthCareApplication).to receive(:enrollment_status).with(
+          '123'
+        ).and_return(success_response)
+
+        get(
+          enrollment_status_v0_health_care_applications_path,
+          userAttributes: build(:health_care_application).parsed_form.slice(
+            'veteranFullName', 'veteranDateOfBirth',
+            'veteranSocialSecurityNumber', 'gender'
+          )
+        )
+
+        expect(response.body).to eq(success_response.to_json)
+      end
+    end
+
+    context 'with a signed in user' do
+      let(:current_user) { build(:user, :loa3) }
+
+      before do
+        sign_in_as(current_user)
+      end
+
+      context 'with a user with no icn' do
+        before do
+          allow_any_instance_of(User).to receive(:icn).and_return(nil)
+        end
+
+        it 'should return 404' do
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            userAttributes: build(:health_care_application).parsed_form
+          )
+          expect(response.status).to eq(404)
+        end
+      end
+
+      it 'should return the enrollment status data' do
+        expect(HealthCareApplication).to receive(:enrollment_status).with(
+          current_user.icn
+        ).and_return(success_response)
+
+        get(
+          enrollment_status_v0_health_care_applications_path,
+          userAttributes: build(:health_care_application).parsed_form
+        )
+
+        expect(response.body).to eq(success_response.to_json)
+      end
+    end
+  end
+
   describe 'POST create' do
     subject do
       post(

@@ -195,6 +195,33 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      it 'supports getting the hca enrollment status' do
+        expect(HealthCareApplication).to receive(:user_icn).and_return('123')
+        expect(HealthCareApplication).to receive(:enrollment_status).with(
+          '123'
+        ).and_return(application_date: '2018-01-24T00:00:00.000-06:00',
+                     enrollment_date: nil,
+                     preferred_facility: '987 - CHEY6',
+                     parsed_status: :inelig_character_of_discharge)
+
+        expect(subject).to validate(
+          :get,
+          '/v0/health_care_applications/enrollment_status',
+          200,
+          '_query_string' => {
+            userAttributes: {
+              veteranFullName: {
+                first: 'First',
+                last: 'last'
+              },
+              veteranDateOfBirth: '1923-01-02',
+              veteranSocialSecurityNumber: '111-11-1234',
+              gender: 'F'
+            }
+          }.to_query
+        )
+      end
+
       it 'supports getting the hca health check' do
         VCR.use_cassette('hca/health_check', match_requests_on: [:body]) do
           expect(subject).to validate(
