@@ -28,8 +28,6 @@ module Filterable
   end
 
   def filter_params
-    params.permit(:filter).tap do |whitelisted|
-      whitelisted[:filter] = params[:filter]
-    end
+    params.require(:filter)
   end
 end
