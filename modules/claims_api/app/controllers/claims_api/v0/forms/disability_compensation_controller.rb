@@ -1,16 +1,14 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/application_controller'
-# commenting this out in short term to get review instance
-# require 'jsonapi/parser'
+require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
       class DisabilityCompensationController < ApplicationController
         skip_before_action(:authenticate)
-        # commenting this out in short term to get review instance
-        # before_action :validate_json_api_payload
+        before_action :validate_json_api_payload
 
         def form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -26,10 +24,9 @@ module ClaimsApi
 
         private
 
-        # commenting this out in short term to get review instance
-        # def validate_json_api_payload
-        #   JSONAPI.parse_resource!(params)
-        # end
+        def validate_json_api_payload
+          JSONAPI.parse_resource!(params)
+        end
 
         def form_attributes
           params[:data][:attributes]
