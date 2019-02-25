@@ -22,7 +22,7 @@ module EVSS
 
         # The pdf creation functionality is looking for a single street address
         # instead of a hash
-        @final_output['incidents'].map do |incident|
+        @final_output['incidents'].each do |incident|
           incident['incidentLocation'] = join_location(incident['incidentLocation']) if incident['incidentLocation']
         end
 
