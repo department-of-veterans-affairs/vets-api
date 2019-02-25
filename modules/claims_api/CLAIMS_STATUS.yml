@@ -523,10 +523,30 @@ components:
                       type: string
                       description: State Veteran resides in
                       example: "OR"
-      required:
-        - veteran
-        - standardClaim
-        - claimantCertification
-        - applicationExpirationDate
-        - serviceInformation
-        - disabilities
+                  required:
+                    - addressLine1
+                    - addressLine2
+                    - city
+                    - country
+                    - zipFirstFive
+                    - zipLastFour
+                    - type
+                    - state
+              required: 
+                - currentlyVAEmployee
+                - currentMailingAddress
+            claimantCertification: 
+              type: boolean
+              description: Determines if person submitting the claim is certified to do so.
+              example: true
+            standardClaim: 
+              type: boolean
+              description: Determines if claim is considered a Standard Claim.
+              example: false
+          required:
+            - veteran
+            - claimantCertification
+            - standardClaim
+            - applicationExpirationDate
+            - serviceInformation
+            - disabilities

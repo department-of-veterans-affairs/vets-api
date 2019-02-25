@@ -9,10 +9,14 @@ module ClaimsApi
 
     REQUIRED_FIELDS = %i[
       veteran
-      claimantCertification
       applicationExpirationDate
       serviceInformation
       disabilities
+    ].freeze
+
+    BOOLEAN_REQUIRED_FIELDS = %i[
+      claimantCertification
+      standardClaim
     ].freeze
 
     NOT_REQUIRED_FIELDS = %i[
@@ -21,7 +25,7 @@ module ClaimsApi
       treatments
     ].freeze
 
-    (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |field|
+    (REQUIRED_FIELDS + BOOLEAN_REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |field|
       attr_accessor field.to_sym
     end
 
@@ -29,8 +33,9 @@ module ClaimsApi
       validates field.to_sym, presence: true
     end
 
-    attr_accessor :standardClaim
-    validates :standardClaim, inclusion: { in: [true, false] }
+    BOOLEAN_REQUIRED_FIELDS.each do |field|
+      validates field.to_sym, inclusion: { in: [true, false] }
+    end
 
     def initialize(params = {})
       @attributes = []
