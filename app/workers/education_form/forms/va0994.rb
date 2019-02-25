@@ -11,11 +11,11 @@ module EducationForm::Forms
     end
 
     HIGH_TECH_AREA_NAMES = {
-      'computerProgramming': 'Computer Programming',
-      'dataProcessing': 'Data Processing',
-      'computerSoftware': 'Computer Software',
-      'informationSciences': 'Information Sciences',
-      'mediaApplication': 'Media Application'
+      'computerProgramming': 'Computer programming',
+      'dataProcessing': 'Data processing',
+      'computerSoftware': 'Computer software',
+      'informationSciences': 'Information sciences',
+      'mediaApplication': 'Media application'
     }.freeze
 
     SALARY_TEXT = {
@@ -86,7 +86,7 @@ module EducationForm::Forms
       @applicant.highTechnologyEmploymentTypes.each do |area|
         areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
       end
-      areas.join(', ')
+      areas.join("\n")
     end
 
     def education_level_name
