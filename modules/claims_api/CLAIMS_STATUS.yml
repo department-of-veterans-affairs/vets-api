@@ -68,7 +68,7 @@ paths:
       tags:
         - claims
       summary: Retrieve claims status for the Veteran with the supplied vaafi headers
-      operationId: getAppealStatus
+      operationId: getClaimStatus
       security:
         - api_key: []
       parameters:
@@ -110,7 +110,7 @@ paths:
           description: Veteran's EDIPI number
       responses:
         '200':
-          description: Appeals retrieved successfully
+          description: Claims retrieved successfully
           content:
             application/json:
               schema:
@@ -134,7 +134,7 @@ paths:
       tags:
         - claims
       summary: Retrieve claims status for the Veteran with the supplied vaafi headers
-      operationId: getAppealStatus
+      operationId: getClaimStatus
       security:
         - api_key: []
       parameters:
@@ -182,7 +182,7 @@ paths:
           description: Veteran's EDIPI number
       responses:
         '200':
-          description: Appeals retrieved successfully
+          description: Claims retrieved successfully
           content:
             application/json:
               schema:

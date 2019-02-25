@@ -57,6 +57,7 @@ Rails.application.routes.draw do
     resource :health_care_applications, only: [:create] do
       collection do
         get(:healthcheck)
+        get(:enrollment_status)
       end
     end
 

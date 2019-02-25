@@ -711,10 +711,10 @@ module HCA
 
       request = build_form_for_user(current_user)
 
-      veteran['attachment'].tap do |attachment|
-        next if attachment.blank?
+      veteran['attachments']&.each do |attachment|
         hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
-        request['va:form']['va:attachments'] = add_attachment(hca_attachment.get_file.read, attachment['dd214'])
+        request['va:form']['va:attachments'] ||= []
+        request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file.read, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
