@@ -573,6 +573,54 @@ components:
                       - activeDutyEndDate
               required:
                 servicePeriods
+            disabilities:
+              type: array
+              items:
+                type: object
+                properties:
+                  ratedDisabilityId: 
+                    type: string
+                    description: The Type of Disability
+                    example: "1100583"
+                  diagnosticCode: 
+                    type: integer
+                    description: Specific Diagnostic Code
+                    example: 9999
+                  disabilityActionType: 
+                    type: string
+                    description: The status of the current disability.
+                    example: "NEW"
+                  name: 
+                    type: string
+                    description: What the Disability is called.
+                    example: "PTSD (post traumatic stress disorder)"
+                  secondaryDisabilities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name: 
+                          type: string
+                          description: What the Disability is called.
+                          example: "PTSD personal trauma",
+                        disabilityActionType: 
+                          type: string
+                          description: The status of the secondary disability.
+                          example: "SECONDARY",
+                        serviceRelevance: 
+                          type: string
+                          description: How the veteran got the disability.
+                          example: "Caused by a service-connected disability\\nLengthy description"
+                      required:
+                        - name
+                        - disabilityActionType
+                        - serviceRelevance
+                required:
+                  - ratedDisabilityId
+                  - diagnosticCode
+                  - disabilityActionType
+                  - name
+                  - secondaryDisabilities
             claimantCertification: 
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
