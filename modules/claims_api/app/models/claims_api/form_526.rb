@@ -21,14 +21,15 @@ module ClaimsApi
       treatments
     ].freeze
 
-    (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |method|
-      attr_accessor method.to_sym
+    (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |field|
+      attr_accessor field.to_sym
     end
 
-    REQUIRED_FIELDS.each do |method|
-      validates method.to_sym, presence: true
+    REQUIRED_FIELDS.each do |field|
+      validates field.to_sym, presence: true
     end
 
+    attr_accessor :standardClaim
     validates :standardClaim, inclusion: { in: [true, false] }
 
     def initialize(params = {})
