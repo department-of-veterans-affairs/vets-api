@@ -19,10 +19,26 @@ module EVSS
         @final_output['veteranPhone'] = @phone_email['primaryPhone']
         @final_output['veteranSecondaryPhone'] = '' # No secondary phone available in 526 PreFill
         @final_output['veteranServiceNumber'] = '' # No veteran service number available in 526 PreFill
+
+        # The pdf creation functionality is looking for a single street address
+        # instead of a hash
+        @final_output['incidents'].map do |incident|
+          incident['incidentLocation'] = join_location(incident['incidentLocation']) if incident['incidentLocation']
+        end
+
         @final_output
       end
 
       private
+
+      def join_location(location)
+        [
+          location['city'],
+          location['state'],
+          location['country'],
+          location['additionalDetails']
+        ].reject(&:blank?).join(', ')
+      end
 
       def full_name
         {
