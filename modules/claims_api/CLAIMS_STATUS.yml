@@ -341,7 +341,7 @@ paths:
                   $ref: "#/components/schemas/526Form"
       responses:
         '200':
-          description: Appeals retrieved successfully
+          description: Claim retrieved successfully
           content:
             application/json:
               schema:
@@ -349,15 +349,40 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/Claim"
+                    id:
+                      type: string
+                      description: 526 Claim Submission Token
+                      example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
+                    type:
+                      type: string
+                      description: Required by JSON API standard
+                      example: "claims_api_auto_established_claims",
+                    attributes:
+                      type: object
+                      properties: 
+                        token: 
+                          type: string
+                          description: 526 Claim Submission Token
+                          example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
+                        status:
+                          type: string
+                          example: pending
+                          description: Current status of the claim (See API description for more details)
+                          enum:
+                            - 'pending'
+                            - 'submitted'
+                            - 'established'
+                            - 'errored'
+                        evss_id:
+                          type: string
+                          description: Claim ID from EVSS
+                          example: '8347210'
         '400':
           description: Missing header
         '401':
           description: VAAFI authentication failure
         '403':
           description: Bad API Token
-        '404':
-          description: No claim found for supplied evss id
         '422':
           description: Invalid Header
 
