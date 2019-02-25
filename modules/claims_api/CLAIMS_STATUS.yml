@@ -567,6 +567,12 @@ components:
                         type: date
                         description: Date Completed Active Duty
                         example: "1990-01-02"
+                    required:
+                      - serviceBranch
+                      - activeDutyBeginDate
+                      - activeDutyEndDate
+              required:
+                servicePeriods
             claimantCertification: 
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
