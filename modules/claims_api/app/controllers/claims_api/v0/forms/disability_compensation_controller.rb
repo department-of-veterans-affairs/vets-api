@@ -17,7 +17,7 @@ module ClaimsApi
             form_data: form_attributes
           )
 
-          ClaimsApi::ClaimEstablisher.new.perform(auto_claim.id)
+          ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         rescue RuntimeError => e
