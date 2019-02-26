@@ -22,7 +22,7 @@ info:
 
     API requests are authorized using a Bearer token issued through an OpenID
     Connect service to allow third-party applications. The token should be
-    submitted as an `Authorization` header in the form `Bearer <toekn>`.
+    submitted as an `Authorization` header in the form `Bearer <token>`.
 
     ### Service History Request
 
