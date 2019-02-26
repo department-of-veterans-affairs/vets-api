@@ -25,10 +25,17 @@ module ClaimsApi
       treatments
     ].freeze
 
-    attr_accessor *REQUIRED_FIELDS, *OPTIONAL_FIELDS, *BOOLEAN_REQUIRED_FIELDS
+    (REQUIRED_FIELDS + OPTIONAL_FIELDS + BOOLEAN_REQUIRED_FIELDS).each do |field|
+      attr_accessor field.to_sym
+    end
 
-    validates *REQUIRED_FIELDS, presence: true
-    validates *BOOLEAN_REQUIRED_FIELDS, inclusion: { in: [true, false, 'true', 'false'] }
+    REQUIRED_FIELDS.each do |field|
+      validates field.to_sym, presence: true
+    end
+
+    BOOLEAN_REQUIRED_FIELDS.each do |field|
+      validates field.to_sym, presence: true, inclusion: { in: [true, false, 'true', 'false'] }
+    end
 
     def initialize(params = {})
       @attributes = []
