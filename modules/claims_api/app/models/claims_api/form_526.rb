@@ -71,7 +71,7 @@ module ClaimsApi
     private
 
     def cleaned_errors
-      errors.messages.map {|key,value| "#{key} " + value.join(' and ')}.join(', ')
+      errors.messages.map { |key, value| "#{key} " + value.join(' and ') }.join(', ')
     end
   end
 end

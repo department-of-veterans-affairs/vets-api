@@ -24,7 +24,7 @@ module ClaimsApi
         rescue RuntimeError => e
           render json: { errors: e.message }, status: 422
         end
-  
+
         private
 
         def validate_json_api_payload
