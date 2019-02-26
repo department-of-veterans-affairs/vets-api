@@ -7,7 +7,7 @@
         "from": "2001-01-01",
         "to": "2002-02-02"
       },
-      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentLocation": "Olympia, WA, USA, extra details",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
       "sources": [
@@ -65,7 +65,7 @@
         "from": "2001-01-01",
         "to": "2002-02-02"
       },
-      "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "incidentLocation": "Portland, OR, USA",
       "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "incidentDescription": "Lorem ipsum dolor sit amet.",
       "sources": [
