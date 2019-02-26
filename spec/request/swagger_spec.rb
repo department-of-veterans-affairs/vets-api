@@ -475,23 +475,15 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'supporting evidence upload' do
-      let(:form_attachment) do
-        {
-          id: 272,
-          created_at: Time.now.utc,
-          updated_at: Time.now.utc,
-          guid: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87',
-          ecrypted_file_data: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim',
-          encrypted_file_data: 'ayqrfIpruCPtLGnA'
-        }
-      end
-
       it 'supports uploading a file' do
-        allow_any_instance_of(FormAttachmentCreate)
-          .to receive(:create)
-          .and_return(form_attachment)
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 200,
-                                    'supporting_evidence_attachment' => { 'file_data' => 'foo.pdf' })
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          200,
+          '_data' => {
+            'supporting_evidence_attachment' => { 'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf') }
+          }
+        )
       end
 
       it 'returns a 500 if no attachment data is given' do
