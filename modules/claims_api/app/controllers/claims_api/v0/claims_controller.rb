@@ -7,6 +7,7 @@ module ClaimsApi
   module V0
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
+      before_action :handle_auto_established_claim
       before_action :verify_power_of_attorney
 
       def index
@@ -17,19 +18,22 @@ module ClaimsApi
       end
 
       def show
-        if ClaimsApi::AutoEstablishedClaim.exists?(params[:id])
-          auto_established_claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
-          if auto_established_claim.evss_id.nil?
-            render json: auto_established_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-          else
-            fetch_and_render_evss_claim(auto_established_claim.evss_id)
-          end
-        else
-          fetch_and_render_evss_claim(params[:id])
-        end
+        fetch_and_render_evss_claim(params[:id])
       end
 
       private
+
+      def handle_auto_established_claim
+        if ClaimsApi::AutoEstablishedClaim.exists?(params[:id])
+          auto_established_claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          if auto_established_claim.evss_id.nil?
+            render json: auto_established_claim,
+                   serializer: ClaimsApi::AutoEstablishedClaimSerializer
+          else
+            fetch_and_render_evss_claim(auto_established_claim.evss_id)
+          end
+        end
+      end
 
       def fetch_and_render_evss_claim(id)
         claim = service.update_from_remote(id)
