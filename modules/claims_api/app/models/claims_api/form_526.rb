@@ -25,8 +25,12 @@ module ClaimsApi
       treatments
     ].freeze
 
-    (REQUIRED_FIELDS + BOOLEAN_REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |field|
+    (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |field|
       attr_accessor field.to_sym
+    end
+
+    BOOLEAN_REQUIRED_FIELDS.each do |field|
+      attr_reader field.to_sym
     end
 
     REQUIRED_FIELDS.each do |field|
@@ -35,6 +39,14 @@ module ClaimsApi
 
     BOOLEAN_REQUIRED_FIELDS.each do |field|
       validates field.to_sym, inclusion: { in: [true, false] }
+    end
+
+    def claimantCertification=(string_value)
+      @claimantCertification = (string_value == '1')
+    end
+
+    def standardClaim=(string_value)
+      @standardClaim = (string_value == '1')
     end
 
     def initialize(params = {})
