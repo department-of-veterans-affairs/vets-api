@@ -59,14 +59,15 @@ VET TEC programs:
                        BACKGROUND INFORMATION
                        ----------------------
 
-Are you working in a high-tech field now?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
+Are you working in one, or more, of these high-tech industries now?: <%= yesno(@applicant.currentHighTechnologyEmployment) %>
 
-Have you worked in a high-tech industry in the past?: <%= yesno(@applicant.pastHighTechnologyEmployment) %>
+Have you worked in any of these high-tech industries in the past?: <%= yesno(@applicant.pastHighTechnologyEmployment) %>
 
-If yes, select the area:
+Which option(s) best describe your high-tech work experience?
+Check all that apply:
 <%= high_tech_area_names %>
 
-What is your current salary range?: <%= salary_text %>
+About how much per year do/did you earn as a high-tech worker?: <%= salary_text %>
 
 What is your highest level of education?: <%= education_level_name %>
 
