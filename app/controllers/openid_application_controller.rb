@@ -12,9 +12,6 @@ class OpenidApplicationController < ApplicationController
   before_action :authenticate
   TOKEN_REGEX = /Bearer /
 
-  DSLOGON_PREMIUM_LOAS = %w[2 3].freeze
-  MHV_PREMIUM_LOAS = %w[Premium].freeze
-
   private
 
   def permit_scopes(scopes, actions: [])
@@ -46,8 +43,8 @@ class OpenidApplicationController < ApplicationController
     validate_token
     ttl = token_payload['exp'] - Time.current.utc.to_i
     profile = fetch_profile(token_identifiers.okta_uid)
-    user_identity = build_user_identity(token_identifiers.uuid, profile, ttl)
-    @current_user = build_user(user_identity, ttl)
+    user_identity = OpenidUserIdentity.build_from_okta_profile(uuid: token_identifiers.uuid, profile: profile, ttl: ttl)
+    @current_user = OpenidUser.build_from_identity(identity: user_identity, ttl: ttl)
     @session = build_session(token, token_identifiers.uuid, ttl)
     @session.save && user_identity.save && @current_user.save
   rescue StandardError => e
@@ -76,37 +73,11 @@ class OpenidApplicationController < ApplicationController
   def fetch_profile(uid)
     profile_response = Okta::Service.new.user(uid)
     if profile_response.success?
-      profile_response.body['profile']
+      Okta::UserProfile.new(profile_response.body['profile'])
     else
       log_message_to_sentry('Error retrieving profile for OIDC token', :error,
                             body: profile_response.body)
       raise 'Unable to retrieve user profile'
-    end
-  end
-
-  def build_user_identity(uuid, profile, ttl)
-    identity = OpenidUserIdentity.new(
-      uuid: uuid,
-      email: profile['email'],
-      first_name: profile['firstName'],
-      middle_name: profile['middleName'],
-      last_name: profile['lastName'],
-      mhv_icn: profile['icn'],
-      loa: derive_loa(profile)
-    )
-    identity.expire(ttl)
-    identity
-  end
-
-  def derive_loa(profile)
-    if profile['last_login_type'] == 'myhealthevet'
-      ml = MHV_PREMIUM_LOAS.include?(profile['mhv_account_type']) ? 3 : 1
-      { current: ml, highest: ml }
-    elsif profile['last_login_type'] == 'dslogon'
-      dl = DSLOGON_PREMIUM_LOAS.include?(profile['dslogon_assurance']) ? 3 : 1
-      { current: dl, highest: dl }
-    else
-      { current: profile['idme_loa']&.to_i, highest: profile['idme_loa']&.to_i }
     end
   end
 
@@ -121,13 +92,6 @@ class OpenidApplicationController < ApplicationController
       uuid: token_payload['sub'],
       okta_uid: token_payload['uid']
     )
-  end
-
-  def build_user(user_identity, ttl)
-    user = OpenidUser.new(user_identity.attributes)
-    user.last_signed_in = Time.current.utc
-    user.expire(ttl)
-    user
   end
 
   def build_session(token, uuid, ttl)

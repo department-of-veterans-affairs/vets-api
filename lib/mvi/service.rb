@@ -71,8 +71,8 @@ module MVI
 
     private
 
-    def measure_info(user)
-      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user)) { yield }
+    def measure_info(user_identity)
+      Rails.logger.measure_info('Performed MVI Query', payload: logging_context(user_identity)) { yield }
     end
 
     def mvi_profile_exception_response_for(key, error, type: SERVER_ERROR)
@@ -94,7 +94,7 @@ module MVI
       )
     end
 
-    def mvi_error_handler(user, e)
+    def mvi_error_handler(user_identity, e)
       case e
       when MVI::Errors::DuplicateRecords
         log_console_and_sentry('MVI Duplicate Record', :warn)
@@ -102,7 +102,7 @@ module MVI
         log_console_and_sentry('MVI Record Not Found')
       when MVI::Errors::InvalidRequestError
         # NOTE: ICN based lookups do not return RecordNotFound. They return InvalidRequestError
-        if user.mhv_icn.present?
+        if user_identity.mhv_icn.present?
           log_console_and_sentry('MVI Invalid Request (Possible RecordNotFound)', :error)
         else
           log_console_and_sentry('MVI Invalid Request', :error)
@@ -117,19 +117,21 @@ module MVI
       log_message_to_sentry(message, sentry_classification) if sentry_classification.present?
     end
 
-    def logging_context(user)
+    def logging_context(user_identity)
       {
-        uuid: user.uuid,
-        authn_context: user.authn_context
+        uuid: user_identity.uuid,
+        authn_context: user_identity.authn_context
       }
     end
 
-    def create_profile_message(user)
-      return message_icn(user) if user.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
-      return message_edipi(user) if user.dslogon_edipi.present? && Settings.mvi.edipi_search
-      raise Common::Exceptions::ValidationErrors, user unless user.valid?
-      message_user_attributes(user)
+    # rubocop:disable Metrics/LineLength
+    def create_profile_message(user_identity)
+      return message_icn(user_identity) if user_identity.mhv_icn.present? # from SAML::UserAttributes::MHV::BasicLOA3User
+      return message_edipi(user_identity) if user_identity.dslogon_edipi.present? && Settings.mvi.edipi_search
+      raise Common::Exceptions::ValidationErrors, user_identity unless user_identity.valid?
+      message_user_attributes(user_identity)
     end
+    # rubocop:enable Metrics/LineLength
 
     def message_icn(user)
       MVI::Messages::FindProfileMessageIcn.new(user.mhv_icn).to_xml
