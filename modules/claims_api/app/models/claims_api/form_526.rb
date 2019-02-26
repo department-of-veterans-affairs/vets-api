@@ -25,19 +25,10 @@ module ClaimsApi
       treatments
     ].freeze
 
-    attr_accessor *REQUIRED_FIELDS, *OPTIONAL_FIELDS
-    attr_reader *BOOLEAN_REQUIRED_FIELDS
+    attr_accessor *REQUIRED_FIELDS, *OPTIONAL_FIELDS, *BOOLEAN_REQUIRED_FIELDS
 
     validates *REQUIRED_FIELDS, presence: true
-    validates *BOOLEAN_REQUIRED_FIELDS, inclusion: { in: [true, false] }
-
-    def claimantCertification=(string_value)
-      @claimantCertification = (string_value == '1')
-    end
-
-    def standardClaim=(string_value)
-      @standardClaim = (string_value == '1')
-    end
+    validates *BOOLEAN_REQUIRED_FIELDS, inclusion: { in: [true, false, 'true', 'false'] }
 
     def initialize(params = {})
       @attributes = []
