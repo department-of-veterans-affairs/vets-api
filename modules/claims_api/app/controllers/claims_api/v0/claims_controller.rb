@@ -17,11 +17,24 @@ module ClaimsApi
       end
 
       def show
-        claim = service.update_from_remote(params[:id])
-        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+        if ClaimsApi::AutoEstablishedClaim.exists?(params[:id])
+          auto_established_claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          if auto_established_claim.evss_id.nil?
+            render json: auto_established_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
+          else
+            fetch_and_render_evss_claim(auto_established_claim.evss_id)
+          end
+        else
+          fetch_and_render_evss_claim(params[:id])
+        end
       end
 
       private
+
+      def fetch_and_render_evss_claim(id)
+        claim = service.update_from_remote(id)
+        render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+      end
 
       def service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
