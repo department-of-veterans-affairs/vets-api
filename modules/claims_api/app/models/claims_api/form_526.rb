@@ -44,7 +44,7 @@ module ClaimsApi
         begin
           send("#{name}=", value)
         rescue StandardError
-          raise "#{name} is not a valid attribute"
+          raise Common::Exceptions::ValidationErrors, "#{name} is not a valid attribute"
         end
       end
     end
@@ -58,7 +58,7 @@ module ClaimsApi
     end
 
     def to_internal
-      raise errors.messages.to_s unless valid?
+      raise Common::Exceptions::ValidationErrors, cleaned_errors unless valid?
       {
         "form526": attributes,
         "form526_uploads": [],
@@ -66,6 +66,10 @@ module ClaimsApi
         "form0781": nil,
         "form8940": nil
       }.to_json
+    end
+
+    def cleaned_errors
+      errors.messages.map {|key,value| "#{key}" + value.join(' and ')}.join(', ')
     end
   end
 end
