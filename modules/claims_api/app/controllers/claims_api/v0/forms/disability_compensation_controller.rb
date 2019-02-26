@@ -15,7 +15,8 @@ module ClaimsApi
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes
-          ).form.to_internal
+          )
+          auto_claim.form.to_internal
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
