@@ -19,27 +19,17 @@ module ClaimsApi
       standardClaim
     ].freeze
 
-    NOT_REQUIRED_FIELDS = %i[
+    OPTIONAL_FIELDS = %i[
       directDeposit
       servicePay
       treatments
     ].freeze
 
-    (REQUIRED_FIELDS + NOT_REQUIRED_FIELDS).each do |field|
-      attr_accessor field.to_sym
-    end
+    attr_accessor *REQUIRED_FIELDS, *OPTIONAL_FIELDS
+    attr_reader *BOOLEAN_REQUIRED_FIELDS
 
-    BOOLEAN_REQUIRED_FIELDS.each do |field|
-      attr_reader field.to_sym
-    end
-
-    REQUIRED_FIELDS.each do |field|
-      validates field.to_sym, presence: true
-    end
-
-    BOOLEAN_REQUIRED_FIELDS.each do |field|
-      validates field.to_sym, inclusion: { in: [true, false] }
-    end
+    validates *REQUIRED_FIELDS, presence: true
+    validates *BOOLEAN_REQUIRED_FIELDS, inclusion: { in: [true, false] }
 
     def claimantCertification=(string_value)
       @claimantCertification = (string_value == '1')
