@@ -5,6 +5,8 @@ class InProgressForm < ApplicationRecord
     def cast(value)
       super(value.to_s.delete('-'))
     end
+
+    alias serialize cast
   end
 
   EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))
