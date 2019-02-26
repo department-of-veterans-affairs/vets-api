@@ -4,53 +4,36 @@ info:
   title: Benefit Claims
   description: |
     Benefit Claims
-
-    ## Background
-
-    This API is being provided as a proof of concept of a general-purpose VA  API gateway. The use case is to allow authorized third-party developers to submit a benefit claim and request the status of a Veteran's benefit claims.
-
-    The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records.
-
-    ## Design
-
-    ### Authorization
-
-    API requests are authorized by means of a symmetric API token, provided in an HTTP header
+     ## Background
+     This API is being provided as a proof of concept of a general-purpose VA  API gateway. The use case is to allow authorized third-party developers to submit a benefit claim and request the status of a Veteran's benefit claims.
+     The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records.
+     ## Design
+     ### Authorization
+     API requests are authorized by means of a symmetric API token, provided in an HTTP header
     with name "apikey".
-
-    ### List Claims Request
-
-    Allows a client to check claims object from EVSS.
-
-    1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims
+     ### List Claims Request
+     Allows a client to check claims object from EVSS.
+     1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the organization or person requesting the claim object as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
         * Provide the Veteran's Last Name as X-VA-Last-Name
         * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
         * Provide the Veteran's EDIPI as X-VA-EDIPI
-
-    2. Service Response: A JSON API object with the current object of claims
-
-    ### Single claim request
-
-    Allows a client to retrieve claim object by EVSS id.
-
-    1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims/123123
+     2. Service Response: A JSON API object with the current object of claims
+     ### Single claim request
+     Allows a client to retrieve claim object by EVSS id.
+     1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims/123123
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the organization or person requesting the claim object as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
         * Provide the Veteran's Last Name as X-VA-Last-Name
         * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
         * Provide the Veteran's EDIPI as X-VA-EDIPI
-
-    2. Service Response: A JSON API object with the current object of the requested claim
-
-    ### Single 526 claim form submission
-
-    Allows a client to post 526 claim form by EVSS id.
-
-    1. Client Request: POST https://dev-api.va.gov/services/claims/v0/form/526
+     2. Service Response: A JSON API object with the current object of the requested claim
+     ### Single 526 claim form submission
+     Allows a client to post 526 claim form by EVSS id.
+     1. Client Request: POST https://dev-api.va.gov/services/claims/v0/form/526
         * Provide the Veteran's SSN as the X-VA-SSN header
         * Provide the VA username of the organization or person submitting the form as the X-VA-User header
         * Provide the Veteran's First Name as X-VA-First-Name
@@ -58,13 +41,9 @@ info:
         * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
         * Provide the Veteran's EDIPI as X-VA-EDIPI
         * Provide the Veteran's Gender as X-VA-Gender
-
-    2. Service Response: A JSON API object with a token for checking the requested claim status
-
-
-    ## Reference
-
-    Raw Open API Spec: http://dev-api.va.gov/services/claims/docs/v0/api
+     2. Service Response: A JSON API object with a token for checking the requested claim status
+     ## Reference
+     Raw Open API Spec: http://dev-api.va.gov/services/claims/docs/v0/api
 
   termsOfService: ''
   contact:
@@ -225,14 +204,11 @@ paths:
       description: |
         Accepts JSON payload. Full URL, including
         query parameters.
-
-        ## Example Payload
-
-        The following demonstrates a (redacted)payload suitable for submitting to the POST
+         ## Example Payload
+         The following demonstrates a (redacted)payload suitable for submitting to the POST
         endpoint. Most programming languages should have provisions for assembling a
         payload like this without having to do so manually.
-
-        ```
+         ```
         Content-Type: application/json
         {
           "data": {
@@ -333,7 +309,7 @@ paths:
           description: Veteran's Gender
       requestBody:
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
@@ -341,7 +317,7 @@ paths:
                   $ref: "#/components/schemas/526Form"
       responses:
         '200':
-          description: Claim retrieved successfully
+          description: Claim submitted successfully
           content:
             application/json:
               schema:
@@ -349,34 +325,39 @@ paths:
                   - data
                 properties:
                   data:
-                    id:
-                      type: string
-                      description: 526 Claim Submission Token
-                      example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
-                    type:
-                      type: string
-                      description: Required by JSON API standard
-                      example: "claims_api_auto_established_claims",
-                    attributes:
-                      type: object
-                      properties: 
-                        token: 
-                          type: string
-                          description: 526 Claim Submission Token
-                          example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
-                        status:
-                          type: string
-                          example: pending
-                          description: Current status of the claim (See API description for more details)
-                          enum:
-                            - 'pending'
-                            - 'submitted'
-                            - 'established'
-                            - 'errored'
-                        evss_id:
-                          type: string
-                          description: Claim ID from EVSS
-                          example: '8347210'
+                    description: |
+                      Claim with some details for the given Veteran info
+                    type: object
+                    properties:
+                      claims_api_auto_established_claims: 
+                        description: |
+                          Claim with some details for the given Veteran info
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: 526 Claim Submission Token
+                            example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
+                          attributes:
+                            type: object
+                            properties: 
+                              token: 
+                                type: string
+                                description: 526 Claim Submission Token
+                                example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
+                              status:
+                                type: string
+                                example: pending
+                                description: Current status of the claim (See API description for more details)
+                                enum:
+                                  - 'pending'
+                                  - 'submitted'
+                                  - 'established'
+                                  - 'errored'
+                              evss_id:
+                                type: string
+                                description: Claim ID from EVSS
+                                example: '8347210'
         '400':
           description: Missing header
         '401':
@@ -385,7 +366,7 @@ paths:
           description: Bad API Token
         '422':
           description: Invalid Header
-
+          
 components:
   securitySchemes:
     api_key:
@@ -495,30 +476,31 @@ components:
                     addressLine1: 
                       type: string
                       description: Address Veteran resides in
-                      example: "1234 Couch Street",
-                    addressLine2: type: string
+                      example: "1234 Couch Street"
+                    addressLine2: 
+                      type: string
                       description: Additional Address Information Veteran resides in
-                      example: "Apt. 22",
+                      example: "Apt. 22"
                     city: 
                       type: string
                       description: City Veteran resides in
-                      example: "Portland",
+                      example: "Portland"
                     country: 
                       type: string
                       description: Country Veteran resides in
-                      example: "USA",
+                      example: "USA"
                     zipFirstFive: 
                       type: string
                       description: Zipcode (First 5 digits) Veteran resides in
-                      example: "12345",
+                      example: "12345"
                     zipLastFour: 
                       type: string
                       description: Zipcode (Last 4 digits) Veteran resides in
-                      example: "6789",
+                      example: "6789"
                     type:
                       type: string
                       description: Type of residence Veteran resides in
-                      example: "DOMESTIC",
+                      example: "DOMESTIC"
                     state:  
                       type: string
                       description: State Veteran resides in
@@ -602,11 +584,11 @@ components:
                         name: 
                           type: string
                           description: What the Disability is called.
-                          example: "PTSD personal trauma",
+                          example: "PTSD personal trauma"
                         disabilityActionType: 
                           type: string
                           description: The status of the secondary disability.
-                          example: "SECONDARY",
+                          example: "SECONDARY"
                         serviceRelevance: 
                           type: string
                           description: How the veteran got the disability.
