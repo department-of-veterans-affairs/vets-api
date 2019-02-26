@@ -38,7 +38,7 @@ module ClaimsApi
         last_name: ensure_header(headers, 'X-VA-Last-Name'),
         va_profile: build_profile(headers),
         edipi: ensure_header(headers, 'X-VA-EDIPI'),
-        last_signed_in: Time.zone.now
+        last_signed_in: Time.now.utc
       )
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
 
