@@ -76,6 +76,7 @@ gem 'statsd-instrument'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
+gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
@@ -88,7 +89,7 @@ group :development do
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
-  # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
+  # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
