@@ -25,6 +25,9 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
     it 'should balk at a bunch of garbage values' do
       payload = {}
       VsoAppointment.attribute_set.each { |attr| payload[attr.name.to_s] = 'beep' }
+      %w[claimant_full_name veteran_full_name claimant_address].each do |attr|
+        payload.delete(attr)
+      end
 
       post :create, payload
       expect(response).to have_http_status(:bad_request)
