@@ -25,7 +25,6 @@ RSpec.describe SAML::User do
       context 'no decrypted document' do
         it 'has various important attributes' do
           allow(saml_response).to receive(:decrypted_document).and_return(nil)
-
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: {
               'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
@@ -33,7 +32,7 @@ RSpec.describe SAML::User do
               'multifactor' => [false],
               'level_of_assurance' => ['1']
             },
-            saml_response: Base64.encode64('mock-response')
+            saml_response: Base64.encode64(document_partial(authn_context).to_s)
           )
           expect(Raven).to receive(:tags_context).once.with(
             controller_name: 'sessions', sign_in_method: 'not-signed-in:error'
@@ -48,7 +47,7 @@ RSpec.describe SAML::User do
         it 'has various important attributes' do
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: nil,
-            saml_response: Base64.encode64('mock-response')
+            saml_response: Base64.encode64(document_partial(authn_context).to_s)
           ).ordered
           expect(Raven).to receive(:tags_context).once.with(
             authn_context: 'unknown_authn_context',
@@ -65,7 +64,7 @@ RSpec.describe SAML::User do
         it 'has various important attributes' do
           expect(Raven).to receive(:extra_context).once.with(
             saml_attributes: nil,
-            saml_response: Base64.encode64('mock-response')
+            saml_response: Base64.encode64(document_partial(authn_context).to_s)
           ).ordered
           expect(Raven).to receive(:tags_context).once.with(
             authn_context: nil,
