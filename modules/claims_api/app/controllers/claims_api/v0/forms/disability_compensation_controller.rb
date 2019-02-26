@@ -21,7 +21,7 @@ module ClaimsApi
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
         rescue RuntimeError => e
-          render json: e.message, status: 422
+          render json: { errors: e.message }, status: 422
         end
   
         private
