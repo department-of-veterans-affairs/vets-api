@@ -195,16 +195,11 @@ RSpec.describe SSOService do
   end
 
   context 'invalid saml response' do
-    let(:saml_response) { OneLogin::RubySaml::Response.new('') }
+    let(:saml_response) { SAML::Response.new('') }
 
     it 'has Blank response error' do
       expect(sso_service.valid?).to be_falsey
       expect(sso_service.errors.full_messages).to eq(['Blank response'])
-    end
-
-    it '#persist_authentication! handles saml response errors' do
-      expect(SAML::AuthFailHandler).to receive(:new).with(sso_service.saml_response).and_call_original
-      sso_service.persist_authentication!
     end
   end
 end
