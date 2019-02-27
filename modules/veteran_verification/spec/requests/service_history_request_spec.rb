@@ -37,7 +37,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
       with_okta_configured do
         VCR.use_cassette('emis/get_deployment/valid') do
           VCR.use_cassette('emis/get_military_service_episodes/valid') do
-            get '/services/veteran_verification/v0/service_history', nil, auth_header
+            get '/services/veteran_verification/v0/service_history', params: nil, headers: auth_header
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(response).to match_response_schema('service_and_deployment_history_response')
@@ -50,7 +50,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
       with_okta_configured do
         VCR.use_cassette('emis/get_deployment/valid') do
           VCR.use_cassette('emis/get_military_service_episodes/valid_multiple_episodes') do
-            get '/services/veteran_verification/v0/service_history', nil, auth_header
+            get '/services/veteran_verification/v0/service_history', params: nil, headers: auth_header
             expect(response).to have_http_status(:ok)
             expect(response.body).to be_a(String)
             expect(JSON.parse(response.body)['data'].length).to eq(2)
@@ -68,7 +68,7 @@ RSpec.describe 'Service History API endpoint', type: :request, skip_emis: true d
 
     it 'should match the errors schema', :aggregate_failures do
       with_okta_configured do
-        get '/services/veteran_verification/v0/service_history', nil, auth_header
+        get '/services/veteran_verification/v0/service_history', params: nil, headers: auth_header
       end
 
       expect(response).to have_http_status(:bad_gateway)

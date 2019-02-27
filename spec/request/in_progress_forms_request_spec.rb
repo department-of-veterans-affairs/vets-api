@@ -30,7 +30,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       let!(:in_progress_form_hca) { FactoryBot.create(:in_progress_form, form_id: '1010ez', user_uuid: user.uuid) }
 
       subject do
-        get v0_in_progress_forms_url, nil
+        get v0_in_progress_forms_url, params: nil
       end
 
       context 'when the user is not loa3' do
@@ -64,14 +64,14 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
         it 'returns a 200' do
-          get v0_in_progress_form_url(in_progress_form.form_id), nil
+          get v0_in_progress_form_url(in_progress_form.form_id), params: nil
           expect(response).to have_http_status(:ok)
         end
       end
 
       context 'when a form is found' do
         it 'returns the form as JSON' do
-          get v0_in_progress_form_url(in_progress_form.form_id), nil
+          get v0_in_progress_form_url(in_progress_form.form_id), params: nil
 
           expect(response).to have_http_status(:ok)
           expect(response.body).to eq({
@@ -87,7 +87,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'converts the json keys' do
             in_progress_form.update(form_data: form_data)
-            get v0_in_progress_form_url(in_progress_form.form_id), nil, 'HTTP_X_KEY_INFLECTION' => 'camel'
+            get v0_in_progress_form_url(in_progress_form.form_id), params: nil, headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             expect(response.body).to eq({
               form_data: form_data,
               metadata: in_progress_form.metadata
@@ -101,7 +101,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         it 'returns pre-fill data' do
           _, phone_response = stub_evss_pciu(user)
 
-          get v0_in_progress_form_url('FAKEFORM'), nil
+          get v0_in_progress_form_url('FAKEFORM'), params: nil
 
           expected_data = {
             'veteranFullName' => {
@@ -132,7 +132,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when a form mapping is not found' do
         it 'returns a 500' do
-          get v0_in_progress_form_url('foo'), nil
+          get v0_in_progress_form_url('foo'), params: nil
           expect(response).to have_http_status(500)
         end
       end
@@ -147,20 +147,20 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         context 'when the user is not loa3' do
           let(:user) { loa1_user }
           it 'returns a 200' do
-            put v0_in_progress_form_url(new_form.form_id), {
+            put v0_in_progress_form_url(new_form.form_id), params: {
               form_data: new_form.form_data,
               metadata: new_form.metadata
-            }.to_json, 'CONTENT_TYPE' => 'application/json'
+            }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
             expect(response).to have_http_status(:ok)
           end
         end
 
         it 'inserts the form', run_at: '2017-01-01' do
           expect do
-            put v0_in_progress_form_url(new_form.form_id), {
+            put v0_in_progress_form_url(new_form.form_id), params: {
               form_data: new_form.form_data,
               metadata: new_form.metadata
-            }.to_json, 'CONTENT_TYPE' => 'application/json'
+            }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
           end.to change { InProgressForm.count }.by(1)
 
           expect(response).to have_http_status(:ok)
@@ -178,7 +178,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         context 'when an error occurs' do
           it 'returns an error response' do
             allow_any_instance_of(InProgressForm).to receive(:update!).and_raise(ActiveRecord::ActiveRecordError)
-            put v0_in_progress_form_url(new_form.form_id), form_data: new_form.form_data
+            put v0_in_progress_form_url(new_form.form_id), params: { form_data: new_form.form_data }
             expect(response).to have_http_status(:error)
             expect(Oj.load(response.body)['errors'].first['detail']).to eq('Internal server error')
           end
@@ -191,7 +191,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
         let(:update_form) { build(:in_progress_update_form, user_uuid: user.uuid) }
 
         it 'updates the right form' do
-          put v0_in_progress_form_url(existing_form.form_id), form_data: update_form.form_data
+          put v0_in_progress_form_url(existing_form.form_id), params: { form_data: update_form.form_data }
           expect(response).to have_http_status(:ok)
 
           expect(existing_form.reload.form_data).to eq(update_form.form_data)
@@ -206,14 +206,14 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       context 'when the user is not loa3' do
         let(:user) { loa1_user }
         it 'returns a 200' do
-          delete v0_in_progress_form_url(in_progress_form.form_id), nil
+          delete v0_in_progress_form_url(in_progress_form.form_id), params: nil
           expect(response).to have_http_status(:ok)
         end
       end
 
       context 'when a form is not found' do
         subject do
-          delete v0_in_progress_form_url('ksdjfkjdf'), nil
+          delete v0_in_progress_form_url('ksdjfkjdf'), params: nil
         end
 
         it 'returns a 404' do
@@ -224,7 +224,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
       context 'when a form is found' do
         subject do
-          delete v0_in_progress_form_url(in_progress_form.form_id), nil
+          delete v0_in_progress_form_url(in_progress_form.form_id), params: nil
         end
 
         it 'returns the deleted form id' do
@@ -240,7 +240,7 @@ RSpec.describe V0::InProgressFormsController, type: :request do
       let(:in_progress_form) { FactoryBot.create(:in_progress_form) }
 
       it 'returns a 401' do
-        get v0_in_progress_form_url(in_progress_form.form_id), nil
+        get v0_in_progress_form_url(in_progress_form.form_id), params: nil
 
         expect(response).to have_http_status(:unauthorized)
       end

@@ -73,7 +73,7 @@ RSpec.describe 'address', type: :request do
 
         it 'should match the address schema' do
           VCR.use_cassette('evss/pciu_address/address_update') do
-            put '/v0/address', domestic_address.to_json, headers
+            put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('address_response')
           end
@@ -85,7 +85,7 @@ RSpec.describe 'address', type: :request do
 
         it 'should match the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_500') do
-            put '/v0/address', domestic_address.to_json, headers
+            put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response).to match_response_schema('errors')
           end
@@ -98,7 +98,7 @@ RSpec.describe 'address', type: :request do
 
         it 'should match the errors schema' do
           VCR.use_cassette('evss/pciu_address/address_update_invalid_format') do
-            put '/v0/address', domestic_address.to_json, headers
+            put '/v0/address', params: domestic_address.to_json, headers: headers
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response).to match_response_schema('errors')
           end

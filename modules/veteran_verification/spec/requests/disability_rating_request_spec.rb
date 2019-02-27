@@ -36,7 +36,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
     it 'should return the current users service history with one episode' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('disability_rating_response')
@@ -49,7 +49,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
     it 'should return a bad gateway response' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_500') do
-          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
           expect(response).to have_http_status(:bad_gateway)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -61,7 +61,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
     it 'should return a not authorized response' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_403') do
-          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
           expect(response).to have_http_status(:forbidden)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end
@@ -73,7 +73,7 @@ RSpec.describe 'Disability Rating API endpoint', type: :request, skip_emis: true
     it 'should return a bad request response' do
       with_okta_configured do
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities_400') do
-          get '/services/veteran_verification/v0/disability_rating', nil, auth_header
+          get '/services/veteran_verification/v0/disability_rating', params: nil, headers: auth_header
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('evss_errors', strict: false)
         end

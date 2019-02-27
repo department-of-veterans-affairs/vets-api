@@ -36,7 +36,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     it 'should return true if the user is a veteran' do
       with_okta_configured do
         VCR.use_cassette('emis/get_veteran_status/valid') do
-          get '/services/veteran_verification/v0/status', nil, auth_header
+          get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['veteran_status']).to eq('confirmed')
@@ -47,7 +47,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
     it 'should return not_confirmed if the user is not a veteran' do
       with_okta_configured do
         VCR.use_cassette('emis/get_veteran_status/valid_non_veteran') do
-          get '/services/veteran_verification/v0/status', nil, auth_header
+          get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['veteran_status']).to eq('not confirmed')
@@ -63,7 +63,7 @@ RSpec.describe 'Veteran Status API endpoint', type: :request, skip_emis: true do
 
     it 'should match the errors schema', :aggregate_failures do
       with_okta_configured do
-        get '/services/veteran_verification/v0/status', nil, auth_header
+        get '/services/veteran_verification/v0/status', params: nil, headers: auth_header
 
         expect(response).to have_http_status(:bad_gateway)
         expect(response).to match_response_schema('errors')

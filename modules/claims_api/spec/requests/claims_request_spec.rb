@@ -20,14 +20,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
     allow(verifier_stub).to receive(:verify)
     VCR.use_cassette('evss/claims/claims') do
-      get '/services/claims/v0/claims', nil,
-          'X-VA-SSN' => '796043735',
-          'X-VA-First-Name' => 'WESLEY',
-          'X-VA-Last-Name' => 'FORD',
-          'X-VA-EDIPI' => '1007697216',
-          'X-Consumer-Username' => 'TestConsumer',
-          'X-VA-User' => 'adhoc.test.user',
-          'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
+      get '/services/claims/v0/claims', params: nil, headers: { 'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY', 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216', 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user', 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00' }
       expect(response).to match_response_schema('claims_api/claims')
     end
   end
@@ -35,14 +28,17 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context 'for a single claim' do
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       VCR.use_cassette('evss/claims/claim') do
-        get '/services/claims/v0/claims/600118851', nil,
-            'X-VA-SSN' => '796043735',
-            'X-VA-First-Name' => 'WESLEY',
-            'X-VA-Last-Name' => 'FORD',
-            'X-VA-EDIPI' => '1007697216',
-            'X-Consumer-Username' => 'TestConsumer',
-            'X-VA-User' => 'adhoc.test.user',
-            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
+        get '/services/claims/v0/claims/600118851',
+            params: nil,
+            headers: {
+              'X-VA-SSN' => '796043735',
+              'X-VA-First-Name' => 'WESLEY',
+              'X-VA-Last-Name' => 'FORD',
+              'X-VA-EDIPI' => '1007697216',
+              'X-Consumer-Username' => 'TestConsumer',
+              'X-VA-User' => 'adhoc.test.user',
+              'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
+            }
         expect(response).to match_response_schema('claims_api/claim')
       end
     end
@@ -53,7 +49,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       context "without #{header}" do
         it 'returns a bad request response' do
           VCR.use_cassette('evss/claims/claims') do
-            get '/services/claims/v0/claims', nil, VALID_HEADERS.except(header)
+            get '/services/claims/v0/claims', params: nil, headers: VALID_HEADERS.except(header)
             expect(response).to have_http_status(:bad_request)
           end
         end

@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::VsoAppointmentsController, type: :controller do
   context 'before login' do
     it 'should reject a post' do
-      post :create, 'beep': 'boop'
+      post :create, params: { 'beep': 'boop' }
       expect(response).to have_http_status(:unauthorized)
     end
   end
@@ -18,7 +18,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
     end
 
     it 'should reject an incomplete post' do
-      post :create, "beep": 'boop'
+      post :create, params: { "beep": 'boop' }
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -29,7 +29,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
         payload.delete(attr)
       end
 
-      post :create, payload
+      post :create, params: payload
       expect(response).to have_http_status(:bad_request)
     end
 
@@ -54,7 +54,7 @@ RSpec.describe V0::VsoAppointmentsController, type: :controller do
           "appointment_date": '2018-04-09'
         )
 
-        post :create, payload
+        post :create, params: payload
         expect(response).to have_http_status(:ok)
       end
     end
