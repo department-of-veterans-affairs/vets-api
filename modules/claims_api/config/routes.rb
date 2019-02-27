@@ -7,7 +7,7 @@ ClaimsApi::Engine.routes.draw do
     resources :claims, only: %i[index show]
     namespace :forms do
       ## 526 Forms
-      post '526', to: 'disability_compensation#form_526'
+      post '526', to: 'disability_compensation#submit_form_526'
     end
   end
 

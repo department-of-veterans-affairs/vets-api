@@ -10,7 +10,7 @@ module ClaimsApi
         skip_before_action(:authenticate)
         # before_action :validate_json_api_payload
 
-        def form_526
+        def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
