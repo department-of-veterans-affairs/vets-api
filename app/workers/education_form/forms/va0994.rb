@@ -11,11 +11,11 @@ module EducationForm::Forms
     end
 
     HIGH_TECH_AREA_NAMES = {
-      'computerProgramming': 'Computer Programming',
-      'dataProcessing': 'Data Processing',
-      'computerSoftware': 'Computer Software',
-      'informationSciences': 'Information Sciences',
-      'mediaApplication': 'Media Application'
+      'computerProgramming': 'Computer programming',
+      'dataProcessing': 'Data processing',
+      'computerSoftware': 'Computer software',
+      'informationSciences': 'Information sciences',
+      'mediaApplication': 'Media application'
     }.freeze
 
     SALARY_TEXT = {
@@ -51,18 +51,27 @@ module EducationForm::Forms
     end
 
     def bank_routing_number
-      return 'N/A' if @applicant.bankAccount.blank?
-      value_or_na(@applicant.bankAccount.routingNumber)
+      if @applicant.bankAccount&.routingNumber.present?
+        @applicant.bankAccount.routingNumber
+      else
+        value_or_na(@applicant.prefillBankAccount&.bankRoutingNumber)
+      end
     end
 
     def bank_account_number
-      return 'N/A' if @applicant.bankAccount.blank?
-      value_or_na(@applicant.bankAccount.accountNumber)
+      if @applicant.bankAccount&.accountNumber.present?
+        @applicant.bankAccount.accountNumber
+      else
+        value_or_na(@applicant.prefillBankAccount&.bankAccountNumber)
+      end
     end
 
     def bank_account_type
-      return 'N/A' if @applicant.bankAccount.blank?
-      value_or_na(@applicant.bankAccount.accountType)
+      if @applicant.bankAccount&.accountType.present?
+        @applicant.bankAccount.accountType
+      else
+        value_or_na(@applicant.prefillBankAccount&.bankAccountType)
+      end
     end
 
     def location
@@ -77,7 +86,7 @@ module EducationForm::Forms
       @applicant.highTechnologyEmploymentTypes.each do |area|
         areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
       end
-      areas.join(', ')
+      areas.join("\n")
     end
 
     def education_level_name
@@ -94,6 +103,18 @@ module EducationForm::Forms
     def salary_text
       return 'N/A' if @applicant.currentSalary.blank?
       SALARY_TEXT[@applicant.currentSalary.to_sym]
+    end
+
+    def full_address_with_street3(address, indent: false)
+      return '' if address.nil?
+      seperator = indent ? "\n        " : "\n"
+      [
+        address.street,
+        address.street2,
+        address.street3,
+        [address.city, address.state, address.postalCode].compact.join(', '),
+        address.country
+      ].compact.join(seperator).upcase
     end
   end
 end
