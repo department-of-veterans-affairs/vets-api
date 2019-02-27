@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190211163050) do
+ActiveRecord::Schema.define(version: 20190227022820) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -377,6 +377,26 @@ ActiveRecord::Schema.define(version: 20190211163050) do
 
   add_index "saved_claims", ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type", using: :btree
   add_index "saved_claims", ["guid"], name: "index_saved_claims_on_guid", unique: true, using: :btree
+
+  create_table "session_activities", force: :cascade do |t|
+    t.uuid     "originating_request_id",                        null: false
+    t.string   "originating_ip_address",                        null: false
+    t.string   "originating_user_agent"
+    t.string   "name",                                          null: false
+    t.string   "status",                 default: "incomplete", null: false
+    t.uuid     "user_uuid"
+    t.string   "sign_in_service_name"
+    t.string   "sign_in_account_type"
+    t.boolean  "multifactor_enabled"
+    t.boolean  "idme_verified"
+    t.integer  "duration"
+    t.jsonb    "additional_data"
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+  end
+
+  add_index "session_activities", ["originating_request_id"], name: "index_session_activities_on_originating_request_id", using: :btree
+  add_index "session_activities", ["user_uuid"], name: "index_session_activities_on_user_uuid", using: :btree
 
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"

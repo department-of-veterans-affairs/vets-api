@@ -1,6 +1,8 @@
 FactoryBot.define do
   factory :session_activity do
     originating_request_id { SecureRandom.uuid }
+    originating_ip_address { '200.200.200.200' }
+    originating_user_agent ''
     name 'signup'
     status 'abandoned'
     user_uuid { SecureRandom.uuid }

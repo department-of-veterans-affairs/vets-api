@@ -2,8 +2,10 @@ class CreateSessionActivities < ActiveRecord::Migration
   def change
     create_table :session_activities do |t|
       t.uuid     :originating_request_id, null: false
+      t.string   :originating_ip_address, null: false
+      t.string   :originating_user_agent
       t.string   :name, null: false
-      t.string   :status, null: false, default: 'abandoned'
+      t.string   :status, null: false, default: 'incomplete'
       t.uuid     :user_uuid
       t.string   :sign_in_service_name
       t.string   :sign_in_account_type

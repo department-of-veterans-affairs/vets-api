@@ -36,13 +36,14 @@ module V0
               logout_url
             end
 
-      ActiveSupport::Notifications.instrument 'sessions.new', { url: url, params: params } do
+      ActiveSupport::Notifications.instrument 'sessions.new', { url: url, params: params, request: request } do
         redirect_to url
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
+      ActiveSupport::Notifications.instrument 'sessions.saml_logout_callback'
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
                                                                raw_get_params: params)
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
