@@ -5,9 +5,6 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
-    include ActionController::MimeResponds
-
-    skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
     before_action :set_originating_request_id, only: %i[saml_callback saml_logout_callback]
 
     REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
@@ -24,30 +21,24 @@ module V0
     def new
       url = case params[:type]
             when 'mhv'
-              reset_session
               url_service.mhv_url
             when 'dslogon'
-              reset_session
               url_service.dslogon_url
             when 'idme'
-              reset_session
               url_service.idme_loa1_url(signup: params[:signup])
             when 'mfa'
-              authenticate
               url_service.mfa_url
             when 'verify'
-              authenticate
               url_service.idme_loa3_url(verifying: true)
             when 'slo'
-              authenticate
               logout_url = url_service.slo_url
               reset_session
               logout_url
             end
       Rails.logger.info("SSO: new #{params[:type]&.upcase} flow initiated", sso_logging_info.merge(url: url))
-      respond_to do |format|
-        format.html { redirect_to url }
-        format.json { render json: { url: url } }
+      payload = { time_start: Time.current, originating_request_id: Thread.current['request_id'] }
+      ActiveSupport::Notifications.instrument 'sessions.new' do
+        redirect_to url
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
@@ -95,6 +86,15 @@ module V0
     end
 
     private
+
+    def authenticate
+      return unless controller.action_name == 'new'
+      if %w[mfa verify slo].include?(params[:type])
+        super
+      else
+        reset_session
+      end
+    end
 
     def stats(status)
       case status
