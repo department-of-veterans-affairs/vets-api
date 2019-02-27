@@ -833,8 +833,8 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     lumberjack (1.0.10)
-    mail (2.7.1)
-      mini_mime (>= 0.1.1)
+    mail (2.6.6)
+      mime-types (>= 1.16, < 4)
     memoist (0.15.0)
     method_source (0.8.2)
     mime-types (3.2.2)
@@ -842,7 +842,6 @@ GEM
     mime-types-data (3.2018.0812)
     mimemagic (0.3.2)
     mini_magick (4.7.0)
-    mini_mime (1.0.1)
     mini_portile2 (2.4.0)
     minitest (5.11.3)
     multi_json (1.13.1)
@@ -1150,6 +1149,7 @@ DEPENDENCIES
   jwt
   levenshtein-ffi
   liquid
+  mail (= 2.6.6)
   memoist
   mini_magick
   net-sftp
