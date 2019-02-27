@@ -31,7 +31,9 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     end
 
     it 'should set consumer id from X-Consumer-ID header' do
-      post '/services/vba_documents/v0/uploads', params: nil, headers: { 'X-Consumer-ID': '29090360-72a8-4b77-b5ea-6ea1c69c7d89' }
+      post '/services/vba_documents/v0/uploads',
+           params: nil,
+           headers: { 'X-Consumer-ID': '29090360-72a8-4b77-b5ea-6ea1c69c7d89' }
       upload = VBADocuments::UploadSubmission.order(created_at: :desc).first
       expect(upload.consumer_id).to eq('29090360-72a8-4b77-b5ea-6ea1c69c7d89')
     end
@@ -74,7 +76,9 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
           enable_status_override: true
         ) do
           starting_status = upload.status
-          get "/services/vba_documents/v0/uploads/#{upload.guid}", params: nil, headers: { 'Status-Override' => 'success' }
+          get "/services/vba_documents/v0/uploads/#{upload.guid}",
+              params: nil,
+              headers: { 'Status-Override' => 'success' }
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
         end

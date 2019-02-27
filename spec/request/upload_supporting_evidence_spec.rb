@@ -8,7 +8,8 @@ RSpec.describe 'Upload supporting evidence', type: :request do
   describe 'Post /v0/upload_supporting_evidence' do
     context 'with valid parameters' do
       it 'should return a 200 and an upload guid' do
-        post '/v0/upload_supporting_evidence', params: JSON.parse('{"supporting_evidence_attachment": {"file_data": "filename"}}')
+        post '/v0/upload_supporting_evidence',
+             params: JSON.parse('{"supporting_evidence_attachment": {"file_data": "filename"}}')
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq SupportingEvidenceAttachment.last.guid
       end

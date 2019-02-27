@@ -87,7 +87,9 @@ RSpec.describe V0::InProgressFormsController, type: :request do
 
           it 'converts the json keys' do
             in_progress_form.update(form_data: form_data)
-            get v0_in_progress_form_url(in_progress_form.form_id), params: nil, headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
+            get v0_in_progress_form_url(in_progress_form.form_id),
+                params: nil,
+                headers: { 'HTTP_X_KEY_INFLECTION' => 'camel' }
             expect(response.body).to eq({
               form_data: form_data,
               metadata: in_progress_form.metadata

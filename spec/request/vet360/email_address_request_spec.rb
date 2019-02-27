@@ -50,7 +50,8 @@ RSpec.describe 'email_address', type: :request do
     context 'with a 400 response' do
       it 'should match the errors schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
-          post('/v0/profile/email_addresses', params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
+          post('/v0/profile/email_addresses',
+               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -61,7 +62,8 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
           expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
 
-          post('/v0/profile/email_addresses', params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
+          post('/v0/profile/email_addresses',
+               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
         end
       end
     end
@@ -93,7 +95,8 @@ RSpec.describe 'email_address', type: :request do
     context 'with a 200 response' do
       it 'should match the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
-          put('/v0/profile/email_addresses', params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
+          put('/v0/profile/email_addresses',
+              params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
@@ -103,7 +106,8 @@ RSpec.describe 'email_address', type: :request do
       it 'creates a new AsyncTransaction::Vet360::EmailTransaction db record' do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
           expect do
-            put('/v0/profile/email_addresses', params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
+            put('/v0/profile/email_addresses',
+                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
         end
       end
@@ -112,7 +116,8 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-          put('/v0/profile/email_addresses', params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
+          put('/v0/profile/email_addresses',
+              params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
         end
       end
     end

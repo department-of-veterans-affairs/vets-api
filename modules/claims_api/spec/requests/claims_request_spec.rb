@@ -20,7 +20,15 @@ RSpec.describe 'EVSS Claims management', type: :request do
     allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
     allow(verifier_stub).to receive(:verify)
     VCR.use_cassette('evss/claims/claims') do
-      get '/services/claims/v0/claims', params: nil, headers: { 'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY', 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216', 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user', 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00' }
+      get '/services/claims/v0/claims',
+          params: nil,
+          headers: { 'X-VA-SSN' => '796043735',
+                     'X-VA-First-Name' => 'WESLEY',
+                     'X-VA-Last-Name' => 'FORD',
+                     'X-VA-EDIPI' => '1007697216',
+                     'X-Consumer-Username' => 'TestConsumer',
+                     'X-VA-User' => 'adhoc.test.user',
+                     'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00' }
       expect(response).to match_response_schema('claims_api/claims')
     end
   end

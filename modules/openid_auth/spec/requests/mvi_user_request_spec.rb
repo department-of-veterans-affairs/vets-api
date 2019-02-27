@@ -111,7 +111,9 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
   context 'raising errors when missing parameters' do
     it 'should require level of assurance' do
-      get '/internal/auth/v0/mvi-user', params: nil, headers: { 'x-va-ssn' => '123456789', 'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2' }
+      get '/internal/auth/v0/mvi-user',
+          params: nil,
+          headers: { 'x-va-ssn' => '123456789', 'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2' }
       data = JSON.parse(response.body)
       expect(data['errors'].first['title']).to eq('Missing parameter')
       expect(data['errors'].first['detail']).to include('x-va-level-of-assurance')
