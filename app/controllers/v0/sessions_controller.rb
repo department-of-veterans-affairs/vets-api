@@ -29,15 +29,14 @@ module V0
             when 'mfa'
               url_service.mfa_url
             when 'verify'
-              url_service.idme_loa3_url(verifying: true)
+              url_service.idme_loa3_url
             when 'slo'
               logout_url = url_service.slo_url
               reset_session
               logout_url
             end
-      Rails.logger.info("SSO: new #{params[:type]&.upcase} flow initiated", sso_logging_info.merge(url: url))
-      payload = { time_start: Time.current, originating_request_id: Thread.current['request_id'] }
-      ActiveSupport::Notifications.instrument 'sessions.new' do
+
+      ActiveSupport::Notifications.instrument 'sessions.new', { url: url, params: params } do
         redirect_to url
       end
     end
@@ -88,7 +87,7 @@ module V0
     private
 
     def authenticate
-      return unless controller.action_name == 'new'
+      return unless action_name == 'new'
       if %w[mfa verify slo].include?(params[:type])
         super
       else

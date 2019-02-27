@@ -51,12 +51,11 @@ module SAML
 
     # signup operation is only if the user clicks the link to signup for ID.me
     def idme_loa1_url(signup: false)
-      params = signup ? { signup: 'idme' } : {}
-      build_sso_url(LOA::IDME_LOA1, params) + (signup ? + '&op=signup' : '')
+      build_sso_url(LOA::IDME_LOA1) + (signup ? + '&op=signup' : '')
     end
 
     # verification operation is only if the user clicks identity verification via ID.me
-    def idme_loa3_url(verifying: false)
+    def idme_loa3_url
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, 'multifactor'
@@ -66,8 +65,8 @@ module SAML
         when 'dslogon', 'dslogon_multifactor'
           'dslogon_loa3'
         end
-      params = verifying ? { verifying: link_authn_context } : {}
-      build_sso_url(link_authn_context, params)
+
+      build_sso_url(link_authn_context)
     end
 
     def mfa_url
@@ -96,20 +95,16 @@ module SAML
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
-    def build_sso_url(link_authn_context, operation_params = {})
+    def build_sso_url(link_authn_context)
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
 
-      saml_auth_request.create(new_url_settings, RelayState: relay_state_params(operation_params))
+      saml_auth_request.create(new_url_settings, RelayState: relay_state_params)
     end
 
-    def relay_state_params(operation_params = {})
-      # operation, start_time, request_id params will be echoed back to the saml_callback for logging and metrics
-      operation_params.merge(
-        start_time: Time.current.utc.to_i,
-        originating_request_id: Thread.current['originating_request_id'] || Thread.current['request_id']
-      ).to_json
+    def relay_state_params
+      { originating_request_id: (Thread.current['originating_request_id'] || Thread.current['request_id']) }.to_json
     end
 
     def current_host
