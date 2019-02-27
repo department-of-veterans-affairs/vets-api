@@ -45,10 +45,11 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           '123'
         ).and_return(success_response)
 
-        get(enrollment_status_v0_health_care_applications_path, params: { userAttributes: build(:health_care_application).parsed_form.slice(
-            'veteranFullName', 'veteranDateOfBirth',
-            'veteranSocialSecurityNumber', 'gender'
-          ) })
+        get(enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form.slice(
+              'veteranFullName', 'veteranDateOfBirth',
+              'veteranSocialSecurityNumber', 'gender'
+            ) })
 
         expect(response.body).to eq(success_response.to_json)
       end
