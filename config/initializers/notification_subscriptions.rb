@@ -1,4 +1,6 @@
 ActiveSupport::Notifications.subscribe 'sessions.new' do |*args|
-  binding.pry
-  Rails.logger.info("SSO: new #{params[:type]&.upcase} flow initiated", sso_logging_info.merge(url: url))
+  event = ActiveSupport::Notifications::Event.new(*args)
+  type  = event.payload[:params]['signup'] ? 'signup' : event.payload[:params]['type']
+  SessionActivity.create(name: type, created_at: event.end)
+  Rails.logger.info("SSO: new #{type.upcase} flow initiated", url: event.payload[:url])
 end
