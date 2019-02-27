@@ -481,7 +481,9 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           '/v0/upload_supporting_evidence',
           200,
           '_data' => {
-            'supporting_evidence_attachment' => { 'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf') }
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
           }
         )
       end

@@ -57,7 +57,7 @@ class ApplicationController < ActionController::API
     when Array
       val.map { |v| deep_transform_parameters!(v, &block) }
     when Hash, ActionController::Parameters
-      val.keys.each do |k, v = val[k]|
+      val.keys.each do |k, v = val[k]| # rubocop:disable Performance/HashEachMethods
         val.delete(k)
         val[yield(k)] = deep_transform_parameters!(v, &block)
       end
