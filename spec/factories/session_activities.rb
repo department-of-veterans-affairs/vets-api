@@ -3,6 +3,7 @@ FactoryBot.define do
     originating_request_id { SecureRandom.uuid }
     name 'signup'
     status 'abandoned'
+    user_uuid { SecureRandom.uuid }
     sign_in_service_name 'idme'
     sign_in_account_type nil
     multifactor_enabled false
