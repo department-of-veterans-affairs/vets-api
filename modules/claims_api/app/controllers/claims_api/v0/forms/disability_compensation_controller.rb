@@ -36,7 +36,7 @@ module ClaimsApi
         end
 
         def target_veteran
-          vet = ClaimsApi::Veteran.from_headers(request.headers, true)
+          vet = ClaimsApi::Veteran.from_headers(request.headers, with_gender: true)
           vet.loa = { current: 2 }
           vet
         end

@@ -30,7 +30,7 @@ module ClaimsApi
       super(new_va_profile)
     end
 
-    def self.from_headers(headers, with_gender = false)
+    def self.from_headers(headers, with_gender: false)
       veteran = new(
         ssn: ensure_header(headers, 'X-VA-SSN'),
         loa: { current: :loa3 },
