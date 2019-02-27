@@ -22,7 +22,7 @@ module V0
     def create
       client.post_generate(params)
 
-      render nothing: true, status: :accepted
+      head :accepted
     end
   end
 end
