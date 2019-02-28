@@ -12,7 +12,8 @@ module V0
     end
 
     def update
-      address = EVSS::PCIUAddress::Address.build_address(params)
+      # TODO: don't permit all
+      address = EVSS::PCIUAddress::Address.build_address(params.permit!)
       raise Common::Exceptions::ValidationErrors, address unless address.valid?
       response = service.update_address(address)
 
