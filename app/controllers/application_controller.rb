@@ -50,23 +50,6 @@ class ApplicationController < ActionController::API
 
   attr_reader :current_user
 
-  def deep_transform_parameters!(val, &block)
-    # rails 5.1 no longer has deep_transform_keys!
-    # because params are no longer inheriting from HashWithIndifferentAccess
-    case val
-    when Array
-      val.map { |v| deep_transform_parameters!(v, &block) }
-    when Hash, ActionController::Parameters
-      val.keys.each do |k, v = val[k]| # rubocop:disable Performance/HashEachMethods
-        val.delete(k)
-        val[yield(k)] = deep_transform_parameters!(v, &block)
-      end
-      val
-    else
-      val
-    end
-  end
-
   # returns a Bad Request if the incoming host header is unsafe.
   def block_unknown_hosts
     return if controller_name == 'example'

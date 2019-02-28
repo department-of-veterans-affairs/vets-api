@@ -12,7 +12,7 @@ module V0
 
       def create
         form = ::Preneeds::BurialForm.new(burial_form_params)
-        validate!(deep_transform_parameters!(burial_form_params) { |k| k.camelize(:lower) })
+        validate!(Common::HashHelpers.deep_transform_parameters!(burial_form_params) { |k| k.camelize(:lower) })
 
         resource = client.receive_pre_need_application(form)
         ::Preneeds::PreneedSubmission.create!(
