@@ -19,10 +19,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: 811b7c3f23bd49d166c302326b80cce2b3789595
+  revision: a41ebe077d84c1df24e075dd46e2f8c1b215269e
   branch: master
   specs:
-    vets_json_schema (3.136.4)
+    vets_json_schema (3.137.6)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -697,7 +697,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
-    brakeman (3.4.1)
+    brakeman (4.4.0)
     breakers (0.2.4)
       faraday (>= 0.7.4, < 0.10)
       multi_json (~> 1.0)
@@ -886,8 +886,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    pry-nav (0.2.4)
-      pry (>= 0.9.10, < 0.11.0)
+    pry-byebug (3.3.0)
+      byebug (~> 8.0)
+      pry (~> 0.10)
     puma (3.12.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
@@ -1141,6 +1142,7 @@ DEPENDENCIES
   iconv
   iso_country_codes
   json-schema
+  jsonapi-parser
   jwt
   levenshtein-ffi
   liquid
@@ -1159,7 +1161,7 @@ DEPENDENCIES
   pdf-reader
   pg
   prawn
-  pry-nav
+  pry-byebug
   puma (~> 3.12.0)
   puma-plugin-statsd!
   pundit

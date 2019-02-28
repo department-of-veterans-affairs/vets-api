@@ -26,4 +26,8 @@ module Filterable
   def valid_filters?
     filter_query.map { |a| a.gsub('filter', '') }.all? { |s| s =~ /\A\[\[.+\]\[.+\]\]=.+\z/ }
   end
+
+  def filter_params
+    params.require(:filter)
+  end
 end

@@ -11,18 +11,18 @@ module EducationForm::Forms
     end
 
     HIGH_TECH_AREA_NAMES = {
-      'computerProgramming': 'Computer Programming',
-      'dataProcessing': 'Data Processing',
-      'computerSoftware': 'Computer Software',
-      'informationSciences': 'Information Sciences',
-      'mediaApplication': 'Media Application'
+      'computerProgramming': 'Computer programming',
+      'dataProcessing': 'Data processing',
+      'computerSoftware': 'Computer software',
+      'informationSciences': 'Information sciences',
+      'mediaApplication': 'Media application'
     }.freeze
 
     SALARY_TEXT = {
       'lessThanTwenty': '<$20,000',
-      'twentyToThirtyFive': '$20,001-$35,000',
-      'thirtyFiveToFifty': '$35,001-$50,000',
-      'fiftyToSeventyFive': '$50,001-$75,000',
+      'twentyToThirtyFive': '$20,000-$35,000',
+      'thirtyFiveToFifty': '$35,000-$50,000',
+      'fiftyToSeventyFive': '$50,000-$75,000',
       'moreThanSeventyFive': '>$75,000'
     }.freeze
 
@@ -86,7 +86,7 @@ module EducationForm::Forms
       @applicant.highTechnologyEmploymentTypes.each do |area|
         areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
       end
-      areas.join(', ')
+      areas.join("\n")
     end
 
     def education_level_name
