@@ -18,5 +18,14 @@ module ClaimsApi
     def form
       @form ||= ClaimsApi::Form526.new(form_data.deep_symbolize_keys)
     end
+
+    def self.pending?(id)
+      query = where(id: id)
+      query.exists? && query.first.evss_id.nil? ? query.first : false
+    end
+
+    def self.evss_id_by_token(token)
+      find_by(id: token)&.evss_id
+    end
   end
 end
