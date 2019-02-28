@@ -70,6 +70,25 @@ RSpec.describe 'EVSS Claims management', type: :request do
     end
   end
 
+  context 'POA verifier' do
+    it 'should user the poa verifier when the header is present' do
+      VCR.use_cassette('evss/claims/claim') do
+        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        allow(verifier_stub).to receive(:verify)
+        get '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', nil,
+            'X-VA-SSN' => '796043735',
+            'X-VA-First-Name' => 'WESLEY',
+            'X-VA-Last-Name' => 'FORD',
+            'X-VA-EDIPI' => '1007697216',
+            'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-User' => 'adhoc.test.user',
+            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00',
+            'X-Consumer-PoA' => 'A1Q'
+      end
+    end
+  end
+
   context 'header validations' do
     VALID_HEADERS.each_key do |header|
       context "without #{header}" do
