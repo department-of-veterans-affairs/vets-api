@@ -20,9 +20,9 @@ module EducationForm::Forms
 
     SALARY_TEXT = {
       'lessThanTwenty': '<$20,000',
-      'twentyToThirtyFive': '$20,001-$35,000',
-      'thirtyFiveToFifty': '$35,001-$50,000',
-      'fiftyToSeventyFive': '$50,001-$75,000',
+      'twentyToThirtyFive': '$20,000-$35,000',
+      'thirtyFiveToFifty': '$35,000-$50,000',
+      'fiftyToSeventyFive': '$50,000-$75,000',
       'moreThanSeventyFive': '>$75,000'
     }.freeze
 
