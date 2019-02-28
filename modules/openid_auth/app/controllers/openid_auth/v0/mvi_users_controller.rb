@@ -14,26 +14,13 @@ module OpenidAuth
       def show
         user_identity = save_requested_identity
         service = MVI::Service.new
-        @mvi_response = service.find_profile(user_identity)
-        raise @mvi_response.error if @mvi_response.error
-        render json: response_with_icn
+        mvi_response = service.find_profile(user_identity)
+        raise mvi_response.error if mvi_response.error
+
+        render json: mvi_response, serializer: MviLookupSerializer
       end
 
       private
-
-      def response_with_icn
-        {
-          "id": @mvi_response.profile.icn,
-          "type": 'user-mvi-icn',
-          "data": {
-            "attributes": {
-              "icn": @mvi_response.profile.icn,
-              "first_name": @mvi_response.profile&.given_names&.first,
-              "last_name": @mvi_response.profile&.family_name
-            }
-          }
-        }
-      end
 
       def check_required_headers
         raise Common::Exceptions::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
@@ -48,7 +35,7 @@ module OpenidAuth
         # identity cache. This is done because this endpoint is primarily called by the saml-proxy
         # during the login process. If a user is logging in, usually a client app will make use of
         # the openid token soon.
-        OpenidUserIdentity.create(
+        OpenidUserIdentity.new(
           uuid: request.headers['x-va-idp-uuid'],
           email: request.headers['x-va-user-email'],
           first_name: request.headers['x-va-first-name'],
