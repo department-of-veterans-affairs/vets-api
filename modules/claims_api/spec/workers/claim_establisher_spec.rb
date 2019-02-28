@@ -27,7 +27,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
       expect do
         subject.perform_async(claim.id)
       end.to change(subject.jobs, :size).by(1)
-      perform = subject.new.perform(claim.id)
+      subject.new.perform(claim.id)
     end
   end
 end
