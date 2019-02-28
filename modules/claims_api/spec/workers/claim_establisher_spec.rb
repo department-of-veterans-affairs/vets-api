@@ -38,12 +38,15 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     end
   end
 
-  # it 'sets the status of the claim to an error if it raises an error on EVSS' do
-  #   allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim).to
-  #   receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException)
-  #   subject.new.perform(claim.id)
-  #   claim.reload
-  #   expect(claim.evss_id).to eq(nil)
-  #   expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
-  # end
+  it 'sets the status of the claim to an error if it raises an error on EVSS' do
+    service_stub = instance_double('EVSS::DisabilityCompensationForm::ServiceAllClaim')
+    allow(EVSS::DisabilityCompensationForm::ServiceAllClaim).to receive(:new) { service_stub }
+    expect do
+      allow(service_stub).to receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException)
+      subject.new.perform(claim.id)
+    end.to raise_error(Common::Exceptions::BackendServiceException)
+    claim.reload
+    expect(claim.evss_id).to eq(nil)
+    expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+  end
 end
