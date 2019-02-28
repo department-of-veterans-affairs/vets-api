@@ -13,7 +13,7 @@ namespace :form526 do
       printf "%-20s %s\n", header, total
     end
 
-    def pring_errors(errors)
+    def print_errors(errors)
       errors.each do |k, v|
         puts "< Submission id: #{k} >"
         puts '*****************'
