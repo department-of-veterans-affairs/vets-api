@@ -44,7 +44,7 @@ module VetsAPI
     config.eager_load_paths << Rails.root.join('app')
 
     # CORS configuration; see also cors_preflight route
-    config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
+    config.middleware.insert_before 0, Rack::Cors, logger: (-> { Rails.logger }) do
       allow do
         origins { |source, _env| Settings.web_origin.split(',').include?(source) }
         resource '*', headers: :any,
@@ -59,9 +59,9 @@ module VetsAPI
     end
 
     config.middleware.insert_before(0, HttpMethodNotAllowed)
-    config.middleware.use 'OliveBranch::Middleware'
-    config.middleware.use 'StatsdMiddleware'
-    config.middleware.use 'Rack::Attack'
+    config.middleware.use OliveBranch::Middleware
+    config.middleware.use StatsdMiddleware
+    config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,
