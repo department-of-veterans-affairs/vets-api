@@ -15,7 +15,12 @@ RSpec.describe 'EVSS Claims management', type: :request do
     'X-Consumer-Username' => 'TestConsumer'
   }.freeze
 
-  let(:auto_form) { build(:auto_established_claim, auth_headers: { some: 'data' }, evss_id: 600118851, id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9') }
+  let(:auto_form) do
+    create(:auto_established_claim,
+           auth_headers: { some: 'data' },
+           evss_id: 600_118_851,
+           id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
+  end
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
@@ -52,7 +57,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       auto_form
       VCR.use_cassette('evss/claims/claim') do
-        get "/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9", nil,
+        get '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', nil,
             'X-VA-SSN' => '796043735',
             'X-VA-First-Name' => 'WESLEY',
             'X-VA-Last-Name' => 'FORD',
