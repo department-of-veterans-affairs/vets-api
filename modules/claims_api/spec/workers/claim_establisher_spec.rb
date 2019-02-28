@@ -11,10 +11,11 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
 
   subject { described_class }
 
-  let(:user) { FactoryBot.create(:user, :loa3, ssn: 796_104_437) }
+  let(:user) { FactoryBot.create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
+
   let(:claim) do
     claim = create(:auto_established_claim)
     claim.auth_headers = auth_headers
@@ -23,12 +24,25 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
   end
 
   it 'submits succesfully' do
-    VCR.use_cassette('evss/disability_compensation_form/external_api/submit_form') do
+    VCR.use_cassette('evss/disability_compensation_form/submit_form') do
       expect do
         subject.perform_async(claim.id)
       end.to change(subject.jobs, :size).by(1)
-
-      # perform = subject.new.perform(claim.id)
+      evss_service_stub = instance_double('EVSS::DisabilityCompensationForm::ServiceAllClaim')
+      expect(EVSS::DisabilityCompensationForm::ServiceAllClaim).to receive(:new) { evss_service_stub }
+      expect(evss_service_stub).to receive(:submit_form526) { OpenStruct.new(claim_id: 1337) }
+      subject.new.perform(claim.id)
+      claim.reload
+      expect(claim.evss_id).to eq(1337)
+      expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ESTABLISHED)
     end
   end
+
+  #it 'sets the status of the claim to an error if it raises an error on EVSS' do
+  #  allow_any_instance_of(EVSS::DisabilityCompensationForm::ServiceAllClaim).to receive(:submit_form526).and_raise(Common::Exceptions::BackendServiceException)
+  #  subject.new.perform(claim.id)
+  #  claim.reload
+  #  expect(claim.evss_id).to eq(nil)
+  #  expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+  #end
 end
