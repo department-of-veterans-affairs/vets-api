@@ -13,9 +13,6 @@ AllCops:
     - 'script/**/*'
     - 'vendor/**/*'
 
-Style/NumericPredicate:
-  Enabled: false
-
 # This allows you to use have writers like self.method_name(name) vs self.method_name=(name)
 Style/TrivialAccessors:
   AllowDSLWriters: true
