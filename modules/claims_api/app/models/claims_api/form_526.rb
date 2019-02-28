@@ -34,7 +34,7 @@ module ClaimsApi
     end
 
     BOOLEAN_REQUIRED_FIELDS.each do |field|
-      validates field.to_sym, presence: true, inclusion: { in: [true, false, 'true', 'false'] }
+      validates field.to_sym, inclusion: { in: [true, false, 'true', 'false'] }
     end
 
     def initialize(params = {})
