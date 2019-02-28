@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VeteranVerification::ServiceHistoryEpisode, skip_emis: true do
-  let(:user) { build(:user, :loa3) }
+  let(:user) { build(:openid_user, identity_attrs: build(:user_identity_attrs, :loa3)) }
 
   describe '#formatted_episodes' do
     it 'should return service history and deployments' do
