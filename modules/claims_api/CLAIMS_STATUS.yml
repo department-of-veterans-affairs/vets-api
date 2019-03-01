@@ -514,6 +514,50 @@ components:
                     - zipLastFour
                     - type
                     - state
+                changeOfAddress:
+                  type: object
+                  properties:
+                    beginningDate:
+                      type: string
+                      format: date
+                      description: Date in YYYY-MM-DD the Veteran changed address
+                      example: '2018-06-04'
+                    addressChangeType:
+                      type: string
+                      description: Temporary or Permanent change of address
+                      example: "PERMANENT"
+                    addressLine1: 
+                      type: string
+                      description: New Address Veteran resides in
+                      example: "1234 Couch Street"
+                    addressLine2: 
+                      type: string
+                      description: New Additional Address Information Veteran resides in
+                      example: "Apt. 22"
+                    city: 
+                      type: string
+                      description: New City Veteran resides in
+                      example: "Portland"
+                    country: 
+                      type: string
+                      description: New Country Veteran resides in
+                      example: "USA"
+                    zipFirstFive: 
+                      type: string
+                      description: New Zipcode (First 5 digits) Veteran resides in
+                      example: "12345"
+                    zipLastFour: 
+                      type: string
+                      description: New Zipcode (Last 4 digits) Veteran resides in
+                      example: "6789"
+                    type:
+                      type: string
+                      description: New Type of residence Veteran resides in
+                      example: "DOMESTIC"
+                    state:  
+                      type: string
+                      description: New State Veteran resides in
+                      example: "OR"
               required: 
                 - currentlyVAEmployee
                 - currentMailingAddress
