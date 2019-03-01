@@ -756,6 +756,36 @@ components:
                   - disabilityActionType
                   - name
                   - secondaryDisabilities
+            treatments:
+              type: array
+              items:
+                type: object
+                properties:
+                  startDate:
+                    type: date
+                    description: Date Veteran started treatment
+                    example: "2018-03-02"
+                  endDate:
+                    type: date
+                    description: Date Veteran ended treatment
+                    example: "2018-03-03"
+                  treatedDisabilityNames:
+                    type: array
+                    items:
+                      type: string
+                      description: Name of Disabilities Veteran was Treated for
+                      example: "PTSD (post traumatic stress disorder)"
+                  center:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Name of facility Veteran was treated in
+                        example: "Private Facility 2"
+                      country:
+                        type: string
+                        description: Country Veteran was treated in
+                        example: "USA"
             claimantCertification: 
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
