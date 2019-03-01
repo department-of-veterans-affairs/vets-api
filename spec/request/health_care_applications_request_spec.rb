@@ -64,7 +64,9 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
       context 'when the request is rate limited' do
         it 'should return 429' do
-          expect(HCA::RateLimitedSearch).to receive(:create_rate_limited_searches).and_raise(RateLimitedSearch::RateLimitedError)
+          expect(HCA::RateLimitedSearch).to receive(
+            :create_rate_limited_searches
+          ).and_raise(RateLimitedSearch::RateLimitedError)
 
           get(
             enrollment_status_v0_health_care_applications_path,

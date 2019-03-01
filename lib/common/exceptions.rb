@@ -29,4 +29,3 @@ require_dependency 'common/exceptions/external/resource_not_found'
 require_dependency 'common/exceptions/external/gateway_timeout'
 require_dependency 'common/exceptions/external/unprocessable_entity'
 require_dependency 'common/exceptions/external/bad_gateway'
-
