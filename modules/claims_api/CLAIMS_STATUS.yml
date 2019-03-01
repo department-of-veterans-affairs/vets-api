@@ -689,6 +689,23 @@ components:
                       type: boolean
                       description: Do they receive Inactive Duty Training Pay
                       example: true
+                alternateNames:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        description: Alternate First Name
+                        example: "JKack"
+                      middleName:
+                        type: string
+                        description: Alternate Middle Name
+                        example: "Clint"
+                      lastName:
+                        type: string
+                        description: Alternate Last Name
+                        example: "Bauer"
               required:
                 - servicePeriods
             disabilities:
