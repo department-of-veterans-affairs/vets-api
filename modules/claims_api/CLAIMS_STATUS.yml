@@ -635,6 +635,33 @@ components:
                       - serviceBranch
                       - activeDutyBeginDate
                       - activeDutyEndDate
+                confinements:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      confinementBeginDate:
+                        type: date
+                        description: Date Began Confinement
+                        example: "1987-02-01"
+                      confinementEndDate:
+                        type: date
+                        description: Date Ended Confinement
+                        example: "1989-01-01"
+                reservesNationalGuardService:
+                  type: object
+                  properties:
+                    title10Activation:
+                      type: object
+                      properties:
+                        anticipatedSeparationDate:
+                          type: date
+                          description: Date Seperation will occur
+                          example: "2020-01-01"
+                        title10ActivationDate:
+                          type: date
+                          description: Date Title 10 Activates
+                          example: "1999-03-04"
               required:
                 - servicePeriods
             disabilities:
