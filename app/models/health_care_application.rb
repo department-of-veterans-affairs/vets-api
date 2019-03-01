@@ -84,8 +84,6 @@ class HealthCareApplication < ActiveRecord::Base
     MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
   rescue MVI::Errors::Base
     nil
-  rescue RateLimitedSearch::RateLimitedError
-    raise Common::Exceptions::TooManyRequests
   end
 
   def self.user_attributes(form)
