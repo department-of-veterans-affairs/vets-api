@@ -7,7 +7,7 @@ info:
 
     ## Background
 
-    Use this API to request the status of a Veteran’s benefit appeals.
+    Use this API to request the status of a Veteran's benefits claim appeal.
 
     The Appeals API passes data through to Caseflow, a case management system. Caseflow
     accepts a header with the Veteran’s SSN and returns the current status of their appeals.
