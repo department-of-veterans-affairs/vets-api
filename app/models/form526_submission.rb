@@ -19,11 +19,6 @@ class Form526Submission < ActiveRecord::Base
 
   def start(klass)
     workflow_batch = Sidekiq::Batch.new
-    workflow_batch.on(
-      :success,
-      'Form526Submission#workflow_complete_handler',
-      'submission_id' => id
-    )
     jids = workflow_batch.jobs do
       klass.perform_async(id)
     end
@@ -48,6 +43,11 @@ class Form526Submission < ActiveRecord::Base
 
   def perform_ancillary_jobs(bid)
     workflow_batch = Sidekiq::Batch.new(bid)
+    workflow_batch.on(
+      :success,
+      'Form526Submission#workflow_complete_handler',
+      'submission_id' => id
+    )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
       submit_form_4142 if form[FORM_4142].present?
