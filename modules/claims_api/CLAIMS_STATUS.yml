@@ -554,7 +554,7 @@ components:
                       - activeDutyBeginDate
                       - activeDutyEndDate
               required:
-                servicePeriods
+                - servicePeriods
             disabilities:
               type: array
               items:
