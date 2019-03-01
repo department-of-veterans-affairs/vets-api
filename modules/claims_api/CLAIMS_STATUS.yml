@@ -314,7 +314,7 @@ paths:
               type: object
               properties:
                 data:
-                  $ref: "#/components/schemas/526Form"
+                  $ref: "#/components/schemas/526_Form"
       responses:
         '200':
           description: Claim submitted successfully
@@ -451,7 +451,7 @@ components:
                 - Compensation
                 - Compensation and Pension
                 - Dependency
-    526Form:
+    526_Form:
       description: |
         526 Claim Form submission with minimum required for auto establishment
       type: object
