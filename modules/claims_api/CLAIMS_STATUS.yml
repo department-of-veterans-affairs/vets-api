@@ -558,6 +558,44 @@ components:
                       type: string
                       description: New State Veteran resides in
                       example: "OR"
+                homelessness:
+                  type: object
+                  properties:
+                    pointOfContact:
+                      type: object
+                      properties:
+                        pointOfContactName:
+                          type: string
+                          description: Point of contact in direct contact with Veteran
+                          example: "Jane Doe"
+                        primaryPhone:
+                          type: object
+                          properties:
+                            areaCode:
+                              type: string
+                              description: Area code of Point of Contact
+                              example: "123"
+                            phoneNumber:
+                              type: string
+                              description: Primary phone of Point of Contact
+                              example: "1231234"
+                    currentlyHomeless:
+                      type: object
+                      properties:
+                        homelessSituationType:
+                          type: string
+                          description: Current state of the veteran's homelessness
+                          example: "FLEEING_CURRENT_RESIDENCE"
+                          enum:
+                            - FLEEING_CURRENT_RESIDENCE
+                            - LIVING_IN_A_HOMELESS_SHELTER
+                            - NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT
+                            - STAYING_WITH_ANOTHER_PERSON
+                            - OTHER
+                        otherLivingSituation:
+                          type: string
+                          description: List any other living scenarios
+                          example: "other living situation"
               required: 
                 - currentlyVAEmployee
                 - currentMailingAddress
