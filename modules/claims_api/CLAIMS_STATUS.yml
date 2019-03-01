@@ -1,11 +1,11 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: Benefit Claims
+  title: Benefits Claims
   description: |
-    Benefit Claims
+    Benefits Claims
      ## Background
-     This API is being provided as a proof of concept of a general-purpose VA  API gateway. The use case is to allow authorized third-party developers to submit a benefit claim and request the status of a Veteran's benefit claims.
+     Use this API to submit a Veteran's benefits claim and request the status of a Veteran's benefits claims.
      The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records.
      ## Design
      ### Authorization
