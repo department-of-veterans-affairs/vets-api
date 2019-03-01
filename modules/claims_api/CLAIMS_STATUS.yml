@@ -786,6 +786,62 @@ components:
                         type: string
                         description: Country Veteran was treated in
                         example: "USA"
+            servicePay:
+              type: object
+              properties:
+                waiveVABenefitsToRetainTrainingPay:
+                  type: boolean
+                  description: Is Veteran Waiving benefits to retain training pay
+                  example: true
+                waiveVABenefitsToRetainRetiredPay:
+                  type: boolean
+                  description: Is Veteran Waiving benefits to retain Retiree pay
+                  example: false
+                militaryRetiredPay:
+                  type: object
+                  properties:
+                    receiving:
+                      type: boolean
+                      description: Is Veteran getting Retiree pay
+                      example: true
+                    payment:
+                      type: object
+                      properties:
+                        serviceBranch:
+                          type: string
+                          description: Branch of Service making payments
+                          example: 'Air Force'
+                          enum:
+                            - Air Force
+                            - Air Force Reserve
+                            - Army
+                            - Army Reserve
+                            - Coast Guard
+                            - Coast Guard Reserve
+                            - Marine Corps
+                            - Marine Corps Reserve
+                            - Navy
+                            - Navy Reserve
+                            - NOAA
+            directDeposit:
+              type: object
+              properties:
+                accountType: 
+                  type: string
+                  description: Veteran Account Type
+                  example: "CHECKING"
+                accountNumber: 
+                  type: string
+                  description: Veteran Account Number
+                  example: "123123123123"
+                routingNumber: 
+                  type: string
+                  description: Veteran Bank Routing Number
+                  example: "123123123"
+                bankName: 
+                  type: string
+                  description: Veteran Bank Name
+                  example: "SomeBank"
             claimantCertification: 
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
