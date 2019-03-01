@@ -13,6 +13,12 @@ development: &defaults
     namespace: user_identities
     each_ttl: 1800
   # DO NOT CHANGE ABOVE TTL
+  openid_user_identity_store:
+    namespace: openid_user_identities
+    each_ttl: 1800
+  openid_user_store:
+    namespace: openid_users
+    each_ttl: 1800
   rx_store:
     namespace: rx-service
     each_ttl: 1200

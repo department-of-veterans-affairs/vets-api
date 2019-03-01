@@ -83,7 +83,7 @@ RSpec.describe 'service_history', type: :request, skip_emis: true do
 
     context 'when user does not have an EDIPI present' do
       before do
-        allow_any_instance_of(User).to receive(:edipi).and_return(nil)
+        allow_any_instance_of(OpenidUser).to receive(:edipi).and_return(nil)
       end
 
       it 'increments the StatsD EDIPI empty counter' do
