@@ -57,17 +57,25 @@ RSpec.describe AsyncTransaction::Base, type: :model do
   end
 
   describe '.stale scope' do
-    it 'finds "old" transactions but not new ones' do
-      transaction1 = create(:address_transaction,
-                            created_at: (Time.current - 31.days).iso8601,
-                            status: AsyncTransaction::Base::COMPLETED)
-      create(:telephone_transaction,
-             created_at: (Time.current - 29.days).iso8601,
-             status: AsyncTransaction::Base::COMPLETED)
+    it 'finds transactions that are eligible to be destroyed', :aggregate_failures do
+      stale_age  = AsyncTransaction::Base::DELETE_COMPLETED_AFTER + 1.day
+      active_age = AsyncTransaction::Base::DELETE_COMPLETED_AFTER - 1.day
+
+      stale_transaction = create(
+        :address_transaction,
+        created_at: (Time.current - stale_age).iso8601,
+        status: AsyncTransaction::Base::COMPLETED
+      )
+      create(
+        :telephone_transaction,
+        created_at: (Time.current - active_age).iso8601,
+        status: AsyncTransaction::Base::COMPLETED
+      )
 
       transactions = AsyncTransaction::Base.stale
-      expect(transactions.count).to eq(1)
-      expect(transactions.first).to eql(transaction1)
+
+      expect(transactions.count).to eq 1
+      expect(transactions.first).to eq stale_transaction
     end
   end
 end
