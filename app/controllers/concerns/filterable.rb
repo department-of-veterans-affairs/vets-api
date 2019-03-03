@@ -28,6 +28,6 @@ module Filterable
   end
 
   def filter_params
-    params.require(:filter)
+    params.require(:filter).permit!
   end
 end
