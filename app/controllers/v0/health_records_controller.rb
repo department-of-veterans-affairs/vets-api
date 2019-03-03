@@ -20,7 +20,8 @@ module V0
     end
 
     def create
-      client.post_generate(params)
+      # TODO: don't permit all
+      client.post_generate(params.permit!)
 
       head :accepted
     end
