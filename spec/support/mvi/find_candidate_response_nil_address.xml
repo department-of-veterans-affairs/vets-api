@@ -3,7 +3,7 @@
               xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <env:Header/>
   <env:Body>
-    <idm:PRPA_IN201306UV02 xmlns="urn:hl7-org:v3" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    <idm:PRPA_IN201306UV02 xmlns="urn:hl7-org:v3" xmlns:idm="http://scraped.gov" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                            ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd">
       <id extension="WSDOC1609131753362231779394902" root="2.16.840.1.113883.4.349"/>
       <creationTime value="20160913175336"/>
@@ -51,7 +51,7 @@
                 <id extension="TKIP123456^PI^200IP^USVHA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="123456^PI^200MHV^USVHA^A" root="2.16.840.1.113883.4.349"/>
                 <id extension="UNK^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12" />
-                <id extension="12345678^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
+                <id extension="UNK^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/>
                 <statusCode code="active"/>
                 <patientPerson>
                   <name use="L">
