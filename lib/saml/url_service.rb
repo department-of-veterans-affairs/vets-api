@@ -49,13 +49,16 @@ module SAML
       build_sso_url('dslogon')
     end
 
-    # signup operation is only if the user clicks the link to signup for ID.me
-    def idme_loa1_url(signup: false)
-      build_sso_url(LOA::IDME_LOA1) + (signup ? + '&op=signup' : '')
+    def idme_url
+      build_sso_url(LOA::IDME_LOA1)
+    end
+
+    def signup_url
+      build_sso_url(LOA::IDME_LOA1) + '&op=signup'
     end
 
     # verification operation is only if the user clicks identity verification via ID.me
-    def idme_loa3_url
+    def verify_url
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, 'multifactor'
