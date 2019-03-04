@@ -1,11 +1,11 @@
 openapi: '3.0.0'
 info:
   version: 0.0.1
-  title: Benefit Claims
+  title: Benefits Claims
   description: |
-    Benefit Claims
+    Veterans Benefits Administration (VBA) claims submission and status checking.
      ## Background
-     This API is being provided as a proof of concept of a general-purpose VA  API gateway. The use case is to allow authorized third-party developers to submit a benefit claim and request the status of a Veteran's benefit claims.
+     Use this API to submit a Veteran's benefits claim, and to request the status of a Veteran's benefits claim.
      The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records.
      ## Design
      ### Authorization
@@ -50,7 +50,7 @@ info:
     name: VA.gov
 tags:
   - name: claims
-    description: EVSS claims status API
+    description: Claims status API
 servers:
   - url: https://dev-api.va.gov/services/claims/{version}
     description: Vets.gov API development environment
@@ -314,7 +314,7 @@ paths:
               type: object
               properties:
                 data:
-                  $ref: "#/components/schemas/526Form"
+                  $ref: "#/components/schemas/526_Form"
       responses:
         '200':
           description: Claim submitted successfully
@@ -451,7 +451,7 @@ components:
                 - Compensation
                 - Compensation and Pension
                 - Dependency
-    526Form:
+    526_Form:
       description: |
         526 Claim Form submission with minimum required for auto establishment
       type: object
@@ -514,6 +514,88 @@ components:
                     - zipLastFour
                     - type
                     - state
+                changeOfAddress:
+                  type: object
+                  properties:
+                    beginningDate:
+                      type: string
+                      format: date
+                      description: Date in YYYY-MM-DD the Veteran changed address
+                      example: '2018-06-04'
+                    addressChangeType:
+                      type: string
+                      description: Temporary or Permanent change of address
+                      example: "PERMANENT"
+                    addressLine1: 
+                      type: string
+                      description: New Address Veteran resides in
+                      example: "1234 Couch Street"
+                    addressLine2: 
+                      type: string
+                      description: New Additional Address Information Veteran resides in
+                      example: "Apt. 22"
+                    city: 
+                      type: string
+                      description: New City Veteran resides in
+                      example: "Portland"
+                    country: 
+                      type: string
+                      description: New Country Veteran resides in
+                      example: "USA"
+                    zipFirstFive: 
+                      type: string
+                      description: New Zipcode (First 5 digits) Veteran resides in
+                      example: "12345"
+                    zipLastFour: 
+                      type: string
+                      description: New Zipcode (Last 4 digits) Veteran resides in
+                      example: "6789"
+                    type:
+                      type: string
+                      description: New Type of residence Veteran resides in
+                      example: "DOMESTIC"
+                    state:  
+                      type: string
+                      description: New State Veteran resides in
+                      example: "OR"
+                homelessness:
+                  type: object
+                  properties:
+                    pointOfContact:
+                      type: object
+                      properties:
+                        pointOfContactName:
+                          type: string
+                          description: Point of contact in direct contact with Veteran
+                          example: "Jane Doe"
+                        primaryPhone:
+                          type: object
+                          properties:
+                            areaCode:
+                              type: string
+                              description: Area code of Point of Contact
+                              example: "123"
+                            phoneNumber:
+                              type: string
+                              description: Primary phone of Point of Contact
+                              example: "1231234"
+                    currentlyHomeless:
+                      type: object
+                      properties:
+                        homelessSituationType:
+                          type: string
+                          description: Current state of the veteran's homelessness
+                          example: "FLEEING_CURRENT_RESIDENCE"
+                          enum:
+                            - FLEEING_CURRENT_RESIDENCE
+                            - LIVING_IN_A_HOMELESS_SHELTER
+                            - NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT
+                            - STAYING_WITH_ANOTHER_PERSON
+                            - OTHER
+                        otherLivingSituation:
+                          type: string
+                          description: List any other living scenarios
+                          example: "other living situation"
               required: 
                 - currentlyVAEmployee
                 - currentMailingAddress
@@ -553,8 +635,79 @@ components:
                       - serviceBranch
                       - activeDutyBeginDate
                       - activeDutyEndDate
+                confinements:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      confinementBeginDate:
+                        type: date
+                        description: Date Began Confinement
+                        example: "1987-02-01"
+                      confinementEndDate:
+                        type: date
+                        description: Date Ended Confinement
+                        example: "1989-01-01"
+                reservesNationalGuardService:
+                  type: object
+                  properties:
+                    title10Activation:
+                      type: object
+                      properties:
+                        anticipatedSeparationDate:
+                          type: date
+                          description: Date Seperation will occur
+                          example: "2020-01-01"
+                        title10ActivationDate:
+                          type: date
+                          description: Date Title 10 Activates
+                          example: "1999-03-04"
+                    obligationTermOfServiceFromDate:
+                      type: date
+                      description: Date Service Obligation Began
+                      example: "2000-01-04"
+                    obligationTermOfServiceToDate:
+                      type: date
+                      description: Date Service Obligation Ended
+                      example: "2004-01-04"
+                    unitName:
+                      type: string
+                      description: Official Unit Designation
+                      example: "Seal Team Six"
+                    unitPhone:
+                      type: object
+                      properties:
+                        areaCode:
+                          type: string
+                          description: Area code of Unit
+                          example: "123"
+                        phoneNumber:
+                          type: string
+                          description: Primary phone of Unit
+                          example: "1231234"
+                    receivingInactiveDutyTrainingPay:
+                      type: boolean
+                      description: Do they receive Inactive Duty Training Pay
+                      example: true
+                alternateNames:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        description: Alternate First Name
+                        example: "JKack"
+                      middleName:
+                        type: string
+                        description: Alternate Middle Name
+                        example: "Clint"
+                      lastName:
+                        type: string
+                        description: Alternate Last Name
+                        example: "Bauer"
               required:
-                servicePeriods
+                - servicePeriods
             disabilities:
               type: array
               items:
@@ -603,6 +756,92 @@ components:
                   - disabilityActionType
                   - name
                   - secondaryDisabilities
+            treatments:
+              type: array
+              items:
+                type: object
+                properties:
+                  startDate:
+                    type: date
+                    description: Date Veteran started treatment
+                    example: "2018-03-02"
+                  endDate:
+                    type: date
+                    description: Date Veteran ended treatment
+                    example: "2018-03-03"
+                  treatedDisabilityNames:
+                    type: array
+                    items:
+                      type: string
+                      description: Name of Disabilities Veteran was Treated for
+                      example: "PTSD (post traumatic stress disorder)"
+                  center:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Name of facility Veteran was treated in
+                        example: "Private Facility 2"
+                      country:
+                        type: string
+                        description: Country Veteran was treated in
+                        example: "USA"
+            servicePay:
+              type: object
+              properties:
+                waiveVABenefitsToRetainTrainingPay:
+                  type: boolean
+                  description: Is Veteran Waiving benefits to retain training pay
+                  example: true
+                waiveVABenefitsToRetainRetiredPay:
+                  type: boolean
+                  description: Is Veteran Waiving benefits to retain Retiree pay
+                  example: false
+                militaryRetiredPay:
+                  type: object
+                  properties:
+                    receiving:
+                      type: boolean
+                      description: Is Veteran getting Retiree pay
+                      example: true
+                    payment:
+                      type: object
+                      properties:
+                        serviceBranch:
+                          type: string
+                          description: Branch of Service making payments
+                          example: 'Air Force'
+                          enum:
+                            - Air Force
+                            - Air Force Reserve
+                            - Army
+                            - Army Reserve
+                            - Coast Guard
+                            - Coast Guard Reserve
+                            - Marine Corps
+                            - Marine Corps Reserve
+                            - Navy
+                            - Navy Reserve
+                            - NOAA
+            directDeposit:
+              type: object
+              properties:
+                accountType: 
+                  type: string
+                  description: Veteran Account Type
+                  example: "CHECKING"
+                accountNumber: 
+                  type: string
+                  description: Veteran Account Number
+                  example: "123123123123"
+                routingNumber: 
+                  type: string
+                  description: Veteran Bank Routing Number
+                  example: "123123123"
+                bankName: 
+                  type: string
+                  description: Veteran Bank Name
+                  example: "SomeBank"
             claimantCertification: 
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
