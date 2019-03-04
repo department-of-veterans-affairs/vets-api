@@ -28,7 +28,7 @@ module ClaimsApi
       va_profile[:birth_date]
     end
 
-    def valid?(loa_level= 3)
+    def valid?(*)
       true
     end
 
@@ -37,7 +37,7 @@ module ClaimsApi
     end
 
     def mvi
-      Mvi.for_user(self)
+      @mvi ||= Mvi.for_user(self)
     end
 
     def ssn=(new_ssn)

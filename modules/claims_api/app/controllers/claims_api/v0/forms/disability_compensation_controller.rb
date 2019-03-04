@@ -36,7 +36,7 @@ module ClaimsApi
         end
 
         def target_veteran
-          ClaimsApi::Veteran.from_headers(request.headers, with_gender: true)
+          @target_veteran ||= ClaimsApi::Veteran.from_headers(request.headers, with_gender: true)
         end
 
         def auth_headers
