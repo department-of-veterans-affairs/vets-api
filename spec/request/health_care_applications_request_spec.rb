@@ -39,6 +39,15 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
     end
 
     context 'with user attributes' do
+      let(:user_attributes) do
+        {
+          userAttributes: build(:health_care_application).parsed_form.slice(
+            'veteranFullName', 'veteranDateOfBirth',
+            'veteranSocialSecurityNumber', 'gender'
+          )
+        }
+      end
+
       it 'should return the enrollment status data' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
@@ -47,13 +56,24 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
         get(
           enrollment_status_v0_health_care_applications_path,
-          userAttributes: build(:health_care_application).parsed_form.slice(
-            'veteranFullName', 'veteranDateOfBirth',
-            'veteranSocialSecurityNumber', 'gender'
-          )
+          user_attributes
         )
 
         expect(response.body).to eq(success_response.to_json)
+      end
+
+      context 'when the request is rate limited' do
+        it 'should return 429' do
+          expect(HCA::RateLimitedSearch).to receive(
+            :create_rate_limited_searches
+          ).and_raise(RateLimitedSearch::RateLimitedError)
+
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            user_attributes
+          )
+          expect(response.status).to eq(429)
+        end
       end
     end
 
