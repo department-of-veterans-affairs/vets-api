@@ -7,17 +7,38 @@ module ClaimsApi
     include Virtus.model
     %i[ssn
        first_name
+       middle_name
        last_name
        edipi
-       birls_id
        gender
-       participant_id].each do |attr|
+       birls_file_number
+       uuid
+       pid].each do |attr|
       attribute attr, String
     end
 
     attribute :loa, Hash
     attribute :va_profile, OpenStruct
     attribute :last_signed_in, Time
+
+    delegate :birls_id, to: :mvi, allow_nil: true
+    delegate :participant_id, to: :mvi, allow_nil: true
+
+    def birth_date
+      va_profile[:birth_date]
+    end
+
+    def valid?(loa_level= 3)
+      true
+    end
+
+    def loa3?
+      true
+    end
+
+    def mvi
+      Mvi.for_user(self)
+    end
 
     def ssn=(new_ssn)
       raise Common::Exceptions::ParameterMissing 'X-VA-SSN' unless SSN_REGEX.match(new_ssn)
@@ -30,8 +51,25 @@ module ClaimsApi
       super(new_va_profile)
     end
 
+    def loa3_user
+      true
+    end
+
+    def authn_context
+      'auth'
+    end
+
+    def mhv_icn
+      nil
+    end
+
+    def dslogon_edipi
+      edipi
+    end
+
     def self.from_headers(headers, with_gender: false)
       veteran = new(
+        uuid: 'something-not-nil',
         ssn: ensure_header(headers, 'X-VA-SSN'),
         first_name: ensure_header(headers, 'X-VA-First-Name'),
         last_name: ensure_header(headers, 'X-VA-Last-Name'),
@@ -40,7 +78,6 @@ module ClaimsApi
         last_signed_in: Time.now.utc
       )
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
-
       veteran
     end
 
