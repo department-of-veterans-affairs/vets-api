@@ -23,7 +23,7 @@ module EVSS
         'va_eauth_pnid' => @user.ssn,
         'va_eauth_birthdate' => iso8601_birth_date,
         'va_eauth_authorization' => eauth_json
-      )
+      ).delete_if { |_k, v| v.blank? }
     end
 
     private
