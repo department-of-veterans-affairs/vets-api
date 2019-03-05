@@ -1,4 +1,4 @@
-class CreateForm526OptIn < ActiveRecord::Migration
+class CreateForm526OptIn < ActiveRecord::Migration[4.2]
   def change
     create_table :form526_opt_ins do |t|
       t.string :user_uuid, null: false

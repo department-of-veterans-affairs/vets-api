@@ -1,4 +1,4 @@
-class CreateBaseFacilities < ActiveRecord::Migration
+class CreateBaseFacilities < ActiveRecord::Migration[4.2]
   def change
     create_table :base_facilities, id: false do |t|
       t.string :unique_id, null: false
