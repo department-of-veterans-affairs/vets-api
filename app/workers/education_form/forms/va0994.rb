@@ -60,9 +60,7 @@ module EducationForm::Forms
       if @applicant.bankAccount&.routingNumber.present?
         @applicant.bankAccount.routingNumber
       elsif !new_bank_info?
-        value_or_na(@applicant.prefillBankAccount&.bankRoutingNumber)
-      else
-        'N/A'
+        @applicant.prefillBankAccount&.bankRoutingNumber
       end
     end
 
@@ -70,9 +68,7 @@ module EducationForm::Forms
       if @applicant.bankAccount&.accountNumber.present?
         @applicant.bankAccount.accountNumber
       elsif !new_bank_info?
-        value_or_na(@applicant.prefillBankAccount&.bankAccountNumber)
-      else
-        'N/A'
+        @applicant.prefillBankAccount&.bankAccountNumber
       end
     end
 
@@ -80,19 +76,18 @@ module EducationForm::Forms
       if @applicant.bankAccount&.accountType.present?
         @applicant.bankAccount.accountType
       elsif !new_bank_info?
-        value_or_na(@applicant.prefillBankAccount&.bankAccountType)
-      else
-        'N/A'
+        @applicant.prefillBankAccount&.bankAccountType
       end
     end
 
     def location
-      return 'N/A' if @applicant.vetTecProgramLocations.blank?
+      return '' if @applicant.vetTecProgramLocations.blank?
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
     def high_tech_area_names
-      return 'N/A' if @applicant.highTechnologyEmploymentTypes.blank?
+      return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
+      return '' if @applicant.highTechnologyEmploymentTypes.blank?
 
       areas = []
       @applicant.highTechnologyEmploymentTypes.each do |area|
@@ -102,19 +97,40 @@ module EducationForm::Forms
     end
 
     def education_level_name
-      return 'N/A' if @applicant.highestLevelofEducation.blank?
+      return '' if @applicant.highestLevelofEducation.blank?
       return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
       EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
     end
 
     def course_type_name(course_type)
-      return 'N/A' if course_type.blank?
+      return '' if course_type.blank?
       COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
     def salary_text
-      return 'N/A' if @applicant.currentSalary.blank?
+      return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
+      return '' if @applicant.currentSalary.blank?
       SALARY_TEXT[@applicant.currentSalary.to_sym]
+    end
+
+    def program_text
+      return 'N/A' if @applicant.vetTecPrograms.blank?
+
+      program_blocks = []
+      @applicant.vetTecPrograms.each do |program|
+        program_blocks.push(
+          [
+            ["\n  Provider name: ", program.providerName].join(''),
+            ["\n  Program name: ", program.programName].join(''),
+            ["\n  Course type: ", course_type_name(program.courseType)].join(''),
+            "\n  Location:",
+            ["\n    City: ", program.location&.city].join(''),
+            ["\n    State: ", program.location&.state].join(''),
+            ["\n  Planned start date: ", program.plannedStartDate].join('')
+          ].join('')
+        )
+      end
+      program_blocks.join("\n")
     end
 
     def full_address_with_street3(address, indent: false)
