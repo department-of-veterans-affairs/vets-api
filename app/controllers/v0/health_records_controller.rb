@@ -20,8 +20,7 @@ module V0
     end
 
     def create
-      # TODO: don't permit all
-      client.post_generate(params.permit!)
+      client.post_generate(params.permit(:from_date, :to_date, data_classes: []))
 
       head :accepted
     end
