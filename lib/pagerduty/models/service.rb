@@ -7,7 +7,6 @@ module PagerDuty
   module Models
     class Service
       include ActiveModel::Validations
-      include ActiveModel::Serialization
       include Virtus.model(nullify_blank: true)
 
       ACTIVE = 'active'
@@ -65,7 +64,7 @@ module PagerDuty
         end
 
         def validate!(external_service)
-          raise Common::Exceptions::ValidationErrors.new(external_service) unless external_service.valid?
+          raise Common::Exceptions::ValidationErrors, external_service unless external_service.valid?
 
           external_service
         end
