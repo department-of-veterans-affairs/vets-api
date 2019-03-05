@@ -856,7 +856,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                   headers.merge('_data' => {
                                   'from_date' => 10.years.ago.iso8601.to_json,
                                   'to_date' => Time.now.iso8601.to_json,
-                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
                                 })
                 )
               end
