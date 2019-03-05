@@ -50,27 +50,39 @@ module EducationForm::Forms
       @applicant.applicantSocialSecurityNumber
     end
 
+    def new_bank_info?
+      @applicant.bankAccount&.routingNumber.present? ||
+        @applicant.bankAccount&.accountNumber.present? ||
+        @applicant.bankAccount&.accountType.present?
+    end
+
     def bank_routing_number
       if @applicant.bankAccount&.routingNumber.present?
         @applicant.bankAccount.routingNumber
+      elsif !new_bank_info?
+        value_or_na(@applicant.prefillBankAccount&.bankRoutingNumber)
       else
-        @applicant.prefillBankAccount&.bankRoutingNumber
+        ''
       end
     end
 
     def bank_account_number
       if @applicant.bankAccount&.accountNumber.present?
         @applicant.bankAccount.accountNumber
+      elsif !new_bank_info?
+        value_or_na(@applicant.prefillBankAccount&.bankAccountNumber)
       else
-        @applicant.prefillBankAccount&.bankAccountNumber
+        ''
       end
     end
 
     def bank_account_type
       if @applicant.bankAccount&.accountType.present?
         @applicant.bankAccount.accountType
+      elsif !new_bank_info?
+        value_or_na(@applicant.prefillBankAccount&.bankAccountType)
       else
-        @applicant.prefillBankAccount&.bankAccountType
+        ''
       end
     end
 
