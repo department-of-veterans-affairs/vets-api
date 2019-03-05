@@ -60,9 +60,7 @@ module EducationForm::Forms
       if @applicant.bankAccount&.routingNumber.present?
         @applicant.bankAccount.routingNumber
       elsif !new_bank_info?
-        value_or_na(@applicant.prefillBankAccount&.bankRoutingNumber)
-      else
-        ''
+        @applicant.prefillBankAccount&.bankRoutingNumber
       end
     end
 
@@ -70,9 +68,7 @@ module EducationForm::Forms
       if @applicant.bankAccount&.accountNumber.present?
         @applicant.bankAccount.accountNumber
       elsif !new_bank_info?
-        value_or_na(@applicant.prefillBankAccount&.bankAccountNumber)
-      else
-        ''
+        @applicant.prefillBankAccount&.bankAccountNumber
       end
     end
 
@@ -80,9 +76,7 @@ module EducationForm::Forms
       if @applicant.bankAccount&.accountType.present?
         @applicant.bankAccount.accountType
       elsif !new_bank_info?
-        value_or_na(@applicant.prefillBankAccount&.bankAccountType)
-      else
-        ''
+        @applicant.prefillBankAccount&.bankAccountType
       end
     end
 
