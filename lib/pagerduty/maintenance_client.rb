@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'pagerduty/configuration'
 
 module PagerDuty
   class MaintenanceClient < Common::Client::Base
