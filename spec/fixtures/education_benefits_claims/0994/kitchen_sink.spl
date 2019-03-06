@@ -2,7 +2,7 @@
 TEST
 
 PERSONAGE
-
+123456789
 123456789
 V0994
 
@@ -61,27 +61,27 @@ Account Number: 123456
 VET TEC programs:
 
   Provider name: Provider A
-  Program name: N/A
+  Program name:
   Course type: In Person
   Location:
     City: Test
-    State: N/A
+    State:
   Planned start date: 2019-06-01
 
-  Provider name: N/A
+  Provider name:
   Program name: Program B
-  Course type: N/A
+  Course type:
   Location:
-    City: N/A
+    City:
     State: AK
-  Planned start date: N/A
+  Planned start date:
 
   Provider name: Provider C
-  Program name: N/A
+  Program name:
   Course type: Online
   Location:
-    City: N/A
-    State: N/A
+    City:
+    State:
   Planned start date: 2020-06-01
 
                        BACKGROUND INFORMATION

@@ -105,6 +105,11 @@ module EducationForm::Forms
       bool ? 'YES' : 'NO'
     end
 
+    def yesno_or_blank(bool)
+      return '' if bool.nil?
+      bool ? 'YES' : 'NO'
+    end
+
     def value_or_na(value)
       value.nil? ? 'N/A' : value
     end
