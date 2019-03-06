@@ -34,36 +34,34 @@ module PagerDuty
       # @see https://api-reference.pagerduty.com/#!/Services/get_services
       #
       def self.statuses_for(services)
-        eligible!(services).map do |pager_duty_service|
-          external_service = build_service_for(pager_duty_service)
-
-          validate! external_service
-        end
+        eligible!(services).map { |service| build!(service) }
       end
 
       class << self
         def eligible!(services)
-          services.select do |pager_duty_service|
-            name_present!(pager_duty_service)
+          services.select do |service|
+            name_present!(service)
 
-            pager_duty_service['name'].start_with?('External:')
+            service['name'].start_with?('External:')
           end
         end
 
-        def build_service_for(pager_duty_service)
-          PagerDuty::Models::Service.new(
-            service: external_service_in(pager_duty_service),
-            status: pager_duty_service['status'],
-            last_incident_timestamp: pager_duty_service['last_incident_timestamp']
+        def build!(service)
+          external_service = Service.new(
+            service: external_service_in(service),
+            status: service['status'],
+            last_incident_timestamp: service['last_incident_timestamp']
           )
+
+          validate! external_service
         end
 
-        def external_service_in(pager_duty_service)
-          pager_duty_service['name'].split('External:').last.strip
+        def external_service_in(service)
+          service['name'].split('External:').last.strip
         end
 
-        def name_present!(pager_duty_service)
-          raise Common::Exceptions::InvalidFieldValue.new('name', 'nil') if pager_duty_service['name'].blank?
+        def name_present!(service)
+          raise Common::Exceptions::InvalidFieldValue.new('name', 'nil') if service['name'].blank?
         end
 
         def validate!(external_service)
