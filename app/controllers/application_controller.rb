@@ -133,7 +133,7 @@ class ApplicationController < ActionController::API
       # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
       current_user.identity.sign_in.merge(acct_type: current_user.identity.sign_in[:account_type])
     else
-     'not-signed-in'
+      'not-signed-in'
     end
   end
 

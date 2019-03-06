@@ -74,7 +74,7 @@ class MhvAccountTypeService
       eligible_data_classes: eligible_data_classes,
       authn_context: user.authn_context,
       va_patient: user.va_patient?,
-      mhv_acct_type: user.identity.mhv_account_type,
+      mhv_acct_type: user.identity.mhv_account_type
     )
     tags = { sign_in_method: user.identity.sign_in }
     log_message_to_sentry(message, :info, extra_context, tags)
