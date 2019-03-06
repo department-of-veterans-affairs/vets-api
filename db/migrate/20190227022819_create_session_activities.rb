@@ -4,6 +4,7 @@ class CreateSessionActivities < ActiveRecord::Migration
       t.uuid     :originating_request_id, null: false
       t.string   :originating_ip_address, null: false
       t.string   :originating_user_agent
+      t.string   :generated_url, null: false
       t.string   :name, null: false
       t.string   :status, null: false, default: 'incomplete'
       t.uuid     :user_uuid
