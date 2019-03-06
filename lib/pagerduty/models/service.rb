@@ -9,6 +9,9 @@ module PagerDuty
       include ActiveModel::Validations
       include Virtus.model(nullify_blank: true)
 
+      # 5 potential `service#status` values
+      # @see response schema of https://api-reference.pagerduty.com/#!/Services/get_services
+      #
       ACTIVE = 'active'
       WARNING = 'warning'
       CRITICAL = 'critical'
