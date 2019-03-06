@@ -10,7 +10,7 @@ class RateLimitedSearch < Common::RedisStore
   attribute(:count, Integer, default: 1)
   attribute(:search_params, String)
 
-  class RateLimitedError < StandardError
+  class RateLimitedError < Common::Exceptions::TooManyRequests
   end
 
   def self.create_or_increment_count(search_params)

@@ -19,5 +19,7 @@
   "appliedForVaEducationBenefits": true,
   "activeDuty": true,
   "highestLevelofEducation": "high_school_diploma_or_GED",
-  "privacyAgreementAccepted": true
+  "privacyAgreementAccepted": true,
+  "pastHighTechnologyEmployment": false,
+  "currentHighTechnologyEmployment": false
 }

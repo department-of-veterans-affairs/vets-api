@@ -18,22 +18,22 @@ Social Security Number: <%= @applicant.applicantSocialSecurityNumber %>
 Mailing Address:
 <%= full_address_with_street3(@applicant.mailingAddress) %>
 
-Sex of Applicant: <%= value_or_na(@applicant.applicantGender) %>
+Sex of Applicant: <%= @applicant.applicantGender %>
 
-Date of Birth: <%= value_or_na(@applicant.dateOfBirth) %>
+Date of Birth: <%= @applicant.dateOfBirth %>
 
 Email Address: <%= @applicant.emailAddress %>
 
 Day Time Telephone Number: <%= @applicant.dayTimePhone %>
 
-Night Time Telephone Number: <%= value_or_na(@applicant.nightTimePhone) %>
+Night Time Telephone Number: <%= @applicant.nightTimePhone %>
 
 Have you ever applied for VA education benefits?: <%= yesno(@applicant.appliedForVaEducationBenefits) %>
 
 Are you currently on active duty?: <%= yesno(@applicant.activeDuty) %>
 
 Do you anticipate you will go on active duty during the
-VET TEC program?: <%= yesno(@applicant.activeDutyDuringVetTec) %>
+VET TEC program?: <%= yesno_or_blank(@applicant.activeDutyDuringVetTec) %>
 
 DIRECT DEPOSIT INFORMATION:
 
@@ -47,15 +47,8 @@ Account Number: <%= bank_account_number %>
                           ---------------
 
 VET TEC programs:
-<% Array(@applicant.vetTecPrograms).each do |program| %>
-  Provider name: <%= value_or_na(program.providerName) %>
-  Program name: <%= value_or_na(program.programName) %>
-  Course type: <%= course_type_name(program.courseType) %>
-  Location:
-    City: <%= value_or_na(program.location&.city) %>
-    State: <%= value_or_na(program.location&.state) %>
-  Planned start date: <%= value_or_na(program.plannedStartDate) %>
-<% end %>
+<%= program_text %>
+
                        BACKGROUND INFORMATION
                        ----------------------
 
