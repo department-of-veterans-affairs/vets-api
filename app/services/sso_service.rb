@@ -10,7 +10,11 @@ class SSOService
   ERRORS = { validations_failed: { code: '004',
                                    tag: :validations_failed,
                                    short_message: 'on User/Session Validation',
-                                   level: :error } }.freeze
+                                   level: :error }
+             mvi_outage: { code: '005',
+                                   tag: :mvi_outage,
+                                   short_message: 'MVI is unavilable',
+                                   level: :error }}.freeze
 
   # We don't want to persist the mhv_account_type because then we would have to change it when we
   # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
@@ -92,9 +96,16 @@ class SSOService
       message += error_hash[:short_message]
       message += ' Multiple SAML Errors' if saml_response.normalized_errors.count > 1
     else
-      error_hash = ERRORS[:validations_failed]
-      error_context = validation_error_context
-      message += error_hash[:short_message]
+      latest_outage = MVI::Configuration.instance.breakers_service.latest_outage
+      if latest_outage && !latest_outage.ended?
+        error_hash = ERRORS[:mvi_outage]
+        error_context = "MVI has been unavailable since #{latest_outage.start_time}"
+        message += error_hash[:short_message]
+      else
+        error_hash = ERRORS[:validations_failed]
+        error_context = validation_error_context
+        message += error_hash[:short_message]
+      end
     end
     @auth_error_code = error_hash[:code]
     @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
