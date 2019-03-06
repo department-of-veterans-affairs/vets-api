@@ -11,11 +11,11 @@ module PagerDuty
 
       configuration PagerDuty::Configuration
 
-      # Calls PagerDuty's GET /services endpoint, and returns a pre-serialized representation
-      # of the raw response.
+      # Calls PagerDuty's GET /services endpoint, and returns a pre-serialized
+      # representation of the raw response.
       #
-      # @return [PagerDuty::ExternalServices::Response] A response class that wraps a
-      # pre-serialized response of PagerDuty::Models::Service objects
+      # @return [PagerDuty::ExternalServices::Response] A class that wraps a
+      #   pre-serialized array of PagerDuty::Models::Service objects
       # @see https://api-reference.pagerduty.com/#!/Services/get_services
       #
       def get_services

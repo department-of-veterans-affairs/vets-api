@@ -10,7 +10,10 @@ module PagerDuty
 
       validates :reported_at, presence: true
 
-      def self.from(raw_response = nil)
+      # @param raw_response [Faraday::Env] Response from PagerDuty `GET /services` call
+      # @return [PagerDuty::ExternalServices::Response] An instance of this class
+      #
+      def self.from(raw_response)
         services = raw_response&.body&.dig('services').presence || []
 
         new(

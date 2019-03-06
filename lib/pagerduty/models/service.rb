@@ -9,15 +9,15 @@ module PagerDuty
       include ActiveModel::Validations
       include Virtus.model(nullify_blank: true)
 
-      # 5 potential `service#status` values
-      # @see response schema of https://api-reference.pagerduty.com/#!/Services/get_services
+      # 5 potential PagerDuty API `service#status` values
+      # @see response schema from https://api-reference.pagerduty.com/#!/Services/get_services
       #
-      ACTIVE = 'active'
-      WARNING = 'warning'
-      CRITICAL = 'critical'
+      ACTIVE      = 'active'
+      WARNING     = 'warning'
+      CRITICAL    = 'critical'
+      DISABLED    = 'disabled'
       MAINTENANCE = 'maintenance'
-      DISABLED = 'disabled'
-      STATUSES = [ACTIVE, WARNING, CRITICAL, MAINTENANCE, DISABLED].freeze
+      STATUSES    = [ACTIVE, WARNING, CRITICAL, MAINTENANCE, DISABLED].freeze
 
       attribute :service, String
       attribute :status, String
