@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/MethodLength
+#
+# Sample response from https://api-reference.pagerduty.com/#!/Services/get_services
+# with a `name: nil`
+#
 def nil_name
   [
     {
@@ -67,6 +71,9 @@ def nil_name
   ]
 end
 
+# Sample response from https://api-reference.pagerduty.com/#!/Services/get_services
+# with an invalid `status`
+#
 def invalid_status
   [
     {

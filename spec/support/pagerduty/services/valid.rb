@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 # rubocop:disable Metrics/MethodLength
+#
+# Sample response from https://api-reference.pagerduty.com/#!/Services/get_services
+#
 def valid_service
   [
     {
@@ -67,6 +70,9 @@ def valid_service
   ]
 end
 
+# Sample response from https://api-reference.pagerduty.com/#!/Services/get_services
+# with `name: Staging: ...`
+#
 def valid_staging_service
   [
     {
