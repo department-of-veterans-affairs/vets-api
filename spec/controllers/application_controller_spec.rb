@@ -175,7 +175,7 @@ RSpec.describe ApplicationController, type: :controller do
         # if authn_context is nil on current_user it means idme
         expect(Raven).to receive(:tags_context).once.with(
           controller_name: 'anonymous',
-          sign_in_method: { service_name: 'idme' }
+          sign_in_method: { service_name: 'idme', acct_type: nil}
         )
         # since user IS signed in, this SHOULD get called
         expect(Raven).to receive(:user_context).with(

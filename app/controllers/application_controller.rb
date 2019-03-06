@@ -124,8 +124,17 @@ class ApplicationController < ActionController::API
   def tags_context
     {
       controller_name: controller_name,
-      sign_in_method: current_user.present? ? current_user.identity.sign_in : 'not-signed-in'
+      sign_in_method: sign_in_method_for_tag
     }
+  end
+
+  def sign_in_method_for_tag
+    if current_user.present?
+      # account_type is filtered by sentry, becasue in other contexts it refers to a bank account type
+      current_user.identity.sign_in.merge(acct_type: current_user.identity.sign_in[:account_type])
+    else
+     'not-signed-in'
+    end
   end
 
   def set_app_info_headers

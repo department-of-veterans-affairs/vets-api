@@ -99,7 +99,7 @@ RSpec.describe MhvAccountTypeService do
         eligible_data_classes: eligible_data_classes,
         authn_context: user.authn_context,
         va_patient: user.va_patient?,
-        known_account_type: user.identity.mhv_account_type
+        mhv_acct_type: user.identity.mhv_account_type
       }
     end
     let(:tags_context) { { sign_in_method: { service_name: 'myhealthevet' } } }
