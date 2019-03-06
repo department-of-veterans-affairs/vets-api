@@ -19,13 +19,18 @@ class Form526Submission < ActiveRecord::Base
 
   def start(klass)
     workflow_batch = Sidekiq::Batch.new
+    workflow_batch.on(
+      :success,
+      'Form526Submission#perform_ancillary_jobs_handler',
+      'submission_id' => id
+    )
     jids = workflow_batch.jobs do
       klass.perform_async(id)
     end
 
     # submit form 526 is the first job in the batch
     # after it completes ancillary jobs may be added to the workflow batch
-    # see #perform_ancillary_jobs below
+    # via the #perform_ancillary_jobs_handler below
     jids.first
   end
 
@@ -39,6 +44,11 @@ class Form526Submission < ActiveRecord::Base
 
   def auth_headers
     @auth_headers_hash ||= JSON.parse(auth_headers_json)
+  end
+
+  def perform_ancillary_jobs_handler(status, options)
+    submission = Form526Submission.find(options['submission_id'])
+    submission.perform_ancillary_jobs(status.parent_bid)
   end
 
   def perform_ancillary_jobs(bid)
