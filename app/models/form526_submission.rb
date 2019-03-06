@@ -48,7 +48,8 @@ class Form526Submission < ActiveRecord::Base
 
   def perform_ancillary_jobs_handler(status, options)
     submission = Form526Submission.find(options['submission_id'])
-    submission.perform_ancillary_jobs(status.parent_bid)
+    # Only run ancillary jobs if submission succeeded
+    submission.perform_ancillary_jobs(status.parent_bid) if submission.form526_job_statuses.all?(&:success?)
   end
 
   def perform_ancillary_jobs(bid)
