@@ -13,6 +13,7 @@ module ClaimsApi
        gender
        birls_file_number
        uuid
+       mhv_icn
        pid].each do |attr|
       attribute attr, String
     end
@@ -59,17 +60,13 @@ module ClaimsApi
       'auth'
     end
 
-    def mhv_icn
-      nil
-    end
-
     def dslogon_edipi
       edipi
     end
 
     def self.from_headers(headers, with_gender: false)
       veteran = new(
-        uuid: 'something-not-nil',
+        uuid: ensure_header(headers, 'X-VA-SSN'),
         ssn: ensure_header(headers, 'X-VA-SSN'),
         first_name: ensure_header(headers, 'X-VA-First-Name'),
         last_name: ensure_header(headers, 'X-VA-Last-Name'),
