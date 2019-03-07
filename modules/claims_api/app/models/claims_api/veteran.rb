@@ -29,12 +29,13 @@ module ClaimsApi
       va_profile[:birth_date]
     end
 
+    # Virtus doesnt provide a valid? method, but MVI requires it
     def valid?(*)
       true
     end
 
     def loa3?
-      true
+      loa[:current] == 3
     end
 
     def mvi
@@ -53,11 +54,11 @@ module ClaimsApi
     end
 
     def loa3_user
-      true
+      loa3?
     end
 
     def authn_context
-      'auth'
+      'authn'
     end
 
     def dslogon_edipi
@@ -74,6 +75,8 @@ module ClaimsApi
         edipi: ensure_header(headers, 'X-VA-EDIPI'),
         last_signed_in: Time.now.utc
       )
+      # commenting this out until we decide on LOA
+      # veteran.loa = { current: 3, highest: 3 }
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
       veteran
     end
