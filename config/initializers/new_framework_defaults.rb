@@ -8,8 +8,7 @@
 #
 # Read the Guide for Upgrading Ruby on Rails for more info on each option.
 
-# TODO: Write an issue to capture work around updating all params to use strong_params, then re-enable this - kfrz
-# Rails.application.config.action_controller.raise_on_unfiltered_parameters = true
+Rails.application.config.action_controller.raise_on_unfiltered_parameters = true
 
 # Make Ruby 2.4 preserve the timezone of the receiver when calling `to_time`.
 # Previous versions had false.
