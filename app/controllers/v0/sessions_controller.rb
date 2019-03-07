@@ -76,7 +76,7 @@ module V0
     end
 
     def saml_callback
-      saml_response = OneLogin::RubySaml::Response.new(params[:SAMLResponse], settings: saml_settings)
+      saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
       @sso_service = SSOService.new(saml_response)
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
@@ -90,6 +90,7 @@ module V0
         stats(:replay)
         redirect_to '' # todo
       else
+        log_auth_too_late if @sso_service.auth_error_code == '002'
         redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
@@ -108,10 +109,10 @@ module V0
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{@sso_service.authn_context}"])
+                         tags: ['status:success', "context:#{@sso_service.saml_response.authn_context}"])
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{@sso_service.authn_context}"])
+                         tags: ['status:failure', "context:#{@sso_service.saml_response.authn_context}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
@@ -155,6 +156,19 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
+    end
+
+    # this method is intended to be temporary as we gather more information on the auth_too_late SAML error
+    def log_auth_too_late
+      session_object = Session.find(session[:token])
+      user = User.find(session_object&.uuid)
+
+      log_message_to_sentry('auth_too_late ',
+                            :warn,
+                            code: @sso_service.auth_error_code,
+                            errors: @sso_service.errors.messages,
+                            last_signed_in_if_logged_in: user&.last_signed_in,
+                            authn_context: user&.authn_context)
     end
 
     def build_logout_errors(logout_response, logout_request)

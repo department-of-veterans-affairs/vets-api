@@ -11,18 +11,18 @@ module EducationForm::Forms
     end
 
     HIGH_TECH_AREA_NAMES = {
-      'computerProgramming': 'Computer Programming',
-      'dataProcessing': 'Data Processing',
-      'computerSoftware': 'Computer Software',
-      'informationSciences': 'Information Sciences',
-      'mediaApplication': 'Media Application'
+      'computerProgramming': 'Computer programming',
+      'dataProcessing': 'Data processing',
+      'computerSoftware': 'Computer software',
+      'informationSciences': 'Information sciences',
+      'mediaApplication': 'Media application'
     }.freeze
 
     SALARY_TEXT = {
       'lessThanTwenty': '<$20,000',
-      'twentyToThirtyFive': '$20,001-$35,000',
-      'thirtyFiveToFifty': '$35,001-$50,000',
-      'fiftyToSeventyFive': '$50,001-$75,000',
+      'twentyToThirtyFive': '$20,000-$35,000',
+      'thirtyFiveToFifty': '$35,000-$50,000',
+      'fiftyToSeventyFive': '$50,000-$75,000',
       'moreThanSeventyFive': '>$75,000'
     }.freeze
 
@@ -50,50 +50,99 @@ module EducationForm::Forms
       @applicant.applicantSocialSecurityNumber
     end
 
+    def new_bank_info?
+      @applicant.bankAccount&.routingNumber.present? ||
+        @applicant.bankAccount&.accountNumber.present? ||
+        @applicant.bankAccount&.accountType.present?
+    end
+
     def bank_routing_number
-      return 'N/A' if @applicant.bankAccount.blank?
-      value_or_na(@applicant.bankAccount.routingNumber)
+      if @applicant.bankAccount&.routingNumber.present?
+        @applicant.bankAccount.routingNumber
+      elsif !new_bank_info?
+        @applicant.prefillBankAccount&.bankRoutingNumber
+      end
     end
 
     def bank_account_number
-      return 'N/A' if @applicant.bankAccount.blank?
-      value_or_na(@applicant.bankAccount.accountNumber)
+      if @applicant.bankAccount&.accountNumber.present?
+        @applicant.bankAccount.accountNumber
+      elsif !new_bank_info?
+        @applicant.prefillBankAccount&.bankAccountNumber
+      end
     end
 
     def bank_account_type
-      return 'N/A' if @applicant.bankAccount.blank?
-      value_or_na(@applicant.bankAccount.accountType)
+      if @applicant.bankAccount&.accountType.present?
+        @applicant.bankAccount.accountType
+      elsif !new_bank_info?
+        @applicant.prefillBankAccount&.bankAccountType
+      end
     end
 
     def location
-      return 'N/A' if @applicant.vetTecProgramLocations.blank?
+      return '' if @applicant.vetTecProgramLocations.blank?
       "#{@applicant.vetTecProgramLocations.city}, #{@applicant.vetTecProgramLocations.state}"
     end
 
     def high_tech_area_names
-      return 'N/A' if @applicant.highTechnologyEmploymentTypes.blank?
+      return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
+      return '' if @applicant.highTechnologyEmploymentTypes.blank?
 
       areas = []
       @applicant.highTechnologyEmploymentTypes.each do |area|
         areas.push(HIGH_TECH_AREA_NAMES[area.to_sym])
       end
-      areas.join(', ')
+      areas.join("\n")
     end
 
     def education_level_name
-      return 'N/A' if @applicant.highestLevelofEducation.blank?
+      return '' if @applicant.highestLevelofEducation.blank?
       return @applicant.otherEducation if @applicant.highestLevelofEducation == 'other'
       EDUCATION_TEXT[@applicant.highestLevelofEducation.to_sym]
     end
 
     def course_type_name(course_type)
-      return 'N/A' if course_type.blank?
+      return '' if course_type.blank?
       COURSE_TYPE_TEXT[course_type.to_sym]
     end
 
     def salary_text
-      return 'N/A' if @applicant.currentSalary.blank?
+      return 'N/A' if !@applicant.currentHighTechnologyEmployment && !@applicant.currentHighTechnologyEmployment
+      return '' if @applicant.currentSalary.blank?
       SALARY_TEXT[@applicant.currentSalary.to_sym]
+    end
+
+    def program_text
+      return 'N/A' if @applicant.vetTecPrograms.blank?
+
+      program_blocks = []
+      @applicant.vetTecPrograms.each do |program|
+        program_blocks.push(
+          [
+            ["\n  Provider name: ", program.providerName].join(''),
+            ["\n  Program name: ", program.programName].join(''),
+            ["\n  Course type: ", course_type_name(program.courseType)].join(''),
+            "\n  Location:",
+            ["\n    City: ", program.location&.city].join(''),
+            ["\n    State: ", program.location&.state].join(''),
+            ["\n  Planned start date: ", program.plannedStartDate].join('')
+          ].join('')
+        )
+      end
+      program_blocks.join("\n")
+    end
+
+    def full_address_with_street3(address, indent: false)
+      return '' if address.nil?
+      seperator = indent ? "\n        " : "\n"
+      [
+        address.street,
+        address.street2,
+        address.street3,
+        [address.city, address.state, address.postalCode].compact.join(', '),
+        address.country
+      ].compact.join(seperator).upcase
     end
   end
 end

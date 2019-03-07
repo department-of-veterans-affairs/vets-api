@@ -1115,7 +1115,7 @@ describe HCA::EnrollmentSystem do
       end
     end
 
-    context 'with an attachment' do
+    context 'with attachments' do
       it 'should create the right result', run_at: '2019-01-11 14:19:04 -0800' do
         health_care_application = build(:hca_app_with_attachment)
         result = described_class.veteran_to_save_submit_form(health_care_application.parsed_form, nil)
@@ -1219,7 +1219,7 @@ describe HCA::EnrollmentSystem do
     end
 
     subject do
-      described_class.build_form_for_user(current_user)
+      described_class.build_form_for_user(HealthCareApplication.get_user_identifier(current_user))
     end
 
     context 'with no user' do
@@ -1268,7 +1268,7 @@ describe HCA::EnrollmentSystem do
       context 'when the user has an icn' do
         let(:auth_type_id) { icn_id }
         before do
-          expect(current_user).to receive(:icn).twice.and_return(user_id)
+          expect(current_user).to receive(:icn).and_return(user_id)
         end
 
         should_return_user_id
@@ -1276,7 +1276,7 @@ describe HCA::EnrollmentSystem do
         context 'when the user has an edipi' do
           let(:auth_type_id) { icn_id }
           before do
-            allow(current_user).to receive(:edipi).twice.and_return('456')
+            allow(current_user).to receive(:edipi).and_return('456')
           end
 
           should_return_user_id
@@ -1286,7 +1286,7 @@ describe HCA::EnrollmentSystem do
       context 'when the user has an edipi' do
         let(:auth_type_id) { edipi_id }
         before do
-          expect(current_user).to receive(:edipi).twice.and_return(user_id)
+          expect(current_user).to receive(:edipi).and_return(user_id)
         end
 
         should_return_user_id

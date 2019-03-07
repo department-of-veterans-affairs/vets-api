@@ -1,0 +1,13 @@
+<p>
+  For <%= @start_date %> to <%= @end_date %>:<br>
+  <ul>
+    <li><%= @successes_count %> Successes</li>
+    <li><%= @error_persisting_count + @server_unavailable_count + @other_errors_count %> Failures
+      <ul>
+        <li><%= @error_persisting_count %> "Error persisting PreNeedApplication"</li>
+        <li><%= @server_unavailable_count %> "503 Service Unavailable"</li>
+        <li><%= @other_errors_count %> Other errors</li>
+      </ul>
+    </li>
+  </ul>
+</p>

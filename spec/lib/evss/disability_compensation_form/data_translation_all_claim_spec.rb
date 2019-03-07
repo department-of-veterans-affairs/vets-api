@@ -885,7 +885,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition',
                 'disabilityActionType' => 'SECONDARY',
-                'specialIssue' => 'POW',
+                'specialIssues' => ['POW'],
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
@@ -919,7 +919,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'disabilityActionType' => 'NEW',
             'name' => 'new condition',
             'classificationCode' => 'Test Code',
-            'specialIssue' => 'POW',
+            'specialIssues' => ['POW'],
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
           }
         ]
@@ -950,7 +950,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'disabilityActionType' => 'NEW',
             'name' => 'worsened condition',
             'classificationCode' => 'Test Code',
-            'specialIssue' => 'POW',
+            'specialIssues' => ['POW'],
             'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects"
           }
@@ -983,7 +983,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'disabilityActionType' => 'NEW',
             'name' => 'va condition',
             'classificationCode' => 'Test Code',
-            'specialIssue' => 'POW',
+            'specialIssues' => ['POW'],
             'serviceRelevance' =>
               "Caused by VA care\nEvent: va condition description\n"\
               "Location: va location\nTimeFrame: the third of october"
@@ -1055,7 +1055,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
                 'name' => 'secondary condition',
                 'classificationCode' => 'Test Code',
                 'disabilityActionType' => 'SECONDARY',
-                'specialIssue' => 'POW',
+                'specialIssues' => ['POW'],
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]
@@ -1069,13 +1069,13 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
               {
                 'name' => 'secondary condition2',
                 'disabilityActionType' => 'SECONDARY',
-                'specialIssue' => 'POW',
+                'specialIssues' => ['POW'],
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               },
               {
                 'name' => 'secondary condition3',
                 'disabilityActionType' => 'SECONDARY',
-                'specialIssue' => 'POW',
+                'specialIssues' => ['POW'],
                 'serviceRelevance' => "Caused by a service-connected disability\nsecondary description"
               }
             ]

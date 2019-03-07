@@ -2,7 +2,7 @@
 TEST
 
 PERSONAGE
-
+123456789
 123456789
 V0994
 
@@ -26,6 +26,7 @@ Social Security Number: 123456789
 Mailing Address:
 123 TEST ST
 APT B
+AND A HALF
 TEST, TN, 12345
 USA
 
@@ -60,40 +61,42 @@ Account Number: 123456
 VET TEC programs:
 
   Provider name: Provider A
-  Program name: N/A
+  Program name:
   Course type: In Person
   Location:
     City: Test
-    State: N/A
+    State:
   Planned start date: 2019-06-01
 
-  Provider name: N/A
+  Provider name:
   Program name: Program B
-  Course type: N/A
+  Course type:
   Location:
-    City: N/A
+    City:
     State: AK
-  Planned start date: N/A
+  Planned start date:
 
   Provider name: Provider C
-  Program name: N/A
+  Program name:
   Course type: Online
   Location:
-    City: N/A
-    State: N/A
+    City:
+    State:
   Planned start date: 2020-06-01
 
                        BACKGROUND INFORMATION
                        ----------------------
 
-Are you working in a high-tech industry now?: YES
+Are you working in one, or more, of these high-tech industries now?: YES
 
-Have you worked in a high-tech industry in the past?: YES
+Have you worked in any of these high-tech industries in the past?: YES
 
-If yes, select the area:
-Computer Programming, Computer Software
+Which option(s) best describe your high-tech work experience?
+Check all that apply:
+Computer programming
+Computer software
 
-What is your current salary range?: <$20,000
+About how much per year do/did you earn as a high-tech worker?: <$20,000
 
 What is your highest level of education?: Other Education Type
 

@@ -71,7 +71,7 @@ module SAML
 
     # will be one of AUTHN_CONTEXTS.keys
     def authn_context
-      REXML::XPath.first(saml_response.decrypted_document, '//saml:AuthnContextClassRef')&.text
+      saml_response.authn_context_text
     rescue StandardError
       Raven.tags_context(controller_name: 'sessions', sign_in_method: 'not-signed-in:error')
       raise
@@ -79,13 +79,11 @@ module SAML
 
     def user_attributes_class
       case authn_context
-      when 'myhealthevet'; then SAML::UserAttributes::MHV
-      when 'dslogon'; then SAML::UserAttributes::DSLogon
-      when 'myhealthevet_multifactor', 'dslogon_multifactor', 'multifactor'
-        SAML::UserAttributes::IdMe
-      when 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3
-        SAML::UserAttributes::IdMe
-      when LOA::IDME_LOA1
+      when 'myhealthevet', 'myhealthevet_multifactor'
+        SAML::UserAttributes::MHV
+      when 'dslogon', 'dslogon_multifactor'
+        SAML::UserAttributes::DSLogon
+      when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
       else
         Raven.tags_context(

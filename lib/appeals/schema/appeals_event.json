@@ -27,11 +27,9 @@
           "ramp_notice",
           "transcript",
           "remand_return",
-          "dro_hearing_held",
-          "dro_hearing_cancelled",
-          "dro_hearing_no_show",
           "ama_nod",
           "docket_change",
+          "distributed_to_vlj",
           "bva_decision_effectuation",
           "dta_decision",
           "sc_request",
@@ -40,7 +38,8 @@
           "hlr_request",
           "hlr_decision",
           "hlr_dta_error",
-          "hlr_other_close"
+          "hlr_other_close",
+          "statutory_opt_in"
         ]
       }
     },

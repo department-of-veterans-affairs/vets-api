@@ -61,17 +61,22 @@ module SAML
         level_of_assurance: verifying ? ['3'] : level_of_assurance,
         multifactor: multifactor
       )
-      instance_double(OneLogin::RubySaml::Response, attributes: attributes,
-                                                    decrypted_document: document_partial(authn_context),
-                                                    is_a?: true,
-                                                    is_valid?: true,
-                                                    response: 'mock-response')
+      saml_response = SAML::Response.new(document_partial(authn_context).to_s)
+      allow(saml_response).to receive(:attributes).and_return(attributes)
+      allow(saml_response).to receive(:is_valid?).and_return(true)
+      allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
+      saml_response
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
 
-    def build_invalid_saml_response(options)
-      options = options.reverse_merge(is_valid?: false, is_a?: true)
-      instance_double(OneLogin::RubySaml::Response, options)
+    def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
+      saml_response = SAML::Response.new(decrypted_document.to_s)
+      allow(saml_response).to receive(:is_valid?).and_return(false)
+      allow(saml_response).to receive(:errors).and_return(errors)
+      allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
+      allow(saml_response).to receive(:decrypted_document).and_return(decrypted_document)
+      allow(saml_response).to receive(:status_message).and_return(status_message)
+      saml_response
     end
 
     def invalid_saml_response
@@ -83,7 +88,13 @@ module SAML
       build_invalid_saml_response(
         in_response_to: uuid,
         decrypted_document: nil,
-        errors: ['ruh roh'],
+        errors: ['The status code of the Response was not Success, was Responder => AuthnFailed '\
+                 '-> Subject did not consent to attribute release',
+                 'SAML Response must contain 1 assertion',
+                 'The Assertion must include one Conditions element',
+                 'The Assertion must include one AuthnStatement element',
+                 'Issuer of the Assertion not found or multiple.',
+                 'A valid SubjectConfirmation was not found on this Response'],
         status_message: 'Subject did not consent to attribute release'
       )
     end
@@ -94,7 +105,8 @@ module SAML
         in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
-          'Current time is on or after NotOnOrAfter condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)'
+          'Current time is on or after NotOnOrAfter condition (2017-02-10 17:03:40 UTC >= 2017-02-10 17:03:30 UTC)',
+          'A valid SubjectConfirmation was not found on this Response'
         ]
       )
     end
@@ -112,7 +124,8 @@ module SAML
 
     def saml_response_unknown_error
       build_invalid_saml_response(
-        status_message: SSOService::DEFAULT_ERROR_MESSAGE, in_response_to: uuid,
+        status_message: 'Default generic identity provider error',
+        in_response_to: uuid,
         decrypted_document: document_partial,
         errors: [
           'The status code of the Response was not Success, was Requester => NoAuthnContext -> AuthnRequest without ' \
@@ -123,7 +136,8 @@ module SAML
 
     def saml_response_multi_error
       build_invalid_saml_response(
-        status_message: 'Subject did not consent to attribute release', in_response_to: uuid,
+        status_message: 'Subject did not consent to attribute release',
+        in_response_to: uuid,
         decrypted_document: document_partial,
         errors: ['Subject did not consent to attribute release', 'Other random error']
       )
@@ -183,7 +197,7 @@ module SAML
           'dslogon_assurance' => [account_type],
           'dslogon_gender' => ['M'],
           'dslogon_deceased' => ['false'],
-          'dslogon_idauthn_context' => ['ssn'],
+          'dslogon_idtype' => ['ssn'],
           'uuid' => ['0e1bb5723d7c4f0686f46ca4505642ad'],
           'dslogon_uuid' => ['1606997570'],
           'email' => ['kam+tristanmhv@adhocteam.us'],

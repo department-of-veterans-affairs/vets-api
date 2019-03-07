@@ -15,6 +15,15 @@ class HealthCareApplication < ActiveRecord::Base
 
   after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
 
+  def self.get_user_identifier(user)
+    return if user.nil?
+
+    {
+      'icn' => user.icn,
+      'edipi' => user.edipi
+    }
+  end
+
   def success?
     state == 'success'
   end
@@ -44,7 +53,12 @@ class HealthCareApplication < ActiveRecord::Base
 
     if parsed_form['email'].present? && async_compatible
       save!
-      HCA::SubmissionJob.perform_async(user&.uuid, parsed_form, id, google_analytics_client_id)
+      HCA::SubmissionJob.perform_async(
+        self.class.get_user_identifier(user),
+        parsed_form,
+        id,
+        google_analytics_client_id
+      )
 
       self
     else
@@ -52,8 +66,21 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
+  def self.enrollment_status(icn)
+    ee_data = HCA::EnrollmentEligibility::Service.new.lookup_user(icn)
+    parsed_status = HCA::EnrollmentEligibility::StatusMatcher.parse(
+      ee_data[:enrollment_status], ee_data[:ineligibility_reason]
+    )
+
+    ee_data.slice(
+      :application_date,
+      :enrollment_date,
+      :preferred_facility
+    ).merge(parsed_status: parsed_status)
+  end
+
   def self.user_icn(user_attributes)
-    HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes)
+    HCA::RateLimitedSearch.create_rate_limited_searches(user_attributes) unless Settings.mvi_hca.skip_rate_limit
     MVI::AttrService.new.find_profile(user_attributes)&.profile&.icn
   rescue MVI::Errors::Base
     nil
@@ -62,7 +89,7 @@ class HealthCareApplication < ActiveRecord::Base
   def self.user_attributes(form)
     full_name = form['veteranFullName']
 
-    HCA::UserAttributes.new(
+    return_val = HCA::UserAttributes.new(
       first_name: full_name['first'],
       middle_name: full_name['middle'],
       last_name: full_name['last'],
@@ -70,6 +97,10 @@ class HealthCareApplication < ActiveRecord::Base
       ssn: form['veteranSocialSecurityNumber'],
       gender: form['gender']
     )
+
+    raise Common::Exceptions::ValidationErrors, return_val unless return_val.valid?
+
+    return_val
   end
 
   def set_result_on_success!(result)

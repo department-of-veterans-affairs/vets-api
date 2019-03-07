@@ -3,11 +3,11 @@ info:
   version: 0.0.1
   title: Appeals
   description: |
-    Caseflow Appeals Status
+    Veterans Benefits Administration (VBA) caseflow appeals status.
 
     ## Background
 
-    This API is being provided as a proof of concept for a general-purpose VA API gateway. The use case allows authorized third-party developers to request the status of a Veteran’s benefit appeals.
+    Use this API to request the status of a Veteran's benefits claim appeal.
 
     The Appeals API passes data through to Caseflow, a case management system. Caseflow
     accepts a header with the Veteran’s SSN and returns the current status of their appeals.
@@ -165,6 +165,7 @@ components:
               - medical
               - burial
               - bva
+              - fiduciary
               - other
               - multiple
             description:
@@ -232,6 +233,7 @@ components:
                   - hlr_dta_error
                   - hlr_decision
                   - hlr_closed
+                  - statutory_opt_in
                 details:
                   type: object
                   description: Further information about the process step the appeal is in
@@ -243,10 +245,10 @@ components:
                   type: string
                   description: Indicates the docket of the appeal
                   enum:
-                  - direct_review
-                  - evidence_submission
-                  - hearing
-                  example: hearing
+                  - directReview
+                  - evidenceSubmission
+                  - hearingRequest
+                  example: hearingRequest
                 month:
                   type: string
                   format: date
@@ -365,11 +367,9 @@ components:
           - ramp_notice
           - transcript
           - remand_return
-          - dro_hearing_held
-          - dro_hearing_cancelled
-          - dro_hearing_no_show
           - ama_nod
           - docket_change
+          - distributed_to_vlj
           - bva_decision_effectuation
           - dta_decision
           - sc_request
@@ -379,6 +379,7 @@ components:
           - hlr_decision
           - hlr_dta_error
           - hlr_other_close
+          - statutory_opt_in
         date:
           type: string
           format: date

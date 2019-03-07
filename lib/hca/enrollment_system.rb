@@ -644,16 +644,25 @@ module HCA
       hash.delete_if { |_k, v| v.blank? }
     end
 
-    def build_form_for_user(current_user)
+    def get_user_variables(user_identifier)
+      return [nil, nil] if user_identifier.blank?
+
+      icn = user_identifier['icn']
+      edipi = user_identifier['edipi']
+
+      if icn
+        [icn, 1]
+      elsif edipi
+        [edipi, 2]
+      else
+        [nil, nil]
+      end
+    end
+
+    def build_form_for_user(user_identifier)
       form = FORM_TEMPLATE.deep_dup
-      return form if current_user.nil?
-      (user_id, id_type) = if current_user.icn
-                             [current_user.icn, 1]
-                           elsif current_user.edipi
-                             [current_user.edipi, 2]
-                           else
-                             [nil, nil]
-                           end
+
+      (user_id, id_type) = get_user_variables(user_identifier)
       return form if user_id.nil?
 
       authentication_level = form['va:identity']['va:authenticationLevel']
@@ -702,10 +711,10 @@ module HCA
 
       request = build_form_for_user(current_user)
 
-      veteran['attachment'].tap do |attachment|
-        next if attachment.blank?
+      veteran['attachments']&.each do |attachment|
         hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
-        request['va:form']['va:attachments'] = add_attachment(hca_attachment.get_file.read, attachment['dd214'])
+        request['va:form']['va:attachments'] ||= []
+        request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file.read, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
