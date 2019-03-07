@@ -78,6 +78,7 @@ module ClaimsApi
       # commenting this out until we decide on LOA
       # veteran.loa = { current: 3, highest: 3 }
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
+
       veteran
     end
 
