@@ -131,29 +131,35 @@ module HCA
         nil
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       def parse(enrollment_status, ineligibility_reason = '')
-        enrollment_status = enrollment_status.downcase.strip
+        if enrollment_status.present?
+          enrollment_status = enrollment_status.downcase.strip
 
-        category_matcher = lambda do |statuses, enroll_status|
-          return statuses.include?(enroll_status) if statuses.is_a?(Array)
-          return enroll_status == statuses
-        end
-
-        CATEGORIES.find { |c| category_matcher.call(c[:enrollment_status], enrollment_status) }.tap do |category_data|
-          next unless category_data
-          if category_data[:text_matches]
-            process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
-              return category if category.present?
-            end
-          else
-            return category_data[:category]
+          category_matcher = lambda do |statuses, enroll_status|
+            return statuses.include?(enroll_status) if statuses.is_a?(Array)
+            return enroll_status == statuses
           end
-        end
 
-        return :rejected_rightentry if enrollment_status.include?('rejected')
+          CATEGORIES.find { |c| category_matcher.call(c[:enrollment_status], enrollment_status) }.tap do |category_data|
+            next unless category_data
+            if category_data[:text_matches]
+              process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
+                return category if category.present?
+              end
+            else
+              return category_data[:category]
+            end
+          end
+
+          return :rejected_rightentry if enrollment_status.include?('rejected')
+        end
 
         :none_of_the_above
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
     end
   end
 end
