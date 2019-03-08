@@ -24,6 +24,7 @@ module ClaimsApi
 
     delegate :birls_id, to: :mvi, allow_nil: true
     delegate :participant_id, to: :mvi, allow_nil: true
+    alias_attribute :dslogon_edipi, :edipi
 
     def birth_date
       va_profile[:birth_date]
@@ -59,10 +60,6 @@ module ClaimsApi
 
     def authn_context
       'authn'
-    end
-
-    def dslogon_edipi
-      edipi
     end
 
     def self.from_headers(headers, with_gender: false)
