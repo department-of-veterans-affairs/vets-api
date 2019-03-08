@@ -11,8 +11,8 @@ class HCA::UserAttributes
   attribute :ssn, String
   attribute :gender, String
 
-  validates(:first_name, :last_name, :birth_date, :ssn, :gender, presence: true)
-  validates(:gender, inclusion: %w[M F])
+  validates(:first_name, :last_name, :birth_date, :ssn, presence: true)
+  validates(:gender, inclusion: %w[M F], allow_nil: true)
 
   def ssn=(new_ssn)
     super(new_ssn.gsub(/\D/, ''))
