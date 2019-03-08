@@ -66,25 +66,17 @@ class HealthCareApplication < ActiveRecord::Base
     end
   end
 
-  def self.enrollment_status(icn, loa3)
+  def self.enrollment_status(icn)
     ee_data = HCA::EnrollmentEligibility::Service.new.lookup_user(icn)
+    parsed_status = HCA::EnrollmentEligibility::StatusMatcher.parse(
+      ee_data[:enrollment_status], ee_data[:ineligibility_reason]
+    )
 
-    if loa3
-      parsed_status = HCA::EnrollmentEligibility::StatusMatcher.parse(
-        ee_data[:enrollment_status], ee_data[:ineligibility_reason]
-      )
-
-      ee_data.slice(
-        :application_date,
-        :enrollment_date,
-        :preferred_facility
-      ).merge(parsed_status: parsed_status)
-    else
-      {
-        parsed_status:
-          ee_data[:enrollment_status].present? ? :login_required : :none_of_the_above
-      }
-    end
+    ee_data.slice(
+      :application_date,
+      :enrollment_date,
+      :preferred_facility
+    ).merge(parsed_status: parsed_status)
   end
 
   def self.user_icn(user_attributes)
