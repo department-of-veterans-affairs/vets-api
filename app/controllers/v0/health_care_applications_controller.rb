@@ -26,7 +26,7 @@ module V0
       validate_session
 
       icn =
-        if current_user.present?
+        if current_user.present? && current_user.loa3?
           current_user.icn
         else
           HealthCareApplication.user_icn(
