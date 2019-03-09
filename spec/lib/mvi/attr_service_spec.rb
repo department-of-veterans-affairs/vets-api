@@ -9,7 +9,7 @@ describe MVI::AttrService do
 
       VCR.use_cassette(
         'mvi/find_candidate/find_profile_with_attributes',
-        record: :once
+        VCR::MATCH_EVERYTHING
       ) do
         res = described_class.new.find_profile(
           HCA::UserAttributes.new(
@@ -19,7 +19,7 @@ describe MVI::AttrService do
             ssn: '796043735'
           )
         )
-        expect(res.profile.icn).to eq('1008710003V120120')
+        expect(res.profile.icn).to eq('1012832025V743496')
       end
     end
   end
