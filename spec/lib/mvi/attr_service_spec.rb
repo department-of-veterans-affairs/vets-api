@@ -9,7 +9,7 @@ describe MVI::AttrService do
 
       VCR.use_cassette(
         'mvi/find_candidate/find_profile_with_attributes',
-        VCR::MATCH_EVERYTHING
+        record: :once
       ) do
         res = described_class.new.find_profile(
           HCA::UserAttributes.new(
