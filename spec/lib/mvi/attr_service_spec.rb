@@ -16,8 +16,7 @@ describe MVI::AttrService do
             first_name: 'WESLEY',
             last_name: 'FORD',
             birth_date: '1986-05-06',
-            ssn: '796043735',
-            gender: 'M'
+            ssn: '796043735'
           )
         )
         expect(res.profile.icn).to eq('1008710003V120120')

@@ -15,4 +15,9 @@ class HCA::UserAttributes
   def ssn=(new_ssn)
     super(new_ssn.gsub(/\D/, ''))
   end
+
+  def gender
+    # MVI message_user_attributes expects a gender value but it's not asked on the HCA form
+    nil
+  end
 end
