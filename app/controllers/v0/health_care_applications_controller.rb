@@ -24,9 +24,10 @@ module V0
 
     def enrollment_status
       validate_session
+      loa3 = current_user&.loa3?
 
       icn =
-        if current_user.present? && current_user.loa3?
+        if loa3
           current_user.icn
         else
           HealthCareApplication.user_icn(
@@ -36,7 +37,7 @@ module V0
 
       raise Common::Exceptions::RecordNotFound, nil if icn.blank?
 
-      render(json: HealthCareApplication.enrollment_status(icn))
+      render(json: HealthCareApplication.enrollment_status(icn, loa3))
     end
 
     def healthcheck
