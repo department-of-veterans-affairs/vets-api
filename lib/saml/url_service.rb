@@ -49,8 +49,10 @@ module SAML
       build_sso_url('dslogon')
     end
 
-    def idme_loa1_url
-      build_sso_url(LOA::IDME_LOA1)
+    def idme_loa1_url(params)
+      build_sso_url(LOA::IDME_LOA1) +
+        (params[:signup] ? '&op=signup' : '') +
+        (params[:clientId] ? '&clientId=' + params[:clientId] : '')
     end
 
     def idme_loa3_url
