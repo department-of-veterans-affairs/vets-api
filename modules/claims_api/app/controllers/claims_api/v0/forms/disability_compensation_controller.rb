@@ -25,6 +25,18 @@ module ClaimsApi
           render json: { errors: e.message }, status: 422
         end
 
+        def upload_supporting_documents
+          claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          binding.pry
+          documents.each do |document|
+            claim_document = claim.supporting_documents.build
+            claim_document.set_file_data!(document)
+            claim_document.save!
+          end
+
+          render json: { message: 'lol' }
+        end
+
         private
 
         def validate_json_api_payload
@@ -33,6 +45,11 @@ module ClaimsApi
 
         def form_attributes
           params[:data][:attributes]
+        end
+
+        def documents
+          document_keys = params.keys.select { |key| key.include? 'attachment' }
+          params.slice(*document_keys).values
         end
 
         def target_veteran
