@@ -40,11 +40,6 @@ module EVSS
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
         submission.save
-        perform_ancillary_jobs
-      end
-
-      def perform_ancillary_jobs
-        submission.perform_ancillary_jobs(bid)
       end
 
       def retryable_error_handler(error)
