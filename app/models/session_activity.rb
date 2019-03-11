@@ -15,7 +15,6 @@ class SessionActivity < ActiveRecord::Base
 
   def initialize_defaults
     return if persisted?
-    self.originating_request_id ||= Thread.current['originating_request_id'] || Thread.current['request_id']
     self.status ||= 'incomplete'
   end
 end

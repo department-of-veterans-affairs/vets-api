@@ -5,10 +5,6 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
-    before_action :set_originating_request_id, only: %i[saml_callback saml_logout_callback]
-
-    REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
-
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -19,63 +15,60 @@ module V0
     # For more details see SAML::SettingsService and SAML::URLService
     # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
-      url = case params[:type]
-            when 'mhv'
-              url_service.mhv_url
-            when 'dslogon'
-              url_service.dslogon_url
-            when 'idme'
-              url_service.idme_loa1_url(signup: params[:signup])
-            when 'mfa'
-              url_service.mfa_url
-            when 'verify'
-              url_service.idme_loa3_url
-            when 'slo'
-              logout_url = url_service.slo_url
-              reset_session
-              logout_url
-            end
+      type  = params[:signup] ? 'signup' : params[:type]
+      if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
+        session_activity = SessionActivity.create(
+          name: type,
+          originating_request_id: Thread.current['request_id'],
+          originating_ip_address: request.remote_ip,
+          originating_user_agent: request.user_agent,
+          generated_url: url_service.send("#{type}_url")
+        )
 
-      ActiveSupport::Notifications.instrument 'sessions.new', { url: url, params: params, request: request } do
-        redirect_to url
+        redirect_to session_activity.generated_url
+      else
+        raise Common::Exceptions::RoutingError, params[:path]
       end
     end
     # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
-      ActiveSupport::Notifications.instrument 'sessions.saml_logout_callback'
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
-                                                               raw_get_params: params)
-      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
-
-      errors = build_logout_errors(logout_response, logout_request)
-
-      if errors.size.positive?
-        extra_context = { in_response_to: logout_response&.in_response_to }
-        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
+      if session_activity.present?
+        saml_response = SAML::LogoutResponse.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
+        if saml_response.valid?
+          # ... update session activity saying its present
+          # ... send Rails logs success
+        else
+          # ... update session activity with errors
+          # ... send Rails logs failure
+        end
+      else
+        log_message_to_sentry('SLO: No SessionActivity found.')
       end
-    rescue => e
-      log_exception_to_sentry(e, {}, {}, :error)
+    rescue ArgumentError => e
+      log_exception_to_sentry(e)
     ensure
-      logout_request&.destroy
       redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
-      saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
-      @sso_service = SSOService.new(saml_response)
-      if @sso_service.persist_authentication!
-        @current_user = @sso_service.new_user
-        @session_object = @sso_service.new_session
+      if session_activity.present?
+        saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
+        @sso_service = SSOService.new(saml_response)
+        if @sso_service.persist_authentication!
+          @current_user = @sso_service.new_user
+          @session_object = @sso_service.new_session
 
-        set_cookies
-        after_login_actions
-        redirect_to saml_login_redirect_url
-        stats(:success)
+          set_cookies
+          after_login_actions
+          redirect_to saml_login_redirect_url
+          stats(:success)
+        else
+          log_auth_too_late if @sso_service.auth_error_code == '002'
+          redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+          stats(:failure)
+        end
       else
-        log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        stats(:failure)
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
@@ -94,6 +87,11 @@ module V0
       else
         reset_session
       end
+    end
+
+    def session_activity
+      return @session_activity if defined?(@session_activity)
+      @session_activity = SessionActivity.find_by(id: session_activity_id, originating_request_id: originating_request_id)
     end
 
     def stats(status)
@@ -133,13 +131,16 @@ module V0
       end
     end
 
-    # This is important so that idme_loa3_url maintains the original request_id for the completion of the flow.
-    # See also UrlService where it is used.
-    def set_originating_request_id
-      Thread.current['originating_request_id'] = saml_response_relay_state_params['originating_request_id']
+    def originating_request_id
+      saml_response_relay_state_params['originating_request_id']
+    end
+
+    def session_activity_id
+      saml_response_relay_state_params['session_activity_id']
     end
 
     def saml_response_relay_state_params
+      return {} unless %w[saml_callback saml_logout_callback].include?(action_name)
       @relay_state_params ||= params['RelayState'].present? ? JSON.parse(params['RelayState']) : {}
     rescue
       log_message_to_sentry('RelayState could not be parsed', :warn)
@@ -173,14 +174,6 @@ module V0
                             errors: @sso_service.errors.messages,
                             last_signed_in_if_logged_in: user&.last_signed_in,
                             authn_context: user&.authn_context)
-    end
-
-    def build_logout_errors(logout_response, logout_request)
-      errors = []
-      errors.concat(logout_response.errors) unless logout_response.validate(true)
-      errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
-      errors << 'Logout Request not found!' if logout_request.nil?
-      errors
     end
 
     def url_service

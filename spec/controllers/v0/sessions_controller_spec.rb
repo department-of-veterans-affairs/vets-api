@@ -67,12 +67,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it 'returns JSON' do
-              get(:new, type: type, format: :json)
-              expect(response).to have_http_status(:ok)
-              expect(JSON.parse(response.body).keys).to eq %w[url]
-            end
-
             it 'redirects' do
               get(:new, type: type)
               expect(response).to have_http_status(:found)
@@ -81,12 +75,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
-          it 'returns JSON' do
-            get(:new, type: :idme, signup: true, format: :json)
-            expect(response).to have_http_status(:ok)
-            expect(JSON.parse(response.body)['url']).to end_with('&op=signup')
-          end
-
           it 'redirects' do
             get(:new, type: :idme, signup: true)
             expect(response).to have_http_status(:found)
@@ -132,12 +120,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
 
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it 'returns JSON' do
-              get(:new, type: type, format: :json)
-              expect(response).to have_http_status(:ok)
-              expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
-              expect(JSON.parse(response.body).keys).to eq %w[url]
-            end
 
             it 'redirects' do
               get(:new, type: type)
@@ -192,7 +174,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    it 'redirects as success even when logout fails, but it logs the failure' do
+    it 'redirects as success even when no session activity is present, but it logs the failure' do
       expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
     end
 
