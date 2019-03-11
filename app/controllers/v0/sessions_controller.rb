@@ -28,7 +28,6 @@ module V0
         raise Common::Exceptions::RoutingError, params[:path]
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
