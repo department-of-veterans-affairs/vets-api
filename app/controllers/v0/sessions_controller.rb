@@ -15,9 +15,8 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
-      type  = params[:signup] ? 'signup' : params[:type]
+      type = params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
         url = url_service.send("#{type}_url")
         if type == 'slo'
