@@ -62,7 +62,7 @@ RSpec.describe HealthCareApplication, type: :model do
       ).to eq(
         first_name: 'FirstName', middle_name: 'MiddleName',
         last_name: 'ZZTEST', birth_date: '1923-01-02',
-        ssn: '111111234', gender: 'F'
+        ssn: '111111234'
       )
     end
   end

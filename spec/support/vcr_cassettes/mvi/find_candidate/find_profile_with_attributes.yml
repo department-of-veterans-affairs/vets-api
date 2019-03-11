@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "http://example.com/"
+    uri: http://example.com/
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -53,27 +53,23 @@ http_interactions:
         ICAgICAgPHN0YXR1c0NvZGUgY29kZT0ibmV3Ii8+CiAgICAgICAgICA8bW9k
         aWZ5Q29kZSBjb2RlPSJNVkkuQ09NUDIiLz4KICAgICAgICAgIDxpbml0aWFs
         UXVhbnRpdHkgdmFsdWU9IjEiLz4KICAgICAgICAgIDxwYXJhbWV0ZXJMaXN0
-        PgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdEFkbWluaXN0cmF0aXZlR2Vu
-        ZGVyPgogICAgICAgICAgICAgIDx2YWx1ZSBjb2RlPSJNIi8+CiAgICAgICAg
-        ICAgICAgPHNlbWFudGljc1RleHQ+R2VuZGVyPC9zZW1hbnRpY3NUZXh0Pgog
-        ICAgICAgICAgICA8L2xpdmluZ1N1YmplY3RBZG1pbmlzdHJhdGl2ZUdlbmRl
-        cj4KICAgICAgICAgICAgPGxpdmluZ1N1YmplY3RCaXJ0aFRpbWU+CiAgICAg
-        ICAgICAgICAgPHZhbHVlIHZhbHVlPSIxOTg2MDUwNiIvPgogICAgICAgICAg
-        ICAgIDxzZW1hbnRpY3NUZXh0PkRhdGUgb2YgQmlydGg8L3NlbWFudGljc1Rl
-        eHQ+CiAgICAgICAgICAgIDwvbGl2aW5nU3ViamVjdEJpcnRoVGltZT4KICAg
-        ICAgICAgICAgPGxpdmluZ1N1YmplY3RJZD4KICAgICAgICAgICAgICA8dmFs
-        dWUgcm9vdD0iMi4xNi44NDAuMS4xMTM4ODMuNC4xIiBleHRlbnNpb249Ijc5
-        NjA0MzczNSIvPgogICAgICAgICAgICAgIDxzZW1hbnRpY3NUZXh0PlNTTjwv
-        c2VtYW50aWNzVGV4dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0SWQ+
-        CiAgICAgICAgICAgIDxsaXZpbmdTdWJqZWN0TmFtZT4KICAgICAgICAgICAg
-        ICA8dmFsdWUgdXNlPSJMIj4KICAgICAgICAgICAgICAgIDxnaXZlbj5XRVNM
-        RVk8L2dpdmVuPgogICAgICAgICAgICAgICAgPGZhbWlseT5GT1JEPC9mYW1p
-        bHk+CiAgICAgICAgICAgICAgPC92YWx1ZT4KICAgICAgICAgICAgICA8c2Vt
-        YW50aWNzVGV4dD5MZWdhbCBOYW1lPC9zZW1hbnRpY3NUZXh0PgogICAgICAg
-        ICAgICA8L2xpdmluZ1N1YmplY3ROYW1lPgogICAgICAgICAgPC9wYXJhbWV0
-        ZXJMaXN0PgogICAgICAgIDwvcXVlcnlCeVBhcmFtZXRlcj4KICAgICAgPC9j
-        b250cm9sQWN0UHJvY2Vzcz4KICAgIDwvaWRtOlBSUEFfSU4yMDEzMDVVVjAy
-        PgogIDwvZW52OkJvZHk+CjwvZW52OkVudmVsb3BlPgo=
+        PgogICAgICAgICAgICA8bGl2aW5nU3ViamVjdEJpcnRoVGltZT4KICAgICAg
+        ICAgICAgICA8dmFsdWUgdmFsdWU9IjE5ODYwNTA2Ii8+CiAgICAgICAgICAg
+        ICAgPHNlbWFudGljc1RleHQ+RGF0ZSBvZiBCaXJ0aDwvc2VtYW50aWNzVGV4
+        dD4KICAgICAgICAgICAgPC9saXZpbmdTdWJqZWN0QmlydGhUaW1lPgogICAg
+        ICAgICAgICA8bGl2aW5nU3ViamVjdElkPgogICAgICAgICAgICAgIDx2YWx1
+        ZSByb290PSIyLjE2Ljg0MC4xLjExMzg4My40LjEiIGV4dGVuc2lvbj0iNzk2
+        MDQzNzM1Ii8+CiAgICAgICAgICAgICAgPHNlbWFudGljc1RleHQ+U1NOPC9z
+        ZW1hbnRpY3NUZXh0PgogICAgICAgICAgICA8L2xpdmluZ1N1YmplY3RJZD4K
+        ICAgICAgICAgICAgPGxpdmluZ1N1YmplY3ROYW1lPgogICAgICAgICAgICAg
+        IDx2YWx1ZSB1c2U9IkwiPgogICAgICAgICAgICAgICAgPGdpdmVuPldFU0xF
+        WTwvZ2l2ZW4+CiAgICAgICAgICAgICAgICA8ZmFtaWx5PkZPUkQ8L2ZhbWls
+        eT4KICAgICAgICAgICAgICA8L3ZhbHVlPgogICAgICAgICAgICAgIDxzZW1h
+        bnRpY3NUZXh0PkxlZ2FsIE5hbWU8L3NlbWFudGljc1RleHQ+CiAgICAgICAg
+        ICAgIDwvbGl2aW5nU3ViamVjdE5hbWU+CiAgICAgICAgICA8L3BhcmFtZXRl
+        ckxpc3Q+CiAgICAgICAgPC9xdWVyeUJ5UGFyYW1ldGVyPgogICAgICA8L2Nv
+        bnRyb2xBY3RQcm9jZXNzPgogICAgPC9pZG06UFJQQV9JTjIwMTMwNVVWMDI+
+        CiAgPC9lbnY6Qm9keT4KPC9lbnY6RW52ZWxvcGU+Cg==
     headers:
       Accept:
       - text/xml;charset=UTF-8
@@ -86,7 +82,7 @@ http_interactions:
       Date:
       - Fri, 04 Jan 2019 20:33:04 GMT
       Content-Length:
-      - '3047'
+      - '2866'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -99,18 +95,16 @@ http_interactions:
       Transfer-Encoding:
       - chunked
       Date:
-      - Fri, 04 Jan 2019 20:23:57 GMT
+      - Sat, 09 Mar 2019 05:54:49 GMT
       Content-Type:
       - text/xml
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
       X-Global-Transaction-Id:
-      - 4bae058f5c2fc30008700a93
+      - f8ba53155c835527076b6a43
     body:
       encoding: UTF-8
       string: |-
         <?xml version="1.0" encoding="UTF-8"?>
-        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3"><id extension="WSDOC1901041423575741386784810" root="2.16.840.1.113883.4.349"/><creationTime value="20190104142357"/><versionCode code="3.0"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-c3fa0769-70cb-419a-b3a6-d2563e7b8502" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="132" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="120" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><subject typeCode="SUBJ"><registrationEvent classCode="REG" moodCode="EVN"><id nullFlavor="NA"/><statusCode code="active"/><subject1 typeCode="SBJ"><patient classCode="PAT"><id extension="1008710003V120120^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/><id extension="796043735^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="1008710003^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/><id extension="2810525^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="1007697216^PN^200VMOCK^USDVA^A" root="2.16.840.1.113883.4.349"/><statusCode code="active"/><patientPerson><name use="L"><given>WESLEY</given><given>WATSON</given><family>FORD</family></name><telecom value="(301)855-5555" use="HP"/><administrativeGenderCode code="M"/><birthTime value="19860506"/><addr use="PHYS"><streetAddressLine>29 MICHGIAN AVE</streetAddressLine><city>WASHINGTON</city><state>DC</state><postalCode>20002</postalCode><country>USA</country></addr><asOtherIDs classCode="SSN"><id extension="796043735" root="2.16.840.1.113883.4.1"/><scopingOrganization determinerCode="INSTANCE" classCode="ORG"><id root="1.2.840.114350.1.13.99997.2.3412"/></scopingOrganization></asOtherIDs></patientPerson><subjectOf1><queryMatchObservation classCode="COND" moodCode="EVN"><code code="IHE_PDQ"/><value value="167" xsi:type="INT"/></queryMatchObservation></subjectOf1></patient></subject1><custodian typeCode="CST"><assignedEntity classCode="ASSIGNED"><id root="2.16.840.1.113883.4.349"/></assignedEntity></custodian></registrationEvent></subject><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="OK"/><resultCurrentQuantity value="1"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP2"/><initialQuantity value="1"/><parameterList><livingSubjectAdministrativeGender><value code="M"/><semanticsText>Gender</semanticsText></livingSubjectAdministrativeGender><livingSubjectBirthTime><value value="19860506"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="796043735" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>WESLEY</given><family>FORD</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
+        <env:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"><env:Header/><env:Body><idm:PRPA_IN201306UV02 ITSVersion="XML_1.0" xsi:schemaLocation="urn:hl7-org:v3 ../../schema/HL7V3/NE2008/multicacheschemas/PRPA_IN201306UV02.xsd" xmlns:idm="http://vaww.oed.oit.va.gov" xmlns="urn:hl7-org:v3"><id extension="WSDOC1903090054493261211177423" root="2.16.840.1.113883.4.349"/><creationTime value="20190309005449"/><versionCode code="3.0"/><interactionId extension="PRPA_IN201306UV02" root="2.16.840.1.113883.1.6"/><processingCode code="T"/><processingModeCode code="T"/><acceptAckCode code="NE"/><receiver typeCode="RCV"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200VGOV" root="2.16.840.1.113883.4.349"/></device></receiver><sender typeCode="SND"><device determinerCode="INSTANCE" classCode="DEV"><id extension="200M" root="2.16.840.1.113883.4.349"/></device></sender><acknowledgement><typeCode code="AA"/><targetMessage><id extension="200VGOV-c3fa0769-70cb-419a-b3a6-d2563e7b8502" root="1.2.840.114350.1.13.0.1.7.1.1"/></targetMessage><acknowledgementDetail><code codeSystemName="MVI" code="130" displayName="IMT"/><text>Identity Match Threshold</text></acknowledgementDetail><acknowledgementDetail><code codeSystemName="MVI" code="103" displayName="PDT"/><text>Potential Duplicate Threshold</text></acknowledgementDetail></acknowledgement><controlActProcess classCode="CACT" moodCode="EVN"><code codeSystem="2.16.840.1.113883.1.6" code="PRPA_TE201306UV02"/><subject typeCode="SUBJ"><registrationEvent classCode="REG" moodCode="EVN"><id nullFlavor="NA"/><statusCode code="active"/><subject1 typeCode="SBJ"><patient classCode="PAT"><id extension="1012832025V743496^NI^200M^USVHA^P" root="2.16.840.1.113883.4.349"/><id extension="1007697216^NI^200DOD^USDOD^A" root="2.16.840.1.113883.3.42.10001.100001.12"/><id extension="796043735^PI^200BRLS^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="600061742^PI^200CORP^USVBA^A" root="2.16.840.1.113883.4.349"/><id extension="0000027892^PN^200PROV^USDVA^A" root="2.16.840.1.113883.4.349"/><id extension="7217514^PI^983^USVHA^A" root="2.16.840.1.113883.4.349"/><id extension="0000001012832025V743496000000^PI^200ESR^USVHA^A" root="2.16.840.1.113883.4.349"/><id extension="1273780^PI^200VETS^USDVA^A" root="2.16.840.1.113883.4.349"/><statusCode code="active"/><patientPerson><name use="L"><given>WESLEY</given><given>WATSON</given><family>FORD</family></name><name use="C"><family>THOMSON</family></name><telecom value="(510)396-2196" use="HP"/><administrativeGenderCode code="M"/><birthTime value="19860506"/><multipleBirthInd value="false"/><addr use="PHYS"><streetAddressLine>1501 MAC DAVIS LN</streetAddressLine><city>LUBBOCK</city><state>TX</state><postalCode>79401-2602</postalCode><country>USA</country></addr><asOtherIDs classCode="SSN"><id extension="796043735" root="2.16.840.1.113883.4.1"/><scopingOrganization determinerCode="INSTANCE" classCode="ORG"><id root="1.2.840.114350.1.13.99997.2.3412"/></scopingOrganization></asOtherIDs><birthPlace><addr><city>SALINA</city><state>KS</state><country>USA</country></addr></birthPlace></patientPerson><subjectOf1><queryMatchObservation classCode="COND" moodCode="EVN"><code code="IHE_PDQ"/><value value="165" xsi:type="INT"/></queryMatchObservation></subjectOf1></patient></subject1><custodian typeCode="CST"><assignedEntity classCode="ASSIGNED"><id root="2.16.840.1.113883.4.349"/></assignedEntity></custodian></registrationEvent></subject><queryAck><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><queryResponseCode code="OK"/><resultCurrentQuantity value="1"/></queryAck><queryByParameter><queryId extension="18204" root="1.2.840.114350.1.13.28.1.18.5.999"/><statusCode code="new"/><modifyCode code="MVI.COMP2"/><initialQuantity value="1"/><parameterList><livingSubjectBirthTime><value value="19860506"/><semanticsText>Date of Birth</semanticsText></livingSubjectBirthTime><livingSubjectId><value extension="796043735" root="2.16.840.1.113883.4.1"/><semanticsText>SSN</semanticsText></livingSubjectId><livingSubjectName><value use="L"><given>WESLEY</given><family>FORD</family></value><semanticsText>Legal Name</semanticsText></livingSubjectName></parameterList></queryByParameter></controlActProcess></idm:PRPA_IN201306UV02></env:Body></env:Envelope>
     http_version: 
-  recorded_at: Fri, 04 Jan 2019 20:33:05 GMT
+  recorded_at: Fri, 04 Jan 2019 20:33:04 GMT
 recorded_with: VCR 3.0.3
