@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/json_marshal'
+require_dependency 'claims_api/auto_established_claim'
+
 module ClaimsApi
   class SupportingDocument < ActiveRecord::Base
     attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)

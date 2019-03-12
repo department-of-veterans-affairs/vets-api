@@ -1,7 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'support/attr_encrypted_matcher'
 
-RSpec.describe SupportingDocument, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+RSpec.describe ClaimsApi::SupportingDocument, type: :model do
+  describe 'encrypted attribute' do
+    it 'should do the thing' do
+      expect(subject).to encrypt_attr(:file_data)
+    end
+  end
 end
