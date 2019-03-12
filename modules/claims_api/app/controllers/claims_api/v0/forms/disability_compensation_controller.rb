@@ -33,7 +33,7 @@ module ClaimsApi
             claim_document.save!
           end
 
-          render json: { message: 'lol' }
+          head :ok
         end
 
         private
