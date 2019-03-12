@@ -42,11 +42,8 @@ RSpec.describe 'Disability Claims ', type: :request do
       { 'attachment': Rack::Test::UploadedFile.new("#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf") }
     end
 
-    before do
-      ClaimsApi::SupportingDocumentUploader.any_instance.stub(:store!)
-    end
-
     it 'should increase the supporting document count' do
+      allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
       post "/services/claims/v0/forms/526/#{auto_claim.id}/upload_documents", params, headers
       auto_claim.reload
