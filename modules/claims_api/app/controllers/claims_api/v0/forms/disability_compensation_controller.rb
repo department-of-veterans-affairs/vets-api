@@ -27,7 +27,6 @@ module ClaimsApi
 
         def upload_supporting_documents
           claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
-          binding.pry
           documents.each do |document|
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document)
