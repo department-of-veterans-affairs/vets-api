@@ -35,7 +35,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
 
       it 'submits successfully' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(submission.id)
           described_class.drain
           expect(Form526JobStatus.last.status).to eq 'success'
@@ -46,7 +45,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
     context 'when retrying a job' do
       it 'doesnt recreate the job status' do
         VCR.use_cassette('evss/disability_compensation_form/submit_form') do
-          expect_any_instance_of(subject).to receive(:perform_ancillary_jobs)
           subject.perform_async(submission.id)
 
           jid = subject.jobs.last['jid']
