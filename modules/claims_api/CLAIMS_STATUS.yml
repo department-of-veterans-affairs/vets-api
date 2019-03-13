@@ -366,7 +366,7 @@ paths:
           description: Bad API Token
         '422':
           description: Invalid Header
-  /form/526/{id}/upload_documents:
+  /form/526/{id}/attachments:
     post:
       tags:
         - form_526
@@ -398,7 +398,6 @@ paths:
         Note that the Content-Disposition parameter "name" in each part must be the expected values
         "attachment1"..."attachmentN".
       parameters:
-        parameters:
         - in: header
           name: X-VA-SSN
           required: true
