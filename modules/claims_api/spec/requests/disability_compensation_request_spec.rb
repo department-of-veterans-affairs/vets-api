@@ -45,7 +45,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'should increase the supporting document count' do
       allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
       count = auto_claim.supporting_documents.count
-      post "/services/claims/v0/forms/526/#{auto_claim.id}/upload_documents", params, headers
+      post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params, headers
       auto_claim.reload
       expect(auto_claim.supporting_documents.count).to eq(count + 1)
     end
