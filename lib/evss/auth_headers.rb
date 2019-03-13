@@ -24,7 +24,7 @@ module EVSS
         'va_eauth_birthdate' => iso8601_birth_date,
         'va_eauth_authorization' => eauth_json,
         'va_eauth_authenticationauthority' => 'eauth'
-      ).delete_if { |_k, v| v.blank? }
+      )
     end
 
     private
