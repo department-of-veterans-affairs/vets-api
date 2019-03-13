@@ -1,4 +1,4 @@
-class CreateTermsAndConditions < ActiveRecord::Migration
+class CreateTermsAndConditions < ActiveRecord::Migration[4.2]
   def change
     create_table :terms_and_conditions do |t|
       t.string :name

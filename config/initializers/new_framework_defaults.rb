@@ -15,4 +15,4 @@ Rails.application.config.action_controller.raise_on_unfiltered_parameters = true
 ActiveSupport.to_time_preserves_timezone = false
 
 # Require `belongs_to` associations by default. Previous versions had false.
-Rails.application.config.active_record.belongs_to_required_by_default = false
+Rails.application.config.active_record.belongs_to_required_by_default = true

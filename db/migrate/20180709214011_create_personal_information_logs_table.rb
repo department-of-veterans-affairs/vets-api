@@ -1,4 +1,4 @@
-class CreatePersonalInformationLogsTable < ActiveRecord::Migration
+class CreatePersonalInformationLogsTable < ActiveRecord::Migration[4.2]
   safety_assured
 
   def change

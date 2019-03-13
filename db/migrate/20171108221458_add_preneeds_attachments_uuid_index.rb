@@ -1,4 +1,4 @@
-class AddPreneedsAttachmentsUuidIndex < ActiveRecord::Migration
+class AddPreneedsAttachmentsUuidIndex < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change
