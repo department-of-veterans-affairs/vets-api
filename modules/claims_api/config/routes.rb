@@ -8,7 +8,7 @@ ClaimsApi::Engine.routes.draw do
     namespace :forms do
       ## 526 Forms
       post '526', to: 'disability_compensation#submit_form_526'
-      post '526/:id/upload_documents', to: 'disability_compensation#upload_supporting_documents'
+      post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
     end
   end
 
