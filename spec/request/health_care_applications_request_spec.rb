@@ -38,7 +38,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         parsed_status: :inelig_character_of_discharge }
     end
     let(:loa1_response) do
-      {:parsed_status=>:login_required}
+      { parsed_status: :login_required }
     end
 
     context 'with user attributes' do

@@ -50,7 +50,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'with a loa1 user' do
       it 'should return partial ee data' do
         expect(described_class.parsed_ee_data(ee_data, false)).to eq(
-          {:parsed_status=>:login_required}
+          parsed_status: :login_required
         )
       end
     end
