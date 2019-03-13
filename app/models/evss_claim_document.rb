@@ -98,6 +98,5 @@ class EVSSClaimDocument < Common::Base
     file_obj.tempfile.rewind
   rescue Encoding::UndefinedConversionError
     errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
-    false
   end
 end
