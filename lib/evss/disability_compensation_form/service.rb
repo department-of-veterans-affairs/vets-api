@@ -10,6 +10,7 @@ module EVSS
     # data must be passed on initialization so that the calls can be authenticated.
     # The disability compensation service requires additional headers so {EVSS::DisabilityCompensationAuthHeaders}
     # is used to decorate the default EVSS headers {EVSS::AuthHeaders}.
+    #
     # @example Create a service
     #   auth_headers = EVSS::AuthHeaders.new(@current_user).to_h
     #   disability_auth_headers = EVSS::DisabilityCompensationAuthHeaders.new(@current_user).add_headers(auth_headers)
@@ -25,6 +26,7 @@ module EVSS
       end
 
       # GETs a user's rated disabilities
+      #
       # @return [EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse] response with a list of rated disabilities
       #
       def get_rated_disabilities
@@ -34,14 +36,15 @@ module EVSS
         end
       end
 
-      # POSTs a 526 form to the EVSS submit endpoint
+      # POSTs a 526 form to the EVSS submit endpoint. EVSS is bound to VBMSs response times and, therefore,
+      # the timeout has to be extended to ~6 minutes to match their upstream timeout.
+      #
       # @param form_content [JSON] JSON serialized version of a {Form526Submission}
+      # @return [EVSS::DisabilityCompensationForm::FormSubmitResponse] response that includes the EVSS claim_id
       #
       def submit_form526(form_content)
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
-          # EVSS is bound to VBMSs response times and, therefore, the timeout has to be extended
-          # to ~6 minutes to match their upstream timeout.
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
           raw_response = perform(:post, 'submit', form_content, headers, options)
           FormSubmitResponse.new(raw_response.status, raw_response)
