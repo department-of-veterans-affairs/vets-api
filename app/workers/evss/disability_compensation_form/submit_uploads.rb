@@ -44,6 +44,7 @@ module EVSS
       end
 
       # Uploads need to be run sequentially as per requested from EVSS
+      # :nocov:
       def perform_next(id, uploads)
         batch.jobs do
           next_job = Sidekiq::Batch.new
@@ -52,6 +53,7 @@ module EVSS
           end
         end
       end
+      # :nocov:
     end
   end
 end
