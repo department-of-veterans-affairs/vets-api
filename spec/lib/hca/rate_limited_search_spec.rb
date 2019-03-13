@@ -8,7 +8,7 @@ describe HCA::RateLimitedSearch do
   describe '.combine_traits' do
     it 'should combine non-ssn user attributes' do
       expect(described_class.combine_traits(user_attributes)).to eq(
-        'firstnamezztest1923-01-02f'
+        'firstnamezztest1923-01-02'
       )
     end
   end
@@ -24,7 +24,7 @@ describe HCA::RateLimitedSearch do
   describe '.create_rate_limited_searches' do
     it 'should create rate limited search models' do
       described_class.create_rate_limited_searches(user_attributes)
-      %w[ssn:1111234 traits:firstnamezztest1923-01-02f].each do |key|
+      %w[ssn:1111234 traits:firstnamezztest1923-01-02].each do |key|
         expect(RateLimitedSearch.find(Digest::SHA2.hexdigest(key)).count).to eq(1)
       end
     end

@@ -9,12 +9,15 @@ class HCA::UserAttributes
   attribute :last_name, String
   attribute :birth_date, String
   attribute :ssn, String
-  attribute :gender, String
 
-  validates(:first_name, :last_name, :birth_date, :ssn, :gender, presence: true)
-  validates(:gender, inclusion: %w[M F])
+  validates(:first_name, :last_name, :birth_date, :ssn, presence: true)
 
   def ssn=(new_ssn)
     super(new_ssn.gsub(/\D/, ''))
+  end
+
+  def gender
+    # MVI message_user_attributes expects a gender value but it's not asked on the HCA form
+    nil
   end
 end
