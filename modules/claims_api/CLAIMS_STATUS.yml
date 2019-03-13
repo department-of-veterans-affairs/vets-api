@@ -42,6 +42,17 @@ info:
         * Provide the Veteran's EDIPI as X-VA-EDIPI
         * Provide the Veteran's Gender as X-VA-Gender
      2. Service Response: A JSON API object with a token for checking the requested claim status
+     ### Upload 526 Claim Attachments
+     Allows a client to post 526 claim form by EVSS id.
+     1. Client Request: POST https://dev-api.va.gov/services/claims/v0/form/526/{id}/attachments
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the organization or person submitting the form as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+        * Provide the Veteran's Gender as X-VA-Gender
+     2. Service Response: Empty 200
      ## Reference
      Raw Open API Spec: http://dev-api.va.gov/services/claims/docs/v0/api
 
