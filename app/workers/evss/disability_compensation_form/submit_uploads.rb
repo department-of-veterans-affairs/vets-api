@@ -45,7 +45,12 @@ module EVSS
 
       # Uploads need to be run sequentially as per requested from EVSS
       def perform_next(id, uploads)
-        EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, uploads)
+        batch.jobs do
+          next_job = Sidekiq::Batch.new
+          next_job.jobs do
+            EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, uploads)
+          end
+        end
       end
     end
   end
