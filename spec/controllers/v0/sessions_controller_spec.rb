@@ -79,7 +79,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
-
           it 'redirects' do
             get(:new, params: { type: :idme, signup: true })
             expect(response).to have_http_status(:found)

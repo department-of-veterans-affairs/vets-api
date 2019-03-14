@@ -57,10 +57,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           '123', nil
         ).and_return(loa1_response)
 
-        get(
-          enrollment_status_v0_health_care_applications_path,
-          user_attributes
-        )
+        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
 
         expect(response.body).to eq(loa1_response.to_json)
       end
@@ -71,10 +68,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             :create_rate_limited_searches
           ).and_raise(RateLimitedSearch::RateLimitedError)
 
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            user_attributes
-          )
+          get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
           expect(response.status).to eq(429)
         end
       end
