@@ -14,21 +14,21 @@ module EVSS
       auth_headers = EVSS::AuthHeaders.new(user).to_h
       raw_claim = EVSS::ClaimsService.new(auth_headers).find_claim_by_id(claim.evss_id).body.fetch('claim', {})
       claim.update_attributes(data: raw_claim)
-      tracker(user_uuid, claim_id).set_single_status('SUCCESS')
+      set_status(user_uuid, claim_id, 'SUCCESS')
     rescue ActiveRecord::ConnectionTimeoutError
-      tracker(user_uuid, claim_id)&.set_single_status('FAILED')
+      set_status(user_uuid, claim_id, 'FAILED')
       raise
     rescue StandardError
-      tracker(user_uuid, claim_id)&.set_single_status('FAILED')
+      set_status(user_uuid, claim_id, 'FAILED')
       raise
     end
 
     private
 
-    def tracker(user_uuid, claim_id)
+    def set_status(user_uuid, claim_id, status)
       tracker = EVSSClaimsSyncStatusTracker.find_or_build(user_uuid)
       tracker.claim_id = claim_id
-      tracker
+      tracker.set_single_status(status)
     end
   end
 end
