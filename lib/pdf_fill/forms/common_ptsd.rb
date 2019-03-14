@@ -23,7 +23,7 @@ module PdfFill
       def expand_incident_date(incident)
         incident_date = incident['incidentDate']
         return if incident_date.blank?
-        split_date(incident_date)
+        split_approximate_date(incident_date)
       end
 
       def expand_incident_location(incident)
@@ -43,9 +43,8 @@ module PdfFill
       def expand_unit_assigned_dates(incident)
         incident_unit_assigned_dates = incident['unitAssignedDates']
         return if incident_unit_assigned_dates.blank?
-        from_dates = split_date(incident_unit_assigned_dates['from'])
-        to_dates = split_date(incident_unit_assigned_dates['to'])
-
+        from_dates = split_approximate_date(incident_unit_assigned_dates['from'])
+        to_dates = split_approximate_date(incident_unit_assigned_dates['to'])
         unit_assignment_dates = {
           'fromMonth' => from_dates['month'],
           'fromDay' => from_dates['day'],
@@ -58,6 +57,21 @@ module PdfFill
         incident_unit_assigned_dates.except!('to')
         incident_unit_assigned_dates.except!('from')
         incident_unit_assigned_dates.merge!(unit_assignment_dates)
+      end
+
+      def split_approximate_date(date)
+        year, month, day = date.split('-')
+
+        # year/month/day are optional and can be XXed out
+        year = nil if year == 'XXXX'
+        month = nil if month == 'XX'
+        day = nil if day == 'XX'
+
+        {
+          'year' => year,
+          'month' => month,
+          'day' => day
+        }
       end
 
       def expand_incident_unit_assignment(incident)
