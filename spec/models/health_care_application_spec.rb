@@ -16,12 +16,43 @@ RSpec.describe HealthCareApplication, type: :model do
         preferred_facility: '987 - CHEY6',
         ineligibility_reason: 'OTH'
       )
-      expect(described_class.enrollment_status('123')).to eq(
+      expect(described_class.enrollment_status('123', true)).to eq(
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
         parsed_status: :inelig_character_of_discharge
       )
+    end
+  end
+
+  describe '.parsed_ee_data' do
+    let(:ee_data) do
+      {
+        enrollment_status: 'Not Eligible; Ineligible Date',
+        application_date: '2018-01-24T00:00:00.000-06:00',
+        enrollment_date: nil,
+        preferred_facility: '987 - CHEY6',
+        ineligibility_reason: 'OTH'
+      }
+    end
+
+    context 'with a loa3 user' do
+      it 'should return the full parsed ee data' do
+        expect(described_class.parsed_ee_data(ee_data, true)).to eq(
+          application_date: '2018-01-24T00:00:00.000-06:00',
+          enrollment_date: nil,
+          preferred_facility: '987 - CHEY6',
+          parsed_status: :inelig_character_of_discharge
+        )
+      end
+    end
+
+    context 'with a loa1 user' do
+      it 'should return partial ee data' do
+        expect(described_class.parsed_ee_data(ee_data, false)).to eq(
+          parsed_status: :login_required
+        )
+      end
     end
   end
 

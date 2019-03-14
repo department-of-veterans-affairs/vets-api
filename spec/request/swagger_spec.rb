@@ -198,11 +198,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting the hca enrollment status' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
-          '123'
-        ).and_return(application_date: '2018-01-24T00:00:00.000-06:00',
-                     enrollment_date: nil,
-                     preferred_facility: '987 - CHEY6',
-                     parsed_status: :inelig_character_of_discharge)
+          '123', nil
+        ).and_return(parsed_status: :login_required)
 
         expect(subject).to validate(
           :get,
