@@ -37,6 +37,9 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         preferred_facility: '987 - CHEY6',
         parsed_status: :inelig_character_of_discharge }
     end
+    let(:loa1_response) do
+      { parsed_status: :login_required }
+    end
 
     context 'with user attributes' do
       let(:user_attributes) do
@@ -51,15 +54,15 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
       it 'should return the enrollment status data' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
-          '123'
-        ).and_return(success_response)
+          '123', nil
+        ).and_return(loa1_response)
 
         get(
           enrollment_status_v0_health_care_applications_path,
           user_attributes
         )
 
-        expect(response.body).to eq(success_response.to_json)
+        expect(response.body).to eq(loa1_response.to_json)
       end
 
       context 'when the request is rate limited' do
@@ -100,7 +103,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
       it 'should return the enrollment status data' do
         expect(HealthCareApplication).to receive(:enrollment_status).with(
-          current_user.icn
+          current_user.icn, true
         ).and_return(success_response)
 
         get(
