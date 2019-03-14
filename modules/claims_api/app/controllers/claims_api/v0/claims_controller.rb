@@ -6,7 +6,7 @@ require_dependency 'claims_api/unsynchronized_evss_claims_service'
 module ClaimsApi
   module V0
     class ClaimsController < ApplicationController
-      skip_before_action(:authenticate)
+      before_action { permit_scopes %w[claims.read] }
       before_action :verify_power_of_attorney
 
       def index

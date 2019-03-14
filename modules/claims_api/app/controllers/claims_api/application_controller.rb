@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ApplicationController < ::ApplicationController
+  class ApplicationController < ::OpenidApplicationController
     skip_before_action :set_tags_and_extra_context
     before_action :log_request
 
