@@ -5,11 +5,7 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
-    include ActionController::MimeResponds
-
-    skip_before_action :authenticate, only: %i[new logout saml_callback saml_logout_callback]
-
-    REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
@@ -19,37 +15,19 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
-      url = case params[:type]
-            when 'mhv'
-              reset_session
-              url_service.mhv_url
-            when 'dslogon'
-              reset_session
-              url_service.dslogon_url
-            when 'idme'
-              reset_session
-              url_service.idme_loa1_url + (params[:signup] ? '&op=signup' : '')
-            when 'mfa'
-              authenticate
-              url_service.mfa_url
-            when 'verify'
-              authenticate
-              url_service.idme_loa3_url
-            when 'slo'
-              authenticate
-              logout_url = url_service.slo_url
-              Rails.logger.info('SSO: LOGOUT', sso_logging_info)
-              reset_session
-              logout_url
-            end
-      respond_to do |format|
-        format.html { redirect_to url }
-        format.json { render json: { url: url } }
+      type = params[:signup] ? 'signup' : params[:type]
+      if REDIRECT_URLS.include?(type)
+        url = url_service.send("#{type}_url")
+        if type == 'slo'
+          Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+          reset_session
+        end
+        redirect_to url
+      else
+        raise Common::Exceptions::RoutingError, params[:path]
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
       logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
@@ -101,6 +79,15 @@ module V0
 
     private
 
+    def authenticate
+      return unless action_name == 'new'
+      if %w[mfa verify slo].include?(params[:type])
+        super
+      else
+        reset_session
+      end
+    end
+
     def stats(status)
       case status
       when :success
@@ -128,7 +115,7 @@ module V0
 
     def saml_login_redirect_url
       if current_user.loa[:current] < current_user.loa[:highest]
-        url_service.idme_loa3_url
+        url_service.verify_url
       elsif Settings.session_cookie.enabled
         url_service.login_redirect_url
       else
