@@ -2,7 +2,7 @@
 TEST
 
 PERSONAGE
-
+123456789
 123456789
 V0994
 
@@ -37,34 +37,35 @@ Email Address: test@test.com
 
 Day Time Telephone Number: 5551234567
 
-Night Time Telephone Number: N/A
+Night Time Telephone Number:
 
 Have you ever applied for VA education benefits?: YES
 
 Are you currently on active duty?: YES
 
 Do you anticipate you will go on active duty during the
-VET TEC program?: N/A
+VET TEC program?:
 
 DIRECT DEPOSIT INFORMATION:
 
-Routing or Transit Number: N/A
+Routing or Transit Number:
 
-Account Type: N/A
+Account Type:
 
-Account Number: N/A
+Account Number:
 
                           COURSE OF STUDY
                           ---------------
 
 VET TEC programs:
+N/A
 
                        BACKGROUND INFORMATION
                        ----------------------
 
-Are you working in one, or more, of these high-tech industries now?: N/A
+Are you working in one, or more, of these high-tech industries now?: NO
 
-Have you worked in any of these high-tech industries in the past?: N/A
+Have you worked in any of these high-tech industries in the past?: NO
 
 Which option(s) best describe your high-tech work experience?
 Check all that apply:

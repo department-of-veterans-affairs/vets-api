@@ -20,7 +20,7 @@ module ClaimsApi
         'consumer' => consumer,
         'va_user' => requesting_va_user
       }.merge(additional_fields)
-      Rails.logger.info('Appeals App Response', logged_info)
+      Rails.logger.info('Claims App Response', logged_info)
     end
 
     def consumer

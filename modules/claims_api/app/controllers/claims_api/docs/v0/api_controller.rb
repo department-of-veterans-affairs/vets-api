@@ -8,7 +8,7 @@ module ClaimsApi
         skip_before_action(:log_request)
 
         def claims
-          swagger = YAML.safe_load(File.read(ClaimsApi::Engine.root.join('EVSS_CLAIMS.yml')))
+          swagger = YAML.safe_load(File.read(ClaimsApi::Engine.root.join('CLAIMS_STATUS.yml')))
           render json: swagger
         end
       end
