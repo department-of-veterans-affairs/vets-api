@@ -1121,7 +1121,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         it 'should scrub out any illegal characters' do
           expect(subject.send(:scrub_disability_condition, condition1)).to eq 'this is only a test'
           expect(subject.send(:scrub_disability_condition, condition2)).to eq 'this is only a test'
-          expect(subject.send(:scrub_disability_condition, condition3)).to eq 'this is (only) a ’test’'
+          expect(subject.send(:scrub_disability_condition, condition3)).to eq '\'this\' is (only) a test'
           expect(subject.send(:scrub_disability_condition, condition4)).to eq 'this-is,only.a-test'
           expect(subject.send(:scrub_disability_condition, condition5)).to eq 'this is only a test'
         end

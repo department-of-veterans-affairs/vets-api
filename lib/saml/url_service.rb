@@ -49,11 +49,16 @@ module SAML
       build_sso_url('dslogon')
     end
 
-    def idme_loa1_url
+    def idme_url
       build_sso_url(LOA::IDME_LOA1)
     end
 
-    def idme_loa3_url
+    def signup_url
+      build_sso_url(LOA::IDME_LOA1) + '&op=signup'
+    end
+
+    # verification operation is only if the user clicks identity verification via ID.me
+    def verify_url
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, 'multifactor'
@@ -63,6 +68,7 @@ module SAML
         when 'dslogon', 'dslogon_multifactor'
           'dslogon_loa3'
         end
+
       build_sso_url(link_authn_context)
     end
 
@@ -85,7 +91,7 @@ module SAML
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
       Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
-      logout_request.create(url_settings)
+      logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
     private
@@ -96,7 +102,12 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(new_url_settings)
+
+      saml_auth_request.create(new_url_settings, RelayState: relay_state_params)
+    end
+
+    def relay_state_params
+      { originating_request_id: Thread.current['request_id'] }.to_json
     end
 
     def current_host
