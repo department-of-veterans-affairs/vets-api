@@ -45,9 +45,9 @@ describe EVSS::AuthHeaders do
       expect(headers.values.include?(nil)).to eq false
     end
 
-    it 'removes any nil header keys', :aggregate_failures do
-      expect(headers).not_to have_key 'va_eauth_dodedipnid'
-      expect(headers).not_to have_key 'va_eauth_pnid'
+    it 'sets any nil headers values to an empty string', :aggregate_failures do
+      expect(headers['va_eauth_dodedipnid']).to eq ''
+      expect(headers['va_eauth_pnid']).to eq ''
     end
 
     it 'does not modify non-nil header values', :aggregate_failures do
