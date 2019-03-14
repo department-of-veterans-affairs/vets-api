@@ -277,6 +277,7 @@ module PdfFill
       end
 
       def combine_full_address(address)
+        return '' if address.blank?
         combine_hash(
           address,
           %w[
