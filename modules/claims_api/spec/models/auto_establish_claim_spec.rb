@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe 'pending?' do
     context 'no pending records' do
       it 'should be false' do
-        expect(described_class.pending?('123_789')).to be(false)
+        expect(described_class.pending?('123')).to be(false)
       end
     end
     context 'with pending records' do
