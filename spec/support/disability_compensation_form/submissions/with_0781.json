@@ -192,15 +192,7 @@
             }
           },
           {
-            "name": "Trusty Tester Testerson",
-            "address": {
-              "street": "100 Main Street",
-              "street2": "1B",
-              "city": "Baltimore",
-              "state": "MD",
-              "country": "USA",
-              "postalCode": "21200-1111"
-            }
+            "name": "Trusty Tester Testerson"
           }
         ]
       },
@@ -209,18 +201,13 @@
         "incidentDate": "2000-01-01",
         "unitAssignedDates": {
           "from": "2001-01-01",
-          "to": "2002-02-02"
+          "to": "2002-XX-XX"
         },
         "personsInvolved": [
           {
-            "name": {
-              "first": "Festy",
-              "middle": "Fester",
-              "last": "Festerson"
-            },
             "rank": "Inc 0 Rank 0",
             "injuryDeath": "killedInAction",
-            "injuryDeathDate": "2000-01-01",
+            "injuryDeathDate": "2000-01-XX",
             "unitAssigned": "abcdefghijklm0 opqrstuvwxyz12340 bpqrstuvwxyz12340"
           },
           {
@@ -241,15 +228,7 @@
         "incidentDescription": "Lorem ipsum dolor sit amet.",
         "sources": [
           {
-            "name": "Testy Tester Testerson",
-            "address": {
-              "street": "123 Main Street",
-              "street2": "1B",
-              "city": "Baltimore",
-              "state": "MD",
-              "country": "USA",
-              "postalCode": "21200-1111"
-            }
+            "name": "Testy Tester Testerson"
           },
           {
             "name": "Dusty Tester Testerson",
@@ -263,7 +242,6 @@
             }
           },
           {
-            "name": "Trusty Tester Testerson",
             "address": {
               "street": "100 Main Street",
               "street2": "1B",
