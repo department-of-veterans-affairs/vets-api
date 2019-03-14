@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/json_marshal'
-require_dependency 'claims_api/auto_established_claim'
 
 module ClaimsApi
   class SupportingDocument < ActiveRecord::Base
