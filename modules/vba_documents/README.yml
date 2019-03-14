@@ -49,7 +49,7 @@ info:
         integrity of the upload
 
     ### Status Simulation
-    Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `recieved`, `processing`, `success`, `error`.
+    Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `recieved`, `processing`, `success`, `vbms success`, `error`.
 
     ## Reference
 
@@ -387,6 +387,7 @@ components:
             * `received` - Indicates document package has been successfully propagated to Central Mail API
             * `processing` - Indicates document package is being processed by ICMHS or a downstream system.
             * `success` - Indicates document package has been received by DHMS.
+            * `vbms success` - Indicates that the the package has been succesfully processed into VBMS.
             * `error` - Indicates that there was an error. See the `code` and `message` for further information.
           type: string
           enum:
