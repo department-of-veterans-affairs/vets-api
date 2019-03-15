@@ -2,12 +2,23 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # A {Form4142Processor} handles the work of generating a stamped PDF and a request body for a 4142 CentralMail submission
+    #
     class Form4142Processor
-      attr_reader :pdf_path, :request_body
+      # @return [Pathname] the generated PDF path
+      attr_reader :pdf_path
+
+      # @return [Hash] the generated request body
+      attr_reader :request_body
 
       FORM_ID = '21-4142'
       FOREIGN_POSTALCODE = '00000'
 
+      # @param submission [Form526Submission] a user's post-translated 526 submission
+      # @param jid [String] the Sidekiq job id for the job submitting the 4142 form
+      #
+      # @return [EVSS::DisabilityCompensationForm::Form4142Processor] an instance of this class
+      #
       def initialize(submission, jid)
         @submission = submission
         @pdf_path = generate_stamp_pdf
@@ -21,6 +32,9 @@ module EVSS
       # Then calls method CentralMail::DatestampPdf to stamp the document.
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "FDC Reviewed - Vets.gov Submission" at the top of each page
+      #
+      # @return [Pathname] the stamped PDF path
+      #
       def generate_stamp_pdf
         pdf = PdfFill::Filler.fill_ancillary_form(
           @submission.form[Form526Submission::FORM_4142], @submission.submitted_claim_id, FORM_ID
@@ -41,13 +55,6 @@ module EVSS
           pdf_path,
           Mime[:pdf].to_s
         )
-      end
-
-      def get_hash_and_pages(file_path)
-        {
-          hash: Digest::SHA256.file(file_path).hexdigest,
-          pages: PDF::Reader.new(file_path).pages.size
-        }
       end
 
       def generate_metadata(pdf_path, jid)
