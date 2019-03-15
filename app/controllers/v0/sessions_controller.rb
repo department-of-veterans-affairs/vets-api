@@ -60,12 +60,12 @@ module V0
         stats(:success)
       else
         log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
+      redirect_to saml_login_redirect_url(auth: 'fail', code: 7) unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
@@ -107,11 +107,15 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def saml_login_redirect_url
-      if current_user.loa[:current] < current_user.loa[:highest]
-        url_service.verify_url
+    def saml_login_redirect_url(auth: 'success', code: nil)
+      if auth == 'fail'
+        url_service.login_redirect_url(auth: 'fail', code: code)
       else
-        url_service.login_redirect_url
+        if current_user.loa[:current] < current_user.loa[:highest]
+          url_service.verify_url
+        else
+          url_service.login_redirect_url
+        end
       end
     end
 
