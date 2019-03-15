@@ -45,12 +45,7 @@ module V0
     ensure
       logout_request&.destroy
 
-      # In the future, the FE shouldn't count on ?success=true.
-      if Settings.session_cookie.enabled
-        redirect_to url_service.logout_redirect_url
-      else
-        redirect_to url_service.logout_redirect_url(success: true)
-      end
+      redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
@@ -116,10 +111,8 @@ module V0
     def saml_login_redirect_url
       if current_user.loa[:current] < current_user.loa[:highest]
         url_service.verify_url
-      elsif Settings.session_cookie.enabled
+      elsif
         url_service.login_redirect_url
-      else
-        url_service.login_redirect_url(token: @session_object.token)
       end
     end
 
