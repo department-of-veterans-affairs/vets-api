@@ -44,7 +44,6 @@ module V0
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
-
       redirect_to url_service.logout_redirect_url
     end
 
@@ -111,7 +110,7 @@ module V0
     def saml_login_redirect_url
       if current_user.loa[:current] < current_user.loa[:highest]
         url_service.verify_url
-      elsif
+      else
         url_service.login_redirect_url
       end
     end
