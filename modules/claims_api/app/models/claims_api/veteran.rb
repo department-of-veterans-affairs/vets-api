@@ -71,6 +71,8 @@ module ClaimsApi
         va_profile: build_profile(headers),
         last_signed_in: Time.now.utc
       )
+      # commenting this out until the new non-veteran oauth flow is ready to replace this
+      # veteran.loa = { current: 3, highest: 3 }
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
       veteran.edipi = headers['X-VA-EDIPI'] if headers['X-VA-EDIPI'].present?
       veteran
