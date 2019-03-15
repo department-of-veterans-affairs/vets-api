@@ -7,7 +7,7 @@ module ClaimsApi
   module V0
     module Forms
       class DisabilityCompensationController < ApplicationController
-        before_action { permit_scopes %w[claims.write] }
+        before_action { permit_scopes %w[claim.write] }
         # before_action :validate_json_api_payload
 
         def submit_form_526

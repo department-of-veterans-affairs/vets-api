@@ -13,26 +13,34 @@ RSpec.describe 'Disability Claims ', type: :request do
       'X-VA-Birth-Date': '1986-05-06T00:00:00+00:00',
       'X-VA-Gender': 'M' }
   end
+  let(:scopes) { %w[claim.write] }
+
   describe '#526' do
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
 
     it 'should return a successful response with all the data' do
-      post '/services/claims/v0/forms/526', JSON.parse(data), headers
-      parsed = JSON.parse(response.body)
-      expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
-      expect(parsed['data']['attributes']['status']).to eq('pending')
+      with_okta_user(scopes) do |auth_header|
+        post '/services/claims/v0/forms/526', JSON.parse(data), headers.merge(auth_header)
+        parsed = JSON.parse(response.body)
+        expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
     end
 
     it 'should create the sidekick job' do
-      expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-      post '/services/claims/v0/forms/526', JSON.parse(data), headers
+      with_okta_user(scopes) do |auth_header|
+        expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+        post '/services/claims/v0/forms/526', JSON.parse(data), headers.merge(auth_header)
+      end
     end
 
     it 'should build the auth headers' do
-      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-      expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
-      expect(auth_header_stub).to receive(:add_headers)
-      post '/services/claims/v0/forms/526', JSON.parse(data), headers
+      with_okta_user(scopes) do |auth_header|
+        auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+        expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
+        expect(auth_header_stub).to receive(:add_headers)
+        post '/services/claims/v0/forms/526', JSON.parse(data), headers.merge(auth_header)
+      end
     end
   end
 
@@ -43,11 +51,13 @@ RSpec.describe 'Disability Claims ', type: :request do
     end
 
     it 'should increase the supporting document count' do
-      allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
-      count = auto_claim.supporting_documents.count
-      post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params, headers
-      auto_claim.reload
-      expect(auto_claim.supporting_documents.count).to eq(count + 1)
+      with_okta_user(scopes) do |auth_header|
+        allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
+        count = auto_claim.supporting_documents.count
+        post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params, headers.merge(auth_header)
+        auto_claim.reload
+        expect(auto_claim.supporting_documents.count).to eq(count + 1)
+      end
     end
   end
 end
