@@ -2,7 +2,8 @@
 
 module EVSS
   module DisabilityCompensationForm
-    # A {Form4142Processor} handles the work of generating a stamped PDF and a request body for a 4142 CentralMail submission
+    # A {Form4142Processor} handles the work of generating a stamped PDF
+    # and a request body for a 4142 CentralMail submission
     #
     class Form4142Processor
       # @return [Pathname] the generated PDF path
