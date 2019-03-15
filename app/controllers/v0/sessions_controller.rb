@@ -110,12 +110,10 @@ module V0
     def saml_login_redirect_url(auth: 'success', code: nil)
       if auth == 'fail'
         url_service.login_redirect_url(auth: 'fail', code: code)
+      elsif current_user.loa[:current] < current_user.loa[:highest]
+        url_service.verify_url
       else
-        if current_user.loa[:current] < current_user.loa[:highest]
-          url_service.verify_url
-        else
-          url_service.login_redirect_url
-        end
+        url_service.login_redirect_url
       end
     end
 
