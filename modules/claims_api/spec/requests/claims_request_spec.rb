@@ -25,7 +25,7 @@ RSpec.describe 'EVSS Claims management', type: :request do
       'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
     }
   end
-  let(:scopes) { %w[claims.read] }
+  let(:scopes) { %w[claim.read] }
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     with_okta_user(scopes) do |auth_header|
