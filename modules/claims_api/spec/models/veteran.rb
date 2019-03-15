@@ -21,5 +21,16 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
     it 'should alias dslogon_edipi to edipi for MVI' do
       expect(@veteran.dslogon_edipi).to be(@veteran.edipi)
     end
+
+    it 'should not set edipi if not passed in headers' do
+      headers = {
+        'X-VA-SSN' => '123456789',
+        'X-VA-First-Name' => 'MARK',
+        'X-VA-Last-Name' => 'WEBB',
+        'X-VA-Birth-Date' => '1928-01-01'
+      }
+      veteran = ClaimsApi::Veteran.from_headers(headers)
+      expect(veteran.edipi).to be(nil)
+    end
   end
 end
