@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'saml/url_service'
+require 'support/url_service_helpers'
 
 RSpec.describe SAML::URLService do
   SAML::URLService::VIRTUAL_HOST_MAPPINGS.each do |vhost_url, values|
@@ -58,15 +59,24 @@ RSpec.describe SAML::URLService do
             .with_relay_state('originating_request_id' => '123')
         end
 
+<<<<<<< HEAD
         it 'has sign in url: with (default authn_context) first time verification' do
           expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
+=======
+        it 'has sign in url: with (multifactor authn_context)' do
+          allow(user).to receive(:authn_context).and_return('multifactor')
+>>>>>>> master
           expect_any_instance_of(OneLogin::RubySaml::Settings)
             .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+<<<<<<< HEAD
             .with_relay_state(
               'originating_request_id' => '123'
             )
+=======
+            .with_relay_state('originating_request_id' => '123')
+>>>>>>> master
         end
 
         it 'has sign in url: with (myhealthevet authn_context)' do
@@ -76,6 +86,7 @@ RSpec.describe SAML::URLService do
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
             .with_relay_state('originating_request_id' => '123')
+<<<<<<< HEAD
         end
 
         it 'has sign in url: with (myhealthevet authn_context) first time verification' do
@@ -87,6 +98,8 @@ RSpec.describe SAML::URLService do
             .with_relay_state(
               'originating_request_id' => '123'
             )
+=======
+>>>>>>> master
         end
 
         it 'has sign in url: with (myhealthevet_multifactor authn_context)' do
@@ -96,6 +109,7 @@ RSpec.describe SAML::URLService do
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
             .with_relay_state('originating_request_id' => '123')
+<<<<<<< HEAD
         end
 
         it 'has sign in url: with (myhealthevet_multifactor authn_context) first time verification' do
@@ -107,6 +121,8 @@ RSpec.describe SAML::URLService do
             .with_relay_state(
               'originating_request_id' => '123'
             )
+=======
+>>>>>>> master
         end
 
         it 'has sign in url: with (dslogon authn_context)' do
@@ -116,6 +132,7 @@ RSpec.describe SAML::URLService do
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
             .with_relay_state('originating_request_id' => '123')
+<<<<<<< HEAD
         end
 
         it 'has sign in url: with (dslogon authn_context) first time verification' do
@@ -127,6 +144,8 @@ RSpec.describe SAML::URLService do
             .with_relay_state(
               'originating_request_id' => '123'
             )
+=======
+>>>>>>> master
         end
 
         it 'has sign in url: with (dslogon_multifactor authn_context)' do
@@ -136,6 +155,7 @@ RSpec.describe SAML::URLService do
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
             .with_relay_state('originating_request_id' => '123')
+<<<<<<< HEAD
         end
 
         it 'has sign in url: with (dslogon_multifactor authn_context) first time verification' do
@@ -147,6 +167,8 @@ RSpec.describe SAML::URLService do
             .with_relay_state(
               'originating_request_id' => '123'
             )
+=======
+>>>>>>> master
         end
       end
 

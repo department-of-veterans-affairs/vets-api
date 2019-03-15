@@ -351,7 +351,7 @@ module PdfFill
       def expand_injury_death_date(person_involved, index)
         injury_date = person_involved['injuryDeathDate']
         return if injury_date.blank?
-        s_date = split_date(injury_date)
+        s_date = split_approximate_date(injury_date)
         person_involved["injuryDeathDateMonth#{index}"] = s_date['month']
         person_involved["injuryDeathDateDay#{index}"] = s_date['day']
         person_involved["injuryDeathDateYear#{index}"] = s_date['year']
@@ -372,10 +372,7 @@ module PdfFill
       def flatten_person_identification(person_involved, index)
         return if person_involved.blank?
 
-        extract_middle_i(person_involved, 'name')
-        person_involved["first#{index}"] = person_involved['name']['first']
-        person_involved["middleInitial#{index}"] = person_involved['name']['middleInitial']
-        person_involved["last#{index}"] = person_involved['name']['last']
+        flatten_person_name(person_involved, index) if person_involved['name'].present?
 
         unless person_involved['description'].nil?
           person_involved["description#{index}"] = person_involved['description']
@@ -386,6 +383,13 @@ module PdfFill
 
         person_involved["rank#{index}"] = person_involved['rank']
         person_involved.except!('rank')
+      end
+
+      def flatten_person_name(person_involved, index)
+        extract_middle_i(person_involved, 'name')
+        person_involved["first#{index}"] = person_involved['name']['first']
+        person_involved["middleInitial#{index}"] = person_involved['name']['middleInitial']
+        person_involved["last#{index}"] = person_involved['name']['last']
       end
 
       def resolve_cause_injury_death(person_involved, index)

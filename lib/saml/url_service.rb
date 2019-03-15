@@ -90,7 +90,7 @@ module SAML
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
-
+      Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
       logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
@@ -107,7 +107,7 @@ module SAML
     end
 
     def relay_state_params
-      { originating_request_id: (Thread.current['originating_request_id'] || Thread.current['request_id']) }.to_json
+      { originating_request_id: Thread.current['request_id'] }.to_json
     end
 
     def current_host

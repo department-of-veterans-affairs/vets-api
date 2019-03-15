@@ -13,7 +13,6 @@ module V0
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
-    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength
     def new
       type  = params[:signup] ? 'signup' : params[:type]
       if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
@@ -25,12 +24,16 @@ module V0
           generated_url: url_service.send("#{type}_url")
         )
 
+        if type == 'slo'
+          Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+          reset_session
+        end
+
         redirect_to session_activity.generated_url
       else
         raise Common::Exceptions::RoutingError, params[:path]
       end
     end
-    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
 
     def saml_logout_callback
       if session_activity.present?
