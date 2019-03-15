@@ -24,8 +24,8 @@ module EVSS
         @submission = submission
         @pdf_path = generate_stamp_pdf
         @request_body = {
-          'document' => to_faraday_upload(@pdf_path),
-          'metadata' => generate_metadata(@pdf_path, jid)
+          'document' => to_faraday_upload,
+          'metadata' => generate_metadata(jid)
         }
       end
 
@@ -51,14 +51,14 @@ module EVSS
 
       private
 
-      def to_faraday_upload(pdf_path)
+      def to_faraday_upload
         Faraday::UploadIO.new(
-          pdf_path,
+          @pdf_path,
           Mime[:pdf].to_s
         )
       end
 
-      def generate_metadata(pdf_path, jid)
+      def generate_metadata(jid)
         form = @submission.form[Form526Submission::FORM_4142]
         veteran_full_name = form['veteranFullName']
         address = form['veteranAddress']
@@ -71,10 +71,10 @@ module EVSS
           'uuid' => jid,
           'zipCode' => address['country'] == 'USA' ? address['postalCode'] : FOREIGN_POSTALCODE,
           'source' => 'VA Forms Group B',
-          'hashV' => Digest::SHA256.file(pdf_path).hexdigest,
+          'hashV' => Digest::SHA256.file(@pdf_path).hexdigest,
           'numberAttachments' => 0,
           'docType' => FORM_ID,
-          'numberPages' => PDF::Reader.new(pdf_path).pages.size
+          'numberPages' => PDF::Reader.new(@pdf_path).pages.size
         }.to_json
       end
 
