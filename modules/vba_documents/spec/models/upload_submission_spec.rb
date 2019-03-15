@@ -8,7 +8,6 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_received) { FactoryBot.create(:upload_submission, status: 'received') }
   let(:upload_processing) { FactoryBot.create(:upload_submission, status: 'processing') }
   let(:upload_success) { FactoryBot.create(:upload_submission, status: 'success') }
-  let(:upload_vbms_success) { FactoryBot.create(:upload_submission, status: 'vbms success') }
   let(:upload_error) { FactoryBot.create(:upload_submission, status: 'error') }
   let(:client_stub) { instance_double('CentralMail::Service') }
   let(:faraday_response) { instance_double('Faraday::Response') }
@@ -155,9 +154,9 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_error.refresh_status!
     end
 
-    it 'skips downstream status check if already in vbms success state' do
+    it 'skips downstream status check if already in success state' do
       expect(client_stub).not_to receive(:status)
-      upload_vbms_success.refresh_status!
+      upload_success.refresh_status!
     end
 
     it 'raises on error status from downstream without updating state' do

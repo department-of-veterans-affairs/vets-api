@@ -5,7 +5,7 @@ module VBADocuments
     include SetGuid
     include SentryLogging
 
-    IN_FLIGHT_STATUSES = %w[received processing success].freeze
+    IN_FLIGHT_STATUSES = %w[received processing].freeze
 
     after_save :report_errors
 
@@ -105,10 +105,8 @@ module VBADocuments
         self.status = 'received'
       when 'In Process', 'Processing Success'
         self.status = 'processing'
-      when 'Success'
+      when 'Success', 'VBMS Success'
         self.status = 'success'
-      when 'VBMS Success'
-        self.status = 'vbms success'
       when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
