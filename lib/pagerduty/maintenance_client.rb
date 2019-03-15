@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'common/client/base'
-require 'pagerduty/configuration'
 
 module PagerDuty
-  class MaintenanceClient < Common::Client::Base
+  class MaintenanceClient < PagerDuty::Service
     configuration PagerDuty::Configuration
 
     def get_all
@@ -30,7 +29,7 @@ module PagerDuty
       query = { 'offset' => offset,
                 'filter' => 'open',
                 'service_ids' => service_ids }
-      perform(:get, 'maintenance_windows', query, headers).body
+      perform(:get, 'maintenance_windows', query).body
     end
 
     def convert(raw_mws)
@@ -56,10 +55,6 @@ module PagerDuty
 
     def service_ids
       Settings.maintenance.services&.to_hash&.values || []
-    end
-
-    def headers
-      { 'Authorization' => "Token token=#{Settings.maintenance.pagerduty_api_token}" }
     end
   end
 end
