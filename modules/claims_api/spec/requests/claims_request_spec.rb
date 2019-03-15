@@ -61,7 +61,16 @@ RSpec.describe 'EVSS Claims management', type: :request do
     it 'shows a single Claim through auto established claims', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       auto_form
       VCR.use_cassette('evss/claims/claim') do
-        get '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: { 'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY', 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216', 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user', 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00' }
+        get(
+          '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+          params: nil,
+          headers: {
+            'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+            'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
+            'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user',
+            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00'
+          }
+        )
         expect(response).to match_response_schema('claims_api/claim')
       end
     end
@@ -73,7 +82,17 @@ RSpec.describe 'EVSS Claims management', type: :request do
         verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
         allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
         allow(verifier_stub).to receive(:verify)
-        get '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: { 'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY', 'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216', 'X-Consumer-Username' => 'TestConsumer', 'X-VA-User' => 'adhoc.test.user', 'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-Consumer-PoA' => 'A1Q' }
+        get(
+          '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+          params: nil,
+          headers: {
+            'X-VA-SSN' => '796043735', 'X-VA-First-Name' => 'WESLEY',
+            'X-VA-Last-Name' => 'FORD', 'X-VA-EDIPI' => '1007697216',
+            'X-Consumer-Username' => 'TestConsumer',
+            'X-VA-User' => 'adhoc.test.user',
+            'X-VA-Birth-Date' => '1986-05-06T00:00:00+00:00', 'X-Consumer-PoA' => 'A1Q'
+          }
+        )
       end
     end
   end
