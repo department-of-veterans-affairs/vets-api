@@ -122,4 +122,50 @@ describe PdfFill::Forms::CommonPtsd do
       )
     end
   end
+
+  describe '#split_approximate_date' do
+    context 'when there is a full date' do
+      let(:date) { '2099-12-01' }
+
+      it 'should return the year, month, and day' do
+        expect(including_class.new.split_approximate_date(date)).to include(
+          'year' => '2099',
+          'month' => '12',
+          'day' => '01'
+        )
+      end
+    end
+
+    context 'when there is a partial date (year and month)' do
+      let(:date) { '2099-12-XX' }
+
+      it 'should return the year and month' do
+        expect(including_class.new.split_approximate_date(date)).to include(
+          'year' => '2099',
+          'month' => '12'
+        )
+      end
+    end
+
+    context 'when there is a partial date (year only)' do
+      let(:date) { '2099-XX-XX' }
+
+      it 'should return the year' do
+        expect(including_class.new.split_approximate_date(date)).to include(
+          'year' => '2099'
+        )
+      end
+    end
+
+    context 'when there is no year' do
+      let(:date) { 'XXXX-01-31' }
+
+      it 'should return the year' do
+        expect(including_class.new.split_approximate_date(date)).to include(
+          'month' => '01',
+          'day' => '31'
+        )
+      end
+    end
+  end
 end
