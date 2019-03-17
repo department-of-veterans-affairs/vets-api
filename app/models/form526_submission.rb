@@ -46,14 +46,14 @@ class Form526Submission < ApplicationRecord
     @auth_headers_hash ||= JSON.parse(auth_headers_json)
   end
 
-  def perform_ancillary_jobs_handler(status, options)
+  def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(status.parent_bid) if submission.form526_job_statuses.all?(&:success?)
+    submission.perform_ancillary_jobs if submission.form526_job_statuses.all?(&:success?)
   end
 
-  def perform_ancillary_jobs(bid)
-    workflow_batch = Sidekiq::Batch.new(bid)
+  def perform_ancillary_jobs
+    workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
       'Form526Submission#workflow_complete_handler',

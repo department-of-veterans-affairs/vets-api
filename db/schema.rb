@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190211163050) do
+ActiveRecord::Schema.define(version: 20190306160555) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -92,6 +92,14 @@ ActiveRecord::Schema.define(version: 20190211163050) do
     t.string   "encrypted_auth_headers"
     t.string   "encrypted_auth_headers_iv"
     t.integer  "evss_id"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  create_table "claims_api_supporting_documents", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
+    t.string   "encrypted_file_data",       null: false
+    t.string   "encrypted_file_data_iv",    null: false
+    t.integer  "auto_established_claim_id", null: false
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
   end
