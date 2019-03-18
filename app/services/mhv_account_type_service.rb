@@ -55,8 +55,8 @@ class MhvAccountTypeService
       bb_client.authenticate
       bb_client.get_eligible_data_classes.members.map(&:name)
     end
-  rescue StandardError
-    log_account_type_heuristic_once(MHV_DOWN_MESSAGE)
+  rescue StandardError => e
+    log_account_type_heuristic_once(MHV_DOWN_MESSAGE, error_message: e.message)
     nil
   end
 
@@ -66,16 +66,16 @@ class MhvAccountTypeService
     namespace.get(cache_key)
   end
 
-  def log_account_type_heuristic_once(message)
+  def log_account_type_heuristic_once(message, extra_context = {})
     return if @logged
-    extra_context = {
+    extra_context.merge!(
       uuid: user.uuid,
       mhv_correlation_id: user.mhv_correlation_id,
       eligible_data_classes: eligible_data_classes,
       authn_context: user.authn_context,
       va_patient: user.va_patient?,
-      known_account_type: user.identity.mhv_account_type
-    }
+      mhv_acct_type: user.identity.mhv_account_type
+    )
     tags = { sign_in_method: user.identity.sign_in }
     log_message_to_sentry(message, :info, extra_context, tags)
     @logged = true
