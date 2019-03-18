@@ -27,7 +27,6 @@ module EducationForm::Forms
     }.freeze
 
     EDUCATION_TEXT = {
-      'some_high_school': 'Some High School',
       'high_school_diploma_or_GED': 'High school diploma or GED',
       'some_college': 'Some college',
       'associates_degree': 'Associate’s degree',
@@ -115,7 +114,8 @@ module EducationForm::Forms
     end
 
     def program_text
-      return 'N/A' if @applicant.vetTecPrograms.blank?
+      return 'N/A' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
+      return '' if @applicant.hasSelectedPrograms.blank?
 
       program_blocks = []
       @applicant.vetTecPrograms.each do |program|
