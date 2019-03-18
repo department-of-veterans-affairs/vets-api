@@ -16,7 +16,6 @@ module Sentry
 
       PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }).freeze
 
-
       JSON_STARTS_WITH = ['[', '{'].freeze
 
       FILTER_MASK = 'FILTERED-CLIENTSIDE'
@@ -51,8 +50,7 @@ module Sentry
       end
 
       def filter(key, unsanitized_value)
-        normalized_key = key.to_s.tr('_', '')
-        if normalized_key.downcase.match(PATTERN) && !SANITIZER_EXCEPTIONS.include?(normalized_key)
+        if filter_pattern(normalized_key)
           if unsanitized_value.is_a?(Array)
             unsanitized_value.map { |element| filter(key, element) }
           else
@@ -63,6 +61,11 @@ module Sentry
         else
           unsanitized_value
         end
+      end
+
+      def filter_pattern(key)
+        normalized_key = key.to_s.tr('_', '')
+        normalized_key.downcase.match(PATTERN) && !SANITIZER_EXCEPTIONS.include?(normalized_key)
       end
 
       def parse_json_or_nil(string)
