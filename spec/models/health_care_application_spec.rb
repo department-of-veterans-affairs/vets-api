@@ -62,7 +62,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'when the user is not found' do
       it 'should return nil' do
         expect_any_instance_of(MVI::Service).to receive(
-          :find_profile
+          :perform
         ).and_raise(MVI::Errors::RecordNotFound)
 
         expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
