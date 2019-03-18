@@ -418,8 +418,7 @@ module EVSS
       end
 
       def scrub_disability_condition(condition)
-        # Note: the right single quote is intentional - apostrophes are not allowed.
-        re = %r{([a-zA-Z0-9\-’.,\/() ]+)}
+        re = %r{([a-zA-Z0-9\-'.,\/() ]+)}
         condition.scan(re).join.squish
       end
 
