@@ -1,4 +1,3 @@
-
 # frozen_string_literal: true
 
 module ClaimsApi
@@ -37,6 +36,8 @@ module ClaimsApi
       validates field.to_sym, inclusion: { in: [true, false, 'true', 'false'] }
     end
 
+    validate :nested_inputs
+
     def initialize(params = {})
       @attributes = []
       params.each do |name, value|
@@ -66,6 +67,43 @@ module ClaimsApi
         "form0781": nil,
         "form8940": nil
       }.to_json
+    end
+
+    def nested_inputs
+      validate_current_mailing_address
+      validate_service_information
+      validate_disabilities
+      validate_direct_deposit if directDeposit.present?
+    end
+
+    def validate_service_information
+      errors.add(:base, 'serviceInformation must include servicePeriods') unless serviceInformation.key?(:servicePeriods)
+      serviceInformation[:servicePeriods].each do |service_period|
+        parent = 'servicePeriod'
+        %i[serviceBranch activeDutyBeginDate activeDutyEndDate].each do |required_key|
+          errors.add(:servicePeriods, "#{parent} must include #{required_key}") unless service_period.key?(required_key)
+        end
+      end
+    end
+
+    def validate_disabilities
+      disabilities.each do |disability|
+        %i[name disabilityActionType].each do |required_key|
+          errors.add(:disabilities, "must include #{required_key}") unless disability.key?(required_key)
+        end
+      end
+    end
+
+    def validate_current_mailing_address
+      %i[addressLine1 city state zipFirstFive country type].each do |required_key|
+        errors.add(:currentMailingAddress, "must include #{required_key}") unless veteran[:currentMailingAddress].key?(required_key)
+      end
+    end
+
+    def validate_direct_deposit
+      %i[accountType accountNumber routingNumber].each do |required_key|
+        errors.add(:directDeposit, "must include #{required_key}") unless directDeposit.key?(required_key)
+      end
     end
 
     private
