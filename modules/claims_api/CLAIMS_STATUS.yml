@@ -507,13 +507,11 @@ components:
                       example: "OR"
                   required:
                     - addressLine1
-                    - addressLine2
                     - city
+                    - state
                     - country
                     - zipFirstFive
-                    - zipLastFour
                     - type
-                    - state
                 changeOfAddress:
                   type: object
                   properties:
@@ -751,11 +749,8 @@ components:
                         - disabilityActionType
                         - serviceRelevance
                 required:
-                  - ratedDisabilityId
-                  - diagnosticCode
                   - disabilityActionType
                   - name
-                  - secondaryDisabilities
             treatments:
               type: array
               items:
@@ -842,6 +837,10 @@ components:
                   type: string
                   description: Veteran Bank Name
                   example: "SomeBank"
+                required:
+                  - accountType
+                  - accountNumber
+                  - routingNumber
             claimantCertification: 
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
