@@ -50,7 +50,7 @@ module Sentry
       end
 
       def filter(key, unsanitized_value)
-        if filter_pattern(normalized_key)
+        if filter_pattern(key)
           if unsanitized_value.is_a?(Array)
             unsanitized_value.map { |element| filter(key, element) }
           else
