@@ -1,4 +1,5 @@
-Rails.application.routes.draw do
+# frozen_string_literal: true
 
-  mount Veteran::Engine => "/veteran"
+Rails.application.routes.draw do
+  mount Veteran::Engine => '/veteran'
 end
