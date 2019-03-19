@@ -106,6 +106,29 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
     end
+
+    describe 'POST saml_callback' do
+      context 'when too much time passed to consume the SAML Assertion' do
+        before { allow(SAML::Response).to receive(:new).and_return(saml_response_too_late) }
+
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:auth_too_late][:short_message]}/)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
+      context 'loa3_user' do
+        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
+
+        it 'creates an after login job' do
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
+        end
+      end
+    end
+
   end
 
   context 'when logged in' do
@@ -424,10 +447,10 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::Response).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:auth_too_late][:short_message]}/).twice
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:auth_too_late][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_dev']).not_to be_nil
         end
       end
 
@@ -583,19 +606,6 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(Account.count).to eq 1
             expect(Account.first.idme_uuid).to eq account.idme_uuid
           end
-        end
-      end
-    end
-  end
-
-  context 'when not logged in' do
-    describe 'POST saml_callback' do
-      context 'loa3_user' do
-        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
-
-        it 'creates an after login job' do
-          allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
     end
