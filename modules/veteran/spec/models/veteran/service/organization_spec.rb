@@ -7,7 +7,7 @@ describe Veteran::Service::Organization do
     expect(Veteran::Service::Organization.new(poa: '000')).to be_valid
   end
 
-  it "is not valid without a poa" do
+  it 'is not valid without a poa' do
     organization = Veteran::Service::Organization.new(poa: nil)
     expect(organization).to_not be_valid
   end
