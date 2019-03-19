@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190306160555) do
+ActiveRecord::Schema.define(version: 20190313163050) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -437,6 +437,32 @@ ActiveRecord::Schema.define(version: 20190306160555) do
 
   add_index "vba_documents_upload_submissions", ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
   add_index "vba_documents_upload_submissions", ["status"], name: "index_vba_documents_upload_submissions_on_status", using: :btree
+
+  create_table "veteran_service_organizations", id: false, force: :cascade do |t|
+    t.string   "poa",        limit: 3
+    t.string   "name"
+    t.string   "phone"
+    t.string   "state",      limit: 2
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "veteran_service_organizations", ["poa"], name: "index_veteran_service_organizations_on_poa", unique: true, using: :btree
+
+  create_table "veteran_service_representatives", id: false, force: :cascade do |t|
+    t.string   "representative_id"
+    t.string   "poa",               limit: 3
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.string   "phone"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
+  add_index "veteran_service_representatives", ["first_name"], name: "index_veteran_service_representatives_on_first_name", using: :btree
+  add_index "veteran_service_representatives", ["last_name"], name: "index_veteran_service_representatives_on_last_name", using: :btree
+  add_index "veteran_service_representatives", ["representative_id"], name: "index_veteran_service_representatives_on_representative_id", unique: true, using: :btree
 
   create_table "vic_submissions", force: :cascade do |t|
     t.datetime "created_at",                     null: false
