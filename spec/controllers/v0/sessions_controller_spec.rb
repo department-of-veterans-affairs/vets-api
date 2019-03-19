@@ -86,8 +86,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil)
-              .with_params('op' => 'signup')
-              .with_params('clientId' => '123123')
+              .with_params('op' => 'signup', 'clientId' => '123123')
           end
         end
       end
