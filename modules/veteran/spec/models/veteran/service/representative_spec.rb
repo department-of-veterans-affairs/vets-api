@@ -3,4 +3,7 @@
 require 'rails_helper'
 
 describe Veteran::Service::Representative do
+    it "is valid with valid attributes" do
+      expect(Representative.new).to be_valid
+    end
 end
