@@ -105,7 +105,7 @@ module VBADocuments
         self.status = 'received'
       when 'In Process', 'Processing Success'
         self.status = 'processing'
-      when 'Success'
+      when 'Success', 'VBMS Success'
         self.status = 'success'
       when 'Error', 'Processing Error'
         self.status = 'error'
