@@ -49,6 +49,7 @@ unless ENV['NOCOVERAGE']
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'VaFacilities', 'modules/va_facilities/'
+    add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_filter 'version.rb'
