@@ -88,10 +88,13 @@ module ClaimsApi
 
     def validate_disabilities
       disabilities.each do |disability|
-        %i[name disabilityActionType].each do |required_key|
-          errors.add(:disabilities, "must include #{required_key}") unless disability.key?(required_key)
-        end
+        attributes = %i[name disabilityActionType]
+        validate_attribute_set(attributes, disability, 'disabilities')
       end
+    end
+
+    def current_mailing_address
+      veteran[:currentMailingAddress]
     end
 
     def validate_current_mailing_address
@@ -101,8 +104,13 @@ module ClaimsApi
     end
 
     def validate_direct_deposit
-      %i[accountType accountNumber routingNumber].each do |required_key|
-        errors.add(:directDeposit, "must include #{required_key}") unless directDeposit.key?(required_key)
+      attributes = %i[accountType accountNumber routingNumber]
+      validate_attribute_set(attributes, directDeposit, 'directDeposit')
+    end
+
+    def validate_attribute_set(keys, parent, label)
+      keys.each do |key|
+        errors.add(label, "must include #{key}") unless parent.key?(key)
       end
     end
 
