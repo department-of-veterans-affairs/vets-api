@@ -26,7 +26,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       expect(result[:state]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'does not saitize relay_state' do
+    it 'does not sanitize relay_state' do
       expect(result[:relay_state]).to eq('{"some_json_key": "some_json_value"}')
     end
 
