@@ -3,7 +3,7 @@
 module Veteran
   module Service
     class Representative < ActiveRecord::Base
-    
+      self.primary_key = :representative_id
     end
   end
 end
