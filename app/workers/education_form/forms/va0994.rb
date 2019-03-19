@@ -27,6 +27,7 @@ module EducationForm::Forms
     }.freeze
 
     EDUCATION_TEXT = {
+      'some_high_school': 'Some High School',
       'high_school_diploma_or_GED': 'High school diploma or GED',
       'some_college': 'Some college',
       'associates_degree': 'Associate’s degree',
