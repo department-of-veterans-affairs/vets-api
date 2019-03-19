@@ -128,7 +128,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
     end
-
   end
 
   context 'when logged in' do
