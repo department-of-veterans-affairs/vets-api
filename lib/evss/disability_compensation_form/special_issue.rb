@@ -4,9 +4,12 @@ require 'common/models/base'
 
 module EVSS
   module DisabilityCompensationForm
-    # Model for parsed special issues
-    # @!attribute special_issues
-    #   @return [Array<EVSS::DisabilityCompensationForm::SpecialIssue>] List of complicating issues e.g. ['POW', 'PTSD_1']
+    # Model for parsed special issues such as POW status or PTSD.
+    #
+    # @!attribute code
+    #   @return [String] The lookup code for the issue.
+    # @!attribute name
+    #   @return [String] The name of the issue.
     #
     class SpecialIssue
       include Virtus.model
