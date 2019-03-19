@@ -7,10 +7,16 @@ class SSOService
   include ActiveModel::Validations
 
   DEFAULT_ERROR_MESSAGE = 'Default generic identity provider error'
+
+  # saml_replay_valid_session is not fully implemented, but returns code to FE
   ERRORS = { validations_failed: { code: '004',
                                    tag: :validations_failed,
                                    short_message: 'on User/Session Validation',
-                                   level: :error } }.freeze
+                                   level: :error },
+             saml_replay_valid_session:  { code: '002',
+                                           tag: :saml_replay_valid_session,
+                                           short_message: 'SamlResponse is too late but user has current session',
+                                           level: :warn } }.freeze
 
   # We don't want to persist the mhv_account_type because then we would have to change it when we
   # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current

@@ -65,8 +65,7 @@ module V0
         redirect_to saml_login_redirect_url
         stats(:success)
       else
-        log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code)
         stats(:failure)
       end
     rescue NoMethodError
@@ -78,6 +77,14 @@ module V0
     end
 
     private
+
+    def auth_error_code
+      if @sso_service.auth_error_code == '005' && validate_session
+        SSOService::ERRORS[:saml_replay_valid_session][:code]
+      else
+        @sso_service.auth_error_code
+      end
+    end
 
     def authenticate
       return unless action_name == 'new'
@@ -137,19 +144,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    # this method is intended to be temporary as we gather more information on the auth_too_late SAML error
-    def log_auth_too_late
-      session_object = Session.find(session[:token])
-      user = User.find(session_object&.uuid)
-
-      log_message_to_sentry('auth_too_late ',
-                            :warn,
-                            code: @sso_service.auth_error_code,
-                            errors: @sso_service.errors.messages,
-                            last_signed_in_if_logged_in: user&.last_signed_in,
-                            authn_context: user&.authn_context)
     end
 
     def build_logout_errors(logout_response, logout_request)
