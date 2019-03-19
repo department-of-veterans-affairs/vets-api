@@ -19,6 +19,12 @@ module V0
       type = params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
         url = url_service.send("#{type}_url")
+
+        # If redirecting to ID.me, include GA clientId for cross-domain analytics
+        if type == 'idme' || type == 'signup'
+          url = params[:clientId] ? url + '&clientId=' + params[:clientId] : url
+        end
+
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
