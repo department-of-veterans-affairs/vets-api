@@ -7,7 +7,11 @@ module Sentry
         %w[
           accountType city country gender phone postalCode zipCode fileNumber state street vaEauthPnid
           accountNumber routingNumber bankName ssn birth_date social fname lname mname dslogon_idvalue
-          icn edipi
+        ].freeze
+
+      SANITIZER_EXCEPTIONS =
+        %w[
+          relaystate
         ].freeze
 
       PATTERN = Regexp.union(SANITIZED_FIELDS.map { |field| field.downcase.tr('_', '') }).freeze
@@ -46,7 +50,7 @@ module Sentry
       end
 
       def filter(key, unsanitized_value)
-        if key.to_s.tr('_', '').downcase.match(PATTERN)
+        if filter_pattern(key)
           if unsanitized_value.is_a?(Array)
             unsanitized_value.map { |element| filter(key, element) }
           else
@@ -57,6 +61,11 @@ module Sentry
         else
           unsanitized_value
         end
+      end
+
+      def filter_pattern(key)
+        normalized_key = key.to_s.tr('_', '')
+        normalized_key.downcase.match(PATTERN) && !SANITIZER_EXCEPTIONS.include?(normalized_key)
       end
 
       def parse_json_or_nil(string)
