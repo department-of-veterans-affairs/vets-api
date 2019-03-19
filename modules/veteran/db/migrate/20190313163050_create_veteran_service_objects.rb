@@ -2,7 +2,7 @@
 
 class CreateVeteranServiceObjects < ActiveRecord::Migration
   def change
-    create_table :veteran_service_organizations, id: false do |t|
+    create_table :veteran_organizations, id: false do |t|
       t.string :poa, limit: 3
       t.string :name
       t.string :phone
@@ -11,7 +11,7 @@ class CreateVeteranServiceObjects < ActiveRecord::Migration
       t.timestamps null: false
     end
 
-    create_table :veteran_service_representatives, id: false do |t|
+    create_table :veteran_representatives, id: false do |t|
       t.string :representative_id
       t.string :poa, limit: 3
       t.string :first_name
