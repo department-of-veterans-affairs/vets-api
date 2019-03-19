@@ -11,7 +11,7 @@ describe EVSS::PowerOfAttorneyVerifier do
     @client_stub = instance_double('EVSS::VsoSearch::Service')
     allow(EVSS::VsoSearch::Service).to receive(:new).with(user) { @client_stub }
     allow(@client_stub).to receive(:get_current_info) { get_fixture('json/veteran_with_poa') }
-    @veteran = Veteran.new(user)
+    @veteran = Veteran::Base.new(user)
     @veteran.power_of_attorney = PowerOfAttorney.new(ssn: '123456789')
   end
 
