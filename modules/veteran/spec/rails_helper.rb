@@ -1,4 +1,3 @@
 # frozen_string_literal: true
 
-module ApplicationHelper
-end
+require 'spec_helper'
