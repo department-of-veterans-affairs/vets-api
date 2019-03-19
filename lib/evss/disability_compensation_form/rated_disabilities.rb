@@ -6,7 +6,7 @@ require 'evss/disability_compensation_form/special_issue'
 module EVSS
   module DisabilityCompensationForm
     class RatedDisability
-      include ActiveModel::Serialization
+      include ActiveModel::Serializationxt
       include Virtus.model
 
       attribute :decision_code, String
