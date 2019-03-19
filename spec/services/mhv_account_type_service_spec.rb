@@ -99,7 +99,7 @@ RSpec.describe MhvAccountTypeService do
         eligible_data_classes: eligible_data_classes,
         authn_context: user.authn_context,
         va_patient: user.va_patient?,
-        known_account_type: user.identity.mhv_account_type
+        mhv_acct_type: user.identity.mhv_account_type
       }
     end
     let(:tags_context) { { sign_in_method: { service_name: 'myhealthevet' } } }
@@ -110,7 +110,7 @@ RSpec.describe MhvAccountTypeService do
 
       it '#mhv_account_type returns Unknown' do
         VCR.use_cassette('mhv_account_type_service/error') do
-          expect(Raven).to receive(:extra_context).with(extra_context)
+          expect(Raven).to receive(:extra_context).with({ error_message: 'string not matched' }.merge(extra_context))
           expect(Raven).to receive(:tags_context).with(tags_context)
           expect(Raven).to receive(:capture_message).with(error_message, level: level)
           expect(subject.mhv_account_type).to eq('Error')
