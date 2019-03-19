@@ -114,8 +114,8 @@ module EducationForm::Forms
     end
 
     def program_text
-      return 'N/A' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
-      return '' if @applicant.hasSelectedPrograms.blank?
+      return '' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
+      return 'N/A' if @applicant.hasSelectedPrograms.blank?
 
       program_blocks = []
       @applicant.vetTecPrograms.each do |program|
