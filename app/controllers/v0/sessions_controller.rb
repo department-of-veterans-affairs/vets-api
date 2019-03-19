@@ -21,7 +21,7 @@ module V0
         url = url_service.send("#{type}_url")
 
         # If redirecting to ID.me, include GA clientId for cross-domain analytics
-        if type == 'idme' || type == 'signup'
+        if %w[idme signup].include?(type)
           url = params[:clientId] ? url + '&clientId=' + params[:clientId] : url
         end
 
