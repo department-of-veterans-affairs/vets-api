@@ -34,6 +34,18 @@ RSpec.describe 'Disability Claims ', type: :request do
       expect(auth_header_stub).to receive(:add_headers)
       post '/services/claims/v0/forms/526', JSON.parse(data), headers
     end
+
+    context 'with the same request already ran' do
+      let!(:count) do
+        post '/services/claims/v0/forms/526', JSON.parse(data), headers
+        ClaimsApi::AutoEstablishedClaim.count
+      end
+
+      it 'should reject the duplicated request' do
+        post '/services/claims/v0/forms/526', JSON.parse(data), headers
+        expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
+      end
+    end
   end
 
   describe '#upload_supporting_documents' do
