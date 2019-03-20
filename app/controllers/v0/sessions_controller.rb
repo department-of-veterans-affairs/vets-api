@@ -21,8 +21,8 @@ module V0
         url = url_service.send("#{type}_url")
 
         # If a clientId param exists, include GA clientId for cross-domain analytics
-        clientId = params[:clientId]
-        url = clientId ? "#{url}&clientId=#{clientId}" : url
+        client_id = params[:clientId]
+        url = client_id ? "#{url}&clientId=#{client_id}" : url
 
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
