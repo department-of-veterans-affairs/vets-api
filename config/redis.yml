@@ -74,6 +74,9 @@ development: &defaults
   evss_dependents_retrieve_response:
     namespace: evss-dependents-retrieve-response
     each_ttl: 86400
+  external_service_statuses_response:
+    namespace: external-service-statuses-response
+    each_ttl: 60 # 1 minute
 
 test:
   <<: *defaults
