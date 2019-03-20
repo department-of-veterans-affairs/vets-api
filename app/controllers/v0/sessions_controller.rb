@@ -14,6 +14,7 @@ module V0
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
     def new
+<<<<<<< HEAD
       type  = params[:signup] ? 'signup' : params[:type]
       if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         session_activity = SessionActivity.create(
@@ -23,6 +24,15 @@ module V0
           originating_user_agent: request.user_agent,
           generated_url: url_service.send("#{type}_url")
         )
+=======
+      type = params[:signup] ? 'signup' : params[:type]
+      if REDIRECT_URLS.include?(type)
+        url = url_service.send("#{type}_url")
+
+        # If a clientId param exists, include GA clientId for cross-domain analytics
+        client_id = params[:clientId]
+        url = client_id ? "#{url}&clientId=#{client_id}" : url
+>>>>>>> master
 
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
@@ -40,18 +50,26 @@ module V0
         saml_response = SAML::LogoutResponse.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
         if saml_response.valid?
           # ... update session activity saying its present
+          # replace this logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
           # ... send Rails logs success
         else
           # ... update session activity with errors
+          # logout request is irrelevant in this context so this needs refactor
+          errors = build_logout_errors(logout_response, logout_request)
+
+          if errors.size.positive?
+            extra_context = { in_response_to: logout_response&.in_response_to }
+            log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
+          end
           # ... send Rails logs failure
         end
       else
+        # this replaces the need for logout_request
         log_message_to_sentry('SLO: No SessionActivity found.')
       end
     rescue ArgumentError => e
       log_exception_to_sentry(e)
-    ensure
-      redirect_to url_service.logout_redirect_url
+    ensure      redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
@@ -72,6 +90,7 @@ module V0
           stats(:failure)
         end
       else
+        log_message_to_sentry('SSO: No SessionActivity found.')
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
@@ -125,12 +144,19 @@ module V0
     def saml_login_redirect_url(auth: 'success', code: nil)
       if auth == 'fail'
         url_service.login_redirect_url(auth: 'fail', code: code)
+<<<<<<< HEAD
       else
         if current_user.loa[:current] < current_user.loa[:highest]
           url_service.idme_loa3_url
         else
           url_service.login_redirect_url
         end
+=======
+      elsif current_user.loa[:current] < current_user.loa[:highest]
+        url_service.verify_url
+      else
+        url_service.login_redirect_url
+>>>>>>> master
       end
     end
 
