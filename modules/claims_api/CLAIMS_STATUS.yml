@@ -42,6 +42,17 @@ info:
         * Provide the Veteran's EDIPI as X-VA-EDIPI
         * Provide the Veteran's Gender as X-VA-Gender
      2. Service Response: A JSON API object with a token for checking the requested claim status
+     ### Upload 526 Claim Attachments
+     Allows a client to post 526 claim form by EVSS id.
+     1. Client Request: POST https://dev-api.va.gov/services/claims/v0/form/526/{id}/attachments
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the organization or person submitting the form as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+        * Provide the Veteran's Gender as X-VA-Gender
+     2. Service Response: Empty 200
      ## Reference
      Raw Open API Spec: http://dev-api.va.gov/services/claims/docs/v0/api
 
@@ -329,7 +340,7 @@ paths:
                       Claim with some details for the given Veteran info
                     type: object
                     properties:
-                      claims_api_auto_established_claims: 
+                      claims_api_auto_established_claims:
                         description: |
                           Claim with some details for the given Veteran info
                         type: object
@@ -340,8 +351,8 @@ paths:
                             example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
                           attributes:
                             type: object
-                            properties: 
-                              token: 
+                            properties:
+                              token:
                                 type: string
                                 description: 526 Claim Submission Token
                                 example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
@@ -366,7 +377,99 @@ paths:
           description: Bad API Token
         '422':
           description: Invalid Header
-          
+  /form/526/{id}/attachments:
+    post:
+      tags:
+        - form_526
+      summary: Upload documents in support of a 526 claim.
+      description: |
+        Accpets document binaries as part of a multipart payload. These files will be uploaded and tied to
+        the passed in form 526 claim.
+
+        ##  Example Payload
+
+        ```
+        --17de1ed8f01442b2a2d7a93506314b76
+        Content-Disposition: form-data; name="attachment1"
+        Content-Type: application/pdf
+        <Binary PDF contents>
+        --17de1ed8f01442b2a2d7a93506314b76
+        Content-Disposition: form-data; name="attachment2"
+        Content-Type: application/pdf
+        <Binary PDF attachment contents>
+        --17de1ed8f01442b2a2d7a93506314b76--
+        ```
+
+        This POST request would have an overall HTTP Content-Type header:
+
+        ```
+        Content-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76
+        ```
+
+        Note that the Content-Disposition parameter "name" in each part must be the expected values
+        "attachment1"..."attachmentN".
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          required: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          required: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          required: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          required: true
+          schema:
+            type: string
+          description: Veteran's EDIPI number
+        - in: header
+          name: X-VA-Gender
+          required: true
+          schema:
+            type: string
+          description: Veteran's Gender
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: "#/components/schemas/SupportingDocument"
+                attachment1:
+                  type: string
+                  example: <<PDF BINARY>>
+                  format: binary
+                  description: Attachment contents. Must be provided in PDF format
+      responses:
+        '200':
+          description: Document upload staged
+        '400':
+          description: Bad request
+
 components:
   securitySchemes:
     api_key:
@@ -473,27 +576,27 @@ components:
                 currentMailingAddress:
                   type: object
                   properties:
-                    addressLine1: 
+                    addressLine1:
                       type: string
                       description: Address Veteran resides in
                       example: "1234 Couch Street"
-                    addressLine2: 
+                    addressLine2:
                       type: string
                       description: Additional Address Information Veteran resides in
                       example: "Apt. 22"
-                    city: 
+                    city:
                       type: string
                       description: City Veteran resides in
                       example: "Portland"
-                    country: 
+                    country:
                       type: string
                       description: Country Veteran resides in
                       example: "USA"
-                    zipFirstFive: 
+                    zipFirstFive:
                       type: string
                       description: Zipcode (First 5 digits) Veteran resides in
                       example: "12345"
-                    zipLastFour: 
+                    zipLastFour:
                       type: string
                       description: Zipcode (Last 4 digits) Veteran resides in
                       example: "6789"
@@ -501,7 +604,7 @@ components:
                       type: string
                       description: Type of residence Veteran resides in
                       example: "DOMESTIC"
-                    state:  
+                    state:
                       type: string
                       description: State Veteran resides in
                       example: "OR"
@@ -524,27 +627,27 @@ components:
                       type: string
                       description: Temporary or Permanent change of address
                       example: "PERMANENT"
-                    addressLine1: 
+                    addressLine1:
                       type: string
                       description: New Address Veteran resides in
                       example: "1234 Couch Street"
-                    addressLine2: 
+                    addressLine2:
                       type: string
                       description: New Additional Address Information Veteran resides in
                       example: "Apt. 22"
-                    city: 
+                    city:
                       type: string
                       description: New City Veteran resides in
                       example: "Portland"
-                    country: 
+                    country:
                       type: string
                       description: New Country Veteran resides in
                       example: "USA"
-                    zipFirstFive: 
+                    zipFirstFive:
                       type: string
                       description: New Zipcode (First 5 digits) Veteran resides in
                       example: "12345"
-                    zipLastFour: 
+                    zipLastFour:
                       type: string
                       description: New Zipcode (Last 4 digits) Veteran resides in
                       example: "6789"
@@ -552,7 +655,7 @@ components:
                       type: string
                       description: New Type of residence Veteran resides in
                       example: "DOMESTIC"
-                    state:  
+                    state:
                       type: string
                       description: New State Veteran resides in
                       example: "OR"
@@ -594,7 +697,7 @@ components:
                           type: string
                           description: List any other living scenarios
                           example: "other living situation"
-              required: 
+              required:
                 - currentlyVAEmployee
                 - currentMailingAddress
             serviceInformation:
@@ -621,11 +724,11 @@ components:
                           - Navy
                           - Navy Reserve
                           - NOAA
-                      activeDutyBeginDate: 
+                      activeDutyBeginDate:
                         type: date
                         description: Date Started Active Duty
                         example: "1980-02-05"
-                      activeDutyEndDate: 
+                      activeDutyEndDate:
                         type: date
                         description: Date Completed Active Duty
                         example: "1990-01-02"
@@ -711,19 +814,19 @@ components:
               items:
                 type: object
                 properties:
-                  ratedDisabilityId: 
+                  ratedDisabilityId:
                     type: string
                     description: The Type of Disability
                     example: "1100583"
-                  diagnosticCode: 
+                  diagnosticCode:
                     type: integer
                     description: Specific Diagnostic Code
                     example: 9999
-                  disabilityActionType: 
+                  disabilityActionType:
                     type: string
                     description: The status of the current disability.
                     example: "NEW"
-                  name: 
+                  name:
                     type: string
                     description: What the Disability is called.
                     example: "PTSD (post traumatic stress disorder)"
@@ -732,15 +835,15 @@ components:
                     items:
                       type: object
                       properties:
-                        name: 
+                        name:
                           type: string
                           description: What the Disability is called.
                           example: "PTSD personal trauma"
-                        disabilityActionType: 
+                        disabilityActionType:
                           type: string
                           description: The status of the secondary disability.
                           example: "SECONDARY"
-                        serviceRelevance: 
+                        serviceRelevance:
                           type: string
                           description: How the veteran got the disability.
                           example: "Caused by a service-connected disability\\nLengthy description"
@@ -821,19 +924,19 @@ components:
             directDeposit:
               type: object
               properties:
-                accountType: 
+                accountType:
                   type: string
                   description: Veteran Account Type
                   example: "CHECKING"
-                accountNumber: 
+                accountNumber:
                   type: string
                   description: Veteran Account Number
                   example: "123123123123"
-                routingNumber: 
+                routingNumber:
                   type: string
                   description: Veteran Bank Routing Number
                   example: "123123123"
-                bankName: 
+                bankName:
                   type: string
                   description: Veteran Bank Name
                   example: "SomeBank"
@@ -841,11 +944,11 @@ components:
                   - accountType
                   - accountNumber
                   - routingNumber
-            claimantCertification: 
+            claimantCertification:
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
               example: true
-            standardClaim: 
+            standardClaim:
               type: boolean
               description: Determines if claim is considered a Standard Claim.
               example: false
