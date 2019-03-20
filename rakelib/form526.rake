@@ -118,7 +118,16 @@ namespace :form526 do
       submission = Form526Submission.find(id)
 
       saved_claim_form = JSON.parse(submission.saved_claim.form)
-      saved_claim_form['veteran'] = 'FILTERED'
+
+      # Scrub out any PII
+      saved_claim_form['veteran'] = 'FILTERED' if saved_claim_form['veteran'].present?
+      saved_claim_form['bankAccountNumber'] = 'FILTERED' if saved_claim_form['bankAccountNumber'].present?
+      saved_claim_form['bankAccountType'] = 'FILTERED' if saved_claim_form['bankAccountType'].present?
+      saved_claim_form['bankName'] = 'FILTERED' if saved_claim_form['bankName'].present?
+      saved_claim_form['bankRoutingNumber'] = 'FILTERED' if saved_claim_form['bankRoutingNumber'].present?
+      saved_claim_form['alternateNames'] = 'FILTERED' if saved_claim_form['alternateNames'].present?
+      saved_claim_form['phoneAndEmail'] = 'FILTERED' if saved_claim_form['phoneAndEmail'].present?
+      saved_claim_form['mailingAddress'] = 'FILTERED' if saved_claim_form['mailingAddress'].present?
 
       auth_headers = JSON.parse(submission.auth_headers_json)
       # There have been prod instances of users not having a ssn
