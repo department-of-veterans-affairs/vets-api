@@ -30,6 +30,10 @@ module EVSS
         @translated_form = { 'form526' => {} }
       end
 
+      # perform the translation
+      #
+      # @return [Hash] the translated form ready for submission
+      #
       def translate
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']

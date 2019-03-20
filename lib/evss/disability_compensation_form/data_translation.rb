@@ -2,10 +2,10 @@
 
 module EVSS
   module DisabilityCompensationForm
-    # Transforms a client submission into the format expected by the EVSS 526 service
+    # Transforms a client 526 form submission into the format expected by the EVSS service
     #
     # @param user [User] the current user
-    # @param format [Hash] hash of the parsed JSON submitted by the client
+    # @param form_content [Hash] hash of the parsed JSON submitted by the client
     #
     class DataTranslation
       def initialize(user, form_content, _)
@@ -13,6 +13,10 @@ module EVSS
         @form_content = form_content
       end
 
+      # Merges the user data and performs the translation
+      #
+      # @return [Hash] the translated form ready for submission
+      #
       def translate
         form['claimantCertification'] = true
         form['applicationExpirationDate'] = application_expiration_date
