@@ -32,7 +32,7 @@ module EVSS
     #     e.g. ['POW', 'PTSD_1']
     #
     class RatedDisability
-      include ActiveModel::Serializationxt
+      include ActiveModel::Serialization
       include Virtus.model
 
       attribute :decision_code, String
