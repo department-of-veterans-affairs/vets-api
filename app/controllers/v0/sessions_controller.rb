@@ -108,12 +108,14 @@ module V0
     end
 
     def saml_login_redirect_url(auth: 'success', code: nil)
+      relay_state_params = JSON.parse(params[:RelayState])
       if auth == 'fail'
         url_service.login_redirect_url(auth: 'fail', code: code)
       elsif current_user.loa[:current] < current_user.loa[:highest]
-        url_service.verify_url
+        url_service.verify_url(relay_state_params)
       else
-        url_service.login_redirect_url
+        auth_action = relay_state_params['auth_action']
+        url_service.login_redirect_url(auth_action: auth_action)
       end
     end
 
