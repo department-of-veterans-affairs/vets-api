@@ -80,10 +80,17 @@ module ClaimsApi
     end
 
     def validate_nested_inputs
-      validate_current_mailing_address
+      validate_veteran
       validate_service_information
       validate_disabilities
       validate_direct_deposit if directDeposit.present?
+    end
+
+    def validate_veteran
+      key = current_mailing_address
+      errors.add(:veteran, 'must include currentMailingAddress') unless veteran.key?(:currentMailingAddress)
+      errors.add(:currentMailingAddress, 'currentMailingAddress is not an object') unless key.is_a?(Hash)
+      validate_current_mailing_address unless errors[:currentMailingAddress].any?
     end
 
     def validate_current_mailing_address

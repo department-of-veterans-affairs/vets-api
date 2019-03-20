@@ -33,5 +33,19 @@ RSpec.describe ClaimsApi::Form526, type: :model do
     it 'should require service period subfields' do
       expect(claim.errors[:servicePeriods].size).to eq(3)
     end
+
+    it 'should error when current address is missing all together' do
+      invalid_json_api_payload[:veteran].delete(:currentMailingAddress)
+      claim = ClaimsApi::Form526.new(invalid_json_api_payload)
+      claim.valid?
+      expect(claim.errors[:veteran].size).to eq(1)
+    end
+
+    it 'should error when current address is wrong format' do
+      invalid_json_api_payload[:veteran][:currentMailingAddress] = 1337
+      claim = ClaimsApi::Form526.new(invalid_json_api_payload)
+      claim.valid?
+      expect(claim.errors[:currentMailingAddress].size).to eq(1)
+    end
   end
 end
