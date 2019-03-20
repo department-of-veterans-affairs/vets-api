@@ -139,7 +139,7 @@ GEM
       rspec-mocks (~> 3.1)
     arel (8.0.0)
     ast (2.3.0)
-    attr_encrypted (3.0.3)
+    attr_encrypted (3.1.0)
       encryptor (~> 3.0.0)
     awesome_print (1.8.0)
     awrence (0.1.0)
@@ -1110,7 +1110,7 @@ DEPENDENCIES
   activerecord-postgis-adapter (~> 5.2.2)
   apivore
   appeals_api!
-  attr_encrypted
+  attr_encrypted (= 3.1.0)
   awesome_print (~> 1.8)
   awrence
   aws-sdk (~> 3)
