@@ -72,6 +72,12 @@ PATH
     veteran_verification (0.0.1)
       rails (~> 4.2.11)
 
+PATH
+  remote: modules/veteran
+  specs:
+    veteran (0.0.1)
+      rails (~> 4.2.11.1)
+
 GEM
   remote: https://rubygems.org/
   remote: https://enterprise.contribsys.com/
@@ -1209,6 +1215,7 @@ DEPENDENCIES
   va_facilities!
   vba_documents!
   vcr
+  veteran!
   veteran_verification!
   vets_json_schema!
   virtus

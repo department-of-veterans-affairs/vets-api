@@ -7,6 +7,7 @@ gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
+gem 'veteran', path: 'modules/veteran'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
