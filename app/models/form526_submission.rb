@@ -14,7 +14,8 @@
 # @!attribute form_json
 #   @return [String] encrypted form submission as JSON.
 # @!attribute workflow_complete
-#   @return [Boolean] are all the steps (jobs {EVSS::DisabilityCompensationForm::Job}) of the submission workflow complete.
+#   @return [Boolean] are all the steps (jobs {EVSS::DisabilityCompensationForm::Job}) of the submission
+#     workflow complete.
 # @!attribute created_at
 #   @return [Timestamp] created at date.
 # @!attribute workflow_complete
@@ -41,8 +42,10 @@ class Form526Submission < ActiveRecord::Base
   # an increase only or all claims form. Once the first job succeeds the batch will callback and run
   # one (cleanup job) or more ancillary jobs such as uploading supporting evidence or submitting ancillary forms.
   #
-  # @param klass [Class] the submit job class to start with {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly} or
-  # {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly}
+  # @param klass [Class] the submit job class to start with
+  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly} or
+  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly}
+  #
   # @return [String] the job id of the first job in the batch, i.e the 526 submit job
   #
   def start(klass)
@@ -58,7 +61,6 @@ class Form526Submission < ActiveRecord::Base
 
     jids.first
   end
-
 
   # @return [Hash] parsed version of the form json
   #

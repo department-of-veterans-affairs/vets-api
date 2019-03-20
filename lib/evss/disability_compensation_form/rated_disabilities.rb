@@ -5,8 +5,8 @@ require 'evss/disability_compensation_form/special_issue'
 
 module EVSS
   module DisabilityCompensationForm
-    # Model of an individual rated disability record. The VA assigns veterans disability ratings based on the severity of their disabilities.
-    # This rating is used to determine their compensation rates.
+    # Model of an individual rated disability record. The VA assigns veterans disability ratings
+    # based on the severity of their disabilities. This rating is used to determine their compensation rates.
     #
     # @!attribute decision_code
     #   @return [String] Code for the decision, e.g. ['NOTSVCCON', 'SVCCONNECTED']
@@ -15,7 +15,8 @@ module EVSS
     # @!attribute diagnostic_code
     #   @return [Integer] Diagnostic Code of each condition used to assign the disability rating
     # @!attribute name
-    #   @return [String] We map 'attrs['diagnostic_text']' to {name} in order to match the same attribute in the submit endpoint
+    #   @return [String] We map 'attrs['diagnostic_text']' to {name} in order to match the same attribute in
+    #     the submit endpoint
     # @!attribute effective_date
     #   @return [DateTime] The date the VA receives an application. Benefits start the first day of the following month.
     # @!attribute rated_disability_id
@@ -27,7 +28,8 @@ module EVSS
     # @!attribute related_disability_date
     #   @return [DateTime] Report date of a related disability
     # @!attribute special_issues
-    #   @return [Array<EVSS::DisabilityCompensationForm::SpecialIssue>] List of complicating issues e.g. ['POW', 'PTSD_1']
+    #   @return [Array<EVSS::DisabilityCompensationForm::SpecialIssue>] List of complicating issues
+    #     e.g. ['POW', 'PTSD_1']
     #
     class RatedDisability
       include ActiveModel::Serializationxt
