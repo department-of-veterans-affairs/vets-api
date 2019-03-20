@@ -28,7 +28,7 @@ module CentralMail
 
     # Performs an asynchronous job for submitting a Form 4142 to central mail service
     #
-    # @param submission_id [Integer] Submission id from Form526Submission
+    # @param submission_id [Integer] the {Form526Submission} id
     #
     def perform(submission_id)
       super(submission_id)
