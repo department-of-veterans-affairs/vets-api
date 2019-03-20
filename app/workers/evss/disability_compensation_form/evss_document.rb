@@ -2,11 +2,19 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # Base document class for the 526 ancillary forms
+    #
+    # @!attribute pdf_path [String] The file path of the PDF
+    #
     class EvssDocument
+      # @return [String] the contents of the file
+      #
       def file_body
         open(@pdf_path).read
       end
 
+      # @return [EVSSClaimDocument] A new claim document instance
+      #
       def data
         @document_data
       end
