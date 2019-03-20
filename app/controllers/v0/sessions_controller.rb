@@ -19,6 +19,11 @@ module V0
       type = params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
         url = url_service.send("#{type}_url")
+
+        # If a clientId param exists, include GA clientId for cross-domain analytics
+        client_id = params[:clientId]
+        url = client_id ? "#{url}&clientId=#{client_id}" : url
+
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
@@ -44,13 +49,7 @@ module V0
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       logout_request&.destroy
-
-      # In the future, the FE shouldn't count on ?success=true.
-      if Settings.session_cookie.enabled
-        redirect_to url_service.logout_redirect_url
-      else
-        redirect_to url_service.logout_redirect_url(success: true)
-      end
+      redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
@@ -66,12 +65,12 @@ module V0
         stats(:success)
       else
         log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
     rescue NoMethodError
       log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: 7) unless performed?
+      redirect_to saml_login_redirect_url(auth: 'fail', code: 7) unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
@@ -113,13 +112,13 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def saml_login_redirect_url
-      if current_user.loa[:current] < current_user.loa[:highest]
+    def saml_login_redirect_url(auth: 'success', code: nil)
+      if auth == 'fail'
+        url_service.login_redirect_url(auth: 'fail', code: code)
+      elsif current_user.loa[:current] < current_user.loa[:highest]
         url_service.verify_url
-      elsif Settings.session_cookie.enabled
-        url_service.login_redirect_url
       else
-        url_service.login_redirect_url(token: @session_object.token)
+        url_service.login_redirect_url
       end
     end
 

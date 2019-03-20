@@ -22,7 +22,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:request_host)        { '127.0.0.1:3000' }
   let(:callback_url)        { "http://#{request_host}/auth/saml/callback" }
-  let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/?success=true' }
+  let(:logout_redirect_url) { 'http://127.0.0.1:3001/logout/' }
 
   let(:settings_no_context) { build(:settings_no_context, assertion_consumer_service_url: callback_url) }
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
@@ -69,23 +69,24 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
-              get(:new, type: type)
+              get(:new, type: type, clientId: '123123')
               expect(response).to have_http_status(:found)
               expect(response.location)
                 .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil)
+                .with_params('clientId' => '123123')
             end
           end
         end
 
         context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
           it 'redirects' do
-            get(:new, type: :idme, signup: true)
+            get(:new, type: :idme, signup: true, clientId: '123123')
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil)
-              .with_params('op' => 'signup')
+              .with_params('op' => 'signup', 'clientId' => '123123')
           end
         end
       end
