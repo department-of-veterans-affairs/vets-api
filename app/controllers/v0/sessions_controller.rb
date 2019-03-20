@@ -19,6 +19,11 @@ module V0
       type = params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
         url = url_service.send("#{type}_url")
+
+        # If a clientId param exists, include GA clientId for cross-domain analytics
+        client_id = params[:clientId]
+        url = client_id ? "#{url}&clientId=#{client_id}" : url
+
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
