@@ -20,10 +20,9 @@ module V0
       if REDIRECT_URLS.include?(type)
         url = url_service.send("#{type}_url")
 
-        # If redirecting to ID.me, include GA clientId for cross-domain analytics
-        if %w[idme signup].include?(type)
-          url = params[:clientId] ? url + '&clientId=' + params[:clientId] : url
-        end
+        # If a clientId param exists, include GA clientId for cross-domain analytics
+        clientId = params[:clientId]
+        url = clientId ? "#{url}&clientId=#{clientId}" : url
 
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
