@@ -44,7 +44,7 @@ module EVSS
       #
       # @param job_title [String] description of the job being run
       # @param saved_claim_id [Integer] id for the {SavedClaim}
-      # @param submission_id [Integer] id for the {Form526Submission}
+      # @param submission_id [Integer] the {Form526Submission} id
       #
       def with_tracking(job_title, saved_claim_id, submission_id)
         @status_job_title = job_title
