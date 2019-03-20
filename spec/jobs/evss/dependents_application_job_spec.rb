@@ -27,7 +27,7 @@ RSpec.describe EVSS::DependentsApplicationJob do
     it 'submits to the 686 api' do
       VCR.use_cassette(
         'evss/dependents/all',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[method uri body]
       ) do
         described_class.drain
 
@@ -42,7 +42,7 @@ RSpec.describe EVSS::DependentsApplicationJob do
     it 'uses, then deletes a cache of user info' do
       VCR.use_cassette(
         'evss/dependents/all',
-        VCR::MATCH_EVERYTHING
+        match_requests_on: %i[method uri body]
       ) do
         expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:body).once.and_call_original
         expect_any_instance_of(EVSS::Dependents::RetrievedInfo).to receive(:delete).once.and_call_original

@@ -84,22 +84,21 @@ class Form526Submission < ActiveRecord::Base
 
   # The workflow batch success handler
   #
-  # @param status [Sidekiq::Batch::Status] the status of the batch
+  # @param _status [Sidekiq::Batch::Status] the status of the batch
   # @param options [Hash] payload set in the workflow batch
   #
-  def perform_ancillary_jobs_handler(status, options)
+  def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
-    submission.perform_ancillary_jobs(status.parent_bid) if submission.form526_job_statuses.all?(&:success?)
+    submission.perform_ancillary_jobs if submission.form526_job_statuses.all?(&:success?)
   end
 
   # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
   #
-  # @param bid [String] the submission batch id
   # @return [String] the workflow batch id
   #
-  def perform_ancillary_jobs(bid)
-    workflow_batch = Sidekiq::Batch.new(bid)
+  def perform_ancillary_jobs
+    workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
       :success,
       'Form526Submission#workflow_complete_handler',
@@ -116,7 +115,7 @@ class Form526Submission < ActiveRecord::Base
 
   # Checks if all workflow steps were successful and if so marks it as complete.
   #
-  # @param status [Sidekiq::Batch::Status] the status of the batch
+  # @param _status [Sidekiq::Batch::Status] the status of the batch
   # @param options [Hash] payload set in the workflow batch
   #
   def workflow_complete_handler(_status, options)

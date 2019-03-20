@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190211163050) do
+ActiveRecord::Schema.define(version: 20190313163050) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,6 +72,7 @@ ActiveRecord::Schema.define(version: 20190211163050) do
   end
 
   add_index "base_facilities", ["location"], name: "index_base_facilities_on_location", using: :gist
+  add_index "base_facilities", ["name"], name: "index_base_facilities_on_name", using: :gin
   add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
@@ -102,6 +103,14 @@ ActiveRecord::Schema.define(version: 20190211163050) do
     t.datetime "updated_at",                null: false
   end
 
+  create_table "claims_api_supporting_documents", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
+    t.string   "encrypted_file_data",       null: false
+    t.string   "encrypted_file_data_iv",    null: false
+    t.integer  "auto_established_claim_id", null: false
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
   create_table "disability_compensation_job_statuses", force: :cascade do |t|
     t.integer  "disability_compensation_submission_id", null: false
     t.string   "job_id",                                null: false
@@ -111,7 +120,7 @@ ActiveRecord::Schema.define(version: 20190211163050) do
     t.datetime "updated_at",                            null: false
   end
 
-  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id", using: :btree
+  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dcs_id", using: :btree
   add_index "disability_compensation_job_statuses", ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true, using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
@@ -429,6 +438,32 @@ ActiveRecord::Schema.define(version: 20190211163050) do
 
   add_index "vba_documents_upload_submissions", ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
   add_index "vba_documents_upload_submissions", ["status"], name: "index_vba_documents_upload_submissions_on_status", using: :btree
+
+  create_table "veteran_organizations", id: false, force: :cascade do |t|
+    t.string   "poa",        limit: 3
+    t.string   "name"
+    t.string   "phone"
+    t.string   "state",      limit: 2
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "veteran_organizations", ["poa"], name: "index_veteran_organizations_on_poa", unique: true, using: :btree
+
+  create_table "veteran_representatives", id: false, force: :cascade do |t|
+    t.string   "representative_id"
+    t.string   "poa",               limit: 3
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.string   "phone"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+  end
+
+  add_index "veteran_representatives", ["first_name"], name: "index_veteran_representatives_on_first_name", using: :btree
+  add_index "veteran_representatives", ["last_name"], name: "index_veteran_representatives_on_last_name", using: :btree
+  add_index "veteran_representatives", ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true, using: :btree
 
   create_table "vic_submissions", force: :cascade do |t|
     t.datetime "created_at",                     null: false

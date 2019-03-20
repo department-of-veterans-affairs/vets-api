@@ -30,7 +30,7 @@ module EVSS
     #   @return [Array<EVSS::DisabilityCompensationForm::SpecialIssue>] List of complicating issues e.g. ['POW', 'PTSD_1']
     #
     class RatedDisability
-      include ActiveModel::Serialization
+      include ActiveModel::Serializationxt
       include Virtus.model
 
       attribute :decision_code, String
