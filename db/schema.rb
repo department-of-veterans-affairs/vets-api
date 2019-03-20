@@ -101,6 +101,7 @@ ActiveRecord::Schema.define(version: 20190313163050) do
     t.integer  "evss_id"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.string   "md5"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
