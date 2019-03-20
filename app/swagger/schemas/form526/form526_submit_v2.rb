@@ -96,7 +96,7 @@ module Swagger
             end
             property :isVaEmployee, type: :boolean
             property :mailingAddress, type: :object do
-              key :'$ref', :Address
+              key :'$ref', :AddressRequiredFields
             end
             property :mentalChanges, type: :object do
               key :'$ref', :MentalChanges

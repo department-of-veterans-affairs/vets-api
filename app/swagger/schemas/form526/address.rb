@@ -6,7 +6,7 @@ module Swagger
       class Address
         include Swagger::Blocks
 
-        swagger_schema :Address do
+        swagger_schema :AddressRequiredFields do
           key :required, %i[country city addressLine1]
 
           # See link for country enum
