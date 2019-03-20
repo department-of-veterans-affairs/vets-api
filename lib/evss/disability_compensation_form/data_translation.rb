@@ -2,6 +2,11 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # Transforms a client submission into the format expected by the EVSS 526 service
+    #
+    # @param user [User] the current user
+    # @param format [Hash] hash of the parsed JSON submitted by the client
+    #
     class DataTranslation
       def initialize(user, form_content, _)
         @user = user
