@@ -32,7 +32,6 @@ Rails.application.routes.draw do
       post 'submit'
       post 'submit_all_claim'
       get 'submission_status/:job_id', to: 'disability_compensation_forms#submission_status', as: 'submission_status'
-      get 'user_submissions'
       get 'suggested_conditions'
     end
 
