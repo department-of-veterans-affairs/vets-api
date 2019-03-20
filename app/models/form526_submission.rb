@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Form526Submission < ApplicationRecord
+  # TODO: require non blank for auth_headers_json or remove null constraint
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
   attr_encrypted(:form_json, key: Settings.db_encryption_key)
 
