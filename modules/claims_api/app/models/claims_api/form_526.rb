@@ -36,7 +36,7 @@ module ClaimsApi
       validates field.to_sym, inclusion: { in: [true, false, 'true', 'false'] }
     end
 
-    validate :nested_inputs
+    validate :validate_nested_inputs
 
     def initialize(params = {})
       @attributes = []
@@ -69,38 +69,26 @@ module ClaimsApi
       }.to_json
     end
 
-    def nested_inputs
+    def current_mailing_address
+      veteran[:currentMailingAddress]
+    end
+
+    private
+
+    def cleaned_errors
+      errors.messages.map { |key, value| "#{key} " + value.join(' and ') }.join(', ')
+    end
+
+    def validate_nested_inputs
       validate_current_mailing_address
       validate_service_information
       validate_disabilities
       validate_direct_deposit if directDeposit.present?
     end
 
-    def validate_service_information
-      errors.add(:base, 'serviceInformation must include servicePeriods') unless serviceInformation.key?(:servicePeriods)
-      serviceInformation[:servicePeriods].each do |service_period|
-        parent = 'servicePeriod'
-        %i[serviceBranch activeDutyBeginDate activeDutyEndDate].each do |required_key|
-          errors.add(:servicePeriods, "#{parent} must include #{required_key}") unless service_period.key?(required_key)
-        end
-      end
-    end
-
-    def validate_disabilities
-      disabilities.each do |disability|
-        attributes = %i[name disabilityActionType]
-        validate_attribute_set(attributes, disability, 'disabilities')
-      end
-    end
-
-    def current_mailing_address
-      veteran[:currentMailingAddress]
-    end
-
     def validate_current_mailing_address
-      %i[addressLine1 city state zipFirstFive country type].each do |required_key|
-        errors.add(:currentMailingAddress, "must include #{required_key}") unless veteran[:currentMailingAddress].key?(required_key)
-      end
+      attributes = %i[addressLine1 city state zipFirstFive country type]
+      validate_attribute_set(attributes, current_mailing_address, 'currentMailingAddress')
     end
 
     def validate_direct_deposit
@@ -114,10 +102,21 @@ module ClaimsApi
       end
     end
 
-    private
+    def validate_service_information
+      key = :serviceInformation
+      errors.add(key, 'must include servicePeriods') unless serviceInformation.key?(:servicePeriods)
+      errors.add(key, 'must include at least 1 servicePeriod') if serviceInformation[:servicePeriods].empty?
+      serviceInformation[:servicePeriods].each do |service_period|
+        keys = %i[serviceBranch activeDutyBeginDate activeDutyEndDate]
+        validate_attribute_set(keys, service_period, 'servicePeriods')
+      end
+    end
 
-    def cleaned_errors
-      errors.messages.map { |key, value| "#{key} " + value.join(' and ') }.join(', ')
+    def validate_disabilities
+      disabilities.each do |disability|
+        attributes = %i[name disabilityActionType]
+        validate_attribute_set(attributes, disability, 'disabilities')
+      end
     end
   end
 end
