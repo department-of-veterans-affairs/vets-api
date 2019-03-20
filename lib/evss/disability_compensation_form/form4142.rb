@@ -4,8 +4,8 @@ module EVSS
   module DisabilityCompensationForm
     # Transforms a client 4142 form submission into the format expected by the EVSS service
     #
-    # @param user [User] the current user
-    # @param form_content [Hash] hash of the parsed JSON submitted by the client
+    # @param user [User] The current user
+    # @param form_content [Hash] Hash of the parsed JSON submitted by the client
     #
     class Form4142
       def initialize(user, form_content)
@@ -17,7 +17,7 @@ module EVSS
 
       # Merges the user data and performs the translation
       #
-      # @return [Hash] the translated form ready for submission
+      # @return [Hash] The translated form ready for submission
       #
       def translate
         return nil unless @final_output

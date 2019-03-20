@@ -27,7 +27,7 @@ module EVSS
 
       # GETs a user's rated disabilities
       #
-      # @return [EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse] response with a list of rated disabilities
+      # @return [EVSS::DisabilityCompensationForm::RatedDisabilitiesResponse] Response with a list of rated disabilities
       #
       def get_rated_disabilities
         with_monitoring_and_error_handling do
@@ -40,7 +40,7 @@ module EVSS
       # the timeout has to be extended to ~6 minutes to match their upstream timeout.
       #
       # @param form_content [JSON] JSON serialized version of a {Form526Submission}
-      # @return [EVSS::DisabilityCompensationForm::FormSubmitResponse] response that includes the EVSS claim_id
+      # @return [EVSS::DisabilityCompensationForm::FormSubmitResponse] Response that includes the EVSS claim_id
       #
       def submit_form526(form_content)
         with_monitoring_and_error_handling do

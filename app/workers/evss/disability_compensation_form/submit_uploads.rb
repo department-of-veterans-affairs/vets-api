@@ -11,8 +11,8 @@ module EVSS
 
       # Recursively submits a file in a new instance of this job for each upload in the uploads list
       #
-      # @param submission_id [Integer] the {Form526Submission} id
-      # @param uploads [Array<String>] a list of the upload GUIDs in AWS S3
+      # @param submission_id [Integer] The {Form526Submission} id
+      # @param uploads [Array<String>] A list of the upload GUIDs in AWS S3
       #
       def perform(submission_id, uploads)
         super(submission_id)

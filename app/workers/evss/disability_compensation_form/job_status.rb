@@ -12,7 +12,7 @@ module EVSS
       class_methods do
         # Callback that fires when a job has exhausted its retries
         #
-        # @param msg [Hash] the message payload from Sidekiq
+        # @param msg [Hash] The message payload from Sidekiq
         #
         def job_exhausted(msg)
           submission_id = msg['args'].first
@@ -42,9 +42,9 @@ module EVSS
 
       # Code wrapped by this block will run between the {job_try} and {job_success} methods
       #
-      # @param job_title [String] description of the job being run
-      # @param saved_claim_id [Integer] id for the {SavedClaim}
-      # @param submission_id [Integer] the {Form526Submission} id
+      # @param job_title [String] Description of the job being run
+      # @param saved_claim_id [Integer] The {SavedClaim} id
+      # @param submission_id [Integer] The {Form526Submission} id
       #
       def with_tracking(job_title, saved_claim_id, submission_id)
         @status_job_title = job_title

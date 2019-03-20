@@ -8,7 +8,7 @@ module EVSS
     # Model that contains an array of a veteran's parsed rated disabilities
     #
     # @!attribute rated_disabilities
-    #   @return [Array<EVSS::DisabilityCompensationForm::RatedDisability>] the list of rated disabilities
+    #   @return [Array<EVSS::DisabilityCompensationForm::RatedDisability>] The list of rated disabilities
     #
     class RatedDisabilitiesResponse < EVSS::Response
       attribute :rated_disabilities, Array[EVSS::DisabilityCompensationForm::RatedDisability]

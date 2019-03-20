@@ -11,7 +11,7 @@ module EVSS
 
       # Sub-classes should call super so that @submission id is available as an instance variable
       #
-      # @param submission_id [Integer] the {Form526Submission} id
+      # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
         @submission_id = submission_id

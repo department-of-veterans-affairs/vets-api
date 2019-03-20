@@ -10,7 +10,7 @@ module EVSS
 
       # Cleans up a 526 submission by removing its {InProgressForm} and deleting the active Intent to File record (via EVSS)
       #
-      # @param submission_id [Integer] the {Form526Submission} id
+      # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
         super(submission_id)

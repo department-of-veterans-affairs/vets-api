@@ -4,7 +4,7 @@ module EVSS
   module DisabilityCompensationForm
     # Helper class that fires off StatsD metrics
     #
-    # @param prefix [String] will prefix all metric names
+    # @param prefix [String] Will prefix all metric names
     #
     class Metrics
       def initialize(prefix)

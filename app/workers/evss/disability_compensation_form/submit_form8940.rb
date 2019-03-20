@@ -23,7 +23,7 @@ module EVSS
 
       # Performs an asynchronous job for generating and submitting 8940 PDF documents to VBMS
       #
-      # @param submission_id [Integer] the {Form526Submission} id
+      # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
         super(submission_id)

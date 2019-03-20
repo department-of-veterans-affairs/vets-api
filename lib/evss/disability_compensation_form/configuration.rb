@@ -8,19 +8,19 @@ module EVSS
     class Configuration < EVSS::Configuration
       self.read_timeout = Settings.evss.disability_compensation_form.timeout || 55
 
-      # @return [String] the base path for the EVSS 526 endpoints
+      # @return [String] The base path for the EVSS 526 endpoints
       #
       def base_path
         "#{Settings.evss.url}/#{Settings.evss.service_name}/rest/form526/v1"
       end
 
-      # @return [String] the name of the service, used by breakers to set a metric name for the service
+      # @return [String] The name of the service, used by breakers to set a metric name for the service
       #
       def service_name
         'EVSS/DisabilityCompensationForm'
       end
 
-      # @return [Boolean] whether or not Betamocks mock data is enabled
+      # @return [Boolean] Whether or not Betamocks mock data is enabled
       #
       def mock_enabled?
         Settings.evss.mock_disabilities_form || false

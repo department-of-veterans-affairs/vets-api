@@ -49,7 +49,7 @@ module EVSS
         self.name = attrs['diagnostic_text']
       end
 
-      # @return [String] shorthand for rated_disability_id
+      # @return [String] Shorthand for rated_disability_id
       #
       def id
         rated_disability_id
