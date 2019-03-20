@@ -14,7 +14,6 @@ module V0
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
     def new
-<<<<<<< HEAD
       type  = params[:signup] ? 'signup' : params[:type]
       if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         session_activity = SessionActivity.create(
@@ -24,15 +23,6 @@ module V0
           originating_user_agent: request.user_agent,
           generated_url: url_service.send("#{type}_url")
         )
-=======
-      type = params[:signup] ? 'signup' : params[:type]
-      if REDIRECT_URLS.include?(type)
-        url = url_service.send("#{type}_url")
-
-        # If a clientId param exists, include GA clientId for cross-domain analytics
-        client_id = params[:clientId]
-        url = client_id ? "#{url}&clientId=#{client_id}" : url
->>>>>>> master
 
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
@@ -144,19 +134,10 @@ module V0
     def saml_login_redirect_url(auth: 'success', code: nil)
       if auth == 'fail'
         url_service.login_redirect_url(auth: 'fail', code: code)
-<<<<<<< HEAD
-      else
-        if current_user.loa[:current] < current_user.loa[:highest]
-          url_service.idme_loa3_url
-        else
-          url_service.login_redirect_url
-        end
-=======
       elsif current_user.loa[:current] < current_user.loa[:highest]
         url_service.verify_url
       else
         url_service.login_redirect_url
->>>>>>> master
       end
     end
 
