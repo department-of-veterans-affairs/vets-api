@@ -13,9 +13,9 @@ class HealthCareApplication < ApplicationRecord
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
-  after_save :send_failure_mail, if: proc do |hca|
+  after_save(:send_failure_mail, if: proc do |hca|
     hca.saved_change_to_attribute?(:state) && hca.failed? && hca.parsed_form&.dig('email')
-  end
+  end)
 
   def self.get_user_identifier(user)
     return if user.nil?
