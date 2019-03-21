@@ -41,7 +41,7 @@ module ClaimsApi
 
     def initialize(params = {})
       sanatized_params = sanatize_fields(params)
-      params.each do |name, value|
+      sanatized_params.each do |name, value|
         send("#{name}=", value)
       end
     end
