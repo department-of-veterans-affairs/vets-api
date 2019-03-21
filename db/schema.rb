@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190313163050) do
+ActiveRecord::Schema.define(version: 20190319033331) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -72,7 +72,6 @@ ActiveRecord::Schema.define(version: 20190313163050) do
   end
 
   add_index "base_facilities", ["location"], name: "index_base_facilities_on_location", using: :gist
-  add_index "base_facilities", ["name"], name: "index_base_facilities_on_name", using: :gin
   add_index "base_facilities", ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
 
   create_table "beta_registrations", force: :cascade do |t|
@@ -121,7 +120,7 @@ ActiveRecord::Schema.define(version: 20190313163050) do
     t.datetime "updated_at",                            null: false
   end
 
-  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dcs_id", using: :btree
+  add_index "disability_compensation_job_statuses", ["disability_compensation_submission_id"], name: "index_disability_compensation_job_statuses_on_dsc_id", using: :btree
   add_index "disability_compensation_job_statuses", ["job_id"], name: "index_disability_compensation_job_statuses_on_job_id", unique: true, using: :btree
 
   create_table "disability_compensation_submissions", force: :cascade do |t|
