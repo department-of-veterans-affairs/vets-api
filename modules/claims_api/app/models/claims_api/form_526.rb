@@ -47,13 +47,13 @@ module ClaimsApi
     end
 
     def sanatize_fields(params)
-      bad_fields = param.keys - ALL_FIELDS.map &:to_sym
+      bad_fields = param.keys - ALL_FIELDS.map & :to_sym
       if bad_fields.any?
         bad_fields.each do |name|
           errors.add(name, 'is not a valid attribute')
         end
       end
-      params.delete_if {|k,v| bad_fields.include?(k) }
+      params.delete_if { |k, _v| bad_fields.include?(k) }
       params
     end
 
@@ -62,7 +62,7 @@ module ClaimsApi
     end
 
     def attributes
-      ALL_FIELDS.map { |method| { method => send(method) } }.reduce(:merge).delete_if {|_k,v| v.blank? }
+      ALL_FIELDS.map { |method| { method => send(method) } }.reduce(:merge).delete_if { |_k, v| v.blank? }
     end
 
     def to_internal
