@@ -223,6 +223,7 @@ Rails.application.routes.draw do
     put 'profile/mailing_address', to: 'addresses#update'
 
     resources :backend_statuses, param: :service, only: [:show]
+    resources :service_statuses, only: :index
 
     resources :apidocs, only: [:index]
 
