@@ -94,18 +94,18 @@ module ClaimsApi
     end
 
     def validate_current_mailing_address
-      attributes = %i[addressLine1 city state zipFirstFive country type]
-      validate_attribute_set(attributes, current_mailing_address, 'currentMailingAddress')
+      keys = %i[addressLine1 city state zipFirstFive country type]
+      validate_keys_set(keys: keys, parent: current_mailing_address, error_label: 'currentMailingAddress')
     end
 
     def validate_direct_deposit
-      attributes = %i[accountType accountNumber routingNumber]
-      validate_attribute_set(attributes, directDeposit, 'directDeposit')
+      keys = %i[accountType accountNumber routingNumber]
+      validate_keys_set(keys: keys, parent: directDeposit, error_label: 'directDeposit')
     end
 
-    def validate_attribute_set(keys, parent, label)
+    def validate_keys_set(keys:, parent:, error_label:)
       keys.each do |key|
-        errors.add(label, "must include #{key}") unless parent.key?(key)
+        errors.add(error_label, "must include #{key}") unless parent.key?(key)
       end
     end
 
@@ -115,14 +115,14 @@ module ClaimsApi
       errors.add(key, 'must include at least 1 servicePeriod') if serviceInformation[:servicePeriods].empty?
       serviceInformation[:servicePeriods].each do |service_period|
         keys = %i[serviceBranch activeDutyBeginDate activeDutyEndDate]
-        validate_attribute_set(keys, service_period, 'servicePeriods')
+        validate_keys_set(keys: keys, parent: service_period, error_label: 'servicePeriods')
       end
     end
 
     def validate_disabilities
       disabilities.each do |disability|
-        attributes = %i[name disabilityActionType]
-        validate_attribute_set(attributes, disability, 'disabilities')
+        keys = %i[name disabilityActionType]
+        validate_keys_set(keys: keys, parent: disability, error_label: 'disabilities')
       end
     end
   end
