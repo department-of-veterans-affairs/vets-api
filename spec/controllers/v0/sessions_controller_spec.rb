@@ -84,7 +84,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-              .with_relay_state('originating_request_id' => nil)
+              .with_relay_state('originating_request_id' => nil, 'registration' => true)
               .with_params('op' => 'signup')
           end
         end
