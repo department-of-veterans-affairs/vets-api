@@ -363,6 +363,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      let(:form526v2) do
+        File.read(
+          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
+        )
+      end
+
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -400,6 +406,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                   200,
                   headers.update(
                     '_data' => form526
+                  )
+                )
+              end
+            end
+          end
+        end
+      end
+
+      it 'supports submitting the v2 form' do
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
+          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
+        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 401)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+              VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+                expect(subject).to validate(
+                  :post,
+                  '/v0/disability_compensation_form/submit_all_claim',
+                  200,
+                  headers.update(
+                    '_data' => form526v2
                   )
                 )
               end
