@@ -69,7 +69,7 @@ paths:
               schema:
                 required:
                   - data
-                propertiesw:
+                properties:
                   data:
                     $ref: '#/components/schemas/DisabilityRating'
         '404':
@@ -108,7 +108,7 @@ components:
         - rating_percentage
       properties:
         decision:
-          description: Whether the disability is service connected or not. 
+          description: Whether the disability is service connected or not.
           type: string
           example: 'Service Connected'
         effective_date:
@@ -120,6 +120,6 @@ components:
           description: Severity rating determined by VA that indicates how disabling an illness or injury is for the Veteran. Used to help determine disability compensation (pay) and related benefits.
           type: number
           example: 50
-          
-      
-          
+
+
+
