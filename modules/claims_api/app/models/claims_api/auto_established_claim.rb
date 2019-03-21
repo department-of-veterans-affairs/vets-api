@@ -8,10 +8,15 @@ module ClaimsApi
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
+    has_many :supporting_documents, dependent: :destroy
+
     PENDING = 'pending'
     SUBMITTED = 'submitted'
     ESTABLISHED = 'established'
     ERRORED = 'errored'
+
+    before_validation :set_md5
+    validates :md5, uniqueness: true
 
     alias token id
 
@@ -26,6 +31,10 @@ module ClaimsApi
 
     def self.evss_id_by_token(token)
       find_by(id: token)&.evss_id
+    end
+
+    def set_md5
+      self.md5 = Digest::MD5.hexdigest form_data.merge(auth_headers).to_json
     end
   end
 end
