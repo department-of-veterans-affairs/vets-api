@@ -47,7 +47,7 @@ module ClaimsApi
     end
 
     def sanatize_fields(params)
-      bad_fields = param.keys - ALL_FIELDS.map & :to_sym
+      bad_fields = params.keys - ALL_FIELDS.map & :to_sym
       if bad_fields.any?
         bad_fields.each do |name|
           errors.add(name, 'is not a valid attribute')
