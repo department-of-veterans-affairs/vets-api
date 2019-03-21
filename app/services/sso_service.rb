@@ -10,8 +10,8 @@ class SSOService
   ERRORS = { validations_failed: { code: '004',
                                    tag: :validations_failed,
                                    short_message: 'on User/Session Validation',
-                                   level: :error }
-             mvi_outage: { code: '005',
+                                   level: :error },
+             mvi_outage: { code: '006',
                                    tag: :mvi_outage,
                                    short_message: 'MVI is unavilable',
                                    level: :error }}.freeze
