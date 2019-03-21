@@ -25,7 +25,9 @@ module ClaimsApi
       treatments
     ].freeze
 
-    (REQUIRED_FIELDS + OPTIONAL_FIELDS + BOOLEAN_REQUIRED_FIELDS).each do |field|
+    ALL_FIELDS = (REQUIRED_FIELDS + OPTIONAL_FIELDS + BOOLEAN_REQUIRED_FIELDS).freeze
+
+    ALL_FIELDS.each do |field|
       attr_accessor field.to_sym
     end
 
@@ -38,15 +40,21 @@ module ClaimsApi
     end
 
     def initialize(params = {})
-      @attributes = []
+      sanatized_params = sanatize_fields(params)
       params.each do |name, value|
-        @attributes << name.to_sym
-        begin
-          send("#{name}=", value)
-        rescue StandardError
+        send("#{name}=", value)
+      end
+    end
+
+    def sanatize_fields(params)
+      bad_fields = param.keys - ALL_FIELDS.map &:to_sym
+      if bad_fields.any?
+        bad_fields.each do |name|
           errors.add(name, 'is not a valid attribute')
         end
       end
+      params.delete_if {|k,v| bad_fields.include?(k) }
+      params
     end
 
     def persisted?
@@ -54,7 +62,7 @@ module ClaimsApi
     end
 
     def attributes
-      @attributes.map { |method| { method => send(method) } }.reduce(:merge)
+      ALL_FIELDS.map { |method| { method => send(method) } }.reduce(:merge).delete_if {|_k,v| v.blank? }
     end
 
     def to_internal
