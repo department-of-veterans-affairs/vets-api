@@ -18,15 +18,11 @@ module V0
     def new
       type = params[:type] == 'idme' && params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
-        url = type == 'signup' ?
-          url_service(registration: true).signup_url :
-          url_service.send("#{type}_url")
-
+        url = type == 'signup' ? url_service(registration: true).signup_url : url_service.send("#{type}_url")
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
         end
-
         redirect_to url
       else
         raise Common::Exceptions::RoutingError, params[:path]
