@@ -48,11 +48,6 @@ module ClaimsApi
 
     def sanitize_fields(params)
       bad_fields = params.keys.to_a - ALL_FIELDS.map(&:to_sym)
-      if bad_fields.any?
-        bad_fields.each do |name|
-          errors.add(name, 'is not a valid attribute')
-        end
-      end
       params.delete_if { |k, _v| bad_fields.include?(k) }
       params
     end

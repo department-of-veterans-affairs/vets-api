@@ -12,5 +12,11 @@ RSpec.describe ClaimsApi::Form526, type: :model do
       evss_format = ClaimsApi::Form526.new(json_api_payload).to_internal
       expect(evss_format).to eq(evss_payload)
     end
+
+    it 'should only process good payload to internal EVSS service' do
+      error_payload = json_api_payload.merge(:'exit!' => true)
+      evss_format = ClaimsApi::Form526.new(error_payload).to_internal
+      expect(evss_format).to eq(evss_payload)
+    end
   end
 end
