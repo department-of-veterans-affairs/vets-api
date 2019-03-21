@@ -40,13 +40,13 @@ module ClaimsApi
     end
 
     def initialize(params = {})
-      sanatized_params = sanatize_fields(params)
-      sanatized_params.each do |name, value|
+      sanitized_params = sanitize_fields(params)
+      sanitized_params.each do |name, value|
         send("#{name}=", value)
       end
     end
 
-    def sanatize_fields(params)
+    def sanitize_fields(params)
       bad_fields = params.keys.to_a - ALL_FIELDS.map & :to_sym
       if bad_fields.any?
         bad_fields.each do |name|
