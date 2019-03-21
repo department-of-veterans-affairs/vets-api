@@ -33,7 +33,11 @@ module Common
           end
 
           def service_i18n_key
-            "#{error_prefix.upcase}#{body['code']}"
+            if body['code']
+              "#{error_prefix.upcase}#{body['code']}"
+            else
+              "#{error_prefix.upcase}_#{status}"
+            end
           end
 
           def response_values
