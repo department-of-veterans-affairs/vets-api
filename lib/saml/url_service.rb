@@ -17,14 +17,15 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
-    attr_reader :saml_settings, :session, :authn_context
+    attr_reader :saml_settings, :session, :authn_context, :relay_state
 
-    def initialize(saml_settings, session: nil, user: nil)
+    def initialize(saml_settings, session: nil, user: nil, relay_state: {})
       if session.present?
         @session = session
         @authn_context = user&.authn_context
       end
       @saml_settings = saml_settings
+      @relay_state = relay_state.merge(originating_request_id: Thread.current['request_id'])
     end
 
     # REDIRECT_URLS
@@ -42,23 +43,23 @@ module SAML
 
     # SIGN ON URLS
     def mhv_url
-      build_sso_url('myhealthevet', auth_action: 'login')
+      build_sso_url('myhealthevet')
     end
 
     def dslogon_url
-      build_sso_url('dslogon', auth_action: 'login')
+      build_sso_url('dslogon')
     end
 
     def idme_url
-      build_sso_url(LOA::IDME_LOA1, auth_action: 'login')
+      build_sso_url(LOA::IDME_LOA1)
     end
 
     def signup_url
-      build_sso_url(LOA::IDME_LOA1, auth_action: 'register') + '&op=signup'
+      build_sso_url(LOA::IDME_LOA1, op: 'signup')
     end
 
     # verification operation is only if the user clicks identity verification via ID.me
-    def verify_url(extra_relay_state = {})
+    def verify_url
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, 'multifactor'
@@ -69,7 +70,7 @@ module SAML
           'dslogon_loa3'
         end
 
-      build_sso_url(link_authn_context, extra_relay_state)
+      build_sso_url(link_authn_context)
     end
 
     def mfa_url
@@ -91,23 +92,18 @@ module SAML
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
       Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
-      logout_request.create(url_settings, RelayState: relay_state_params)
+      logout_request.create(url_settings, RelayState: relay_state.to_json)
     end
 
     private
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
-    def build_sso_url(link_authn_context, extra_relay_state = {})
+    def build_sso_url(link_authn_context, params = {})
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-
-      saml_auth_request.create(new_url_settings, RelayState: relay_state_params(extra_relay_state))
-    end
-
-    def relay_state_params(extra_params = {})
-      { originating_request_id: Thread.current['request_id'] }.merge(extra_params).to_json
+      saml_auth_request.create(new_url_settings, params.merge(RelayState: relay_state.to_json))
     end
 
     def current_host

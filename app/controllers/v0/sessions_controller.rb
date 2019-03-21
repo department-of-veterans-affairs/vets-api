@@ -16,13 +16,17 @@ module V0
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
     def new
-      type = params[:signup] ? 'signup' : params[:type]
+      type = params[:type] == 'idme' && params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
-        url = url_service.send("#{type}_url")
+        url = type == 'signup' ?
+          url_service(registration: true).signup_url :
+          url_service.send("#{type}_url")
+
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
         end
+
         redirect_to url
       else
         raise Common::Exceptions::RoutingError, params[:path]
@@ -108,14 +112,15 @@ module V0
     end
 
     def saml_login_redirect_url(auth: 'success', code: nil)
-      relay_state_params = JSON.parse(params[:RelayState])
+      relay_state = JSON.parse(params[:RelayState])
       if auth == 'fail'
         url_service.login_redirect_url(auth: 'fail', code: code)
       elsif current_user.loa[:current] < current_user.loa[:highest]
-        url_service.verify_url(relay_state_params)
+        url_service(relay_state).verify_url
+      elsif relay_state['registration']
+        url_service.login_redirect_url(registration: true)
       else
-        auth_action = relay_state_params['auth_action']
-        url_service.login_redirect_url(auth_action: auth_action)
+        url_service.login_redirect_url
       end
     end
 
@@ -156,8 +161,8 @@ module V0
       errors
     end
 
-    def url_service
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user)
+    def url_service(relay_state = {})
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, relay_state: relay_state)
     end
   end
 end
