@@ -61,8 +61,9 @@ module ClaimsApi
                          .add_headers(
                            EVSS::AuthHeaders.new(target_veteran).to_h
                          )
-          evss_headers.merge('mock_override' => true) if request.headers['mock_override'] &&
-                                                         Settings.claims_api.disability_claims_mock_override
+          evss_headers['mock_override'] = true if request.headers['mock_override'] &&
+                                                  Settings.claims_api.disability_claims_mock_override
+          evss_headers
         end
       end
     end
