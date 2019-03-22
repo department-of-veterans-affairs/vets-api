@@ -43,7 +43,8 @@ module ClaimsApi
         end
 
         def form_attributes
-          params[:data][:attributes]
+          # will be replaced with strong parameters https://github.com/department-of-veterans-affairs/vets-api/pull/2903#issuecomment-475380662
+          params[:data][:attributes].permit!.to_h
         end
 
         def documents
