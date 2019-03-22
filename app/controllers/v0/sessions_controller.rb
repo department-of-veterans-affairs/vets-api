@@ -5,7 +5,7 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
@@ -16,23 +16,20 @@ module V0
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
     def new
-      type = params[:type] == 'idme' && params[:signup] ? 'signup' : params[:type]
-      if REDIRECT_URLS.include?(type)
-        url = type == 'signup' ? url_service(registration: true).signup_url : url_service.send("#{type}_url")
+      type = params[:type]
+      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
 
-        # If a clientId param exists, include GA clientId for cross-domain analytics
-        client_id = params[:clientId]
-        url = client_id ? "#{url}&clientId=#{client_id}" : url
+      query_params = {}
+      query_params[:op] = 'signup' if params[:signup]
+      query_params[:clientId] = params[:clientId] if params[:clientId]
+      url = url_service(query_params).send("#{type}_url")
 
-        if type == 'slo'
-          Rails.logger.info('SSO: LOGOUT', sso_logging_info)
-          reset_session
-        end
-
-        redirect_to url
-      else
-        raise Common::Exceptions::RoutingError, params[:path]
+      if type == 'slo'
+        Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+        reset_session
       end
+
+      redirect_to url
     end
 
     def saml_logout_callback
@@ -116,11 +113,11 @@ module V0
     def saml_login_redirect_url(auth: 'success', code: nil)
       relay_state = params[:RelayState] ? JSON.parse(params[:RelayState]) : {}
       if auth == 'fail'
-        url_service.login_redirect_url(auth: 'fail', code: code)
+        url_service(auth: 'fail', code: code).login_redirect_url
       elsif current_user.loa[:current] < current_user.loa[:highest]
-        url_service(relay_state).verify_url
+        url_service.verify_url
       elsif relay_state['registration']
-        url_service.login_redirect_url(registration: true)
+        url_service(registration: true).login_redirect_url
       else
         url_service.login_redirect_url
       end
@@ -163,8 +160,8 @@ module V0
       errors
     end
 
-    def url_service(relay_state = {})
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, relay_state: relay_state)
+    def url_service(query_params = {})
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, query_params: query_params)
     end
   end
 end
