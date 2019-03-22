@@ -20,7 +20,7 @@ module EVSS
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
-      # @param submission_id [Hash] The submission record
+      # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
         super(submission_id)
