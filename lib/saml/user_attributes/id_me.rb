@@ -38,35 +38,19 @@ module SAML
       end
 
       def mhv_icn
-        if existing_user_identity? && authn_context == 'myhealthevet_loa3'
-          existing_user_identity.mhv_icn
-        else
-          nil
-        end
+        existing_user_identity.mhv_icn if existing_user_identity? && authn_context == 'myhealthevet_loa3'
       end
 
       def mhv_correlation_id
-        if existing_user_identity? && authn_context == 'myhealthevet_loa3'
-          existing_user_identity.mhv_correlation_id
-        else
-          nil
-        end
+        existing_user_identity.mhv_correlation_id if existing_user_identity? && authn_context == 'myhealthevet_loa3'
       end
 
       def mhv_account_type
-        if existing_user_identity? && authn_context == 'myhealthevet_loa3'
-          existing_user_identity.mhv_account_type
-        else
-          nil
-        end
+        existing_user_identity.mhv_account_type if existing_user_identity? && authn_context == 'myhealthevet_loa3'
       end
 
       def dslogon_edipi
-        if existing_user_identity? && authn_context == 'dslogon_loa3'
-          existing_user_identity.dslogon_edipi
-        else
-          nil
-        end
+        existing_user_identity.dslogon_edipi if existing_user_identity? && authn_context == 'dslogon_loa3'
       end
 
       def sign_in
