@@ -7,7 +7,7 @@ info:
 
     ## Background
 
-    The use-case of this API is to allow third-parties to access the service history of a Veteran after receiving authorization to do so using an Open ID Connect flow.
+    The use-case of this API is to allow third-parties to access the disability rating of a Veteran after receiving authorization to do so using an Open ID Connect flow.
 
     The Disability Rating API passes requests through to EVSS, the Electronic Veterans Self Service, and formats the response into consumable data.
 
