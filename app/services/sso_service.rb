@@ -39,14 +39,6 @@ class SSOService
     existing_user.destroy if new_login?
 
     if valid?
-      if new_login?
-        # FIXME: possibly revisit this. Is there a possibility that different sign-in contexts could get
-        # merged? MHV LOA1 -> IDME LOA3 is ok, DS Logon LOA1 -> IDME LOA3 is ok, everything else is not.
-        # because user, session, user_identity all have the same TTL, this is probably not a problem.
-        MERGABLE_IDENTITY_ATTRIBUTES.each do |attribute|
-          new_user_identity.send(attribute + '=', existing_user.identity.send(attribute))
-        end
-      end
       return new_session.save && new_user.save && new_user_identity.save
     else
       handle_error_reporting_and_instrumentation

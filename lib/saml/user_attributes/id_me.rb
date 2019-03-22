@@ -37,10 +37,61 @@ module SAML
         attributes['birth_date']
       end
 
+      def mhv_icn
+        if existing_user_identity? && authn_context == 'myhealthevet_loa3'
+          existing_user_identity.mhv_icn
+        else
+          nil
+        end
+      end
+
+      def mhv_correlation_id
+        if existing_user_identity? && authn_context == 'myhealthevet_loa3'
+          existing_user_identity.mhv_correlation_id
+        else
+          nil
+        end
+      end
+
+      def mhv_account_type
+        if existing_user_identity? && authn_context == 'myhealthevet_loa3'
+          existing_user_identity.mhv_account_type
+        else
+          nil
+        end
+      end
+
+      def dslogon_edipi
+        if existing_user_identity? && authn_context == 'dslogon_loa3'
+          existing_user_identity.dslogon_edipi
+        else
+          nil
+        end
+      end
+
+      def sign_in
+        if existing_user_identity?
+          existing_user_identity.sign_in
+        else
+          super
+        end
+      end
+
       private
 
       def serializable_attributes
-        IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES
+        IDME_SERIALIZABLE_ATTRIBUTES + REQUIRED_ATTRIBUTES + mergable_identity_attributes
+      end
+
+      def mergable_identity_attributes
+        case authn_context
+        when 'myhealthevet_loa3'
+          %i[mhv_icn mhv_account_type mhv_correlation_id sign_in]
+        when 'dslogon_loa3'
+          %i[dslogon_edipi sign_in]
+        else
+          %i[sign_in]
+        end
       end
 
       def loa_current
