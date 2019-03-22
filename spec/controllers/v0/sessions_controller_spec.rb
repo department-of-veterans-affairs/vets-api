@@ -346,6 +346,19 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
+      context 'registering' do
+        let(:saml_user_attributes) do
+          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
+            loa: { current: LOA::ONE, highest: LOA::ONE }
+          )
+        end
+
+        it 'redirects to auth callback URL with registration flag' do
+          post(:saml_callback, RelayState: '{ "registration": true }')
+          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?registration=true')
+        end
+      end
+
       context 'when user has LOA current 1 and highest 3' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
