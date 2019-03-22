@@ -24,7 +24,9 @@ module ClaimsApi
       treatments
     ].freeze
 
-    (REQUIRED_FIELDS + OPTIONAL_FIELDS + BOOLEAN_REQUIRED_FIELDS).each do |field|
+    ALL_FIELDS = (REQUIRED_FIELDS + OPTIONAL_FIELDS + BOOLEAN_REQUIRED_FIELDS).freeze
+
+    ALL_FIELDS.each do |field|
       attr_accessor field.to_sym
     end
 
@@ -39,15 +41,16 @@ module ClaimsApi
     validate :validate_nested_inputs
 
     def initialize(params = {})
-      @attributes = []
-      params.each do |name, value|
-        @attributes << name.to_sym
-        begin
-          send("#{name}=", value)
-        rescue StandardError
-          errors.add(name, 'is not a valid attribute')
-        end
+      sanitized_params = sanitize_fields(params)
+      sanitized_params.each do |name, value|
+        send("#{name}=", value)
       end
+    end
+
+    def sanitize_fields(params)
+      bad_fields = params.keys.to_a - ALL_FIELDS.map(&:to_sym)
+      params.delete_if { |k, _v| bad_fields.include?(k) }
+      params
     end
 
     def persisted?
@@ -55,7 +58,7 @@ module ClaimsApi
     end
 
     def attributes
-      @attributes.map { |method| { method => send(method) } }.reduce(:merge)
+      ALL_FIELDS.map { |method| { method => send(method) } }.reduce(:merge).delete_if { |_k, v| v.blank? }
     end
 
     def to_internal
