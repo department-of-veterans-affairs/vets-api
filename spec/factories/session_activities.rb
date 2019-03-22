@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 FactoryBot.define do
   factory :session_activity do
     originating_request_id { SecureRandom.uuid }
