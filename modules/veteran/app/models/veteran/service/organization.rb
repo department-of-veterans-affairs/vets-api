@@ -6,7 +6,9 @@ module Veteran
     class Organization < ActiveRecord::Base
       self.primary_key = :poa
 
-      validates_presence_of :poa
+      def self.reload!
+        csv = fetch_page('repexcellist.asp')
+      end
     end
   end
 end

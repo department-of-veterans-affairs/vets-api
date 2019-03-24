@@ -3,10 +3,12 @@
 module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
-    class Representative < ActiveRecord::Base
+    class Representative < Veteran::Service::Base
       self.primary_key = :representative_id
 
-      validates_presence_of :poa
+      def self.reload!
+        csv = fetch_page('orgsexcellist.asp')
+      end
     end
   end
 end
