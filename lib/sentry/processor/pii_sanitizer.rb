@@ -64,8 +64,8 @@ module Sentry
       end
 
       def filter_pattern(key)
-        normalized_key = key.to_s.tr('_', '')
-        normalized_key.downcase.match(PATTERN) && !SANITIZER_EXCEPTIONS.include?(normalized_key)
+        normalized_key = key.to_s.tr('_', '').downcase
+        normalized_key.match(PATTERN) && !SANITIZER_EXCEPTIONS.include?(normalized_key)
       end
 
       def parse_json_or_nil(string)
