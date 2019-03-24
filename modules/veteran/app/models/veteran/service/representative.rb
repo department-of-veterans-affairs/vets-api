@@ -7,7 +7,7 @@ module Veteran
       self.primary_key = :representative_id
 
       def self.reload!
-        csv = fetch_page('orgsexcellist.asp')
+        csv = fetch_data('orgsexcellist.asp')
       end
     end
   end
