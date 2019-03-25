@@ -7,7 +7,7 @@ module Veteran
       self.primary_key = :poa
 
       def self.reload!
-        csv = fetch_data('repexcellist.asp')
+        fetch_data('repexcellist.asp')
       end
     end
   end
