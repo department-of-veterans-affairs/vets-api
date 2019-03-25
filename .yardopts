@@ -4,5 +4,5 @@
 app/**/*.rb
 lib/**/*.rb
 rakelib/**/*.rb
-CONTRIBUTTING.md
+CONTRIBUTING.md
 LICENSE.md
