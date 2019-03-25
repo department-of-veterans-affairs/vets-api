@@ -20,9 +20,9 @@ describe PagerDuty::ExternalServices::Service do
       expect(response.reported_at).to be_present
     end
 
-    it 'returns an array of PagerDuty::Models::Service objects', :aggregate_failures do
+    it 'returns an array of PagerDuty::Models::Service hashes', :aggregate_failures do
       expect(response.statuses.class).to eq Array
-      expect(response.statuses.first.class).to eq PagerDuty::Models::Service
+      expect(response.statuses.first.class).to eq Hash
     end
 
     context 'when PagerDuty returns an unknown service status' do
