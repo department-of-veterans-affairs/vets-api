@@ -36,8 +36,36 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-    it 'supports getting backend service status' do
-      expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
+    describe 'backend statuses' do
+      describe '/v0/backend_statuses/{service}' do
+        it 'supports getting backend service status' do
+          expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
+        end
+      end
+
+      describe '/v0/backend_statuses' do
+        context 'without a signed in user' do
+          it 'returns a 401' do
+            expect(subject).to validate(:get, '/v0/backend_statuses', 401)
+          end
+        end
+
+        context 'when successful' do
+          include_context 'simulating Redis caching of PagerDuty#get_services'
+
+          it 'supports getting external services status data' do
+            expect(subject).to validate(:get, '/v0/backend_statuses', 200, headers)
+          end
+        end
+
+        context 'when the PagerDuty API rate limit has been exceeded' do
+          it 'returns a 429 with error details' do
+            VCR.use_cassette('pagerduty/external_services/get_services_429') do
+              expect(subject).to validate(:get, '/v0/backend_statuses', 429, headers)
+            end
+          end
+        end
+      end
     end
 
     it 'supports listing in-progress forms' do
@@ -1950,30 +1978,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'returns a 429 with error details' do
           VCR.use_cassette('search/exceeds_rate_limit') do
             expect(subject).to validate(:get, '/v0/search', 429, '_query_string' => 'query=benefits')
-          end
-        end
-      end
-    end
-
-    describe 'service statuses' do
-      context 'without a signed in user' do
-        it 'returns a 401' do
-          expect(subject).to validate(:get, '/v0/service_statuses', 401)
-        end
-      end
-
-      context 'when successful' do
-        include_context 'simulating Redis caching of PagerDuty#get_services'
-
-        it 'supports getting external services status data' do
-          expect(subject).to validate(:get, '/v0/service_statuses', 200, headers)
-        end
-      end
-
-      context 'when the PagerDuty API rate limit has been exceeded' do
-        it 'returns a 429 with error details' do
-          VCR.use_cassette('pagerduty/external_services/get_services_429') do
-            expect(subject).to validate(:get, '/v0/service_statuses', 429, headers)
           end
         end
       end

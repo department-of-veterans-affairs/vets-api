@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ServiceStatusesSerializer < ActiveModel::Serializer
+class BackendStatusesSerializer < ActiveModel::Serializer
   attributes :reported_at, :statuses
 
   def id
