@@ -16,25 +16,23 @@ module Veteran
         array_of_hashes = fetch_data('orgsexcellist.asp')
         array_of_hashes.each do |hash|
           representative = Representative.find_or_initialize_by(representative_id: hash['Registration Num'])
-          representative.poa = hash['POA'].gsub!(/\W/,'')
+          representative.poa = hash['POA'].gsub!(/\W/, '')
           representative.first_name = hash['Representative'].split(' ').second
           representative.last_name = hash['Representative'].split(',').first
           representative.phone = hash['Org Phone']
           representative.save
         end
 
-        Representative.where.not(representative_id: array_of_hashes.map {|h| h['Registration Num'] }).destroy_all
-        
-        array_of_organizations = array_of_hashes.map do |h| 
-          {poa: h['POA'], name: h['Organization Name'], phone: h['Org Phone'], state: h['Org State']}
+        Representative.where.not(representative_id: array_of_hashes.map { |h| h['Registration Num'] }).destroy_all
+
+        array_of_organizations = array_of_hashes.map do |h|
+          { poa: h['POA'], name: h['Organization Name'], phone: h['Org Phone'], state: h['Org State'] }
         end.uniq.compact
 
         array_of_organizations.each do |hash|
           Organization.find_or_create_by(hash)
         end
       end
-
-      private
 
       def self.fetch_data(action)
         page = Faraday.new(url: BASE_URL).post(action, id: 'frmExcelList', name: 'frmExcelList').body
