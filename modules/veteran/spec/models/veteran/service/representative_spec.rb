@@ -14,5 +14,7 @@ describe Veteran::Service::Representative, vcr: true do
 
   it 'should reload data from pulldown' do
     Veteran::Service::Representative.reload!
+    expect(Veteran::Service::Representative.count).to eq 9338
+    expect(Veteran::Service::Organization.count).to eq 92
   end
 end
