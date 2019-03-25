@@ -17,10 +17,6 @@ module Preneeds
     attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuriedPerson]
     attribute :veteran, Preneeds::Veteran
 
-    def self.create_forms_array(params_array)
-      Array.wrap(params_array).map { |params| BurialForm.new(params) }
-    end
-
     # keep this name because it matches the previous attribute
     # rubocop:disable Naming/PredicateName
     def has_attachments
