@@ -8,7 +8,6 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < ApplicationController
         skip_before_action(:authenticate)
-        # before_action :validate_json_api_payload
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -37,10 +36,6 @@ module ClaimsApi
         end
 
         private
-
-        def validate_json_api_payload
-          JSONAPI.parse_resource!(params)
-        end
 
         def form_attributes
           params[:data][:attributes]
