@@ -37,20 +37,20 @@ describe ExternalServicesRedis::Status do
       expect(fetch_or_cache.reported_at).to be_present
     end
 
-    it 'includes an array of PagerDuty::Models::Service objects', :aggregate_failures do
+    it 'includes an array of PagerDuty::Models::Service hashes', :aggregate_failures do
       expect(fetch_or_cache.statuses.class).to eq Array
 
       fetch_or_cache.statuses.each do |status|
-        expect(status.class).to eq PagerDuty::Models::Service
+        expect(status.class).to eq Hash
       end
     end
 
     it 'includes the relevant status details about each external service', :aggregate_failures do
       service_status = fetch_or_cache.statuses.first
 
-      expect(service_status.service).to be_present
-      expect(service_status.status).to be_present
-      expect(service_status.last_incident_timestamp).to be_present
+      expect(service_status[:service]).to be_present
+      expect(service_status[:status]).to be_present
+      expect(service_status[:last_incident_timestamp]).to be_present
     end
 
     context 'when the cache is empty' do
