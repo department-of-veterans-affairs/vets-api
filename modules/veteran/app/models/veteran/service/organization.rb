@@ -6,9 +6,7 @@ module Veteran
     class Organization < ActiveRecord::Base
       self.primary_key = :poa
 
-      def self.reload!
-        fetch_data('repexcellist.asp')
-      end
+      validates_presence_of :poa
     end
   end
 end
