@@ -515,6 +515,30 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
+      context 'MVI is down', :aggregate_failuresdo do
+        let(:mhv_premium_user) { build(:user, :mhv, uuid: uuid) }
+        let(:saml_user_attributes) do
+          mhv_premium_user.attributes.merge(mhv_premium_user.identity.attributes).merge(first_name: nil)
+        end
+        let(:frozen_time) { Time.current }
+
+        around(:each) do |example|
+          Timecop.freeze(frozen_time)
+          example.run
+          Timecop.return
+        end
+
+        it 'returns 006 when MHV premium users lack data because MVI is unavilable' do
+          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
+            .with('Login Fail! MVI is unavilable', :error, "MVI has been unavailable since #{frozen_time}")
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=006')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+          MVI::Configuration.instance.breakers_service.end_forced_outage!
+        end
+      end
+
       context 'when a required saml attribute is missing' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(uuid: nil)
