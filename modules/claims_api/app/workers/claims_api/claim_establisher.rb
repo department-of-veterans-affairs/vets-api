@@ -27,7 +27,7 @@ module ClaimsApi
     private
 
     def service(auth_headers)
-      if Settings.claims_api.disability_claims_mock_override && !auth_headers['mock_override']
+      if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
         ClaimsApi::DisabilityCompensation::MockOverrideService.new(
           auth_headers
         )
