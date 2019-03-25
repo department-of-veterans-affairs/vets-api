@@ -16,6 +16,7 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       {
         state: 'SOME STATE',
         relay_state: '{"some_json_key": "some_json_value"}',
+        RelayState: '{"another_json_key": "another_json_value"}',
         icn: 'SOME ICN VALUE',
         edipi: 'SOME EDIPI VALUE',
         mhv_correlation_id: 'SOME MHV CORRELATION ID'
@@ -26,8 +27,9 @@ RSpec.describe Sentry::Processor::PIISanitizer do
       expect(result[:state]).to eq('FILTERED-CLIENTSIDE')
     end
 
-    it 'does not sanitize relay_state' do
+    it 'does not sanitize relay_state case insensitive' do
       expect(result[:relay_state]).to eq('{"some_json_key": "some_json_value"}')
+      expect(result[:RelayState]).to eq('{"another_json_key": "another_json_value"}')
     end
 
     it 'does not sanitize other important fields needed for logging / communicating to downstream partners' do
