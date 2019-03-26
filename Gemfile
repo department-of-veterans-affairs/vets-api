@@ -140,6 +140,7 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+  gem 'yard'
 end
 
 group :production do
