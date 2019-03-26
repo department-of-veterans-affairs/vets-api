@@ -73,7 +73,7 @@ RSpec.describe V0::SessionsController, type: :controller do
               expect(response).to have_http_status(:found)
               expect(response.location)
                 .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-                .with_relay_state('originating_request_id' => nil)
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
                 .with_params('clientId' => '123123')
             end
           end
@@ -85,7 +85,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-              .with_relay_state('originating_request_id' => nil, 'registration' => true)
+              .with_relay_state('originating_request_id' => nil, 'type' => 'signup')
               .with_params('op' => 'signup', 'clientId' => '123123')
           end
         end
@@ -346,16 +346,16 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context 'registering' do
+      context 'signup' do
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
             loa: { current: LOA::ONE, highest: LOA::ONE }
           )
         end
 
-        it 'redirects to auth callback URL with registration flag' do
-          post(:saml_callback, RelayState: '{ "registration": true }')
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?registration=true')
+        it 'redirects to auth callback URL with type=signup' do
+          post(:saml_callback, RelayState: '{ "type": "signup" }')
+          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?type=signup')
         end
       end
 

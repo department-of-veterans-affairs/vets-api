@@ -18,17 +18,11 @@ module V0
     def new
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
-
-      query_params = {}
-      query_params[:op] = 'signup' if params[:signup]
-      query_params[:clientId] = params[:clientId] if params[:clientId]
-      url = url_service(query_params).send("#{type}_url")
-
+      url = url_service(new_query_params(type)).send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
       end
-
       redirect_to url
     end
 
@@ -110,16 +104,32 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
+    def new_query_params(type)
+      query_params = {}
+      query_params[:clientId] = params[:clientId] if params[:clientId]
+      if %w[mhv dslogon idme].include?(type)
+        query_params[:op] = 'signup' if params[:signup]
+        query_params[:RelayState] = { type: params[:signup] ? 'signup' : type }
+      end
+      query_params
+    end
+
+    def login_redirect_query_params(auth, code, relay_state)
+      query_params = {}
+      query_params[:auth] = 'fail' if auth == 'fail'
+      query_params[:code] = code if code.present?
+      query_params[:type] = relay_state['type'] if relay_state['type']
+      query_params
+    end
+
     def saml_login_redirect_url(auth: 'success', code: nil)
       relay_state = params[:RelayState] ? JSON.parse(params[:RelayState]) : {}
-      if auth == 'fail'
-        url_service(auth: 'fail', code: code).login_redirect_url
-      elsif current_user.loa[:current] < current_user.loa[:highest]
-        url_service.verify_url
-      elsif relay_state['registration']
-        url_service(registration: true).login_redirect_url
+      if auth == 'success' && current_user.loa[:current] < current_user.loa[:highest]
+        # Continue passing the relay state when verification occurs during login.
+        url_service(RelayState: relay_state).verify_url
       else
-        url_service.login_redirect_url
+        query_params = login_redirect_query_params(auth, code, relay_state)
+        url_service(query_params).login_redirect_url
       end
     end
 

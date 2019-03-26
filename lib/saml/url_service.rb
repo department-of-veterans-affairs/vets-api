@@ -24,8 +24,13 @@ module SAML
         @session = session
         @authn_context = user&.authn_context
       end
+
       @saml_settings = saml_settings
       @query_params = query_params
+
+      if query_params[:RelayState]
+        @query_params[:RelayState] = relay_state_params.merge(query_params[:RelayState]).to_json
+      end
     end
 
     # REDIRECT_URLS
@@ -88,7 +93,7 @@ module SAML
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
       Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
-      logout_request.create(url_settings, RelayState: relay_state_params)
+      logout_request.create(url_settings, RelayState: relay_state_params.to_json)
     end
 
     private
@@ -99,13 +104,11 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-      saml_auth_request.create(new_url_settings, query_params.merge(RelayState: relay_state_params))
+      saml_auth_request.create(new_url_settings, query_params)
     end
 
     def relay_state_params
-      relay_state = { originating_request_id: Thread.current['request_id'] }
-      relay_state[:registration] = true if query_params[:op] == 'signup'
-      relay_state.to_json
+      { originating_request_id: Thread.current['request_id'] }
     end
 
     def current_host
