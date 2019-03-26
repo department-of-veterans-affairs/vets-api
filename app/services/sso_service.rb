@@ -12,12 +12,6 @@ class SSOService
                                    short_message: 'on User/Session Validation',
                                    level: :error } }.freeze
 
-  # We don't want to persist the mhv_account_type because then we would have to change it when we
-  # upgrade the account to 'Premium' and we want to keep UserIdentity pristine, based on the current
-  # signed in session.
-  # Also we want the original sign-in, NOT the one from ID.me LOA3
-  MERGABLE_IDENTITY_ATTRIBUTES = %w[mhv_correlation_id mhv_icn dslogon_edipi].freeze
-
   def initialize(response)
     raise 'SAML Response is not a SAML::Response' unless response.is_a?(SAML::Response)
     @saml_response = response
