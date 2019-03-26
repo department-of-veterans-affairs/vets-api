@@ -50,7 +50,6 @@ module V0
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
         @session_object = @sso_service.new_session
-
         set_cookies
         after_login_actions
         redirect_to saml_login_redirect_url
@@ -62,7 +61,7 @@ module V0
       end
     rescue NoMethodError => e
       log_message_to_sentry('NoMethodError', :error, full_message: e.message)
-      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
+      redirect_to saml_login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
