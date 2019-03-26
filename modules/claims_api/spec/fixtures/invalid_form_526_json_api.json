@@ -1,0 +1,41 @@
+{
+  "data": {
+    "type": "form/526",
+    "attributes": {
+      "veteran": {
+        "currentlyVAEmployee": false,
+        "currentMailingAddress": {
+        }
+      },
+      "claimantCertification": true,
+      "disabilities": [
+        {
+          "ratedDisabilityId": "1100583",
+          "diagnosticCode": 9999,
+          "disabilityActionType": "NEW",
+          "name": "PTSD (post traumatic stress disorder)",
+          "secondaryDisabilities": [
+            {
+              "name": "PTSD personal trauma",
+              "disabilityActionType": "SECONDARY",
+              "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+            }
+          ]
+        },
+        {} //empty hash
+      ],
+      "standardClaim": false,
+      "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+      "serviceInformation": {
+        "servicePeriods": [
+          {
+            "activeDutyEndDate": "1990-01-02",
+            "serviceBranch": "Air Force",
+            "activeDutyBeginDate": "1980-02-05"
+          },
+          {} // empty hash
+        ]
+      }
+    }
+  }
+}

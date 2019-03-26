@@ -19,6 +19,11 @@ module V0
       type = params[:signup] ? 'signup' : params[:type]
       if REDIRECT_URLS.include?(type)
         url = url_service.send("#{type}_url")
+
+        # If a clientId param exists, include GA clientId for cross-domain analytics
+        client_id = params[:clientId]
+        url = client_id ? "#{url}&clientId=#{client_id}" : url
+
         if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
@@ -63,9 +68,9 @@ module V0
         redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
-    rescue NoMethodError
-      log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
-      redirect_to saml_login_redirect_url(auth: 'fail', code: 7) unless performed?
+    rescue NoMethodError => e
+      log_message_to_sentry('NoMethodError', :error, full_message: e.message)
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)

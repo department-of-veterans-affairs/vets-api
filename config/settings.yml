@@ -279,6 +279,16 @@ vba_documents:
   sns:
     topic_arn: ~
 
+#Settings for Claims Api Module
+claims_api:
+  s3:
+    enabled: false
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    region: ~
+    bucket: ~
+  disability_claims_mock_override: false
+
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
 redis:
