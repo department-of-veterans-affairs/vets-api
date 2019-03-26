@@ -24,6 +24,7 @@ gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-postgis-adapter', '~> 3'
+gem 'activerecord-import'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'

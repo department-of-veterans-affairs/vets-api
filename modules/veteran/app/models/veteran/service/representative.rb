@@ -15,12 +15,7 @@ module Veteran
       def self.reload!
         array_of_hashes = fetch_data('orgsexcellist.asp')
         array_of_hashes.each do |hash|
-          representative = Representative.find_or_initialize_by(representative_id: hash['Registration Num'])
-          representative.poa = hash['POA'].gsub!(/\W/, '')
-          representative.first_name = hash['Representative'].split(' ').second
-          representative.last_name = hash['Representative'].split(',').first
-          representative.phone = hash['Org Phone']
-          representative.save
+          find_or_create_representative(hash)
         end
 
         Representative.where.not(representative_id: array_of_hashes.map { |h| h['Registration Num'] }).destroy_all
@@ -29,9 +24,16 @@ module Veteran
           { poa: h['POA'], name: h['Organization Name'], phone: h['Org Phone'], state: h['Org State'] }
         end.uniq.compact
 
-        array_of_organizations.each do |hash|
-          Organization.find_or_create_by(hash)
-        end
+        Organization.import(array_of_organizations, on_duplicate_key_ignore: true)
+      end
+
+      def self.find_or_create_representative(hash)
+        representative = Representative.find_or_initialize_by(representative_id: hash['Registration Num'])
+        representative.poa = hash['POA'].gsub!(/\W/, '')
+        representative.first_name = hash['Representative'].split(' ').second
+        representative.last_name = hash['Representative'].split(',').first
+        representative.phone = hash['Org Phone']
+        representative.save
       end
 
       def self.fetch_data(action)

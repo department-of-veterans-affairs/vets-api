@@ -119,6 +119,8 @@ GEM
       activemodel (= 4.2.11.1)
       activesupport (= 4.2.11.1)
       arel (~> 6.0)
+    activerecord-import (1.0.1)
+      activerecord (>= 3.2)
     activerecord-postgis-adapter (3.1.5)
       activerecord (~> 4.2)
       rgeo-activerecord (>= 4.0.4)
@@ -1108,6 +1110,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   active_model_serializers (= 0.10.4)
+  activerecord-import
   activerecord-postgis-adapter (~> 3)
   apivore
   appeals_api!
