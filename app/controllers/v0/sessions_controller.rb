@@ -5,7 +5,7 @@ require 'saml/url_service'
 
 module V0
   class SessionsController < ApplicationController
-    REDIRECT_URLS = %w[mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
@@ -18,7 +18,7 @@ module V0
     def new
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
-      url = url_service(new_query_params(type)).send("#{type}_url")
+      url = url_service(new_query_params).send("#{type == 'signup' ? 'idme' : type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
@@ -103,13 +103,11 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def new_query_params(type)
+    def new_query_params
       query_params = {}
       query_params[:clientId] = params[:clientId] if params[:clientId]
-      if %w[mhv dslogon idme].include?(type)
-        query_params[:op] = 'signup' if params[:signup]
-        query_params[:RelayState] = { type: params[:signup] ? 'signup' : type }
-      end
+      query_params[:op] = 'signup' if params[:type] == 'signup'
+      query_params[:RelayState] = { type: params[:type] }
       query_params
     end
 
