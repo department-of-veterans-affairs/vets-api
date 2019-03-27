@@ -11,7 +11,7 @@ module EVSS
       # @return [String] The base path for the EVSS 526 endpoints
       #
       def base_path
-        "#{Settings.evss.url}/#{Settings.evss.service_name}/rest/form526/v1"
+        "#{Settings.evss.url}/#{Settings.evss.alternate_service_name}/rest/form526/v2"
       end
 
       # @return [String] The name of the service, used by breakers to set a metric name for the service
