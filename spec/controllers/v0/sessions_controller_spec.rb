@@ -31,7 +31,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:invalid_logout_response) do
     double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
   end
-  let(:succesful_logout_response) do
+  let(:successful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
@@ -206,7 +206,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
+          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
         end
 
@@ -215,14 +215,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
-          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, SAMLResponse: '-'))
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this should be destroyed
-          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
         end
       end
     end
