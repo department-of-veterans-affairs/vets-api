@@ -2,6 +2,8 @@
 
 Form526Policy = Struct.new(:user, :form526) do
   def access?
+    # Keep statsD increments with `evss.policy` as the form526 policy
+    # falls under evss umbrella
     if all_attrs?
       StatsD.increment('api.evss.policy.success') if user.loa3?
       true
