@@ -164,7 +164,7 @@ module MVI
       def sanitize_birls_id(birls_id)
         return if birls_id.nil?
         # Get rid of non-digit characters like 'UNK'/'ASKU'
-        sanitized_result = participant_id.match(/\d+/)&.to_s
+        sanitized_result = birls_id.match(/\d+/)&.to_s
         if sanitized_result != birls_id
           Rails.logger.info "Birls id sanitized, was: '#{birls_id}' now: '#{sanitized_result}'."
         end
