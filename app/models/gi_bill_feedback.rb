@@ -5,6 +5,20 @@ class GIBillFeedback < Common::RedisStore
 
   FORM_ID = 'FEEDBACK-TOOL'
 
+  FEEDBACK_MAPPINGS = {
+    'post9::11 ch 33' => 'Post-9/11 Ch 33',
+    'mGIBAd ch 30' => 'MGIB-AD Ch 30',
+    'mGIBSr ch 1606' => 'MGIB-SR Ch 1606',
+    "tatu" => 'TATU',
+    "reap" => 'REAP',
+    'dea ch 35' => 'DEA Ch 35',
+    'vre ch 31' => 'VRE Ch 31',
+    'ta' => 'TA',
+    "taAgr" => 'TA-AGR',
+    "myCaa" => 'MyCAA',
+    "ffa" => 'FFA'
+  }.freeze
+
   def get_user_details
     profile_data = {}
 
@@ -18,6 +32,32 @@ class GIBillFeedback < Common::RedisStore
     end
 
     { 'profile_data' => profile_data }
+  end
+
+  def remove_malformed_options(options_hash)
+    return_val = {}
+    options_hash.each do |k, v|
+      next if FEEDBACK_MAPPINGS.keys.include?(k)
+
+      return_val[k] = v
+    end
+
+    return_val
+  end
+
+  def transform_malformed_options(options)
+    options.map do |option|
+      next FEEDBACK_MAPPINGS[option] if FEEDBACK_MAPPINGS[option].present?
+      option
+    end
+  end
+
+  def fix_options(options, key)
+    # if key == 'programs' && options.keys.size > 7
+    #   remove_duplicate_options
+    # elsif
+    # end
+
   end
 
   # rubocop:disable Metrics/MethodLength
@@ -43,7 +83,8 @@ class GIBillFeedback < Common::RedisStore
 
       transform_school_address(school['address'])
       %w[programs assistance].each do |key|
-        education_details[key] = transform_keys_into_array(parsed_form['educationDetails'][key])
+        options = transform_keys_into_array(parsed_form['educationDetails'][key])
+        binding.pry; fail
       end
     end
 
