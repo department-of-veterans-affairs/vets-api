@@ -115,8 +115,8 @@ module EducationForm::Forms
     end
 
     def get_program_block(program)
-      city = program.courseType == 'online' && program.location&.city.blank? ? 'NA' : program.location&.city
-      state = program.courseType == 'online' && program.location&.state.blank? ? 'NA' : program.location&.state
+      city = program.courseType == 'online' && program.location&.city.blank? ? 'N/A' : program.location&.city
+      state = program.courseType == 'online' && program.location&.state.blank? ? 'N/A' : program.location&.state
 
       [
         ["\n  Provider name: ", program.providerName].join(''),
