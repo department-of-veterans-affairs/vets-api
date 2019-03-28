@@ -117,17 +117,19 @@ module EducationForm::Forms
     def program_text
       return '' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
       return 'N/A' if @applicant.hasSelectedPrograms.blank?
-
       program_blocks = []
       @applicant.vetTecPrograms.each do |program|
+        city = program.courseType == 'online' && program.location&.city.blank? ? 'NA' : program.location&.city
+        state = program.courseType == 'online' && program.location&.state.blank? ? 'NA' : program.location&.state
+
         program_blocks.push(
           [
             ["\n  Provider name: ", program.providerName].join(''),
             ["\n  Program name: ", program.programName].join(''),
             ["\n  Course type: ", course_type_name(program.courseType)].join(''),
             "\n  Location:",
-            ["\n    City: ", program.location&.city].join(''),
-            ["\n    State: ", program.location&.state].join(''),
+            ["\n    City: ", city].join(''),
+            ["\n    State: ", state].join(''),
             ["\n  Planned start date: ", program.plannedStartDate].join('')
           ].join('')
         )
