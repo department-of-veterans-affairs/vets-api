@@ -114,25 +114,27 @@ module EducationForm::Forms
       SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
 
+    def get_program_block(program)
+      city = program.courseType == 'online' && program.location&.city.blank? ? 'NA' : program.location&.city
+      state = program.courseType == 'online' && program.location&.state.blank? ? 'NA' : program.location&.state
+
+      [
+        ["\n  Provider name: ", program.providerName].join(''),
+        ["\n  Program name: ", program.programName].join(''),
+        ["\n  Course type: ", course_type_name(program.courseType)].join(''),
+        "\n  Location:",
+        ["\n    City: ", city].join(''),
+        ["\n    State: ", state].join(''),
+        ["\n  Planned start date: ", program.plannedStartDate].join('')
+      ].join('')
+    end
+
     def program_text
       return '' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
       return 'N/A' if @applicant.hasSelectedPrograms.blank?
       program_blocks = []
       @applicant.vetTecPrograms.each do |program|
-        city = program.courseType == 'online' && program.location&.city.blank? ? 'NA' : program.location&.city
-        state = program.courseType == 'online' && program.location&.state.blank? ? 'NA' : program.location&.state
-
-        program_blocks.push(
-          [
-            ["\n  Provider name: ", program.providerName].join(''),
-            ["\n  Program name: ", program.programName].join(''),
-            ["\n  Course type: ", course_type_name(program.courseType)].join(''),
-            "\n  Location:",
-            ["\n    City: ", city].join(''),
-            ["\n    State: ", state].join(''),
-            ["\n  Planned start date: ", program.plannedStartDate].join('')
-          ].join('')
-        )
+        program_blocks.push(get_program_block(program))
       end
       program_blocks.join("\n")
     end
