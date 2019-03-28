@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<EVSS_BASE_URL>/wss-form526-services-web/rest/form526/v1/ratedDisabilities"
+    uri: "<EVSS_BASE_URL>/wss-form526-services-web-v2/rest/form526/v2/ratedDisabilities"
     body:
       encoding: US-ASCII
       string: ''
@@ -61,6 +61,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |-
-    http_version: 
+    http_version:
   recorded_at: Tue, 27 Mar 2018 21:00:41 GMT
 recorded_with: VCR 3.0.3
