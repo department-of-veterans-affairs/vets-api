@@ -53,6 +53,11 @@ info:
         * Provide the Veteran's EDIPI as X-VA-EDIPI
         * Provide the Veteran's Gender as X-VA-Gender
      2. Service Response: Empty 200
+     #### 526 Staging Mock Override
+
+      Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `recieved`, `processing`, `success`, `error`.
+      Given the downstream connections of this API, we allow (**IN STAGING ENVIRONMENT ONLY**) passing in a header `Mock-Override` on the request to the 526 creation endpoint. This will allow you to bypass the usage of mocks and actually push the request downstream.
+
      ## Reference
      Raw Open API Spec: http://dev-api.va.gov/services/claims/docs/v0/api
 
@@ -610,13 +615,11 @@ components:
                       example: "OR"
                   required:
                     - addressLine1
-                    - addressLine2
                     - city
+                    - state
                     - country
                     - zipFirstFive
-                    - zipLastFour
                     - type
-                    - state
                 changeOfAddress:
                   type: object
                   properties:
@@ -854,11 +857,8 @@ components:
                         - disabilityActionType
                         - serviceRelevance
                 required:
-                  - ratedDisabilityId
-                  - diagnosticCode
                   - disabilityActionType
                   - name
-                  - secondaryDisabilities
             treatments:
               type: array
               items:
@@ -945,6 +945,10 @@ components:
                   type: string
                   description: Veteran Bank Name
                   example: "SomeBank"
+                required:
+                  - accountType
+                  - accountNumber
+                  - routingNumber
             claimantCertification:
               type: boolean
               description: Determines if person submitting the claim is certified to do so.
