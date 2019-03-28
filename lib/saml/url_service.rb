@@ -27,10 +27,7 @@ module SAML
 
       @saml_settings = saml_settings
       @query_params = query_params
-
-      if query_params[:RelayState]
-        @query_params[:RelayState] = relay_state_params.merge(query_params[:RelayState]).to_json
-      end
+      @query_params[:RelayState] = relay_state_params.merge(query_params[:RelayState]).to_json
     end
 
     # REDIRECT_URLS
@@ -123,9 +120,13 @@ module SAML
     end
 
     def add_query(url, params)
-      uri = URI.parse(url)
-      uri.query = params.to_query if params.any?
-      uri.to_s
+      if params.any?
+        uri = URI.parse(url)
+        uri.query = Rack::Utils.parse_nested_query(uri.query).merge(params).to_query
+        uri.to_s
+      else
+        url
+      end
     end
   end
 end
