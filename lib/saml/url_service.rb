@@ -27,7 +27,10 @@ module SAML
 
       @saml_settings = saml_settings
       @query_params = query_params
-      @query_params[:RelayState] = relay_state_params.merge(query_params[:RelayState]).to_json
+
+      if query_params[:RelayState]
+        @query_params[:RelayState] = relay_state_params.merge(query_params[:RelayState]).to_json
+      end
     end
 
     # REDIRECT_URLS
