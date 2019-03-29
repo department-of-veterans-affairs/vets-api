@@ -391,8 +391,7 @@ ActiveRecord::Schema.define(version: 20190322040535) do
   create_table "session_activities", force: :cascade do |t|
     t.uuid     "originating_request_id",                        null: false
     t.string   "originating_ip_address",                        null: false
-    t.string   "originating_user_agent"
-    t.string   "generated_url",                                 null: false
+    t.text     "generated_url",                                 null: false
     t.string   "name",                                          null: false
     t.string   "status",                 default: "incomplete", null: false
     t.uuid     "user_uuid"
@@ -406,7 +405,6 @@ ActiveRecord::Schema.define(version: 20190322040535) do
     t.datetime "updated_at",                                    null: false
   end
 
-  add_index "session_activities", ["id", "originating_request_id"], name: "index_session_activities_on_id_and_originating_request_id", unique: true, using: :btree
   add_index "session_activities", ["name"], name: "index_session_activities_on_name", using: :btree
   add_index "session_activities", ["status"], name: "index_session_activities_on_status", using: :btree
   add_index "session_activities", ["user_uuid"], name: "index_session_activities_on_user_uuid", using: :btree
