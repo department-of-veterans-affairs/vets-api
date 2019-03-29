@@ -9,14 +9,14 @@ class GIBillFeedback < Common::RedisStore
     'post9::11 ch 33' => 'Post-9/11 Ch 33',
     'mGIBAd ch 30' => 'MGIB-AD Ch 30',
     'mGIBSr ch 1606' => 'MGIB-SR Ch 1606',
-    "tatu" => 'TATU',
-    "reap" => 'REAP',
+    'tatu' => 'TATU',
+    'reap' => 'REAP',
     'dea ch 35' => 'DEA Ch 35',
     'vre ch 31' => 'VRE Ch 31',
     'ta' => 'TA',
-    "taAgr" => 'TA-AGR',
-    "myCaa" => 'MyCAA',
-    "ffa" => 'FFA'
+    'taAgr' => 'TA-AGR',
+    'myCaa' => 'MyCAA',
+    'ffa' => 'FFA'
   }.freeze
 
   def get_user_details
@@ -68,11 +68,11 @@ class GIBillFeedback < Common::RedisStore
     keys_size = options_hash.keys.size
 
     %w[programs assistance].each do |attr|
-      max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties']['educationDetails']['properties'][attr]['properties'].size
+      max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties'][
+        'educationDetails'
+      ]['properties'][attr]['properties'].size
 
-      if key == attr && keys_size > max_size
-        return remove_malformed_options(options_hash)
-      end
+      return remove_malformed_options(options_hash) if key == attr && keys_size > max_size
     end
 
     transform_malformed_options(options_hash)

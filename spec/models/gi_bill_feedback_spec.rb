@@ -17,11 +17,11 @@ RSpec.describe GIBillFeedback, type: :model do
   describe '#remove_malformed_options' do
     it 'should remove malformed options' do
       expect(gi_bill_feedback.remove_malformed_options(
-        'Post-9/11 Ch 33' => true,
-        'post9::11 ch 33' => true,
-        'MGIB-AD Ch 30' => true
+               'Post-9/11 Ch 33' => true,
+               'post9::11 ch 33' => true,
+               'MGIB-AD Ch 30' => true
       )).to eq(
-        {"Post-9/11 Ch 33"=>true, "MGIB-AD Ch 30"=>true}
+        'Post-9/11 Ch 33' => true, 'MGIB-AD Ch 30' => true
       )
     end
   end
@@ -29,10 +29,10 @@ RSpec.describe GIBillFeedback, type: :model do
   describe '#transform_malformed_options' do
     it 'should transform malformed options' do
       expect(gi_bill_feedback.transform_malformed_options(
-        'post9::11 ch 33' => true,
-        'MGIB-AD Ch 30' => true
+               'post9::11 ch 33' => true,
+               'MGIB-AD Ch 30' => true
       )).to eq(
-        {"Post-9/11 Ch 33"=>true, "MGIB-AD Ch 30"=>true}
+        'Post-9/11 Ch 33' => true, 'MGIB-AD Ch 30' => true
       )
     end
   end
