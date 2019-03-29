@@ -61,19 +61,21 @@ class GIBillFeedback < Common::RedisStore
     return_val
   end
 
-  def fix_options(options, key)
+  def fix_options(options_hash, key)
     # if user saves form with options, then goes back to the page
     # and fills out options again, then the hash will contain both malformed and
     # normal option keys
-    keys_size = options.key.size
+    keys_size = options_hash.keys.size
 
     %w[programs assistance].each do |attr|
       max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties']['educationDetails']['properties'][attr]['properties'].size
 
       if key == attr && keys_size > max_size
-        return remove_malformed_options(options)
+        return remove_malformed_options(options_hash)
       end
     end
+
+    transform_malformed_options(options_hash)
   end
 
   # rubocop:disable Metrics/MethodLength
@@ -99,8 +101,8 @@ class GIBillFeedback < Common::RedisStore
 
       transform_school_address(school['address'])
       %w[programs assistance].each do |key|
-        options = transform_keys_into_array(parsed_form['educationDetails'][key])
-        binding.pry; fail
+        options_hash = fix_options(parsed_form['educationDetails'][key], key)
+        education_details[key] = transform_keys_into_array(options_hash)
       end
     end
 
