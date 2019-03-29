@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: "<EVSS_BASE_URL>/wss-form526-services-web/rest/form526/v2/submit"
+    uri: "<EVSS_BASE_URL>/wss-form526-services-web-v2/rest/form526/v2/submit"
     body:
       encoding: UTF-8
       string: ''

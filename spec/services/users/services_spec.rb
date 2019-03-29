@@ -23,6 +23,7 @@ RSpec.describe Users::Services do
           'hca',
           'edu-benefits',
           'evss-claims',
+          'form526',
           'user-profile',
           'appeals-status',
           'form-save-in-progress',
