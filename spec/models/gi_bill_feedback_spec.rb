@@ -60,6 +60,21 @@ RSpec.describe GIBillFeedback, type: :model do
       it 'should transform the form to the right format' do
         expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
       end
+
+      context 'with malformed options' do
+        before do
+          form = gi_bill_feedback.parsed_form
+          form['educationDetails']['programs'] = {
+            'mGIBAd ch 30' => true
+          }
+          gi_bill_feedback.form = form.to_json
+          gi_bill_feedback.send(:remove_instance_variable, :@parsed_form)
+        end
+
+        it 'should transform the malformed options' do
+          expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
+        end
+      end
     end
   end
 
