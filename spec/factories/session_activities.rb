@@ -4,7 +4,6 @@ FactoryBot.define do
   factory :session_activity do
     originating_request_id { SecureRandom.uuid }
     originating_ip_address { '200.200.200.200' }
-    originating_user_agent 'Firefox'
     name 'signup'
     status 'incomplete'
     user_uuid { SecureRandom.uuid }
