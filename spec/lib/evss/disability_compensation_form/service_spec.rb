@@ -47,7 +47,7 @@ describe EVSS::DisabilityCompensationForm::Service do
     end
     context 'with valid input' do
       it 'returns a form submit response object' do
-        VCR.use_cassette('evss/disability_compensation_form/submit_form') do
+        VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
           response = subject.submit_form526(valid_form_content)
           expect(response).to be_ok
           expect(response).to be_an EVSS::DisabilityCompensationForm::FormSubmitResponse
