@@ -26,6 +26,17 @@ RSpec.describe GIBillFeedback, type: :model do
     end
   end
 
+  describe '#transform_malformed_options' do
+    it 'should transform malformed options' do
+      expect(gi_bill_feedback.transform_malformed_options(
+        'post9::11 ch 33' => true,
+        'MGIB-AD Ch 30' => true
+      )).to eq(
+        {"Post-9/11 Ch 33"=>true, "MGIB-AD Ch 30"=>true}
+      )
+    end
+  end
+
   describe '#transform_form' do
     before do
       gi_bill_feedback.user = create(:user)

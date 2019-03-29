@@ -45,19 +45,35 @@ class GIBillFeedback < Common::RedisStore
     return_val
   end
 
-  def transform_malformed_options(options)
-    options.map do |option|
-      next FEEDBACK_MAPPINGS[option] if FEEDBACK_MAPPINGS[option].present?
-      option
+  def transform_malformed_options(options_hash)
+    return_val = {}
+
+    options_hash.each do |k, v|
+      FEEDBACK_MAPPINGS[k].tap do |new_key|
+        if new_key.blank?
+          return_val[k] = v
+        else
+          return_val[new_key] = v
+        end
+      end
     end
+
+    return_val
   end
 
   def fix_options(options, key)
-    # if key == 'programs' && options.keys.size > 7
-    #   remove_duplicate_options
-    # elsif
-    # end
+    # if user saves form with options, then goes back to the page
+    # and fills out options again, then the hash will contain both malformed and
+    # normal option keys
+    keys_size = options.key.size
 
+    %w[programs assistance].each do |attr|
+      max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties']['educationDetails']['properties'][attr]['properties'].size
+
+      if key == attr && keys_size > max_size
+        return remove_malformed_options(options)
+      end
+    end
   end
 
   # rubocop:disable Metrics/MethodLength
