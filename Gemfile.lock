@@ -133,6 +133,8 @@ GEM
       activemodel (= 4.2.11.1)
       activesupport (= 4.2.11.1)
       arel (~> 6.0)
+    activerecord-import (1.0.1)
+      activerecord (>= 3.2)
     activerecord-postgis-adapter (3.1.5)
       activerecord (~> 4.2)
       rgeo-activerecord (>= 4.0.4)
@@ -1122,6 +1124,7 @@ GEM
       xmlmapper (>= 0.7.3)
     xmlmapper (0.7.3)
       nokogiri (~> 1.5)
+    yard (0.9.18)
     zero_downtime_migrations (0.0.7)
       activerecord
 
@@ -1131,6 +1134,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   active_model_serializers (= 0.10.4)
+  activerecord-import
   activerecord-postgis-adapter (~> 3)
   apivore
   appeals_api!
@@ -1247,6 +1251,7 @@ DEPENDENCIES
   webmock
   webrick
   will_paginate
+  yard
   zero_downtime_migrations
 
 BUNDLED WITH

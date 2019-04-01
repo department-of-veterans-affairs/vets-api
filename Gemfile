@@ -23,6 +23,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
+gem 'activerecord-import'
 gem 'activerecord-postgis-adapter', '~> 3'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
@@ -140,6 +141,7 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+  gem 'yard'
 end
 
 group :production do
