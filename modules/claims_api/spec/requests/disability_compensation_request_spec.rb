@@ -37,12 +37,12 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     context 'with the same request already ran' do
       let!(:count) do
-        post '/services/claims/v0/forms/526', JSON.parse(data), headers
+        post '/services/claims/v0/forms/526', params: JSON.parse(data), headers: headers
         ClaimsApi::AutoEstablishedClaim.count
       end
 
       it 'should reject the duplicated request' do
-        post '/services/claims/v0/forms/526', JSON.parse(data), headers
+        post '/services/claims/v0/forms/526', params: JSON.parse(data), headers: headers
         expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
       end
     end
