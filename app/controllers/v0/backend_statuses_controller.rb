@@ -4,6 +4,12 @@ module V0
   class BackendStatusesController < ApplicationController
     skip_before_action :authenticate, only: [:show]
 
+    def index
+      statuses = ExternalServicesRedis::Status.new.fetch_or_cache
+
+      render json: statuses, serializer: BackendStatusesSerializer
+    end
+
     # GET /v0/backend_statuses/:service
     def show
       @backend_service = params[:service]

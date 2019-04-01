@@ -69,23 +69,24 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
-              get(:new, params: { type: type })
+              get(:new, params: { type: type, clientId: '123123' })
               expect(response).to have_http_status(:found)
               expect(response.location)
                 .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
                 .with_relay_state('originating_request_id' => nil)
+                .with_params('clientId' => '123123')
             end
           end
         end
 
         context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
           it 'redirects' do
-            get(:new, params: { type: :idme, signup: true })
+            get(:new, params: { type: :idme, signup: true, clientId: '123123' })
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => nil)
-              .with_params('op' => 'signup')
+              .with_params('op' => 'signup', 'clientId' => '123123')
           end
         end
       end
@@ -393,7 +394,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).not_to receive(:tags_context).once
           expect(controller).to receive(:log_message_to_sentry)
           expect(post(:saml_callback))
-            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=7')
+            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
         end
 
         it 'increments the failed and total statsd counters' do

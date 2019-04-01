@@ -222,7 +222,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: [:show]
+    resources :backend_statuses, param: :service, only: %i[index show]
 
     resources :apidocs, only: [:index]
 
@@ -266,6 +266,7 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount VaFacilities::Engine, at: '/va_facilities'
+    mount Veteran::Engine, at: '/veteran'
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 

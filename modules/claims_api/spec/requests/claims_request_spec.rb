@@ -10,7 +10,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
     'X-VA-SSN' => '111223333',
     'X-VA-First-Name' => 'Test',
     'X-VA-Last-Name' => 'Consumer',
-    'X-VA-EDIPI' => '12345',
     'X-VA-Birth-Date' => '11-11-1111',
     'X-Consumer-Username' => 'TestConsumer'
   }.freeze

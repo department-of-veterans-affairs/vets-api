@@ -1,6 +1,27 @@
 # frozen_string_literal: true
 
 class Form526Submission < ApplicationRecord
+# A 526 disability compensation form record. This class is used to persist the post transformation form
+# and track submission workflow steps.
+#
+# @!attribute id
+#   @return [Integer] auto-increment primary key.
+# @!attribute user_uuid
+#   @return [String] points to the user's uuid from the identity provider.
+# @!attribute saved_claim_id
+#   @return [Integer] the related saved claim id {SavedClaim::DisabilityCompensation}.
+# @!attribute auth_headers_json
+#   @return [String] encrypted EVSS auth headers as JSON {EVSS::DisabilityCompensationAuthHeaders}.
+# @!attribute form_json
+#   @return [String] encrypted form submission as JSON.
+# @!attribute workflow_complete
+#   @return [Boolean] are all the steps (jobs {EVSS::DisabilityCompensationForm::Job}) of the submission
+#     workflow complete.
+# @!attribute created_at
+#   @return [Timestamp] created at date.
+# @!attribute workflow_complete
+#   @return [Timestamp] updated at date.
+#
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
   attr_encrypted(:form_json, key: Settings.db_encryption_key)
 
@@ -17,6 +38,16 @@ class Form526Submission < ApplicationRecord
   FORM_0781 = 'form0781'
   FORM_8940 = 'form8940'
 
+  # Kicks off a 526 submit workflow batch. The first step in a submission workflow is to submit
+  # an increase only or all claims form. Once the first job succeeds the batch will callback and run
+  # one (cleanup job) or more ancillary jobs such as uploading supporting evidence or submitting ancillary forms.
+  #
+  # @param klass [Class] the submit job class to start with
+  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly} or
+  #   {EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly}
+  #
+  # @return [String] the job id of the first job in the batch, i.e the 526 submit job
+  #
   def start(klass)
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
@@ -28,30 +59,46 @@ class Form526Submission < ApplicationRecord
       klass.perform_async(id)
     end
 
-    # submit form 526 is the first job in the batch
-    # after it completes ancillary jobs may be added to the workflow batch
-    # via the #perform_ancillary_jobs_handler below
     jids.first
   end
 
+  # @return [Hash] parsed version of the form json
+  #
   def form
     @form_hash ||= JSON.parse(form_json)
   end
 
+  # A 526 submission can include the 526 form submission, uploads, and ancillary items.
+  # This method returns a single item as JSON
+  #
+  # @param item [String] the item key
+  # @return [String] the requested form object as JSON
+  #
   def form_to_json(item)
     form[item].to_json
   end
 
+  # @return [Hash] parsed auth headers
+  #
   def auth_headers
     @auth_headers_hash ||= JSON.parse(auth_headers_json)
   end
 
+  # The workflow batch success handler
+  #
+  # @param _status [Sidekiq::Batch::Status] the status of the batch
+  # @param options [Hash] payload set in the workflow batch
+  #
   def perform_ancillary_jobs_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     # Only run ancillary jobs if submission succeeded
     submission.perform_ancillary_jobs if submission.form526_job_statuses.all?(&:success?)
   end
 
+  # Creates a batch for the ancillary jobs, sets up the callback, and adds the jobs to the batch if necessary
+  #
+  # @return [String] the workflow batch id
+  #
   def perform_ancillary_jobs
     workflow_batch = Sidekiq::Batch.new
     workflow_batch.on(
@@ -68,6 +115,11 @@ class Form526Submission < ApplicationRecord
     end
   end
 
+  # Checks if all workflow steps were successful and if so marks it as complete.
+  #
+  # @param _status [Sidekiq::Batch::Status] the status of the batch
+  # @param options [Hash] payload set in the workflow batch
+  #
   def workflow_complete_handler(_status, options)
     submission = Form526Submission.find(options['submission_id'])
     if submission.form526_job_statuses.all?(&:success?)
