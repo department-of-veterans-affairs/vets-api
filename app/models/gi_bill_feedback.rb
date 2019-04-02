@@ -79,13 +79,11 @@ class GIBillFeedback < Common::RedisStore
     # normal option keys
     keys_size = options_hash.keys.size
 
-    %w[programs assistance].each do |attr|
-      max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties'][
-        'educationDetails'
-      ]['properties'][attr]['properties'].size
+    max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties'][
+      'educationDetails'
+    ]['properties'][key]['properties'].size
 
-      return remove_malformed_options(options_hash) if key == attr && keys_size > max_size
-    end
+    return remove_malformed_options(options_hash) if keys_size > max_size
 
     transform_malformed_options(options_hash)
   end
