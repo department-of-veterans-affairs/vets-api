@@ -91,14 +91,9 @@ class GIBillFeedback < Common::RedisStore
   end
 
   def remove_malformed_options(options_hash)
-    return_val = {}
-    options_hash.each do |k, v|
-      next if FEEDBACK_MAPPINGS.keys.include?(k)
-
-      return_val[k] = v
+    options_hash.reject do |k, v|
+      FEEDBACK_MAPPINGS.keys.include?(k)
     end
-
-    return_val
   end
 
   def transform_malformed_options(options_hash)
