@@ -18,7 +18,7 @@ module V0
     def new
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
-      url = url_service(new_query_params).send("#{type == 'signup' ? 'idme' : type}_url")
+      url = url_service(params).send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
@@ -52,16 +52,16 @@ module V0
         @session_object = @sso_service.new_session
         set_cookies
         after_login_actions
-        redirect_to saml_login_redirect_url
+        redirect_to url_service(params).login_redirect_url
         stats(:success)
       else
         log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to url_service(params).login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
     rescue NoMethodError => e
       log_message_to_sentry('NoMethodError', :error, full_message: e.message)
-      redirect_to saml_login_redirect_url(auth: 'fail', code: '007') unless performed?
+      redirect_to url_service(params).login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
@@ -103,33 +103,6 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def new_query_params
-      query_params = {}
-      query_params[:clientId] = params[:clientId] if params[:clientId]
-      query_params[:op] = 'signup' if params[:type] == 'signup'
-      query_params[:RelayState] = { type: params[:type] }
-      query_params
-    end
-
-    def login_redirect_query_params(auth, code, relay_state)
-      query_params = {}
-      query_params[:auth] = 'fail' if auth == 'fail'
-      query_params[:code] = code if code.present?
-      query_params[:type] = relay_state['type'] if relay_state['type']
-      query_params
-    end
-
-    def saml_login_redirect_url(auth: 'success', code: nil)
-      relay_state = params[:RelayState] ? JSON.parse(params[:RelayState]) : {}
-      if auth == 'success' && current_user.loa[:current] < current_user.loa[:highest]
-        # Continue passing the relay state when verification occurs during login.
-        url_service(RelayState: relay_state).verify_url
-      else
-        query_params = login_redirect_query_params(auth, code, relay_state)
-        url_service(query_params).login_redirect_url
-      end
-    end
-
     def after_login_actions
       AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
       log_persisted_session_and_warnings
@@ -167,8 +140,8 @@ module V0
       errors
     end
 
-    def url_service(query_params = {})
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, query_params: query_params)
+    def url_service(url_service_params = {})
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: url_service_params)
     end
   end
 end

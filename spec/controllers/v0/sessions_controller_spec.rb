@@ -81,7 +81,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
-            get(:new, type: :signup, clientId: '123123')
+            get(:new, type: :signup, client_id: '123123')
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
@@ -343,19 +343,6 @@ RSpec.describe V0::SessionsController, type: :controller do
               'credential_used' => 'id_me',
               'expirationTime' => expire_at.iso8601(0)
             )
-        end
-      end
-
-      context 'signup' do
-        let(:saml_user_attributes) do
-          loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
-            loa: { current: LOA::ONE, highest: LOA::ONE }
-          )
-        end
-
-        it 'redirects to auth callback URL with type=signup' do
-          post(:saml_callback, RelayState: '{ "type": "signup" }')
-          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?type=signup')
         end
       end
 

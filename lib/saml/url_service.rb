@@ -17,19 +17,22 @@ module SAML
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
 
-    attr_reader :saml_settings, :session, :authn_context, :query_params
+    attr_reader :saml_settings, :session, :user, :authn_context, :type, :client_id
 
-    def initialize(saml_settings, session: nil, user: nil, query_params: {})
+    def initialize(saml_settings, session: nil, user: nil, params: {})
       if session.present?
         @session = session
+        @user = user
         @authn_context = user&.authn_context
       end
 
       @saml_settings = saml_settings
-      @query_params = query_params
 
-      if query_params[:RelayState]
-        @query_params[:RelayState] = relay_state_params.merge(query_params[:RelayState]).to_json
+      if params[:action] == 'new'
+        @type = params[:type]
+        @client_id = params[:client_id]
+      elsif params[:action] == 'saml_callback'
+        @type = JSON.parse(params[:RelayState])[:type] if params[:RelayState]
       end
     end
 
@@ -38,12 +41,20 @@ module SAML
       VIRTUAL_HOST_MAPPINGS[current_host][:base_redirect]
     end
 
-    def login_redirect_url
-      add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
+    def login_redirect_url(auth: 'success', code: nil)
+      if auth == 'success' && user.loa[:current] < user.loa[:highest]
+        verify_url
+      else
+        query_params = {}
+        query_params[:type] = type if type
+        query_params[:auth] = auth if auth == 'fail'
+        query_params[:code] = code if code
+        add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
+      end
     end
 
     def logout_redirect_url
-      add_query("#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}", query_params)
+      "#{base_redirect_url}#{LOGOUT_REDIRECT_PARTIAL}"
     end
 
     # SIGN ON URLS
@@ -57,6 +68,10 @@ module SAML
 
     def idme_url
       build_sso_url(LOA::IDME_LOA1)
+    end
+
+    def signup_url
+      idme_url
     end
 
     # verification operation is only if the user clicks identity verification via ID.me
@@ -93,7 +108,7 @@ module SAML
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
       Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
-      logout_request.create(url_settings, RelayState: relay_state_params.to_json)
+      logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
     private
@@ -104,11 +119,16 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
+
+      query_params = { RelayState: relay_state_params }
+      query_params[:clientId] = client_id if client_id
+      query_params[:op] = 'signup' if type == 'signup'
+
       saml_auth_request.create(new_url_settings, query_params)
     end
 
     def relay_state_params
-      { originating_request_id: Thread.current['request_id'] }
+      { originating_request_id: Thread.current['request_id'], type: type }.to_json
     end
 
     def current_host
