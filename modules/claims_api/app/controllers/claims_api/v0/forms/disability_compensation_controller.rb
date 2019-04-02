@@ -10,17 +10,18 @@ module ClaimsApi
         skip_before_action(:authenticate)
 
         def submit_form_526
-          auto_claim = ClaimsApi::AutoEstablishedClaim.create!(
+          auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
             form_data: form_attributes
           )
+          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           auto_claim.form.to_internal
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue RuntimeError, ActiveRecord::RecordInvalid => e
+        rescue RuntimeError => e
           render json: { errors: e.message }, status: 422
         end
 
