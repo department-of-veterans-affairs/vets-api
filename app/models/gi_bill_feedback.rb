@@ -34,50 +34,6 @@ class GIBillFeedback < Common::RedisStore
     { 'profile_data' => profile_data }
   end
 
-  def remove_malformed_options(options_hash)
-    return_val = {}
-    options_hash.each do |k, v|
-      next if FEEDBACK_MAPPINGS.keys.include?(k)
-
-      return_val[k] = v
-    end
-
-    return_val
-  end
-
-  def transform_malformed_options(options_hash)
-    return_val = {}
-
-    options_hash.each do |k, v|
-      FEEDBACK_MAPPINGS[k].tap do |new_key|
-        if new_key.blank?
-          return_val[k] = v
-        else
-          return_val[new_key] = v
-        end
-      end
-    end
-
-    return_val
-  end
-
-  def fix_options(options_hash, key)
-    # if user saves form with options, then goes back to the page
-    # and fills out options again, then the hash will contain both malformed and
-    # normal option keys
-    keys_size = options_hash.keys.size
-
-    %w[programs assistance].each do |attr|
-      max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties'][
-        'educationDetails'
-      ]['properties'][attr]['properties'].size
-
-      return remove_malformed_options(options_hash) if key == attr && keys_size > max_size
-    end
-
-    transform_malformed_options(options_hash)
-  end
-
   # rubocop:disable Metrics/MethodLength
   def transform_form
     transformed = parsed_form.deep_transform_keys(&:underscore)
@@ -116,6 +72,50 @@ class GIBillFeedback < Common::RedisStore
   # rubocop:enable Metrics/MethodLength
 
   private
+
+  def fix_options(options_hash, key)
+    # if user saves form with options, then goes back to the page
+    # and fills out options again, then the hash will contain both malformed and
+    # normal option keys
+    keys_size = options_hash.keys.size
+
+    %w[programs assistance].each do |attr|
+      max_size = VetsJsonSchema::SCHEMAS[FORM_ID]['properties'][
+        'educationDetails'
+      ]['properties'][attr]['properties'].size
+
+      return remove_malformed_options(options_hash) if key == attr && keys_size > max_size
+    end
+
+    transform_malformed_options(options_hash)
+  end
+
+  def remove_malformed_options(options_hash)
+    return_val = {}
+    options_hash.each do |k, v|
+      next if FEEDBACK_MAPPINGS.keys.include?(k)
+
+      return_val[k] = v
+    end
+
+    return_val
+  end
+
+  def transform_malformed_options(options_hash)
+    return_val = {}
+
+    options_hash.each do |k, v|
+      FEEDBACK_MAPPINGS[k].tap do |new_key|
+        if new_key.blank?
+          return_val[k] = v
+        else
+          return_val[new_key] = v
+        end
+      end
+    end
+
+    return_val
+  end
 
   def transform_school_address(address)
     return if address['street3'].blank?
