@@ -169,7 +169,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           get(:new, type: 'slo')
           expect(response.location)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => nil)
+            .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
