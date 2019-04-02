@@ -42,8 +42,8 @@ describe PagerDuty::ExternalServices::Service do
         VCR.use_cassette('pagerduty/external_services/get_services_429', VCR::MATCH_EVERYTHING) do
           expect { subject.get_services }.to raise_error do |e|
             expect(e.class).to eq PagerDuty::ServiceException
-            expect(e.status_code).to eq 400
-            expect(e.message).to include '429'
+            expect(e.status_code).to eq 429
+            expect(e.message).to include 'PAGERDUTY_429'
           end
         end
       end

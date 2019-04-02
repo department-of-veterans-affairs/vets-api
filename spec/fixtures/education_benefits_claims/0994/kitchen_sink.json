@@ -32,6 +32,7 @@
     "bankRoutingNumber": "*****2115",
     "bankName": "Comerica"
   },
+  "hasSelectedPrograms": true,
   "vetTecPrograms": [
     {
       "providerName": "Provider A",
