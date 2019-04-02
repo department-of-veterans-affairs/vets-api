@@ -15,6 +15,7 @@ module ClaimsApi
             auth_headers: auth_headers,
             form_data: form_attributes
           )
+          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           auto_claim.form.to_internal
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
