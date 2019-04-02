@@ -27,6 +27,7 @@ module EducationForm::Forms
     }.freeze
 
     EDUCATION_TEXT = {
+      'some_high_school': 'Some High School',
       'high_school_diploma_or_GED': 'High school diploma or GED',
       'some_college': 'Some college',
       'associates_degree': 'Associate’s degree',
@@ -113,22 +114,27 @@ module EducationForm::Forms
       SALARY_TEXT[@applicant.currentSalary.to_sym]
     end
 
-    def program_text
-      return 'N/A' if @applicant.vetTecPrograms.blank?
+    def get_program_block(program)
+      city = program.courseType == 'online' && program.location&.city.blank? ? 'N/A' : program.location&.city
+      state = program.courseType == 'online' && program.location&.state.blank? ? 'N/A' : program.location&.state
 
+      [
+        ["\n  Provider name: ", program.providerName].join(''),
+        ["\n  Program name: ", program.programName].join(''),
+        ["\n  Course type: ", course_type_name(program.courseType)].join(''),
+        "\n  Location:",
+        ["\n    City: ", city].join(''),
+        ["\n    State: ", state].join(''),
+        ["\n  Planned start date: ", program.plannedStartDate].join('')
+      ].join('')
+    end
+
+    def program_text
+      return '' if @applicant.vetTecPrograms.blank? && @applicant.hasSelectedPrograms
+      return 'N/A' if @applicant.hasSelectedPrograms.blank?
       program_blocks = []
       @applicant.vetTecPrograms.each do |program|
-        program_blocks.push(
-          [
-            ["\n  Provider name: ", program.providerName].join(''),
-            ["\n  Program name: ", program.programName].join(''),
-            ["\n  Course type: ", course_type_name(program.courseType)].join(''),
-            "\n  Location:",
-            ["\n    City: ", program.location&.city].join(''),
-            ["\n    State: ", program.location&.state].join(''),
-            ["\n  Planned start date: ", program.plannedStartDate].join('')
-          ].join('')
-        )
+        program_blocks.push(get_program_block(program))
       end
       program_blocks.join("\n")
     end

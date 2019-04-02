@@ -62,9 +62,9 @@ module VetsAPI
     end
 
     config.middleware.insert_before(0, HttpMethodNotAllowed)
-    config.middleware.use 'OliveBranch::Middleware'
-    config.middleware.use 'StatsdMiddleware'
-    config.middleware.use 'Rack::Attack'
+    config.middleware.use OliveBranch::Middleware
+    config.middleware.use StatsdMiddleware
+    config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,

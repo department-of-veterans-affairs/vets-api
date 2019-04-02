@@ -15,7 +15,7 @@ module PagerDuty
       # representation of the raw response.
       #
       # @return [PagerDuty::ExternalServices::Response] A class that wraps a
-      #   pre-serialized array of PagerDuty::Models::Service objects
+      #   pre-serialized array of PagerDuty::Models::Service hashes
       # @see https://api-reference.pagerduty.com/#!/Services/get_services
       #
       def get_services
