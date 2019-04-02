@@ -12,7 +12,7 @@ namespace :vbms do
     # CONNECT_VBMS_SAML
     # CONNECT_VBMS_SERVER_CERT
     # CONNECT_VBMS_SHA256
-    # ONNECT_VBMS_URL
+    # CONNECT_VBMS_URL
     # CONNECT_VBMS_ENV_DIR
     require 'vbms'
     client = VBMS::Client.from_env_vars
