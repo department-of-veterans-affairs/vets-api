@@ -32,7 +32,7 @@ module SAML
         @type = params[:type]
         @client_id = params[:client_id]
       elsif params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])[:type] if params[:RelayState]
+        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
       end
     end
 
