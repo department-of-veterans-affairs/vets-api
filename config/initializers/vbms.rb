@@ -10,5 +10,5 @@ if Settings.vbms.present?
   ENV['CONNECT_VBMS_SERVER_CERT'] = Settings.vbms.server_cert
   ENV['CONNECT_VBMS_SHA256'] = 'false'
   ENV['CONNECT_VBMS_URL'] = "#{Settings.vbms.base_url}/vbmsp2-cms/streaming/eDocumentService-v4"
-  ENV['CONNECT_VBMS_ENV_DIR'] = Settings.vbms.environment
+  ENV['CONNECT_VBMS_ENV_DIR'] = Settings.vbms.environment_directory
 end
