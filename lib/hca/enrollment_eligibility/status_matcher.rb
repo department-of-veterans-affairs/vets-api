@@ -133,18 +133,16 @@ module HCA
         nil
       end
 
-      # rubocop:disable Metrics/CyclomaticComplexity
-      # rubocop:disable Metrics/PerceivedComplexity
+      def category_matcher(statuses, enroll_status)
+        return statuses.include?(enroll_status) if statuses.is_a?(Array)
+        enroll_status == statuses
+      end
+
       def parse(enrollment_status, ineligibility_reason = '')
         return NONE if enrollment_status.blank?
         enrollment_status = enrollment_status.downcase.strip
 
-        category_matcher = lambda do |statuses, enroll_status|
-          return statuses.include?(enroll_status) if statuses.is_a?(Array)
-          return enroll_status == statuses
-        end
-
-        CATEGORIES.find { |c| category_matcher.call(c[:enrollment_status], enrollment_status) }.tap do |category_data|
+        CATEGORIES.find { |c| category_matcher(c[:enrollment_status], enrollment_status) }.tap do |category_data|
           next unless category_data
           if category_data[:text_matches]
             process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
@@ -159,8 +157,6 @@ module HCA
 
         NONE
       end
-      # rubocop:enable Metrics/CyclomaticComplexity
-      # rubocop:enable Metrics/PerceivedComplexity
     end
   end
 end
