@@ -32,15 +32,8 @@ module SAML
       end
 
       @saml_settings = saml_settings
-      @query_params = {}
 
-      if params[:action] == 'new'
-        @type = params[:type]
-        @query_params[:clientId] = params[:client_id] if params[:client_id]
-        @query_params[:RelayState] = relay_state_params
-      elsif params[:action] == 'saml_callback'
-        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
-      end
+      initialize_query_params(params)
     end
 
     # REDIRECT_URLS
@@ -120,6 +113,18 @@ module SAML
     end
 
     private
+
+    def initialize_query_params(params)
+      @query_params = {}
+
+      if params[:action] == 'new'
+        @type = params[:type]
+        @query_params[:clientId] = params[:client_id] if params[:client_id]
+        @query_params[:RelayState] = relay_state_params
+      elsif params[:action] == 'saml_callback'
+        @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
+      end
+    end
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
