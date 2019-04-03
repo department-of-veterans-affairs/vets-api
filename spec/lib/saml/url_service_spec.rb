@@ -9,7 +9,7 @@ RSpec.describe SAML::URLService do
     let(:user) { build(:user) }
     let(:session) { Session.create(uuid: user.uuid, token: 'abracadabra') }
 
-    subject { described_class.new(saml_settings, session: session, user: user) }
+    subject { described_class.new(saml_settings, session: session, user: user, params: params) }
 
     around(:each) do |example|
       User.create(user)
@@ -23,6 +23,8 @@ RSpec.describe SAML::URLService do
       let(:saml_settings) do
         build(:settings_no_context, assertion_consumer_service_url: "#{vhost_url}/auth/saml/callback")
       end
+
+      let(:params) { { action: 'new' } }
 
       it 'has sign in url: mhv_url' do
         expect(subject.mhv_url)
@@ -150,6 +152,8 @@ RSpec.describe SAML::URLService do
       end
 
       context 'redirect urls' do
+        let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}'  } }
+
         it 'has a base url' do
           expect(subject.base_redirect_url).to eq(values[:base_redirect])
         end
@@ -158,7 +162,7 @@ RSpec.describe SAML::URLService do
           let(:user) { build(:user, :loa1) }
 
           it 'has a login redirect url' do
-            expect(subject.login_redirect_url).to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL)
+            expect(subject.login_redirect_url).to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
           end
         end
 
@@ -169,12 +173,16 @@ RSpec.describe SAML::URLService do
               .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
             expect(subject.verify_url)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-              .with_relay_state('originating_request_id' => '123', 'type' => nil)
+              .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
           end
         end
 
-        it 'has a logout redirect url' do
-          expect(subject.logout_redirect_url).to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
+        context 'for logout' do
+          let(:params) { { action: 'saml_logout_callback' } }
+
+          it 'has a logout redirect url' do
+            expect(subject.logout_redirect_url).to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
+          end
         end
       end
     end

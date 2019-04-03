@@ -18,7 +18,7 @@ module V0
     def new
       type = params[:type]
       raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
-      url = url_service(params).send("#{type}_url")
+      url = url_service.send("#{type}_url")
       if type == 'slo'
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
@@ -52,16 +52,16 @@ module V0
         @session_object = @sso_service.new_session
         set_cookies
         after_login_actions
-        redirect_to url_service(params).login_redirect_url
+        redirect_to url_service.login_redirect_url
         stats(:success)
       else
         log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to url_service(params).login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
     rescue NoMethodError => e
       log_message_to_sentry('NoMethodError', :error, full_message: e.message)
-      redirect_to url_service(params).login_redirect_url(auth: 'fail', code: '007') unless performed?
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
@@ -140,8 +140,8 @@ module V0
       errors
     end
 
-    def url_service(url_service_params = {})
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: url_service_params)
+    def url_service
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: params)
     end
   end
 end
