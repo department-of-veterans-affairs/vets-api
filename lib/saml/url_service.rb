@@ -75,7 +75,6 @@ module SAML
       idme_url
     end
 
-    # verification operation is only if the user clicks identity verification via ID.me
     def verify_url
       link_authn_context =
         case authn_context
