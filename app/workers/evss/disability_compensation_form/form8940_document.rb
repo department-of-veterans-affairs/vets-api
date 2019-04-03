@@ -2,6 +2,10 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # Document generator for the 8940 form
+    #
+    # @return [EVSSClaimDocument] An EVSS claim document ready for submission
+    #
     class Form8940Document < EvssDocument
       FORM_ID = '21-8940' # form id for PTSD IU
       DOC_TYPE = 'L149'
