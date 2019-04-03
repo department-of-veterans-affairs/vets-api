@@ -18,7 +18,7 @@ module SAML
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
     UNEXPECTED_ACTION_ERROR = 'Service invoked by unexpected controller action'
 
-    attr_reader :saml_settings, :session, :user, :authn_context, :type, :client_id
+    attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params
 
     def initialize(saml_settings, session: nil, user: nil, params: {})
       unless %w[new saml_callback saml_logout_callback].include?(params[:action])
@@ -32,10 +32,12 @@ module SAML
       end
 
       @saml_settings = saml_settings
+      @query_params = {}
 
       if params[:action] == 'new'
         @type = params[:type]
-        @client_id = params[:client_id]
+        @query_params[:clientId] = params[:client_id] if params[:client_id]
+        @query_params[:RelayState] = relay_state_params
       elsif params[:action] == 'saml_callback'
         @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
       end
@@ -48,12 +50,12 @@ module SAML
 
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success' && user.loa[:current] < user.loa[:highest]
+        @query_params[:RelayState] = relay_state_params
         verify_url
       else
-        query_params = {}
-        query_params[:type] = type if type
-        query_params[:auth] = auth if auth == 'fail'
-        query_params[:code] = code if code
+        @query_params[:type] = type if type
+        @query_params[:auth] = auth if auth == 'fail'
+        @query_params[:code] = code if code
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
       end
     end
@@ -76,6 +78,7 @@ module SAML
     end
 
     def signup_url
+      @query_params[:op] = 'signup'
       idme_url
     end
 
@@ -124,11 +127,6 @@ module SAML
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
-
-      query_params = { RelayState: relay_state_params }
-      query_params[:clientId] = client_id if client_id
-      query_params[:op] = 'signup' if type == 'signup'
-
       saml_auth_request.create(new_url_settings, query_params)
     end
 
