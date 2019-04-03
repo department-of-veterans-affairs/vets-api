@@ -111,6 +111,8 @@ module HCA
         }
       ].freeze
 
+      NONE = :none_of_the_above
+
       def process_text_match(text_matches, ineligibility_reason)
         text_matches.each do |text_match_data|
           category = text_match_data[:category]
@@ -132,6 +134,7 @@ module HCA
       end
 
       def parse(enrollment_status, ineligibility_reason = '')
+        return NONE if enrollment_status.blank?
         enrollment_status = enrollment_status.downcase.strip
 
         category_matcher = lambda do |statuses, enroll_status|
@@ -152,7 +155,7 @@ module HCA
 
         return :rejected_rightentry if enrollment_status.include?('rejected')
 
-        :none_of_the_above
+        NONE
       end
     end
   end
