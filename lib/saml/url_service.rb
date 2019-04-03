@@ -46,7 +46,7 @@ module SAML
         @query_params[:RelayState] = relay_state_params
         verify_url
       else
-        @query_params[:type] = type
+        @query_params[:type] = type if type
         @query_params[:auth] = auth if auth == 'fail'
         @query_params[:code] = code if code
         add_query("#{base_redirect_url}#{LOGIN_REDIRECT_PARTIAL}", query_params)
