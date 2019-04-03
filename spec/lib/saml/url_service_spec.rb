@@ -152,7 +152,7 @@ RSpec.describe SAML::URLService do
       end
 
       context 'redirect urls' do
-        let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}'  } }
+        let(:params) { { action: 'saml_callback', RelayState: '{"type":"idme"}' } }
 
         it 'has a base url' do
           expect(subject.base_redirect_url).to eq(values[:base_redirect])
@@ -162,7 +162,8 @@ RSpec.describe SAML::URLService do
           let(:user) { build(:user, :loa1) }
 
           it 'has a login redirect url' do
-            expect(subject.login_redirect_url).to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+            expect(subject.login_redirect_url)
+              .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
           end
         end
 
@@ -181,7 +182,8 @@ RSpec.describe SAML::URLService do
           let(:params) { { action: 'saml_logout_callback' } }
 
           it 'has a logout redirect url' do
-            expect(subject.logout_redirect_url).to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
+            expect(subject.logout_redirect_url)
+              .to eq(values[:base_redirect] + SAML::URLService::LOGOUT_REDIRECT_PARTIAL)
           end
         end
       end
