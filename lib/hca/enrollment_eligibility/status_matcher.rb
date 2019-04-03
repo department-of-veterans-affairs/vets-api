@@ -133,6 +133,8 @@ module HCA
         nil
       end
 
+      # rubocop:disable Metrics/CyclomaticComplexity
+      # rubocop:disable Metrics/PerceivedComplexity
       def parse(enrollment_status, ineligibility_reason = '')
         return NONE if enrollment_status.blank?
         enrollment_status = enrollment_status.downcase.strip
@@ -157,6 +159,8 @@ module HCA
 
         NONE
       end
+      # rubocop:enable Metrics/CyclomaticComplexity
+      # rubocop:enable Metrics/PerceivedComplexity
     end
   end
 end
