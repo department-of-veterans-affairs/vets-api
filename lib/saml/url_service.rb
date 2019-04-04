@@ -22,7 +22,7 @@ module SAML
 
     def initialize(saml_settings, session: nil, user: nil, params: {})
       unless %w[new saml_callback saml_logout_callback].include?(params[:action])
-        raise Common::Exceptions::Forbidden, detail: UNEXPECTED_ACTION_ERROR
+        raise Common::Exceptions::RoutingError, params[:path]
       end
 
       if session.present?
@@ -43,7 +43,6 @@ module SAML
 
     def login_redirect_url(auth: 'success', code: nil)
       if auth == 'success' && user.loa[:current] < user.loa[:highest]
-        @query_params[:RelayState] = relay_state_params
         verify_url
       else
         @query_params[:type] = type if type
@@ -59,23 +58,31 @@ module SAML
 
     # SIGN ON URLS
     def mhv_url
+      @type = 'mhv'
       build_sso_url('myhealthevet')
     end
 
     def dslogon_url
+      @type = 'dslogon'
       build_sso_url('dslogon')
     end
 
     def idme_url
+      @type = 'idme'
       build_sso_url(LOA::IDME_LOA1)
     end
 
     def signup_url
+      @type = 'signup'
       @query_params[:op] = 'signup'
-      idme_url
+      build_sso_url(LOA::IDME_LOA1)
     end
 
     def verify_url
+      # For verification during login, type should be the initial login policy.
+      # In that case, it will have been set to the type from RelayState.
+      @type ||= 'verify'
+
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, 'multifactor'
@@ -90,6 +97,7 @@ module SAML
     end
 
     def mfa_url
+      @type = 'mfa'
       link_authn_context =
         case authn_context
         when LOA::IDME_LOA1, LOA::IDME_LOA3
@@ -104,6 +112,7 @@ module SAML
 
     # SIGN OFF URLS
     def slo_url
+      @type = 'slo'
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
@@ -117,9 +126,7 @@ module SAML
       @query_params = {}
 
       if params[:action] == 'new'
-        @type = params[:type]
         @query_params[:clientId] = params[:client_id] if params[:client_id]
-        @query_params[:RelayState] = relay_state_params
       elsif params[:action] == 'saml_callback'
         @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
       end
@@ -128,6 +135,7 @@ module SAML
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
     # link_authn_context is the new proposed authn_context
     def build_sso_url(link_authn_context)
+      @query_params[:RelayState] = relay_state_params
       new_url_settings = url_settings
       new_url_settings.authn_context = link_authn_context
       saml_auth_request = OneLogin::RubySaml::Authrequest.new
