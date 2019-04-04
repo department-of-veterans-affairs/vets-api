@@ -78,7 +78,7 @@ module SAML
     end
 
     def verify_url
-      # For verification during login, type should be the initial login policy.
+      # For verification from a login callback, type should be the initial login policy.
       # In that case, it will have been set to the type from RelayState.
       @type ||= 'verify'
 
