@@ -167,16 +167,7 @@ RSpec.describe SAML::URLService do
           expect(subject.base_redirect_url).to eq(values[:base_redirect])
         end
 
-        context 'with an LOA1 user' do
-          let(:user) { build(:user, :loa1) }
-
-          it 'has a login redirect url' do
-            expect(subject.login_redirect_url)
-              .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
-          end
-        end
-
-        context 'with an LOA3 user' do
+        context 'with an user that needs to verify' do
           it 'goes to verify URL before login redirect' do
             expect(user.authn_context).to eq('http://idmanagement.gov/ns/assurance/loa/1/vets')
             expect_any_instance_of(OneLogin::RubySaml::Settings)
@@ -184,6 +175,20 @@ RSpec.describe SAML::URLService do
             expect(subject.verify_url)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
               .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
+          end
+        end
+
+        context 'with user that does not need to verify' do
+          let(:user) { build(:user, :loa3) }
+
+          it 'has a login redirect url with success' do
+            expect(subject.login_redirect_url)
+              .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?type=idme')
+          end
+
+          it 'has a login redirect url with fail' do
+            expect(subject.login_redirect_url(auth: 'fail', code: '001'))
+              .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?auth=fail&code=001&type=idme')
           end
         end
 
