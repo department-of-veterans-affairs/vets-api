@@ -2,6 +2,18 @@
 
 module Appeals
   module Responses
+    ##
+    # Model for a appeals' responses. Body is passed straight through from appeals
+    # with a validation check that it matches the expected schema.
+    #
+    # @param body [String] The original body from the service
+    # @param status [Integer] The HTTP status code from the service
+    #
+    # @!attribute body
+    #   @return [Integer] Validated response body
+    # @!attribute status
+    #   @return [Integer] The HTTP status code
+    #
     class Appeals < Common::Base
       attribute :body, String
       attribute :status, Integer
