@@ -20,7 +20,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'should return a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
-        post '/services/claims/v0/forms/526', JSON.parse(data), headers.merge(auth_header)
+        post '/services/claims/v1/forms/526', JSON.parse(data), headers.merge(auth_header)
         parsed = JSON.parse(response.body)
         expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
         expect(parsed['data']['attributes']['status']).to eq('pending')
@@ -30,7 +30,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'should create the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-        post '/services/claims/v0/forms/526', JSON.parse(data), headers.merge(auth_header)
+        post '/services/claims/v1/forms/526', JSON.parse(data), headers.merge(auth_header)
       end
     end
 
@@ -39,7 +39,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
         expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
         expect(auth_header_stub).to receive(:add_headers)
-        post '/services/claims/v0/forms/526', JSON.parse(data), headers.merge(auth_header)
+        post '/services/claims/v1/forms/526', JSON.parse(data), headers.merge(auth_header)
       end
     end
   end
@@ -54,7 +54,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       with_okta_user(scopes) do |auth_header|
         allow_any_instance_of(ClaimsApi::SupportingDocumentUploader).to receive(:store!)
         count = auto_claim.supporting_documents.count
-        post "/services/claims/v0/forms/526/#{auto_claim.id}/attachments", params, headers.merge(auth_header)
+        post "/services/claims/v1/forms/526/#{auto_claim.id}/attachments", params, headers.merge(auth_header)
         auto_claim.reload
         expect(auto_claim.supporting_documents.count).to eq(count + 1)
       end
