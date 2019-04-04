@@ -203,6 +203,14 @@ RSpec.describe SAML::URLService do
           end
         end
       end
+
+      context 'instance created by invalid action' do
+        let(:params) { { action: 'saml_slo_callback' } }
+
+        it 'raises an exception' do
+          expect { subject }.to raise_error(Common::Exceptions::RoutingError)
+        end
+      end
     end
   end
 end
