@@ -188,7 +188,9 @@ RSpec.describe SAML::URLService do
 
           it 'has a login redirect url with fail' do
             expect(subject.login_redirect_url(auth: 'fail', code: '001'))
-              .to eq(values[:base_redirect] + SAML::URLService::LOGIN_REDIRECT_PARTIAL + '?auth=fail&code=001&type=idme')
+              .to eq(values[:base_redirect] +
+                     SAML::URLService::LOGIN_REDIRECT_PARTIAL +
+                     '?auth=fail&code=001&type=idme')
           end
         end
 
