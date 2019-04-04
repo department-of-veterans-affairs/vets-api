@@ -18,11 +18,11 @@ module Appeals
     STATSD_KEY_PREFIX = 'api.appeals'
 
     ##
-    # Returns appeals data for a user by their SSN
+    # Returns appeals data for a user by their SSN.
     #
-    # @param user [User] the user object, usually the `@current_user` from a controller
-    # @param additional_headers [Hash] any additional HTTP headers you want to include in the request
-    # @return [Appeals::Responses::Appeals] response object that includes the body
+    # @param user [User] The user object, usually the `@current_user` from a controller.
+    # @param additional_headers [Hash] Any additional HTTP headers you want to include in the request.
+    # @return [Appeals::Responses::Appeals] Response object that includes the body.
     #
     def get_appeals(user, additional_headers = {})
       with_monitoring do
@@ -32,9 +32,9 @@ module Appeals
     end
 
     ##
-    #  Pings the Appeals Status health check endpoint
+    #  Pings the Appeals Status health check endpoint.
     #
-    #  @return [Faraday::Response] Farady response instance
+    #  @return [Faraday::Response] Farady response instance.
     #
     def healthcheck
       with_monitoring do

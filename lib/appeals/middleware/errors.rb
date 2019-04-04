@@ -5,7 +5,7 @@ module Appeals
     ##
     # Maps Faraday env status and add a source to the body hash.
     # This allows the raise_error middleware to correctly map the incoming error
-    # to a [Common::Exceptions::BackendServiceException]
+    # to a [Common::Exceptions::BackendServiceException].
     #
     class Errors < Faraday::Response::Middleware
       ##

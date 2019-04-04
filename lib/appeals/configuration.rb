@@ -11,21 +11,21 @@ module Appeals
   #
   class Configuration < Common::Client::Configuration::REST
     ##
-    # @return [String] the auth token for the appeals service
+    # @return [String] The auth token for the appeals service.
     #
     def app_token
       Settings.appeals.app_token
     end
 
     ##
-    # @return [String] base path for appeals URLs
+    # @return [String] Base path for appeals URLs.
     #
     def base_path
       Settings.appeals.host
     end
 
     ##
-    # @return [String] service name to use in breakers and metrics
+    # @return [String] Service name to use in breakers and metrics.
     #
     def service_name
       'AppealsStatus'
@@ -34,7 +34,7 @@ module Appeals
     ##
     # Creates the a connection with middleware for mapping errors, parsing json and adding breakers functionality.
     #
-    # @return [Faraday::Connection] a Faraday connection instance
+    # @return [Faraday::Connection] a Faraday connection instance.
     #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
@@ -50,7 +50,7 @@ module Appeals
     end
 
     ##
-    # @return [Boolean] should the service use mock data in lower environments.
+    # @return [Boolean] Should the service use mock data in lower environments.
     #
     def mock_enabled?
       [true, 'true'].include?(Settings.appeals.mock)
