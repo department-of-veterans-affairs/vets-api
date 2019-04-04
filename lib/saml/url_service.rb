@@ -16,7 +16,6 @@ module SAML
 
     LOGIN_REDIRECT_PARTIAL = '/auth/login/callback'
     LOGOUT_REDIRECT_PARTIAL = '/logout/'
-    UNEXPECTED_ACTION_ERROR = 'Service invoked by unexpected controller action'
 
     attr_reader :saml_settings, :session, :user, :authn_context, :type, :query_params
 
