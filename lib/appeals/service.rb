@@ -32,9 +32,9 @@ module Appeals
     end
 
     ##
-    #  Pings the Appeals Status health check endpoint.
+    # Pings the Appeals Status health check endpoint.
     #
-    #  @return [Faraday::Response] Farady response instance.
+    # @return [Faraday::Response] Faraday response instance.
     #
     def healthcheck
       with_monitoring do
