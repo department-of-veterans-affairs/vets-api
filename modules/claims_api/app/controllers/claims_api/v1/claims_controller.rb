@@ -4,7 +4,7 @@ require_dependency 'claims_api/application_controller'
 require_dependency 'claims_api/unsynchronized_evss_claims_service'
 
 module ClaimsApi
-  module V0
+  module V1
     class ClaimsController < ApplicationController
       before_action { permit_scopes %w[claim.read] }
       before_action :verify_power_of_attorney

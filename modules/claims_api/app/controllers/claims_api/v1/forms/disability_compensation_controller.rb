@@ -4,7 +4,7 @@ require_dependency 'claims_api/application_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
-  module V0
+  module V1
     module Forms
       class DisabilityCompensationController < ApplicationController
         before_action { permit_scopes %w[claim.write] }
