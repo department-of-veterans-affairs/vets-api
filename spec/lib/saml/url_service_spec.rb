@@ -29,19 +29,19 @@ RSpec.describe SAML::URLService do
       it 'has sign in url: mhv_url' do
         expect(subject.mhv_url)
           .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-          .with_relay_state('originating_request_id' => '123', 'type' => nil)
+          .with_relay_state('originating_request_id' => '123', 'type' => 'mhv')
       end
 
       it 'has sign in url: dslogon_url' do
         expect(subject.dslogon_url)
           .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-          .with_relay_state('originating_request_id' => '123', 'type' => nil)
+          .with_relay_state('originating_request_id' => '123', 'type' => 'dslogon')
       end
 
       it 'has sign in url: idme_url' do
         expect(subject.idme_url)
           .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-          .with_relay_state('originating_request_id' => '123', 'type' => nil)
+          .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
       end
 
       context 'verify_url' do
@@ -51,7 +51,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (multifactor authn_context)' do
@@ -60,7 +60,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('http://idmanagement.gov/ns/assurance/loa/3/vets')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (myhealthevet authn_context)' do
@@ -69,7 +69,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('myhealthevet_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (myhealthevet_multifactor authn_context)' do
@@ -78,7 +78,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('myhealthevet_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (dslogon authn_context)' do
@@ -87,7 +87,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('dslogon_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (dslogon_multifactor authn_context)' do
@@ -96,7 +96,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('dslogon_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
       end
 
@@ -107,7 +107,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('multifactor')
           expect(subject.mfa_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
         end
 
         it 'has mfa url: with (myhealthevet authn_context)' do
@@ -116,7 +116,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('myhealthevet_multifactor')
           expect(subject.mfa_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
         end
 
         it 'has mfa url: with (myhealthevet_loa3 authn_context)' do
@@ -125,7 +125,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('myhealthevet_multifactor')
           expect(subject.mfa_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
         end
 
         it 'has mfa url: with (dslogon authn_context)' do
@@ -134,7 +134,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('dslogon_multifactor')
           expect(subject.mfa_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
         end
 
         it 'has mfa url: with (dslogon_loa3 authn_context)' do
@@ -143,12 +143,14 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('dslogon_multifactor')
           expect(subject.mfa_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123', 'type' => nil)
+            .with_relay_state('originating_request_id' => '123', 'type' => 'mfa')
         end
       end
 
       it 'has sign out url: slo_url' do
-        expect(subject.slo_url).to include('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
+        expect(subject.slo_url)
+          .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
+          .with_relay_state('originating_request_id' => '123', 'type' => 'slo')
       end
 
       context 'redirect urls' do

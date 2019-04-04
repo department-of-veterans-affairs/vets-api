@@ -22,7 +22,7 @@ module SAML
 
     def initialize(saml_settings, session: nil, user: nil, params: {})
       unless %w[new saml_callback saml_logout_callback].include?(params[:action])
-        raise Common::Exceptions::Forbidden, detail: UNEXPECTED_ACTION_ERROR
+        raise Common::Exceptions::RoutingError, params[:path]
       end
 
       if session.present?
@@ -59,18 +59,22 @@ module SAML
 
     # SIGN ON URLS
     def mhv_url
+      @type = 'mhv'
       build_sso_url('myhealthevet')
     end
 
     def dslogon_url
+      @type = 'dslogon'
       build_sso_url('dslogon')
     end
 
     def idme_url
+      @type = 'idme'
       build_sso_url(LOA::IDME_LOA1)
     end
 
     def signup_url
+      @type = 'signup'
       @query_params[:op] = 'signup'
       idme_url
     end
@@ -85,7 +89,7 @@ module SAML
         when 'dslogon', 'dslogon_multifactor'
           'dslogon_loa3'
         end
-
+      @type = 'verify' # maybe consider making type the link_authn_context
       build_sso_url(link_authn_context)
     end
 
@@ -99,6 +103,7 @@ module SAML
         when 'dslogon', 'dslogon_loa3'
           'dslogon_multifactor'
         end
+      @type = 'mfa' # maybe consider making type the link_authn_context
       build_sso_url(link_authn_context)
     end
 
@@ -108,6 +113,7 @@ module SAML
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
       Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
+      @type = 'slo'
       logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
@@ -117,7 +123,6 @@ module SAML
       @query_params = {}
 
       if params[:action] == 'new'
-        @type = params[:type]
         @query_params[:clientId] = params[:client_id] if params[:client_id]
         @query_params[:RelayState] = relay_state_params
       elsif params[:action] == 'saml_callback'
