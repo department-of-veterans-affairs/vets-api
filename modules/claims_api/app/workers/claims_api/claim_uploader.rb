@@ -8,6 +8,7 @@ module ClaimsApi
 
     def perform(auto_claim_id)
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
+      uploader = ClaimsApi::SupportingDocumentUploader.new(auto_claim_id)
       auth_headers = auto_claim.auth_headers
       
     #   document = EVSSClaimDocument.new document_hash
