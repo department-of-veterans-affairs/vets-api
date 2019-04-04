@@ -10,7 +10,7 @@ RSpec.describe 'zipcode_rates', type: :request do
       get '/v0/gi/zipcode_rates/20001'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('gi/zipcode_rate')
   end
