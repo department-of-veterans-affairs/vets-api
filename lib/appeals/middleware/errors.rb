@@ -9,7 +9,7 @@ module Appeals
     #
     class Errors < Faraday::Response::Middleware
       ##
-      # The response on complete callback. Add code and source keys to the env body hash
+      # The response on complete callback. Adds code and source keys to the env body hash
       # if there's a non succesful response.
       #
       # @return [Hash, nil]

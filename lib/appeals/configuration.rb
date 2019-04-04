@@ -32,7 +32,7 @@ module Appeals
     end
 
     ##
-    # Creates the a connection with middleware for mapping errors, parsing json and adding breakers functionality.
+    # Creates the a connection with middleware for mapping errors, parsing json, and adding breakers functionality.
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
