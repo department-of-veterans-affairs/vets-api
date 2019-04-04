@@ -3,7 +3,6 @@
     "first": "Test",
     "last": "Personage"
   },
-  "applicantSocialSecurityNumber": "123456789",
   "mailingAddress" :{
     "street": "123 Test St",
     "street2": "Apt B",
