@@ -30,6 +30,7 @@ module ClaimsApi
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document)
             claim_document.save!
+            # ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
           head :ok
