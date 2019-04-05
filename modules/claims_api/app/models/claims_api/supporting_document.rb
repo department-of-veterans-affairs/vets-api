@@ -16,7 +16,7 @@ module ClaimsApi
 
     def file_name
       file_data['filename']
-    def
+    end
 
     def document_type
       file_data['doc_type']
