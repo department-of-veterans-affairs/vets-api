@@ -8,6 +8,12 @@ module ClaimsApi
 
     belongs_to :auto_established_claim
 
+    alias_attribute :tracked_item_id, :id
+
+    def evss_claim_id
+      auto_established_claim.evss_id
+    end
+
     def set_file_data!(file_data)
       uploader.store!(file_data)
       self.file_data = { filename: uploader.filename }
