@@ -34,7 +34,6 @@ module Preneeds
   #   @return [Preneeds::Veteran] Veteran object.  Veteran is the person who is the owner of the benefit.
   #
   class BurialForm < Preneeds::Base
-
     # Preneeds Burial Form officail form id
     #
     FORM = '40-10007'
@@ -42,7 +41,7 @@ module Preneeds
     attribute :application_status, String, default: ''
     attribute :preneed_attachments, Array[PreneedAttachmentHash]
     attribute :has_currently_buried, String
-    attribute :sending_application, String, default: 'va.gov'
+    attribute :sending_application, String, default: 'vets.gov'
     attribute :sending_code, String, default: '' # TODO: not in schema, not in submission from frontend
     attribute :sent_time, Common::UTCTime, default: :current_time
     attribute :tracking_number, String, default: :generate_tracking_number
@@ -51,7 +50,7 @@ module Preneeds
     attribute :currently_buried_persons, Array[Preneeds::CurrentlyBuriedPerson]
     attribute :veteran, Preneeds::Veteran
 
-    # keep this name because it matches the previous attribute
+    # keeping this name because it matches the previous attribute
     # @return [Boolean]
     #
     # rubocop:disable Naming/PredicateName
