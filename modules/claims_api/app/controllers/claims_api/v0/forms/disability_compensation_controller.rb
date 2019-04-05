@@ -28,9 +28,9 @@ module ClaimsApi
           claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
           documents.each do |document|
             claim_document = claim.supporting_documents.build
-            claim_document.set_file_data!(document)
+            claim_document.set_file_data!(document, doc_type, description)
             claim_document.save!
-            # ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
+            ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
           head :ok

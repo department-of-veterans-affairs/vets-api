@@ -14,9 +14,24 @@ module ClaimsApi
       auto_established_claim.evss_id
     end
 
-    def set_file_data!(file_data)
+    def file_name
+      file_data['filename']
+    def
+
+    def document_type
+      file_data['doc_type']
+    end
+
+    def description
+      file_data['description']
+    end
+
+    def set_file_data!(file_data, doc_type, description)
       uploader.store!(file_data)
-      self.file_data = { filename: uploader.filename }
+      self.file_data = { filename: uploader.filename,
+                         doc_type: doc_type,
+                         description: description
+                       }
     end
 
     def uploader
