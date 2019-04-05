@@ -6,9 +6,9 @@ module ClaimsApi
   class ClaimUploader
     include Sidekiq::Worker
 
-    def perform(auto_claim_id)
-      auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
-      uploader = ClaimsApi::SupportingDocumentUploader.new(auto_claim_id)
+    def perform(supporting_document_id)
+      supporting_document = ClaimsApi::SupportingDocument.find(supporting_document_id)
+      auto_claim = supporting_document.auto_established_claim
       auth_headers = auto_claim.auth_headers
       
     #   document = EVSSClaimDocument.new document_hash
