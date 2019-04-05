@@ -3,7 +3,7 @@
 require 'common/models/base'
 
 # Preneeds namespace
-# 
+#
 module Preneeds
   # Models a Preneeds Burial form. This class (and associationed classes) is used to store form details and to
   # generate the XML request for submission to the EOAS service

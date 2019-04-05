@@ -8,7 +8,7 @@ module Preneeds
   # @!attribute sending_source
   #   @return [String] sending source; currently hard coded
   # @!attribute file
-  #   @return [CarrierWave::Storage::AWSFile, CarrierWave::SanitizedFile] 
+  #   @return [CarrierWave::Storage::AWSFile, CarrierWave::SanitizedFile]
   # @!attribute name
   #   @return [String] attachment name
   # @!attribute data_handler

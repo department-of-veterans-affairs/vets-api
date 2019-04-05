@@ -10,7 +10,7 @@ module Preneeds
   #
   class LoggedConfiguration < Configuration
     # Creates the a connection with middleware for mapping errors, parsing XML, and adding breakers functionality.
-    # The difference between this method and it's parent class' definition is the 
+    # The difference between this method and it's parent class' definition is the
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
