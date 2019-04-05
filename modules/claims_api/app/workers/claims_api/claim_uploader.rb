@@ -13,15 +13,7 @@ module ClaimsApi
       uploader = supporting_document.uploader
       uploader.retrieve_from_store!(supporting_document.file_data['filename'])
       file_body = uploader.read
-      
-    #   document = EVSSClaimDocument.new document_hash
-    # client = EVSS::DocumentsService.new(auth_headers)
-    # uploader = EVSSClaimDocumentUploader.new(user_uuid, document.uploader_ids)
-    # uploader.retrieve_from_store!(document.file_name)
-    # file_body = uploader.read_for_upload
-    # client.upload(file_body, document)
-
-      response = service(auth_headers).upload(file_body, document_data)
+      service(auth_headers).upload(file_body, supporting_document)
       # uploader.remove!
     end
 
