@@ -11,6 +11,9 @@ module Preneeds
   class Service < Common::Client::Base
     # Prefix string for StatsD monitoring
     STATSD_KEY_PREFIX = 'api.preneeds'
+
+    # Specifies configuration to be used by this service.
+    #
     configuration Preneeds::Configuration
     include Common::Client::Monitoring
 
