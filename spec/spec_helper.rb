@@ -15,6 +15,7 @@ require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
+require 'support/okta_users_helpers'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
