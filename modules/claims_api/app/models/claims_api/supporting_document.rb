@@ -9,13 +9,12 @@ module ClaimsApi
     belongs_to :auto_established_claim
 
     def set_file_data!(file_data)
-      uploader = ClaimsApi::SupportingDocumentUploader.new(id)
       uploader.store!(file_data)
       self.file_data = { filename: uploader.filename }
     end
 
-    def get_file_data
-      uploader = ClaimsApi::SupportingDocumentUploader.new(id)
+    def uploader
+      @uploader ||= ClaimsApi::SupportingDocumentUploader.new(auto_established_claim.id)
     end
   end
 end
