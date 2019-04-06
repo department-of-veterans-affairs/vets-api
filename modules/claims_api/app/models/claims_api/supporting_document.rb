@@ -30,8 +30,7 @@ module ClaimsApi
       uploader.store!(file_data)
       self.file_data = { filename: uploader.filename,
                          doc_type: doc_type,
-                         description: description
-                       }
+                         description: description }
     end
 
     def uploader
