@@ -91,6 +91,7 @@ module ClaimsApi
       validate_service_information
       validate_disabilities
       validate_direct_deposit if directDeposit.present?
+      validate_treaments if treatments.present?
     end
 
     def validate_veteran
@@ -142,6 +143,13 @@ module ClaimsApi
       disabilities.each do |disability|
         keys = %i[name disabilityActionType]
         validate_keys_set(keys: keys, parent: disability, error_label: 'disabilities')
+      end
+    end
+
+    def validate_treatments
+      errors.add('treatments', 'Too many treatedDisabilityNames') unless treatments[:treatedDisabilityNames].size <= 100
+      %i[startDate endDate].each do |date|
+        errors.add('treatments', "#{date} isn't a valid format") unless date =~ DATE_PATTERN
       end
     end
   end
