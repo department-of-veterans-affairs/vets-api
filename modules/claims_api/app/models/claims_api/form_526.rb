@@ -9,6 +9,7 @@ module ClaimsApi
     DATE_PATTERN = /^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
     ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/
     CITY_PATTERN = /^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$/
+    ROUTING_NUMBER_PATTERN = /^\d{9}$/
 
     REQUIRED_FIELDS = %i[
       veteran
@@ -117,6 +118,20 @@ module ClaimsApi
     def validate_direct_deposit
       keys = %i[accountType accountNumber routingNumber]
       validate_keys_set(keys: keys, parent: directDeposit, error_label: 'directDeposit')
+
+      unless %w[Checking Saving].include? directDeposit[:accountType]
+        errors.add('directDeposit', 'accountType must be in [Checking, Saving]')
+      end
+
+      unless directDeposit[:accountNumber].size >= 4 && directDeposit[:accountNumber].size <= 17
+        errors.add('directDeposit', 'accountNumber must be between 4 and 17 characters')
+      end
+
+      unless directDeposit[:routingNumber] =~ ROUTING_NUMBER_PATTERN
+        errors.add('directDeposit', "routingNumber isn't valid")
+      end
+
+      errors.add('directDeposit', 'bankName must be less than 36 characters') unless directDeposit[:bankName].size <= 35
     end
 
     def validate_keys_set(keys:, parent:, error_label:)
