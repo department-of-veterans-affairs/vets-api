@@ -2,7 +2,6 @@
 
 FactoryBot.define do
   factory :auto_established_claim, class: 'ClaimsApi::AutoEstablishedClaim' do
-
     status 'pending'
     evss_id nil
     auth_headers { {} }
