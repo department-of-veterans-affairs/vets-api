@@ -6,6 +6,10 @@ module ClaimsApi
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
+    DATE_PATTERN = /^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
+    ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/
+    CITY_PATTERN = /^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$/
+
     REQUIRED_FIELDS = %i[
       veteran
       applicationExpirationDate
@@ -99,6 +103,14 @@ module ClaimsApi
     def validate_current_mailing_address
       keys = %i[addressLine1 city state zipFirstFive country type]
       validate_keys_set(keys: keys, parent: current_mailing_address, error_label: 'currentMailingAddress')
+
+      %i[addressLine1 addressLine2].each do |line|
+        unless current_mailing_address[line] =~ ADDRESS_PATTERN
+          errors.add(:currentMailingAddress, "#{line} isn't valid")
+        end
+      end
+
+      errors.add(:currentMailingAddress, "city isn't valid") unless current_mailing_address[:city] =~ CITY_PATTERN
     end
 
     def validate_direct_deposit
