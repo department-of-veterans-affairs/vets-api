@@ -27,7 +27,6 @@ RSpec.describe ClaimsApi::SupportingDocument, type: :model do
       expect(attachment.file_data).to have_key('description')
 
       expect(attachment.tracked_item_id).to eq(attachment.id)
-      expect(attachment.evss_claim_id).to eq(attachment.auto_established_claim.id)
       expect(attachment.file_name).to eq(attachment.file_data['filename'])
       expect(attachment.document_type).to eq(attachment.file_data['doc_type'])
       expect(attachment.description).to eq(attachment.file_data['description'])
