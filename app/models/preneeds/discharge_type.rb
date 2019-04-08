@@ -3,7 +3,7 @@
 require 'common/models/base'
 
 module Preneeds
-  # Models a discharge types from the EAOS service
+  # Models a discharge types from the EOAS service
   #
   # @!attribute id
   #   @return [Integer] discharge type id - one of '1', '2', '3', '4', '5', '6' or '7'

@@ -34,7 +34,7 @@ module Preneeds
   #   @return [Preneeds::Veteran] Veteran object.  Veteran is the person who is the owner of the benefit.
   #
   class BurialForm < Preneeds::Base
-    # Preneeds Burial Form officail form id
+    # Preneeds Burial Form official form id
     #
     FORM = '40-10007'
 
@@ -80,7 +80,7 @@ module Preneeds
     # Converts object attributes to a hash to be used when constructing a SOAP request body.
     # Hash attributes must correspond to XSD ordering or API call will fail
     #
-    # @return [Hash] object attributes and association objects converted to EAOS service compatible hash
+    # @return [Hash] object attributes and association objects converted to EOAS service compatible hash
     #
     def as_eoas
       hash = {
