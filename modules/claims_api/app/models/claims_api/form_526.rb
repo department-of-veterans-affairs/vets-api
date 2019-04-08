@@ -6,7 +6,7 @@ module ClaimsApi
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
-    DATE_PATTERN = /^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
+    DATE_PATTERN = /^(\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
     ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/
     CITY_PATTERN = /^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$/
     ROUTING_NUMBER_PATTERN = /^\d{9}$/
