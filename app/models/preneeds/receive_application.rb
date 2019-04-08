@@ -8,11 +8,11 @@ module Preneeds
   # @!attribute tracking_number
   #   @return (see Preneeds::BurialForm#tracking_number)
   # @!attribute return_code
-  #   @return [Integer] submisson's return code - from EOAS
+  #   @return [Integer] submission's return code - from EOAS
   # @!attribute application_uuid
   #   @return [String] submitted application's uuid - from EOAS
   # @!attribute return_description
-  #   @return [String] submisson's result - from EOAS
+  #   @return [String] submission's result - from EOAS
   # @!attribute submitted_at
   #   @return [Time] current time
   class ReceiveApplication < Common::Base

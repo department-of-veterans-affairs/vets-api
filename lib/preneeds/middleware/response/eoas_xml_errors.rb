@@ -10,7 +10,7 @@ module Preneeds
         include SentryLogging
         attr_reader :status, :fault, :code, :detail
 
-        # Checks the response for service errors and raises an exeption if appropriate
+        # Checks the response for service errors and raises an exception if appropriate
         #
         # @return [Faraday::Env]
         #
