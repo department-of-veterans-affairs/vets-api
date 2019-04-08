@@ -16,12 +16,15 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
-  let(:supporting_document) do
+  let(:claim) do
     claim = create(:auto_established_claim)
     claim.auth_headers = auth_headers
     claim.save
+    claim
+  end
 
-    supporting_document = claim.supporting_documents.build
+  let(:supporting_document) do
+    supporting_document = create(:supporting_document)
     supporting_document.set_file_data!(
       Rack::Test::UploadedFile.new(
         "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
@@ -43,8 +46,6 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     evss_service_stub = instance_double('EVSS::DocumentsService')
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
-
-    puts supporting_document.auto_established_claim.auth_headers
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload

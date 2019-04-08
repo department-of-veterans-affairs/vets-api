@@ -3,6 +3,7 @@
 FactoryBot.define do
   factory :supporting_document, class: ClaimsApi::SupportingDocument do
     auto_established_claim
+
     after(:build) do |supporting_document|
       supporting_document.set_file_data!(
         Rack::Test::UploadedFile.new(
@@ -11,6 +12,10 @@ FactoryBot.define do
         'docType',
         'description'
       )
+    end
+
+    after(:build_stubbed) do |record|
+      record.id = SecureRandom.uuid
     end
   end
 end
