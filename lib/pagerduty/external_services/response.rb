@@ -19,7 +19,7 @@ module PagerDuty
         new(
           raw_response&.status,
           reported_at: Time.current.iso8601,
-          statuses: PagerDuty::Models::Service.statuses_for(services)
+          statuses: PagerDuty::Models::Service.statuses_for(services).map(&:to_h)
         )
       end
     end
