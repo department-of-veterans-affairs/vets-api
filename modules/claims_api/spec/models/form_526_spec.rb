@@ -57,7 +57,9 @@ RSpec.describe ClaimsApi::Form526, type: :model do
     context 'with direct deposit' do
       let(:claim_with_dd) do
         claim = ClaimsApi::Form526.new(json_api_payload)
-        claim.directDeposit = JSON.parse(File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_direct_deposit.json")).deep_symbolize_keys
+        claim.directDeposit = JSON.parse(
+          File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_direct_deposit.json")
+        ).deep_symbolize_keys
         claim.directDeposit['accountNumber'] = 123
         claim
       end
