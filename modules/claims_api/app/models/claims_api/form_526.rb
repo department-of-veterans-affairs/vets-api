@@ -107,12 +107,12 @@ module ClaimsApi
       validate_keys_set(keys: keys, parent: current_mailing_address, error_label: 'currentMailingAddress')
 
       %i[addressLine1 addressLine2].each do |line|
-        unless current_mailing_address[line] =~ ADDRESS_PATTERN
+        if invalid?(current_mailing_address, line, ADDRESS_PATTERN)
           errors.add(:currentMailingAddress, "#{line} isn't valid")
         end
       end
 
-      errors.add(:currentMailingAddress, "city isn't valid") unless current_mailing_address[:city] =~ CITY_PATTERN
+      errors.add(:currentMailingAddress, "city isn't valid") if invalid?(current_mailing_address, :city, CITY_PATTERN)
     end
 
     def validate_direct_deposit
@@ -149,7 +149,7 @@ module ClaimsApi
         validate_keys_set(keys: keys, parent: service_period, error_label: 'servicePeriods')
 
         %i[activeDutyBeginDate activeDutyEndDate].each do |date|
-          errors.add('servicePeriods', "#{date} isn't a valid format") unless service_period[date] =~ DATE_PATTERN
+          errors.add('servicePeriods', "#{date} isn't a valid format") if invalid?(service_period, date, DATE_PATTERN)
         end
       end
     end
@@ -166,6 +166,10 @@ module ClaimsApi
       %i[startDate endDate].each do |date|
         errors.add('treatments', "#{date} isn't a valid format") unless date =~ DATE_PATTERN
       end
+    end
+
+    def invalid?(hash, key, pattern)
+      hash[key] && hash[key] !~ pattern
     end
   end
 end
