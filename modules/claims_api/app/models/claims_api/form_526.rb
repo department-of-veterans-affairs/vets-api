@@ -131,6 +131,10 @@ module ClaimsApi
       serviceInformation[:servicePeriods].each do |service_period|
         keys = %i[serviceBranch activeDutyBeginDate activeDutyEndDate]
         validate_keys_set(keys: keys, parent: service_period, error_label: 'servicePeriods')
+
+        %i[activeDutyBeginDate activeDutyEndDate].each do |date|
+          errors.add('servicePeriods', "#{date} isn't a valid format") unless date =~ DATE_PATTERN
+        end
       end
     end
 
