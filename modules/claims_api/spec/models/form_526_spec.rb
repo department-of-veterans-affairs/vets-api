@@ -55,6 +55,19 @@ RSpec.describe ClaimsApi::Form526, type: :model do
     end
   end
 
+  describe 'with valid payload' do
+    let(:claim) { ClaimsApi::Form526.new(json_api_payload) }
+
+    it 'should have no errors' do
+      claim.valid?
+      expect(claim.errors.size).to be(0)
+    end
+
+    it 'should be valid' do
+      expect(claim.valid?).to be_truthy
+    end
+  end
+
   describe '#invalid?' do
     it "should return nil if the key doesn't exist" do
       claim = ClaimsApi::Form526.new
