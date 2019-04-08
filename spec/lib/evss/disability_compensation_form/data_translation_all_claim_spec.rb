@@ -153,6 +153,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
+            'hasSeparationPay' => true,
             'separationPayBranch' => 'Air Force',
             'separationPayDate' => '2018-XX-XX'
           }
@@ -171,6 +172,77 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             }
           }
         }
+      end
+    end
+  end
+
+  describe '#separation_pay' do
+    context 'when given all separation pay data' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'hasSeparationPay' => true,
+            'separationPayBranch' => 'Air Force',
+            'separationPayDate' => '2018-XX-XX'
+          }
+        }
+      end
+
+      it 'should translate the data correctly' do
+        expect(subject.send(:separation_pay)).to eq(
+          'received' => true,
+          'payment' => {
+            'serviceBranch' => 'Air Force'
+          },
+          'receivedDate' => {
+            'year' => '2018'
+          }
+        )
+      end
+    end
+
+    context 'when `hasSeparationPay` is false' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'hasSeparationPay' => false,
+            'separationPayBranch' => 'Air Force',
+            'separationPayDate' => '2018-XX-XX'
+          }
+        }
+      end
+
+      it 'should not translate separation pay' do
+        expect(subject.send(:separation_pay)).to eq nil
+      end
+    end
+
+    context 'when `hasSeparationPay` does not exist' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'separationPayBranch' => 'Air Force',
+            'separationPayDate' => '2018-XX-XX'
+          }
+        }
+      end
+
+      it 'should not translate separation pay' do
+        expect(subject.send(:separation_pay)).to eq nil
+      end
+    end
+
+    context 'when given no optional separation pay data' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'hasSeparationPay' => true
+          }
+        }
+      end
+
+      it 'should translate the data correctly' do
+        expect(subject.send(:separation_pay)).to eq('received' => true)
       end
     end
   end
