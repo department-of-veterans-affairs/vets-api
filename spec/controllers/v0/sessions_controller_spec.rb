@@ -81,7 +81,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
-            get(:new, params: { type: :idme, signup: true, clientId: '123123' })
+            get(:new, params: { type: :signup, client_id: '123123' })
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
@@ -215,7 +215,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
-          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, params: { SAMLResponse: '-' }))
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
