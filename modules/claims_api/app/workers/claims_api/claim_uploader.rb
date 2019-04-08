@@ -7,7 +7,7 @@ module ClaimsApi
     include Sidekiq::Worker
 
     def perform(supporting_document_id)
-      supporting_document = ClaimsApi::SupportingDocument.find(supporting_document_id)
+      supporting_document = ClaimsApi::SupportingDocument.find_by(id: supporting_document_id)
       auto_claim = supporting_document.auto_established_claim
       auth_headers = auto_claim.auth_headers
       uploader = supporting_document.uploader
