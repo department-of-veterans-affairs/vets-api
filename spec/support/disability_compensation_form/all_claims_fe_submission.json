@@ -81,6 +81,7 @@
       "emailAddress": "a@b.co"
     },
     "privacyAgreementAccepted": true,
+    "hasSeparationPay": true,
     "separationPayBranch": "Air Force",
     "separationPayDate": "2000-XX-XX",
     "serviceInformation": {
