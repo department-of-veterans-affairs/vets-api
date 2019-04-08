@@ -4,10 +4,11 @@ require_dependency 'claims_api/application_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
-  module V0
+  module V1
     module Forms
       class DisabilityCompensationController < ApplicationController
-        skip_before_action(:authenticate)
+        before_action { permit_scopes %w[claim.write] }
+        # before_action :validate_json_api_payload
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -15,7 +16,6 @@ module ClaimsApi
             auth_headers: auth_headers,
             form_data: form_attributes
           )
-          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           auto_claim.form.to_internal
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
@@ -38,6 +38,10 @@ module ClaimsApi
 
         private
 
+        def validate_json_api_payload
+          JSONAPI.parse_resource!(params)
+        end
+
         def form_attributes
           params[:data][:attributes]
         end
@@ -52,18 +56,11 @@ module ClaimsApi
         end
 
         def auth_headers
-          evss_headers = EVSS::DisabilityCompensationAuthHeaders
-                         .new(target_veteran)
-                         .add_headers(
-                           EVSS::AuthHeaders.new(target_veteran).to_h
-                         )
-          if request.headers['Mock-Override'] &&
-             Settings.claims_api.disability_claims_mock_override
-            evss_headers['Mock-Override'] = true
-            Rails.logger.info('ClaimsApi: Mock Override Engaged')
-          end
-
-          evss_headers
+          EVSS::DisabilityCompensationAuthHeaders
+            .new(target_veteran)
+            .add_headers(
+              EVSS::AuthHeaders.new(target_veteran).to_h
+            )
         end
       end
     end
