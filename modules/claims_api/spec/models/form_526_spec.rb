@@ -54,4 +54,11 @@ RSpec.describe ClaimsApi::Form526, type: :model do
       expect(claim.errors[:currentMailingAddress].size).to eq(1)
     end
   end
+
+  describe '#invalid?' do
+    it "should return nil if the key doesn't exist" do
+      claim = ClaimsApi::Form526.new
+      expect(claim.send(:invalid?, {}, :a, //)).to be(nil)
+    end
+  end
 end
