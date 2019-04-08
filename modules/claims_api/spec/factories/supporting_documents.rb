@@ -7,7 +7,9 @@ FactoryBot.define do
       supporting_document.set_file_data!(
         Rack::Test::UploadedFile.new(
           "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
-        )
+        ),
+        'docType',
+        'description'
       )
     end
   end
