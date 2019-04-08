@@ -14,17 +14,17 @@ RSpec.describe ClaimsApi::SupportingDocument, type: :model do
     it 'should store the filename' do
       attachment = build(:supporting_document)
 
-      attachment.set_file_data!(
-        Rack::Test::UploadedFile.new(
-          "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
-        ),
-        'docType',
-        'description'
+      file = Rack::Test::UploadedFile.new(
+        "#{::Rails.root}/modules/claims_api/spec/fixtures/extras.pdf"
       )
+
+      attachment.set_file_data!(file, 'docType', 'description')
       attachment.save!
       attachment.reload
 
       expect(attachment.file_data).to have_key('filename')
+      expect(attachment.file_data).to have_key('doc_type')
+      expect(attachment.file_data).to have_key('description')
     end
   end
 end
