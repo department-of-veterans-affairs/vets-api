@@ -182,7 +182,7 @@ module Preneeds
       multipart
     end
 
-    # Savon client for bulding SOAP request; initialized with PreNeeds WSDL
+    # Savon client for building SOAP request; initialized with PreNeeds WSDL
     #
     # @return [Savon::Client] Savon client
     #
