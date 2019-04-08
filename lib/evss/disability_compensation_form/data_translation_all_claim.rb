@@ -145,13 +145,20 @@ module EVSS
       end
 
       def separation_pay
-        return nil if input_form['separationPayBranch'].blank?
+        return nil if input_form['hasSeparationPay'].blank?
+
         {
           'received' => true,
-          'payment' => {
-            'serviceBranch' => service_branch(input_form['separationPayBranch'])
-          },
+          'payment' => payment(input_form['separationPayBranch']),
           'receivedDate' => approximate_date(input_form['separationPayDate'])
+        }.compact
+      end
+
+      def payment(branch)
+        return nil if branch.blank?
+
+        {
+          'serviceBranch' => service_branch(branch)
         }
       end
 
