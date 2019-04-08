@@ -24,18 +24,6 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'feedback submission limits' do
-    it 'responds with 429 after 5 requests' do
-      5.times do
-        post '/v0/feedback', {}, 'REMOTE_ADDR' => '1.2.3.4'
-        expect(last_response.status).to_not eq(429)
-      end
-
-      post '/v0/feedback', {}, 'REMOTE_ADDR' => '1.2.3.4'
-      expect(last_response.status).to eq(429)
-    end
-  end
-
   describe 'vic rate-limits', run_at: 'Thu, 26 Dec 2015 15:54:20 GMT' do
     let(:headers) { { 'REMOTE_ADDR' => '1.2.3.4' } }
 

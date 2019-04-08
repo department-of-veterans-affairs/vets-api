@@ -1136,32 +1136,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
     end
 
-    context '#feedback' do
-      before(:all) do
-        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
-      end
-      before(:each) do
-        Rack::Attack.cache.store.flushdb
-      end
-      let(:feedback_params) do
-        {
-          'description' => 'I liked this page',
-          'target_page' => '/some/example/page.html',
-          'owner_email' => 'example@email.com'
-        }
-      end
-      let(:missing_feedback_params) { feedback_params.except('target_page') }
-
-      it 'returns 202 for valid feedback' do
-        expect(subject).to validate(:post, '/v0/feedback', 202,
-                                    '_data' => { 'feedback' => feedback_params })
-      end
-      it 'returns 400 if a param is missing or invalid' do
-        expect(subject).to validate(:post, '/v0/feedback', 400,
-                                    '_data' => { 'feedback' => missing_feedback_params })
-      end
-    end
-
     context 'terms and conditions routes' do
       context 'with some terms and acceptances' do
         let!(:terms) { create(:terms_and_conditions, latest: true) }
