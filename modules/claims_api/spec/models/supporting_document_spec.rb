@@ -11,7 +11,7 @@ RSpec.describe ClaimsApi::SupportingDocument, type: :model do
   end
 
   describe '#set_file_data!' do
-    it 'should store the filename' do
+    it 'should store the file_data and give me a full evss document' do
       attachment = build(:supporting_document)
 
       file = Rack::Test::UploadedFile.new(
@@ -25,6 +25,12 @@ RSpec.describe ClaimsApi::SupportingDocument, type: :model do
       expect(attachment.file_data).to have_key('filename')
       expect(attachment.file_data).to have_key('doc_type')
       expect(attachment.file_data).to have_key('description')
+
+      expect(attachment.tracked_item_id).to eq(attachment.id)
+      expect(attachment.evss_claim_id).to eq(attachment.auto_established_claim.id)
+      expect(attachment.file_name).to eq(attachment.file_data['filename'])
+      expect(attachment.document_type).to eq(attachment.file_data['doc_type'])
+      expect(attachment.description).to eq(attachment.file_data['description'])
     end
   end
 end
