@@ -35,7 +35,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     end.to change(subject.jobs, :size).by(1)
   end
 
-  it 'sets a status of established on successful call and deletes the file' do
+  it 'on successful call and deletes the file' do
     evss_service_stub = instance_double('EVSS::DocumentsService')
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
