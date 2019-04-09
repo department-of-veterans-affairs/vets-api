@@ -3,13 +3,27 @@
 require 'common/client/base'
 
 module Preneeds
+  # Proxy Service for the EOAS Service's PreNeed Applications endpoints.
+  # Requests are SOAP format, and the request bodies are built using the `Savon` gem,
+  # The `Mail` gem is used to generate attachments for the #receive_pre_need_application method.
+  # The actual submission of requests is facilitated using methods defined in the {Common::Client::Base} parent class.
+  #
   class Service < Common::Client::Base
+    # Prefix string for StatsD monitoring
     STATSD_KEY_PREFIX = 'api.preneeds'
+
+    # Specifies configuration to be used by this service.
+    #
     configuration Preneeds::Configuration
     include Common::Client::Monitoring
 
+    # Used in building SOAP request
     STARTING_CID = '<soap-request-body@soap>'
 
+    # POST to retrieve list of valid attachment types.
+    #
+    # @return [Common::Collection<Preneeds::AttachmentType>] collection of attachment types
+    #
     def get_attachment_types
       soap = savon_client.build_request(:get_attachment_types, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
@@ -17,6 +31,10 @@ module Preneeds
       Common::Collection.new(AttachmentType, json)
     end
 
+    # POST to retreive valid military branches of service
+    #
+    # @return [Common::Collection<Preneeds::BranchesOfService>] collection of military branches of service
+    #
     def get_branches_of_service
       soap = savon_client.build_request(:get_branches_of_service, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
@@ -24,6 +42,10 @@ module Preneeds
       Common::Collection.new(BranchesOfService, json)
     end
 
+    # POST to retrieve military cemeteries
+    #
+    # @return [Common::Collection<Preneeds::Cemetery>] collection of military cemeteries
+    #
     def get_cemeteries
       soap = savon_client.build_request(:get_cemeteries, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
@@ -31,6 +53,10 @@ module Preneeds
       Common::Collection.new(Cemetery, json)
     end
 
+    # POST to retrieve military discharge types
+    #
+    # @return [Common::Collection<Preneeds::DischargeType>] collection of military discharge types
+    #
     def get_discharge_types
       soap = savon_client.build_request(:get_discharge_types, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
@@ -38,6 +64,12 @@ module Preneeds
       Common::Collection.new(DischargeType, json)
     end
 
+    # POST to retrieve military ranks
+    #
+    # @param params [Hash] must include `branch_of_service`, `start_date`, `end_date` keys with values.
+    #   See {Preneeds::MilitaryRankInput}
+    # @return [Common::Collection<Preneeds::MilitaryRank>] collection of military ranks
+    #
     def get_military_rank_for_branch_of_service(params)
       soap = savon_client.build_request(:get_military_rank_for_branch_of_service, message: params)
       json = with_monitoring { perform(:post, '', soap.body).body }
@@ -45,6 +77,10 @@ module Preneeds
       Common::Collection.new(MilitaryRank, json)
     end
 
+    # POST to retrieve valid states
+    #
+    # @return [Common::Collection<Preneeds::State>] collection of valid states
+    #
     def get_states
       soap = savon_client.build_request(:get_states, message: {})
       json = with_monitoring { perform(:post, '', soap.body).body }
@@ -52,6 +88,11 @@ module Preneeds
       Common::Collection.new(State, json)
     end
 
+    # POST to submit a {Preneeds::BurialForm}
+    #
+    # @param burial_form [Preneeds::BurialForm] a valid BurialForm object
+    # @return [Preneeds::ReceiveApplication] object with details of the BurialForm submission response
+    #
     def receive_pre_need_application(burial_form)
       tracking_number = burial_form.tracking_number
       soap = savon_client.build_request(
@@ -73,6 +114,13 @@ module Preneeds
 
     private
 
+    # Builds SOAP body and headers for #receive_pre_need_application
+    #
+    # @param soap [HTTPI::Request] SOAP request object built by `Savon` gem
+    # @param burial_form [Preneeds::BurialForm] the {Preneeds::BurialForm} object
+    #
+    # @return [Hash] hash containing the body and headers for the #receive_pre_need_application request
+    #
     def build_body_and_headers(soap, burial_form)
       headers = {}
 
@@ -100,6 +148,13 @@ module Preneeds
       }
     end
 
+    # Builds SOAP attachments for #receive_pre_need_application
+    #
+    # @param soap [HTTPI::Request] SOAP request object built by `Savon` gem
+    # @param attachments [Array<Preneeds::Attachment>] the attachments from the Preneeds::BurialForm object
+    #
+    # @return [Mail::Message] object with burial form attachments
+    #
     def build_multipart(soap, attachments)
       multipart = Mail.new
 
@@ -127,6 +182,10 @@ module Preneeds
       multipart
     end
 
+    # Savon client for building SOAP request; initialized with PreNeeds WSDL
+    #
+    # @return [Savon::Client] Savon client
+    #
     def savon_client
       @savon ||= Savon.client(wsdl: Settings.preneeds.wsdl)
     end
