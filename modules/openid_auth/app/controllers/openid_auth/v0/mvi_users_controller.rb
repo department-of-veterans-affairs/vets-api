@@ -8,16 +8,18 @@ module OpenidAuth
       skip_before_action :authenticate
       before_action :check_required_headers, only: :show
 
-      # Allows MVI lookups based on user identity traits (presumably obtained from the upstream
-      # identity provider). Returns a 200 response when the MVI lookup succeeds. Raises an error
-      # otherwise.
-      def show
-        user_identity = build_identity_from_headers
+      def search
+        user_attributes = JSON.parse(request.body.read, symbolize_names: true)
+        check_level_of_assurance user_attributes
+        user_identity = build_identity_from_attributes(user_attributes)
         process_identity(user_identity)
       end
 
-      def create
-        user_identity = build_identity_from_body
+      # DEPRECATED. GET method that parses user identity from header values. Because
+      # HTTP headers do not handle UTF-8 values (they are encoded as Latin-1 strings),
+      # the POST search action using JSON is preferred.
+      def show
+        user_identity = build_identity_from_headers
         process_identity(user_identity)
       end
 
@@ -28,7 +30,7 @@ module OpenidAuth
         mvi_response = service.find_profile(user_identity)
         raise mvi_response.error if mvi_response.error
         render json: mvi_response, serializer: MviLookupSerializer
-      end        
+      end
 
       def check_required_headers
         raise Common::Exceptions::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
@@ -43,9 +45,7 @@ module OpenidAuth
         raise Common::Exceptions::ParameterMissing, 'level_of_assurance' unless has_loa
       end
 
-      def build_identity_from_body
-        user_attributes = JSON.parse(request.body.read, symbolize_names: true)
-        check_level_of_assurance user_attributes
+      def build_identity_from_attributes(user_attributes)
         OpenidUserIdentity.new(
           uuid: user_attributes[:idp_uuid],
           email: user_attributes[:user_email],
@@ -56,7 +56,7 @@ module OpenidAuth
           ssn: user_attributes[:ssn],
           mhv_icn: user_attributes[:mhv_icn],
           dslogon_edipi: user_attributes[:dslogon_edipi],
-          loa: 
+          loa:
           {
             current: user_attributes[:level_of_assurance].to_i,
             highest: user_attributes[:level_of_assurance].to_i

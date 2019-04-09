@@ -131,8 +131,8 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
     end
   end
 
-  describe 'via POST with user info in request body' do 
-    let(:headers) do 
+  describe 'via POST with user info in request body' do
+    let(:headers) do
       {
         'content-type' => 'application/json',
         'apiKey' => 'saml-key'
