@@ -57,10 +57,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           '123', nil
         ).and_return(loa1_response)
 
-        get(
-          enrollment_status_v0_health_care_applications_path,
-          user_attributes
-        )
+        get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
 
         expect(response.body).to eq(loa1_response.to_json)
       end
@@ -71,10 +68,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
             :create_rate_limited_searches
           ).and_raise(RateLimitedSearch::RateLimitedError)
 
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            user_attributes
-          )
+          get(enrollment_status_v0_health_care_applications_path, params: user_attributes)
           expect(response.status).to eq(429)
         end
       end
@@ -93,10 +87,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
 
         it 'should return 404' do
-          get(
-            enrollment_status_v0_health_care_applications_path,
-            userAttributes: build(:health_care_application).parsed_form
-          )
+          get(enrollment_status_v0_health_care_applications_path,
+              params: { userAttributes: build(:health_care_application).parsed_form })
           expect(response.status).to eq(404)
         end
       end
@@ -106,10 +98,8 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
           current_user.icn, true
         ).and_return(success_response)
 
-        get(
-          enrollment_status_v0_health_care_applications_path,
-          userAttributes: build(:health_care_application).parsed_form
-        )
+        get(enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form })
 
         expect(response.body).to eq(success_response.to_json)
       end
@@ -118,12 +108,9 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
 
   describe 'POST create' do
     subject do
-      post(
-        v0_health_care_applications_path,
-        params.to_json,
-        'CONTENT_TYPE' => 'application/json',
-        'HTTP_X_KEY_INFLECTION' => 'camel'
-      )
+      post(v0_health_care_applications_path,
+           params: params.to_json,
+           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
     end
 
     context 'with invalid params' do

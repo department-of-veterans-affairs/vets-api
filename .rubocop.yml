@@ -1,5 +1,5 @@
 AllCops:
-  TargetRailsVersion: 4.2
+  TargetRailsVersion: 5.0
   TargetRubyVersion: 2.3
   Include:
     - '**/Gemfile'

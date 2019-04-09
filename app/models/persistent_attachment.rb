@@ -5,7 +5,7 @@ require 'attr_encrypted'
 # Persistent backing of a Shrine file upload, primarily used by SavedClaim
 # at the moment. Current subclasses are PensionBurial
 
-class PersistentAttachment < ActiveRecord::Base
+class PersistentAttachment < ApplicationRecord
   include SetGuid
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)

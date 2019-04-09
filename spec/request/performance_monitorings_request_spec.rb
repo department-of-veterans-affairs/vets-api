@@ -25,11 +25,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
 
     context 'with a 200 response' do
       it 'should match the performance monitoring schema', :aggregate_failures do
-        post(
-          '/v0/performance_monitorings',
-          body.to_json,
-          header
-        )
+        post('/v0/performance_monitorings', params: body.to_json, headers: header)
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('performance_monitoring')
@@ -50,11 +46,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
       end
 
       it 'should match the errors schema', :aggregate_failures do
-        post(
-          '/v0/performance_monitorings',
-          body_missing_param.to_json,
-          header
-        )
+        post('/v0/performance_monitorings', params: body_missing_param.to_json, headers: header)
 
         body = JSON.parse(response.body)
         error_keys = body.dig('errors').first.keys
@@ -79,11 +71,7 @@ RSpec.describe 'PerformanceMonitorings', type: :request do
       end
 
       it 'should match the errors schema', :aggregate_failures do
-        post(
-          '/v0/performance_monitorings',
-          non_whitelisted_body.to_json,
-          header
-        )
+        post('/v0/performance_monitorings', params: non_whitelisted_body.to_json, headers: header)
 
         expect(response).to have_http_status(:forbidden)
         expect(response).to match_response_schema('errors')

@@ -9,7 +9,7 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
 
   it 'should have a certain shape' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
-      get 'show', id: 'ccp_12345'
+      get 'show', params: { id: 'ccp_12345' }
       expect(response).to have_http_status(:ok)
       bod = JSON.parse(response.body)
       expect(bod['data']['id']).to include('ccp_')
@@ -18,7 +18,7 @@ RSpec.describe V0::Facilities::CcpController, type: :controller do
   end
 
   it 'should indicate an invalid parameter' do
-    get 'show', id: '12345'
+    get 'show', params: { id: '12345' }
     expect(response).to have_http_status(400)
     bod = JSON.parse(response.body)
     expect(bod['errors'].length).to be > 0

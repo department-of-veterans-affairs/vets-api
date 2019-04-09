@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe V0::UsersController, type: :controller do
+  include RequestHelper
+
   context 'when not logged in' do
     it 'returns unauthorized' do
       get :show
@@ -13,14 +15,16 @@ RSpec.describe V0::UsersController, type: :controller do
   context 'when logged in as an LOA1 user' do
     let(:user) { build(:user, :loa1) }
 
-    it 'returns a JSON user profile' do
+    before :each do
       sign_in_as(user)
-      FactoryBot.create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
-      get :show
-      assert_response :success
+      create(:in_progress_form, user_uuid: user.uuid, form_id: 'edu-1990')
+    end
 
-      json = JSON.parse(response.body)
-      expect(json['data']['attributes']['profile']['email']).to eq(user.email)
+    it 'returns a JSON user profile' do
+      get :show
+      json = json_body_for(response)
+      expect(response).to be_success
+      expect(json['attributes']['profile']['email']).to eq(user.email)
     end
   end
 end

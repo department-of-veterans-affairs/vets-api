@@ -19,19 +19,19 @@ RSpec.describe V0::FeedbacksController, type: :controller do
   end
 
   it 'responds with 202' do
-    post :create, params
+    post :create, params: params
     expect(response).to have_http_status(:accepted)
     expect(response.header['Content-Type']).to include('application/json')
   end
 
   it 'responds with param error when required params are missing' do
-    post :create, missing_params
+    post :create, params: missing_params
     expect(response).to have_http_status(:bad_request)
     expect(response.body).to include('The required parameter \\"target_page\\", is missing')
   end
 
   it 'responds with param error when required params are null or empty' do
-    post :create, empty_params
+    post :create, params: empty_params
     expect(response).to have_http_status(:bad_request)
     expect(response.body).to include('The required parameter \\"description\\", is missing')
   end

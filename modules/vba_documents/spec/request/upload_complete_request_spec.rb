@@ -53,7 +53,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-          post '/services/vba_documents/internal/v0/upload_complete', body, headers
+          post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
           expect(response).to have_http_status(:no_content)
         end
       end
@@ -67,7 +67,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(false)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-          post '/services/vba_documents/internal/v0/upload_complete', body, headers
+          post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
           expect(response).to have_http_status(:bad_request)
         end
       end
@@ -81,7 +81,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-          post '/services/vba_documents/internal/v0/upload_complete', body, headers
+          post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
           expect(response).to have_http_status(:bad_request)
         end
       end
@@ -138,7 +138,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-          post '/services/vba_documents/internal/v0/upload_complete', body, headers
+          post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
           expect(response).to have_http_status(:no_content)
           upload.reload
           expect(upload.status).to eq('uploaded')
@@ -154,7 +154,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(false)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-          post '/services/vba_documents/internal/v0/upload_complete', body, headers
+          post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
           expect(response).to have_http_status(:bad_request)
         end
       end
@@ -168,7 +168,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
           verifier = double(Aws::SNS::MessageVerifier)
           allow(verifier).to receive(:authentic?).and_return(true)
           allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-          post '/services/vba_documents/internal/v0/upload_complete', body, headers
+          post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
           expect(response).to have_http_status(:bad_request)
         end
       end
@@ -213,7 +213,7 @@ RSpec.describe 'VBA Document SNS upload complete notification', type: :request d
         verifier = double(Aws::SNS::MessageVerifier)
         allow(verifier).to receive(:authentic?).and_return(true)
         allow(Aws::SNS::MessageVerifier).to receive(:new).and_return(verifier)
-        post '/services/vba_documents/internal/v0/upload_complete', body, headers
+        post '/services/vba_documents/internal/v0/upload_complete', params: body, headers: headers
         expect(response).to have_http_status(:bad_request)
       end
     end
