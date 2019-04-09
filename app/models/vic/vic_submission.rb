@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module VIC
-  class VICSubmission < ActiveRecord::Base
+  class VICSubmission < ApplicationRecord
     include SetGuid
     include TempFormValidation
     include AsyncRequest

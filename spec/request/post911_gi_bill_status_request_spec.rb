@@ -21,7 +21,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     context 'with a valid evss response' do
       it 'GET /v0/post911_gi_bill_status returns proper json' do
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status') do
-          get v0_post911_gi_bill_status_url, nil
+          get v0_post911_gi_bill_status_url, params: nil
           expect(response).to match_response_schema('post911_gi_bill_status')
           assert_response :success
         end
@@ -33,7 +33,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     context 'with an 500 unauthorized response' do
       it 'should return a forbidden response' do
         VCR.use_cassette('evss/gi_bill_status/unauthorized') do
-          get v0_post911_gi_bill_status_url, nil
+          get v0_post911_gi_bill_status_url, params: nil
           expect(response).to have_http_status(:forbidden)
         end
       end
@@ -43,7 +43,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     context 'with a 403 response' do
       it 'should return a forbidden response' do
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status_403') do
-          get v0_post911_gi_bill_status_url, nil
+          get v0_post911_gi_bill_status_url, params: nil
           expect(response).to have_http_status(:forbidden)
         end
       end
@@ -54,7 +54,7 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     context 'with an undefined 500 evss response' do
       it 'should return internal server error' do
         VCR.use_cassette('evss/gi_bill_status/gi_bill_status_500') do
-          get v0_post911_gi_bill_status_url, nil
+          get v0_post911_gi_bill_status_url, params: nil
           expect(response).to have_http_status(:internal_server_error)
         end
       end
@@ -66,11 +66,11 @@ RSpec.describe 'Post 911 GI Bill Status', type: :request do
     after { Timecop.return }
 
     it 'should return 503' do
-      get v0_post911_gi_bill_status_url, nil
+      get v0_post911_gi_bill_status_url, params: nil
       expect(response).to have_http_status(:service_unavailable)
     end
     it 'should include a Retry-After header' do
-      get v0_post911_gi_bill_status_url, nil
+      get v0_post911_gi_bill_status_url, params: nil
       expect(response.headers).to include('Retry-After')
     end
   end

@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.version     = VBADocuments::VERSION
   s.authors     = ['Patrick Vinograd']
   s.email       = ['patrick@adhocteam.us']
-  s.homepage    = 'https://api.vets.gov/services/vba_documents/docs/v0'
+  s.homepage    = 'https://api.va.gov/services/vba_documents/docs/v0'
   s.summary     = 'VBA Documents Upload'
   s.description = 'VBA Documents Upload API'
   s.license     = 'CC0'
@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir['spec/**/*']
 
   s.add_dependency 'aws-sdk-s3', '~> 1'
-  s.add_dependency 'rails', '~> 4.2.11'
+  s.add_dependency 'rails', '~> 5.0.7.1'
   s.add_dependency 'sidekiq'
 
   s.add_development_dependency 'factory_bot_rails'

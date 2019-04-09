@@ -1,4 +1,4 @@
-class AddBackUserPreferenceIndexes < ActiveRecord::Migration
+class AddBackUserPreferenceIndexes < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

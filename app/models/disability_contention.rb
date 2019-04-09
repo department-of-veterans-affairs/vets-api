@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DisabilityContention < ActiveRecord::Base
+class DisabilityContention < ApplicationRecord
   validates :code, presence: true, uniqueness: true
   validates :medical_term, presence: true
 

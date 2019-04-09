@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class InProgressForm < ActiveRecord::Base
+class InProgressForm < ApplicationRecord
   class CleanUUID < ActiveRecord::Type::String
-    def type_cast_for_database(value)
-      value.to_s.delete('-')
+    def cast(value)
+      super(value.to_s.delete('-'))
     end
 
-    alias type_cast type_cast_for_database
+    alias serialize cast
   end
 
   EXPIRES_AFTER = YAML.load_file(Rails.root.join('config', 'in_progress_forms', 'expirations.yml'))

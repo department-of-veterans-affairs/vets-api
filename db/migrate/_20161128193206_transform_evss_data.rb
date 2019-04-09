@@ -1,4 +1,4 @@
-class TransformEvssData < ActiveRecord::Migration
+class TransformEvssData < ActiveRecord::Migration[4.2]
   def up
     DisabilityClaim.all.each do |claim|
       claim.data.deep_transform_keys!(&:underscore)
