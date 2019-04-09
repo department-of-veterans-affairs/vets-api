@@ -2,6 +2,7 @@
 
 FactoryBot.define do
   factory :auto_established_claim, class: 'ClaimsApi::AutoEstablishedClaim' do
+    id SecureRandom.uuid
     status 'pending'
     evss_id nil
     auth_headers { {} }
@@ -12,6 +13,7 @@ FactoryBot.define do
   end
 
   factory :invalid_auto_established_claim, class: 'ClaimsApi::AutoEstablishedClaim' do
+    id SecureRandom.uuid
     status 'pending'
     evss_id nil
     auth_headers nil
