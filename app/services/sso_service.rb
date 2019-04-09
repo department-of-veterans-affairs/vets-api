@@ -19,7 +19,7 @@ class SSOService
       @saml_attributes = SAML::User.new(@saml_response)
       @existing_user = User.find(saml_attributes.user_attributes.uuid)
       @new_user_identity = UserIdentity.new(saml_attributes.to_hash)
-      @new_user = init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
+      @new_user = User.init_new_user(new_user_identity, existing_user, saml_attributes.changing_multifactor?)
       @new_session = Session.new(uuid: new_user.uuid)
     end
   end
@@ -30,7 +30,7 @@ class SSOService
   validate :composite_validations
 
   def persist_authentication!
-    existing_user.destroy if new_login?
+    existing_user.destroy if existing_user.present?
 
     if valid?
       return new_session.save && new_user.save && new_user_identity.save
@@ -40,23 +40,7 @@ class SSOService
     end
   end
 
-  def new_login?
-    existing_user.present?
-  end
-
   private
-
-  def init_new_user(user_identity, existing_user = nil, multifactor_change = false)
-    new_user = User.new(uuid: user_identity.attributes[:uuid])
-    new_user.instance_variable_set(:@identity, @new_user_identity)
-    if multifactor_change
-      new_user.mhv_last_signed_in = existing_user.last_signed_in
-      new_user.last_signed_in = existing_user.last_signed_in
-    else
-      new_user.last_signed_in = Time.current.utc
-    end
-    new_user
-  end
 
   def composite_validations
     if saml_response.valid?

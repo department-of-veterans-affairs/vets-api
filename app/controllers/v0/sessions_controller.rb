@@ -46,19 +46,21 @@ module V0
 
     def saml_callback
       saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
-      @sso_service = SSOService.new(saml_response)
-      if @sso_service.persist_authentication!
-        @current_user = @sso_service.new_user
-        @session_object = @sso_service.new_session
-        set_cookies
-        after_login_actions
-        redirect_to url_service.login_redirect_url
-        stats(:success)
-      else
-        log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        stats(:failure)
-      end
+      if saml_response.valid?
+
+
+        if @sso_service.persist_authentication!
+          @current_user = @sso_service.new_user
+          @session_object = @sso_service.new_session
+          set_cookies
+          after_login_actions
+          redirect_to url_service.login_redirect_url
+          stats(:success)
+        else
+          log_auth_too_late if @sso_service.auth_error_code == '002'
+          redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+          stats(:failure)
+        end
     rescue NoMethodError => e
       log_message_to_sentry('NoMethodError', :error, full_message: e.message)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
@@ -68,6 +70,13 @@ module V0
     end
 
     private
+
+    def persist_authentication()
+      errors = []
+      errors.add(:new_session, :invalid) unless new_session.valid?
+      errors.add(:new_user, :invalid) unless new_user.valid?
+      errors.add(:new_user_identity, :invalid) unless new_user_identity.valid?
+    end
 
     def authenticate
       return unless action_name == 'new'
@@ -138,6 +147,43 @@ module V0
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
       errors
+    end
+
+    def handle_error_reporting_and_instrumentation
+      message = 'Login Fail! '
+      if saml_response.normalized_errors.present?
+        error_hash = saml_response.normalized_errors.first
+        error_context = saml_response.normalized_errors
+        message += error_hash[:short_message]
+        message += ' Multiple SAML Errors' if saml_response.normalized_errors.count > 1
+      else
+        error_hash = ERRORS[:validations_failed]
+        error_context = validation_error_context
+        message += error_hash[:short_message]
+      end
+      @auth_error_code = error_hash[:code]
+      @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
+      log_message_to_sentry(message, error_hash[:level], error_context)
+    end
+
+    def validation_error_context
+      {
+        uuid: new_user.uuid,
+        user:   {
+          valid: new_user&.valid?,
+          errors: new_user&.errors&.full_messages
+        },
+        session:   {
+          valid: new_session&.valid?,
+          errors: new_session&.errors&.full_messages
+        },
+        identity: {
+          valid: new_user_identity&.valid?,
+          errors: new_user_identity&.errors&.full_messages,
+          authn_context: new_user_identity&.authn_context,
+          loa: new_user_identity&.loa
+        }
+      }
     end
 
     def url_service

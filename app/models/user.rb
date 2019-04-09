@@ -36,6 +36,9 @@ class User < Common::RedisStore
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
   attribute :mhv_last_signed_in, Common::UTCTime # MHV audit logging
 
+  def self.new_from_saml_response(saml_response)
+  end
+
   delegate :email, to: :identity, allow_nil: true
 
   # This delegated method is called with #account_uuid
