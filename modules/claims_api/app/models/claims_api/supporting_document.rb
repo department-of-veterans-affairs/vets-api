@@ -7,6 +7,7 @@ module ClaimsApi
     attr_encrypted(:file_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
     belongs_to :auto_established_claim
+    validates_presence_of :auto_established_claim_id
 
     alias_attribute :tracked_item_id, :id
 
