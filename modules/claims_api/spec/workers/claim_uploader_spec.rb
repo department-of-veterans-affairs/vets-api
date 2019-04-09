@@ -16,13 +16,6 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
 
-  let(:claim) do
-    claim = create(:auto_established_claim)
-    claim.auth_headers = auth_headers
-    claim.save
-    claim
-  end
-
   let(:supporting_document) do
     supporting_document = create(:supporting_document)
     supporting_document.set_file_data!(
