@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190322040535) do
+ActiveRecord::Schema.define(version: 20190408160432) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -107,9 +107,9 @@ ActiveRecord::Schema.define(version: 20190322040535) do
   create_table "claims_api_supporting_documents", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
     t.string   "encrypted_file_data",       null: false
     t.string   "encrypted_file_data_iv",    null: false
-    t.integer  "auto_established_claim_id", null: false
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.uuid     "auto_established_claim_id", null: false
   end
 
   create_table "disability_compensation_job_statuses", force: :cascade do |t|
