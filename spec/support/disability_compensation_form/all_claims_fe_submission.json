@@ -115,6 +115,7 @@
       ]
     },
     "standardClaim": false,
+    "isTerminallyIll": false,
     "vaTreatmentFacilities": [
       {
         "treatmentCenterName": "Private Facility 2",
