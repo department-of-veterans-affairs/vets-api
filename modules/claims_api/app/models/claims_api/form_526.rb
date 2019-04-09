@@ -6,6 +6,11 @@ module ClaimsApi
     include ActiveModel::Conversion
     extend ActiveModel::Naming
 
+    DATE_PATTERN = /^(\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
+    ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/
+    CITY_PATTERN = /^([-a-zA-Z0-9'.#]([-a-zA-Z0-9'.# ])?)+$/
+    ROUTING_NUMBER_PATTERN = /^\d{9}$/
+
     REQUIRED_FIELDS = %i[
       veteran
       applicationExpirationDate
@@ -87,6 +92,7 @@ module ClaimsApi
       validate_service_information
       validate_disabilities
       validate_direct_deposit if directDeposit.present?
+      validate_treaments if treatments.present?
     end
 
     def validate_veteran
@@ -99,11 +105,33 @@ module ClaimsApi
     def validate_current_mailing_address
       keys = %i[addressLine1 city state zipFirstFive country type]
       validate_keys_set(keys: keys, parent: current_mailing_address, error_label: 'currentMailingAddress')
+
+      %i[addressLine1 addressLine2].each do |line|
+        if invalid?(current_mailing_address, line, ADDRESS_PATTERN)
+          errors.add(:currentMailingAddress, "#{line} isn't valid")
+        end
+      end
+
+      errors.add(:currentMailingAddress, "city isn't valid") if invalid?(current_mailing_address, :city, CITY_PATTERN)
     end
 
     def validate_direct_deposit
       keys = %i[accountType accountNumber routingNumber]
       validate_keys_set(keys: keys, parent: directDeposit, error_label: 'directDeposit')
+
+      unless %w[Checking Saving].include? directDeposit[:accountType]
+        errors.add('directDeposit', 'accountType must be in [Checking, Saving]')
+      end
+
+      unless directDeposit[:accountNumber].size >= 4 && directDeposit[:accountNumber].size <= 17
+        errors.add('directDeposit', 'accountNumber must be between 4 and 17 characters')
+      end
+
+      unless directDeposit[:routingNumber] =~ ROUTING_NUMBER_PATTERN
+        errors.add('directDeposit', "routingNumber isn't valid")
+      end
+
+      errors.add('directDeposit', 'bankName must be less than 36 characters') unless directDeposit[:bankName].size <= 35
     end
 
     def validate_keys_set(keys:, parent:, error_label:)
@@ -119,6 +147,10 @@ module ClaimsApi
       serviceInformation[:servicePeriods].each do |service_period|
         keys = %i[serviceBranch activeDutyBeginDate activeDutyEndDate]
         validate_keys_set(keys: keys, parent: service_period, error_label: 'servicePeriods')
+
+        %i[activeDutyBeginDate activeDutyEndDate].each do |date|
+          errors.add('servicePeriods', "#{date} isn't a valid format") if invalid?(service_period, date, DATE_PATTERN)
+        end
       end
     end
 
@@ -127,6 +159,17 @@ module ClaimsApi
         keys = %i[name disabilityActionType]
         validate_keys_set(keys: keys, parent: disability, error_label: 'disabilities')
       end
+    end
+
+    def validate_treatments
+      errors.add('treatments', 'Too many treatedDisabilityNames') unless treatments[:treatedDisabilityNames].size <= 100
+      %i[startDate endDate].each do |date|
+        errors.add('treatments', "#{date} isn't a valid format") unless date =~ DATE_PATTERN
+      end
+    end
+
+    def invalid?(hash, key, pattern)
+      hash[key] && hash[key] !~ pattern
     end
   end
 end
