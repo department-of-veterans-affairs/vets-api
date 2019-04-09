@@ -8,6 +8,7 @@ require 'rx/client'
 require 'support/rx_client_helpers'
 require 'bb/client'
 require 'support/bb_client_helpers'
+require 'support/pagerduty/services/spec_setup'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -35,8 +36,36 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-    it 'supports getting backend service status' do
-      expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
+    describe 'backend statuses' do
+      describe '/v0/backend_statuses/{service}' do
+        it 'supports getting backend service status' do
+          expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
+        end
+      end
+
+      describe '/v0/backend_statuses' do
+        context 'without a signed in user' do
+          it 'returns a 401' do
+            expect(subject).to validate(:get, '/v0/backend_statuses', 401)
+          end
+        end
+
+        context 'when successful' do
+          include_context 'simulating Redis caching of PagerDuty#get_services'
+
+          it 'supports getting external services status data' do
+            expect(subject).to validate(:get, '/v0/backend_statuses', 200, headers)
+          end
+        end
+
+        context 'when the PagerDuty API rate limit has been exceeded' do
+          it 'returns a 429 with error details' do
+            VCR.use_cassette('pagerduty/external_services/get_services_429') do
+              expect(subject).to validate(:get, '/v0/backend_statuses', 429, headers)
+            end
+          end
+        end
+      end
     end
 
     it 'supports listing in-progress forms' do
@@ -198,11 +227,8 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       it 'supports getting the hca enrollment status' do
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
-          '123'
-        ).and_return(application_date: '2018-01-24T00:00:00.000-06:00',
-                     enrollment_date: nil,
-                     preferred_facility: '987 - CHEY6',
-                     parsed_status: :inelig_character_of_discharge)
+          '123', nil
+        ).and_return(parsed_status: :login_required)
 
         expect(subject).to validate(
           :get,
@@ -366,6 +392,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      let(:form526v2) do
+        File.read(
+          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
+        )
+      end
+
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -403,6 +435,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                   200,
                   headers.update(
                     '_data' => form526
+                  )
+                )
+              end
+            end
+          end
+        end
+      end
+
+      it 'supports submitting the v2 form' do
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
+          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
+        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 401)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+              VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+                expect(subject).to validate(
+                  :post,
+                  '/v0/disability_compensation_form/submit_all_claim',
+                  200,
+                  headers.update(
+                    '_data' => form526v2
                   )
                 )
               end

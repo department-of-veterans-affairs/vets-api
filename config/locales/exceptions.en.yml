@@ -124,6 +124,12 @@ en:
         detail: The request was well-formed but was unable to be followed due to semantic or validation errors
         code: 422
         status: 422
+      too_many_requests:
+        <<: *defaults
+        title: Too Many Requests
+        detail: The user has sent too many requests in a given amount of time
+        code: 429
+        status: 429
       internal_server_error:
         <<: *defaults
         title: Internal server error
@@ -433,6 +439,12 @@ en:
         code: 'MVI_BD502'
         detail: MVI service responded without a birthday or a gender.
         status: 502
+      PAGERDUTY_429:
+        <<: *external_defaults
+        title: Exceeded rate limit
+        code: 'PAGERDUTY_429'
+        detail: "Exceeded PagerDuty's API rate limit"
+        status: 429
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ApplicationController < ::ApplicationController
+  class ApplicationController < ::OpenidApplicationController
     skip_before_action :set_tags_and_extra_context
     before_action :log_request
 
@@ -20,7 +20,7 @@ module ClaimsApi
         'consumer' => consumer,
         'va_user' => requesting_va_user
       }.merge(additional_fields)
-      Rails.logger.info('Appeals App Response', logged_info)
+      Rails.logger.info('Claims App Response', logged_info)
     end
 
     def consumer

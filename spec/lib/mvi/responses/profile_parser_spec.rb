@@ -53,7 +53,7 @@ describe MVI::Responses::ProfileParser do
         end
       end
 
-      context 'with a missing address and an invalid edipi' do
+      context 'with a missing address, invalid edipi, and invalid participant id' do
         let(:body) { Ox.parse(File.read('spec/support/mvi/find_candidate_response_nil_address.xml')) }
         let(:mvi_profile) do
           build(
@@ -64,6 +64,7 @@ describe MVI::Responses::ProfileParser do
             historical_icns: nil,
             vet360_id: nil,
             edipi: nil,
+            participant_id: nil,
             full_mvi_ids: [
               '1000123456V123456^NI^200M^USVHA^P',
               '12345^PI^516^USVHA^PCE',
@@ -72,7 +73,7 @@ describe MVI::Responses::ProfileParser do
               'TKIP123456^PI^200IP^USVHA^A',
               '123456^PI^200MHV^USVHA^A',
               'UNK^NI^200DOD^USDOD^A',
-              '12345678^PI^200CORP^USVBA^A'
+              'UNK^PI^200CORP^USVBA^A'
             ]
           )
         end

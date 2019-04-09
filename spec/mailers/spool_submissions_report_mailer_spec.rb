@@ -28,11 +28,8 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         expect(mail.to).to eq(
           %w[
             lihan@adhocteam.us
-            akulkarni@meetveracity.com
-            Hoffmaster_David@bah.com
             Turner_Desiree@bah.com
             Delli-Gatti_Michael@bah.com
-            Walter_Jenny@bah.com
           ]
         )
       end
@@ -52,11 +49,7 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
             dana.kuykendall@va.gov
             Jennifer.Waltz2@va.gov
             shay.norton@va.gov
-            DONALD.NOBLE2@va.gov
             Darla.VanNieukerk@va.gov
-            Walter_Jenny@bah.com
-            Hoffmaster_David@bah.com
-            akulkarni@meetveracity.com
           ]
         )
       end

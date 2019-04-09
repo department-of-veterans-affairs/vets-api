@@ -106,10 +106,10 @@ module MVI
           mhv_ids: correlation_ids[:mhv_ids],
           active_mhv_ids: correlation_ids[:active_mhv_ids],
           edipi: sanitize_edipi(correlation_ids[:edipi]),
-          participant_id: correlation_ids[:vba_corp_id],
+          participant_id: sanitize_participant_id(correlation_ids[:vba_corp_id]),
           vha_facility_ids: correlation_ids[:vha_facility_ids],
           sec_id: correlation_ids[:sec_id],
-          birls_id: correlation_ids[:birls_id],
+          birls_id: sanitize_birls_id(correlation_ids[:birls_id]),
           vet360_id: correlation_ids[:vet360_id],
           historical_icns: MVI::Responses::HistoricalIcnParser.new(@original_body).get_icns,
           icn_with_aaid: correlation_ids[:icn_with_aaid]
@@ -148,6 +148,26 @@ module MVI
         # Get rid of invalid values like 'UNK'
         sanitized_result = edipi.match(/\d{10}/)&.to_s
         Rails.logger.info "Edipi sanitized was: '#{edipi}' now: '#{sanitized_result}'." unless sanitized_result == edipi
+        sanitized_result
+      end
+
+      def sanitize_participant_id(participant_id)
+        return if participant_id.nil?
+        # Get rid of non-digit characters like 'UNK'/'ASKU'
+        sanitized_result = participant_id.match(/\d+/)&.to_s
+        if sanitized_result != participant_id
+          Rails.logger.info "Participant id sanitized, was: '#{participant_id}' now: '#{sanitized_result}'."
+        end
+        sanitized_result
+      end
+
+      def sanitize_birls_id(birls_id)
+        return if birls_id.nil?
+        # Get rid of non-digit characters like 'UNK'/'ASKU'
+        sanitized_result = birls_id.match(/\d+/)&.to_s
+        if sanitized_result != birls_id
+          Rails.logger.info "Birls id sanitized, was: '#{birls_id}' now: '#{sanitized_result}'."
+        end
         sanitized_result
       end
 

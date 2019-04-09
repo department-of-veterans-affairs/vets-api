@@ -9,7 +9,7 @@ module Gibft
     SALESFORCE_USERNAMES = {
       'prod' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov',
       'uat' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.uat',
-      'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.rdtcdsit'
+      'dev' => 'vetsgov-devops-ci-feedback@listserv.gsa.gov.vacoedusit'
     }.freeze
     SALESFORCE_USERNAME = SALESFORCE_USERNAMES[Settings['salesforce-gibft'].env]
     STATSD_KEY_PREFIX = 'api.gibft'

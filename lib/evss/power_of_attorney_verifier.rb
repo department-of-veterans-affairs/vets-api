@@ -4,7 +4,7 @@ module EVSS
   class PowerOfAttorneyVerifier
     def initialize(user)
       @user = user
-      @veteran = Veteran.new(@user)
+      @veteran = Veteran::User.new(@user)
     end
 
     def verify(consumer_poa)

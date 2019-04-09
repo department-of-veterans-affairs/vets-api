@@ -2,6 +2,12 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # Transforms a client submission into the format expected by the EVSS 526 service
+    #
+    # @param user [User] The current user
+    # @param format [Hash] Hash of the parsed JSON submitted by the client
+    # @param has_form4142 [Boolean] Does the submission include a 4142 form
+    #
     class DataTranslationAllClaim # rubocop:disable Metrics/ClassLength
       HOMELESS_SITUATION_TYPE = {
         'shelter' => 'LIVING_IN_A_HOMELESS_SHELTER',
@@ -24,6 +30,10 @@ module EVSS
         @translated_form = { 'form526' => {} }
       end
 
+      # Performs the translation by merging system user data and data fetched from upstream services
+      #
+      # @return [Hash] The translated form ready for submission
+      #
       def translate
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
@@ -135,13 +145,20 @@ module EVSS
       end
 
       def separation_pay
-        return nil if input_form['separationPayBranch'].blank?
+        return nil if input_form['hasSeparationPay'].blank?
+
         {
           'received' => true,
-          'payment' => {
-            'serviceBranch' => service_branch(input_form['separationPayBranch'])
-          },
+          'payment' => payment(input_form['separationPayBranch']),
           'receivedDate' => approximate_date(input_form['separationPayDate'])
+        }.compact
+      end
+
+      def payment(branch)
+        return nil if branch.blank?
+
+        {
+          'serviceBranch' => service_branch(branch)
         }
       end
 
@@ -418,8 +435,7 @@ module EVSS
       end
 
       def scrub_disability_condition(condition)
-        # Note: the right single quote is intentional - apostrophes are not allowed.
-        re = %r{([a-zA-Z0-9\-’.,\/() ]+)}
+        re = %r{([a-zA-Z0-9\-'.,\/() ]+)}
         condition.scan(re).join.squish
       end
 

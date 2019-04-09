@@ -3,6 +3,19 @@
 require 'common/models/base'
 
 module Preneeds
+  # Models service record information for a {Preneeds::BurialForm} form
+  #
+  # @!attribute service_branch
+  #   @return (see Preneeds::BranchesOfService#code)
+  # @!attribute discharge_type
+  #   @return (see Preneeds::DischargeType#id)
+  # @!attribute highest_rank
+  #   @return [String] highest rank achieved
+  # @!attribute national_guard_state
+  #   @return [String] state - for national guard service only
+  # @!attribute date_range
+  #   @return [Preneeds::DateRange] service date range
+  #
   class ServiceRecord < Preneeds::Base
     attribute :service_branch, String
     attribute :discharge_type, String
@@ -11,6 +24,8 @@ module Preneeds
 
     attribute :date_range, Preneeds::DateRange
 
+    # (see Preneeds::BurialForm#as_eoas)
+    #
     def as_eoas
       hash = {
         branchOfService: service_branch, dischargeType: discharge_type,
@@ -27,6 +42,8 @@ module Preneeds
       hash
     end
 
+    # (see Preneeds::Applicant.permitted_params)
+    #
     def self.permitted_params
       [
         :service_branch, :discharge_type, :highest_rank, :national_guard_state,

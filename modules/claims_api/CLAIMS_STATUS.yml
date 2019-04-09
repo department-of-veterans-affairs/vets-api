@@ -1,0 +1,971 @@
+openapi: '3.0.0'
+info:
+  version: 0.0.1
+  title: Benefits Claims
+  description: |
+    Veterans Benefits Administration (VBA) claims submission and status checking.
+     ## Background
+     Use this API to submit a Veteran's benefits claim, and to request the status of a Veteran's benefits claim.
+     The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records.
+     ## Design
+     ### Authorization
+     API requests are authorized by means of a symmetric API token, provided in an HTTP header
+    with name "apikey".
+     ### List Claims Request
+     Allows a client to check claims object from EVSS.
+     1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the organization or person requesting the claim object as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+     2. Service Response: A JSON API object with the current object of claims
+     ### Single claim request
+     Allows a client to retrieve claim object by EVSS id.
+     1. Client Request: GET https://dev-api.va.gov/services/claims/v0/claims/123123
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the organization or person requesting the claim object as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+     2. Service Response: A JSON API object with the current object of the requested claim
+     ### Single 526 claim form submission
+     Allows a client to post 526 claim form by EVSS id.
+     1. Client Request: POST https://dev-api.va.gov/services/claims/v0/form/526
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the organization or person submitting the form as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+        * Provide the Veteran's Gender as X-VA-Gender
+     2. Service Response: A JSON API object with a token for checking the requested claim status
+     ### Upload 526 Claim Attachments
+     Allows a client to post 526 claim form by EVSS id.
+     1. Client Request: POST https://dev-api.va.gov/services/claims/v0/form/526/{id}/attachments
+        * Provide the Veteran's SSN as the X-VA-SSN header
+        * Provide the VA username of the organization or person submitting the form as the X-VA-User header
+        * Provide the Veteran's First Name as X-VA-First-Name
+        * Provide the Veteran's Last Name as X-VA-Last-Name
+        * Provide the Veteran's Birth Date as X-VA-Birth-Date in the iso8601 format
+        * Provide the Veteran's EDIPI as X-VA-EDIPI
+        * Provide the Veteran's Gender as X-VA-Gender
+     2. Service Response: Empty 200
+     #### 526 Staging Mock Override
+
+      Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `recieved`, `processing`, `success`, `error`.
+      Given the downstream connections of this API, we allow (**IN STAGING ENVIRONMENT ONLY**) passing in a header `Mock-Override` on the request to the 526 creation endpoint. This will allow you to bypass the usage of mocks and actually push the request downstream.
+
+     ## Reference
+     Raw Open API Spec: http://dev-api.va.gov/services/claims/docs/v0/api
+
+  termsOfService: ''
+  contact:
+    name: VA.gov
+tags:
+  - name: claims
+    description: Claims status API
+servers:
+  - url: https://dev-api.va.gov/services/claims/{version}
+    description: Vets.gov API development environment
+    variables:
+      version:
+        default: v0
+paths:
+  /claims:
+    get:
+      tags:
+        - claims
+      summary: Retrieve claims status for the Veteran with the supplied vaafi headers
+      operationId: getClaimStatus
+      security:
+        - api_key: []
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          required: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          required: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          required: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          required: true
+          schema:
+            type: string
+          description: Veteran's EDIPI number
+      responses:
+        '200':
+          description: Claims retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Claim"
+        '400':
+          description: Missing header
+        '401':
+          description: VAAFI authentication failure
+        '403':
+          description: Bad API Token
+        '422':
+          description: Invalid Header
+  /claims/{id}:
+    get:
+      tags:
+        - claims
+      summary: Retrieve claims status for the Veteran with the supplied vaafi headers
+      operationId: getClaimStatus
+      security:
+        - api_key: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: The ID of the claim being requested
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          required: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          required: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          required: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          required: true
+          schema:
+            type: string
+          description: Veteran's EDIPI number
+      responses:
+        '200':
+          description: Claims retrieved successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: "#/components/schemas/Claim"
+        '400':
+          description: Missing header
+        '401':
+          description: VAAFI authentication failure
+        '403':
+          description: Bad API Token
+        '404':
+          description: No claim found for supplied evss id
+        '422':
+          description: Invalid Header
+  /form/526:
+    post:
+      tags:
+        - form_526
+      summary: Accepts 526 claim form submission.
+      description: |
+        Accepts JSON payload. Full URL, including
+        query parameters.
+         ## Example Payload
+         The following demonstrates a (redacted)payload suitable for submitting to the POST
+        endpoint. Most programming languages should have provisions for assembling a
+        payload like this without having to do so manually.
+         ```
+        Content-Type: application/json
+        {
+          "data": {
+            "type": "form/526",
+            "attributes": {
+              "veteran": {
+                "currentlyVAEmployee": false,
+                "currentMailingAddress": {
+                  "city": "Portland",
+                  "country": "USA",
+                  "zipFirstFive": "12345",
+                  "addressLine1": "1234 Couch Street",
+                  "addressLine2": "Apt. 22",
+                  "type": "DOMESTIC",
+                  "zipLastFour": "6789",
+                  "state": "OR"
+                }
+              },
+              "claimantCertification": true,
+              "disabilities": [
+                {
+                  "ratedDisabilityId": "1100583",
+                  "diagnosticCode": 9999,
+                  "disabilityActionType": "NEW",
+                  "name": "PTSD (post traumatic stress disorder)",
+                  "secondaryDisabilities": [
+                    {
+                      "name": "PTSD personal trauma",
+                      "disabilityActionType": "SECONDARY",
+                      "serviceRelevance": "Caused by a service-connected disability\\nLengthy description"
+                    }
+                  ]
+                }
+              ],
+              "standardClaim": false,
+              "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+              "serviceInformation": {
+                "servicePeriods": [
+                  {
+                    "activeDutyEndDate": "1990-01-02",
+                    "serviceBranch": "Air Force",
+                    "activeDutyBeginDate": "1980-02-05"
+                  },
+                  {
+                    "activeDutyEndDate": "1999-01-01",
+                    "serviceBranch": "Air Force Reserves",
+                    "activeDutyBeginDate": "1990-04-05"
+                  }
+                ]
+              }
+            }
+          }
+        }
+        ```
+      parameters:
+        parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          required: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          required: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          required: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          required: true
+          schema:
+            type: string
+          description: Veteran's EDIPI number
+        - in: header
+          name: X-VA-Gender
+          required: true
+          schema:
+            type: string
+          description: Veteran's Gender
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  $ref: "#/components/schemas/526_Form"
+      responses:
+        '200':
+          description: Claim submitted successfully
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    description: |
+                      Claim with some details for the given Veteran info
+                    type: object
+                    properties:
+                      claims_api_auto_established_claims:
+                        description: |
+                          Claim with some details for the given Veteran info
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            description: 526 Claim Submission Token
+                            example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
+                          attributes:
+                            type: object
+                            properties:
+                              token:
+                                type: string
+                                description: 526 Claim Submission Token
+                                example: "ab98842e-7dd6-4099-ab64-28ae29d32dab"
+                              status:
+                                type: string
+                                example: pending
+                                description: Current status of the claim (See API description for more details)
+                                enum:
+                                  - 'pending'
+                                  - 'submitted'
+                                  - 'established'
+                                  - 'errored'
+                              evss_id:
+                                type: string
+                                description: Claim ID from EVSS
+                                example: '8347210'
+        '400':
+          description: Missing header
+        '401':
+          description: VAAFI authentication failure
+        '403':
+          description: Bad API Token
+        '422':
+          description: Invalid Header
+  /form/526/{id}/attachments:
+    post:
+      tags:
+        - form_526
+      summary: Upload documents in support of a 526 claim.
+      description: |
+        Accpets document binaries as part of a multipart payload. These files will be uploaded and tied to
+        the passed in form 526 claim.
+
+        ##  Example Payload
+
+        ```
+        --17de1ed8f01442b2a2d7a93506314b76
+        Content-Disposition: form-data; name="attachment1"
+        Content-Type: application/pdf
+        <Binary PDF contents>
+        --17de1ed8f01442b2a2d7a93506314b76
+        Content-Disposition: form-data; name="attachment2"
+        Content-Type: application/pdf
+        <Binary PDF attachment contents>
+        --17de1ed8f01442b2a2d7a93506314b76--
+        ```
+
+        This POST request would have an overall HTTP Content-Type header:
+
+        ```
+        Content-Type: multipart/form-data; boundary=17de1ed8f01442b2a2d7a93506314b76
+        ```
+
+        Note that the Content-Disposition parameter "name" in each part must be the expected values
+        "attachment1"..."attachmentN".
+      parameters:
+        - in: header
+          name: X-VA-SSN
+          required: true
+          schema:
+            type: string
+          description: SSN of Veteran to retrieve claim statuses for
+        - in: header
+          name: X-VA-User
+          required: true
+          schema:
+            type: string
+          description: VA username of the person making the request
+        - in: header
+          name: X-VA-First-Name
+          required: true
+          schema:
+            type: string
+          description: First name of Veteran
+        - in: header
+          name: X-VA-Last-Name
+          required: true
+          schema:
+            type: string
+          description: Last name of Veteran
+        - in: header
+          name: X-VA-Birth-Date
+          required: true
+          schema:
+            type: string
+          description: Birth date for Veteran in iso8601 format
+        - in: header
+          name: X-VA-EDIPI
+          required: true
+          schema:
+            type: string
+          description: Veteran's EDIPI number
+        - in: header
+          name: X-VA-Gender
+          required: true
+          schema:
+            type: string
+          description: Veteran's Gender
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: "#/components/schemas/SupportingDocument"
+                attachment1:
+                  type: string
+                  example: <<PDF BINARY>>
+                  format: binary
+                  description: Attachment contents. Must be provided in PDF format
+      responses:
+        '200':
+          description: Document upload staged
+        '400':
+          description: Bad request
+
+components:
+  securitySchemes:
+    api_key:
+      type: apiKey
+      name: apikey
+      in: header
+  schemas:
+    Claim:
+      description: |
+        Claim with some details for the given Veteran info
+      type: object
+      properties:
+        id:
+          type: string
+          description: Claim ID from EVSS
+          example: '8347210'
+        type:
+          type: string
+          example: evss_claims
+          description: Required by JSON API standard
+        attributes:
+          type: object
+          properties:
+            date_filed:
+              type: string
+              format: date
+              description: Date in YYYY-MM-DD the claim was first filed
+              example: '2018-06-04'
+            min_est_date:
+              type: string
+              format: date
+              description: Minimum Estimated Claim Completion Date
+              example: '2019-06-04'
+            max_est_date:
+              type: string
+              format: date
+              description: Maximum Estimated Claim Completion Date
+              example: '2019-09-04'
+            open:
+              type: boolean
+              description: Has the claim been resolved
+              example: true
+            waiver_submitted:
+              type: boolean
+              description: Requested Decision or Waiver 5103 Submitted
+              example: false
+            documents_needed:
+              type: boolean
+              example: false
+              description: Does the claim require additional documents to be submitted
+            development_letter_sent:
+              type: boolean
+              description: Indicates if a Development Letter has been sent to the Claimant regarding a benefit claim
+              example: false
+            decision_letter_sent:
+              type: boolean
+              description: Indicates if a Decision Notification Letter has been sent to the Claimant regarding a benefit claim
+              example: false
+            updated_at:
+              type: string
+              format: date-time
+              example: '2018-07-30T17:31:15.958Z'
+              description: Time stamp of last change to the claim
+            status:
+              type: string
+              example: Claim recieved
+              description: Current status of the claim (See API description for more details)
+              enum:
+                - 'Claim recieved'
+                - 'Initial review'
+                - 'Evidence gathering, review, and decision'
+                - 'Preparation for notification'
+                - 'Complete'
+            requested_decision:
+              type: boolean
+              example: false
+              description: The claim filer has requested a claim decision be made
+            claim_type:
+              type: string
+              example: Compensation
+              enum:
+                - Compensation
+                - Compensation and Pension
+                - Dependency
+    526_Form:
+      description: |
+        526 Claim Form submission with minimum required for auto establishment
+      type: object
+      properties:
+        type:
+          type: string
+          example: form/526
+          description: Required by JSON API standard
+        attributes:
+          type: object
+          properties:
+            veteran:
+              type: object
+              properties:
+                currentlyVAEmployee:
+                  type: boolean
+                  description: Flag if Veteran is VA Employee
+                  example: false
+                currentMailingAddress:
+                  type: object
+                  properties:
+                    addressLine1:
+                      type: string
+                      description: Address Veteran resides in
+                      example: "1234 Couch Street"
+                    addressLine2:
+                      type: string
+                      description: Additional Address Information Veteran resides in
+                      example: "Apt. 22"
+                    city:
+                      type: string
+                      description: City Veteran resides in
+                      example: "Portland"
+                    country:
+                      type: string
+                      description: Country Veteran resides in
+                      example: "USA"
+                    zipFirstFive:
+                      type: string
+                      description: Zipcode (First 5 digits) Veteran resides in
+                      example: "12345"
+                    zipLastFour:
+                      type: string
+                      description: Zipcode (Last 4 digits) Veteran resides in
+                      example: "6789"
+                    type:
+                      type: string
+                      description: Type of residence Veteran resides in
+                      example: "DOMESTIC"
+                    state:
+                      type: string
+                      description: State Veteran resides in
+                      example: "OR"
+                  required:
+                    - addressLine1
+                    - city
+                    - state
+                    - country
+                    - zipFirstFive
+                    - type
+                changeOfAddress:
+                  type: object
+                  properties:
+                    beginningDate:
+                      type: string
+                      format: date
+                      description: Date in YYYY-MM-DD the Veteran changed address
+                      example: '2018-06-04'
+                    addressChangeType:
+                      type: string
+                      description: Temporary or Permanent change of address
+                      example: "PERMANENT"
+                    addressLine1:
+                      type: string
+                      description: New Address Veteran resides in
+                      example: "1234 Couch Street"
+                    addressLine2:
+                      type: string
+                      description: New Additional Address Information Veteran resides in
+                      example: "Apt. 22"
+                    city:
+                      type: string
+                      description: New City Veteran resides in
+                      example: "Portland"
+                    country:
+                      type: string
+                      description: New Country Veteran resides in
+                      example: "USA"
+                    zipFirstFive:
+                      type: string
+                      description: New Zipcode (First 5 digits) Veteran resides in
+                      example: "12345"
+                    zipLastFour:
+                      type: string
+                      description: New Zipcode (Last 4 digits) Veteran resides in
+                      example: "6789"
+                    type:
+                      type: string
+                      description: New Type of residence Veteran resides in
+                      example: "DOMESTIC"
+                    state:
+                      type: string
+                      description: New State Veteran resides in
+                      example: "OR"
+                homelessness:
+                  type: object
+                  properties:
+                    pointOfContact:
+                      type: object
+                      properties:
+                        pointOfContactName:
+                          type: string
+                          description: Point of contact in direct contact with Veteran
+                          example: "Jane Doe"
+                        primaryPhone:
+                          type: object
+                          properties:
+                            areaCode:
+                              type: string
+                              description: Area code of Point of Contact
+                              example: "123"
+                            phoneNumber:
+                              type: string
+                              description: Primary phone of Point of Contact
+                              example: "1231234"
+                    currentlyHomeless:
+                      type: object
+                      properties:
+                        homelessSituationType:
+                          type: string
+                          description: Current state of the veteran's homelessness
+                          example: "FLEEING_CURRENT_RESIDENCE"
+                          enum:
+                            - FLEEING_CURRENT_RESIDENCE
+                            - LIVING_IN_A_HOMELESS_SHELTER
+                            - NOT_CURRENTLY_IN_A_SHELTERED_ENVIRONMENT
+                            - STAYING_WITH_ANOTHER_PERSON
+                            - OTHER
+                        otherLivingSituation:
+                          type: string
+                          description: List any other living scenarios
+                          example: "other living situation"
+              required:
+                - currentlyVAEmployee
+                - currentMailingAddress
+            serviceInformation:
+              type: object
+              properties:
+                servicePeriods:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      serviceBranch:
+                        type: string
+                        description: Branch of Service during period
+                        example: 'Air Force'
+                        enum:
+                          - Air Force
+                          - Air Force Reserve
+                          - Army
+                          - Army Reserve
+                          - Coast Guard
+                          - Coast Guard Reserve
+                          - Marine Corps
+                          - Marine Corps Reserve
+                          - Navy
+                          - Navy Reserve
+                          - NOAA
+                      activeDutyBeginDate:
+                        type: date
+                        description: Date Started Active Duty
+                        example: "1980-02-05"
+                      activeDutyEndDate:
+                        type: date
+                        description: Date Completed Active Duty
+                        example: "1990-01-02"
+                    required:
+                      - serviceBranch
+                      - activeDutyBeginDate
+                      - activeDutyEndDate
+                confinements:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      confinementBeginDate:
+                        type: date
+                        description: Date Began Confinement
+                        example: "1987-02-01"
+                      confinementEndDate:
+                        type: date
+                        description: Date Ended Confinement
+                        example: "1989-01-01"
+                reservesNationalGuardService:
+                  type: object
+                  properties:
+                    title10Activation:
+                      type: object
+                      properties:
+                        anticipatedSeparationDate:
+                          type: date
+                          description: Date Seperation will occur
+                          example: "2020-01-01"
+                        title10ActivationDate:
+                          type: date
+                          description: Date Title 10 Activates
+                          example: "1999-03-04"
+                    obligationTermOfServiceFromDate:
+                      type: date
+                      description: Date Service Obligation Began
+                      example: "2000-01-04"
+                    obligationTermOfServiceToDate:
+                      type: date
+                      description: Date Service Obligation Ended
+                      example: "2004-01-04"
+                    unitName:
+                      type: string
+                      description: Official Unit Designation
+                      example: "Seal Team Six"
+                    unitPhone:
+                      type: object
+                      properties:
+                        areaCode:
+                          type: string
+                          description: Area code of Unit
+                          example: "123"
+                        phoneNumber:
+                          type: string
+                          description: Primary phone of Unit
+                          example: "1231234"
+                    receivingInactiveDutyTrainingPay:
+                      type: boolean
+                      description: Do they receive Inactive Duty Training Pay
+                      example: true
+                alternateNames:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                        description: Alternate First Name
+                        example: "JKack"
+                      middleName:
+                        type: string
+                        description: Alternate Middle Name
+                        example: "Clint"
+                      lastName:
+                        type: string
+                        description: Alternate Last Name
+                        example: "Bauer"
+              required:
+                - servicePeriods
+            disabilities:
+              type: array
+              items:
+                type: object
+                properties:
+                  ratedDisabilityId:
+                    type: string
+                    description: The Type of Disability
+                    example: "1100583"
+                  diagnosticCode:
+                    type: integer
+                    description: Specific Diagnostic Code
+                    example: 9999
+                  disabilityActionType:
+                    type: string
+                    description: The status of the current disability.
+                    example: "NEW"
+                  name:
+                    type: string
+                    description: What the Disability is called.
+                    example: "PTSD (post traumatic stress disorder)"
+                  secondaryDisabilities:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: What the Disability is called.
+                          example: "PTSD personal trauma"
+                        disabilityActionType:
+                          type: string
+                          description: The status of the secondary disability.
+                          example: "SECONDARY"
+                        serviceRelevance:
+                          type: string
+                          description: How the veteran got the disability.
+                          example: "Caused by a service-connected disability\\nLengthy description"
+                      required:
+                        - name
+                        - disabilityActionType
+                        - serviceRelevance
+                required:
+                  - disabilityActionType
+                  - name
+            treatments:
+              type: array
+              items:
+                type: object
+                properties:
+                  startDate:
+                    type: date
+                    description: Date Veteran started treatment
+                    example: "2018-03-02"
+                  endDate:
+                    type: date
+                    description: Date Veteran ended treatment
+                    example: "2018-03-03"
+                  treatedDisabilityNames:
+                    type: array
+                    items:
+                      type: string
+                      description: Name of Disabilities Veteran was Treated for
+                      example: "PTSD (post traumatic stress disorder)"
+                  center:
+                    type: object
+                    properties:
+                      name:
+                        type: string
+                        description: Name of facility Veteran was treated in
+                        example: "Private Facility 2"
+                      country:
+                        type: string
+                        description: Country Veteran was treated in
+                        example: "USA"
+            servicePay:
+              type: object
+              properties:
+                waiveVABenefitsToRetainTrainingPay:
+                  type: boolean
+                  description: Is Veteran Waiving benefits to retain training pay
+                  example: true
+                waiveVABenefitsToRetainRetiredPay:
+                  type: boolean
+                  description: Is Veteran Waiving benefits to retain Retiree pay
+                  example: false
+                militaryRetiredPay:
+                  type: object
+                  properties:
+                    receiving:
+                      type: boolean
+                      description: Is Veteran getting Retiree pay
+                      example: true
+                    payment:
+                      type: object
+                      properties:
+                        serviceBranch:
+                          type: string
+                          description: Branch of Service making payments
+                          example: 'Air Force'
+                          enum:
+                            - Air Force
+                            - Air Force Reserve
+                            - Army
+                            - Army Reserve
+                            - Coast Guard
+                            - Coast Guard Reserve
+                            - Marine Corps
+                            - Marine Corps Reserve
+                            - Navy
+                            - Navy Reserve
+                            - NOAA
+            directDeposit:
+              type: object
+              properties:
+                accountType:
+                  type: string
+                  description: Veteran Account Type
+                  example: "CHECKING"
+                accountNumber:
+                  type: string
+                  description: Veteran Account Number
+                  example: "123123123123"
+                routingNumber:
+                  type: string
+                  description: Veteran Bank Routing Number
+                  example: "123123123"
+                bankName:
+                  type: string
+                  description: Veteran Bank Name
+                  example: "SomeBank"
+                required:
+                  - accountType
+                  - accountNumber
+                  - routingNumber
+            claimantCertification:
+              type: boolean
+              description: Determines if person submitting the claim is certified to do so.
+              example: true
+            standardClaim:
+              type: boolean
+              description: Determines if claim is considered a Standard Claim.
+              example: false
+            applicationExpirationDate:
+              type: string
+              format: date-time
+              example: '2018-08-28T19:53:45+00:00'
+              description: Time stamp of when claim expires in one year after submission.
+          required:
+            - veteran
+            - serviceInformation
+            - disabilities
+            - claimantCertification
+            - standardClaim
+            - applicationExpirationDate

@@ -81,4 +81,18 @@ FactoryBot.define do
       }
     end
   end
+
+  trait :loa3 do
+    authn_context 'http://idmanagement.gov/ns/assurance/loa/3/vets'
+
+    sign_in do
+      {
+        service_name: 'idme'
+      }
+    end
+
+    loa do
+      { current: LOA::THREE, highest: LOA::THREE }
+    end
+  end
 end

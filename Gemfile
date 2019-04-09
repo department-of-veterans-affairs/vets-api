@@ -7,12 +7,13 @@ gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
 gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
+gem 'veteran', path: 'modules/veteran'
 gem 'veteran_verification', path: 'modules/veteran_verification'
 
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '4.2.11'
+gem 'rails', '4.2.11.1'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
@@ -22,6 +23,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
+gem 'activerecord-import'
 gem 'activerecord-postgis-adapter', '~> 3'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
@@ -30,6 +32,7 @@ gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
 gem 'config'
+gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master'
 gem 'date_validator'
 gem 'faraday'
 gem 'faraday_middleware'
@@ -43,9 +46,11 @@ gem 'ice_nine'
 gem 'iconv'
 gem 'iso_country_codes'
 gem 'json-schema'
+gem 'jsonapi-parser'
 gem 'jwt'
 gem 'levenshtein-ffi'
 gem 'liquid'
+gem 'mail', '2.6.6'
 gem 'memoist'
 gem 'mini_magick'
 gem 'net-sftp'
@@ -119,6 +124,7 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'factory_bot_rails'
+  gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
   # TODO: switch to a version number once that version is released
   gem 'factory_bot', git: 'https://github.com/thoughtbot/factory_bot', ref: '50eeb67241ea78a6b138eea694a2a25413052f49'
@@ -128,7 +134,6 @@ group :development, :test do
   gem 'foreman'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
-  gem 'pry-nav'
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
@@ -136,6 +141,7 @@ group :development, :test do
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+  gem 'yard'
 end
 
 group :production do

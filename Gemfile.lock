@@ -9,6 +9,20 @@ GIT
       faraday (>= 0.7.4, <= 0.12.2)
 
 GIT
+  remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
+  revision: dddc821c2335c7de234a5454e4b4874e3f658420
+  branch: master
+  specs:
+    connect_vbms (1.2.0)
+      httpclient (~> 2.8.0)
+      httpi (~> 2.4)
+      mail
+      nokogiri (>= 1.8.4)
+      nori
+      xmldsig (~> 0.3.1)
+      xmlenc
+
+GIT
   remote: https://github.com/department-of-veterans-affairs/puma-plugin-statsd
   revision: 6faba90147cf6fbb6c1a6a0c6cd3ae88e888ca73
   branch: master
@@ -19,10 +33,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: a41ebe077d84c1df24e075dd46e2f8c1b215269e
+  revision: 59807d15c8d8cf7312bedb3076478aad2fa7762e
   branch: master
   specs:
-    vets_json_schema (3.137.6)
+    vets_json_schema (3.138.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -72,6 +86,12 @@ PATH
     veteran_verification (0.0.1)
       rails (~> 4.2.11)
 
+PATH
+  remote: modules/veteran
+  specs:
+    veteran (0.0.1)
+      rails (~> 4.2.11.1)
+
 GEM
   remote: https://rubygems.org/
   remote: https://enterprise.contribsys.com/
@@ -79,21 +99,21 @@ GEM
     Ascii85 (1.0.2)
     aasm (4.12.0)
       concurrent-ruby (~> 1.0)
-    actionmailer (4.2.11)
-      actionpack (= 4.2.11)
-      actionview (= 4.2.11)
-      activejob (= 4.2.11)
+    actionmailer (4.2.11.1)
+      actionpack (= 4.2.11.1)
+      actionview (= 4.2.11.1)
+      activejob (= 4.2.11.1)
       mail (~> 2.5, >= 2.5.4)
       rails-dom-testing (~> 1.0, >= 1.0.5)
-    actionpack (4.2.11)
-      actionview (= 4.2.11)
-      activesupport (= 4.2.11)
+    actionpack (4.2.11.1)
+      actionview (= 4.2.11.1)
+      activesupport (= 4.2.11.1)
       rack (~> 1.6)
       rack-test (~> 0.6.2)
       rails-dom-testing (~> 1.0, >= 1.0.5)
       rails-html-sanitizer (~> 1.0, >= 1.0.2)
-    actionview (4.2.11)
-      activesupport (= 4.2.11)
+    actionview (4.2.11.1)
+      activesupport (= 4.2.11.1)
       builder (~> 3.1)
       erubis (~> 2.7.0)
       rails-dom-testing (~> 1.0, >= 1.0.5)
@@ -103,20 +123,22 @@ GEM
       activemodel (>= 4.1, < 6)
       case_transform (>= 0.2)
       jsonapi (= 0.1.1.beta6)
-    activejob (4.2.11)
-      activesupport (= 4.2.11)
+    activejob (4.2.11.1)
+      activesupport (= 4.2.11.1)
       globalid (>= 0.3.0)
-    activemodel (4.2.11)
-      activesupport (= 4.2.11)
+    activemodel (4.2.11.1)
+      activesupport (= 4.2.11.1)
       builder (~> 3.1)
-    activerecord (4.2.11)
-      activemodel (= 4.2.11)
-      activesupport (= 4.2.11)
+    activerecord (4.2.11.1)
+      activemodel (= 4.2.11.1)
+      activesupport (= 4.2.11.1)
       arel (~> 6.0)
+    activerecord-import (1.0.1)
+      activerecord (>= 3.2)
     activerecord-postgis-adapter (3.1.5)
       activerecord (~> 4.2)
       rgeo-activerecord (>= 4.0.4)
-    activesupport (4.2.11)
+    activesupport (4.2.11.1)
       i18n (~> 0.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
@@ -725,7 +747,7 @@ GEM
     coderay (1.1.1)
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
-    concurrent-ruby (1.1.3)
+    concurrent-ruby (1.1.5)
     config (1.4.0)
       activesupport (>= 3.0)
       deep_merge (~> 1.1.1)
@@ -770,7 +792,7 @@ GEM
     foreman (0.82.0)
       thor (~> 0.19.1)
     formatador (0.2.5)
-    globalid (0.4.1)
+    globalid (0.4.2)
       activesupport (>= 4.2.0)
     govdelivery-tms (2.8.4)
       activesupport
@@ -834,9 +856,9 @@ GEM
       mime-types (>= 1.16, < 4)
     memoist (0.15.0)
     method_source (0.8.2)
-    mime-types (3.1)
+    mime-types (3.2.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2016.0521)
+    mime-types-data (3.2018.0812)
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.3.0)
@@ -886,8 +908,9 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    pry-nav (0.2.4)
-      pry (>= 0.9.10, < 0.11.0)
+    pry-byebug (3.3.0)
+      byebug (~> 8.0)
+      pry (~> 0.10)
     puma (3.12.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
@@ -901,16 +924,16 @@ GEM
       rack (>= 1.0)
     rack-vcr (0.1.5)
       vcr (>= 2.9)
-    rails (4.2.11)
-      actionmailer (= 4.2.11)
-      actionpack (= 4.2.11)
-      actionview (= 4.2.11)
-      activejob (= 4.2.11)
-      activemodel (= 4.2.11)
-      activerecord (= 4.2.11)
-      activesupport (= 4.2.11)
+    rails (4.2.11.1)
+      actionmailer (= 4.2.11.1)
+      actionpack (= 4.2.11.1)
+      actionview (= 4.2.11.1)
+      activejob (= 4.2.11.1)
+      activemodel (= 4.2.11.1)
+      activerecord (= 4.2.11.1)
+      activesupport (= 4.2.11.1)
       bundler (>= 1.3.0, < 2.0)
-      railties (= 4.2.11)
+      railties (= 4.2.11.1)
       sprockets-rails
     rails-api (0.4.1)
       actionpack (>= 3.2.11)
@@ -928,13 +951,13 @@ GEM
     rails_semantic_logger (4.2.1)
       rails (>= 3.2)
       semantic_logger (~> 4.1)
-    railties (4.2.11)
-      actionpack (= 4.2.11)
-      activesupport (= 4.2.11)
+    railties (4.2.11.1)
+      actionpack (= 4.2.11.1)
+      activesupport (= 4.2.11.1)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
     rainbow (3.0.0)
-    rake (12.3.1)
+    rake (12.3.2)
     rb-fsevent (0.9.7)
     rb-inotify (0.9.7)
       ffi (>= 0.5.0)
@@ -1092,6 +1115,16 @@ GEM
       hashdiff
     webrick (1.3.1)
     will_paginate (3.1.0)
+    xmldsig (0.3.2)
+      nokogiri
+    xmlenc (0.7.1)
+      activemodel (>= 3.0.0)
+      activesupport (>= 3.0.0)
+      nokogiri (>= 1.6.0, < 2.0.0)
+      xmlmapper (>= 0.7.3)
+    xmlmapper (0.7.3)
+      nokogiri (~> 1.5)
+    yard (0.9.18)
     zero_downtime_migrations (0.0.7)
       activerecord
 
@@ -1101,6 +1134,7 @@ PLATFORMS
 DEPENDENCIES
   aasm
   active_model_serializers (= 0.10.4)
+  activerecord-import
   activerecord-postgis-adapter (~> 3)
   apivore
   appeals_api!
@@ -1119,6 +1153,7 @@ DEPENDENCIES
   clam_scan
   climate_control
   config
+  connect_vbms!
   date_validator
   factory_bot!
   factory_bot_rails
@@ -1141,9 +1176,11 @@ DEPENDENCIES
   iconv
   iso_country_codes
   json-schema
+  jsonapi-parser
   jwt
   levenshtein-ffi
   liquid
+  mail (= 2.6.6)
   memoist
   mini_magick
   net-sftp
@@ -1159,7 +1196,7 @@ DEPENDENCIES
   pdf-reader
   pg
   prawn
-  pry-nav
+  pry-byebug
   puma (~> 3.12.0)
   puma-plugin-statsd!
   pundit
@@ -1167,7 +1204,7 @@ DEPENDENCIES
   rack-cors
   rack-test
   rack-vcr
-  rails (= 4.2.11)
+  rails (= 4.2.11.1)
   rails-api
   rails-session_cookie
   rails_semantic_logger (~> 4.2)
@@ -1206,6 +1243,7 @@ DEPENDENCIES
   va_facilities!
   vba_documents!
   vcr
+  veteran!
   veteran_verification!
   vets_json_schema!
   virtus
@@ -1213,7 +1251,8 @@ DEPENDENCIES
   webmock
   webrick
   will_paginate
+  yard
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.17.1
+   1.17.3
