@@ -3,12 +3,19 @@
 module Preneeds
   module Middleware
     module Response
-      # class responsible for customizing parsing
+      # Faraday middleware responsible for customizing parsing of the EOAS response.
+      #
       class PreneedsParser < Faraday::Response::Middleware
+        # Parses the EOAS response.
+        #
+        # @return [Faraday::Env]
+        #
         def on_complete(env)
           return unless env.response_headers['content-type'] =~ /\bxml/
           env[:body] = parse(env.body) if env.body.present?
         end
+
+        private
 
         def parse(body)
           hash = Hash.from_xml(Ox.dump(body))&.deep_transform_keys(&:underscore)
