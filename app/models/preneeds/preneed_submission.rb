@@ -18,7 +18,7 @@ module Preneeds
   # @!attribute updated_at
   #   @return [Timestamp] updated at date.
   #
-  class PreneedSubmission < ActiveRecord::Base
+  class PreneedSubmission < ApplicationRecord
     validates :tracking_number, :return_description, presence: true
     validates :tracking_number, :application_uuid, uniqueness: true
   end

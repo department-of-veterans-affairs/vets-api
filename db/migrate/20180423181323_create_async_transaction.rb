@@ -1,4 +1,4 @@
-class CreateAsyncTransaction < ActiveRecord::Migration
+class CreateAsyncTransaction < ActiveRecord::Migration[4.2]
   def change
     create_table :async_transactions do |t|
       t.string :type

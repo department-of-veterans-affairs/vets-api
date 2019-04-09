@@ -23,11 +23,7 @@ RSpec.describe 'email_address', type: :request do
     context 'with a 200 response' do
       it 'should match the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_email_success') do
-          post(
-            '/v0/profile/email_addresses',
-            { email_address: 'test@example.com' }.to_json,
-            headers
-          )
+          post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
@@ -37,11 +33,7 @@ RSpec.describe 'email_address', type: :request do
       it 'creates a new AsyncTransaction::Vet360::EmailTransaction db record' do
         VCR.use_cassette('vet360/contact_information/post_email_success') do
           expect do
-            post(
-              '/v0/profile/email_addresses',
-              { email_address: 'test@example.com' }.to_json,
-              headers
-            )
+            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
         end
       end
@@ -50,11 +42,7 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/post_email_success') do
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-          post(
-            '/v0/profile/email_addresses',
-            { email_address: 'test@example.com' }.to_json,
-            headers
-          )
+          post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers: headers)
         end
       end
     end
@@ -62,11 +50,8 @@ RSpec.describe 'email_address', type: :request do
     context 'with a 400 response' do
       it 'should match the errors schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
-          post(
-            '/v0/profile/email_addresses',
-            { id: 42, email_address: 'person42@example.com' }.to_json,
-            headers
-          )
+          post('/v0/profile/email_addresses',
+               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -77,11 +62,8 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/post_email_w_id_error') do
           expect_any_instance_of(Common::RedisStore).to_not receive(:destroy)
 
-          post(
-            '/v0/profile/email_addresses',
-            { id: 42, email_address: 'person42@example.com' }.to_json,
-            headers
-          )
+          post('/v0/profile/email_addresses',
+               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
         end
       end
     end
@@ -89,11 +71,7 @@ RSpec.describe 'email_address', type: :request do
     context 'with a 403 response' do
       it 'should return a forbidden response' do
         VCR.use_cassette('vet360/contact_information/post_email_status_403') do
-          post(
-            '/v0/profile/email_addresses',
-            { email_address: 'test@example.com' }.to_json,
-            headers
-          )
+          post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers: headers)
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -102,11 +80,7 @@ RSpec.describe 'email_address', type: :request do
 
     context 'with a validation issue' do
       it 'should match the errors schema', :aggregate_failures do
-        post(
-          '/v0/profile/email_addresses',
-          { email_address: '' }.to_json,
-          headers
-        )
+        post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -121,11 +95,8 @@ RSpec.describe 'email_address', type: :request do
     context 'with a 200 response' do
       it 'should match the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
-          put(
-            '/v0/profile/email_addresses',
-            { id: 42, email_address: 'person42@example.com' }.to_json,
-            headers
-          )
+          put('/v0/profile/email_addresses',
+              params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
@@ -135,11 +106,8 @@ RSpec.describe 'email_address', type: :request do
       it 'creates a new AsyncTransaction::Vet360::EmailTransaction db record' do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
           expect do
-            put(
-              '/v0/profile/email_addresses',
-              { id: 42, email_address: 'person42@example.com' }.to_json,
-              headers
-            )
+            put('/v0/profile/email_addresses',
+                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::EmailTransaction, :count).from(0).to(1)
         end
       end
@@ -148,22 +116,15 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/put_email_success') do
           expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-          put(
-            '/v0/profile/email_addresses',
-            { id: 42, email_address: 'person42@example.com' }.to_json,
-            headers
-          )
+          put('/v0/profile/email_addresses',
+              params: { id: 42, email_address: 'person42@example.com' }.to_json, headers: headers)
         end
       end
     end
 
     context 'with a validation issue' do
       it 'should match the errors schema', :aggregate_failures do
-        put(
-          '/v0/profile/email_addresses',
-          { email_address: '' }.to_json,
-          headers
-        )
+        put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -186,11 +147,7 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
-          put(
-            '/v0/profile/email_addresses',
-            email.to_json,
-            headers
-          )
+          put('/v0/profile/email_addresses', params: email.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end
@@ -214,11 +171,7 @@ RSpec.describe 'email_address', type: :request do
         VCR.use_cassette('vet360/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
-          delete(
-            '/v0/profile/email_addresses',
-            email.to_json,
-            headers
-          )
+          delete('/v0/profile/email_addresses', params: email.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end

@@ -2,7 +2,7 @@
 
 module OpenidAuth
   class ApplicationController < ::OpenidApplicationController
-    skip_before_action :set_tags_and_extra_content
+    skip_before_action :set_tags_and_extra_content, raise: false
 
     def validate_user
       raise Common::Exceptions::RecordNotFound, @current_user.uuid if @current_user.va_profile_status == 'NOT_FOUND'

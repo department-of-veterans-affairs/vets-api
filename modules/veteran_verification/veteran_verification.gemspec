@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.version     = VeteranVerification::VERSION
   s.authors     = ['Edward Paget']
   s.email       = ['ed@adhocteam.us']
-  s.homepage    = 'https://api.vets.gov/services/veteran_verification/docs/v0/api'
+  s.homepage    = 'https://api.va.gov/services/veteran_verification/docs/v0/api'
   s.summary     = 'Veteran Verification APIs'
   s.description = 'Collection of API resources intended for 3rd verification of veteran status and service history'
   s.license     = 'CC0'
@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
   s.test_files = Dir['spec/**/*']
 
-  s.add_dependency 'rails', '~> 4.2.11'
+  s.add_dependency 'rails', '~> 5.0.7.1'
 
   s.add_development_dependency 'rspec-rails'
 end

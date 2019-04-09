@@ -83,7 +83,7 @@ RSpec.describe 'Messages Integration', type: :request do
       context 'message' do
         it 'without attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_without_attachments') do
-            post '/v0/messaging/health/messages', message: params
+            post '/v0/messaging/health/messages', params: { message: params }
           end
 
           expect(response).to be_success
@@ -95,7 +95,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_new_message_with_4_attachments') do
-            post '/v0/messaging/health/messages', params_with_attachments
+            post '/v0/messaging/health/messages', params: params_with_attachments
           end
 
           expect(response).to be_success
@@ -111,7 +111,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
         it 'without attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_without_attachments') do
-            post "/v0/messaging/health/messages/#{reply_message_id}/reply", message: params
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: { message: params }
           end
 
           expect(response).to be_success
@@ -123,7 +123,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
         it 'with attachments' do
           VCR.use_cassette('sm_client/messages/creates/a_reply_with_4_attachments') do
-            post "/v0/messaging/health/messages/#{reply_message_id}/reply", params_with_attachments
+            post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: params_with_attachments
           end
 
           expect(response).to be_success

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HealthCareApplication < ActiveRecord::Base
+class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
 
