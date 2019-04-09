@@ -3,7 +3,17 @@
 require 'common/client/middleware/logging'
 
 module Preneeds
+  # (see Preneeds::Configuration)
+  # The difference between this configuration and it's parent class is the addition of the :logging middleware.
+  # It is used for logging full requests and responses to assist EOAS engineers in troubleshooting.
+  # This class will be removed when the EOAS service issues are resolved.
+  #
   class LoggedConfiguration < Configuration
+    # Creates the a connection with middleware for mapping errors, parsing XML, and adding breakers functionality.
+    # The difference between this method and it's parent class' definition is the
+    #
+    # @return [Faraday::Connection] a Faraday connection instance.
+    #
     def connection
       path = Preneeds::Configuration.url
       @faraday ||= Faraday.new(
