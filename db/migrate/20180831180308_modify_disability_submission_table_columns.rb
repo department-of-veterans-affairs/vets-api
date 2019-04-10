@@ -1,4 +1,4 @@
-class ModifyDisabilitySubmissionTableColumns < ActiveRecord::Migration
+class ModifyDisabilitySubmissionTableColumns < ActiveRecord::Migration[4.2]
   def change
     add_column(:disability_compensation_submissions, :disability_compensation_id, :integer)
     add_column(:disability_compensation_submissions, :va526ez_submit_transaction_id, :integer)

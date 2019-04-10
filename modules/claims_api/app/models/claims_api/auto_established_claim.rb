@@ -4,7 +4,7 @@ require_dependency 'claims_api/form_526'
 require_dependency 'claims_api/json_marshal'
 
 module ClaimsApi
-  class AutoEstablishedClaim < ActiveRecord::Base
+  class AutoEstablishedClaim < ApplicationRecord
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 

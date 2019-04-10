@@ -12,7 +12,7 @@ module V0
     # @param email_address - the target email address
     # @param frequency - one of 'none', 'each_message', or 'daily'
     def update
-      resource = client.post_preferences(params)
+      resource = client.post_preferences(params.permit(:email_address, :frequency))
       render json: resource,
              serializer: MessagingPreferenceSerializer
     end

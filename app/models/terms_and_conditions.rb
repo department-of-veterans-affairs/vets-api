@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TermsAndConditions < ActiveRecord::Base
+class TermsAndConditions < ApplicationRecord
   has_many :acceptances,
            class_name: 'TermsAndConditionsAcceptance',
            inverse_of: :terms_and_conditions

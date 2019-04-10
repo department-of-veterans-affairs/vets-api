@@ -11,7 +11,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
 
   describe '#create' do
     def send_create
-      post(:create, vic_submission: { form: form })
+      post(:create, params: { vic_submission: { form: form } })
     end
 
     context 'with a valid form' do
@@ -55,7 +55,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
       it 'has an error in the response' do
         allow(Raven).to receive(:tags_context)
         expect(Raven).to receive(:tags_context).with(validation: 'vic').at_least(:once)
-        post(:create, vic_submission: { form: { foo: 1 }.to_json })
+        post(:create, params: { vic_submission: { form: { foo: 1 }.to_json } })
 
         expect(response.status).to eq(422)
         expect(JSON.parse(response.body)['errors'][0]['title'])
@@ -67,7 +67,7 @@ RSpec.describe V0::VIC::VICSubmissionsController, type: :controller do
   describe '#show' do
     it 'should find a vic submission by guid' do
       vic_submission = create(:vic_submission)
-      get(:show, id: vic_submission.guid)
+      get(:show, params: { id: vic_submission.guid })
       expect(JSON.parse(response.body)['data']['id'].to_i)
         .to eq(vic_submission.id)
       expect(JSON.parse(response.body)['data']['attributes'].keys)

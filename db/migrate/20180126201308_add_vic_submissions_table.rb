@@ -1,4 +1,4 @@
-class AddVICSubmissionsTable < ActiveRecord::Migration
+class AddVICSubmissionsTable < ActiveRecord::Migration[4.2]
   def change
     create_table "vic_submissions" do |t|
       t.timestamps(null: false)
