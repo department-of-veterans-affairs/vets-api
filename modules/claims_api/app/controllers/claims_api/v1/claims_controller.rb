@@ -54,7 +54,10 @@ module ClaimsApi
       end
 
       def use_headers?
-        request.headers['ssn'].present?
+        # if any of the required headers are present we should attempt to use headers
+        request.headers['X-VA-SSN'].present? ||
+          request.headers['X-VA-Consumer-Username'].present? ||
+          request.headers['X-VA-Birth-Date'].present?
       end
 
       def verify_headers_or_oauth
