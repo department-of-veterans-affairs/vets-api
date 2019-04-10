@@ -72,13 +72,6 @@ module V0
 
     private
 
-    def persist_authentication()
-      errors = []
-      errors.add(:new_session, :invalid) unless new_session.valid?
-      errors.add(:new_user, :invalid) unless new_user.valid?
-      errors.add(:new_user_identity, :invalid) unless new_user_identity.valid?
-    end
-
     def authenticate
       return unless action_name == 'new'
       if %w[mfa verify slo].include?(params[:type])
