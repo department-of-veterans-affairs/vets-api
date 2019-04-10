@@ -7,7 +7,6 @@ module ClaimsApi
   module V1
     class ClaimsController < ApplicationController
       before_action { permit_scopes %w[claim.read] }
-      before_action :verify_headers_or_oauth
       before_action :verify_power_of_attorney
 
       def index
@@ -58,15 +57,6 @@ module ClaimsApi
         request.headers['X-VA-SSN'].present? ||
           request.headers['X-VA-Consumer-Username'].present? ||
           request.headers['X-VA-Birth-Date'].present?
-      end
-
-      def verify_headers_or_oauth
-        if @current_user.blank?
-          required_headers = ['X-VA-SSN', 'X-Consumer-Username', 'X-VA-Birth-Date']
-          required_headers.each do |required_header|
-            raise Common::Exceptions::ParameterMissing, key if request.headers[required_header].blank?
-          end
-        end
       end
     end
   end
