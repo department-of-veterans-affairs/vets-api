@@ -188,6 +188,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe 'POST saml_logout_callback' do
+      let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
       context 'saml_logout_response is invalid' do
@@ -196,8 +197,10 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'redirects as success and logs the failure' do
-          expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: '{"originating_request_id": "blah"}' }))
+          msg = "SLO callback response invalid for originating_request_id 'blah'"
+          expect(Rails.logger).to receive(:info).with(msg)
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
             .to redirect_to(logout_redirect_url)
         end
       end
@@ -212,7 +215,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             Session.find(token).to_hash.each { |k, v| session[k] = v }
           end
 
-          it 'redirects to success and destroys only the logout request' do
+          it 'redirects to success and destroys nothing' do
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
             expect(User.find(uuid)).to_not be_nil
@@ -220,8 +223,8 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
 
             msg = "SLO callback response could not resolve logout request for originating_request_id 'blah'"
-            expect(Rails.logger).to receive(:info).with(/#{msg}/).exactly(1).times
-            expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: '{"originating_request_id": "blah"}' }))
+            expect(Rails.logger).to receive(:info).with(msg)
+            expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
               .to redirect_to(logout_redirect_url)
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
@@ -249,8 +252,9 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
 
           msg = "SLO callback response to '1234' for originating_request_id 'blah'"
-          expect(Rails.logger).to receive(:info).with(/#{msg}/).exactly(1).times
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: '{"originating_request_id": "blah"}' }))
+          expect(Rails.logger).to receive(:info).with(msg)
+          expect(controller).not_to receive(:log_message_to_sentry)
+          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie

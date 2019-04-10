@@ -143,21 +143,23 @@ module V0
 
     # temporarily logging for discovery
     def additional_logging_for_logout_request(logout_response, logout_request)
-      request_id = begin
-                     JSON.parse(params[:RelayState] || '{}')['originating_request_id']
-                   rescue
-                     'UNKNOWN'
-                   end
-
-      if logout_request.present?
-        Rails.logger.info(
-          "SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id '#{request_id}'"
-        )
+      if logout_response.errors.empty?
+        if logout_request.present?
+          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
+            "'#{originating_request_id}'")
+        else
+          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+            "'#{originating_request_id}'")
+        end
       else
-        Rails.logger.info(
-          "SLO callback response could not resolve logout request for originating_request_id '#{request_id}'"
-        )
+        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
+    end
+
+    def originating_request_id
+      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+    rescue
+      'UNKNOWN'
     end
 
     def url_service
