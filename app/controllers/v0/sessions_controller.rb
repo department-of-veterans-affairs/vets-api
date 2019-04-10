@@ -144,7 +144,7 @@ module V0
     # temporarily logging for discovery
     def additional_logging_for_logout_request(logout_response, logout_request)
       request_id = begin
-                     JSON.parse(params[:RelayState] || '{}')[:originating_request_id]
+                     JSON.parse(params[:RelayState] || '{}')['originating_request_id']
                    rescue
                      'UNKNOWN'
                    end
