@@ -13,7 +13,7 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '4.2.11.1'
+gem 'rails', '~> 5.0.7.2'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
@@ -24,7 +24,7 @@ gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter', '~> 3'
+gem 'activerecord-postgis-adapter', '~> 4'
 gem 'attr_encrypted'
 gem 'aws-sdk', '~> 3'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
@@ -66,8 +66,7 @@ gem 'prawn'
 gem 'pundit'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails-api'
-gem 'rails_semantic_logger', '~> 4.2'
+gem 'rails_semantic_logger', '~> 4.4'
 gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
@@ -82,6 +81,7 @@ gem 'statsd-instrument'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
+gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
@@ -94,7 +94,7 @@ group :development do
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
-  # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
+  # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views

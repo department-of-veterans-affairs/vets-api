@@ -1,4 +1,4 @@
-class AddDisabilityContentionsLayIndex < ActiveRecord::Migration
+class AddDisabilityContentionsLayIndex < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
   safety_assured
 

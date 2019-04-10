@@ -2,6 +2,6 @@
 
 require 'evss/documents_service'
 
-class EVSSClaim < ActiveRecord::Base
+class EVSSClaim < ApplicationRecord
   scope :for_user, ->(user) { where(user_uuid: user.uuid) }
 end

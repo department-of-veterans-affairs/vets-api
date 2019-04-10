@@ -9,7 +9,7 @@ module OpenidAuth
       before_action :check_required_headers, only: :show
 
       def search
-        user_attributes = JSON.parse(request.body.read, symbolize_names: true)
+        user_attributes = params
         check_level_of_assurance user_attributes
         user_identity = build_identity_from_attributes(user_attributes)
         process_identity(user_identity)

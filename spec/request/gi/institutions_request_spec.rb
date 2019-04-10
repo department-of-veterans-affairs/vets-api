@@ -20,7 +20,7 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/search?name=%ADillinois'
     end
 
-    expect(response).to have_http_status(:bad_request)
+    expect(response).to be_success
   end
 
   it 'responds to GET #show' do
@@ -48,6 +48,6 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/autocomplete?term=%ADuniversity'
     end
 
-    expect(response).to have_http_status(:bad_request)
+    expect(response).to be_success
   end
 end

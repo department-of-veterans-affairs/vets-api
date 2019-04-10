@@ -21,7 +21,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       end
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
-          get '/internal/auth/v0/mvi-user', nil, auth_headers
+          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
@@ -32,7 +32,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       it 'should return an error if icn is missing' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           auth_headers['x-va-level-of-assurance'] = 1
-          get '/internal/auth/v0/mvi-user', nil, auth_headers
+          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -51,7 +51,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
       it 'should return the first and last names for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
-          get '/internal/auth/v0/mvi-user', nil, auth_headers
+          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
@@ -79,7 +79,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
-          get '/internal/auth/v0/mvi-user', nil, auth_headers
+          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
@@ -90,7 +90,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       it 'should return an error if icn is missing' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           auth_headers['x-va-level-of-assurance'] = 1
-          get '/internal/auth/v0/mvi-user', nil, auth_headers
+          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -98,9 +98,11 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
     context 'raising errors when missing parameters' do
       it 'should require level of assurance' do
-        get '/internal/auth/v0/mvi-user', nil,
-            'x-va-ssn' => '123456789',
-            'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2'
+        auth_headers = {
+          'x-va-ssn' => '123456789',
+          'x-va-idp-uuid' => 'ae9ff5f4e4b741389904087d94cd19b2'
+        }
+        get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
         data = JSON.parse(response.body)
         expect(data['errors'].first['title']).to eq('Missing parameter')
         expect(data['errors'].first['detail']).to include('x-va-level-of-assurance')
@@ -124,7 +126,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       end
       it 'should respond properly when MVI is down' do
         VCR.use_cassette('mvi/find_candidate/failure') do
-          get '/internal/auth/v0/mvi-user', nil, auth_headers
+          get '/internal/auth/v0/mvi-user', params: nil, headers: auth_headers
           expect(response).to have_http_status(:bad_gateway)
         end
       end
@@ -155,7 +157,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       end
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
-          post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
@@ -166,7 +168,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       it 'should return an error if icn is missing' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
-          post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -184,7 +186,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
       it 'should return the first and last names for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
-          post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
@@ -211,7 +213,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
 
       it 'should return the icn data for a user' do
         VCR.use_cassette('mvi/find_candidate/valid_icn_full') do
-          post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes'].keys).to eq(%w[icn first_name last_name])
@@ -222,7 +224,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       it 'should return an error if icn is missing' do
         VCR.use_cassette('mvi/find_candidate/no_subject') do
           req_body['level_of_assurance'] = 1
-          post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -234,7 +236,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
           'ssn' => '123456789',
           'idp_uuid' => 'ae9ff5f4e4b741389904087d94cd19b2'
         }
-        post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+        post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
         data = JSON.parse(response.body)
         expect(data['errors'].first['title']).to eq('Missing parameter')
         expect(data['errors'].first['detail']).to include('level_of_assurance')
@@ -257,7 +259,7 @@ RSpec.describe 'Return ICN for a User from MVI', type: :request, skip_emis: true
       end
       it 'should respond properly when MVI is down' do
         VCR.use_cassette('mvi/find_candidate/failure') do
-          post '/internal/auth/v0/mvi-user', JSON.generate(req_body), headers
+          post '/internal/auth/v0/mvi-user', params: JSON.generate(req_body), headers: headers
           expect(response).to have_http_status(:bad_gateway)
         end
       end

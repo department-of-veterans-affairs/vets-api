@@ -1,4 +1,4 @@
-class RenameDisabilityClaimEVSSClaim < ActiveRecord::Migration
+class RenameDisabilityClaimEVSSClaim < ActiveRecord::Migration[4.2]
   def self.up
     rename_table :disability_claims, :evss_claims
   end

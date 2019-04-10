@@ -1,4 +1,4 @@
-class CreateForm526Submissions < ActiveRecord::Migration
+class CreateForm526Submissions < ActiveRecord::Migration[4.2]
   def change
     create_table :form526_submissions do |t|
       t.uuid :user_uuid, null: false

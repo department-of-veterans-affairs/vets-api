@@ -78,7 +78,7 @@ RSpec.describe 'Folders Integration', type: :request do
 
         it 'response to POST #create' do
           VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-            post '/v0/messaging/health/folders', params
+            post '/v0/messaging/health/folders', params: params
           end
 
           expect(response).to be_success

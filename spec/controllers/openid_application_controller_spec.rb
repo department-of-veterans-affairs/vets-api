@@ -90,9 +90,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
           new_token = token
           new_token[0]['scp'] = %w[openid]
           allow(JWT).to receive(:decode).and_return(new_token)
-          get :show, id: 1
+          get :show, params: { id: 1 }
           expect(response).to be_ok
-          patch :update, id: 1
+          patch :update, params: { id: 1 }
           expect(response).to be_ok
         end
       end
@@ -102,9 +102,9 @@ RSpec.describe OpenidApplicationController, type: :controller do
           new_token = token
           new_token[0]['scp'] = %w[profile]
           allow(JWT).to receive(:decode).and_return(new_token)
-          get :show, id: 1
+          get :show, params: { id: 1 }
           expect(response.status).to eq(401)
-          patch :update, id: 1
+          patch :update, params: { id: 1 }
           expect(response.status).to eq(401)
         end
       end
@@ -114,7 +114,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           new_token = token
           new_token[0]['scp'] = %w[email]
           allow(JWT).to receive(:decode).and_return(new_token)
-          delete :destroy, id: 1
+          delete :destroy, params: { id: 1 }
           expect(response).to be_ok
         end
       end
@@ -124,7 +124,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           new_token = token
           new_token[0]['scp'] = %w[email openid]
           allow(JWT).to receive(:decode).and_return(new_token)
-          delete :destroy, id: 1
+          delete :destroy, params: { id: 1 }
           expect(response).to be_ok
         end
       end
@@ -134,7 +134,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
           new_token = token
           new_token[0]['scp'] = %w[profile va_profile]
           allow(JWT).to receive(:decode).and_return(new_token)
-          delete :destroy, id: 1
+          delete :destroy, params: { id: 1 }
           expect(response.status).to eq(401)
         end
       end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormAttachment < ActiveRecord::Base
+class FormAttachment < ApplicationRecord
   include SetGuid
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)

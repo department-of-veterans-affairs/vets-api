@@ -1,4 +1,4 @@
-class ModifyMhvAcTermsTitleAndHeader < ActiveRecord::Migration
+class ModifyMhvAcTermsTitleAndHeader < ActiveRecord::Migration[4.2]
   def terms_and_conditions
     TermsAndConditions.find_by(name: 'mhvac', version: '1.0')
   end
