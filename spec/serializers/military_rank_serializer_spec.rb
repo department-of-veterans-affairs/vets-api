@@ -38,8 +38,4 @@ RSpec.describe MilitaryRankSerializer, type: :serializer do
   it 'should include deactivated_three_date as attribute' do
     expect(Time.parse(attributes['deactivated_three_date']).utc).to eq(military_rank.deactivated_three_date)
   end
-
-  it 'should include officer_ind as attribute' do
-    expect(attributes['officer_ind']).to eq(military_rank.officer_ind)
-  end
 end

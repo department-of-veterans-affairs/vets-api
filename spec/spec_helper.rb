@@ -15,6 +15,7 @@ require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
+require 'support/okta_users_helpers'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -49,6 +50,7 @@ unless ENV['NOCOVERAGE']
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'VaFacilities', 'modules/va_facilities/'
+    add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_filter 'version.rb'

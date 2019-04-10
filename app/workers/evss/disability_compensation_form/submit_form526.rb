@@ -20,7 +20,7 @@ module EVSS
       # Performs an asynchronous job for submitting a form526 to an upstream
       # submission service (currently EVSS)
       #
-      # @param submission_id [Hash] The submission record
+      # @param submission_id [Integer] The {Form526Submission} id
       #
       def perform(submission_id)
         super(submission_id)
@@ -40,11 +40,6 @@ module EVSS
       def response_handler(response)
         submission.submitted_claim_id = response.claim_id
         submission.save
-        perform_ancillary_jobs
-      end
-
-      def perform_ancillary_jobs
-        submission.perform_ancillary_jobs(bid)
       end
 
       def retryable_error_handler(error)

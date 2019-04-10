@@ -4,6 +4,8 @@ require 'evss/service_exception'
 
 module EVSS
   module DisabilityCompensationForm
+    # Custom exception that maps EVSS 526 errors to error details defined in config/locales/exceptions.en.yml
+    #
     class ServiceException < EVSS::ServiceException
       include SentryLogging
 

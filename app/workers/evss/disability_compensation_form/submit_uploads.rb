@@ -9,6 +9,11 @@ module EVSS
 
       sidekiq_options retry: RETRY
 
+      # Recursively submits a file in a new instance of this job for each upload in the uploads list
+      #
+      # @param submission_id [Integer] The {Form526Submission} id
+      # @param uploads [Array<String>] A list of the upload GUIDs in AWS S3
+      #
       def perform(submission_id, uploads)
         super(submission_id)
         upload_data = uploads.shift
@@ -44,9 +49,16 @@ module EVSS
       end
 
       # Uploads need to be run sequentially as per requested from EVSS
+      # :nocov:
       def perform_next(id, uploads)
-        EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, uploads)
+        batch.jobs do
+          next_job = Sidekiq::Batch.new
+          next_job.jobs do
+            EVSS::DisabilityCompensationForm::SubmitUploads.perform_async(id, uploads)
+          end
+        end
       end
+      # :nocov:
     end
   end
 end

@@ -100,6 +100,10 @@ RSpec.describe Users::Profile do
           it 'should include authn_context' do
             expect(profile[:authn_context]).to eq('myhealthevet')
           end
+
+          it 'should include sign_in.service_name' do
+            expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
+          end
         end
 
         context 'verified' do
@@ -107,6 +111,10 @@ RSpec.describe Users::Profile do
 
           it 'should include authn_context' do
             expect(profile[:authn_context]).to eq('myhealthevet')
+          end
+
+          it 'should include sign_in.service_name' do
+            expect(profile[:sign_in][:service_name]).to eq('myhealthevet')
           end
         end
       end
@@ -128,6 +136,10 @@ RSpec.describe Users::Profile do
           it 'should include authn_context' do
             expect(profile[:authn_context]).to eq('dslogon')
           end
+
+          it 'should include sign_in.service_name' do
+            expect(profile[:sign_in]).to eq(service_name: 'dslogon')
+          end
         end
 
         context 'verified' do
@@ -135,6 +147,10 @@ RSpec.describe Users::Profile do
 
           it 'should include authn_context' do
             expect(profile[:authn_context]).to eq('dslogon')
+          end
+
+          it 'should include sign_in.service_name' do
+            expect(profile[:sign_in]).to eq(service_name: 'dslogon')
           end
         end
       end

@@ -1,4 +1,4 @@
-FROM ruby:2.3-slim-jessie
+FROM ruby:2.3-slim-stretch
 
 ARG sidekiq_license
 ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license
@@ -12,6 +12,7 @@ apt-get update -qq && \
 apt-get install -y build-essential \
 git \
 libpq-dev \
+libgmp-dev \
 clamav \
 imagemagick \
 pdftk \

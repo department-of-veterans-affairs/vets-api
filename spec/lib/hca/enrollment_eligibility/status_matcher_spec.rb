@@ -22,6 +22,7 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
       ['Pending; Other', :pending_other],
       ['Pending; Purple Heart Unconfirmed', :pending_purpleheart],
       ['Cancelled/Declined', :canceled_declined],
+      [nil, :none_of_the_above],
       ['Unverified', :none_of_the_above]
     ].each do |test_data|
       context "when enrollment status is #{test_data[0]}" do

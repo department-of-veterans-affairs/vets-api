@@ -26,6 +26,13 @@
     "routingNumber": "123456789",
     "accountNumber": "123456"
   },
+  "prefillBankAccount": {
+    "bankAccountType": "savings",
+    "bankAccountNumber": "*********1234",
+    "bankRoutingNumber": "*****2115",
+    "bankName": "Comerica"
+  },
+  "hasSelectedPrograms": true,
   "vetTecPrograms": [
     {
       "providerName": "Provider A",

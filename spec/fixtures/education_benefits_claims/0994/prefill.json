@@ -25,5 +25,8 @@
     "bankAccountNumber": "*********1234",
     "bankRoutingNumber": "*****2115",
     "bankName": "Comerica"
-  }
+  },
+  "hasSelectedPrograms": true,
+  "pastHighTechnologyEmployment": true,
+  "currentHighTechnologyEmployment": true
 }

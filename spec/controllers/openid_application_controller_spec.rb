@@ -194,7 +194,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'should return 200 and add user to session' do
         with_okta_configured do
-          Okta::Service.any_instance.stub(:user).and_return(faraday_response)
+          allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
           allow(faraday_response).to receive(:success?).and_return(true)
           allow(faraday_response).to receive(:body).and_return(okta_response)
 
@@ -226,7 +226,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'should return 200 and add user to session' do
         with_okta_configured do
-          Okta::Service.any_instance.stub(:user).and_return(faraday_response)
+          allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
           allow(faraday_response).to receive(:success?).and_return(true)
           allow(faraday_response).to receive(:body).and_return(okta_response)
 
@@ -258,7 +258,7 @@ RSpec.describe OpenidApplicationController, type: :controller do
 
       it 'should return 200 and add user to session' do
         with_okta_configured do
-          Okta::Service.any_instance.stub(:user).and_return(faraday_response)
+          allow_any_instance_of(Okta::Service).to receive(:user).and_return(faraday_response)
           allow(faraday_response).to receive(:success?).and_return(true)
           allow(faraday_response).to receive(:body).and_return(okta_response)
 

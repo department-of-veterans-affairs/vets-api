@@ -97,9 +97,23 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#perform_ancillary_jobs' do
-    let(:bid) { SecureRandom.hex(8) }
+  describe '#perform_ancillary_jobs_handler' do
+    let(:status) { OpenStruct.new(parent_bid: SecureRandom.hex(8)) }
 
+    context 'with an ancillary job' do
+      let(:form_json) do
+        File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
+      end
+
+      it 'queues 1 job' do
+        expect do
+          subject.perform_ancillary_jobs_handler(status, 'submission_id' => subject.id)
+        end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
+      end
+    end
+  end
+
+  describe '#perform_ancillary_jobs' do
     context 'with (3) uploads' do
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
@@ -107,7 +121,7 @@ RSpec.describe Form526Submission do
 
       it 'queues 1 upload jobs' do
         expect do
-          subject.perform_ancillary_jobs(bid)
+          subject.perform_ancillary_jobs
         end.to change(EVSS::DisabilityCompensationForm::SubmitUploads.jobs, :size).by(1)
       end
     end
@@ -119,7 +133,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 4142 job' do
         expect do
-          subject.perform_ancillary_jobs(bid)
+          subject.perform_ancillary_jobs
         end.to change(CentralMail::SubmitForm4142Job.jobs, :size).by(1)
       end
     end
@@ -131,7 +145,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 0781 job' do
         expect do
-          subject.perform_ancillary_jobs(bid)
+          subject.perform_ancillary_jobs
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm0781.jobs, :size).by(1)
       end
     end
@@ -143,7 +157,7 @@ RSpec.describe Form526Submission do
 
       it 'queues a 8940 job' do
         expect do
-          subject.perform_ancillary_jobs(bid)
+          subject.perform_ancillary_jobs
         end.to change(EVSS::DisabilityCompensationForm::SubmitForm8940.jobs, :size).by(1)
       end
     end

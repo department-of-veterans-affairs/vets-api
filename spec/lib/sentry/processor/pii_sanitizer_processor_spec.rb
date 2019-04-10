@@ -10,6 +10,37 @@ RSpec.describe Sentry::Processor::PIISanitizer do
   let(:processor) { Sentry::Processor::PIISanitizer.new(client) }
   let(:result) { processor.process(data) }
 
+  # These are needed for communicating issues to downstream parties and should not be sanitized
+  context 'sanitization exceptions' do
+    let(:data) do
+      {
+        state: 'SOME STATE',
+        relay_state: '{"some_json_key": "some_json_value"}',
+        RelayState: '{"another_json_key": "another_json_value"}',
+        icn: 'SOME ICN VALUE',
+        edipi: 'SOME EDIPI VALUE',
+        mhv_correlation_id: 'SOME MHV CORRELATION ID'
+      }
+    end
+
+    it 'sanitizes state' do
+      expect(result[:state]).to eq('FILTERED-CLIENTSIDE')
+    end
+
+    it 'does not sanitize relay_state case insensitive' do
+      expect(result[:relay_state]).to eq('{"some_json_key": "some_json_value"}')
+      expect(result[:RelayState]).to eq('{"another_json_key": "another_json_value"}')
+    end
+
+    it 'does not sanitize other important fields needed for logging / communicating to downstream partners' do
+      expect(result.slice(:icn, :edipi, :mhv_correlation_id)).to eq(
+        icn: 'SOME ICN VALUE',
+        edipi: 'SOME EDIPI VALUE',
+        mhv_correlation_id: 'SOME MHV CORRELATION ID'
+      )
+    end
+  end
+
   context 'with symbol keys' do
     let(:data) do
       {
