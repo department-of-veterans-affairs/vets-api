@@ -1,4 +1,4 @@
-class AddDisabilityContentionsMedicalIndex < ActiveRecord::Migration
+class AddDisabilityContentionsMedicalIndex < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
   safety_assured
 

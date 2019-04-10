@@ -23,11 +23,7 @@ RSpec.describe 'address', type: :request do
     context 'with a 200 response' do
       it 'should match the address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_address_success') do
-          post(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
@@ -37,11 +33,7 @@ RSpec.describe 'address', type: :request do
       it 'creates a new AsyncTransaction::Vet360::AddressTransaction db record' do
         VCR.use_cassette('vet360/contact_information/post_address_success') do
           expect do
-            post(
-              '/v0/profile/addresses',
-              address.to_json,
-              headers
-            )
+            post('/v0/profile/addresses', params: address.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
         end
       end
@@ -50,11 +42,7 @@ RSpec.describe 'address', type: :request do
     context 'with a 400 response' do
       it 'should match the errors schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/post_address_w_id_error') do
-          post(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -67,11 +55,7 @@ RSpec.describe 'address', type: :request do
         VCR.use_cassette('vet360/contact_information/post_address_w_low_confidence_error') do
           low_confidence_error = 'VET360_ADDR306'
 
-          post(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           body = JSON.parse response.body
           expect(body['errors'].first['code']).to eq low_confidence_error
@@ -84,11 +68,7 @@ RSpec.describe 'address', type: :request do
     context 'with a 403 response' do
       it 'should return a forbidden response' do
         VCR.use_cassette('vet360/contact_information/post_address_status_403') do
-          post(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           expect(response).to have_http_status(:forbidden)
         end
@@ -99,11 +79,7 @@ RSpec.describe 'address', type: :request do
       it 'should match the errors schema', :aggregate_failures do
         address.address_pou = ''
 
-        post(
-          '/v0/profile/addresses',
-          address.to_json,
-          headers
-        )
+        post('/v0/profile/addresses', params: address.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -118,11 +94,7 @@ RSpec.describe 'address', type: :request do
     context 'with a 200 response' do
       it 'should match the email address schema', :aggregate_failures do
         VCR.use_cassette('vet360/contact_information/put_address_success') do
-          put(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          put('/v0/profile/addresses', params: address.to_json, headers: headers)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
@@ -132,11 +104,7 @@ RSpec.describe 'address', type: :request do
       it 'creates a new AsyncTransaction::Vet360::AddressTransaction db record' do
         VCR.use_cassette('vet360/contact_information/put_address_success') do
           expect do
-            put(
-              '/v0/profile/addresses',
-              address.to_json,
-              headers
-            )
+            put('/v0/profile/addresses', params: address.to_json, headers: headers)
           end.to change(AsyncTransaction::Vet360::AddressTransaction, :count).from(0).to(1)
         end
       end
@@ -146,11 +114,7 @@ RSpec.describe 'address', type: :request do
       it 'should match the errors schema', :aggregate_failures do
         address.address_pou = ''
 
-        put(
-          '/v0/profile/addresses',
-          address.to_json,
-          headers
-        )
+        put('/v0/profile/addresses', params: address.to_json, headers: headers)
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -179,11 +143,7 @@ RSpec.describe 'address', type: :request do
         VCR.use_cassette('vet360/contact_information/put_address_ignore_eed', VCR::MATCH_EVERYTHING) do
           # The cassette we're using does not include the effectiveEndDate in the body.
           # So this test ensures that it was stripped out
-          put(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          put('/v0/profile/addresses', params: address.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end
@@ -211,11 +171,7 @@ RSpec.describe 'address', type: :request do
         VCR.use_cassette('vet360/contact_information/delete_address_success', VCR::MATCH_EVERYTHING) do
           # The cassette we're using includes the effectiveEndDate in the body.
           # So this test will not pass if it's missing
-          delete(
-            '/v0/profile/addresses',
-            address.to_json,
-            headers
-          )
+          delete('/v0/profile/addresses', params: address.to_json, headers: headers)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('vet360/transaction_response')
         end

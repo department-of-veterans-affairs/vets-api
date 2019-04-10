@@ -3,6 +3,19 @@
 require 'common/models/base'
 
 module Preneeds
+  # Models a full name for persons included in a {Preneeds::BurialForm} form
+  #
+  # @!attribute first
+  #   @return [String] first name
+  # @!attribute last
+  #   @return [String] last name
+  # @!attribute maiden
+  #   @return [String] maiden name
+  # @!attribute middle
+  #   @return [String] middle name
+  # @!attribute suffix
+  #   @return [String] name suffix
+  #
   class FullName < Preneeds::Base
     attribute :first, String
     attribute :last, String
@@ -10,7 +23,8 @@ module Preneeds
     attribute :middle, String
     attribute :suffix, String
 
-    # Hash attributes must correspond to xsd ordering or API call will fail
+    # (see Preneeds::BurialForm#as_eoas)
+    #
     def as_eoas
       hash = {
         firstName: first, lastName: last, maidenName: maiden,
@@ -21,6 +35,8 @@ module Preneeds
       hash
     end
 
+    # (see Preneeds::Applicant.permitted_params)
+    #
     def self.permitted_params
       %i[first last maiden middle suffix]
     end

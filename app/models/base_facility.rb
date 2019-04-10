@@ -2,7 +2,7 @@
 
 require 'facilities/client'
 
-class BaseFacility < ActiveRecord::Base
+class BaseFacility < ApplicationRecord
   self.inheritance_column = 'facility_type'
   self.primary_key = 'unique_id'
   after_initialize :generate_fingerprint
