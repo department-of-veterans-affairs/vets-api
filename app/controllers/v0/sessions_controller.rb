@@ -47,11 +47,9 @@ module V0
     def saml_callback
       saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
       if saml_response.valid?
-
-
-        if @sso_service.persist_authentication!
-          @current_user = @sso_service.new_user
-          @session_object = @sso_service.new_session
+        user_session_form = UserSessionForm.new(saml_response)
+        if user_session_form.valid?
+          @current_user, @session_object = user_session_form.persist
           set_cookies
           after_login_actions
           redirect_to url_service.login_redirect_url
@@ -61,6 +59,8 @@ module V0
           redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
           stats(:failure)
         end
+      else
+      end
     rescue NoMethodError => e
       log_message_to_sentry('NoMethodError', :error, full_message: e.message)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
