@@ -16,7 +16,7 @@ module EVSS
         'va_eauth_assurancelevel' => @user.loa[:current].to_s,
         'va_eauth_firstName' => @user.first_name,
         'va_eauth_lastName' => @user.last_name,
-        'va_eauth_issueinstant' => iso8601(@user.last_signed_in),
+        'va_eauth_issueinstant' => @user.last_signed_in&.iso8601,
         'va_eauth_dodedipnid' => @user.edipi,
         'va_eauth_birlsfilenumber' => @user.birls_id,
         'va_eauth_pid' => @user.participant_id,
@@ -46,11 +46,6 @@ module EVSS
           birthDate: iso8601_birth_date
         }
       }.to_json
-    end
-
-    def iso8601(date)
-      return nil unless date
-      date.iso8601
     end
 
     def iso8601_birth_date
