@@ -2,6 +2,11 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # Transforms a client 8940 form submission into the format expected by the EVSS service
+    #
+    # @param user [User] The current user
+    # @param form_content [Hash] Hash of the parsed JSON submitted by the client
+    #
     class Form8940
       def initialize(user, form_content)
         @user = user
@@ -10,6 +15,10 @@ module EVSS
         @final_output = form_content.dig('form526', 'form8940')
       end
 
+      # Merges the user data and performs the translation
+      #
+      # @return [String] The translated form ready for submission
+      #
       def translate
         return nil unless @final_output
         @final_output['vaFileNumber'] = @user.ssn

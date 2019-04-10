@@ -31,7 +31,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:invalid_logout_response) do
     double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
   end
-  let(:succesful_logout_response) do
+  let(:successful_logout_response) do
     double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
@@ -69,23 +69,24 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
-              get(:new, params: { type: type })
+              get(:new, params: { type: type, clientId: '123123' })
               expect(response).to have_http_status(:found)
               expect(response.location)
                 .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-                .with_relay_state('originating_request_id' => nil)
+                .with_relay_state('originating_request_id' => nil, 'type' => type)
+                .with_params('clientId' => '123123')
             end
           end
         end
 
-        context 'routes /sessions/idme/new?signup=true to SessionsController#new with type: idme and signup: true' do
+        context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
-            get(:new, params: { type: :idme, signup: true })
+            get(:new, params: { type: :signup, client_id: '123123' })
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-              .with_relay_state('originating_request_id' => nil)
-              .with_params('op' => 'signup')
+              .with_relay_state('originating_request_id' => nil, 'type' => 'signup')
+              .with_params('op' => 'signup', 'clientId' => '123123')
           end
         end
       end
@@ -168,7 +169,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           get(:new, params: { type: 'slo' })
           expect(response.location)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => nil)
+            .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil
@@ -205,7 +206,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
-          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(succesful_logout_response)
+          allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
         end
 
@@ -214,14 +215,14 @@ RSpec.describe V0::SessionsController, type: :controller do
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
-          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to_not be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
           expect(post(:saml_logout_callback, params: { SAMLResponse: '-' }))
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
           expect(User.find(uuid)).to_not be_nil
           # this should be destroyed
-          expect(SingleLogoutRequest.find(succesful_logout_response&.in_response_to)).to be_nil
+          expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
         end
       end
     end
@@ -393,7 +394,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).not_to receive(:tags_context).once
           expect(controller).to receive(:log_message_to_sentry)
           expect(post(:saml_callback))
-            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=7')
+            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
         end
 
         it 'increments the failed and total statsd counters' do

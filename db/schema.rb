@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190306160555) do
+ActiveRecord::Schema.define(version: 20190408160432) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -67,6 +67,7 @@ ActiveRecord::Schema.define(version: 20190306160555) do
     t.datetime  "updated_at",                                                                 null: false
     t.geography "location",       limit: {:srid=>4326, :type=>"st_point", :geographic=>true}
     t.index ["location"], name: "index_base_facilities_on_location", using: :gist
+    t.index ["name"], name: "index_base_facilities_on_name", using: :gin
     t.index ["unique_id", "facility_type"], name: "index_base_facilities_on_unique_id_and_facility_type", unique: true, using: :btree
   end
 
@@ -94,14 +95,15 @@ ActiveRecord::Schema.define(version: 20190306160555) do
     t.integer  "evss_id"
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.string   "md5"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
     t.string   "encrypted_file_data",       null: false
     t.string   "encrypted_file_data_iv",    null: false
-    t.integer  "auto_established_claim_id", null: false
     t.datetime "created_at",                null: false
     t.datetime "updated_at",                null: false
+    t.uuid     "auto_established_claim_id", null: false
   end
 
   create_table "disability_compensation_job_statuses", force: :cascade do |t|
@@ -359,6 +361,26 @@ ActiveRecord::Schema.define(version: 20190306160555) do
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true, using: :btree
   end
 
+  create_table "session_activities", force: :cascade do |t|
+    t.uuid     "originating_request_id",                        null: false
+    t.string   "originating_ip_address",                        null: false
+    t.text     "generated_url",                                 null: false
+    t.string   "name",                                          null: false
+    t.string   "status",                 default: "incomplete", null: false
+    t.uuid     "user_uuid"
+    t.string   "sign_in_service_name"
+    t.string   "sign_in_account_type"
+    t.boolean  "multifactor_enabled"
+    t.boolean  "idme_verified"
+    t.integer  "duration"
+    t.jsonb    "additional_data"
+    t.datetime "created_at",                                    null: false
+    t.datetime "updated_at",                                    null: false
+    t.index ["name"], name: "index_session_activities_on_name", using: :btree
+    t.index ["status"], name: "index_session_activities_on_status", using: :btree
+    t.index ["user_uuid"], name: "index_session_activities_on_user_uuid", using: :btree
+  end
+
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string   "name"
     t.string   "title"
@@ -405,6 +427,30 @@ ActiveRecord::Schema.define(version: 20190306160555) do
     t.uuid     "consumer_id"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid", using: :btree
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status", using: :btree
+  end
+
+  create_table "veteran_organizations", id: false, force: :cascade do |t|
+    t.string   "poa",        limit: 3
+    t.string   "name"
+    t.string   "phone"
+    t.string   "state",      limit: 2
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+    t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true, using: :btree
+  end
+
+  create_table "veteran_representatives", id: false, force: :cascade do |t|
+    t.string   "representative_id"
+    t.string   "poa",               limit: 3
+    t.string   "first_name"
+    t.string   "last_name"
+    t.string   "email"
+    t.string   "phone"
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
+    t.index ["first_name"], name: "index_veteran_representatives_on_first_name", using: :btree
+    t.index ["last_name"], name: "index_veteran_representatives_on_last_name", using: :btree
+    t.index ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true, using: :btree
   end
 
   create_table "vic_submissions", force: :cascade do |t|

@@ -16,17 +16,14 @@ module V0
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
     def new
-      type = params[:signup] ? 'signup' : params[:type]
-      if REDIRECT_URLS.include?(type)
-        url = url_service.send("#{type}_url")
-        if type == 'slo'
-          Rails.logger.info('SSO: LOGOUT', sso_logging_info)
-          reset_session
-        end
-        redirect_to url
-      else
-        raise Common::Exceptions::RoutingError, params[:path]
+      type = params[:type]
+      raise Common::Exceptions::RoutingError, params[:path] unless REDIRECT_URLS.include?(type)
+      url = url_service.send("#{type}_url")
+      if type == 'slo'
+        Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+        reset_session
       end
+      redirect_to url
     end
 
     def saml_logout_callback
@@ -53,19 +50,18 @@ module V0
       if @sso_service.persist_authentication!
         @current_user = @sso_service.new_user
         @session_object = @sso_service.new_session
-
         set_cookies
         after_login_actions
-        redirect_to saml_login_redirect_url
+        redirect_to url_service.login_redirect_url
         stats(:success)
       else
         log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to saml_login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
         stats(:failure)
       end
-    rescue NoMethodError
-      log_message_to_sentry('NoMethodError', :error, base64_params_saml_response: params[:SAMLResponse])
-      redirect_to saml_login_redirect_url(auth: 'fail', code: 7) unless performed?
+    rescue NoMethodError => e
+      log_message_to_sentry('NoMethodError', :error, full_message: e.message)
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
       stats(:total)
@@ -107,16 +103,6 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def saml_login_redirect_url(auth: 'success', code: nil)
-      if auth == 'fail'
-        url_service.login_redirect_url(auth: 'fail', code: code)
-      elsif current_user.loa[:current] < current_user.loa[:highest]
-        url_service.verify_url
-      else
-        url_service.login_redirect_url
-      end
-    end
-
     def after_login_actions
       AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
       log_persisted_session_and_warnings
@@ -155,7 +141,7 @@ module V0
     end
 
     def url_service
-      SAML::URLService.new(saml_settings, session: @session_object, user: current_user)
+      SAML::URLService.new(saml_settings, session: @session_object, user: current_user, params: params)
     end
   end
 end

@@ -84,6 +84,7 @@ RSpec.describe SAML::User do
             birth_date: '1735-10-30',
             ssn: '111223333',
             zip: nil,
+            dslogon_edipi: '1606997570',
             loa: { current: 3, highest: 3 },
             sign_in: { service_name: 'dslogon', account_type: '1' },
             multifactor: true,
