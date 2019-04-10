@@ -216,6 +216,9 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
+
+          msg = "SLO callback response to '1234' for originating_request_id ''"
+          expect(Rails.logger).to receive(:info).with(/#{msg}/).exactly(1).times
           expect(post(:saml_logout_callback, params: { SAMLResponse: '-' }))
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
