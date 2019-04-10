@@ -32,6 +32,7 @@ module V0
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
 
       errors = build_logout_errors(logout_response, logout_request)
+      additional_logging_for_logout_request(logout_response, logout_request)
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
@@ -149,41 +150,25 @@ module V0
       errors
     end
 
-    def handle_error_reporting_and_instrumentation
-      message = 'Login Fail! '
-      if saml_response.normalized_errors.present?
-        error_hash = saml_response.normalized_errors.first
-        error_context = saml_response.normalized_errors
-        message += error_hash[:short_message]
-        message += ' Multiple SAML Errors' if saml_response.normalized_errors.count > 1
+    # temporarily logging for discovery
+    def additional_logging_for_logout_request(logout_response, logout_request)
+      if logout_response.errors.empty?
+        if logout_request.present?
+          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
+            "'#{originating_request_id}'")
+        else
+          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+            "'#{originating_request_id}'")
+        end
       else
-        error_hash = ERRORS[:validations_failed]
-        error_context = validation_error_context
-        message += error_hash[:short_message]
+        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
-      @auth_error_code = error_hash[:code]
-      @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
-      log_message_to_sentry(message, error_hash[:level], error_context)
     end
 
-    def validation_error_context
-      {
-        uuid: new_user.uuid,
-        user:   {
-          valid: new_user&.valid?,
-          errors: new_user&.errors&.full_messages
-        },
-        session:   {
-          valid: new_session&.valid?,
-          errors: new_session&.errors&.full_messages
-        },
-        identity: {
-          valid: new_user_identity&.valid?,
-          errors: new_user_identity&.errors&.full_messages,
-          authn_context: new_user_identity&.authn_context,
-          loa: new_user_identity&.loa
-        }
-      }
+    def originating_request_id
+      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+    rescue
+      'UNKNOWN'
     end
 
     def url_service
