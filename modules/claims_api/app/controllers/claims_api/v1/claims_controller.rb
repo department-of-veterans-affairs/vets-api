@@ -7,6 +7,7 @@ module ClaimsApi
   module V1
     class ClaimsController < ApplicationController
       before_action { permit_scopes %w[claim.read] }
+      before_action :verify_headers_or_oauth
       before_action :verify_power_of_attorney
 
       def index
@@ -38,13 +39,30 @@ module ClaimsApi
       end
 
       def target_veteran
-        ClaimsApi::Veteran.from_headers(request.headers)
+        if use_headers?
+          ClaimsApi::Veteran.from_headers(request.headers)
+        else
+          ClaimsApi::Veteran.from_identity(identity: @current_user)
+        end
       end
 
       def verify_power_of_attorney
         if header('X-Consumer-PoA').present?
           verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
           verifier.verify(header('X-Consumer-PoA'))
+        end
+      end
+
+      def use_headers?
+        request.headers['ssn'].present?
+      end
+
+      def verify_headers_or_oauth
+        if @current_user.blank?
+          required_headers = ['X-VA-SSN', 'X-Consumer-Username', 'X-VA-Birth-Date']
+          required_headers.each do |required_header|
+            raise Common::Exceptions::ParameterMissing, key if request.headers[required_header].blank?
+          end
         end
       end
     end
