@@ -56,8 +56,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
                evss_id: 600_118_851,
                id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
         VCR.use_cassette('evss/claims/claim') do
-          url = '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9'
-          get url, params: nil, headers: request_headers.merge(auth_header)
+          get(
+            '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+            params: nil, headers: request_headers.merge(auth_header)
+          )
           expect(response).to match_response_schema('claims_api/claim')
         end
       end
