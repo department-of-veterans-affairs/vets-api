@@ -34,24 +34,61 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
   end
 
-  describe '#append_overflow_text' do
-    subject { described_class.new(user, form_content, true) }
+  describe '#overflow_text' do
+    context 'when the form has a 4142 and the vet is terminally ill' do
+      subject { described_class.new(user, form_content, true) }
+      let(:form_content) do
+        {
+          'form526' => {
+            'isTerminallyIll' => true
+          }
+        }
+      end
 
-    before do
-      create(:in_progress_form, form_id: VA526ez::FORM_ID, user_uuid: user.uuid)
+      it 'should add the correct overflow text' do
+        expect(subject.send(:overflow_text)).to eq "Corporate Flash Details\n" \
+          "This applicant has indicated that they're terminally ill.\n" \
+          'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
+          'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+      end
     end
 
-    let(:form_content) do
-      JSON.parse(File.read('spec/support/disability_compensation_form/all_claims_fe_submission.json'))
+    context 'when the form only has a 4142' do
+      subject { described_class.new(user, form_content, true) }
+
+      it 'should add the correct overflow text' do
+        expect(subject.send(:overflow_text)).to eq 'VA Form 21-4142/4142a has been completed ' \
+          'by the applicant and sent to the ' \
+          'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+      end
     end
 
-    it 'should append the overflowText key correctly' do
-      VCR.use_cassette('evss/ppiu/payment_information') do
-        VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
-            expect(subject.translate['form526'].key?('overflowText')).to eq true
-          end
-        end
+    context 'when the vet is terminally ill only' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'isTerminallyIll' => true
+          }
+        }
+      end
+
+      it 'should add the correct overflow text' do
+        expect(subject.send(:overflow_text)).to eq "Corporate Flash Details\n" \
+          "This applicant has indicated that they're terminally ill.\n"
+      end
+    end
+
+    context 'when the vet has no overflow text' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'isTerminallyIll' => false
+          }
+        }
+      end
+
+      it 'should add the correct overflow text' do
+        expect(subject.send(:overflow_text)).to eq nil
       end
     end
   end
@@ -153,6 +190,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       let(:form_content) do
         {
           'form526' => {
+            'hasSeparationPay' => true,
             'separationPayBranch' => 'Air Force',
             'separationPayDate' => '2018-XX-XX'
           }
@@ -171,6 +209,77 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             }
           }
         }
+      end
+    end
+  end
+
+  describe '#separation_pay' do
+    context 'when given all separation pay data' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'hasSeparationPay' => true,
+            'separationPayBranch' => 'Air Force',
+            'separationPayDate' => '2018-XX-XX'
+          }
+        }
+      end
+
+      it 'should translate the data correctly' do
+        expect(subject.send(:separation_pay)).to eq(
+          'received' => true,
+          'payment' => {
+            'serviceBranch' => 'Air Force'
+          },
+          'receivedDate' => {
+            'year' => '2018'
+          }
+        )
+      end
+    end
+
+    context 'when `hasSeparationPay` is false' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'hasSeparationPay' => false,
+            'separationPayBranch' => 'Air Force',
+            'separationPayDate' => '2018-XX-XX'
+          }
+        }
+      end
+
+      it 'should not translate separation pay' do
+        expect(subject.send(:separation_pay)).to eq nil
+      end
+    end
+
+    context 'when `hasSeparationPay` does not exist' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'separationPayBranch' => 'Air Force',
+            'separationPayDate' => '2018-XX-XX'
+          }
+        }
+      end
+
+      it 'should not translate separation pay' do
+        expect(subject.send(:separation_pay)).to eq nil
+      end
+    end
+
+    context 'when given no optional separation pay data' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'hasSeparationPay' => true
+          }
+        }
+      end
+
+      it 'should translate the data correctly' do
+        expect(subject.send(:separation_pay)).to eq('received' => true)
       end
     end
   end

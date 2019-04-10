@@ -1,4 +1,4 @@
-class CreatePreferenceChoices < ActiveRecord::Migration
+class CreatePreferenceChoices < ActiveRecord::Migration[4.2]
   def change
     create_table :preference_choices do |t|
       t.string :code

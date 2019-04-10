@@ -53,5 +53,41 @@ RSpec.describe ClaimsApi::Form526, type: :model do
       claim.valid?
       expect(claim.errors[:currentMailingAddress].size).to eq(1)
     end
+
+    context 'with direct deposit' do
+      let(:claim_with_dd) do
+        claim = ClaimsApi::Form526.new(json_api_payload)
+        claim.directDeposit = JSON.parse(
+          File.read("#{::Rails.root}/modules/claims_api/spec/fixtures/form_526_direct_deposit.json")
+        ).deep_symbolize_keys
+        claim.directDeposit['accountNumber'] = 123
+        claim
+      end
+
+      it 'will have errors' do
+        claim_with_dd.valid?
+        expect(claim_with_dd.errors[:directDeposit].size).to eq(1)
+      end
+    end
+  end
+
+  describe 'with valid payload' do
+    let(:claim) { ClaimsApi::Form526.new(json_api_payload) }
+
+    it 'should have no errors' do
+      claim.valid?
+      expect(claim.errors.size).to be(0)
+    end
+
+    it 'should be valid' do
+      expect(claim.valid?).to be_truthy
+    end
+  end
+
+  describe '#invalid?' do
+    it "should return nil if the key doesn't exist" do
+      claim = ClaimsApi::Form526.new
+      expect(claim.send(:invalid?, {}, :a, //)).to be(nil)
+    end
   end
 end
