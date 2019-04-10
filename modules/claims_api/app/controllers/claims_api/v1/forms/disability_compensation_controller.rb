@@ -44,7 +44,7 @@ module ClaimsApi
         end
 
         def form_attributes
-          params[:data][:attributes]
+          params[:data][:attributes].permit!.to_h
         end
 
         def documents
