@@ -9,7 +9,7 @@ module V0
     end
 
     def update
-      resource = client.post_preferences(params)
+      resource = client.post_preferences(params.permit(:email_address, :rx_flag))
       render json: resource,
              serializer: PrescriptionPreferenceSerializer
     end

@@ -7,12 +7,17 @@ class GIBillFeedback < Common::RedisStore
 
   FEEDBACK_MAPPINGS = {
     'post9::11 ch 33' => 'Post-9/11 Ch 33',
+    'chapter33' => 'Post-9/11 Ch 33',
     'mGIBAd ch 30' => 'MGIB-AD Ch 30',
+    'chapter30' => 'MGIB-AD Ch 30',
     'mGIBSr ch 1606' => 'MGIB-SR Ch 1606',
+    'chapter1606' => 'MGIB-SR Ch 1606',
     'tatu' => 'TATU',
     'reap' => 'REAP',
     'dea ch 35' => 'DEA Ch 35',
+    'chapter35' => 'DEA Ch 35',
     'vre ch 31' => 'VRE Ch 31',
+    'chapter31' => 'VRE Ch 31',
     'ta' => 'TA',
     'taAgr' => 'TA-AGR',
     'myCaa' => 'MyCAA',

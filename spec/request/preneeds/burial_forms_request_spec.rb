@@ -12,7 +12,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   context 'with valid input' do
     it 'responds to POST #create' do
       VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-        post '/v0/preneeds/burial_forms', params
+        post '/v0/preneeds/burial_forms', params: params
       end
 
       expect(response).to be_success
@@ -24,7 +24,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
   context 'with invalid input' do
     it 'returns an with error' do
       params[:application][:veteran].delete(:military_status)
-      post '/v0/preneeds/burial_forms', params
+      post '/v0/preneeds/burial_forms', params: params
 
       error = JSON.parse(response.body)['errors'].first
 
@@ -38,7 +38,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     it 'returns with a VA900 error when status is 500' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_invalid_applicant_address2') do
         params[:application][:applicant][:mailing_address][:address2] = '1' * 21
-        post '/v0/preneeds/burial_forms', params
+        post '/v0/preneeds/burial_forms', params: params
       end
 
       error = JSON.parse(response.body)['errors'].first
@@ -51,7 +51,7 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     it 'returns with a VA900 error when the status is 200' do
       VCR.use_cassette('preneeds/burial_forms/burial_form_with_duplicate_tracking_number') do
         allow_any_instance_of(Preneeds::BurialForm).to receive(:generate_tracking_number).and_return('19')
-        post '/v0/preneeds/burial_forms', params
+        post '/v0/preneeds/burial_forms', params: params
       end
 
       error = JSON.parse(response.body)['errors'].first
@@ -69,7 +69,9 @@ RSpec.describe 'Preneeds Burial Form Integration', type: :request do
     context 'with successful submission' do
       it 'creates a PreneedSubmission record' do
         VCR.use_cassette('preneeds/burial_forms/creates_a_pre_need_burial_form') do
-          expect { post('/v0/preneeds/burial_forms', params) }.to change { ::Preneeds::PreneedSubmission.count }.by(1)
+          expect do
+            post('/v0/preneeds/burial_forms', params: params)
+          end.to change { ::Preneeds::PreneedSubmission.count }.by(1)
         end
 
         expect(response_json['tracking_number']).to eq(submission_record.tracking_number)

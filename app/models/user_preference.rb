@@ -3,7 +3,7 @@
 # Class to represent a single user choice for a single PreferenceChoice
 # @see https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Data/Databases/Vets.gov/Preferences%20Schema%20Design.md#the-winning-preferences-table-design
 #
-class UserPreference < ActiveRecord::Base
+class UserPreference < ApplicationRecord
   belongs_to :account
   belongs_to :preference
   belongs_to :preference_choice

@@ -5,7 +5,7 @@ require 'csv'
 module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
-    class Representative < ActiveRecord::Base
+    class Representative < ApplicationRecord
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id

@@ -29,8 +29,10 @@ RSpec.describe GIBillFeedback, type: :model do
     it 'should transform malformed options' do
       expect(gi_bill_feedback.send(:transform_malformed_options,
                                    'post9::11 ch 33' => true,
-                                   'MGIB-AD Ch 30' => true)).to eq(
-                                     'Post-9/11 Ch 33' => true, 'MGIB-AD Ch 30' => true
+                                   'MGIB-AD Ch 30' => true,
+                                   'chapter1606' => true)).to eq(
+                                     'Post-9/11 Ch 33' => true, 'MGIB-AD Ch 30' => true,
+                                     'MGIB-SR Ch 1606' => true
                                    )
     end
   end

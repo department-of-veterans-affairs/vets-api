@@ -11,10 +11,10 @@ RSpec.describe Rack::Attack do
 
   describe '#throttled_response' do
     it 'adds X-RateLimit-* headers to the response' do
-      post '/v0/limited', {}, 'REMOTE_ADDR' => '1.2.3.4'
+      post '/v0/limited', headers: { 'REMOTE_ADDR' => '1.2.3.4' }
       expect(last_response.status).to_not eq(429)
 
-      post '/v0/limited', {}, 'REMOTE_ADDR' => '1.2.3.4'
+      post '/v0/limited', headers: { 'REMOTE_ADDR' => '1.2.3.4' }
       expect(last_response.status).to eq(429)
       expect(last_response.headers).to include(
         'X-RateLimit-Limit',
@@ -29,11 +29,11 @@ RSpec.describe Rack::Attack do
 
     before do
       limit.times do
-        post endpoint, {}, headers
+        post endpoint, headers: headers
         expect(last_response.status).to_not eq(429)
       end
 
-      post endpoint, {}, headers
+      post endpoint, headers: headers
     end
 
     context 'profile photo upload' do

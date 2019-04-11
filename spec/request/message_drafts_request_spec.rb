@@ -24,7 +24,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'Basic User' do
     let(:mhv_account_type) { 'Basic' }
-    before(:each) { post '/v0/messaging/health/message_drafts', params }
+    before(:each) { post '/v0/messaging/health/message_drafts', params: params }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -32,7 +32,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
   context 'Advanced User' do
     let(:mhv_account_type) { 'Advanced' }
-    before(:each) { post '/v0/messaging/health/message_drafts', params }
+    before(:each) { post '/v0/messaging/health/message_drafts', params: params }
 
     include_examples 'for user account level', message: 'You do not have access to messaging'
     include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -42,7 +42,7 @@ RSpec.describe 'Messages Integration', type: :request do
     let(:mhv_account_type) { 'Premium' }
 
     context 'not a va patient' do
-      before(:each) { post '/v0/messaging/health/message_drafts', params }
+      before(:each) { post '/v0/messaging/health/message_drafts', params: params }
       let(:va_patient) { false }
 
       include_examples 'for non va patient user', authorized: false, message: 'You do not have access to messaging'
@@ -53,7 +53,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft') do
-          post '/v0/messaging/health/message_drafts', params
+          post '/v0/messaging/health/message_drafts', params: params
         end
 
         expect(response).to be_success
@@ -67,7 +67,7 @@ RSpec.describe 'Messages Integration', type: :request do
           params[:subject] = 'Updated Subject'
           params[:id] = created_draft_id
 
-          put "/v0/messaging/health/message_drafts/#{created_draft_id}", params
+          put "/v0/messaging/health/message_drafts/#{created_draft_id}", params: params
         end
 
         expect(response).to be_success
@@ -80,7 +80,7 @@ RSpec.describe 'Messages Integration', type: :request do
 
       it 'responds to POST #create' do
         VCR.use_cassette('sm_client/message_drafts/creates_a_draft_reply') do
-          post "/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params
+          post "/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params: params
         end
 
         expect(response).to be_success
@@ -93,7 +93,7 @@ RSpec.describe 'Messages Integration', type: :request do
         VCR.use_cassette('sm_client/message_drafts/updates_a_draft_reply') do
           params[:body] = 'Updated Body'
           params[:id] = created_draft_reply_id
-          put "/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}", params
+          put "/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}", params: params
         end
 
         expect(response).to be_success

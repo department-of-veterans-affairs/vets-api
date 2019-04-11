@@ -115,7 +115,7 @@ module SAML
       logout_request = OneLogin::RubySaml::Logoutrequest.new
       # cache the request for session.token lookup when we receive the response
       SingleLogoutRequest.create(uuid: logout_request.uuid, token: session.token)
-      Rails.logger.info "New SP SLO for userid '#{session.uuid}'"
+      Rails.logger.info "New SP SLO having logout_request '#{logout_request.uuid}' for userid '#{session.uuid}'"
       logout_request.create(url_settings, RelayState: relay_state_params)
     end
 
