@@ -38,7 +38,11 @@ module ClaimsApi
       end
 
       def target_veteran
-        ClaimsApi::Veteran.from_headers(request.headers)
+        if use_headers?
+          ClaimsApi::Veteran.from_headers(request.headers)
+        else
+          ClaimsApi::Veteran.from_identity(identity: @current_user)
+        end
       end
 
       def verify_power_of_attorney
@@ -46,6 +50,12 @@ module ClaimsApi
           verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
           verifier.verify(header('X-Consumer-PoA'))
         end
+      end
+
+      def use_headers?
+        # if any of the required headers are present we should attempt to use headers
+        headers_if_vso_officer_requesting = ['X-VA-SSN', 'X-VA-Consumer-Username', 'X-VA-Birth-Date']
+        (request.headers.to_h.keys & headers_if_vso_officer_requesting).length.positive?
       end
     end
   end
