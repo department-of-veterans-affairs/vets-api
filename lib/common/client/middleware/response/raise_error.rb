@@ -26,14 +26,18 @@ module Common
 
           def raise_error!
             if status&.between?(400, 599)
-              raise Common::Exceptions::BackendServiceException.new(service_i18n_key, response_values, @status, @body)
+              raise Common::Exceptions::BackendServiceException.new(service_i18n_key, response_values, status, body)
             else
-              raise BackendUnhandledException, "Unhandled Exception - status: #{@status}, body: #{@body}"
+              raise BackendUnhandledException, "Unhandled Exception - status: #{status}, body: #{body}"
             end
           end
 
           def service_i18n_key
-            "#{error_prefix.upcase}#{body['code']}"
+            if body['code']
+              "#{error_prefix.upcase}#{body['code']}"
+            else
+              "#{error_prefix.upcase}_#{status}"
+            end
           end
 
           def response_values

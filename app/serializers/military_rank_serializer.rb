@@ -3,7 +3,6 @@
 class MilitaryRankSerializer < ActiveModel::Serializer
   attribute :id
   attribute :branch_of_service_cd
-  attribute :officer_ind
   attribute :activated_one_date
   attribute :activated_two_date
   attribute :activated_three_date

@@ -7,9 +7,7 @@ info:
 
     ## Background
 
-    This API is provided as a proof of concept for a general-purpose VA
-    API that allows Veterans to provide authorization to a third-party to access
-    information on their behalf. The use-case of this API is to allow third-parties
+    The use-case of this API is to allow third-parties
     to request confirmation from the VA of an individual's Veteran status after
     receiving authorization to do so using an Open ID Connect flow.
 
