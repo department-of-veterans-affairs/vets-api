@@ -17,7 +17,8 @@ describe HCA::EnrollmentEligibility::Service do
             application_date: '2018-01-24T00:00:00.000-06:00',
             enrollment_date: nil,
             preferred_facility: '987 - CHEY6',
-            ineligibility_reason: 'for testing'
+            ineligibility_reason: 'for testing',
+            effective_date: '2019-01-25T09:04:04.000-06:00'
           )
         end
       end
@@ -35,7 +36,8 @@ describe HCA::EnrollmentEligibility::Service do
           application_date: '2018-12-27T00:00:00.000-06:00',
           enrollment_date: '2018-12-27T17:15:39.000-06:00',
           preferred_facility: '988 - DAYT20',
-          ineligibility_reason: nil
+          ineligibility_reason: nil,
+          effective_date: '2019-01-02T21:58:55.000-06:00'
         )
       end
     end
