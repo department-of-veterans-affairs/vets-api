@@ -55,7 +55,7 @@ module ClaimsApi
       def use_headers?
         # if any of the required headers are present we should attempt to use headers
         headers_if_vso_officer_requesting = ['X-VA-SSN', 'X-VA-Consumer-Username', 'X-VA-Birth-Date']
-        (request.headers.keys & headers_if_vso_officer_requesting).length.positive?
+        (request.headers.to_h.keys & headers_if_vso_officer_requesting).length.positive?
       end
     end
   end
