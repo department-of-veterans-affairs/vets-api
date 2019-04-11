@@ -42,4 +42,12 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
       expect(veteran.edipi).to be(nil)
     end
   end
+
+  describe 'setting target veteran by oauth' do
+    it 'should instantiate from the oauth user' do
+      identity = FactoryBot.create(:user_identity)
+      veteran = ClaimsApi::Veteran.from_identity(identity: identity)
+      expect(veteran.first_name).to eq(identity.first_name)
+    end
+  end
 end
