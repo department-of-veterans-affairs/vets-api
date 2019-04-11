@@ -52,45 +52,45 @@ PATH
   remote: modules/appeals_api
   specs:
     appeals_api (0.0.1)
-      rails (~> 5.0.7.1)
+      rails (~> 5.0.7.2)
 
 PATH
   remote: modules/claims_api
   specs:
     claims_api (0.0.1)
-      rails (~> 5.0.7.1)
+      rails (~> 5.0.7.2)
 
 PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
-      rails (~> 5.0.7.1)
+      rails (~> 5.0.7.2)
 
 PATH
   remote: modules/va_facilities
   specs:
     va_facilities (0.0.1)
-      rails (~> 5.0.7.1)
+      rails (~> 5.0.7.2)
 
 PATH
   remote: modules/vba_documents
   specs:
     vba_documents (0.0.1)
       aws-sdk-s3 (~> 1)
-      rails (~> 5.0.7.1)
+      rails (~> 5.0.7.2)
       sidekiq
 
 PATH
   remote: modules/veteran_verification
   specs:
     veteran_verification (0.0.1)
-      rails (~> 5.0.7.1)
+      rails (~> 5.0.7.2)
 
 PATH
   remote: modules/veteran
   specs:
     veteran (0.0.1)
-      rails (~> 4.2.11.1)
+      rails (~> 5.0.7.2)
 
 GEM
   remote: https://rubygems.org/
