@@ -5,6 +5,7 @@ module HCA
   module EnrollmentEligibility
     module StatusMatcher
       module_function
+
       include ParsedStatuses
 
       CATEGORIES = [

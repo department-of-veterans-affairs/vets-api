@@ -123,7 +123,7 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         it 'should return the enrollment status data' do
           allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
 
-          VCR.use_cassette('hca/ee/lookup_user', { erb: true }) do
+          VCR.use_cassette('hca/ee/lookup_user', erb: true) do
             get(enrollment_status_v0_health_care_applications_path)
 
             expect(response.body).to eq(success_response.to_json)
