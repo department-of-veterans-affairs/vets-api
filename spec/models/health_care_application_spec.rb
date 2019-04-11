@@ -14,13 +14,15 @@ RSpec.describe HealthCareApplication, type: :model do
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        ineligibility_reason: 'OTH'
+        ineligibility_reason: 'OTH',
+        effective_date: '2018-01-24T00:00:00.000-09:00'
       )
       expect(described_class.enrollment_status('123', true)).to eq(
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
         parsed_status: :inelig_character_of_discharge
+        effective_date: '2018-01-24T00:00:00.000-09:00'
       )
     end
   end
@@ -32,7 +34,8 @@ RSpec.describe HealthCareApplication, type: :model do
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        ineligibility_reason: 'OTH'
+        ineligibility_reason: 'OTH',
+        effective_date: '2018-01-24T00:00:00.000-09:00'
       }
     end
 
@@ -43,6 +46,7 @@ RSpec.describe HealthCareApplication, type: :model do
           enrollment_date: nil,
           preferred_facility: '987 - CHEY6',
           parsed_status: :inelig_character_of_discharge
+          effective_date: '2018-01-24T00:00:00.000-09:00'
         )
       end
     end

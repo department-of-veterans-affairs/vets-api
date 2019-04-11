@@ -75,7 +75,8 @@ class HealthCareApplication < ApplicationRecord
       ee_data.slice(
         :application_date,
         :enrollment_date,
-        :preferred_facility
+        :preferred_facility,
+        :effective_date
       ).merge(parsed_status: parsed_status)
     else
       {

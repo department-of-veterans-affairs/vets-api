@@ -93,15 +93,40 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
         end
       end
 
-      it 'should return the enrollment status data' do
-        expect(HealthCareApplication).to receive(:enrollment_status).with(
-          current_user.icn, true
-        ).and_return(success_response)
+      context 'with user passed attributes' do
+        it 'should return the enrollment status data' do
+          expect(HealthCareApplication).to receive(:enrollment_status).with(
+            current_user.icn, true
+          ).and_return(success_response)
 
-        get(enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form })
+          get(enrollment_status_v0_health_care_applications_path,
+              params: { userAttributes: build(:health_care_application).parsed_form })
 
-        expect(response.body).to eq(success_response.to_json)
+          expect(response.body).to eq(success_response.to_json)
+        end
+      end
+
+      context 'without user passed attributes' do
+        let(:enrolled) { HCA::EnrollmentEligibility::ParsedStatuses::ENROLLED }
+        let(:success_response) do
+          {
+            application_date:   '2018-12-27T00:00:00.000-06:00',
+            enrollment_date:    '2018-12-27T17:15:39.000-06:00',
+            preferred_facility: '988 - DAYT20',
+            effective_date:     '2019-01-02T21:58:55.000-06:00',
+            parsed_status:      enrolled
+          }
+        end
+
+        it 'should return the enrollment status data' do
+          allow_any_instance_of(User).to receive(:icn).and_return('1013032368V065534')
+
+          VCR.use_cassette('hca/ee/lookup_user', { erb: true }) do
+            get(enrollment_status_v0_health_care_applications_path)
+
+            expect(response.body).to eq(success_response.to_json)
+          end
+        end
       end
     end
   end
