@@ -7,7 +7,6 @@ module ClaimsApi
   module V1
     class ClaimsController < ApplicationController
       before_action { permit_scopes %w[claim.read] }
-      before_action :verify_power_of_attorney
 
       def index
         claims = service.all
@@ -38,7 +37,8 @@ module ClaimsApi
       end
 
       def target_veteran
-        if use_headers?
+        if use_headers_for_veteran_info?
+          verify_power_of_attorney if @current_user.present?
           ClaimsApi::Veteran.from_headers(request.headers)
         else
           ClaimsApi::Veteran.from_identity(identity: @current_user)
@@ -46,17 +46,14 @@ module ClaimsApi
       end
 
       def verify_power_of_attorney
-        if header('X-Consumer-PoA').present?
-          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
-          verifier.verify(header('X-Consumer-PoA'))
-        end
+        verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+        verifier.verify(@current_user)
       end
 
-      def use_headers?
+      def use_headers_for_veteran_info?
         # if any of the required headers are present we should attempt to use headers
-        request.headers['X-VA-SSN'].present? ||
-          request.headers['X-VA-Consumer-Username'].present? ||
-          request.headers['X-VA-Birth-Date'].present?
+        headers_if_vso_officer_requesting = ['X-VA-SSN', 'X-VA-Consumer-Username', 'X-VA-Birth-Date']
+        (request.headers.to_h.keys & headers_if_vso_officer_requesting).length.positive?
       end
     end
   end
