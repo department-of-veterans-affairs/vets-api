@@ -188,6 +188,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe 'POST saml_logout_callback' do
+      let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
       context 'saml_logout_response is invalid' do
@@ -196,9 +197,41 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'redirects as success and logs the failure' do
-          expect(Rails.logger).to receive(:error).with(/bad thing/).exactly(1).times
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-' }))
+          msg = "SLO callback response invalid for originating_request_id 'blah'"
+          expect(Rails.logger).to receive(:info).with(msg)
+          expect(controller).to receive(:log_message_to_sentry)
+          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
             .to redirect_to(logout_redirect_url)
+        end
+      end
+
+      context 'saml_logout_response is valid but saml_logout_request is not found' do
+        context 'saml_logout_response is success' do
+          before do
+            mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
+            allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+            allow(SingleLogoutRequest).to receive(:find).with('1234').and_return(nil)
+            allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
+            Session.find(token).to_hash.each { |k, v| session[k] = v }
+          end
+
+          it 'redirects to success and destroys nothing' do
+            # these should have been destroyed in the initial call to sessions/logout, not in the callback.
+            verify_session_cookie
+            expect(User.find(uuid)).to_not be_nil
+            # this will be destroyed
+            expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
+
+            msg = "SLO callback response could not resolve logout request for originating_request_id 'blah'"
+            expect(Rails.logger).to receive(:info).with(msg)
+            expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
+              .to redirect_to(logout_redirect_url)
+            # these should have been destroyed in the initial call to sessions/logout, not in the callback.
+            verify_session_cookie
+            expect(User.find(uuid)).to_not be_nil
+            # this should be destroyed
+            expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
+          end
         end
       end
 
@@ -206,6 +239,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before do
           mhv_account = double('mhv_account', ineligible?: false, needs_terms_acceptance?: false, upgraded?: true)
           allow(MhvAccount).to receive(:find_or_initialize_by).and_return(mhv_account)
+          allow(SingleLogoutRequest).to receive(:find).with('1234').and_call_original
           allow(OneLogin::RubySaml::Logoutresponse).to receive(:new).and_return(successful_logout_response)
           Session.find(token).to_hash.each { |k, v| session[k] = v }
         end
@@ -216,7 +250,11 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(User.find(uuid)).to_not be_nil
           # this will be destroyed
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-' }))
+
+          msg = "SLO callback response to '1234' for originating_request_id 'blah'"
+          expect(Rails.logger).to receive(:info).with(msg)
+          expect(controller).not_to receive(:log_message_to_sentry)
+          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
