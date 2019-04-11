@@ -3,6 +3,7 @@
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
+  include HCA::EnrollmentEligibility::ParsedStatuses
 
   FORM_ID = '10-10EZ'
 
@@ -81,7 +82,7 @@ class HealthCareApplication < ApplicationRecord
     else
       {
         parsed_status:
-          ee_data[:enrollment_status].present? ? :login_required : :none_of_the_above
+          ee_data[:enrollment_status].present? ? LOGIN_REQUIRED : NONE
       }
     end
   end

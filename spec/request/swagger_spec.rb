@@ -218,6 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
+      let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
@@ -228,7 +229,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           '123', nil
-        ).and_return(parsed_status: :login_required)
+        ).and_return(parsed_status: login_required)
 
         expect(subject).to validate(
           :get,

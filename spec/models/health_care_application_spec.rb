@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
+  let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::ParsedStatuses::INELIG_CHARACTER_OF_DISCHARGE }
+  let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
 
   describe '.enrollment_status' do
     it 'should return parsed enrollment status' do
@@ -21,7 +23,7 @@ RSpec.describe HealthCareApplication, type: :model do
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        parsed_status: :inelig_character_of_discharge
+        parsed_status: inelig_character_of_discharge,
         effective_date: '2018-01-24T00:00:00.000-09:00'
       )
     end
@@ -45,7 +47,7 @@ RSpec.describe HealthCareApplication, type: :model do
           application_date: '2018-01-24T00:00:00.000-06:00',
           enrollment_date: nil,
           preferred_facility: '987 - CHEY6',
-          parsed_status: :inelig_character_of_discharge
+          parsed_status: inelig_character_of_discharge,
           effective_date: '2018-01-24T00:00:00.000-09:00'
         )
       end
@@ -54,7 +56,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'with a loa1 user' do
       it 'should return partial ee data' do
         expect(described_class.parsed_ee_data(ee_data, false)).to eq(
-          parsed_status: :login_required
+          parsed_status: login_required
         )
       end
     end

@@ -31,14 +31,16 @@ RSpec.describe 'Health Care Application Integration', type: %i[request serialize
   end
 
   describe 'GET enrollment_status' do
+    let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::ParsedStatuses::INELIG_CHARACTER_OF_DISCHARGE }
+    let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
     let(:success_response) do
       { application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        parsed_status: :inelig_character_of_discharge }
+        parsed_status: inelig_character_of_discharge }
     end
     let(:loa1_response) do
-      { parsed_status: :login_required }
+      { parsed_status: login_required }
     end
 
     context 'with user attributes' do
