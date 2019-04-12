@@ -4,7 +4,7 @@ require 'rails_helper'
 
 describe HCA::EnrollmentEligibility::StatusMatcher do
   describe '#parse' do
-    STATUS = 'HCA::EnrollmentEligibility::ParsedStatuses'.constantize
+    STATUS = HCA::EnrollmentEligibility::ParsedStatuses
 
     subject do
       described_class.parse(enrollment_status, ineligibility_reason)
