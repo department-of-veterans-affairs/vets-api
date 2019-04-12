@@ -528,10 +528,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       it 'supports updating payment information' do
-        expect(subject).to validate(:post, '/v0/ppiu/payment_information', 401)
+        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
         VCR.use_cassette('evss/ppiu/update_payment_information') do
           expect(subject).to validate(
-            :post,
+            :put,
             '/v0/ppiu/payment_information',
             200,
             headers.update(

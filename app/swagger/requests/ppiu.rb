@@ -23,7 +23,7 @@ module Swagger
           end
         end
 
-        operation :post do
+        operation :put do
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Update a veterans payment information'
