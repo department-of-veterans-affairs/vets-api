@@ -46,6 +46,8 @@ module EVSS
       end
 
       def request_body(pay_info)
+        pay_info.delete('financial_institution_name') if pay_info['financial_institution_name'].blank?
+
         {
           'requests' => [
             {

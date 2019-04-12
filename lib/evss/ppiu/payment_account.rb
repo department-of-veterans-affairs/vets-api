@@ -17,8 +17,7 @@ module EVSS
       attribute :account_number, String
       attribute :financial_institution_routing_number, String
 
-      validates :account_type, presence: true
-      validates :financial_institution_name, presence: true
+      validates :account_type, inclusion: { in: %w[Checking Savings] }, presence: true
       validates :account_number, presence: true
       validates :financial_institution_routing_number, presence: true
 
