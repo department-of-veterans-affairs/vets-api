@@ -23,9 +23,9 @@
                         "financial_institution_routing_number": "*****0021"
                     },
                     "payment_address": {
-                        "type": null,
-                        "address_effective_date": null,
-                        "address_one": null,
+                        "type": "Domestic",
+                        "address_effective_date": "2018-06-07T22:47:21.873+00:00",
+                        "address_one": "string",
                         "address_two": null,
                         "address_three": null,
                         "city": null,
