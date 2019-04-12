@@ -40,6 +40,12 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'for a single claim' do
+    before do
+      verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+      allow(verifier_stub).to receive(:verify)
+    end
+
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
@@ -74,7 +80,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
           allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
-          headers['X-Consumer-PoA'] = 'A1Q'
           get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers
           expect(response.status).to eq(200)
         end
