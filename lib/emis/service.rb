@@ -79,6 +79,13 @@ module EMIS
       # :nocov:
     end
 
+    # Creates a SOAP request body that includes user identifiers to send to the EMIS API
+    #
+    # @param edipi [String] User's Electronic Data Interchange Personal Identifier
+    # @param icn [String] User's Integration Control Number
+    # @param request_name [String] Request name used in XML request body
+    #
+    # @return [EMIS::Messages::EdipiOrIcnMessage] SOAP request message
     def create_edipi_or_icn_message(edipi:, icn:, request_name:)
       EMIS::Messages::EdipiOrIcnMessage.new(
         edipi: edipi,
