@@ -27,7 +27,7 @@ module Swagger
           extend Swagger::Responses::AuthenticationError
 
           key :description, 'Update a veterans payment information'
-          key :operationId, 'postPaymentInformation'
+          key :operationId, 'putPaymentInformation'
           key :tags, %w[form_526]
 
           parameter :authorization
