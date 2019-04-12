@@ -12,6 +12,10 @@ module Veteran
 
       validates_presence_of :poa
 
+      def self.for_user(user)
+        find_by(first_name: user.first_name, last_name: user.last_name)
+      end
+
       def self.reload!
         array_of_hashes = fetch_data('orgsexcellist.asp')
         array_of_hashes.each do |hash|
