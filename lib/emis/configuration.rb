@@ -3,12 +3,20 @@
 require 'common/client/configuration/soap'
 
 module EMIS
+  # Configuration for {EMIS::Service}
+  # includes SSL options and the configured Faraday object
+  #
   class Configuration < Common::Client::Configuration::SOAP
     # :nocov:
+
+    # EMIS SSL certificate path
+    # @return [String] EMIS SSL certificate path
     def self.ssl_cert_path
       Settings.emis.client_cert_path
     end
 
+    # EMIS SSL key path
+    # @return [String] EMIS SSL key path
     def self.ssl_key_path
       Settings.emis.client_key_path
     end
