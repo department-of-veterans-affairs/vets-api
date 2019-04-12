@@ -80,7 +80,11 @@ http_interactions:
               "financialInstitutionName" : "Bank of EVSS",
               "financialInstitutionRoutingNumber" : "021000021"
             },
-            "paymentAddress" : {},
+            "paymentAddress" : {
+              "address_effective_date": "2018-06-07T22:47:21.873Z",
+              "address_one": "string",
+              "type": "Domestic"
+            },
             "paymentType" : "CNP"
           } ]
         }
