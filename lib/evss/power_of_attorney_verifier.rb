@@ -8,7 +8,7 @@ module EVSS
     end
 
     def verify(user)
-      representitive = Veteran::Service::Representative.find_match(user)
+      representitive = Veteran::Service::Representative.for_user(user)
       if representitive.present?
         veteran_poa_code = @veteran.power_of_attorney.try(:code)
         unless veteran_poa_code == representitive.poa
