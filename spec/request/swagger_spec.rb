@@ -526,6 +526,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, headers)
         end
       end
+
+      it 'supports updating payment information' do
+        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
+        VCR.use_cassette('evss/ppiu/update_payment_information') do
+          expect(subject).to validate(
+            :put,
+            '/v0/ppiu/payment_information',
+            200,
+            headers.update(
+              '_data' => {
+                'account_type' => 'Checking',
+                'financial_institution_name' => 'Bank of Amazing',
+                'account_number' => '1234567890',
+                'financial_institution_routing_number' => '123456789'
+              }
+            )
+          )
+        end
+      end
     end
 
     describe 'supporting evidence upload' do

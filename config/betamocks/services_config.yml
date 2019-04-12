@@ -170,6 +170,9 @@
   - :method: :get
     :path: "/wss-ppiu-services-web/rest/ppiuServices/v1/paymentInformation"
     :file_path: "evss/ppiu/payment_information"
+  - :method: :post
+    :path: "/wss-ppiu-services-web/rest/ppiuServices/v1/paymentInformation"
+    :file_path: "evss/ppiu/update_payment_information"
 
   # Intent To File
   - :method: :get
