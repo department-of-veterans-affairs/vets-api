@@ -13,6 +13,15 @@ describe EVSS::PPIU::PaymentAccount do
       end
     end
 
+    context 'with missing `financial_institution_name attr`' do
+      let(:payment_account) { build(:ppiu_payment_account, financial_institution_name: nil) }
+
+      it 'builds a payment account' do
+        account = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
+        expect(account.valid?).to be_truthy
+      end
+    end
+
     context 'with a missing payment account attr' do
       let(:payment_account) { build(:ppiu_payment_account, account_number: nil) }
 
@@ -33,6 +42,18 @@ describe EVSS::PPIU::PaymentAccount do
         expect(address.valid?).to be_falsey
         expect(address.errors.messages).to eq(
           account_number: ['is invalid']
+        )
+      end
+    end
+
+    context 'with an invalid account type attr' do
+      let(:payment_account) { build(:ppiu_payment_account, account_type: 'Double Savings') }
+
+      it 'reports as invalid and has errors' do
+        address = EVSS::PPIU::PaymentAccount.new(payment_account.as_json)
+        expect(address.valid?).to be_falsey
+        expect(address.errors.messages).to eq(
+          account_type: ['is not included in the list']
         )
       end
     end
