@@ -89,6 +89,7 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
 
     get 'ppiu/payment_information', to: 'ppiu#index'
+    post 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
