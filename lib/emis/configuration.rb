@@ -22,6 +22,8 @@ module EMIS
     end
     # :nocov:
 
+    # Faraday SSL options
+    # @return [Hash] Faraday SSL options
     def ssl_options
       if ssl_cert && ssl_key
         {
@@ -31,6 +33,8 @@ module EMIS
       end
     end
 
+    # Faraday connection object configured to handle SOAP requests
+    # @return [Faraday::Connection] Faraday connection object
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options, ssl: ssl_options) do |conn|
         conn.use :breakers
