@@ -19,15 +19,15 @@ end
 
 namespace :evss do
   desc 'print GIBS not found users in CSV format for last n days with a limit, usage: rake evss:gibs_not_found[7,100]'
-  task :gibs_not_found, [:days, :limit] => [:environment] do |_, args|
+  task :gibs_not_found, %i[days limit] => [:environment] do |_, args|
     args.with_defaults(days: 7, limit: 100)
     result = PersonalInformationLog
-               .where('created_at >= ?', args[:days].to_i.day.ago)
-               .where(error_class: 'EVSS::GiBillStatus::NotFound')
-               .limit(args[:limit].to_i)
-    puts result.first.data.keys.push('created_at').join(",")
+             .where('created_at >= ?', args[:days].to_i.day.ago)
+             .where(error_class: 'EVSS::GiBillStatus::NotFound')
+             .limit(args[:limit].to_i)
+    puts result.first.data.keys.push('created_at').join(',')
     result.each do |r|
-      puts r.data.values.push(r.created_at).join(",")
+      puts r.data.values.push(r.created_at).join(',')
     end
   end
 
