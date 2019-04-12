@@ -8,10 +8,18 @@ require 'common/client/middleware/request/soap_headers'
 require 'common/client/middleware/response/soap_parser'
 
 module EMIS
+  # HTTP Client for EMIS requests.
+  # Requests and responses are SOAP format.
   class Service < Common::Client::Base
+    # Prefix string for StatsD monitoring
     STATSD_KEY_PREFIX = 'api.emis'
     include Common::Client::Concerns::LogAsWarningHelpers
 
+    # Create methods for each endpoint in EMIS API.
+    #
+    # @param endpoints [Array<String, Symbol, Array<String, Symbol>>] An array of endpoints,
+    #  either a string or symbol if the method name and endpoint path (converted to camelcase)
+    #  are the same or an Array containing the method name and endpoint path.
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
         operation = nil
@@ -37,6 +45,15 @@ module EMIS
 
     protected
 
+    # Helper for sending requests to the EMIS API
+    #
+    # @param edipi [String] User's Electronic Data Interchange Personal Identifier
+    # @param icn [String] User's Integration Control Number
+    # @param response_type [EMIS::Responses] EMIS Response class
+    # @param operation [String] API path endpoint
+    # @param request_name [String] Request name used in XML request body
+    #
+    # @return [EMIS::Responses] Whatever +response_type+ was passed in will be returned
     def make_request(edipi: nil, icn: nil, response_type:, operation:, request_name:)
       message = create_edipi_or_icn_message(
         edipi: edipi,
