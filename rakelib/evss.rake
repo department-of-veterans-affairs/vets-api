@@ -25,7 +25,7 @@ namespace :evss do
              .where('created_at >= ?', args[:days].to_i.day.ago)
              .where(error_class: 'EVSS::GiBillStatus::NotFound')
              .limit(args[:limit].to_i)
-    
+
     result.each_with_index do |r, i|
       user = JSON.parse(r.data['user'])
       puts user.keys.push('created_at').join(',') if i.zero?
