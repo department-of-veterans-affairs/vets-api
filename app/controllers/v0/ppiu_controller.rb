@@ -10,6 +10,19 @@ module V0
              serializer: PPIUSerializer
     end
 
+    def update
+      pay_info = EVSS::PPIU::PaymentAccount.new(
+        params.permit(
+          :account_type, :financial_institution_name,
+          :account_number, :financial_institution_routing_number
+        )
+      )
+      raise Common::Exceptions::ValidationErrors, pay_info unless pay_info.valid?
+      response = service.update_payment_information(pay_info)
+      render json: response,
+             serializer: PPIUSerializer
+    end
+
     private
 
     def service
