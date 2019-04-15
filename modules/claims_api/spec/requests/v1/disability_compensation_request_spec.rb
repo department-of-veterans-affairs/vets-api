@@ -20,7 +20,7 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'should return a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
-        post '/services/claims/v1/forms/526', params: JSON.parse(data), headers: headers.merge(auth_header)
+        post '/services/claims/v1/forms/526', params: data, headers: headers.merge(auth_header)
         parsed = JSON.parse(response.body)
         expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
         expect(parsed['data']['attributes']['status']).to eq('pending')
@@ -30,7 +30,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'should create the sidekick job' do
       with_okta_user(scopes) do |auth_header|
         expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-        post '/services/claims/v1/forms/526', params: JSON.parse(data), headers: headers.merge(auth_header)
+        post '/services/claims/v1/forms/526', params: data, headers: headers.merge(auth_header)
       end
     end
 
