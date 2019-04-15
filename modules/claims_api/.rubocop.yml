@@ -12,4 +12,4 @@ AllCops:
 Metrics/BlockLength:
   Exclude:
     - spec/**/*.rb
-    - swagger/**/*.rb
+    - app/swagger/**/*.rb

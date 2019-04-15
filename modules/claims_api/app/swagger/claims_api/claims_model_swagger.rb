@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ClaimsModelSwagger < EVSSClaimDetailSerializer
+  class ClaimsModelSwagger
     include Swagger::Blocks
 
     swagger_schema :Claims do
@@ -113,4 +113,4 @@ module ClaimsApi
       end
     end
   end
-  end
+end
