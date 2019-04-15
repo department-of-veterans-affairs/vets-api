@@ -5,6 +5,21 @@ module ClaimsApi
     include ActiveModel::Validations
     include ActiveModel::Conversion
     extend ActiveModel::Naming
+    include Swagger::Blocks
+
+    swagger_schema :Form526 do
+      key :required, [:id, :name]
+      property :id do
+        key :type, :integer
+        key :format, :int64
+      end
+      property :name do
+        key :type, :string
+      end
+      property :tag do
+        key :type, :string
+      end
+    end
 
     DATE_PATTERN = /^(\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
     ADDRESS_PATTERN = /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/

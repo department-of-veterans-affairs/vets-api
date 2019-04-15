@@ -23,7 +23,7 @@ ClaimsApi::Engine.routes.draw do
 
   namespace :docs do
     namespace :v0 do
-      get 'api', to: 'api#claims'
+      get 'api', to: 'api#index'
     end
 
     namespace :v1 do
