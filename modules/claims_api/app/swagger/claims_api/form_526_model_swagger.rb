@@ -217,9 +217,49 @@ module ClaimsApi
         end
 
         property :serviceInformation do
+          key :required, [:servicePeriods]
           key :type, :object
           key :description, ''
-          key :required, []
+
+          property :servicePeriods do
+            key :type, :array
+            key :description, ''
+            items do
+              key :type, :object
+              property :serviceBranch do
+                key :type, :string
+                key :example, 'Air Force'
+                key :description, 'Branch of Service during period'
+                key :enum, [
+                    "Air Force",
+                    "Air Force Reserve",
+                    "Army",
+                    "Army Reserve",
+                    "Coast Guard",
+                    "Coast Guard Reserve",
+                    "Marine Corps",
+                    "Marine Corps Reserve",
+                    "Navy",
+                    "Navy Reserve",
+                    "NOAA"
+                  ]
+              end
+
+              property :activeDutyBeginDate do
+                key :type, :string
+                key :format, :date
+                key :example, '1980-02-05'
+                key :description, 'Date Started Active Duty'
+              end
+
+              property :activeDutyEndDate do
+                key :type, :string
+                key :format, :date
+                key :example, '1990-01-02'
+                key :description, 'Date Completed Active Duty'
+              end
+            end
+          end
         end
 
         property :disabilities do
