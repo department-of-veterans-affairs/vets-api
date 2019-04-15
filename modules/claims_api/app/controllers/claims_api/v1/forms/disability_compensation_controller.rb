@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/application_controller'
+require 'claims_api/form_schemas'
 require 'jsonapi/parser'
 
 module ClaimsApi
@@ -21,8 +22,8 @@ module ClaimsApi
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue RuntimeError => e
-          render json: { errors: e.message }, status: 422
+        rescue Exception => e
+          render json: e.message, status: 422
         end
 
         def upload_supporting_documents
@@ -44,7 +45,9 @@ module ClaimsApi
         end
 
         def form_attributes
-          params[:data][:attributes]
+          attrs = JSON.parse(request.body.string)['data']['attributes']
+          ClaimsApi::FormSchemas.validate!('526', attrs)
+          attrs
         end
 
         def documents

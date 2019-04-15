@@ -31,10 +31,19 @@ module ClaimsApi
       end
     end
 
-    def self.validate(form, payload)
+    def self.register_validators
       JSON::Validator.register_format_validator('date-pattern', date_validator)
       JSON::Validator.register_format_validator('address-line-pattern', address_line_validator)
+    end
+
+    def self.validate(form, payload)
+      register_validators
       JSON::Validator.fully_validate(SCHEMAS[form], payload)
+    end
+
+    def self.validate!(form, payload)
+      register_validators
+      JSON::Validator.validate!(SCHEMAS[form], payload)
     end
 
     def self.to_params_permit; end
