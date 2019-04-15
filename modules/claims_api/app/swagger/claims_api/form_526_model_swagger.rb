@@ -231,18 +231,18 @@ module ClaimsApi
                 key :example, 'Air Force'
                 key :description, 'Branch of Service during period'
                 key :enum, [
-                    "Air Force",
-                    "Air Force Reserve",
-                    "Army",
-                    "Army Reserve",
-                    "Coast Guard",
-                    "Coast Guard Reserve",
-                    "Marine Corps",
-                    "Marine Corps Reserve",
-                    "Navy",
-                    "Navy Reserve",
-                    "NOAA"
-                  ]
+                  'Air Force',
+                  'Air Force Reserve',
+                  'Army',
+                  'Army Reserve',
+                  'Coast Guard',
+                  'Coast Guard Reserve',
+                  'Marine Corps',
+                  'Marine Corps Reserve',
+                  'Navy',
+                  'Navy Reserve',
+                  'NOAA'
+                ]
               end
 
               property :activeDutyBeginDate do
