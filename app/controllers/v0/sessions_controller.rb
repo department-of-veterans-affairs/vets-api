@@ -27,21 +27,18 @@ module V0
     end
 
     def saml_logout_callback
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
+      saml_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
                                                                raw_get_params: params)
-      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
 
-      errors = build_logout_errors(logout_response, logout_request)
-      additional_logging_for_logout_request(logout_response, logout_request)
-
-      if errors.size.positive?
+      if saml_response.valid?
+        # do nothing
+      else
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
-    rescue => e
+    rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
-      logout_request&.destroy
       redirect_to url_service.logout_redirect_url
     end
 
@@ -56,14 +53,14 @@ module V0
           redirect_to url_service.login_redirect_url
           stats(:success)
         else
-          log_auth_too_late if @sso_service.auth_error_code == '002'
           redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
           stats(:failure)
         end
       else
+        # handle invalid saml response
       end
-    rescue NoMethodError => e
-      log_message_to_sentry('NoMethodError', :error, full_message: e.message)
+    rescue StandardError => e
+      log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
@@ -120,19 +117,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    # this method is intended to be temporary as we gather more information on the auth_too_late SAML error
-    def log_auth_too_late
-      session_object = Session.find(session[:token])
-      user = User.find(session_object&.uuid)
-
-      log_message_to_sentry('auth_too_late ',
-                            :warn,
-                            code: @sso_service.auth_error_code,
-                            errors: @sso_service.errors.messages,
-                            last_signed_in_if_logged_in: user&.last_signed_in,
-                            authn_context: user&.authn_context)
     end
 
     def build_logout_errors(logout_response, logout_request)
