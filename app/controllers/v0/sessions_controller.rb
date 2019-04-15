@@ -29,9 +29,10 @@ module V0
     end
 
     def saml_logout_callback
-      saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
+      @saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
+      Raven.extra_context(in_response_to: @saml_response.try(:in_response_to) || 'ERROR')
 
-      if saml_response.valid?
+      if @saml_response.valid?
         logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
         if logout_request.present?
           Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
@@ -41,9 +42,8 @@ module V0
             "'#{originating_request_id}'")
         end
       else
+        handle_error_reporting_and_instrumentation
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
-        extra_context = { in_response_to: logout_response&.in_response_to }
-        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
@@ -52,10 +52,10 @@ module V0
     end
 
     def saml_callback
-      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
-      
-      if saml_response.valid?
-        user_session_form = UserSessionForm.new(saml_response)
+      @saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+
+      if @saml_response.valid?
+        user_session_form = UserSessionForm.new(@saml_response)
         if user_session_form.valid?
           @current_user, @session_object = user_session_form.persist
           set_cookies
@@ -63,11 +63,14 @@ module V0
           redirect_to url_service.login_redirect_url
           stats(:success)
         else
-          redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-          stats(:failure)
+          handle_error_reporting_and_instrumentation
+          redirect_to url_service.login_redirect_url(auth: 'fail', code: @auth_error_code)
+          stats(:failure, @failure_instrumentation_tag)
         end
       else
-        # handle invalid saml response
+        handle_error_reporting_and_instrumentation
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: @auth_error_code)
+        stats(:failure, @failure_instrumentation_tag)
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
@@ -88,16 +91,16 @@ module V0
       end
     end
 
-    def stats(status)
+    def stats(status, failure_tag = nil)
       case status
       when :success
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{@sso_service.saml_response.authn_context}"])
+                         tags: ['status:success', "context:#{@saml_response.authn_context}"])
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{@sso_service.saml_response.authn_context}"])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+                         tags: ['status:failure', "context:#{@saml_response.authn_context}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown'])
@@ -129,16 +132,31 @@ module V0
       end
     end
 
-    def build_logout_errors(logout_response, logout_request)
-      errors = []
-      errors.concat(logout_response.errors) unless logout_response.validate(true)
-      errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
-      errors << 'Logout Request not found!' if logout_request.nil?
-      errors
+    def handle_error_reporting_and_instrumentation
+      message = @saml_response.is_a?(SAML::Responses::Login) ? 'Login Fail! ' : 'Logout Fail! '
+
+      if @saml_response.normalized_errors.present?
+        error_hash = @saml_response.normalized_errors.first
+        message += error_hash[:short_message]
+        message += ' Multiple SAML Errors' if @saml_response.normalized_errors.count > 1
+      else
+        error_hash = UserSessionForm::ERRORS[:validations_failed]
+        message += error_hash[:short_message]
+      end
+      @auth_error_code = error_hash[:code]
+      @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
+
+      log_message_to_sentry(message, error_hash[:level], {})
     end
 
     def originating_request_id
       JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+    rescue
+      'UNKNOWN'
+    end
+
+    def request_type
+      JSON.parse(params[:RelayState] || '{}')['type']
     rescue
       'UNKNOWN'
     end

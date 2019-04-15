@@ -496,7 +496,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
-          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Other SAML Response Error(s)',
               :error,
@@ -527,7 +527,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when saml response contains multiple errors (known or otherwise)' do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error) }
         it 'logs a generic error' do
-          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
@@ -561,7 +561,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::User).to receive(:new).and_return(saml_user) }
 
         it 'logs a generic user validation error', :aggregate_failures do
-          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:log_message_to_sentry)
             .with(
               'Login Fail! on User/Session Validation',
               :error,
