@@ -101,12 +101,8 @@ module Preneeds
 
     # @return [Array<String>] array of strings detailing schema validation failures. empty array if form is valid
     #
-    def validate
-      JSON::Validator.fully_validate(
-        VetsJsonSchema::SCHEMAS[FORM],
-        { 'application' => self&.as_json },
-        validate_schema: true
-      )
+    def self.validate(schema, form, root = 'application')
+      JSON::Validator.fully_validate(schema, { root => form&.as_json }, validate_schema: true)
     end
   end
 end
