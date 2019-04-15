@@ -9,7 +9,7 @@ module ClaimsApi
       info do
         key :version, '1.0.0'
         key :title, 'Benefits Claims'
-        key :description, "Veterans Benefits Administration (VBA) claims submission and status checking.\n ## Background\n Use this API to submit a Veteran's benefits claim, and to request the status of a Veteran's benefits claim.\n The Benefit Claim API passes data through to Electronic Veterans Self Service, EVSS. EVSS uses VAAFI to authenticate requests. Consumers of this API not using OAuth will need to pass the minimum VAAFI headers to this service to retrieve records."
+        key :description, File.read(File.root.join('modules/claims_api/app/swagger/claims_api', 'description.md'))
         key :termsOfService, 'https://developer.va.gov/terms-of-service'
         contact do
           key :name, 'VA API Benefits Team'

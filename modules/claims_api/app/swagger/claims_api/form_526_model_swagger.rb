@@ -5,7 +5,7 @@ module ClaimsApi
     include Swagger::Blocks
 
     swagger_schema :Form526 do
-      key :required, %i[type name]
+      key :required, %i[type attributes]
       key :description, '526 Claim Form submission with minimum required for auto establishment'
       property :type do
         key :type, :string
@@ -16,7 +16,8 @@ module ClaimsApi
       property :attributes do
         key :type, :object
         key :description, 'Required by JSON API standard'
-        key :required, %i[veteran serviceInformation disabilities claimantCertification standardClaim applicationExpirationDate]
+        req = %i[veteran serviceInformation disabilities claimantCertification standardClaim applicationExpirationDate]
+        key :required, req
 
         property :veteran do
           key :type, :object
