@@ -2,6 +2,8 @@
 
 require 'base64'
 require 'saml/url_service'
+require 'saml/responses/login'
+require 'saml/responses/logout'
 
 module V0
   class SessionsController < ApplicationController
@@ -27,12 +29,19 @@ module V0
     end
 
     def saml_logout_callback
-      saml_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
-                                                               raw_get_params: params)
+      saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
 
       if saml_response.valid?
-        # do nothing
+        logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+        if logout_request.present?
+          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
+            "'#{originating_request_id}'")
+        else
+          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+            "'#{originating_request_id}'")
+        end
       else
+        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
         extra_context = { in_response_to: logout_response&.in_response_to }
         log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
       end
@@ -43,7 +52,8 @@ module V0
     end
 
     def saml_callback
-      saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
+      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+      
       if saml_response.valid?
         user_session_form = UserSessionForm.new(saml_response)
         if user_session_form.valid?
@@ -125,21 +135,6 @@ module V0
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
       errors
-    end
-
-    # temporarily logging for discovery
-    def additional_logging_for_logout_request(logout_response, logout_request)
-      if logout_response.errors.empty?
-        if logout_request.present?
-          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
-            "'#{originating_request_id}'")
-        else
-          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
-            "'#{originating_request_id}'")
-        end
-      else
-        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
-      end
     end
 
     def originating_request_id

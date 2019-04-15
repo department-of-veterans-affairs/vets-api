@@ -58,7 +58,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   before(:each) do
     request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
-    allow(SAML::Response).to receive(:new).and_return(valid_saml_response)
+    allow(SAML::Responses::Login).to receive(:new).and_return(valid_saml_response)
     Redis.current.set("benchmark_api.auth.login_#{uuid}", Time.now.to_f)
     Redis.current.set("benchmark_api.auth.logout_#{uuid}", Time.now.to_f)
   end
@@ -426,7 +426,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       context 'when NoMethodError is encountered elsewhere' do
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
-          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
           expect(Raven).to receive(:extra_context).once
           expect(Raven).not_to receive(:user_context)
           expect(Raven).not_to receive(:tags_context).once
@@ -436,7 +436,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          allow_any_instance_of(SSOService).to receive(:persist_authentication!).and_raise(NoMethodError)
+          allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
           once = { times: 1, value: 1 }
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:unknown']
@@ -449,21 +449,21 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when user clicked DENY' do
-        before { allow(SAML::Response).to receive(:new).and_return(saml_response_click_deny) }
+        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
           expect(Raven).to receive(:tags_context).once
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:clicked_deny][:short_message]}/)
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
       end
 
       context 'when too much time passed to consume the SAML Assertion' do
-        before { allow(SAML::Response).to receive(:new).and_return(saml_response_too_late) }
+        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::Response::ERRORS[:auth_too_late][:short_message]}/).twice
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/).twice
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -471,10 +471,10 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when clock drift causes us to consume the Assertion before its creation' do
-        before { allow(SAML::Response).to receive(:new).and_return(saml_response_too_early) }
+        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_early) }
 
         it 'redirects to an auth failure page', :aggregate_failures do
-          expect(Rails.logger).to receive(:error).with(/#{SAML::Response::ERRORS[:auth_too_early][:short_message]}/)
+          expect(Rails.logger).to receive(:error).with(/#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -493,7 +493,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when saml response returns an unknown type of error' do
-        before { allow(SAML::Response).to receive(:new).and_return(saml_response_unknown_error) }
+        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_unknown_error) }
 
         it 'logs a generic error', :aggregate_failures do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
@@ -525,7 +525,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when saml response contains multiple errors (known or otherwise)' do
-        before { allow(SAML::Response).to receive(:new).and_return(saml_response_multi_error) }
+        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_multi_error) }
         it 'logs a generic error' do
           expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
             .with(
