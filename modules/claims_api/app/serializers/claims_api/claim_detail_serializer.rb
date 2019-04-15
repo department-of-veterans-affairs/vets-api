@@ -4,10 +4,10 @@ module ClaimsApi
   class ClaimDetailSerializer < EVSSClaimDetailSerializer
     include SerializerBase
     include Swagger::Blocks
-    
+
     swagger_schema :Claims do
-      key :description, "Claim with some details for the given Veteran info"
-      
+      key :description, 'Claim with some details for the given Veteran info'
+
       property :id do
         key :type, :string
         key :example, '8347210'
@@ -22,7 +22,8 @@ module ClaimsApi
 
       property :attributes do
         key :type, :object
-        
+        key :description, 'Required by JSON API standard'
+
         property :date_filed do
           key :type, :string
           key :format, 'date'
@@ -86,12 +87,12 @@ module ClaimsApi
           key :example, 'Claim recieved'
           key :description, 'Current status of the claim (See API description for more details)'
           key :enum, [
-            "Claim recieved",
-            "Initial review",
-            "Evidence gathering, review, and decision",
-            "Preparation for notification",
-            "Complete"
-            ]
+            'Claim recieved',
+            'Initial review',
+            'Evidence gathering, review, and decision',
+            'Preparation for notification',
+            'Complete'
+          ]
         end
 
         property :requested_decision do
@@ -105,13 +106,12 @@ module ClaimsApi
           key :example, 'Compensation'
           key :description, 'The type of claim originally submitted'
           key :enum, [
-            "Compensation",
-            "Compensation and Pension",
-            "Dependency"
-            ]
+            'Compensation',
+            'Compensation and Pension',
+            'Dependency'
+          ]
         end
       end
-      
     end
 
     attribute :status

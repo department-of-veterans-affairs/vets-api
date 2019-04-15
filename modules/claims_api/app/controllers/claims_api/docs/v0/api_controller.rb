@@ -27,8 +27,8 @@ module ClaimsApi
             key :name, 'claims'
             key :description, 'Benefits Claims'
             externalDocs do
-                key :description, 'Find more info here'
-                key :url, 'https://developer.va.gov'
+              key :description, 'Find more info here'
+              key :url, 'https://developer.va.gov'
             end
           end
           key :host, 'api.va.gov'
@@ -41,7 +41,7 @@ module ClaimsApi
         SWAGGERED_CLASSES = [
           ClaimsApi::ClaimDetailSerializer,
           ClaimsApi::Form526,
-          self,
+          self
         ].freeze
 
         def index

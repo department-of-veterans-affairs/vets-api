@@ -8,7 +8,7 @@ module ClaimsApi
       class ApiController < ::ApplicationController
         skip_before_action(:authenticate)
         # skip_before_action(:log_request)
-  
+
         include Swagger::Blocks
 
         swagger_root do
@@ -29,8 +29,8 @@ module ClaimsApi
             key :name, 'claims'
             key :description, 'Benefits Claims'
             externalDocs do
-                key :description, 'Find more info here'
-                key :url, 'https://developer.va.gov'
+              key :description, 'Find more info here'
+              key :url, 'https://developer.va.gov'
             end
           end
           key :host, 'api.va.gov'
@@ -43,7 +43,7 @@ module ClaimsApi
         SWAGGERED_CLASSES = [
           ClaimsApi::ClaimDetailSerializer,
           ClaimsApi::Form526,
-          self,
+          self
         ].freeze
 
         def index
@@ -53,4 +53,3 @@ module ClaimsApi
     end
   end
 end
-  

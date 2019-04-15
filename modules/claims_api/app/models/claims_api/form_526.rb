@@ -8,16 +8,166 @@ module ClaimsApi
     include Swagger::Blocks
 
     swagger_schema :Form526 do
-      key :required, [:id, :name]
-      property :id do
-        key :type, :integer
-        key :format, :int64
-      end
-      property :name do
+      key :required, [:type, :name]
+      key :description, '526 Claim Form submission with minimum required for auto establishment'
+      property :type do
         key :type, :string
+        key :example, 'form/526'
+        key :description, 'Required by JSON API standard'
       end
-      property :tag do
-        key :type, :string
+      
+      property :attributes do
+        key :type, :object
+        key :description, 'Required by JSON API standard'
+        key :required, [:veteran, :serviceInformation, :disabilities, :claimantCertification, :standardClaim, :applicationExpirationDate]
+        
+        property :veteran do
+          key :type, :object
+          key :description, ''
+          key :required, [:currentlyVAEmployee, :currentMailingAddress]
+
+          property :currentlyVAEmployee do
+            key :type, :boolean
+            key :example, false
+            key :description, 'Flag if Veteran is VA Employee'
+          end
+          
+          property :currentMailingAddress do
+            key :type, :object
+            key :description, ''
+            key :required, [
+                :addressLine1,
+                :city,
+                :state,
+                :country,
+                :zipFirstFive,
+                :type
+              ]
+  
+            property :addressLine1 do
+              key :type, :string
+              key :example, '1234 Couch Street'
+              key :description, 'Address Veteran resides in'
+            end
+
+            property :addressLine2 do
+              key :type, :string
+              key :example, 'Apt. 22'
+              key :description, 'Additional Address Information Veteran resides in'
+            end
+
+            property :city do
+              key :type, :string
+              key :example, 'Portland'
+              key :description, 'City Veteran resides in'
+            end
+
+            property :country do
+              key :type, :string
+              key :example, 'USA'
+              key :description, 'Country Veteran resides in'
+            end
+
+            property :zipFirstFive do
+              key :type, :string
+              key :example, '12345'
+              key :description, 'Zipcode (First 5 digits) Veteran resides in'
+            end
+
+            property :zipLastFour do
+              key :type, :string
+              key :example, '6789'
+              key :description, 'Zipcode (Last 4 digits) Veteran resides in'
+            end
+
+            property :type do
+              key :type, :string
+              key :example, 'DOMESTIC'
+              key :description, 'Type of residence Veteran resides in'
+            end
+
+            property :state do
+              key :type, :string
+              key :example, 'OR'
+              key :description, 'State Veteran resides in'
+            end
+          end
+
+          property :changeOfAddress do
+            key :type, :object
+            key :description, ''
+            key :required, []
+  
+            
+          end
+
+          property :homelessness do
+            key :type, :object
+            key :description, ''
+            key :required, []
+  
+            
+          end
+        end
+
+        property :serviceInformation do
+          key :type, :object
+          key :description, ''
+          key :required, []
+
+          
+        end
+
+        property :disabilities do
+          key :type, :object
+          key :description, ''
+          key :required, []
+
+          
+        end
+
+        property :treatments do
+          key :type, :object
+          key :description, ''
+          key :required, []
+
+          
+        end
+
+        property :servicePay do
+          key :type, :object
+          key :description, ''
+          key :required, []
+
+          
+        end
+
+        property :directDeposit do
+          key :type, :object
+          key :description, ''
+          key :required, []
+
+          
+        end
+
+        property :claimantCertification do
+          key :type, :boolean
+          key :example, true
+          key :description, 'Determines if person submitting the claim is certified to do so.'
+        end
+
+        property :standardClaim do
+          key :type, :boolean
+          key :example, false
+          key :description, 'Determines if claim is considered a Standard Claim.'
+        end
+
+        property :applicationExpirationDate do
+          key :type, :string
+          key :format, 'date-time'
+          key :example, '2018-08-28T19:53:45+00:00'
+          key :description, 'Time stamp of when claim expires in one year after submission.'
+        end
       end
     end
 
