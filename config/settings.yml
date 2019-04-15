@@ -286,6 +286,7 @@ claims_api:
     region: ~
     bucket: ~
   disability_claims_mock_override: false
+  schema_dir: config/schemas
 
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
