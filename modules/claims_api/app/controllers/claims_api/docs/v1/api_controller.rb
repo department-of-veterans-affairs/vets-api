@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/form_526'
+require_dependency 'claims_api/form_526_model_swagger'
 
 module ClaimsApi
   module Docs
@@ -41,8 +41,8 @@ module ClaimsApi
 
         # A list of all classes that have swagger_* declarations.
         SWAGGERED_CLASSES = [
-          ClaimsApi::ClaimDetailSerializer,
-          ClaimsApi::Form526,
+          ClaimsApi::ClaimsModelSwagger,
+          ClaimsApi::Form526ModelSwagger,
           self
         ].freeze
 

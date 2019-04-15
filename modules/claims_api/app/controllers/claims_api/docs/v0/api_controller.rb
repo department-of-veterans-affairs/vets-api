@@ -39,8 +39,8 @@ module ClaimsApi
 
         # A list of all classes that have swagger_* declarations.
         SWAGGERED_CLASSES = [
-          ClaimsApi::ClaimDetailSerializer,
-          ClaimsApi::Form526,
+          ClaimsApi::ClaimsModelSwagger,
+          ClaimsApi::Form526ModelSwagger,
           self
         ].freeze
 
