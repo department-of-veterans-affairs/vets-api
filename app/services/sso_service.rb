@@ -84,7 +84,7 @@ class SSOService
     end
     @auth_error_code = error_hash[:code]
     @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
-    log_message_to_sentry(message, error_hash[:level], error_context)
+    log_message_to_sentry(message, error_hash[:level], error_messages: error_context)
   end
 
   def validation_error_context

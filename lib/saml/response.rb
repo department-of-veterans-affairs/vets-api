@@ -31,7 +31,6 @@ module SAML
       @normalized_errors = []
       # passing true collects all validation errors
       is_valid_result = is_valid?(true)
-      Raven.extra_context(saml_response_errors: errors) unless errors.empty?
       errors.each do |error_message|
         normalized_errors << map_message_to_error(error_message).merge(full_message: error_message)
       end
