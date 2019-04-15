@@ -71,7 +71,7 @@ module ClaimsApi
         property :decision_letter_sent do
           key :type, :boolean
           key :example, false
-          key :description, 'Indicates if a Decision Notification Letter has been sent to the Claimant regarding a benefit claim'
+          key :description, 'Indicates if a Decision Letter has been sent to the Claimant regarding a benefit claim'
         end
 
         property :updated_at do
