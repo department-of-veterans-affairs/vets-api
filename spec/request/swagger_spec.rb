@@ -218,6 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
+      let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
@@ -228,7 +229,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           '123', nil
-        ).and_return(parsed_status: :login_required)
+        ).and_return(parsed_status: login_required)
 
         expect(subject).to validate(
           :get,
@@ -524,6 +525,25 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(subject).to validate(:get, '/v0/ppiu/payment_information', 401)
         VCR.use_cassette('evss/ppiu/payment_information') do
           expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, headers)
+        end
+      end
+
+      it 'supports updating payment information' do
+        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
+        VCR.use_cassette('evss/ppiu/update_payment_information') do
+          expect(subject).to validate(
+            :put,
+            '/v0/ppiu/payment_information',
+            200,
+            headers.update(
+              '_data' => {
+                'account_type' => 'Checking',
+                'financial_institution_name' => 'Bank of Amazing',
+                'account_number' => '1234567890',
+                'financial_institution_routing_number' => '123456789'
+              }
+            )
+          )
         end
       end
     end

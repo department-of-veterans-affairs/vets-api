@@ -8,9 +8,11 @@ module V0
     class BurialFormsController < PreneedsController
       include SentryLogging
 
+      FORM = '40-10007'
+
       def create
         @form = ::Preneeds::BurialForm.new(burial_form_params)
-        validate!
+        validate!(Common::HashHelpers.deep_transform_parameters!(burial_form_params) { |k| k.camelize(:lower) })
 
         resource = client.receive_pre_need_application(@form)
         ::Preneeds::PreneedSubmission.create!(
@@ -40,8 +42,11 @@ module V0
         )
       end
 
-      def validate!
-        validation_errors = @form.validate
+      def validate!(form)
+        # Leave in for manual testing of new schemas before made available on Vets JSON Schema
+        # schema = JSON.parse(File.read(Settings.preneeds.burial_form_schema))
+        schema = VetsJsonSchema::SCHEMAS[FORM]
+        validation_errors = ::Preneeds::BurialForm.validate(schema, form)
 
         if validation_errors.present?
           Raven.tags_context(validation: 'preneeds')
