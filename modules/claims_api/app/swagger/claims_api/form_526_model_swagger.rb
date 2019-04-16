@@ -355,6 +355,32 @@ module ClaimsApi
               key :description, 'Do they receive Inactive Duty Training Pay'
             end
           end
+
+          property :alternateNames do
+            key :type, :array
+            key :description, 'Names Veteran has legally used in the past'
+            items do
+              key :type, :object
+
+              property :firstName do
+                key :type, :string
+                key :example, 'Jack'
+                key :description, 'Alternate First Name'
+              end
+
+              property :middleName do
+                key :type, :string
+                key :example, 'Clint'
+                key :description, 'Alternate Middle Name'
+              end
+
+              property :lastName do
+                key :type, :string
+                key :example, 'Bauer'
+                key :description, 'Alternate Last Name'
+              end
+            end
+          end
         end
 
         property :disabilities do
