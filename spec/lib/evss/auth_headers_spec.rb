@@ -54,5 +54,10 @@ describe EVSS::AuthHeaders do
       expect(headers['va_eauth_firstName']).to eq current_user.first_name
       expect(headers['va_eauth_lastName']).to eq current_user.last_name
     end
+
+    it 'handles nil date values' do
+      current_user.last_signed_in = nil
+      expect(headers['va_eauth_issueinstant']).to eq ''
+    end
   end
 end

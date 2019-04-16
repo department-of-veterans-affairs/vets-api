@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SessionActivity < ActiveRecord::Base
+class SessionActivity < ApplicationRecord
   after_initialize :initialize_defaults
   SESSION_ACTIVITY_TYPES = %w[signup mhv dslogon idme mfa verify slo].freeze
 

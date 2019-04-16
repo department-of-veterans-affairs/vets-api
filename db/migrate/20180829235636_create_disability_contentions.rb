@@ -1,4 +1,4 @@
-class CreateDisabilityContentions < ActiveRecord::Migration
+class CreateDisabilityContentions < ActiveRecord::Migration[4.2]
   def change
     create_table :disability_contentions do |t|
       t.integer :code, null: false, unique: true

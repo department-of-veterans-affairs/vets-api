@@ -11,7 +11,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
 
     context 'when not logged in' do
       it 'returns unauthorized' do
-        get :show, code: preference.code
+        get :show, params: { code: preference.code }
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -19,7 +19,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
     context 'when logged in as an LOA1 user' do
       before(:each) do
         sign_in_as(build(:user, :loa1))
-        get :show, code: preference.code
+        get :show, params: { code: preference.code }
       end
 
       it 'returns successful http status' do
@@ -31,7 +31,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'returns a single Preference' do
-        get :show, code: preference.code
+        get :show, params: { code: preference.code }
         preference_code = json_body_for(response)['attributes']['code']
         expect(preference_code).to eq preference.code
       end
@@ -44,7 +44,7 @@ RSpec.describe V0::PreferencesController, type: :controller do
       end
 
       it 'raises a 404 if preference cannot be found' do
-        get :show, code: 'wrong'
+        get :show, params: { code: 'wrong' }
         expect(response).to have_http_status(:not_found)
       end
     end

@@ -33,17 +33,23 @@ RSpec.describe 'EVSS Claims management', type: :request do
       allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
       allow(verifier_stub).to receive(:verify)
       VCR.use_cassette('evss/claims/claims') do
-        get '/services/claims/v1/claims', nil, request_headers.merge(auth_header)
+        get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
         expect(response).to match_response_schema('claims_api/claims')
       end
     end
   end
 
   context 'for a single claim' do
+    before do
+      verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+      allow(verifier_stub).to receive(:verify)
+    end
+
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
-          get '/services/claims/v1/claims/600118851', nil, request_headers.merge(auth_header)
+          get '/services/claims/v1/claims/600118851', params: nil, headers: request_headers.merge(auth_header)
           expect(response).to match_response_schema('claims_api/claim')
         end
       end
@@ -56,7 +62,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
                evss_id: 600_118_851,
                id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
         VCR.use_cassette('evss/claims/claim') do
-          get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', nil, request_headers.merge(auth_header)
+          get(
+            '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
+            params: nil, headers: request_headers.merge(auth_header)
+          )
           expect(response).to match_response_schema('claims_api/claim')
         end
       end
@@ -71,24 +80,22 @@ RSpec.describe 'EVSS Claims management', type: :request do
           allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
           allow(verifier_stub).to receive(:verify)
           headers = request_headers.merge(auth_header)
-          headers['X-Consumer-PoA'] = 'A1Q'
-          get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', nil, headers
+          get '/services/claims/v1/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9', params: nil, headers: headers
           expect(response.status).to eq(200)
         end
       end
     end
   end
 
-  context 'header validations' do
-    VALID_HEADERS.each_key do |header|
-      context "without #{header}" do
-        it 'returns a bad request response' do
-          with_okta_user(scopes) do |auth_header|
-            VCR.use_cassette('evss/claims/claims') do
-              get '/services/claims/v1/claims', nil, VALID_HEADERS.merge(auth_header).except(header)
-              expect(response).to have_http_status(:bad_request)
-            end
-          end
+  context 'with oauth user and no headers' do
+    it 'lists all Claims ', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+      with_okta_user(scopes) do |auth_header|
+        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
+        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
+        allow(verifier_stub).to receive(:verify)
+        VCR.use_cassette('evss/claims/claims') do
+          get '/services/claims/v1/claims', params: nil, headers: auth_header
+          expect(response).to match_response_schema('claims_api/claims')
         end
       end
     end

@@ -12,7 +12,15 @@ module V0
     end
 
     def update
-      address = EVSS::PCIUAddress::Address.build_address(params)
+      address = EVSS::PCIUAddress::Address.build_address(
+        params.permit(
+          :type, :address_effective_date,
+          :address_one, :address_two, :address_three,
+          :city, :country_name, :foreign_code,
+          :state_code, :zip_code, :zip_suffix,
+          :military_post_office_type_code, :military_state_code
+        )
+      )
       raise Common::Exceptions::ValidationErrors, address unless address.valid?
       response = service.update_address(address)
 

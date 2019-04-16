@@ -1,4 +1,4 @@
-class AddIndexToForm526OptIn < ActiveRecord::Migration
+class AddIndexToForm526OptIn < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change
