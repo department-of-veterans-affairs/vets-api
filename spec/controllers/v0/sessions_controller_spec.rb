@@ -29,10 +29,10 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) do
-    double('logout_response', validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
+    double('logout_response', valid?: false, validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
   end
   let(:successful_logout_response) do
-    double('logout_response', validate: true, success?: true, in_response_to: logout_uuid, errors: [])
+    double('logout_response', valid?: true, validate: true, success?: true, in_response_to: logout_uuid, errors: [])
   end
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
   let(:authn_context) { LOA::IDME_LOA1 }
