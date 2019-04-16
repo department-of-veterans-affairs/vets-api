@@ -500,12 +500,14 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Fail! Other SAML Response Error(s)',
               :error,
-              [{ code: '007',
-                 tag: :unknown,
-                 short_message: 'Other SAML Response Error(s)',
-                 level: :error,
-                 full_message: 'The status code of the Response was not Success, was Requester => NoAuthnContext ->'\
-                               ' AuthnRequest without an authentication context.' }]
+              error_context: [
+                { code: '007',
+                  tag: :unknown,
+                  short_message: 'Other SAML Response Error(s)',
+                  level: :error,
+                  full_message: 'The status code of the Response was not Success, was Requester => NoAuthnContext ->'\
+                                ' AuthnRequest without an authentication context.' }
+              ]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
@@ -531,10 +533,18 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Fail! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              [{ code: '001', tag: :clicked_deny, short_message: 'Subject did not consent to attribute release',
-                 level: :warn, full_message: 'Subject did not consent to attribute release' },
-               { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)', level: :error,
-                 full_message: 'Other random error' }]
+              error_context: [
+                { code: '001',
+                  tag: :clicked_deny,
+                  short_message: 'Subject did not consent to attribute release',
+                  level: :warn,
+                  full_message: 'Subject did not consent to attribute release' },
+                { code: '007',
+                  tag: :unknown,
+                  short_message: 'Other SAML Response Error(s)',
+                  level: :error,
+                  full_message: 'Other random error' }
+              ]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
