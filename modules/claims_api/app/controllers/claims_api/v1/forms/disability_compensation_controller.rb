@@ -45,7 +45,7 @@ module ClaimsApi
         end
 
         def validate_json_schema
-          ClaimsApi::FormSchemas.validate('526', form_attributes)
+          ClaimsApi::FormSchemas.validate!('526', form_attributes)
         rescue ClaimsApi::JsonApiMissingAttribute => e
           render json: e.to_json_api, status: e.code
         end

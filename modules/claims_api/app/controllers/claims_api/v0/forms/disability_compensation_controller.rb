@@ -2,7 +2,8 @@
 
 require_dependency 'claims_api/application_controller'
 require 'jsonapi/parser'
-
+require 'claims_api/form_schemas'
+require 'claims_api/json_api_missing_attribute'
 module ClaimsApi
   module V0
     module Forms
@@ -39,7 +40,7 @@ module ClaimsApi
         private
 
         def validate_json_schema
-          ClaimsApi::FormSchemas.validate('526', form_attributes)
+          ClaimsApi::FormSchemas.validate!('526', form_attributes)
         rescue ClaimsApi::JsonApiMissingAttribute => e
           render json: e.to_json_api, status: e.code
         end

@@ -15,9 +15,10 @@ RSpec.describe 'Disability Claims ', type: :request do
   end
   describe '#526' do
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }
+    let(:path) { '/services/claims/v0/forms/526' }
 
     it 'should return a successful response with all the data' do
-      post '/services/claims/v0/forms/526', params: data, headers: headers
+      post path, params: data, headers: headers
       parsed = JSON.parse(response.body)
       expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
       expect(parsed['data']['attributes']['status']).to eq('pending')
@@ -25,25 +26,45 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'should create the sidekick job' do
       expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-      post '/services/claims/v0/forms/526', params: data, headers: headers
+      post path, params: data, headers: headers
     end
 
     it 'should build the auth headers' do
       auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
       expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
       expect(auth_header_stub).to receive(:add_headers)
-      post '/services/claims/v0/forms/526', params: data, headers: headers
+      post path, params: data, headers: headers
     end
 
     context 'with the same request already ran' do
       let!(:count) do
-        post '/services/claims/v0/forms/526', params: data, headers: headers
+        post path, params: data, headers: headers
         ClaimsApi::AutoEstablishedClaim.count
       end
 
       it 'should reject the duplicated request' do
-        post '/services/claims/v0/forms/526', params: data, headers: headers
+        post path, params: data, headers: headers
         expect(count).to eq(ClaimsApi::AutoEstablishedClaim.count)
+      end
+    end
+
+    context 'validation' do
+      let(:json_data) { JSON.parse data }
+
+      it 'should require currentMailingAddress subfields' do
+        params = json_data
+        params['data']['attributes']['veteran']['currentMailingAddress'] = {}
+        post path, params: params.to_json, headers: headers
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(6)
+      end
+
+      it 'should require disability subfields' do
+        params = json_data
+        params['data']['attributes']['disabilities'] = [{}]
+        post path, params: params.to_json, headers: headers
+        expect(response.status).to eq(422)
+        expect(JSON.parse(response.body)['errors'].size).to eq(2)
       end
     end
   end

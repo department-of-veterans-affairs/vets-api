@@ -38,18 +38,11 @@ module ClaimsApi
       JSON::Validator.register_format_validator('address-line-pattern', address_line_validator)
     end
 
-    def self.validate(form, payload)
+    def self.validate!(form, payload)
       register_validators
       errors = JSON::Validator.fully_validate(SCHEMAS[form], payload)
       raise ClaimsApi::JsonApiMissingAttribute, errors unless errors.empty?
       true
     end
-
-    def self.validate!(form, payload)
-      register_validators
-      JSON::Validator.validate!(SCHEMAS[form], payload)
-    end
-
-    def self.to_params_permit; end
   end
 end
