@@ -226,11 +226,11 @@ module ClaimsApi
             key :description, 'Identifies the Service dates and Branch the Veteran served in.'
             items do
               key :type, :object
-              key :required, [
-                    :serviceBranch,
-                    :activeDutyBeginDate,
-                    :activeDutyEndDate
-                  ]
+              key :required, %i[
+                serviceBranch
+                activeDutyBeginDate
+                activeDutyEndDate
+              ]
 
               property :serviceBranch do
                 key :type, :string
