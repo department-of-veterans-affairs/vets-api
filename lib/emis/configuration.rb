@@ -46,6 +46,8 @@ module EMIS
       end
     end
 
+    # Allow connection to be used without certificates present
+    # @return [Boolean]
     def allow_missing_certs?
       true
     end
