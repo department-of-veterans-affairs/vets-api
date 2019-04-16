@@ -19,7 +19,7 @@ RSpec.describe 'Fetching user data', type: :request do
       allow(mhv_account).to receive(:user=).and_return(mhv_user)
       create(:account, idme_uuid: mhv_user.uuid)
       sign_in_as(mhv_user)
-      get v0_user_url, nil
+      get v0_user_url, params: nil
     end
 
     it 'GET /v0/user - returns proper json' do
@@ -67,7 +67,7 @@ RSpec.describe 'Fetching user data', type: :request do
         allow_any_instance_of(Vet360::Service).to receive(:perform).and_raise(
           Common::Client::Errors::ClientError.new(exception, 503, error_body)
         )
-        get v0_user_url, nil
+        get v0_user_url, params: nil
       end
 
       let(:body) { JSON.parse(response.body) }
@@ -93,7 +93,7 @@ RSpec.describe 'Fetching user data', type: :request do
   context 'GET /v0/user - when an LOA 1 user is logged in', :skip_mvi do
     before(:each) do
       sign_in_as(new_user(:loa1))
-      get v0_user_url, nil
+      get v0_user_url, params: nil
     end
 
     it 'returns proper json' do
@@ -131,7 +131,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'MVI error should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mvi_failure
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
@@ -148,7 +148,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'MVI RecordNotFound should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mvi_record_not_found
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
@@ -165,7 +165,7 @@ RSpec.describe 'Fetching user data', type: :request do
 
     it 'MVI DuplicateRecords should only make a request to MVI one time per request!', :aggregate_failures do
       stub_mvi_duplicate_record
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
@@ -183,11 +183,11 @@ RSpec.describe 'Fetching user data', type: :request do
     it 'MVI success should only make a request to MVI one time per multiple requests!' do
       stub_mvi_success
       expect_any_instance_of(Common::Client::Base).to receive(:perform).once.and_call_original
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
     end
 
@@ -198,7 +198,7 @@ RSpec.describe 'Fetching user data', type: :request do
       # Starts out successful
       stub_mvi_success
       sign_in_as(new_user)
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
@@ -207,7 +207,7 @@ RSpec.describe 'Fetching user data', type: :request do
       stub_mvi_failure
       1.times do |_count|
         sign_in_as(new_user)
-        expect { get v0_user_url, nil }
+        expect { get v0_user_url, params: nil }
           .to trigger_statsd_increment('api.external_http_request.MVI.failed', times: 1, value: 1)
           .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
           .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
@@ -217,7 +217,7 @@ RSpec.describe 'Fetching user data', type: :request do
       # skipped because breakers is active
       stub_mvi_success
       sign_in_as(new_user)
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
@@ -225,7 +225,7 @@ RSpec.describe 'Fetching user data', type: :request do
       Timecop.freeze(now)
       # sufficient time has elasped that new requests are made, resulting in succses
       sign_in_as(new_user)
-      expect { get v0_user_url, nil }
+      expect { get v0_user_url, params: nil }
         .to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
         .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
         .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')

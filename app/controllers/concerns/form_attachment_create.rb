@@ -4,7 +4,7 @@ module FormAttachmentCreate
   extend ActiveSupport::Concern
 
   included do
-    skip_before_action(:authenticate)
+    skip_before_action(:authenticate, raise: false)
   end
 
   def create

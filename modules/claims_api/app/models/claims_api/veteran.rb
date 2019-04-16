@@ -78,6 +78,19 @@ module ClaimsApi
       veteran
     end
 
+    def self.from_identity(identity:)
+      new(
+        uuid: identity.uuid,
+        ssn: identity.ssn,
+        first_name: identity.first_name,
+        last_name: identity.last_name,
+        va_profile: OpenStruct.new(birth_date: identity.birth_date),
+        last_signed_in: Time.now.utc,
+        loa: identity.loa,
+        gender: identity.gender
+      )
+    end
+
     def self.build_profile(headers)
       OpenStruct.new(
         birth_date: ensure_header(headers, 'X-VA-Birth-Date')

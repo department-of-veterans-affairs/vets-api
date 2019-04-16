@@ -1,4 +1,4 @@
-class AddFormTypeToEducationBenefitsSubmissions < ActiveRecord::Migration
+class AddFormTypeToEducationBenefitsSubmissions < ActiveRecord::Migration[4.2]
   def change
     add_column(:education_benefits_submissions, :form_type, :string, null: false, default: '1990')
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class TermsAndConditionsAcceptance < ActiveRecord::Base
+class TermsAndConditionsAcceptance < ApplicationRecord
   belongs_to :terms_and_conditions
   belongs_to :mhv_accounts, foreign_key: :user_uuid, primary_key: :user_uuid, inverse_of: false
 

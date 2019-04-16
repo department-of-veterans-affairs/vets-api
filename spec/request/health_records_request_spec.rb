@@ -64,7 +64,7 @@ RSpec.describe 'health records', type: :request do
 
   it 'responds to POST #create to generate a new report' do
     VCR.use_cassette('bb_client/generates_a_report') do
-      post '/v0/health_records', params
+      post '/v0/health_records', params: params
     end
 
     expect(response).to be_accepted
@@ -86,7 +86,7 @@ RSpec.describe 'health records', type: :request do
 
   it 'responds to GET #show with txt to fetch the txt version of created report' do
     VCR.use_cassette('bb_client/gets_a_text_version_of_a_report') do
-      get '/v0/health_records', doc_type: 'txt'
+      get '/v0/health_records', params: { doc_type: 'txt' }
     end
 
     expect(response).to be_success
@@ -98,7 +98,7 @@ RSpec.describe 'health records', type: :request do
 
   it 'handles an error response for a report request' do
     VCR.use_cassette('bb_client/report_error_response') do
-      get '/v0/health_records', doc_type: 'txt'
+      get '/v0/health_records', params: { doc_type: 'txt' }
     end
 
     expect(response).to have_http_status(503)
