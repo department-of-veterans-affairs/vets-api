@@ -219,13 +219,19 @@ module ClaimsApi
         property :serviceInformation do
           key :required, [:servicePeriods]
           key :type, :object
-          key :description, ''
+          key :description, 'Overview of Veteran\'s service history'
 
           property :servicePeriods do
             key :type, :array
-            key :description, ''
+            key :description, 'Identifies the Service dates and Branch the Veteran served in.'
             items do
               key :type, :object
+              key :required, [
+                    :serviceBranch,
+                    :activeDutyBeginDate,
+                    :activeDutyEndDate
+                  ]
+
               property :serviceBranch do
                 key :type, :string
                 key :example, 'Air Force'
@@ -258,6 +264,95 @@ module ClaimsApi
                 key :example, '1990-01-02'
                 key :description, 'Date Completed Active Duty'
               end
+            end
+          end
+
+          property :confinements do
+            key :type, :array
+            key :description, 'Identifies if the Veteran was confined or imprisoned at any point'
+            items do
+              key :type, :object
+
+              property :confinementBeginDate do
+                key :type, :string
+                key :format, :date
+                key :example, '1987-02-01'
+                key :description, 'Date Began Confinement'
+              end
+
+              property :confinementEndDate do
+                key :type, :string
+                key :format, :date
+                key :example, '1987-02-01'
+                key :description, 'Date Ended Confinement'
+              end
+            end
+          end
+
+          property :reservesNationalGuardService do
+            key :type, :object
+            key :description, 'Overview of Veteran\'s Reserve History'
+
+            property :title10Activation do
+              key :type, :object
+              key :description, 'Dates of when Reserve Veteran was Activated'
+
+              property :anticipatedSeparationDate do
+                key :type, :string
+                key :format, 'date'
+                key :example, '2020-01-01'
+                key :description, 'Date Seperation will occur'
+              end
+
+              property :title10ActivationDate do
+                key :type, :string
+                key :input, 'date'
+                key :example, '1999-03-04'
+                key :description, 'Date Title 10 Activates'
+              end
+            end
+
+            property :obligationTermOfServiceFromDate do
+              key :type, :string
+              key :input, 'date'
+              key :example, '2000-01-04'
+              key :description, 'Date Service Obligation Began'
+            end
+
+            property :obligationTermOfServiceToDate do
+              key :type, :string
+              key :input, 'date'
+              key :example, '2004-01-04'
+              key :description, 'Date Service Obligation Ended'
+            end
+
+            property :unitName do
+              key :type, :string
+              key :example, 'Seal Team Six'
+              key :description, 'Official Unit Designation'
+            end
+
+            property :unitPhone do
+              key :type, :object
+              key :description, 'Phone number Object for Vetern\'s old unit'
+
+              property :areaCode do
+                key :type, :string
+                key :example, '123'
+                key :description, 'Area code of Unit'
+              end
+
+              property :phoneNumber do
+                key :type, :string
+                key :example, '1231234'
+                key :description, 'Primary phone of Unit'
+              end
+            end
+
+            property :receivingInactiveDutyTrainingPay do
+              key :type, :boolean
+              key :example, true
+              key :description, 'Do they receive Inactive Duty Training Pay'
             end
           end
         end
