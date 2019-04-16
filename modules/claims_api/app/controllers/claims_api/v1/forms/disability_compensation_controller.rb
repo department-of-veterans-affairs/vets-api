@@ -2,6 +2,7 @@
 
 require_dependency 'claims_api/application_controller'
 require 'claims_api/form_schemas'
+require 'claims_api/json_api_missing_attribute'
 require 'jsonapi/parser'
 
 module ClaimsApi
@@ -9,6 +10,7 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < ApplicationController
         before_action { permit_scopes %w[claim.write] }
+        before_action :validate_json_schema, only: [:submit_form_526]
         # before_action :validate_json_api_payload
 
         def submit_form_526
@@ -22,8 +24,6 @@ module ClaimsApi
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue Exception => e
-          render json: e.message, status: 422
         end
 
         def upload_supporting_documents
@@ -44,10 +44,14 @@ module ClaimsApi
           JSONAPI.parse_resource!(params)
         end
 
+        def validate_json_schema
+          ClaimsApi::FormSchemas.validate('526', form_attributes)
+        rescue ClaimsApi::JsonApiMissingAttribute => e
+          render json: e.to_json_api, status: e.code
+        end
+
         def form_attributes
-          attrs = JSON.parse(request.body.string)['data']['attributes']
-          ClaimsApi::FormSchemas.validate!('526', attrs)
-          attrs
+          JSON.parse(request.body.string)['data']['attributes']
         end
 
         def documents

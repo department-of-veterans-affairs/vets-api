@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/json_api_missing_attribute'
+
 module ClaimsApi
   class FormSchemas
     BASE_DIR = Rails.root.join('modules', 'claims_api', Settings.claims_api.schema_dir)
@@ -38,7 +40,9 @@ module ClaimsApi
 
     def self.validate(form, payload)
       register_validators
-      JSON::Validator.fully_validate(SCHEMAS[form], payload)
+      errors = JSON::Validator.fully_validate(SCHEMAS[form], payload)
+      raise ClaimsApi::JsonApiMissingAttribute, errors unless errors.empty?
+      true
     end
 
     def self.validate!(form, payload)
