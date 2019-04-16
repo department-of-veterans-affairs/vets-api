@@ -8,6 +8,7 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < ApplicationController
         skip_before_action(:authenticate)
+        before_action :validate_json_schema, only: [:submit_form_526]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -21,8 +22,6 @@ module ClaimsApi
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue RuntimeError => e
-          render json: { errors: e.message }, status: 422
         end
 
         def upload_supporting_documents
@@ -39,8 +38,14 @@ module ClaimsApi
 
         private
 
+        def validate_json_schema
+          ClaimsApi::FormSchemas.validate('526', form_attributes)
+        rescue ClaimsApi::JsonApiMissingAttribute => e
+          render json: e.to_json_api, status: e.code
+        end
+
         def form_attributes
-          params[:data][:attributes]
+          JSON.parse(request.body.string)['data']['attributes']
         end
 
         def documents
