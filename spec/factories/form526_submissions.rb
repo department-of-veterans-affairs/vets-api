@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :form526_submission do
     user_uuid SecureRandom.uuid
-    saved_claim_id { create(:va526ez) }
+    saved_claim { create(:va526ez) }
     submitted_claim_id nil
     auth_headers_json ''
     form_json do
