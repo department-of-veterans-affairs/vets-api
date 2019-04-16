@@ -3,14 +3,14 @@
 module ClaimsApi
   class JsonApiMissingAttribute < StandardError
     attr_accessor :code
-    attr_accessor :detail
-    def initialize(detail)
+    attr_accessor :details
+    def initialize(details)
       @code = 422
-      @detail = detail
+      @details = details
     end
 
     def to_json_api
-      errors = detail.map { |m| { status: 422, detail: m } }
+      errors = details.map { |detail| { status: 422, detail: detail } }
       { errors: errors }
     end
   end
