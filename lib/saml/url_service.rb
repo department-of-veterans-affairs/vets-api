@@ -32,7 +32,6 @@ module SAML
 
       @saml_settings = saml_settings
 
-      Raven.extra_context(saml_settings: @saml_settings)
       Raven.extra_context(params: params)
       Raven.user_context(session: session, user: user)
       initialize_query_params(params)
