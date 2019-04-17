@@ -65,4 +65,10 @@ RSpec.describe Facilities::StateCemeteryReloadJob, type: :job do
     expect(cemetery.phone['main']).to eq('251-625-1338')
     expect(cemetery.phone['fax']).to eq('251-626-9204')
   end
+
+  it 'should gracefully handle missing mailing addresses' do
+    Facilities::StateCemeteryReloadJob.new.perform
+    cemetery = Facilities::NCAFacility.first
+    expect(cemetery.address['mailing']).not_to be_nil
+  end
 end
