@@ -6,7 +6,7 @@ module FeatureFlipper
   end
 
   def self.staging_email?
-    Settings.reports.server.include?('stage')
+    (Settings.hostname =~ /-api/).present?
   end
 
   def self.send_edu_report_email?
