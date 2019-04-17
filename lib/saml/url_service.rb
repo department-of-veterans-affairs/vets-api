@@ -32,6 +32,9 @@ module SAML
 
       @saml_settings = saml_settings
 
+      Raven.extra_context(saml_settings: @saml_settings)
+      Raven.extra_context(params: params)
+      Raven.user_context(session: session, user: user)
       initialize_query_params(params)
     end
 
@@ -129,6 +132,9 @@ module SAML
       elsif params[:action] == 'saml_callback'
         @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
       end
+    rescue JSON::ParserError => e
+      log_exception_to_sentry(e)
+      raise
     end
 
     # Builds the urls to trigger various SSO policies: mhv, dslogon, idme, mfa, or verify flows.
