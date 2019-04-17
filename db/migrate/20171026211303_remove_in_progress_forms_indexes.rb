@@ -1,4 +1,4 @@
-class RemoveInProgressFormsIndexes < ActiveRecord::Migration
+class RemoveInProgressFormsIndexes < ActiveRecord::Migration[4.2]
   def change
     %w(
       index_in_progress_forms_on_form_id

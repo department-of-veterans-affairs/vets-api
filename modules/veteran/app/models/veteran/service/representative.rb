@@ -5,12 +5,16 @@ require 'csv'
 module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
-    class Representative < ActiveRecord::Base
+    class Representative < ApplicationRecord
       BASE_URL = 'https://www.va.gov/ogc/apps/accreditation/'
 
       self.primary_key = :representative_id
 
       validates_presence_of :poa
+
+      def self.for_user(user)
+        find_by(first_name: user.first_name, last_name: user.last_name)
+      end
 
       def self.reload!
         array_of_hashes = fetch_data('orgsexcellist.asp')

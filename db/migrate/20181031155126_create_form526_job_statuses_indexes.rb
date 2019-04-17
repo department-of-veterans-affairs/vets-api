@@ -1,4 +1,4 @@
-class CreateForm526JobStatusesIndexes < ActiveRecord::Migration
+class CreateForm526JobStatusesIndexes < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

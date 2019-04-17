@@ -8,10 +8,6 @@ class Rack::Attack
     req.ip if req.path == '/v0/limited'
   end
 
-  throttle('feedback/ip', limit: 5, period: 1.hour) do |req|
-    req.ip if req.path == '/v0/feedback' && req.post?
-  end
-
   throttle('vic_profile_photos_download/ip', limit: 8, period: 5.minutes) do |req|
     req.ip if req.path == '/v0/vic/profile_photo_attachments' && req.get?
   end

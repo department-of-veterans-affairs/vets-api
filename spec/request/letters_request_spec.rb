@@ -83,7 +83,7 @@ RSpec.describe 'letters', type: :request do
       end
       it 'should download a PDF' do
         VCR.use_cassette('evss/letters/download_options') do
-          post '/v0/letters/commissary', options
+          post '/v0/letters/commissary', params: options
           expect(response).to have_http_status(:ok)
         end
       end
@@ -139,7 +139,7 @@ RSpec.describe 'letters', type: :request do
       end
       it 'should return a 502' do
         VCR.use_cassette('evss/letters/download_unexpected') do
-          post '/v0/letters/benefit_summary', options
+          post '/v0/letters/benefit_summary', params: options
           expect(response).to have_http_status(:bad_gateway)
         end
       end

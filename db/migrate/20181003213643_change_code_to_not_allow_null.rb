@@ -1,4 +1,4 @@
-class ChangeCodeToNotAllowNull < ActiveRecord::Migration
+class ChangeCodeToNotAllowNull < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
   # At this point we shouldn't have any Preference records
   safety_assured

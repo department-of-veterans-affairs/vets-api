@@ -1,4 +1,4 @@
-class CreateMaintenanceWindows < ActiveRecord::Migration
+class CreateMaintenanceWindows < ActiveRecord::Migration[4.2]
   def change
     create_table :maintenance_windows do |t|
       t.string :pagerduty_id

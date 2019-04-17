@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AsyncTransaction
-  class Base < ActiveRecord::Base
+  class Base < ApplicationRecord
     self.table_name = 'async_transactions'
 
     REQUESTED = 'requested'

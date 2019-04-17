@@ -1,4 +1,4 @@
-class CreateDisabilityCompensationJobStatuses < ActiveRecord::Migration
+class CreateDisabilityCompensationJobStatuses < ActiveRecord::Migration[4.2]
   def change
     create_table :disability_compensation_job_statuses do |t|
       t.integer :disability_compensation_submission_id, null: false

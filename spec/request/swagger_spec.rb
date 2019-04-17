@@ -218,6 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
+      let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
@@ -228,7 +229,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           '123', nil
-        ).and_return(parsed_status: :login_required)
+        ).and_return(parsed_status: login_required)
 
         expect(subject).to validate(
           :get,
@@ -526,26 +527,39 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, headers)
         end
       end
+
+      it 'supports updating payment information' do
+        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
+        VCR.use_cassette('evss/ppiu/update_payment_information') do
+          expect(subject).to validate(
+            :put,
+            '/v0/ppiu/payment_information',
+            200,
+            headers.update(
+              '_data' => {
+                'account_type' => 'Checking',
+                'financial_institution_name' => 'Bank of Amazing',
+                'account_number' => '1234567890',
+                'financial_institution_routing_number' => '123456789'
+              }
+            )
+          )
+        end
+      end
     end
 
     describe 'supporting evidence upload' do
-      let(:form_attachment) do
-        {
-          id: 272,
-          created_at: Time.now.utc,
-          updated_at: Time.now.utc,
-          guid: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87',
-          ecrypted_file_data: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim',
-          encrypted_file_data: 'ayqrfIpruCPtLGnA'
-        }
-      end
-
       it 'supports uploading a file' do
-        allow_any_instance_of(FormAttachmentCreate)
-          .to receive(:create)
-          .and_return(form_attachment)
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 200,
-                                    'supporting_evidence_attachment' => { 'file_data' => 'foo.pdf' })
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          200,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
       end
 
       it 'returns a 500 if no attachment data is given' do
@@ -916,7 +930,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                   headers.merge('_data' => {
                                   'from_date' => 10.years.ago.iso8601.to_json,
                                   'to_date' => Time.now.iso8601.to_json,
-                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
                                 })
                 )
               end
@@ -1133,32 +1147,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting user with some external errors', skip_mvi: true do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
-      end
-    end
-
-    context '#feedback' do
-      before(:all) do
-        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
-      end
-      before(:each) do
-        Rack::Attack.cache.store.flushdb
-      end
-      let(:feedback_params) do
-        {
-          'description' => 'I liked this page',
-          'target_page' => '/some/example/page.html',
-          'owner_email' => 'example@email.com'
-        }
-      end
-      let(:missing_feedback_params) { feedback_params.except('target_page') }
-
-      it 'returns 202 for valid feedback' do
-        expect(subject).to validate(:post, '/v0/feedback', 202,
-                                    '_data' => { 'feedback' => feedback_params })
-      end
-      it 'returns 400 if a param is missing or invalid' do
-        expect(subject).to validate(:post, '/v0/feedback', 400,
-                                    '_data' => { 'feedback' => missing_feedback_params })
       end
     end
 
