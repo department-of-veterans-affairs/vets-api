@@ -7,12 +7,9 @@ RSpec.describe 'Education Benefits Claims Integration', type: %i[request seriali
     let(:path) { v0_education_benefits_claims_path }
 
     subject do
-      post(
-        path,
-        params.to_json,
-        'CONTENT_TYPE' => 'application/json',
-        'HTTP_X_KEY_INFLECTION' => 'camel'
-      )
+      post(path,
+           params: params.to_json,
+           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
     end
 
     context 'with a form_type passed in' do

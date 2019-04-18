@@ -1,18 +1,23 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ApplicationController < ::ApplicationController
-    skip_before_action :set_tags_and_extra_context
+  class ApplicationController < ::OpenidApplicationController
+    skip_before_action :set_tags_and_extra_context, raise: false
     before_action :log_request
 
     private
 
     def log_request
-      hashed_ssn = Digest::SHA2.hexdigest ssn
-      Rails.logger.info('Claims App Request',
-                        'consumer' => consumer,
-                        'va_user' => requesting_va_user,
-                        'lookup_identifier' => hashed_ssn)
+      if @current_user.present?
+        hashed_ssn = Digest::SHA2.hexdigest @current_user.ssn
+        Rails.logger.info('Claims App Request', 'lookup_identifier' => hashed_ssn)
+      else
+        hashed_ssn = Digest::SHA2.hexdigest ssn
+        Rails.logger.info('Claims App Request',
+                          'consumer' => consumer,
+                          'va_user' => requesting_va_user,
+                          'lookup_identifier' => hashed_ssn)
+      end
     end
 
     def log_response(additional_fields = {})

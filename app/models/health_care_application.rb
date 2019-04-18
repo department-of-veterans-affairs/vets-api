@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-class HealthCareApplication < ActiveRecord::Base
+class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
+  include HCA::EnrollmentEligibility::ParsedStatuses
 
   FORM_ID = '10-10EZ'
 
@@ -75,12 +76,13 @@ class HealthCareApplication < ActiveRecord::Base
       ee_data.slice(
         :application_date,
         :enrollment_date,
-        :preferred_facility
+        :preferred_facility,
+        :effective_date
       ).merge(parsed_status: parsed_status)
     else
       {
         parsed_status:
-          ee_data[:enrollment_status].present? ? :login_required : :none_of_the_above
+          ee_data[:enrollment_status].present? ? LOGIN_REQUIRED : NONE
       }
     end
   end

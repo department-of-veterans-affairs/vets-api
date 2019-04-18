@@ -4,7 +4,7 @@ require_dependency 'claims_api/form_526'
 require_dependency 'claims_api/json_marshal'
 
 module ClaimsApi
-  class AutoEstablishedClaim < ActiveRecord::Base
+  class AutoEstablishedClaim < ApplicationRecord
     attr_encrypted(:form_data, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
     attr_encrypted(:auth_headers, key: Settings.db_encryption_key, marshal: true, marshaler: ClaimsApi::JsonMarshal)
 
@@ -34,7 +34,8 @@ module ClaimsApi
     end
 
     def set_md5
-      self.md5 = Digest::MD5.hexdigest form_data.merge(auth_headers).to_json
+      headers = auth_headers.except('va_eauth_issueinstant')
+      self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
   end
 end

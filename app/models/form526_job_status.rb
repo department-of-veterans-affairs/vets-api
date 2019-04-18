@@ -2,7 +2,7 @@
 
 require 'upsert/active_record_upsert'
 
-class Form526JobStatus < ActiveRecord::Base
+class Form526JobStatus < ApplicationRecord
   belongs_to :form526_submission
 
   alias_attribute :submission, :form526_submission

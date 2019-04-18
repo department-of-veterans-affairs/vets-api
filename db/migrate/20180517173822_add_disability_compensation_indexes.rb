@@ -1,4 +1,4 @@
-class AddDisabilityCompensationIndexes < ActiveRecord::Migration
+class AddDisabilityCompensationIndexes < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def change

@@ -22,7 +22,7 @@ class V0::Facilities::CcpController < FacilitiesController
 
   def validate_id
     if /^ccp_/ =~ params[:id]
-      params[:id].sub!(/^ccp_/, '')
+      params[:id] = params[:id].sub(/^ccp_/, '')
     else
       raise Common::Exceptions::InvalidFieldValue.new('id', params[:id])
     end
