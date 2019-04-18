@@ -4,12 +4,12 @@ require 'evss/base_service'
 
 module EVSS
   module GiBillStatus
-		##
-		# Proxy Service for GIBS Caseflow.
-		#
-		# @example Create a service and fetching the status of a claim for a user
-		#   gibs_response = GiBillStatus::Service.new.get_gi_bill_status
-		#
+    ##
+    # Proxy Service for GIBS Caseflow.
+    #
+    # @example Create a service and fetching the status of a claim for a user
+    #   gibs_response = GiBillStatus::Service.new.get_gi_bill_status
+    #
     class Service < EVSS::Service
       configuration EVSS::GiBillStatus::Configuration
 
