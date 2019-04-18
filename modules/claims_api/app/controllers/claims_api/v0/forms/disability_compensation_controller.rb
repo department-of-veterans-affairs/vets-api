@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/application_controller'
+require_dependency 'claims_api/base_form_controller'
 require 'jsonapi/parser'
-require 'claims_api/form_schemas'
-require 'claims_api/json_api_missing_attribute'
+
 module ClaimsApi
   module V0
     module Forms

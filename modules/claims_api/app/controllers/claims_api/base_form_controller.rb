@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
-require 'claims_api/form_schemas'
-require 'claims_api/json_api_missing_attribute'
+require_dependency 'claims_api/form_schemas'
+require_dependency 'claims_api/json_api_missing_attribute'
+
 module ClaimsApi
-  class BaseFormController < ApplicationController
+  class BaseFormController < ClaimsApi::ApplicationController
     before_action :validate_json_schema
 
     private

@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require 'claims_api/intent_to_file_serializer'
+require_dependency 'claims_api/intent_to_file_serializer'
 
 module ClaimsApi
   module V1
     module Forms
       class IntentToFileController < BaseFormController
+        FORM_NUMBER = '0966'
         def submit_form_0966
           response = service.create_intent_to_file(form_type)
           render json: response['intent_to_file'],
@@ -26,10 +27,9 @@ module ClaimsApi
           end
         end
 
-        def validate_json_api_payload
-          unless attributes.empty?
-            # validate
-          end
+        def validate_json_schema
+          # to support default compensation
+          super unless form_attributes.empty?
         end
       end
     end
