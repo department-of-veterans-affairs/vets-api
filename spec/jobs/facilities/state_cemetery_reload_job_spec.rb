@@ -70,5 +70,6 @@ RSpec.describe Facilities::StateCemeteryReloadJob, type: :job do
     Facilities::StateCemeteryReloadJob.new.perform
     cemetery = Facilities::NCAFacility.first
     expect(cemetery.address['mailing'].class).to eq(Hash)
+    expect(cemetery.address['mailing'].empty?).to be true
   end
 end
