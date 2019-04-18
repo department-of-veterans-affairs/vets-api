@@ -4,6 +4,7 @@ module ClaimsApi
   class ApplicationController < ::OpenidApplicationController
     skip_before_action :set_tags_and_extra_context, raise: false
     before_action :log_request
+    before_action :verify_power_of_attorney, if: :poa_request?
 
     private
 
@@ -46,6 +47,25 @@ module ClaimsApi
 
     def raise_missing_header(key)
       raise Common::Exceptions::ParameterMissing, key
+    end
+
+    def target_veteran(with_gender: false)
+      if poa_request?
+        ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
+      else
+        ClaimsApi::Veteran.from_identity(identity: @current_user)
+      end
+    end
+
+    def verify_power_of_attorney
+      verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
+      verifier.verify(@current_user)
+    end
+
+    def poa_request?
+      # if any of the required headers are present we should attempt to use headers
+      headers_to_check = ['HTTP_X_VA_SSN', 'HTTP_X_VA_Consumer-Username', 'HTTP_X_VA_Birth_Date']
+      (request.headers.to_h.keys & headers_to_check).length.positive?
     end
   end
 end

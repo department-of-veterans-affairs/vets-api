@@ -7,9 +7,11 @@ require 'claims_api/json_api_missing_attribute'
 module ClaimsApi
   module V0
     module Forms
-      class DisabilityCompensationController < ApplicationController
+      class DisabilityCompensationController < BaseFormController
+        FORM_NUMBER = '526'
         skip_before_action(:authenticate)
-        before_action :validate_json_schema, only: [:submit_form_526]
+        skip_before_action(:verify_power_of_attorney)
+        skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -38,16 +40,6 @@ module ClaimsApi
         end
 
         private
-
-        def validate_json_schema
-          ClaimsApi::FormSchemas.validate!('526', form_attributes)
-        rescue ClaimsApi::JsonApiMissingAttribute => e
-          render json: e.to_json_api, status: e.code
-        end
-
-        def form_attributes
-          JSON.parse(request.body.string)['data']['attributes']
-        end
 
         def documents
           document_keys = params.keys.select { |key| key.include? 'attachment' }

@@ -5,9 +5,7 @@ require 'claims_api/intent_to_file_serializer'
 module ClaimsApi
   module V1
     module Forms
-      class IntentToFileController < ApplicationController
-        before_action :validate_json_api_payload
-
+      class IntentToFileController < BaseFormController
         def submit_form_0966
           response = service.create_intent_to_file(form_type)
           render json: response['intent_to_file'],
@@ -20,17 +18,9 @@ module ClaimsApi
           EVSS::IntentToFile::Service.new(target_veteran)
         end
 
-        def attributes
-          if request.body.string.present?
-            JSON.parse(request.body.string).dig('data', 'attributes')
-          else
-            {}
-          end
-        end
-
         def form_type
-          if !attributes.empty?
-            attributes['type']
+          if !form_attributes.empty?
+            form_attributes['type']
           else
             'compensation'
           end
@@ -40,10 +30,6 @@ module ClaimsApi
           unless attributes.empty?
             # validate
           end
-        end
-
-        def target_veteran
-          @target_veteran ||= ClaimsApi::Veteran.from_headers(request.headers)
         end
       end
     end
