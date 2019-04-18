@@ -95,7 +95,7 @@ module EVSS
       end
 
       ##
-      # @return [Boolean] Checks if the response is correctly formatted and contains 
+      # @return [Boolean] Checks if the response is correctly formatted and contains
       # the expected educational information
       def success?
         contains_education_info?

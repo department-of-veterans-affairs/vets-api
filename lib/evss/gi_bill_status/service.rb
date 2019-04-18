@@ -62,7 +62,8 @@ module EVSS
       ##
       # Retreive the status of a GIBS claim for a user
       #
-      # @return [EVSS::GiBillStatus::GiBillStatusRestponse] A status response object containing information from the endpoint
+      # @return [EVSS::GiBillStatus::GiBillStatusRestponse] A status response object containing
+      # information from the endpoint
       #
       def get_gi_bill_status
         raw_response = perform(:get, '')

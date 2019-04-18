@@ -5,7 +5,7 @@ require 'common/exceptions/base_error'
 module EVSS
   module GiBillStatus
     ##
-    # Custom error for when the user is attempting to access the service 
+    # Custom error for when the user is attempting to access the service
     # outside of working hours
     #
     class OutsideWorkingHours < Common::Exceptions::BaseError
