@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength, Metrics/MethodLength
 module Notifications
   module EnumStatusValues
     extend ActiveSupport::Concern
@@ -77,3 +78,4 @@ module Notifications
     end
   end
 end
+# rubocop:enable Metrics/BlockLength, Metrics/MethodLength
