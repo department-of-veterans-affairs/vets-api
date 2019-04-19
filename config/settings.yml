@@ -303,8 +303,6 @@ govdelivery:
 # Settings for Education Benefits report uploading
 reports:
   send_email: true
-  server: stage-tms.govdelivery.com
-  token: ~
   aws:
     access_key_id: ~
     bucket: ~
