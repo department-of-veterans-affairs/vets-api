@@ -20,6 +20,7 @@ module HCA
       INELIG_OVER65 = 'inelig_over65'
       INELIG_REFUSEDCOPAY = 'inelig_refusedcopay'
       INELIG_TRAINING_ONLY = 'inelig_training_only'
+      INELIG_OTHER = 'inelig_other'
       LOGIN_REQUIRED = 'login_required'
       NONE = 'none_of_the_above'
       PENDING_MT = 'pending_mt'
@@ -48,6 +49,7 @@ module HCA
         INELIG_OVER65,
         INELIG_REFUSEDCOPAY,
         INELIG_TRAINING_ONLY,
+        INELIG_OTHER,
         LOGIN_REQUIRED,
         NONE,
         PENDING_MT,
