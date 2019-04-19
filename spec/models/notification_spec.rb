@@ -12,18 +12,22 @@ RSpec.describe Notification, type: :model do
   end
 
   describe '.subjects' do
-    it 'returns a hash of the enum values mapped to their database integers', :aggregate_failures do
-      subjects = Notification.subjects
+    let(:subjects) { Notification.subjects }
 
+    it 'returns a hash of the enum values mapped to their database integers', :aggregate_failures do
       expect(subjects[Notification::FORM_10_10EZ]).to eq 0
       expect(subjects[Notification::DASH_HCA]).to eq 1
+    end
+
+    it 'returns the correct number of established enum mappings' do
+      expect(subjects.size).to eq 2
     end
   end
 
   describe '.statuses' do
-    it 'returns a hash of the enum values mapped to their database integers', :aggregate_failures do
-      statuses = Notification.statuses
+    let(:statuses) { Notification.statuses }
 
+    it 'returns a hash of the enum values mapped to their database integers', :aggregate_failures do
       expect(statuses[Notification::ACTIVEDUTY]).to eq 0
       expect(statuses[Notification::CANCELED_DECLINED]).to eq 1
       expect(statuses[Notification::CLOSED]).to eq 2
@@ -51,6 +55,10 @@ RSpec.describe Notification, type: :model do
       expect(statuses[Notification::REJECTED_INC_WRONGENTRY]).to eq 24
       expect(statuses[Notification::REJECTED_RIGHTENTRY]).to eq 25
       expect(statuses[Notification::REJECTED_SC_WRONGENTRY]).to eq 26
+    end
+
+    it 'returns the correct number of established enum mappings' do
+      expect(statuses.size).to eq 27
     end
   end
 
