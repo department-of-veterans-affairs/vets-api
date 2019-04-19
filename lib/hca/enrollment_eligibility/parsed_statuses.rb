@@ -17,10 +17,10 @@ module HCA
       INELIG_MEDICARE = 'inelig_medicare'
       INELIG_NOT_ENOUGH_TIME = 'inelig_not_enough_time'
       INELIG_NOT_VERIFIED = 'inelig_not_verified'
+      INELIG_OTHER = 'inelig_other'
       INELIG_OVER65 = 'inelig_over65'
       INELIG_REFUSEDCOPAY = 'inelig_refusedcopay'
       INELIG_TRAINING_ONLY = 'inelig_training_only'
-      INELIG_OTHER = 'inelig_other'
       LOGIN_REQUIRED = 'login_required'
       NONE = 'none_of_the_above'
       PENDING_MT = 'pending_mt'
@@ -46,10 +46,10 @@ module HCA
         INELIG_MEDICARE,
         INELIG_NOT_ENOUGH_TIME,
         INELIG_NOT_VERIFIED,
+        INELIG_OTHER,
         INELIG_OVER65,
         INELIG_REFUSEDCOPAY,
         INELIG_TRAINING_ONLY,
-        INELIG_OTHER,
         LOGIN_REQUIRED,
         NONE,
         PENDING_MT,
