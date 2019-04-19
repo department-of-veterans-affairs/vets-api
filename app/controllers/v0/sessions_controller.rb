@@ -32,6 +32,7 @@ module V0
       logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
 
       errors = build_logout_errors(logout_response, logout_request)
+      additional_logging_for_logout_request(logout_response, logout_request)
 
       if errors.size.positive?
         extra_context = { in_response_to: logout_response&.in_response_to }
@@ -138,6 +139,27 @@ module V0
       errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
       errors << 'Logout Request not found!' if logout_request.nil?
       errors
+    end
+
+    # temporarily logging for discovery
+    def additional_logging_for_logout_request(logout_response, logout_request)
+      if logout_response.errors.empty?
+        if logout_request.present?
+          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
+            "'#{originating_request_id}'")
+        else
+          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+            "'#{originating_request_id}'")
+        end
+      else
+        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
+      end
+    end
+
+    def originating_request_id
+      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+    rescue
+      'UNKNOWN'
     end
 
     def url_service

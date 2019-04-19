@@ -45,7 +45,6 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
-    resource :feedback, only: [:create]
     resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
@@ -90,6 +89,7 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
 
     get 'ppiu/payment_information', to: 'ppiu#index'
+    put 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
