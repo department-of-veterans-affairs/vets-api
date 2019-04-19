@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Notification < ApplicationRecord
   include Notifications::EnumSubjectValues
   include Notifications::EnumStatusValues
