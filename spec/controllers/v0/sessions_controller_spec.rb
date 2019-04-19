@@ -29,11 +29,27 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   let(:logout_uuid) { '1234' }
   let(:invalid_logout_response) do
-    double('logout_response', valid?: false, validate: false, in_response_to: logout_uuid, errors: ['bad thing'])
+    instance_double(
+      SAML::Responses::Logout,
+      valid?: false,
+      validate: false,
+      in_response_to: logout_uuid,
+      normalized_errors: ['bad thing'],
+      errors: ['bad thing']
+    )
   end
   let(:successful_logout_response) do
-    double('logout_response', valid?: true, validate: true, success?: true, in_response_to: logout_uuid, errors: [])
+    instance_double(
+      SAML::Responses::Logout,
+      valid?: true,
+      validate: true,
+      success?: true,
+      in_response_to: logout_uuid,
+      normalized_errors: [],
+      errors: []
+    )
   end
+
   let(:decrypter) { Aes256CbcEncryptor.new(Settings.sso.cookie_key, Settings.sso.cookie_iv) }
   let(:authn_context) { LOA::IDME_LOA1 }
   let(:valid_saml_response) do

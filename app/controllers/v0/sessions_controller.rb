@@ -29,6 +29,7 @@ module V0
     end
 
     def saml_logout_callback
+      binding.pry
       @saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
       Raven.extra_context(in_response_to: @saml_response.try(:in_response_to) || 'ERROR')
 
@@ -133,6 +134,7 @@ module V0
     end
 
     def handle_error_reporting_and_instrumentation
+      binding.pry
       message = @saml_response.is_a?(SAML::Responses::Login) ? 'Login Fail! ' : 'Logout Fail! '
 
       if @saml_response.normalized_errors.present?
