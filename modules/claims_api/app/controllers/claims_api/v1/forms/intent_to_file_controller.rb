@@ -7,6 +7,7 @@ module ClaimsApi
     module Forms
       class IntentToFileController < BaseFormController
         before_action { permit_scopes %w[claim.write] }
+        before_action :check_future_type
 
         FORM_NUMBER = '0966'
         def submit_form_0966
@@ -22,6 +23,20 @@ module ClaimsApi
         end
 
         private
+
+        def check_future_type
+          unless form_type == 'compensation'
+            error = {
+              errors: [
+                {
+                  status: 422,
+                  details: "#{form_type.titelize} claims are not currently supported, but will be in a future version"
+                }
+              ]
+            }
+            render json: error, status: 422
+          end
+        end
 
         def service
           EVSS::IntentToFile::Service.new(target_veteran)
