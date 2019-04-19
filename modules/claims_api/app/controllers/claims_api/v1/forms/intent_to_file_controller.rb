@@ -6,6 +6,8 @@ module ClaimsApi
   module V1
     module Forms
       class IntentToFileController < BaseFormController
+        before_action { permit_scopes %w[claim.write] }
+
         FORM_NUMBER = '0966'
         def submit_form_0966
           response = service.create_intent_to_file(form_type)
