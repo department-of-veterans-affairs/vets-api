@@ -427,9 +427,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when NoMethodError is encountered elsewhere' do
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
-          expect(Raven).to receive(:extra_context).once
-          expect(Raven).not_to receive(:user_context)
-          expect(Raven).not_to receive(:tags_context).once
           expect(controller).to receive(:log_message_to_sentry)
           expect(post(:saml_callback))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
