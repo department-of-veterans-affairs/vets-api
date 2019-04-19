@@ -24,6 +24,7 @@ class YearToDateReportMailer < ApplicationMailer
       peter.chou1@va.gov
       Joseph.Welton@va.gov
       222A.VBAVACO@va.gov
+      Ricardo.DaSilva@va.gov
     ]
   }.freeze
 
