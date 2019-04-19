@@ -6,7 +6,7 @@ module Veteran
     class Organization < ApplicationRecord
       self.primary_key = :poa
 
-      validates_presence_of :poa
+      validates :poa, presence: true
     end
   end
 end
