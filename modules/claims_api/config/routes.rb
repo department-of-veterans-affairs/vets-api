@@ -21,6 +21,8 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       post '526', to: 'disability_compensation#submit_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
+      ## 0966 Forms
+      post '0966', to: 'intent_to_file#submit_form_0966'
     end
   end
 
