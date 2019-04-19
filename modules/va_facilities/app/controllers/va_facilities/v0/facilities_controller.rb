@@ -17,7 +17,7 @@ module VaFacilities
       before_action :validate_params, only: [:index]
 
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
-      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bounding box, or ids parameter to query facilities data.'
+      MISSING_PARAMS_ERR = 'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -68,22 +68,23 @@ module VaFacilities
       private
 
       def validate_params
-        validate_bbox_lat_and_long_or_ids
+        validate_bbox_lat_and_long_zip_or_ids
         validate_bbox
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def validate_bbox_lat_and_long_or_ids
+      def validate_bbox_lat_and_long_zip_or_ids
         bbox = params.key?(:bbox)
         lat_and_long = params.key?(:lat) && params.key?(:long)
-        ids = params.key? :ids
+        zip = params.key?(:zip)
+        ids = params.key?(:ids)
 
-        if !bbox && !lat_and_long && !ids
-          %i[bbox long lat ids].each do |param|
+        if !bbox && !lat_and_long && !zip && !ids
+          %i[bbox long lat zip ids].each do |param|
             unless params.key? param
-              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: LAT_AND_LONG_OR_ID_ERR)
+              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
             end
           end
         end
