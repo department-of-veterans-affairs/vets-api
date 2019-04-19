@@ -17,7 +17,7 @@ module HCA
           enrollment_status: 'not eligible',
           category: INELIG_OTHER
         }
-      ]
+      ].freeze
 
       CATEGORIES = [
         {
