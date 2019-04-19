@@ -15,12 +15,11 @@ RSpec.describe 'Intent to file', type: :request do
   end
   let(:scopes) { %w[claim.write] }
   let(:path) { '/services/claims/v1/forms/0966' }
+  let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
 
   before(:each) { stub_poa_verification }
 
   describe '#0966' do
-    let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
-
     it 'should return a payload with an expiration date' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
@@ -44,6 +43,18 @@ RSpec.describe 'Intent to file', type: :request do
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post path, headers: headers.merge(auth_header)
           expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('compensation')
+        end
+      end
+    end
+  end
+
+  describe '#active' do
+    it 'should return the latest itf of a type' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          get "#{path}/active", params: data.to_json, headers: headers.merge(auth_header)
+          expect(response.status).to eq(200)
+          expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
         end
       end
     end

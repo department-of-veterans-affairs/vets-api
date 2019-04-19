@@ -15,6 +15,12 @@ module ClaimsApi
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
+        def active
+          response = service.get_active(form_type)
+          render json: response['intent_to_file'],
+                 serializer: ClaimsApi::IntentToFileSerializer
+        end
+
         private
 
         def service
