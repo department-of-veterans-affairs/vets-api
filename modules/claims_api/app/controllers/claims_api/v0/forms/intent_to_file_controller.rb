@@ -24,7 +24,7 @@ module ClaimsApi
 
         def form_type
           if !form_attributes.empty?
-            attributes['type']
+            form_attributes['type']
           else
             'compensation'
           end
