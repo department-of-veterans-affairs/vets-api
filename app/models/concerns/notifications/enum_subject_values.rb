@@ -15,7 +15,7 @@ module Notifications
       #
       # Do **NOT** remap any existing attributes or integers.
       #
-      # @return <Hash>
+      # @return [Hash]
       # @see https://api.rubyonrails.org/v5.2/classes/ActiveRecord/Enum.html
       #
       def subjects_mapped_to_database_integers
