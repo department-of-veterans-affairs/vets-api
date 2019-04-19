@@ -294,6 +294,12 @@ redis:
   host: localhost
   port: 6379
 
+# Settings for GovDelivery (email delivery)
+govdelivery:
+  staging_service: true
+  server: stage-tms.govdelivery.com
+  token: ~
+
 # Settings for Education Benefits report uploading
 reports:
   send_email: true
