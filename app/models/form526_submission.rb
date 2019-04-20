@@ -33,6 +33,8 @@ class Form526Submission < ApplicationRecord
 
   has_many :form526_job_statuses, dependent: :destroy
 
+  validates(:auth_headers_json, presence: true)
+
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
   FORM_4142 = 'form4142'
