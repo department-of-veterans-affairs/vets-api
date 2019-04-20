@@ -55,6 +55,11 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
   end
 
+  def expect_logger_msg(level, msg)
+    allow(Rails.logger).to receive(level)
+    expect(Rails.logger).to receive(level).with(msg)
+  end
+
   before(:each) do
     request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -198,7 +203,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'redirects as success and logs the failure' do
           msg = "SLO callback response invalid for originating_request_id 'blah'"
-          expect(Rails.logger).to receive(:info).with(msg)
+          expect_logger_msg(:info, msg)
           expect(controller).to receive(:log_message_to_sentry)
           expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
             .to redirect_to(logout_redirect_url)
@@ -223,7 +228,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
 
             msg = "SLO callback response could not resolve logout request for originating_request_id 'blah'"
-            expect(Rails.logger).to receive(:info).with(msg)
+            expect_logger_msg(:info, msg)
             expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
               .to redirect_to(logout_redirect_url)
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
@@ -252,7 +257,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
 
           msg = "SLO callback response to '1234' for originating_request_id 'blah'"
-          expect(Rails.logger).to receive(:info).with(msg)
+          expect_logger_msg(:info, msg)
           expect(controller).not_to receive(:log_message_to_sentry)
           expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: logout_relay_state_param }))
             .to redirect_to(logout_redirect_url)
