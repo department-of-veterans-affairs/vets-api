@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class Form526Submission < ApplicationRecord
-  # TODO: require non blank for auth_headers_json or remove null constraint
   # A 526 disability compensation form record. This class is used to persist the post transformation form
   # and track submission workflow steps.
   #
