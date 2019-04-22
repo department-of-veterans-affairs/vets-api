@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190412132646) do
+ActiveRecord::Schema.define(version: 20190419012709) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -296,6 +296,19 @@ ActiveRecord::Schema.define(version: 20190412132646) do
     t.datetime "updated_at",         null: false
     t.string   "mhv_correlation_id"
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true, using: :btree
+  end
+
+  create_table "notifications", force: :cascade do |t|
+    t.integer  "account_id",          null: false
+    t.integer  "subject",             null: false
+    t.integer  "status"
+    t.datetime "status_effective_at"
+    t.datetime "read_at"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["account_id"], name: "index_notifications_on_account_id", using: :btree
+    t.index ["status"], name: "index_notifications_on_status", using: :btree
+    t.index ["subject"], name: "index_notifications_on_subject", using: :btree
   end
 
   create_table "persistent_attachments", force: :cascade do |t|
