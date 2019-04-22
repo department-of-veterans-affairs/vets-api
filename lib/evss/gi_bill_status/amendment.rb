@@ -12,7 +12,7 @@ module EVSS
     # @!attribute online_hours
     #   @return [Float] The number of credit hours the user took online
     # @!attribute yellow_ribbon_amount
-    #   @return [Float] The institution's contributions to the Yellow Ribbon Program
+    #   @return [Float] The institution's financial contributions to the Yellow Ribbon Program
     # @!attribute type
     #   @return [String] The amendment type
     # @!attribute status
