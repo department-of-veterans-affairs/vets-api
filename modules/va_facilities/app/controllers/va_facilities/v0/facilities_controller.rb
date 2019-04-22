@@ -16,6 +16,7 @@ module VaFacilities
       before_action :set_default_format
       before_action :validate_params, only: [:index]
 
+      REQUIRE_ONE_PARAM = %i[bbox long lat zip ids].freeze
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
       MISSING_PARAMS_ERR =
         'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
@@ -69,21 +70,19 @@ module VaFacilities
       private
 
       def validate_params
-        validate_bbox_lat_and_long_zip_or_ids
+        validate_a_param_exists
         validate_bbox
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
       end
 
-      def validate_bbox_lat_and_long_zip_or_ids
-        bbox = params.key?(:bbox)
+      def validate_a_param_exists
+        req_params = REQUIRE_ONE_PARAM.map { |param| params.key? param }
         lat_and_long = params.key?(:lat) && params.key?(:long)
-        zip = params.key?(:zip)
-        ids = params.key?(:ids)
 
-        if !bbox && !lat_and_long && !zip && !ids
-          %i[bbox long lat zip ids].each do |param|
+        if req_params.none? && !lat_and_long
+          REQUIRE_ONE_PARAM.each do |param|
             unless params.key? param
               raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
             end
