@@ -3,6 +3,6 @@
 FactoryBot.define do
   factory :notification do
     account
-    subject { Notification::DASH_HCA }
+    subject { :dashboard_health_care_application_notification }
   end
 end
