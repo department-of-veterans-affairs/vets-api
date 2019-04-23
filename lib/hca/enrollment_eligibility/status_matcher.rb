@@ -8,6 +8,17 @@ module HCA
 
       include ParsedStatuses
 
+      CATCHALL_CATEGORIES = [
+        {
+          enrollment_status: 'rejected',
+          category: REJECTED_RIGHTENTRY
+        },
+        {
+          enrollment_status: 'not eligible',
+          category: INELIG_OTHER
+        }
+      ].freeze
+
       CATEGORIES = [
         {
           enrollment_status: 'verified',
@@ -138,6 +149,14 @@ module HCA
         enroll_status == statuses
       end
 
+      def parse_catchall_categories(enrollment_status)
+        CATCHALL_CATEGORIES.each do |category_data|
+          return category_data[:category] if enrollment_status.include?(category_data[:enrollment_status])
+        end
+
+        nil
+      end
+
       def parse(enrollment_status, ineligibility_reason = '')
         return NONE if enrollment_status.blank?
         enrollment_status = enrollment_status.downcase.strip
@@ -153,7 +172,7 @@ module HCA
           end
         end
 
-        return REJECTED_RIGHTENTRY if enrollment_status.include?('rejected')
+        parse_catchall_categories(enrollment_status).tap { |c| return c if c.present? }
 
         NONE
       end

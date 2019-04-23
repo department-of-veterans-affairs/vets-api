@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/application_controller'
+require_dependency 'claims_api/base_form_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
-      class DisabilityCompensationController < ApplicationController
+      class DisabilityCompensationController < BaseFormController
+        FORM_NUMBER = '526'
         skip_before_action(:authenticate)
+        skip_before_action(:verify_power_of_attorney)
+        skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -21,8 +24,6 @@ module ClaimsApi
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue RuntimeError => e
-          render json: { errors: e.message }, status: 422
         end
 
         def upload_supporting_documents
@@ -38,10 +39,6 @@ module ClaimsApi
         end
 
         private
-
-        def form_attributes
-          params[:data][:attributes]
-        end
 
         def documents
           document_keys = params.keys.select { |key| key.include? 'attachment' }

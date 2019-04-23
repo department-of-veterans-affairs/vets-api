@@ -27,6 +27,8 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
   let(:scopes) { %w[claim.read] }
 
+  before(:each) { stub_poa_verification }
+
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     with_okta_user(scopes) do |auth_header|
       verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')

@@ -47,7 +47,7 @@ describe HCA::EnrollmentEligibility::StatusMatcher do
           ['24 Months', STATUS::INELIG_NOT_ENOUGH_TIME],
           ['training only', STATUS::INELIG_TRAINING_ONLY],
           ['ACDUTRA', STATUS::INELIG_TRAINING_ONLY],
-          ['ACDUTRa', STATUS::NONE],
+          ['ACDUTRa', STATUS::INELIG_OTHER],
           ['Other than honorable', STATUS::INELIG_CHARACTER_OF_DISCHARGE],
           ['OTH', STATUS::INELIG_CHARACTER_OF_DISCHARGE],
           ['non vet', STATUS::INELIG_NOT_VERIFIED],
