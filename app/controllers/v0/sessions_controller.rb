@@ -33,15 +33,7 @@ module V0
       Raven.extra_context(in_response_to: @saml_response.try(:in_response_to) || 'ERROR')
 
       if @saml_response.valid?
-        logout_request  = SingleLogoutRequest.find(@saml_response&.in_response_to)
-        if logout_request.present?
-          logout_request.destroy
-          Rails.logger.info("SLO callback response to '#{@saml_response&.in_response_to}' for originating_request_id "\
-            "'#{originating_request_id}'")
-        else
-          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
-            "'#{originating_request_id}'")
-        end
+        user_logout(@saml_response)
       else
         log_message_to_sentry(
           @saml_response.errors_message, @saml_response.errors_hash[:level], @saml_response.errors_context
@@ -58,20 +50,7 @@ module V0
       @saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
 
       if @saml_response.valid?
-        user_session_form = UserSessionForm.new(@saml_response)
-        if user_session_form.valid?
-          @current_user, @session_object = user_session_form.persist
-          set_cookies
-          after_login_actions
-          redirect_to url_service.login_redirect_url
-          stats(:success)
-        else
-          log_message_to_sentry(
-            user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
-          )
-          redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
-          stats(:failure, user_session_form.error_instrumentation_code)
-        end
+        user_login(@saml_response)
       else
         log_message_to_sentry(
           @saml_response.errors_message, @saml_response.errors_hash[:level], @saml_response.errors_context
@@ -95,6 +74,35 @@ module V0
         super
       else
         reset_session
+      end
+    end
+
+    def user_login(_saml_response)
+      user_session_form = UserSessionForm.new(@saml_response)
+      if user_session_form.valid?
+        @current_user, @session_object = user_session_form.persist
+        set_cookies
+        after_login_actions
+        redirect_to url_service.login_redirect_url
+        stats(:success)
+      else
+        log_message_to_sentry(
+          user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
+        )
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
+        stats(:failure, user_session_form.error_instrumentation_code)
+      end
+    end
+
+    def user_logout(_saml_response)
+      logout_request = SingleLogoutRequest.find(@saml_response&.in_response_to)
+      if logout_request.present?
+        logout_request.destroy
+        Rails.logger.info("SLO callback response to '#{@saml_response&.in_response_to}' for originating_request_id "\
+          "'#{originating_request_id}'")
+      else
+        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+          "'#{originating_request_id}'")
       end
     end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'saml/responses/base'
 
 module SAML
@@ -12,8 +13,6 @@ module SAML
                               message += errors_hash[:short_message]
                               message += ' Multiple SAML Errors' if normalized_errors.count > 1
                               message
-                            else
-                              nil
                             end
       end
     end

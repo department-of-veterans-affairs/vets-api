@@ -49,8 +49,6 @@ class UserSessionForm
                           message = 'Login Failed! '
                           message += errors_hash[:short_message]
                           message
-                        else
-                          nil
                         end
   end
 
@@ -59,7 +57,7 @@ class UserSessionForm
   end
 
   def errors_context
-    errors_hash.merge({
+    errors_hash.merge(
       uuid: @user.uuid,
       user:   {
         valid: @user&.valid?,
@@ -75,7 +73,7 @@ class UserSessionForm
         authn_context: @user_identity&.authn_context,
         loa: @user_identity&.loa
       }
-    })
+    )
   end
 
   def error_code
