@@ -8,8 +8,7 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
   end
 
   before do
-    Settings.reports.token = 'asdf'
-    Settings.reports.server = 'stage-tms.govdelivery.com'
+    Settings.govdelivery.token = 'asdf'
     Settings.google_analytics_tracking_id = 'UA-XXXXXXXXX-1'
   end
 

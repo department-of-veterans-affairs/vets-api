@@ -48,7 +48,8 @@ RSpec.describe Preneeds::BurialForm do
 
   describe 'when validating' do
     it 'compares a form against the schema' do
-      expect(described_class.new(params).validate).to be_empty
+      schema = VetsJsonSchema::SCHEMAS['40-10007']
+      expect(described_class.validate(schema, described_class.new(params))).to be_empty
     end
   end
 end

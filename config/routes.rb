@@ -89,6 +89,7 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
 
     get 'ppiu/payment_information', to: 'ppiu#index'
+    put 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
@@ -243,6 +244,7 @@ Rails.application.routes.draw do
       'dashboard',
       'veteran_id_card',
       'all_claims',
+      'hca2',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(

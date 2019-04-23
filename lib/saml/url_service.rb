@@ -32,6 +32,8 @@ module SAML
 
       @saml_settings = saml_settings
 
+      Raven.extra_context(params: params)
+      Raven.user_context(session: session, user: user)
       initialize_query_params(params)
     end
 
@@ -124,9 +126,7 @@ module SAML
     def initialize_query_params(params)
       @query_params = {}
 
-      if params[:action] == 'new'
-        @query_params[:clientId] = params[:client_id] if params[:client_id]
-      elsif params[:action] == 'saml_callback'
+      if params[:action] == 'saml_callback'
         @type = JSON.parse(params[:RelayState])['type'] if params[:RelayState]
       end
     end
