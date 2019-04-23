@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS Paid Reserve drill days data
     class ReserveDrillDays
       include Virtus.model
 
