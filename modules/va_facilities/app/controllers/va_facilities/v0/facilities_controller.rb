@@ -70,6 +70,7 @@ module VaFacilities
       def validate_params
         validate_bbox_lat_and_long_or_ids
         validate_bbox
+        validate_state_code
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
@@ -116,6 +117,12 @@ module VaFacilities
           BaseFacility::TYPES.include?(params[:type])
         unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
         raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+      end
+
+      def validate_state_code
+        if params[:state] && !STATE_CODES.include?(params[:state])
+          raise Common::Exceptions::InvalidFieldValue.new('state', params[:state])
+        end
       end
 
       def metadata(resource)
