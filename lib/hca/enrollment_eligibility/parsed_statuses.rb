@@ -3,6 +3,11 @@
 module HCA
   module EnrollmentEligibility
     module ParsedStatuses
+      # Defines the collection of eligible HCA enrollment statuses.
+      #
+      # To add a new status, it **must also be added** to the
+      # /app/models/notification#status enum values hash.
+      #
       ACTIVEDUTY = 'activeduty'
       CANCELED_DECLINED = 'canceled_declined'
       CLOSED = 'closed'
