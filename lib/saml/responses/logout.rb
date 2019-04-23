@@ -5,6 +5,17 @@ module SAML
   module Responses
     class Logout < OneLogin::RubySaml::Logoutresponse
       include SAML::Responses::Base
+
+      def errors_message
+        @errors_message ||= if errors.any?
+                              message = 'Logout Failed! '
+                              message += errors_hash[:short_message]
+                              message += ' Multiple SAML Errors' if normalized_errors.count > 1
+                              message
+                            else
+                              nil
+                            end
+      end
     end
   end
 end

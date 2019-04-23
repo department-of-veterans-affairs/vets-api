@@ -28,16 +28,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:rubysaml_settings)   { build(:rubysaml_settings, assertion_consumer_service_url: callback_url) }
 
   let(:logout_uuid) { '1234' }
-  let(:invalid_logout_response) do
-    instance_double(
-      SAML::Responses::Logout,
-      valid?: false,
-      validate: false,
-      in_response_to: logout_uuid,
-      normalized_errors: ['bad thing'],
-      errors: ['bad thing']
-    )
-  end
+  let(:invalid_logout_response) { SAML::Responses::Logout.new('', rubysaml_settings) }
   let(:successful_logout_response) do
     instance_double(
       SAML::Responses::Logout,
@@ -45,7 +36,6 @@ RSpec.describe V0::SessionsController, type: :controller do
       validate: true,
       success?: true,
       in_response_to: logout_uuid,
-      normalized_errors: [],
       errors: []
     )
   end
@@ -443,7 +433,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       context 'when NoMethodError is encountered elsewhere' do
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
-          expect(controller).to receive(:log_message_to_sentry)
+          expect(controller).to receive(:log_exception_to_sentry)
           expect(post(:saml_callback))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
         end
@@ -476,7 +466,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
-          expect(Rails.logger).to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/).twice
+          expect(Rails.logger).to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -511,7 +501,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'logs a generic error', :aggregate_failures do
           expect(controller).to receive(:log_message_to_sentry)
             .with(
-              'Login Fail! Other SAML Response Error(s)',
+              'Login Failed! Other SAML Response Error(s)',
               :error,
               [{ code: '007',
                  tag: :unknown,
@@ -542,7 +532,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'logs a generic error' do
           expect(controller).to receive(:log_message_to_sentry)
             .with(
-              'Login Fail! Subject did not consent to attribute release Multiple SAML Errors',
+              'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
               [{ code: '001', tag: :clicked_deny, short_message: 'Subject did not consent to attribute release',
                  level: :warn, full_message: 'Subject did not consent to attribute release' },
@@ -576,8 +566,13 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'logs a generic user validation error', :aggregate_failures do
           expect(controller).to receive(:log_message_to_sentry)
             .with(
-              'Login Fail! on User/Session Validation',
+              'Login Failed! on User/Session Validation',
               :error,
+              code: '004',
+              tag: :validations_failed,
+              short_message: 'on User/Session Validation',
+              level: :error,
+              uuid: nil,
               uuid: nil,
               user: {
                 valid: false,

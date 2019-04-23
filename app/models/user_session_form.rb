@@ -8,7 +8,7 @@ class UserSessionForm
                                    short_message: 'on User/Session Validation',
                                    level: :error } }.freeze
 
-  attr_reader :user, :session
+  attr_reader :user, :user_identity, :session
 
   def initialize(saml_response)
     saml_attributes = SAML::User.new(saml_response)
@@ -29,7 +29,6 @@ class UserSessionForm
     errors.add(:session, :invalid) unless session.valid?
     errors.add(:user, :invalid) unless user.valid?
     errors.add(:user_identity, :invalid) unless @user_identity.valid?
-    Raven.extra_context(user_session_validation_errors: validation_error_context) unless errors.empty?
     errors.empty?
   end
 
@@ -45,27 +44,22 @@ class UserSessionForm
     end
   end
 
-  def handle_error_reporting_and_instrumentation
-    message = 'Login Fail! '
-    if saml_response.normalized_errors.present?
-      error_hash = saml_response.normalized_errors.first
-      error_context = saml_response.normalized_errors
-      message += error_hash[:short_message]
-      message += ' Multiple SAML Errors' if saml_response.normalized_errors.count > 1
-    else
-      error_hash = ERRORS[:validations_failed]
-      error_context = validation_error_context
-      message += error_hash[:short_message]
-    end
-    @auth_error_code = error_hash[:code]
-    @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
-    log_message_to_sentry(message, error_hash[:level], error_context)
+  def errors_message
+    @errors_message ||= if errors.any?
+                          message = 'Login Failed! '
+                          message += errors_hash[:short_message]
+                          message
+                        else
+                          nil
+                        end
   end
 
-  private
+  def errors_hash
+    ERRORS[:validations_failed] if errors.any?
+  end
 
-  def validation_error_context
-    {
+  def errors_context
+    errors_hash.merge({
       uuid: @user.uuid,
       user:   {
         valid: @user&.valid?,
@@ -81,6 +75,14 @@ class UserSessionForm
         authn_context: @user_identity&.authn_context,
         loa: @user_identity&.loa
       }
-    }
+    })
+  end
+
+  def error_code
+    errors_hash[:code] if errors.any?
+  end
+
+  def error_instrumentation_code
+    "error:#{errors_hash[:tag]}" if errors.any?
   end
 end

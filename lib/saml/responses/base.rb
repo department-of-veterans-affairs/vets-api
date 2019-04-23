@@ -28,11 +28,26 @@ module SAML
         @normalized_errors ||= []
       end
 
+      def errors_hash
+        normalized_errors.first
+      end
+
+      def errors_context
+        normalized_errors
+      end
+
+      def error_code
+        errors_hash[:code] if errors.any?
+      end
+
+      def error_instrumentation_code
+        "error:#{errors_hash[:tag]}" if errors.any?
+      end
+
       def valid?
         @normalized_errors = []
         # passing true collects all validation errors
-        is_valid_result = is_valid?(true)
-        Raven.extra_context(saml_response_errors: errors) unless errors.empty?
+        is_valid_result = validate(true)
         errors.each do |error_message|
           normalized_errors << map_message_to_error(error_message).merge(full_message: error_message)
         end

@@ -63,7 +63,7 @@ module SAML
       )
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
       allow(saml_response).to receive(:attributes).and_return(attributes)
-      allow(saml_response).to receive(:is_valid?).and_return(true)
+      allow(saml_response).to receive(:validate).and_return(true)
       allow(saml_response).to receive(:decrypted_document).and_return(document_partial(authn_context))
       saml_response
     end
@@ -71,7 +71,7 @@ module SAML
 
     def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
       saml_response = SAML::Responses::Login.new(decrypted_document.to_s)
-      allow(saml_response).to receive(:is_valid?).and_return(false)
+      allow(saml_response).to receive(:validate).and_return(false)
       allow(saml_response).to receive(:errors).and_return(errors)
       allow(saml_response).to receive(:in_response_to).and_return(in_response_to)
       allow(saml_response).to receive(:decrypted_document).and_return(decrypted_document)

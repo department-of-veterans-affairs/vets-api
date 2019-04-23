@@ -29,21 +29,23 @@ module V0
     end
 
     def saml_logout_callback
-      binding.pry
       @saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
       Raven.extra_context(in_response_to: @saml_response.try(:in_response_to) || 'ERROR')
 
       if @saml_response.valid?
-        logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+        logout_request  = SingleLogoutRequest.find(@saml_response&.in_response_to)
         if logout_request.present?
-          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
+          logout_request.destroy
+          Rails.logger.info("SLO callback response to '#{@saml_response&.in_response_to}' for originating_request_id "\
             "'#{originating_request_id}'")
         else
           Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
             "'#{originating_request_id}'")
         end
       else
-        handle_error_reporting_and_instrumentation
+        log_message_to_sentry(
+          @saml_response.errors_message, @saml_response.errors_hash[:level], @saml_response.errors_context
+        )
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
     rescue StandardError => e
@@ -64,14 +66,18 @@ module V0
           redirect_to url_service.login_redirect_url
           stats(:success)
         else
-          handle_error_reporting_and_instrumentation
-          redirect_to url_service.login_redirect_url(auth: 'fail', code: @auth_error_code)
-          stats(:failure, @failure_instrumentation_tag)
+          log_message_to_sentry(
+            user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
+          )
+          redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
+          stats(:failure, user_session_form.error_instrumentation_code)
         end
       else
-        handle_error_reporting_and_instrumentation
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @auth_error_code)
-        stats(:failure, @failure_instrumentation_tag)
+        log_message_to_sentry(
+          @saml_response.errors_message, @saml_response.errors_hash[:level], @saml_response.errors_context
+        )
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: @saml_response.error_code)
+        stats(:failure, @saml_response.error_instrumentation_code)
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
@@ -131,24 +137,6 @@ module V0
         additional_context = StringHelpers.heuristics(current_user.identity.ssn, current_user.va_profile.ssn)
         log_message_to_sentry('SSNS DO NOT MATCH!!', :warn, identity_compared_with_mvi: additional_context)
       end
-    end
-
-    def handle_error_reporting_and_instrumentation
-      binding.pry
-      message = @saml_response.is_a?(SAML::Responses::Login) ? 'Login Fail! ' : 'Logout Fail! '
-
-      if @saml_response.normalized_errors.present?
-        error_hash = @saml_response.normalized_errors.first
-        message += error_hash[:short_message]
-        message += ' Multiple SAML Errors' if @saml_response.normalized_errors.count > 1
-      else
-        error_hash = UserSessionForm::ERRORS[:validations_failed]
-        message += error_hash[:short_message]
-      end
-      @auth_error_code = error_hash[:code]
-      @failure_instrumentation_tag = "error:#{error_hash[:tag]}"
-
-      log_message_to_sentry(message, error_hash[:level], {})
     end
 
     def originating_request_id
