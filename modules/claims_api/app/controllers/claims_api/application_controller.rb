@@ -51,7 +51,9 @@ module ClaimsApi
 
     def target_veteran(with_gender: false)
       if poa_request?
-        ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
+        vet = ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
+        vet.loa = @current_user.loa if @current_user
+        vet
       else
         ClaimsApi::Veteran.from_identity(identity: @current_user)
       end
