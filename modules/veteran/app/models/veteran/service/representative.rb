@@ -12,6 +12,14 @@ module Veteran
 
       validates_presence_of :poa
 
+      def as_json
+        {
+          first_name: first_name,
+          last_name: last_name,
+          power_of_attorney_code: poa
+        }
+      end
+
       def self.for_user(user)
         find_by(first_name: user.first_name, last_name: user.last_name)
       end
