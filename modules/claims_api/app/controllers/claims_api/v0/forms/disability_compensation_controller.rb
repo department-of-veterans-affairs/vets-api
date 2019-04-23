@@ -45,15 +45,11 @@ module ClaimsApi
           params.slice(*document_keys).values
         end
 
-        def target_veteran
-          @target_veteran ||= ClaimsApi::Veteran.from_headers(request.headers, with_gender: true)
-        end
-
         def auth_headers
           evss_headers = EVSS::DisabilityCompensationAuthHeaders
-                         .new(target_veteran)
+                         .new(target_veteran(with_gender: true))
                          .add_headers(
-                           EVSS::AuthHeaders.new(target_veteran).to_h
+                           EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
                          )
           if request.headers['Mock-Override'] &&
              Settings.claims_api.disability_claims_mock_override
