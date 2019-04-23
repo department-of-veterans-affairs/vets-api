@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'csv'
+
 require 'facilities/client'
 
 class BaseFacility < ApplicationRecord
@@ -153,6 +155,7 @@ class BaseFacility < ApplicationRecord
     def query(params)
       # TODO: Sort hours similar to `find_factility_by_id` method on line 146
       return radial_query(params) if params[:lat] && params[:long]
+      return zip_query(params) if params[:zip]
       return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
       return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
@@ -200,6 +203,18 @@ class BaseFacility < ApplicationRecord
       end.flatten
     end
     # rubocop:enable Metrics/ParameterLists
+
+    def zip_query(params)
+      # TODO: allow user to set distance from zip
+      zcta = CSV.read(Rails.root.join('modules', 'va_facilities', '2018_Gaz_zcta_national.txt'), col_sep: "\t")
+      requested_zip = zcta.select { |area| area[0] == params[:zip] }
+      # TODO: iterate over zcta, pushing each zip code that is within distance into an array
+      # TODO: change zip criteria to array of zip codes
+      conditions = 'address @> ?', { physical: { zip: requested_zip[0][0] } }.to_json
+      TYPES.map do |facility_type|
+        get_facility_data(conditions, params[:type], facility_type, params[:services])
+      end.flatten
+    end
 
     def build_result_set(bbox_num, type, services)
       lats = bbox_num.values_at(1, 3)
