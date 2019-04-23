@@ -79,8 +79,9 @@ module VaFacilities
         bbox = params.key?(:bbox)
         lat_and_long = params.key?(:lat) && params.key?(:long)
         ids = params.key? :ids
+        state = params.key? :state
 
-        if !bbox && !lat_and_long && !ids
+        if !bbox && !lat_and_long && !ids && !state
           %i[bbox long lat ids].each do |param|
             unless params.key? param
               raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: LAT_AND_LONG_OR_ID_ERR)

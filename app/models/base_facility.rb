@@ -152,11 +152,20 @@ class BaseFacility < ApplicationRecord
 
     def query(params)
       # TODO: Sort hours similar to `find_factility_by_id` method on line 146
+      return state_query(params) if params[:state]
       return radial_query(params) if params[:lat] && params[:long]
       return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
       return BaseFacility.none unless params[:bbox]
       bbox_num = params[:bbox].map { |x| Float(x) }
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
+    end
+
+    def state_query(params)
+      state = params[:state]
+      conditions = "address @> '{ \"physical\": {\"state\": \"#{state}\"}}'"
+      TYPES.map do |facility_type|
+        get_facility_data(conditions, params[:type], facility_type, params[:services])
+      end.flatten
     end
 
     def radial_query(params)
