@@ -4,6 +4,12 @@ require 'common/client/concerns/service_status'
 require 'common/models/base'
 
 module EVSS
+  ##
+  # Model for EVSS responses. Body is passed straight through from the service.
+  #
+  # @param status [Integer] The HTTP status code from the service
+  # @param attributes [Hash] Additional response attributes
+  #
   class Response < Common::Base
     include Common::Client::ServiceStatus
 
