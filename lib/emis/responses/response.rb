@@ -100,16 +100,21 @@ module EMIS
         locate(tag_without_namespace, el).first
       end
 
-      #
-      # This bit of unpleasantness is because the SOAP responses from eMIS have
-      # a separate namespace FOR EVERY SINGLE TAG. It's not possible to find all the tags
-      # of a specific type, since Ox also doesn't support real XPath and therefore doesn't
-      # allow wildcards on parts of the tag. So this finds all of the elements and caches
-      # them by tag so that later we can pull those tags out by a regex that ignores the
-      # namespaces. For extra fun, the casing is sometimes different for the tags, so we must
-      # do a case-insensitive regex.
-      #
+      # Finds elements by XML tag name
+      # @param tag_without_namespace [String] XML tag name without namespace
+      # @param el [Ox::Document] Root element to search from
+      # @param skip_el [Boolean] Skip root element in results if true
+      # @return [Array<Ox::Element>] Elements found
       def find_all_elements_by_tag_name(tag_without_namespace, el, skip_el: false)
+        #
+        # This bit of unpleasantness is because the SOAP responses from eMIS have
+        # a separate namespace FOR EVERY SINGLE TAG. It's not possible to find all the tags
+        # of a specific type, since Ox also doesn't support real XPath and therefore doesn't
+        # allow wildcards on parts of the tag. So this finds all of the elements and caches
+        # them by tag so that later we can pull those tags out by a regex that ignores the
+        # namespaces. For extra fun, the casing is sometimes different for the tags, so we must
+        # do a case-insensitive regex.
+        #
         [].tap do |result|
           if !skip_el && el.respond_to?(:value)
             result << el if el.value =~ /^NS\d+:#{tag_without_namespace}$/i
