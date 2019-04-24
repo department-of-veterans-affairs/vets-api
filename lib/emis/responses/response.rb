@@ -2,29 +2,39 @@
 
 module EMIS
   module Responses
+    # Generic EMIS response wrapper used to translate the XML data
+    # into a model object
     class Response
+      # @param raw_response [Faraday::Env] Faraday response object
       def initialize(raw_response)
         @root = raw_response.body
       end
 
+      # @return [EMIS::Models] Response translated into array of
+      #  +model_class+
       def items
         locate(item_tag_name).map do |el|
           build_item(el)
         end
       end
 
+      # @return [Boolean] Returns true if response code was successful
       def ok?
         locate_one('essResponseCode')&.nodes&.first == 'Success'
       end
 
+      # (see EMIS::Responses::Response#ok?)
       def cache?
         ok?
       end
 
+      # @return [Boolean] Returns true if response code had an error
       def error?
         locate_one('essResponseCode')&.nodes&.first == 'ERROR'
       end
 
+      # @return [EMIS::Errors::ServiceError] Translates XML error data
+      #  into an error class
       def error
         return nil unless error?
 
@@ -35,16 +45,26 @@ module EMIS
         EMIS::Errors::ServiceError.new("#{code} #{text} #{ess_text}")
       end
 
+      # @return [Boolean] Returns true if data set is empty
       def empty?
         locate_one('essResponseCode')&.nodes&.first.nil?
       end
 
+      # Locate elements from root element by tag name
+      # @param tag_without_namespace [String] XML tag name without namespace
+      # @param el [Ox::Document] Root element to search from
+      # @return [Array<Ox::Element>] Elements found
       def locate(tag_without_namespace, el = @root)
         find_all_elements_by_tag_name(tag_without_namespace, el, skip_el: true)
       end
 
       protected
 
+      # Build model class populated with XML data
+      # @param el [Ox::Element] Root XML element
+      # @param schema [Hash] Schema for translating XML data to model attributes
+      # @param model_class [EMIS::Models] Data model class
+      # @return [EMIS::Models] Populated model class
       def build_item(el, schema: item_schema, model_class: self.model_class)
         model_class.new.tap do |model|
           schema.each do |tag, data|
