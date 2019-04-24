@@ -68,7 +68,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances'].length).to eq(10)
     end
 
-    it 'responds to GET #index with zip', :focus do
+    it 'responds to GET #index with zip' do
       setup_pdx
       get base_query_path + zip, params: nil, headers: accept_json
       expect(response).to be_success
@@ -78,7 +78,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances']).to eq([])
     end
 
-    it 'responds to GET #index with zip+4', :focus do
+    it 'responds to GET #index with zip+4' do
       setup_pdx
       get base_query_path + zip + '-3432', params: nil, headers: accept_json
       expect(response).to be_success
@@ -88,7 +88,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances']).to eq([])
     end
 
-    it 'responds to GET #index with a malformed zip', :focus do
+    it 'responds to GET #index with a malformed zip' do
       setup_pdx
       get base_query_path + '?zip=-3432', params: nil, headers: accept_json
       expect(response).to be_success
