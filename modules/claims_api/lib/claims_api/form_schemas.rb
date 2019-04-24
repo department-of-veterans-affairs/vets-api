@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'claims_api/json_api_missing_attribute'
+require_dependency 'claims_api/json_api_missing_attribute'
 
 module ClaimsApi
   class FormSchemas
