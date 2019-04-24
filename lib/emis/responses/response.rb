@@ -79,6 +79,11 @@ module EMIS
         end
       end
 
+      # Set an attribute of a model class with XML data
+      # @param el [Ox::Element] XML element
+      # @param tag [String] XML tag name
+      # @param field_name [String] Model setter name
+      # @param model [EMIS::Models] Model class
       def build_item_value(el, tag, field_name, model)
         value = locate_one(tag, el)
         if value
@@ -87,6 +92,10 @@ module EMIS
         end
       end
 
+      # Locate one element from root element by tag name
+      # @param tag_without_namespace [String] XML tag name without namespace
+      # @param el [Ox::Document] Root element to search from
+      # @return [Ox::Element] Element found
       def locate_one(tag_without_namespace, el = @root)
         locate(tag_without_namespace, el).first
       end
