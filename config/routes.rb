@@ -89,6 +89,7 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
 
     get 'ppiu/payment_information', to: 'ppiu#index'
+    put 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
@@ -234,6 +235,10 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
+    namespace :notifications do
+      resources :dismissed_statuses, only: :show, param: :subject
+    end
+
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
     resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
     delete 'user/preferences/:code/delete_all', to: 'user_preferences#delete_all'
@@ -243,6 +248,7 @@ Rails.application.routes.draw do
       'dashboard',
       'veteran_id_card',
       'all_claims',
+      'hca2',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(
