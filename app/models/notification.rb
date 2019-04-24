@@ -17,8 +17,8 @@ class Notification < ApplicationRecord
   ENUM_SUBJECT_VALUE_MAPPINGS = {
     form_10_10ez: 0,
     dashboard_health_care_application_notification: 1
-  }.each_key do |status|
-    const_set(status.upcase, status)
+  }.each_key do |subject|
+    const_set(subject.upcase, subject)
   end
 
   # Creates the ActiveRecord::Enum mappings between the attribute values and
