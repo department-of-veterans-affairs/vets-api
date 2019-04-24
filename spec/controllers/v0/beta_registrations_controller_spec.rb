@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::BetaRegistrationsController, type: :controller do
   context 'when not logged in' do
     it 'returns unauthorized' do
-      get :show, feature: 'profile-beta'
+      get :show, params: { feature: 'profile-beta' }
       expect(response).to have_http_status(:unauthorized)
     end
   end
@@ -18,25 +18,25 @@ RSpec.describe V0::BetaRegistrationsController, type: :controller do
     end
 
     it 'returns 404 if not enrolled in beta' do
-      get :show, feature: 'profile-beta'
+      get :show, params: { feature: 'profile-beta' }
       expect(response).to have_http_status(404)
     end
 
     it 'enrolls user in beta successfully' do
-      get :create, feature: 'profile-beta'
+      get :create, params: { feature: 'profile-beta' }
       expect(response).to have_http_status(200)
       expect(JSON.parse(response.body)['user']).to eq(user.email)
     end
 
     it 'returns OK status if enrolled in beta' do
       BetaRegistration.find_or_create_by(user_uuid: user.uuid, feature: 'profile-beta')
-      get :show, feature: 'profile-beta'
+      get :show, params: { feature: 'profile-beta' }
       expect(response).to have_http_status(200)
       expect(JSON.parse(response.body)['user']).to eq(user.email)
     end
 
     it 'successfully unenrolls user from beta' do
-      get :destroy, feature: 'profile-beta'
+      get :destroy, params: { feature: 'profile-beta' }
       expect(response).to have_http_status(204)
     end
   end

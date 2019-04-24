@@ -1,4 +1,4 @@
-class CreateMhvAccounts < ActiveRecord::Migration
+class CreateMhvAccounts < ActiveRecord::Migration[4.2]
   def change
     create_table :mhv_accounts do |t|
       t.string :user_uuid, unique: true, null: false

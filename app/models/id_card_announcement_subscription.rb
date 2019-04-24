@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class IdCardAnnouncementSubscription < ActiveRecord::Base
+class IdCardAnnouncementSubscription < ApplicationRecord
   validates :email,
             uniqueness: true,
             length: { maximum: 255 },

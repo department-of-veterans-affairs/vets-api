@@ -23,6 +23,11 @@ module EVSS
         'other' => 'OTHER'
       }.freeze
 
+      TERMILL_OVERFLOW_TEXT =  "Corporate Flash Details\n" \
+                               "This applicant has indicated that they're terminally ill.\n"
+      FORM4142_OVERFLOW_TEXT = 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
+                               'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
+
       def initialize(user, form_content, has_form4142)
         @user = user
         @form_content = form_content
@@ -38,8 +43,8 @@ module EVSS
         output_form['claimantCertification'] = true
         output_form['standardClaim'] = input_form['standardClaim']
         output_form['applicationExpirationDate'] = application_expiration_date
-
-        output_form.update(append_overflow_text) if @has_form4142
+        output_form['overflowText'] = overflow_text
+        output_form.compact!
 
         output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
@@ -65,11 +70,14 @@ module EVSS
         @translated_form['form526']
       end
 
-      def append_overflow_text
-        {
-          'overflowText' => 'VA Form 21-4142/4142a has been completed by the applicant and sent to the ' \
-                            'PMR contractor for processing in accordance with M21-1 III.iii.1.D.2.'
-        }
+      def overflow_text
+        return nil unless @has_form4142 || input_form['isTerminallyIll'].present?
+
+        overflow = ''
+        overflow += TERMILL_OVERFLOW_TEXT if input_form['isTerminallyIll'].present?
+        overflow += FORM4142_OVERFLOW_TEXT if @has_form4142
+
+        overflow
       end
 
       def translate_banking_info
@@ -145,13 +153,20 @@ module EVSS
       end
 
       def separation_pay
-        return nil if input_form['separationPayBranch'].blank?
+        return nil if input_form['hasSeparationPay'].blank?
+
         {
           'received' => true,
-          'payment' => {
-            'serviceBranch' => service_branch(input_form['separationPayBranch'])
-          },
+          'payment' => payment(input_form['separationPayBranch']),
           'receivedDate' => approximate_date(input_form['separationPayDate'])
+        }.compact
+      end
+
+      def payment(branch)
+        return nil if branch.blank?
+
+        {
+          'serviceBranch' => service_branch(branch)
         }
       end
 

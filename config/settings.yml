@@ -259,11 +259,9 @@ vic:
     bucket: 'bucket'
 
 # Settings for (preneeds) burials.
-# TODO: enpoint needs to be set up for https and production api when available
 preneeds:
   host: http://some.fakesite.com
   wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
-  burial_form_schema: 'config/preneeds/burial_form_schema.json'
 
 # Settings for VBA Document upload service module
 vba_documents:
@@ -279,17 +277,32 @@ vba_documents:
   sns:
     topic_arn: ~
 
+#Settings for Claims Api Module
+claims_api:
+  s3:
+    enabled: false
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    region: ~
+    bucket: ~
+  disability_claims_mock_override: false
+  schema_dir: config/schemas
+
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
 redis:
   host: localhost
   port: 6379
 
+# Settings for GovDelivery (email delivery)
+govdelivery:
+  staging_service: true
+  server: stage-tms.govdelivery.com
+  token: ~
+
 # Settings for Education Benefits report uploading
 reports:
   send_email: true
-  server: stage-tms.govdelivery.com
-  token: ~
   aws:
     access_key_id: ~
     bucket: ~

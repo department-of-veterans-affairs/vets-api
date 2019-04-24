@@ -1,4 +1,4 @@
-class CreateForm526JobStatuses < ActiveRecord::Migration
+class CreateForm526JobStatuses < ActiveRecord::Migration[4.2]
   def change
     create_table :form526_job_statuses do |t|
       t.integer :form526_submission_id, null: false

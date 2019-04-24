@@ -14,6 +14,29 @@ RSpec.describe GIBillFeedback, type: :model do
     end
   end
 
+  describe '#remove_malformed_options' do
+    it 'should remove malformed options' do
+      expect(gi_bill_feedback.send(:remove_malformed_options,
+                                   'Post-9/11 Ch 33' => true,
+                                   'post9::11 ch 33' => true,
+                                   'MGIB-AD Ch 30' => true)).to eq(
+                                     'Post-9/11 Ch 33' => true, 'MGIB-AD Ch 30' => true
+                                   )
+    end
+  end
+
+  describe '#transform_malformed_options' do
+    it 'should transform malformed options' do
+      expect(gi_bill_feedback.send(:transform_malformed_options,
+                                   'post9::11 ch 33' => true,
+                                   'MGIB-AD Ch 30' => true,
+                                   'chapter1606' => true)).to eq(
+                                     'Post-9/11 Ch 33' => true, 'MGIB-AD Ch 30' => true,
+                                     'MGIB-SR Ch 1606' => true
+                                   )
+    end
+  end
+
   describe '#transform_form' do
     before do
       gi_bill_feedback.user = create(:user)
@@ -36,6 +59,21 @@ RSpec.describe GIBillFeedback, type: :model do
 
       it 'should transform the form to the right format' do
         expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
+      end
+
+      context 'with malformed options' do
+        before do
+          form = gi_bill_feedback.parsed_form
+          form['educationDetails']['programs'] = {
+            'mGIBAd ch 30' => true
+          }
+          gi_bill_feedback.form = form.to_json
+          gi_bill_feedback.send(:remove_instance_variable, :@parsed_form)
+        end
+
+        it 'should transform the malformed options' do
+          expect(gi_bill_feedback.transform_form).to eq(get_fixture('gibft/transform_form'))
+        end
       end
     end
   end

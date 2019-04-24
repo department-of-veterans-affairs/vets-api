@@ -6,25 +6,38 @@ module HCA
     module StatusMatcher
       module_function
 
+      include ParsedStatuses
+
+      CATCHALL_CATEGORIES = [
+        {
+          enrollment_status: 'rejected',
+          category: REJECTED_RIGHTENTRY
+        },
+        {
+          enrollment_status: 'not eligible',
+          category: INELIG_OTHER
+        }
+      ].freeze
+
       CATEGORIES = [
         {
           enrollment_status: 'verified',
-          category: :enrolled
+          category: ENROLLED
         },
         {
           enrollment_status: ['not eligible', 'not eligible; ineligible date'],
           text_matches: [
             {
-              category: :inelig_not_enough_time,
+              category: INELIG_NOT_ENOUGH_TIME,
               strings: ['24 months', 'less than', '24 mos', '24months', 'two years']
             },
             {
-              category: :inelig_training_only,
+              category: INELIG_TRAINING_ONLY,
               strings: ['training only', 'trng only'],
               acronyms: %w[ADT ACDUTRA ADUTRA]
             },
             {
-              category: :inelig_character_of_discharge,
+              category: INELIG_CHARACTER_OF_DISCHARGE,
               strings: [
                 'other than honorable', 'dishonorable',
                 'bad conduct', 'dis for va pur'
@@ -32,82 +45,82 @@ module HCA
               acronyms: %w[OTH DVA]
             },
             {
-              category: :inelig_not_verified,
+              category: INELIG_NOT_VERIFIED,
               strings: ['no proof', 'no record', 'non-vet', 'non vet', 'unable to verify', 'not a veteran', '214']
             },
             {
-              category: :inelig_guard_reserve,
+              category: INELIG_GUARD_RESERVE,
               strings: %w[guard reserve reservist]
             },
             {
-              category: :inelig_champva,
+              category: INELIG_CHAMPVA,
               strings: ['champva']
             },
             {
-              category: :inelig_fugitivefelon,
+              category: INELIG_FUGITIVEFELON,
               strings: ['felon']
             },
             {
-              category: :inelig_medicare,
+              category: INELIG_MEDICARE,
               strings: ['medicare']
             },
             {
-              category: :inelig_over65,
+              category: INELIG_OVER65,
               strings: ['over 65']
             },
             {
-              category: :inelig_citizens,
+              category: INELIG_CITIZENS,
               strings: ['citizen']
             },
             {
-              category: :inelig_filipinoscouts,
+              category: INELIG_FILIPINOSCOUTS,
               strings: ['filipino']
             },
             {
-              category: :rejected_sc_wrongentry,
+              category: REJECTED_SC_WRONGENTRY,
               strings: ['disability']
             },
             {
-              category: :rejected_inc_wrongentry,
+              category: REJECTED_INC_WRONGENTRY,
               strings: ['income']
             }
           ]
         },
         {
           enrollment_status: 'not applicable',
-          category: :activeduty
+          category: ACTIVEDUTY
         },
         {
           enrollment_status: 'deceased',
-          category: :deceased
+          category: DECEASED
         },
         {
           enrollment_status: 'closed application',
-          category: :closed
+          category: CLOSED
         },
         {
           enrollment_status: 'not eligible; refused to pay copay',
-          category: :inelig_refusedcopay
+          category: INELIG_REFUSEDCOPAY
         },
         {
           enrollment_status: 'pending; means test required',
-          category: :pending_mt
+          category: PENDING_MT
         },
         {
           enrollment_status: 'pending; eligibility status is unverified',
-          category: :pending_unverified
+          category: PENDING_UNVERIFIED
         },
         {
           enrollment_status: 'pending; other',
-          category: :pending_other
+          category: PENDING_OTHER
         },
         {
           enrollment_status: 'pending; purple heart unconfirmed',
-          category: :pending_purpleheart
+          category: PENDING_PURPLEHEART
         },
         {
           enrollment_status: 'cancelled/declined',
-          category: :canceled_declined
+          category: CANCELED_DECLINED
         }
       ].freeze
 
@@ -131,15 +144,24 @@ module HCA
         nil
       end
 
-      def parse(enrollment_status, ineligibility_reason = '')
-        enrollment_status = enrollment_status.downcase.strip
+      def category_matcher(statuses, enroll_status)
+        return statuses.include?(enroll_status) if statuses.is_a?(Array)
+        enroll_status == statuses
+      end
 
-        category_matcher = lambda do |statuses, enroll_status|
-          return statuses.include?(enroll_status) if statuses.is_a?(Array)
-          return enroll_status == statuses
+      def parse_catchall_categories(enrollment_status)
+        CATCHALL_CATEGORIES.each do |category_data|
+          return category_data[:category] if enrollment_status.include?(category_data[:enrollment_status])
         end
 
-        CATEGORIES.find { |c| category_matcher.call(c[:enrollment_status], enrollment_status) }.tap do |category_data|
+        nil
+      end
+
+      def parse(enrollment_status, ineligibility_reason = '')
+        return NONE if enrollment_status.blank?
+        enrollment_status = enrollment_status.downcase.strip
+
+        CATEGORIES.find { |c| category_matcher(c[:enrollment_status], enrollment_status) }.tap do |category_data|
           next unless category_data
           if category_data[:text_matches]
             process_text_match(category_data[:text_matches], ineligibility_reason).tap do |category|
@@ -150,9 +172,9 @@ module HCA
           end
         end
 
-        return :rejected_rightentry if enrollment_status.include?('rejected')
+        parse_catchall_categories(enrollment_status).tap { |c| return c if c.present? }
 
-        :none_of_the_above
+        NONE
       end
     end
   end
