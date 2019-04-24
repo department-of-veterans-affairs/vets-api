@@ -8,10 +8,10 @@ require 'jsonapi/parser'
 module ClaimsApi
   module V1
     module Forms
-      class DisabilityCompensationController < ApplicationController
+      class DisabilityCompensationController < BaseFormController
+        FORM_NUMBER = '526'
         before_action { permit_scopes %w[claim.write] }
-        before_action :validate_json_schema, only: [:submit_form_526]
-        # before_action :validate_json_api_payload
+        skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -40,34 +40,16 @@ module ClaimsApi
 
         private
 
-        def validate_json_api_payload
-          JSONAPI.parse_resource!(params)
-        end
-
-        def validate_json_schema
-          ClaimsApi::FormSchemas.validate!('526', form_attributes)
-        rescue ClaimsApi::JsonApiMissingAttribute => e
-          render json: e.to_json_api, status: e.code
-        end
-
-        def form_attributes
-          JSON.parse(request.body.string)['data']['attributes']
-        end
-
         def documents
           document_keys = params.keys.select { |key| key.include? 'attachment' }
           params.slice(*document_keys).values
         end
 
-        def target_veteran
-          @target_veteran ||= ClaimsApi::Veteran.from_headers(request.headers, with_gender: true)
-        end
-
         def auth_headers
           EVSS::DisabilityCompensationAuthHeaders
-            .new(target_veteran)
+            .new(target_veteran(with_gender: true))
             .add_headers(
-              EVSS::AuthHeaders.new(target_veteran).to_h
+              EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
             )
         end
       end
