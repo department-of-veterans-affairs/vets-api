@@ -206,11 +206,13 @@ class BaseFacility < ApplicationRecord
 
     def zip_query(params)
       # TODO: allow user to set distance from zip
+      zip_plus_0 = params[:zip][0...5]
       zcta = CSV.read(Rails.root.join('modules', 'va_facilities', '2018_Gaz_zcta_national.txt'), col_sep: "\t")
-      requested_zip = zcta.select { |area| area[0] == params[:zip] }
+      requested_zip = zcta.select { |area| area[0] == zip_plus_0 }
+      requested_zip = [['x']] unless requested_zip.any?
       # TODO: iterate over zcta, pushing each zip code that is within distance into an array
       # TODO: change zip criteria to array of zip codes
-      conditions = 'address @> ?', { physical: { zip: requested_zip[0][0] } }.to_json
+      conditions = "address ->'physical'->>'zip' ilike '#{requested_zip[0][0]}%'"
       TYPES.map do |facility_type|
         get_facility_data(conditions, params[:type], facility_type, params[:services])
       end.flatten
