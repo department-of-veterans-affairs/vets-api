@@ -11,6 +11,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   let(:pdx_bbox) { '?bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64' }
   let(:empty_bbox) { '?bbox[]=-122&bbox[]=45&bbox[]=-122&bbox[]=45' }
   let(:lat_long) { '?lat=45.451913&long=-122.440689' }
+  let(:zip) { '?zip=97204' }
   let(:ids_query) do
     ids = setup_pdx.map { |facility| facility.facility_type_prefix + '_' + facility.unique_id }
     "?ids=#{ids.join(',')}"
@@ -65,6 +66,36 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
       expect(json['meta']['distances'].length).to eq(10)
+    end
+
+    it 'responds to GET #index with zip', :focus do
+      setup_pdx
+      get base_query_path + zip, params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      expect(json['meta']['distances']).to eq([])
+    end
+
+    it 'responds to GET #index with zip+4', :focus do
+      setup_pdx
+      get base_query_path + zip + '-3432', params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      expect(json['meta']['distances']).to eq([])
+    end
+
+    it 'responds to GET #index with a malformed zip', :focus do
+      setup_pdx
+      get base_query_path + '?zip=-3432', params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(0)
+      expect(json['meta']['distances']).to eq([])
     end
 
     it 'responds such that record and distance metadata IDs match up' do
