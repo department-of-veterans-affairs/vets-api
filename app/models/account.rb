@@ -12,6 +12,7 @@ class Account < ApplicationRecord
   include Common::ActiveRecordCacheAside
 
   has_many :user_preferences, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, presence: true, uniqueness: true

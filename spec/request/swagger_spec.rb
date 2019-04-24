@@ -1970,6 +1970,47 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
     end
+
+    describe 'notifications' do
+      let(:notification_subject) { 'form_10_10ez' }
+
+      context 'when user has an associated Notification record' do
+        let!(:notification) do
+          create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+        end
+
+        it 'supports getting dismissed status data' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            200,
+            headers.merge('subject' => notification_subject)
+          )
+        end
+      end
+
+      context 'when user does not have an associated Notification record' do
+        it 'supports record not found feedback' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            404,
+            headers.merge('subject' => notification_subject)
+          )
+        end
+      end
+
+      context 'authorization' do
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            401,
+            'subject' => notification_subject
+          )
+        end
+      end
+    end
   end
 
   context 'and' do
