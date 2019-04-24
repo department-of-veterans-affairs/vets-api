@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 module EMISRedis
+  # EMIS military information redis cached model
   class MilitaryInformation < Model
+    # Class name of Service object used to fetch the data
     CLASS_NAME = 'MilitaryInformationService'
 
+    # Mapping of discharge type codes to discharge types
     DISCHARGE_TYPES = {
       'A' => 'honorable',
       'B' => 'general',
@@ -13,6 +16,8 @@ module EMISRedis
       'K' => 'dishonorable'
     }.freeze
 
+    # Mapping of discharge type codes to discharge types used in veteran
+    # verification API
     EXTERNAL_DISCHARGE_TYPES = {
       'A' => 'honorable',
       'B' => 'general',
@@ -26,6 +31,7 @@ module EMISRedis
       'Z' => 'unknown'
     }.freeze
 
+    # Data methods used to populate +FormMilitaryInformation+ prefill class
     PREFILL_METHODS = %i[
       hca_last_service_branch
       last_service_branch
@@ -46,12 +52,16 @@ module EMISRedis
       latest_guard_reserve_service_period
     ].freeze
 
+    # Disability ratings counted as lower
     LOWER_DISABILITY_RATINGS = [10, 20, 30, 40].freeze
+    # Disability ratings counted as higher
     HIGHER_DISABILITY_RATING = 50
 
     NOV_1998 = Date.new(1998, 11, 11)
+    # Date range for the gulf war
     GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
 
+    # ISO Country codes for southwest Asia
     SOUTHWEST_ASIA = %w[
       ARM
       AZE
@@ -72,7 +82,9 @@ module EMISRedis
       YEM
     ].freeze
 
+    # Vietnam ISO country code
     VIETNAM = 'VNM'
+    # Date range for Vietnam War
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
     def currently_active_duty
