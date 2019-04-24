@@ -78,10 +78,9 @@ module VaFacilities
       end
 
       def validate_a_param_exists
-        req_params = REQUIRE_ONE_PARAM.map { |param| params.key? param }
         lat_and_long = params.key?(:lat) && params.key?(:long)
 
-        if req_params.none? && !lat_and_long
+        if !lat_and_long && REQUIRE_ONE_PARAM.none? { |param| params.key? param }
           REQUIRE_ONE_PARAM.each do |param|
             unless params.key? param
               raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
