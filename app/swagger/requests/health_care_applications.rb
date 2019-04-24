@@ -94,7 +94,7 @@ module Swagger
               property :preferred_facility, type: %i[string null], example: '988 - DAYT20'
               property :parsed_status,
                        type: :string,
-                       example: HCA::EnrollmentEligibility::ParsedStatuses::ENROLLED,
+                       example: Notification::ENROLLED,
                        enum: HCA::EnrollmentEligibility::ParsedStatuses::ELIGIBLE_STATUSES
               property :effective_date, type: :string, example: '2019-01-02T21:58:55.000-06:00'
             end

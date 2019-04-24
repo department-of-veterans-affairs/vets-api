@@ -8,62 +8,34 @@ module HCA
       # To add a new status, it **must also be added** to the
       # /app/models/notification#status enum values hash.
       #
-      ACTIVEDUTY = 'activeduty'
-      CANCELED_DECLINED = 'canceled_declined'
-      CLOSED = 'closed'
-      DECEASED = 'deceased'
-      ENROLLED = 'enrolled'
-      INELIG_CHAMPVA = 'inelig_champva'
-      INELIG_CHARACTER_OF_DISCHARGE = 'inelig_character_of_discharge'
-      INELIG_CITIZENS = 'inelig_citizens'
-      INELIG_FILIPINOSCOUTS = 'inelig_filipinoscouts'
-      INELIG_FUGITIVEFELON = 'inelig_fugitivefelon'
-      INELIG_GUARD_RESERVE = 'inelig_guard_reserve'
-      INELIG_MEDICARE = 'inelig_medicare'
-      INELIG_NOT_ENOUGH_TIME = 'inelig_not_enough_time'
-      INELIG_NOT_VERIFIED = 'inelig_not_verified'
-      INELIG_OTHER = 'inelig_other'
-      INELIG_OVER65 = 'inelig_over65'
-      INELIG_REFUSEDCOPAY = 'inelig_refusedcopay'
-      INELIG_TRAINING_ONLY = 'inelig_training_only'
-      LOGIN_REQUIRED = 'login_required'
-      NONE = 'none_of_the_above'
-      PENDING_MT = 'pending_mt'
-      PENDING_OTHER = 'pending_other'
-      PENDING_PURPLEHEART = 'pending_purpleheart'
-      PENDING_UNVERIFIED = 'pending_unverified'
-      REJECTED_INC_WRONGENTRY = 'rejected_inc_wrongentry'
-      REJECTED_RIGHTENTRY = 'rejected_rightentry'
-      REJECTED_SC_WRONGENTRY = 'rejected_sc_wrongentry'
-
       ELIGIBLE_STATUSES = [
-        ACTIVEDUTY,
-        CANCELED_DECLINED,
-        CLOSED,
-        DECEASED,
-        ENROLLED,
-        INELIG_CHAMPVA,
-        INELIG_CHARACTER_OF_DISCHARGE,
-        INELIG_CITIZENS,
-        INELIG_FILIPINOSCOUTS,
-        INELIG_FUGITIVEFELON,
-        INELIG_GUARD_RESERVE,
-        INELIG_MEDICARE,
-        INELIG_NOT_ENOUGH_TIME,
-        INELIG_NOT_VERIFIED,
-        INELIG_OTHER,
-        INELIG_OVER65,
-        INELIG_REFUSEDCOPAY,
-        INELIG_TRAINING_ONLY,
-        LOGIN_REQUIRED,
-        NONE,
-        PENDING_MT,
-        PENDING_OTHER,
-        PENDING_PURPLEHEART,
-        PENDING_UNVERIFIED,
-        REJECTED_INC_WRONGENTRY,
-        REJECTED_RIGHTENTRY,
-        REJECTED_SC_WRONGENTRY
+        Notification::ACTIVEDUTY,
+        Notification::CANCELED_DECLINED,
+        Notification::CLOSED,
+        Notification::DECEASED,
+        Notification::ENROLLED,
+        Notification::INELIG_CHAMPVA,
+        Notification::INELIG_CHARACTER_OF_DISCHARGE,
+        Notification::INELIG_CITIZENS,
+        Notification::INELIG_FILIPINOSCOUTS,
+        Notification::INELIG_FUGITIVEFELON,
+        Notification::INELIG_GUARD_RESERVE,
+        Notification::INELIG_MEDICARE,
+        Notification::INELIG_NOT_ENOUGH_TIME,
+        Notification::INELIG_NOT_VERIFIED,
+        Notification::INELIG_OTHER,
+        Notification::INELIG_OVER65,
+        Notification::INELIG_REFUSEDCOPAY,
+        Notification::INELIG_TRAINING_ONLY,
+        Notification::LOGIN_REQUIRED,
+        Notification::NONE_OF_THE_ABOVE,
+        Notification::PENDING_MT,
+        Notification::PENDING_OTHER,
+        Notification::PENDING_PURPLEHEART,
+        Notification::PENDING_UNVERIFIED,
+        Notification::REJECTED_INC_WRONGENTRY,
+        Notification::REJECTED_RIGHTENTRY,
+        Notification::REJECTED_SC_WRONGENTRY
       ].freeze
     end
   end
