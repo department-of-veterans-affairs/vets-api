@@ -206,9 +206,9 @@ class BaseFacility < ApplicationRecord
 
     def zip_query(params)
       # TODO: allow user to set distance from zip
-      zip_plus_0 = params[:zip][0...5]
+      zip_plus0 = params[:zip][0...5]
       zcta = CSV.read(Rails.root.join('modules', 'va_facilities', '2018_Gaz_zcta_national.txt'), col_sep: "\t")
-      requested_zip = zcta.select { |area| area[0] == zip_plus_0 }
+      requested_zip = zcta.select { |area| area[0] == zip_plus0 }
       requested_zip = [['x']] unless requested_zip.any?
       # TODO: iterate over zcta, pushing each zip code that is within distance into an array
       # TODO: change zip criteria to array of zip codes
