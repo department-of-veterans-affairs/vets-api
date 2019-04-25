@@ -104,4 +104,45 @@ RSpec.describe 'dismissed statuses', type: :request do
       end
     end
   end
+
+  describe 'PATCH /v0/notifications/dismissed_statuses/:subject' do
+    let(:patch_body) do
+      {
+        status: Notification::CLOSED,
+        status_effective_at: '2019-04-23T00:00:00.000-06:00'
+      }.to_json
+    end
+
+    context 'user has an existing Notification record with the passed subject' do
+      let!(:notification) do
+        create :notification, :dismissed_status, account_id: user.account.id, read_at: Time.current
+      end
+
+      it 'should match the dismissed status schema', :aggregate_failures do
+        patch "/v0/notifications/dismissed_statuses/#{notification_subject}", params: patch_body, headers: headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_response_schema('dismissed_status')
+      end
+
+      it 'correctly updates their Notification record', :aggregate_failures do
+        patch "/v0/notifications/dismissed_statuses/#{notification_subject}", params: patch_body, headers: headers
+
+        notification.reload
+        body = JSON.parse(patch_body)
+
+        expect(notification.status).to eq body['status']
+        expect(notification.status_effective_at).to eq body['status_effective_at'].to_datetime
+      end
+    end
+
+    context 'user does not have a Notification record with the passed subject' do
+      it 'should return a 404 record not found', :aggregate_failures do
+        patch "/v0/notifications/dismissed_statuses/#{notification_subject}", params: patch_body, headers: headers
+
+        expect(response.status).to eq 404
+        expect(response.body).to include 'Record not found'
+      end
+    end
+  end
 end
