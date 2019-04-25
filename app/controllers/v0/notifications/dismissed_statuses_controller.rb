@@ -4,7 +4,10 @@ module V0
   module Notifications
     class DismissedStatusesController < ApplicationController
       include Accountable
+      include ::Notifications::Validateable
 
+      before_action -> { validate_subject!(subject) }
+      before_action -> { validate_status!(status) }, only: :create
       before_action :set_account, :set_notification
 
       def show
