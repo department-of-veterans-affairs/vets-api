@@ -206,7 +206,6 @@ class BaseFacility < ApplicationRecord
       # TODO: allow user to set distance from zip
       zip_plus0 = params[:zip][0...5]
       requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
-      return [] unless requested_zip.any?
       # TODO: iterate over zcta, pushing each zip code that is within distance into an array
       # TODO: change zip criteria to array of zip codes
       conditions = "address ->'physical'->>'zip' ilike '#{requested_zip[0][0]}%'"

@@ -122,6 +122,10 @@ module VaFacilities
         if params[:zip]
           raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
             params[:zip] =~ /\A\d{5}(-\d{4})?\z/
+          zip_plus0 = params[:zip][0...5]
+          requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
+          raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
+            requested_zip.any?
         end
       end
 
