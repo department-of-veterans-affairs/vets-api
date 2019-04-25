@@ -36,10 +36,6 @@ module ClaimsApi
       def service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
       end
-
-      def target_veteran
-        ClaimsApi::Veteran.from_headers(request.headers)
-      end
     end
   end
 end
