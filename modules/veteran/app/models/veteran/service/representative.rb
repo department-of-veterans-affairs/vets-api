@@ -15,16 +15,8 @@ module Veteran
 
       validates :poa, presence: true
 
-      def as_json
-        {
-          first_name: first_name,
-          last_name: last_name,
-          power_of_attorney_code: poa
-        }
-      end
-
       def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
-        reps = where(first_name: first_name, last_name: last_name)
+        reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
         reps.each do |rep|
           if matching_ssn(rep, ssn) && matching_date_of_birth(rep, dob)
             return rep

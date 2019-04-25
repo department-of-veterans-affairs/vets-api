@@ -69,7 +69,7 @@ describe Veteran::Service::Representative, type: :model do
 
     describe 'finding by the name only' do
       it 'should find a user by name fields' do
-        rep = FactoryBot.create(:representative)
+        rep = FactoryBot.create(:representative, first_name: 'Bob', last_name: 'Smith')
         identity = FactoryBot.create(:user_identity, first_name: rep.first_name, last_name: rep.last_name)
         Veteran::Service::Representative.for_user(
           first_name: identity.first_name,

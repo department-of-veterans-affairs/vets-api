@@ -9,7 +9,8 @@ module Veteran
       def search
         rep = Veteran::Service::Representative.for_user(first_name: params[:first_name], last_name: params[:last_name])
         if rep.present?
-          render json: { data: { type: 'VSO Representative', attributes: rep.as_json } }
+          render json: rep,
+                 serializer: Veteran::Service::RepresentativeSerializer
         else
           render json: { errors: [{ detail: 'Representative not found' }] }
         end

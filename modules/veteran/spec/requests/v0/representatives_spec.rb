@@ -10,7 +10,7 @@ RSpec.describe 'VSO representative spec', type: :request do
     parsed_response = JSON.parse(response.body)
     expect(parsed_response['data']['attributes']['first_name']).to eq('Bob')
     expect(parsed_response['data']['attributes']['last_name']).to eq('Smith')
-    expect(parsed_response['data']['attributes']['power_of_attorney_code']).to eq('1BQ')
+    expect(parsed_response['data']['attributes']['poa']).to eq('1BQ')
   end
 
   it 'should find return a proper error' do
