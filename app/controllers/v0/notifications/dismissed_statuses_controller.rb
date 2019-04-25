@@ -39,11 +39,15 @@ module V0
       end
 
       def dismissed_statuses_params
-        params.permit(:subject, :dismissed_status, :status_effective_at)
+        params.permit(:subject, :status, :status_effective_at)
       end
 
       def subject
         dismissed_statuses_params[:subject]
+      end
+
+      def status
+        dismissed_statuses_params[:status]
       end
     end
   end
