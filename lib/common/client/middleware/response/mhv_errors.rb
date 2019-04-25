@@ -4,7 +4,15 @@ module Common
   module Client
     module Middleware
       module Response
+        ##
+        # Faraday response middleware that checks the MHV service response for errors
+        #
         class MHVErrors < Faraday::Response::Middleware
+          ##
+          # Checks the response for errors
+          #
+          # @return [Faraday::Env]
+          #
           def on_complete(env)
             return if env.success?
             env[:body]['code'] = env[:body].delete('errorCode')
