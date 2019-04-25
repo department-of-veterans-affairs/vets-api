@@ -67,7 +67,7 @@ module Swagger
           parameter :authorization
 
           parameter do
-            key :name, :subject
+            key :name, :body
             key :in, :body
             key :description, 'The properties to create a dismissed status notification'
             key :required, true
