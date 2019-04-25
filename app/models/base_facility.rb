@@ -152,13 +152,29 @@ class BaseFacility < ApplicationRecord
 
     def query(params)
       # TODO: Sort hours similar to `find_factility_by_id` method on line 146
+      if params[:ids]
+        return build_result_set_from_ids(params[:ids]).flatten
+      elsif location_query_requested?(params)
+        return query_by_location(params)
+      end
+
+      BaseFacility.none
+    end
+
+    def query_by_location(params)
       return state_query(params) if params[:state]
       return radial_query(params) if params[:lat] && params[:long]
       return zip_query(params) if params[:zip]
-      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
-      return BaseFacility.none unless params[:bbox]
+      build_bbox_result_set(params) if params[:bbox]
+    end
+
+    def build_bbox_result_set(params)
       bbox_num = params[:bbox].map { |x| Float(x) }
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
+    end
+
+    def location_query_requested?(params)
+      params[:state] || (params[:lat] && params[:long]) || params[:zip] || params[:bbox]
     end
 
     def state_query(params)
