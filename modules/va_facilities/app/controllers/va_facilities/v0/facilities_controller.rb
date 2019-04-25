@@ -120,7 +120,7 @@ module VaFacilities
       end
 
       def validate_state_code
-        if params[:state] && !STATE_CODES.include?(params[:state])
+        if params[:state] && STATE_CODES.exclude?(params[:state])
           raise Common::Exceptions::InvalidFieldValue.new('state', params[:state])
         end
       end

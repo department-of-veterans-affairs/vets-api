@@ -151,7 +151,6 @@ class BaseFacility < ApplicationRecord
     end
 
     def query(params)
-      # TODO: Sort hours similar to `find_factility_by_id` method on line 146
       if params[:ids]
         return build_result_set_from_ids(params[:ids]).flatten
       elsif location_query_requested?(params)
@@ -180,9 +179,9 @@ class BaseFacility < ApplicationRecord
     def state_query(params)
       state = params[:state]
       conditions = "address @> '{ \"physical\": {\"state\": \"#{state}\"}}'"
-      TYPES.map do |facility_type|
+      TYPES.flat_map do |facility_type|
         get_facility_data(conditions, params[:type], facility_type, params[:services])
-      end.flatten
+      end
     end
 
     def radial_query(params)
@@ -234,16 +233,16 @@ class BaseFacility < ApplicationRecord
       # TODO: iterate over zcta, pushing each zip code that is within distance into an array
       # TODO: change zip criteria to array of zip codes
       conditions = "address ->'physical'->>'zip' ilike '#{requested_zip[0][0]}%'"
-      TYPES.map do |facility_type|
+      TYPES.flat_map do |facility_type|
         get_facility_data(conditions, params[:type], facility_type, params[:services])
-      end.flatten
+      end
     end
 
     def build_result_set(bbox_num, type, services)
       lats = bbox_num.values_at(1, 3)
       longs = bbox_num.values_at(2, 0)
       conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
-      TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
+      TYPES.flat_map { |facility_type| get_facility_data(conditions, type, facility_type, services) }
     end
 
     def ids_for_types(ids)

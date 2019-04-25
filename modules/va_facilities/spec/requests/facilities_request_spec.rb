@@ -144,11 +144,6 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['data'].length).to eq(2)
     end
 
-    it 'responds to invalid states on GET #index with a 4xx status code' do
-      get base_query_path, params: 'state=meow', headers: accept_json
-      expect(response).to have_http_status(:bad_request)
-    end
-
     it 'responds with pagination links' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_json
@@ -336,6 +331,10 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
     it 'returns 400 for health query with unknown service' do
       get base_query_path + pdx_bbox + '&type=health&services[]=OilChange'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for an invalid state code' do
+      get base_query_path, params: 'state=meow', headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
   end
