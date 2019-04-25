@@ -114,6 +114,20 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['data'].length).to eq(10)
     end
 
+    it 'responds to GET #index with state code', :focus do
+      setup_pdx
+      get base_query_path, params: 'state=WA', headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(2)
+    end
+
+    it 'responds to invalid states on GET #index with a 4xx status code', :focus do
+      get base_query_path, params: 'state=meow', headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
+
     it 'responds with pagination links' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_json
