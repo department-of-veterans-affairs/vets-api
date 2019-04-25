@@ -2,11 +2,11 @@
 
 module FeatureFlipper
   def self.send_email?
-    Settings.reports.token.present? || Rails.env.test?
+    Settings.govdelivery.token.present? || Rails.env.test?
   end
 
   def self.staging_email?
-    Settings.reports.server.include?('stage')
+    Settings.govdelivery.staging_service
   end
 
   def self.send_edu_report_email?

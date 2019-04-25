@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
 require 'sidekiq/testing'
-Sidekiq::Testing.fake!
 
-describe DeleteOldTransactionsJob do
+RSpec.describe DeleteOldTransactionsJob do
   context 'if an exception happens' do
     before do
       allow_any_instance_of(AsyncTransaction::Vet360::AddressTransaction)
@@ -17,7 +17,7 @@ describe DeleteOldTransactionsJob do
              status: AsyncTransaction::Base::COMPLETED)
 
       job = DeleteOldTransactionsJob.new
-      job.should_receive(:log_message_to_sentry).once
+      expect(job).to receive(:log_message_to_sentry).once
       job.perform
     end
   end
