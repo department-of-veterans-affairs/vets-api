@@ -7,7 +7,7 @@ RSpec.describe 'dismissed statuses', type: :request do
 
   let(:user) { build(:user, :accountable) }
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
-  let(:notification_subject) { 'form_10_10ez' }
+  let(:notification_subject) { Notification::FORM_10_10EZ }
 
   before do
     sign_in_as(user)
@@ -41,7 +41,7 @@ RSpec.describe 'dismissed statuses', type: :request do
     let(:post_body) do
       {
         subject: notification_subject,
-        status: 'pending_mt',
+        status: Notification::PENDING_MT,
         status_effective_at: '2019-04-23T00:00:00.000-06:00'
       }.to_json
     end
@@ -73,7 +73,7 @@ RSpec.describe 'dismissed statuses', type: :request do
       let(:invalid_post_body) do
         {
           subject: invalid_subject,
-          status: 'pending_mt',
+          status: Notification::PENDING_MT,
           status_effective_at: '2019-04-23T00:00:00.000-06:00'
         }.to_json
       end

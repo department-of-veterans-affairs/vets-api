@@ -1972,7 +1972,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     describe 'notifications' do
-      let(:notification_subject) { 'form_10_10ez' }
+      let(:notification_subject) { Notification::FORM_10_10EZ }
 
       context 'when user has an associated Notification record' do
         let!(:notification) do
@@ -2026,7 +2026,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         let(:post_body) do
           {
             subject: notification_subject,
-            status: 'pending_mt',
+            status: Notification::PENDING_MT,
             status_effective_at: '2019-04-23T00:00:00.000-06:00'
           }
         end
