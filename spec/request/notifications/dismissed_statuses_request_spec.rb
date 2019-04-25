@@ -36,4 +36,72 @@ RSpec.describe 'dismissed statuses', type: :request do
       end
     end
   end
+
+  describe 'POST /v0/notifications/dismissed_statuses' do
+    let(:post_body) do
+      {
+        subject: notification_subject,
+        status: 'pending_mt',
+        status_effective_at: '2019-04-23T00:00:00.000-06:00'
+      }.to_json
+    end
+
+    context 'when user does *not* have a Notification record for the passed subject' do
+      it 'should match the dismissed status schema', :aggregate_failures do
+        post '/v0/notifications/dismissed_statuses', params: post_body, headers: headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_response_schema('dismissed_status')
+      end
+    end
+
+    context 'when user already has a Notification record for the passed subject' do
+      let!(:notification) do
+        create :notification, :dismissed_status, account_id: user.account.id, read_at: Time.current
+      end
+
+      it 'returns a 422 unprocessable entity', :aggregate_failures do
+        post '/v0/notifications/dismissed_statuses', params: post_body, headers: headers
+
+        expect(response.status).to eq 422
+        expect(response.body).to include 'Subject has already been taken'
+      end
+    end
+
+    context 'when the passed subject is not defined in the Notification#subject enum' do
+      let(:invalid_subject) { 'random_subject' }
+      let(:invalid_post_body) do
+        {
+          subject: invalid_subject,
+          status: 'pending_mt',
+          status_effective_at: '2019-04-23T00:00:00.000-06:00'
+        }.to_json
+      end
+
+      it 'should return a 422 unprocessable entity', :aggregate_failures  do
+        post '/v0/notifications/dismissed_statuses', params: invalid_post_body, headers: headers
+
+        expect(response.status).to eq 422
+        expect(response.body).to include "#{invalid_subject} is not a valid subject"
+      end
+    end
+
+    context 'when the passed dismissed_status is not defined in the Notification#status enum' do
+      let(:invalid_status) { 'random_status' }
+      let(:invalid_post_body) do
+        {
+          subject: notification_subject,
+          status: invalid_status,
+          status_effective_at: '2019-04-23T00:00:00.000-06:00'
+        }.to_json
+      end
+
+      it 'should return a 422 unprocessable entity', :aggregate_failures  do
+        post '/v0/notifications/dismissed_statuses', params: invalid_post_body, headers: headers
+
+        expect(response.status).to eq 422
+        expect(response.body).to include "#{invalid_status} is not a valid status"
+      end
+    end
+  end
 end

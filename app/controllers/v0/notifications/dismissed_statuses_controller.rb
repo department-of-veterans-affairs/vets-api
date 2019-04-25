@@ -10,6 +10,16 @@ module V0
       before_action -> { validate_status!(status) }, only: :create
       before_action :set_account, :set_notification
 
+      def create
+        notification = @account.notifications.build(dismissed_statuses_params.merge(read_at: Time.current))
+
+        if notification.save
+          render json: notification, serializer: DismissedStatusSerializer
+        else
+          raise Common::Exceptions::ValidationErrors.new(notification), 'Validation errors present'
+        end
+      end
+
       def show
         if @notification
           render json: @notification, serializer: DismissedStatusSerializer
