@@ -76,7 +76,7 @@ module Swagger
           parameter do
             key :name, :body
             key :in, :body
-            key :description, 'The properties to create a dismissed status notification'
+            key :description, 'The properties to update an existing dismissed status notification'
             key :required, true
 
             schema do
