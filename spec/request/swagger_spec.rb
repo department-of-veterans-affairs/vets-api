@@ -2045,7 +2045,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
             :post,
             '/v0/notifications/dismissed_statuses',
             401,
-            { '_data' => post_body }
+            '_data' => post_body
           )
         end
 

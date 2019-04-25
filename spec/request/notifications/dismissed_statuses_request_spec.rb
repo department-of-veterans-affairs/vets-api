@@ -78,7 +78,7 @@ RSpec.describe 'dismissed statuses', type: :request do
         }.to_json
       end
 
-      it 'should return a 422 unprocessable entity', :aggregate_failures  do
+      it 'should return a 422 unprocessable entity', :aggregate_failures do
         post '/v0/notifications/dismissed_statuses', params: invalid_post_body, headers: headers
 
         expect(response.status).to eq 422
@@ -96,7 +96,7 @@ RSpec.describe 'dismissed statuses', type: :request do
         }.to_json
       end
 
-      it 'should return a 422 unprocessable entity', :aggregate_failures  do
+      it 'should return a 422 unprocessable entity', :aggregate_failures do
         post '/v0/notifications/dismissed_statuses', params: invalid_post_body, headers: headers
 
         expect(response.status).to eq 422
