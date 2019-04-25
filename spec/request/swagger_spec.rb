@@ -218,7 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
-      let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
+      let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
