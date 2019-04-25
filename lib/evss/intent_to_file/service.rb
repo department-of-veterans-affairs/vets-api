@@ -18,7 +18,7 @@ module EVSS
 
       ##
       # Returns all intents to file for a user
-      # 
+      #
       # @return [EVSS::IntentToFile::IntentToFilesResponse] Object containing
       # an array of intents to file
       #
@@ -31,7 +31,7 @@ module EVSS
 
       ##
       # Returns all active intents to file of a particular type
-      # 
+      #
       # @param itf_type [String] Type of intent to file
       # @return [EVSS::IntentToFile::IntentToFilesResponse] Object containing
       # an array of intents to file
