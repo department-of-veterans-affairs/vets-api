@@ -75,6 +75,7 @@ module VaFacilities
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
+        validate_zip
       end
 
       def validate_a_param_exists
@@ -115,6 +116,13 @@ module VaFacilities
           BaseFacility::TYPES.include?(params[:type])
         unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
         raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+      end
+
+      def validate_zip
+        if params[:zip]
+          raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
+            params[:zip] =~ /\A\d{5}(-\d{4})?\z/
+        end
       end
 
       def metadata(resource)

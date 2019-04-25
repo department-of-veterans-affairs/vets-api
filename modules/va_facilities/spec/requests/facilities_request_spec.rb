@@ -88,16 +88,6 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances']).to eq([])
     end
 
-    it 'responds to GET #index with a malformed zip' do
-      setup_pdx
-      get base_query_path + '?zip=-3432', params: nil, headers: accept_json
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(0)
-      expect(json['meta']['distances']).to eq([])
-    end
-
     it 'responds such that record and distance metadata IDs match up' do
       setup_pdx
       get base_query_path + lat_long, params: nil, headers: accept_json
@@ -315,6 +305,11 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
     it 'returns 400 for non-numeric elements' do
       get base_query_path + '?bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=abc'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'responds to GET #index with a malformed zip' do
+      setup_pdx
+      get base_query_path + '?zip=-3432', params: nil, headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for invalid type parameter' do
