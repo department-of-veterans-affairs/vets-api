@@ -2010,6 +2010,54 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           )
         end
       end
+
+      context 'when the passed subject is not defined in the Notification#subject enum' do
+        it 'supports invalid subject validation' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            422,
+            headers.merge('subject' => 'random_subject')
+          )
+        end
+      end
+
+      describe 'POST /v0/notifications/dismissed_statuses' do
+        let(:post_body) do
+          {
+            subject: notification_subject,
+            status: 'pending_mt',
+            status_effective_at: '2019-04-23T00:00:00.000-06:00'
+          }
+        end
+
+        it 'supports posting dismissed status data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            200,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            401,
+            { '_data' => post_body }
+          )
+        end
+
+        it 'supports validating posted dismissed status data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            422,
+            headers.merge('_data' => post_body.merge(status: 'random_status'))
+          )
+        end
+      end
     end
   end
 

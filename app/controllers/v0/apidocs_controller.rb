@@ -159,6 +159,7 @@ module V0
       Swagger::Schemas::BB::HealthRecords,
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
+      Swagger::Schemas::DismissedStatus,
       Swagger::Schemas::Form526::RatedDisabilities,
       Swagger::Schemas::Email,
       Swagger::Schemas::Errors,
