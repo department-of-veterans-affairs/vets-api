@@ -135,6 +135,7 @@ module V0
       Swagger::Requests::Messages::Messages,
       Swagger::Requests::Messages::MessageDrafts,
       Swagger::Requests::Messages::TriageTeams,
+      Swagger::Requests::Notifications,
       Swagger::Requests::PensionClaims,
       Swagger::Requests::PerformanceMonitoring,
       Swagger::Requests::Preferences,

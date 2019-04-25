@@ -218,7 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
-      let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
+      let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
@@ -1967,6 +1967,47 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           VCR.use_cassette('search/exceeds_rate_limit') do
             expect(subject).to validate(:get, '/v0/search', 429, '_query_string' => 'query=benefits')
           end
+        end
+      end
+    end
+
+    describe 'notifications' do
+      let(:notification_subject) { 'form_10_10ez' }
+
+      context 'when user has an associated Notification record' do
+        let!(:notification) do
+          create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+        end
+
+        it 'supports getting dismissed status data' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            200,
+            headers.merge('subject' => notification_subject)
+          )
+        end
+      end
+
+      context 'when user does not have an associated Notification record' do
+        it 'supports record not found feedback' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            404,
+            headers.merge('subject' => notification_subject)
+          )
+        end
+      end
+
+      context 'authorization' do
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :get,
+            '/v0/notifications/dismissed_statuses/{subject}',
+            401,
+            'subject' => notification_subject
+          )
         end
       end
     end

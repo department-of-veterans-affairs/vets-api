@@ -4,6 +4,12 @@ require 'evss/base_service'
 
 module EVSS
   module GiBillStatus
+    ##
+    # Proxy Service for GIBS Caseflow.
+    #
+    # @example Create a service and fetching the status of a claim for a user
+    #   gibs_response = GiBillStatus::Service.new.get_gi_bill_status
+    #
     class Service < EVSS::Service
       configuration EVSS::GiBillStatus::Configuration
 
@@ -14,6 +20,9 @@ module EVSS
         saturday_end: 19
       }.freeze
 
+      ##
+      # @return [Boolean] Is the current time within the system's scheduled uptime
+      #
       def self.within_scheduled_uptime?
         current_time = get_current_time
         if current_time.saturday?
@@ -23,6 +32,9 @@ module EVSS
         end
       end
 
+      ##
+      # @return [Integer] The number of seconds until scheduled system downtime begins
+      #
       def self.seconds_until_downtime
         if within_scheduled_uptime?
           current_time = get_current_time
@@ -35,6 +47,9 @@ module EVSS
         end
       end
 
+      ##
+      # @return [String] Next earliest date and time that the service will be available
+      #
       def self.retry_after_time
         current_time = get_current_time
         tz = ActiveSupport::TimeZone.new(OPERATING_ZONE)
@@ -44,6 +59,12 @@ module EVSS
         service_start_time.tomorrow.httpdate
       end
 
+      ##
+      # Retreive the status of a GIBS claim for a user
+      #
+      # @return [EVSS::GiBillStatus::GiBillStatusRestponse] A status response object containing
+      # information from the endpoint
+      #
       def get_gi_bill_status
         raw_response = perform(:get, '')
         EVSS::GiBillStatus::GiBillStatusResponse.new(raw_response.status, raw_response)

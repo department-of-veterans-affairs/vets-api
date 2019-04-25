@@ -11,6 +11,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   let(:pdx_bbox) { '?bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64' }
   let(:empty_bbox) { '?bbox[]=-122&bbox[]=45&bbox[]=-122&bbox[]=45' }
   let(:lat_long) { '?lat=45.451913&long=-122.440689' }
+  let(:zip) { '?zip=97204' }
   let(:ids_query) do
     ids = setup_pdx.map { |facility| facility.facility_type_prefix + '_' + facility.unique_id }
     "?ids=#{ids.join(',')}"
@@ -67,6 +68,26 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances'].length).to eq(10)
     end
 
+    it 'responds to GET #index with zip' do
+      setup_pdx
+      get base_query_path + zip, params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      expect(json['meta']['distances']).to eq([])
+    end
+
+    it 'responds to GET #index with zip+4' do
+      setup_pdx
+      get base_query_path + zip + '-3432', params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      expect(json['meta']['distances']).to eq([])
+    end
+
     it 'responds such that record and distance metadata IDs match up' do
       setup_pdx
       get base_query_path + lat_long, params: nil, headers: accept_json
@@ -114,7 +135,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['data'].length).to eq(10)
     end
 
-    it 'responds to GET #index with state code', :focus do
+    it 'responds to GET #index with state code' do
       setup_pdx
       get base_query_path, params: 'state=WA', headers: accept_json
       expect(response).to be_success
@@ -123,7 +144,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['data'].length).to eq(2)
     end
 
-    it 'responds to invalid states on GET #index with a 4xx status code', :focus do
+    it 'responds to invalid states on GET #index with a 4xx status code' do
       get base_query_path, params: 'state=meow', headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
@@ -298,6 +319,11 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
     it 'returns 400 for non-numeric elements' do
       get base_query_path + '?bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=abc'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'responds to GET #index with a malformed zip' do
+      setup_pdx
+      get base_query_path + '?zip=-3432', params: nil, headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
     it 'returns 400 for invalid type parameter' do
