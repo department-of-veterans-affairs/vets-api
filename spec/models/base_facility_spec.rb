@@ -226,6 +226,48 @@ RSpec.describe BaseFacility, type: :model do
       expect(BaseFacility.query(bbox: bbox, type: type, services: [services[0]]).size).to eq(1)
       expect(BaseFacility.query(bbox: bbox, type: type, services: services).size).to eq(5)
     end
+
+    it 'should find facility by state code' do
+      setup_pdx
+      expect(BaseFacility.query(state: 'WA').size).to eq(2)
+    end
+
+    it 'should find facility by state code and type' do
+      setup_pdx
+      expect(BaseFacility.query(state: 'WA', type: 'benefits').size).to eq(1)
+    end
+
+    it 'should find by services and state code' do
+      setup_pdx
+      state = 'OR'
+      type = 'benefits'
+      services = ['EducationAndCareerCounseling']
+
+      result = BaseFacility.query(state: state, type: type, services: services)
+
+      expect(result.size).to eq(3)
+    end
+
+    it 'should find facilities by zip code' do
+      setup_pdx
+      expect(BaseFacility.query(zip: '97204').size).to eq(4)
+    end
+
+    it 'should find facility by zip code and type' do
+      setup_pdx
+      expect(BaseFacility.query(zip: '97204', type: 'benefits').size).to eq(3)
+    end
+
+    it 'should find by zip code and services' do
+      setup_pdx
+      zip = '97204'
+      type = 'benefits'
+      services = ['EducationAndCareerCounseling']
+
+      result = BaseFacility.query(zip: zip, type: type, services: services)
+
+      expect(result.size).to eq(2)
+    end
   end
 
   describe '#find_facility_by_id' do
