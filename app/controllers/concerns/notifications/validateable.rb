@@ -19,5 +19,11 @@ module Notifications
         raise Common::Exceptions::UnprocessableEntity.new(detail: message), message
       end
     end
+
+    def validate_record_present!(notification, subject)
+      if notification.nil?
+        raise Common::Exceptions::RecordNotFound.new(subject), "User does not have a #{subject} record"
+      end
+    end
   end
 end
