@@ -236,7 +236,7 @@ Rails.application.routes.draw do
     end
 
     namespace :notifications do
-      resources :dismissed_statuses, only: %i[show create], param: :subject
+      resources :dismissed_statuses, only: %i[show create update], param: :subject
     end
 
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code

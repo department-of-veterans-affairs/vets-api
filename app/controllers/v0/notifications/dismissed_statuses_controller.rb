@@ -7,8 +7,9 @@ module V0
       include ::Notifications::Validateable
 
       before_action -> { validate_subject!(subject) }
-      before_action -> { validate_status!(status) }, only: :create
+      before_action -> { validate_status!(status) }, only: %i[create update]
       before_action :set_account, :set_notification
+      before_action -> { validate_record_present!(@notification, subject) }, only: :update
 
       def create
         notification = @account.notifications.build(dismissed_statuses_params.merge(read_at: Time.current))
@@ -25,6 +26,14 @@ module V0
           render json: @notification, serializer: DismissedStatusSerializer
         else
           raise Common::Exceptions::RecordNotFound.new(subject), 'No matching record found for that user'
+        end
+      end
+
+      def update
+        if @notification.update(dismissed_statuses_params.merge(read_at: Time.current))
+          render json: @notification, serializer: DismissedStatusSerializer
+        else
+          raise Common::Exceptions::ValidationErrors.new(@notification), 'Validation errors present'
         end
       end
 
