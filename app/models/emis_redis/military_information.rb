@@ -87,13 +87,13 @@ module EMISRedis
     # Date range for Vietnam War
     VIETNAM_WAR_RANGE = Date.new(1962, 1, 9)..Date.new(1975, 5, 7)
 
-    # @return [Boolean] Returns true if the user is currently
+    # @return [Boolean] true if the user is currently
     #  serving in active duty
     def currently_active_duty
       currently_active_duty_hash[:yes]
     end
 
-    # @return [Hash] Returns currently active duty data in hash format
+    # @return [Hash] currently active duty data in hash format
     def currently_active_duty_hash
       value =
         if latest_service_episode.present?
@@ -198,7 +198,7 @@ module EMISRedis
       DISCHARGE_TYPES[latest_service_episode&.discharge_character_of_service_code] || 'other'
     end
 
-    # @return [Boolean] Returns true if veteran served a tour of duty
+    # @return [Boolean] true if veteran served a tour of duty
     #  after November 1998
     def post_nov111998_combat
       deployments.each do |deployment|
@@ -208,7 +208,7 @@ module EMISRedis
       false
     end
 
-    # @return [Boolean] Returns true if veteran served in the Vietnam
+    # @return [Boolean] true if veteran served in the Vietnam
     #  War
     def vietnam_service
       deployed_to?([VIETNAM], VIETNAM_WAR_RANGE)
@@ -216,7 +216,7 @@ module EMISRedis
 
     # @param countries [Array<String>] Array of ISO3 country codes
     # @param date_range [Range] Date range
-    # @return [Boolean] Returns true if veteran was deployed to any of
+    # @return [Boolean] true if veteran was deployed to any of
     #  of the countries within the specified date range
     def deployed_to?(countries, date_range)
       deployments.each do |deployment|
@@ -228,7 +228,7 @@ module EMISRedis
       false
     end
 
-    # @return [Boolean] Returns true if the veteran served in southwest
+    # @return [Boolean] true if the veteran served in southwest
     #  Asia during the Gulf war
     def sw_asia_combat
       deployed_to?(SOUTHWEST_ASIA, GULF_WAR_RANGE)
@@ -258,7 +258,7 @@ module EMISRedis
       @deployments ||= items_from_response('get_deployment')
     end
 
-    # @return [Boolean] Returns true if veteran is paid for a disability
+    # @return [Boolean] true if veteran is paid for a disability
     #  with a low disability percentage
     def compensable_va_service_connected
       disabilities.each do |disability|
@@ -272,7 +272,7 @@ module EMISRedis
     # don't want to change this method name, it matches the attribute in the json schema
     # rubocop:disable Naming/PredicateName
 
-    # @return [Boolean] Returns true if veteran is paid for a disability
+    # @return [Boolean] true if veteran is paid for a disability
     #  with a high disability percentage
     def is_va_service_connected
       disabilities.each do |disability|
