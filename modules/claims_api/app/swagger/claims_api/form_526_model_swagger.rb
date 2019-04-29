@@ -384,9 +384,72 @@ module ClaimsApi
         end
 
         property :disabilities do
-          key :type, :object
-          key :description, ''
-          key :required, []
+          key :type, :array
+          key :description, 'Identifies the Service Disability information of the Veteran'
+          
+          items do
+            key :type, :object
+            key :required, %i[
+              name
+              disabilityActionType
+            ]
+
+            property :ratedDisabilityId do
+              key :type, :string
+              key :description, 'The Type of Disability'
+              key :example, '1100583'
+            end
+
+            property :diagnosticCode do
+              key :type, :integer
+              key :description, 'Specific Diagnostic Code'
+              key :example, 9999
+            end
+
+            property :disabilityActionType do
+              key :type, :string
+              key :description, 'The status of the current disability.'
+              key :example, 'NEW'
+            end
+
+            property :name do
+              key :type, :string
+              key :description, 'What the Disability is called.'
+              key :example, 'PTSD (post traumatic stress disorder)'
+            end
+
+            property :secondaryDisabilities do
+              key :type, :array
+              key :description, 'Identifies the Secondary Service Disability information of the Veteran'
+              
+              items do
+                key :type, :object
+                key :required, %i[
+                  name
+                  disabilityActionType
+                  serviceRelevance
+                ]
+
+                property :name do
+                  key :type, :string
+                  key :description, 'What the Disability is called.'
+                  key :example, 'PTSD personal trauma'
+                end
+
+                property :disabilityActionType do
+                  key :type, :string
+                  key :description, 'The status of the secondary disability.'
+                  key :example, 'SECONDARY'
+                end
+
+                property :serviceRelevance do
+                  key :type, :string
+                  key :description, 'How the veteran got the disability.'
+                  key :example, 'Caused by a service-connected disability\\nLengthy description'
+                end
+              end
+            end
+          end
         end
 
         property :treatments do
