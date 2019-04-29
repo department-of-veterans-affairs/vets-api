@@ -2,16 +2,12 @@
 
 class DismissedStatusSerializer < ActiveModel::Serializer
   attribute :subject
-  attribute :dismissed_status
+  attribute :status
   attribute :status_effective_at
-  attribute :dismissed_at
+  attribute :read_at
 
   def id
     nil
-  end
-
-  def dismissed_status
-    object.status
   end
 
   # Converts status_effective_at into desired datetime string format.
@@ -22,7 +18,7 @@ class DismissedStatusSerializer < ActiveModel::Serializer
     object.status_effective_at.as_json
   end
 
-  def dismissed_at
+  def read_at
     object.read_at.as_json
   end
 end
