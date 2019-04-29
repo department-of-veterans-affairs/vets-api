@@ -555,8 +555,37 @@ module ClaimsApi
 
         property :directDeposit do
           key :type, :object
-          key :description, ''
-          key :required, []
+          key :description, 'Financial Direct Deposit information for Veteran'
+          key :required, %w[
+            accountType
+            accountNumber
+            routingNumber
+          ]
+
+          property :accountType do
+            key :type, :string
+            key :description, 'Veteran Account Type'
+            key :example, 'CHECKING'
+            key :enum, %w[CHECKING SAVINGS]
+          end
+
+          property :accountNumber do
+            key :type, :string
+            key :description, 'Veteran Bank Account Number'
+            key :example, '123123123123'
+          end
+
+          property :routingNumber do
+            key :type, :string
+            key :description, 'Veteran Bank Routing Number'
+            key :example, '123123123'
+          end
+
+          property :bankName do
+            key :type, :string
+            key :description, 'Veteran Bank Name'
+            key :example, 'Some Bank'
+          end
         end
 
         property :claimantCertification do
