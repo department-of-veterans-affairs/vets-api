@@ -57,6 +57,14 @@ module ClaimsApi
         }
       ]
 
+      key :components,
+          "securitySchemes": {
+            "bearer_token": {
+              "type": 'http',
+              "scheme": 'bearer'
+            }
+          }
+
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v1'
       key :consumes, ['application/json']
