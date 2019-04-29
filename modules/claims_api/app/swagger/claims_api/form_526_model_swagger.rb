@@ -503,8 +503,54 @@ module ClaimsApi
 
         property :servicePay do
           key :type, :object
-          key :description, ''
-          key :required, []
+          key :description, 'Details about Veteran receiving Service Pay from DoD'
+
+          property :waiveVABenefitsToRetainTrainingPay do
+            key :type, :boolean
+            key :description, 'Is Veteran Waiving benefits to retain training pay'
+            key :example, true
+          end
+
+          property :waiveVABenefitsToRetainRetiredPay do
+            key :type, :boolean
+            key :description, 'Is Veteran Waiving benefits to retain Retiree pay'
+            key :example, true
+          end
+
+          property :militaryRetiredPay do
+            key :type, :object
+            key :description, 'Retirement Pay information from Military Service'
+
+            property :receiving do
+              key :type, :boolean
+              key :description, 'Is Veteran getting Retiree pay'
+              key :example, true
+            end
+
+            property :payment do
+              key :type, :object
+              key :description, 'Part of DoD paying Retirement Benefits'
+
+              property :serviceBranch do
+                key :type, :string
+                key :description, 'Branch of Service making payments'
+                key :example, 'Air Force'
+                key :enum, [
+                  'Air Force',
+                  'Air Force Reserve',
+                  'Army',
+                  'Army Reserve',
+                  'Coast Guard',
+                  'Coast Guard Reserve',
+                  'Marine Corps',
+                  'Marine Corps Reserve',
+                  'Navy',
+                  'Navy Reserve',
+                  'NOAA'
+                ]
+              end
+            end
+          end
         end
 
         property :directDeposit do
