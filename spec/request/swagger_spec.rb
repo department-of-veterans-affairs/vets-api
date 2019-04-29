@@ -1974,51 +1974,89 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     describe 'notifications' do
       let(:notification_subject) { Notification::FORM_10_10EZ }
 
-      context 'when user has an associated Notification record' do
-        let!(:notification) do
-          create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+      describe 'POST /v0/notifications' do
+        let(:post_body) do
+          {
+            subject: notification_subject,
+            read: false
+          }
         end
 
-        it 'supports getting dismissed status data' do
+        it 'supports posting notification data' do
           expect(subject).to validate(
-            :get,
-            '/v0/notifications/dismissed_statuses/{subject}',
+            :post,
+            '/v0/notifications',
             200,
-            headers.merge('subject' => notification_subject)
+            headers.merge('_data' => post_body)
           )
         end
-      end
 
-      context 'when user does not have an associated Notification record' do
-        it 'supports record not found feedback' do
-          expect(subject).to validate(
-            :get,
-            '/v0/notifications/dismissed_statuses/{subject}',
-            404,
-            headers.merge('subject' => notification_subject)
-          )
-        end
-      end
-
-      context 'authorization' do
         it 'supports authorization validation' do
           expect(subject).to validate(
-            :get,
-            '/v0/notifications/dismissed_statuses/{subject}',
+            :post,
+            '/v0/notifications',
             401,
-            'subject' => notification_subject
+            '_data' => post_body
+          )
+        end
+
+        it 'supports validating posted notification data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            422,
+            headers.merge('_data' => post_body.merge(subject: 'random_subject'))
           )
         end
       end
 
-      context 'when the passed subject is not defined in the Notification#subject enum' do
-        it 'supports invalid subject validation' do
-          expect(subject).to validate(
-            :get,
-            '/v0/notifications/dismissed_statuses/{subject}',
-            422,
-            headers.merge('subject' => 'random_subject')
-          )
+      describe 'GET /v0/notifications/dismissed_statuses/{subject}' do
+        context 'when user has an associated Notification record' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports getting dismissed status data' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              200,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'when user does not have an associated Notification record' do
+          it 'supports record not found feedback' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              404,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'authorization' do
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              401,
+              'subject' => notification_subject
+            )
+          end
+        end
+
+        context 'when the passed subject is not defined in the Notification#subject enum' do
+          it 'supports invalid subject validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              422,
+              headers.merge('subject' => 'random_subject')
+            )
+          end
         end
       end
 
