@@ -4,7 +4,7 @@ module ClaimsApi
   class ClaimsV0ControllerSwagger
     include Swagger::Blocks
 
-    swagger_path '/services/claims/v0/claims/{id}' do
+    swagger_path '/claims/{id}' do
       operation :get do
         key :summary, 'Find Claim by ID'
         key :description, 'Returns a single claim if the user has access'
@@ -12,14 +12,71 @@ module ClaimsApi
         key :tags, [
           'claim'
         ]
+
         parameter do
           key :name, :id
           key :in, :path
-          key :description, 'ID of claims to fetch'
+          key :description, 'The ID of the claim being requested'
           key :required, true
-          key :type, :integer
-          key :format, :int64
+          key :type, :string
         end
+
+        parameter do
+          key :name, 'api_key'
+          key :in, :header
+          key :description, 'API Key given to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
+        end
+
         response 200 do
           key :description, 'claims response'
           schema do
@@ -34,7 +91,8 @@ module ClaimsApi
         end
       end
     end
-    swagger_path '/services/claims/v0/claims' do
+
+    swagger_path '/claims' do
       operation :get do
         key :summary, 'All Claims'
         key :description, 'Returns all claims from the system that the user has access to'
@@ -45,16 +103,61 @@ module ClaimsApi
         key :tags, [
           'claims'
         ]
+
         parameter do
-          key :name, :tags
-          key :in, :query
-          key :description, 'tags to filter by'
+          key :name, 'api_key'
+          key :in, :header
+          key :description, 'API Key given to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
           key :required, false
-          key :type, :array
-          items do
-            key :type, :string
-          end
-          key :collectionFormat, :csv
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
         end
 
         response 200 do
