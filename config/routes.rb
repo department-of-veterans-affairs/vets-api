@@ -235,6 +235,8 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
+    resources :notifications, only: :create, param: :subject
+
     namespace :notifications do
       resources :dismissed_statuses, only: %i[show create update], param: :subject
     end
