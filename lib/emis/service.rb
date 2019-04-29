@@ -9,7 +9,7 @@ require 'common/client/middleware/response/soap_parser'
 
 module EMIS
   # HTTP Client for EMIS requests.
-  # Requests and responses are SOAP format.
+  # Requests and responses are SOAP format
   class Service < Common::Client::Base
     # Prefix string for StatsD monitoring
     STATSD_KEY_PREFIX = 'api.emis'
@@ -19,7 +19,7 @@ module EMIS
     #
     # @param endpoints [Array<String, Symbol, Array<String, Symbol>>] An array of endpoints,
     #  either a string or symbol if the method name and endpoint path (converted to camelcase)
-    #  are the same or an Array containing the method name and endpoint path.
+    #  are the same or an Array containing the method name and endpoint path
     def self.create_endpoints(endpoints)
       endpoints.each do |endpoint|
         operation = nil
