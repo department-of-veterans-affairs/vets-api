@@ -18,7 +18,7 @@ module EMIS
         end
       end
 
-      # @return [Boolean] Returns true if response code was successful
+      # @return [Boolean] true if response code was successful
       def ok?
         locate_one('essResponseCode')&.nodes&.first == 'Success'
       end
@@ -28,7 +28,7 @@ module EMIS
         ok?
       end
 
-      # @return [Boolean] Returns true if response code had an error
+      # @return [Boolean] true if response code had an error
       def error?
         locate_one('essResponseCode')&.nodes&.first == 'ERROR'
       end
@@ -45,7 +45,7 @@ module EMIS
         EMIS::Errors::ServiceError.new("#{code} #{text} #{ess_text}")
       end
 
-      # @return [Boolean] Returns true if data set is empty
+      # @return [Boolean] true if data set is empty
       def empty?
         locate_one('essResponseCode')&.nodes&.first.nil?
       end
