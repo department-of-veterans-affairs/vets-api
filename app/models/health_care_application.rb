@@ -75,12 +75,13 @@ class HealthCareApplication < ApplicationRecord
       ee_data.slice(
         :application_date,
         :enrollment_date,
-        :preferred_facility
+        :preferred_facility,
+        :effective_date
       ).merge(parsed_status: parsed_status)
     else
       {
         parsed_status:
-          ee_data[:enrollment_status].present? ? :login_required : :none_of_the_above
+          ee_data[:enrollment_status].present? ? Notification::LOGIN_REQUIRED : Notification::NONE_OF_THE_ABOVE
       }
     end
   end

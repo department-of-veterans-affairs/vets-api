@@ -10,7 +10,30 @@ module Veteran
 
       self.primary_key = :representative_id
 
-      validates_presence_of :poa
+      attr_encrypted(:ssn, key: Settings.db_encryption_key)
+      attr_encrypted(:dob, key: Settings.db_encryption_key)
+
+      validates :poa, presence: true
+
+      def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
+        reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
+        reps.each do |rep|
+          if matching_ssn(rep, ssn) && matching_date_of_birth(rep, dob)
+            return rep
+          elsif rep.ssn.blank? && rep.dob.blank?
+            return rep
+          end
+        end
+        nil
+      end
+
+      def self.matching_ssn(rep, ssn)
+        rep.ssn.present? && rep.ssn == ssn
+      end
+
+      def self.matching_date_of_birth(rep, birth_date)
+        rep.dob.present? && rep.dob == birth_date
+      end
 
       def self.reload!
         array_of_hashes = fetch_data('orgsexcellist.asp')
