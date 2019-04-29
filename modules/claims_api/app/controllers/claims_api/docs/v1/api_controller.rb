@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require_dependency 'claims_api/form_526_model_swagger'
+require_dependency 'claims_api/form_0966_model_swagger'
+require_dependency 'claims_api/form_526_controller_swagger'
+require_dependency 'claims_api/form_0966_controller_swagger'
 
 module ClaimsApi
   module Docs
@@ -14,6 +17,11 @@ module ClaimsApi
         SWAGGERED_CLASSES = [
           ClaimsApi::ClaimsModelSwagger,
           ClaimsApi::Form526ModelSwagger,
+          ClaimsApi::Form0966ModelSwagger,
+          ClaimsApi::ErrorModelSwagger,
+          ClaimsApi::ClaimsV1ControllerSwagger,
+          ClaimsApi::Form526ControllerSwagger,
+          ClaimsApi::Form0966ControllerSwagger,
           ClaimsApi::ClaimsV1Swagger
         ].freeze
 
