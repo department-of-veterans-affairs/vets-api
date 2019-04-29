@@ -10,7 +10,7 @@ module ClaimsApi
         key :description, 'Returns a single claim if the user has access'
         key :operationId, 'findClaimById'
         key :tags, [
-          'claim'
+          'claims'
         ]
 
         parameter do

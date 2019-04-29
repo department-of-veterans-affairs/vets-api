@@ -27,6 +27,36 @@ module ClaimsApi
         end
       end
 
+      key :servers, [
+        {
+          "url": 'https://dev-api.va.gov/services/claims/{version}',
+          "description": 'VA.gov API development environment',
+          "variables": {
+            "version": {
+              "default": 'v0'
+            }
+          }
+        },
+        {
+          "url": 'https://staging-api.va.gov/services/claims/{version}',
+          "description": 'VA.gov API staging environment',
+          "variables": {
+            "version": {
+              "default": 'v0'
+            }
+          }
+        },
+        {
+          "url": 'https://api.va.gov/services/claims/{version}',
+          "description": 'VA.gov API production environment',
+          "variables": {
+            "version": {
+              "default": 'v0'
+            }
+          }
+        }
+      ]
+
       key :host, 'api.va.gov'
       key :basePath, '/services/claims/v1'
       key :consumes, ['application/json']
