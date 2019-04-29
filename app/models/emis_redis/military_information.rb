@@ -121,6 +121,7 @@ module EMISRedis
         }
       end
     end
+    # rubocop:disable Metrics/CyclomaticComplexity
 
     # Convert service branch code from a military service episode
     # into a formatted readable string.
@@ -130,7 +131,6 @@ module EMISRedis
     #  Military service episode model
     # @return [String] Readable service branch name formatted for EVSS
     def build_service_branch(military_service_episode)
-      # rubocop:disable Metrics/CyclomaticComplexity
       branch = case military_service_episode.hca_branch_of_service
                when 'noaa'
                  military_service_episode.hca_branch_of_service.upcase
