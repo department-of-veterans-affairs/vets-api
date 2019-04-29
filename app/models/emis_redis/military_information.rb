@@ -58,7 +58,7 @@ module EMISRedis
     HIGHER_DISABILITY_RATING = 50
 
     NOV_1998 = Date.new(1998, 11, 11)
-    # Date range for the gulf war
+    # Date range for the Gulf War
     GULF_WAR_RANGE = Date.new(1990, 8, 2)..NOV_1998
 
     # ISO Country codes for southwest Asia
