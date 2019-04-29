@@ -4,8 +4,8 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
-  let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::ParsedStatuses::INELIG_CHARACTER_OF_DISCHARGE }
-  let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
+  let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
+  let(:login_required) { Notification::LOGIN_REQUIRED }
 
   describe '.enrollment_status' do
     it 'should return parsed enrollment status' do
