@@ -100,7 +100,7 @@ paths:
       parameters:
         - name: ids
           description: |
-            List of command separated ids of facilities to retrieve in a single request.
+            List of comma separated ids of facilities to retrieve in a single request.
             Can be combined with lat and long parameters to retrieve the facilities sorted by distance from a location.
           in: query
           style: form
