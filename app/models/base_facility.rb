@@ -151,10 +151,10 @@ class BaseFacility < ApplicationRecord
     end
 
     def query(params)
-      if params[:ids]
-        return build_result_set_from_ids(params[:ids]).flatten
-      elsif location_query_requested?(params)
+      if location_query_requested?(params)
         return query_by_location(params)
+      elsif params[:ids]
+        return build_result_set_from_ids(params[:ids]).flatten
       end
 
       BaseFacility.none
