@@ -3,7 +3,5 @@
 module ClaimsApi
   class Form0966ControllerSwagger
     include Swagger::Blocks
-    
-  
   end
 end

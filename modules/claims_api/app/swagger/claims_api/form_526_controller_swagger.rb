@@ -3,7 +3,5 @@
 module ClaimsApi
   class Form526ControllerSwagger
     include Swagger::Blocks
-    
-  
   end
 end

@@ -3,7 +3,5 @@
 module ClaimsApi
   class ClaimsV0ControllerSwagger
     include Swagger::Blocks
-  
-
   end
 end

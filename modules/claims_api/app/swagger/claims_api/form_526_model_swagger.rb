@@ -386,7 +386,7 @@ module ClaimsApi
         property :disabilities do
           key :type, :array
           key :description, 'Identifies the Service Disability information of the Veteran'
-          
+
           items do
             key :type, :object
             key :required, %i[
@@ -421,7 +421,7 @@ module ClaimsApi
             property :secondaryDisabilities do
               key :type, :array
               key :description, 'Identifies the Secondary Service Disability information of the Veteran'
-              
+
               items do
                 key :type, :object
                 key :required, %i[
@@ -453,9 +453,52 @@ module ClaimsApi
         end
 
         property :treatments do
-          key :type, :object
-          key :description, ''
-          key :required, []
+          key :type, :array
+          key :description, 'Identifies the Service Treatment information of the Veteran'
+
+          items do
+            key :type, :object
+
+            property :startDate do
+              key :type, :date
+              key :description, 'Date Veteran started treatment'
+              key :example, '2018-03-02'
+            end
+
+            property :endDate do
+              key :type, :date
+              key :description, 'Date Veteran ended treatment'
+              key :example, '2018-03-03'
+            end
+
+            property :treatedDisabilityNames do
+              key :type, :array
+              key :description, 'Identifies the Service Treatment nomenclature of the Veteran'
+
+              items do
+                key :type, :string
+                key :description, 'Name of Disabilities Veteran was Treated for'
+                key :example, 'PTSD (post traumatic stress disorder)'
+              end
+            end
+
+            property :center do
+              key :type, :object
+              key :description, 'Location of Veteran Treatment'
+
+              property :name do
+                key :type, :string
+                key :description, 'Name of facility Veteran was treated in'
+                key :example, 'Private Facility 2'
+              end
+
+              property :country do
+                key :type, :string
+                key :description, 'Country Veteran was treated in'
+                key :example, 'USA'
+              end
+            end
+          end
         end
 
         property :servicePay do
