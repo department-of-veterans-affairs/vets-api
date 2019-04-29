@@ -47,20 +47,38 @@ describe Veteran::Service::Representative, type: :model do
 
     describe 'finding by all fields' do
       it 'should find a user by name, ssn, and dob' do
-        expect(Veteran::Service::Representative.for_user(identity).id).to eq(rep.id)
+        expect(Veteran::Service::Representative.for_user(
+          first_name: identity.first_name,
+          last_name: identity.last_name,
+          dob: identity.birth_date,
+          ssn: identity.ssn
+        ).id).to eq(rep.id)
       end
 
-      it 'should find right user when 2 with the same name exisit' do
+      it 'should find right user when 2 with the same name exist' do
         FactoryBot.create(:representative,
                           basic_attributes.merge!(ssn: '123-45-6789', dob: '1929-10-01'))
-        expect(Veteran::Service::Representative.for_user(identity).id).to eq(rep.id)
+        expect(Veteran::Service::Representative.for_user(
+          first_name: identity.first_name,
+          last_name: identity.last_name,
+          dob: identity.birth_date,
+          ssn: identity.ssn
+        ).id).to eq(rep.id)
       end
     end
 
     describe 'finding by the name only' do
       it 'should find a user by name fields' do
-        identity = FactoryBot.create(:user_identity)
-        expect(Veteran::Service::Representative.for_user(identity).id).to eq(rep.id)
+        rep = FactoryBot.create(:representative, first_name: 'Bob', last_name: 'Smith')
+        identity = FactoryBot.create(:user_identity, first_name: rep.first_name, last_name: rep.last_name)
+        Veteran::Service::Representative.for_user(
+          first_name: identity.first_name,
+          last_name: identity.last_name
+        )
+        expect(Veteran::Service::Representative.for_user(
+          first_name: identity.first_name,
+          last_name: identity.last_name
+        ).id).to eq(rep.id)
       end
     end
   end
