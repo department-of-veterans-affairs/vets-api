@@ -10,7 +10,7 @@ module ClaimsApi
         key :description, 'Returns a single claim if the user has access'
         key :operationId, 'findClaimById'
         key :tags, [
-          'claims'
+          'Claims'
         ]
 
         parameter do
@@ -80,13 +80,24 @@ module ClaimsApi
         response 200 do
           key :description, 'claims response'
           schema do
-            key :'$ref', :Claims
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :'$ref', :Claims
+            end
           end
         end
         response :default do
           key :description, 'unexpected error'
           schema do
-            key :'$ref', :ErrorModel
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
           end
         end
       end
@@ -101,7 +112,7 @@ module ClaimsApi
           'application/json'
         ]
         key :tags, [
-          'claims'
+          'Claims'
         ]
 
         parameter do
@@ -163,16 +174,27 @@ module ClaimsApi
         response 200 do
           key :description, 'claim response'
           schema do
-            key :type, :array
-            items do
-              key :'$ref', :Claims
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :array
+              items do
+                key :'$ref', :Claims
+              end
             end
           end
         end
         response :default do
           key :description, 'unexpected error'
           schema do
-            key :'$ref', :ErrorModel
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
           end
         end
       end

@@ -1,30 +1,22 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ClaimsV1ControllerSwagger
+  class Form526V0ControllerSwagger
     include Swagger::Blocks
 
-    swagger_path '/claims/{id}' do
-      operation :get do
-        key :summary, 'Find Claim by ID'
-        key :description, 'Returns a single claim if the user has access'
-        key :operationId, 'findClaimById'
+    swagger_path '/form/526' do
+      operation :post do
+        key :summary, 'Accepts 526 claim form submission'
+        key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+        key :operationId, 'post526Claim'
         key :tags, [
-          'Claims'
+          'Disability'
         ]
 
         parameter do
-          key :name, :id
-          key :in, :path
-          key :description, 'The ID of the claim being requested'
-          key :required, true
-          key :type, :string
-        end
-
-        parameter do
-          key :name, 'bearer_token'
+          key :name, 'api_key'
           key :in, :header
-          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :description, 'API Key given to access data'
           key :required, true
           key :type, :string
         end
@@ -77,14 +69,20 @@ module ClaimsApi
           key :type, :string
         end
 
-        response 200 do
-          key :description, 'claims response'
+        parameter do
+          key :name, 'payload'
+          key :in, :body
+          key :description, 'JSON API Payload of Veteran being submitted'
+          key :required, true
           schema do
-            key :type, :object
-            key :required, [:data]
-            property :data do
-              key :'$ref', :Claims
-            end
+            key :'$ref', :Form526Input
+          end
+        end
+
+        response 200 do
+          key :description, '526 response'
+          schema do
+            key :'$ref', :Claims
           end
         end
         response :default do
@@ -103,22 +101,30 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/claims' do
-      operation :get do
-        key :summary, 'All Claims'
-        key :description, 'Returns all claims from the system that the user has access to'
-        key :operationId, 'findClaims'
+    swagger_path '/form/526/{id}/attachments' do
+      operation :post do
+        key :summary, 'Upload documents in support of a 526 claim'
+        key :description, 'Accpets document binaries as part of a multipart payload. These files will be uploaded and tied to\nthe passed in form 526 claim'
+        key :operationId, 'upload526Attachments'
         key :produces, [
           'application/json'
         ]
         key :tags, [
-          'Claims'
+          'Disability'
         ]
 
         parameter do
-          key :name, 'bearer_token'
+          key :name, :id
+          key :in, :path
+          key :description, 'UUID given when Disability Claim was submitted'
+          key :required, true
+          key :type, :uuid
+        end
+
+        parameter do
+          key :name, 'api_key'
           key :in, :header
-          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :description, 'API Key given to access data'
           key :required, true
           key :type, :string
         end
@@ -171,18 +177,28 @@ module ClaimsApi
           key :type, :string
         end
 
+        key :requestBody,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": 'object',
+                  "properties": {
+                    "metadata": {
+                      "$ref": '#/components/schemas/SupportingDocument'
+                    },
+                    "attachment1": {
+                      "type": 'string',
+                      "example": '<<PDF BINARY>>',
+                      "format": 'binary',
+                      "description": 'Attachment contents. Must be provided in PDF format'
+                    }
+                  }
+                }
+              }
+            }
+
         response 200 do
-          key :description, 'claim response'
-          schema do
-            key :type, :object
-            key :required, [:data]
-            property :data do
-              key :type, :array
-              items do
-                key :'$ref', :Claims
-              end
-            end
-          end
+          key :description, 'upload response'
         end
         response :default do
           key :description, 'unexpected error'

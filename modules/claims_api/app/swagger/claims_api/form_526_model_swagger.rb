@@ -4,7 +4,7 @@ module ClaimsApi
   class Form526ModelSwagger
     include Swagger::Blocks
 
-    swagger_schema :Form526 do
+    swagger_schema :Form526Input do
       key :required, %i[type attributes]
       key :description, '526 Claim Form submission with minimum required for auto establishment'
       property :type do
