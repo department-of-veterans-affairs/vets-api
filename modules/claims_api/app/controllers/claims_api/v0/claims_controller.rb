@@ -14,6 +14,10 @@ module ClaimsApi
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
+      rescue EVSS::ErrorMiddleware::EVSSError
+        render json: [],
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: ClaimsApi::ClaimListSerializer
       end
 
       def show
@@ -21,8 +25,13 @@ module ClaimsApi
           render json: pending_claim,
                  serializer: ClaimsApi::AutoEstablishedClaimSerializer
         else
-          evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
-          fetch_and_render_evss_claim(evss_claim_id)
+          begin
+            evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
+            fetch_and_render_evss_claim(evss_claim_id)
+          rescue EVSS::ErrorMiddleware::EVSSError
+            render json: { errors: [{ detail: 'Claim not found' }] },
+                   status: :not_found
+          end
         end
       end
 
