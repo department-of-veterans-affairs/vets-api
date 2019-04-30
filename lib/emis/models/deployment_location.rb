@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS veteran deployment locations data
     class DeploymentLocation
       include Virtus.model
 
@@ -13,6 +14,8 @@ module EMIS
       attribute :termination_reason_code, String
       attribute :transaction_date, Date
 
+      # Date range of deployment
+      # @return [Range] Date range of deployment
       def date_range
         begin_date..end_date
       end
