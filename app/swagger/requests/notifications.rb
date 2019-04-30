@@ -45,10 +45,42 @@ module Swagger
         end
       end
 
+      swagger_path '/v0/notifications/{subject}' do
+        operation :get do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::RecordNotFoundError
+
+          key :description, "Gets the user's associated notification details"
+          key :operationId, 'getNotification'
+          key :tags, %w[
+            notifications
+          ]
+
+          parameter :authorization
+
+          parameter do
+            key :name, 'subject'
+            key :in, :path
+            key :description, 'The subject of the notification (i.e. "form_10_10ez")'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :Notification
+            end
+          end
+        end
+      end
+
       swagger_path '/v0/notifications/dismissed_statuses/{subject}' do
         operation :get do
           extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::RecordNotFoundError
 
           key :description, "Gets the user's most recent dismissed status notification details"
           key :operationId, 'getDismissedStatus'
@@ -70,26 +102,6 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :'$ref', :DismissedStatus
-            end
-          end
-
-          response 404 do
-            key :description, 'Record not found'
-            schema do
-              key :required, [:errors]
-
-              property :errors do
-                key :type, :array
-                items do
-                  key :required, %i[title detail code status]
-                  property :title, type: :string, example: 'Record not found'
-                  property :detail,
-                           type: :string,
-                           example: 'The record identified by form_10_10ez could not be found'
-                  property :code, type: :string, example: '404'
-                  property :status, type: :string, example: '404'
-                end
-              end
             end
           end
         end
