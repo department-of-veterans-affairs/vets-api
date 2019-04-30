@@ -48,7 +48,6 @@ class UserSessionForm
     @errors_message ||= if errors.any?
                           message = 'Login Failed! '
                           message += errors_hash[:short_message]
-                          message
                         end
   end
 
