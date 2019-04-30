@@ -1,5 +1,5 @@
-dev_branch = 'rails-5.1'
-staging_branch = 'master'
+dev_branch = 'master'
+staging_branch = 'rails-5.1'
 main_branch = 'master'
 
 pipeline {
@@ -83,6 +83,16 @@ pipeline {
         ], wait: false
 
         build job: 'deploys/vets-api-worker-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-server-vagov-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false

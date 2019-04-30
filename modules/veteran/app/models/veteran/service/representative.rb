@@ -15,10 +15,10 @@ module Veteran
 
       validates :poa, presence: true
 
-      def self.for_user(user)
-        reps = where(first_name: user.first_name, last_name: user.last_name)
+      def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
+        reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
         reps.each do |rep|
-          if matching_ssn(rep, user) && matching_date_of_birth(rep, user)
+          if matching_ssn(rep, ssn) && matching_date_of_birth(rep, dob)
             return rep
           elsif rep.ssn.blank? && rep.dob.blank?
             return rep
@@ -27,12 +27,12 @@ module Veteran
         nil
       end
 
-      def self.matching_ssn(rep, user)
-        rep.ssn.present? && rep.ssn == user.ssn
+      def self.matching_ssn(rep, ssn)
+        rep.ssn.present? && rep.ssn == ssn
       end
 
-      def self.matching_date_of_birth(rep, user)
-        rep.dob.present? && rep.dob == user.birth_date
+      def self.matching_date_of_birth(rep, birth_date)
+        rep.dob.present? && rep.dob == birth_date
       end
 
       def self.reload!
