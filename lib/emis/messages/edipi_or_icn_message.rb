@@ -4,10 +4,20 @@ require 'ox'
 
 module EMIS
   module Messages
+    # SOAP XML Message to be sent to EMIS API which contains
+    # user identifier data
     class EdipiOrIcnMessage
+      # User's Electronic Data Interchange Personal Identifier
       attr_reader :edipi
+      # User's Integration Control Number
       attr_reader :icn
 
+      # Create a new EdipiOrIcnMessage
+      #
+      # @param edipi [String] User's Electronic Data Interchange Personal Identifier
+      # @param icn [String] User's Integration Control Number
+      # @param request_name [String] Request name used in XML request body
+      # @param custom_namespaces [Hash] Namespace for API to be called
       def initialize(edipi: nil, icn: nil, request_name:, custom_namespaces: {})
         if (edipi.present? && icn.present?) || (edipi.nil? && icn.nil?)
           raise ArgumentError, 'must include either an EDIPI or ICN, but not both'
@@ -18,6 +28,8 @@ module EMIS
         @custom_namespaces = custom_namespaces
       end
 
+      # Creates XML request body
+      # @return [String] XML request body
       def to_xml
         header = build_header
         body = build_body

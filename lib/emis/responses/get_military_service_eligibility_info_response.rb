@@ -5,12 +5,16 @@ require 'emis/responses/response'
 
 module EMIS
   module Responses
+    # EMIS military service eligibility response
     class GetMilitaryServiceEligibilityInfoResponse < EMIS::Responses::Response
+      # (see EMIS::Responses::GetCombatPayResponse#item_tag_name)
       def item_tag_name
         'militaryServiceEligibility'
       end
 
       # rubocop:disable Metrics/MethodLength
+
+      # (see EMIS::Responses::GetCombatPayResponse#item_schema)
       def item_schema
         {
           'veteranStatus' => {
@@ -73,6 +77,7 @@ module EMIS
       end
       # rubocop:enable Metrics/MethodLength
 
+      # (see EMIS::Responses::GetCombatPayResponse#model_class)
       def model_class
         EMIS::Models::MilitaryServiceEligibilityInfo
       end
