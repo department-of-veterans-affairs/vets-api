@@ -218,7 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
-      let(:login_required) { HCA::EnrollmentEligibility::ParsedStatuses::LOGIN_REQUIRED }
+      let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
@@ -1966,6 +1966,186 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'returns a 429 with error details' do
           VCR.use_cassette('search/exceeds_rate_limit') do
             expect(subject).to validate(:get, '/v0/search', 429, '_query_string' => 'query=benefits')
+          end
+        end
+      end
+    end
+
+    describe 'notifications' do
+      let(:notification_subject) { Notification::FORM_10_10EZ }
+
+      describe 'POST /v0/notifications' do
+        let(:post_body) do
+          {
+            subject: notification_subject,
+            read: false
+          }
+        end
+
+        it 'supports posting notification data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            200,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            401,
+            '_data' => post_body
+          )
+        end
+
+        it 'supports validating posted notification data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            422,
+            headers.merge('_data' => post_body.merge(subject: 'random_subject'))
+          )
+        end
+      end
+
+      describe 'GET /v0/notifications/dismissed_statuses/{subject}' do
+        context 'when user has an associated Notification record' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports getting dismissed status data' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              200,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'when user does not have an associated Notification record' do
+          it 'supports record not found feedback' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              404,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'authorization' do
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              401,
+              'subject' => notification_subject
+            )
+          end
+        end
+
+        context 'when the passed subject is not defined in the Notification#subject enum' do
+          it 'supports invalid subject validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              422,
+              headers.merge('subject' => 'random_subject')
+            )
+          end
+        end
+      end
+
+      describe 'POST /v0/notifications/dismissed_statuses' do
+        let(:post_body) do
+          {
+            subject: notification_subject,
+            status: Notification::PENDING_MT,
+            status_effective_at: '2019-04-23T00:00:00.000-06:00'
+          }
+        end
+
+        it 'supports posting dismissed status data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            200,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            401,
+            '_data' => post_body
+          )
+        end
+
+        it 'supports validating posted dismissed status data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            422,
+            headers.merge('_data' => post_body.merge(status: 'random_status'))
+          )
+        end
+      end
+
+      describe 'PATCH /v0/notifications/dismissed_statuses/{subject}' do
+        let(:patch_body) do
+          {
+            status: Notification::CLOSED,
+            status_effective_at: '2019-04-23T00:00:00.000-06:00'
+          }
+        end
+
+        context 'user has an existing Notification record with the passed subject' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports updating dismissed status data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              200,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
+          end
+
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              401,
+              '_data' => patch_body, 'subject' => notification_subject
+            )
+          end
+
+          it 'supports validating updated dismissed status data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              422,
+              headers.merge('_data' => patch_body.merge(status: 'random_status'), 'subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'user does not have a Notification record with the passed subject' do
+          it 'supports validating the presence of an existing record to be updated' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              404,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
           end
         end
       end
