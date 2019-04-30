@@ -31,14 +31,14 @@ module V0
     end
 
     def saml_logout_callback
-      @saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
-      Raven.extra_context(in_response_to: @saml_response.try(:in_response_to) || 'ERROR')
+      saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
+      Raven.extra_context(in_response_to: saml_response.try(:in_response_to) || 'ERROR')
 
-      if @saml_response.valid?
-        user_logout(@saml_response)
+      if saml_response.valid?
+        user_logout(saml_response)
       else
         log_message_to_sentry(
-          @saml_response.errors_message, @saml_response.errors_hash[:level], @saml_response.errors_context
+          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
         )
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
@@ -49,16 +49,16 @@ module V0
     end
 
     def saml_callback
-      @saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
 
-      if @saml_response.valid?
-        user_login(@saml_response)
+      if saml_response.valid?
+        user_login(saml_response)
       else
         log_message_to_sentry(
-          @saml_response.errors_message, @saml_response.errors_hash[:level], @saml_response.errors_context
+          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
         )
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @saml_response.error_code)
-        stats(:failure, @saml_response.error_instrumentation_code)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: saml_response.error_code)
+        stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
@@ -79,28 +79,28 @@ module V0
       end
     end
 
-    def user_login(_saml_response)
-      user_session_form = UserSessionForm.new(@saml_response)
+    def user_login(saml_response)
+      user_session_form = UserSessionForm.new(saml_response)
       if user_session_form.valid?
         @current_user, @session_object = user_session_form.persist
         set_cookies
         after_login_actions
         redirect_to url_service.login_redirect_url
-        stats(:success)
+        stats(:success, saml_response)
       else
         log_message_to_sentry(
           user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
         )
         redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
-        stats(:failure, user_session_form.error_instrumentation_code)
+        stats(:failure, saml_response, user_session_form.error_instrumentation_code)
       end
     end
 
-    def user_logout(_saml_response)
-      logout_request = SingleLogoutRequest.find(@saml_response&.in_response_to)
+    def user_logout(saml_response)
+      logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
       if logout_request.present?
         logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{@saml_response&.in_response_to}' for originating_request_id "\
+        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
           "'#{originating_request_id}'")
       else
         Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
@@ -108,15 +108,15 @@ module V0
       end
     end
 
-    def stats(status, failure_tag = nil)
+    def stats(status, saml_response = nil, failure_tag = nil)
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{@saml_response.authn_context}"])
+                         tags: ['status:success', "context:#{saml_response.authn_context}"])
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{@saml_response.authn_context}"])
+                         tags: ['status:failure', "context:#{saml_response.authn_context}"])
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
