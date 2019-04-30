@@ -36,7 +36,7 @@ describe 'mhv account creation' do
       state: 'Tx',
       country: 'USA',
       zip: '77040',
-      sign_in_partners: 'VETS.GOV',
+      sign_in_partners: 'VA.GOV',
       email: 'vets.gov.user+0@gmail.com',
       terms_accepted_date: time,
       terms_version: 'v3.2'
