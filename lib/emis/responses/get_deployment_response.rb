@@ -5,12 +5,16 @@ require 'emis/responses/response'
 
 module EMIS
   module Responses
+    # EMIS get deployments response
     class GetDeploymentResponse < EMIS::Responses::Response
+      # (see EMIS::Responses::GetCombatPayResponse#item_tag_name)
       def item_tag_name
         'deployment'
       end
 
       # rubocop:disable Metrics/MethodLength
+
+      # (see EMIS::Responses::GetCombatPayResponse#item_schema)
       def item_schema
         {
           'deploymentSegmentIdentifier' => { rename: 'segment_identifier' },
@@ -36,6 +40,7 @@ module EMIS
       end
       # rubocop:enable Metrics/MethodLength
 
+      # (see EMIS::Responses::GetCombatPayResponse#model_class)
       def model_class
         EMIS::Models::Deployment
       end
