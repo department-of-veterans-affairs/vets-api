@@ -13,7 +13,11 @@ module ClaimsApi
         render json: claims,
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
-      rescue EVSS::ErrorMiddleware::EVSSError
+      rescue EVSS::ErrorMiddleware::EVSSError => e
+        log_message_to_sentry('EVSSError in claims v1',
+                              :warning,
+                              status: e.status,
+                              body: e.message)
         render json: [],
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
