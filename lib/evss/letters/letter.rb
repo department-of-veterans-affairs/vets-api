@@ -4,6 +4,16 @@ require 'common/models/base'
 
 module EVSS
   module Letters
+    ##
+    # Model for a letter
+    #
+    # @param args [Hash] Response attributes. Must include 'letter_type' and 'letter_name'
+    #
+    # @!attribute name
+    #   @return [String] The letter name
+    # @!attribute letter_type
+    #   @return [String] The letter type (must be one of LETTER_TYPES)
+    #
     class Letter < Common::Base
       LETTER_TYPES = %w[
         commissary

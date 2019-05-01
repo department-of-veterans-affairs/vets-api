@@ -7,11 +7,23 @@ require 'common/client/concerns/monitoring'
 
 module EVSS
   module Letters
+    ##
+    # Proxy Service for Letters Caseflow.
+    #
+    # @example Create a service and fetching letters for a user
+    #   letters_response = EVSS::Letters::Service.new.get_letters
+    #
     class Service < EVSS::Service
       configuration EVSS::Letters::Configuration
 
       INVALID_ADDRESS_ERROR = 'letterDestination.addressLine1.invalid'
 
+      ##
+      # Returns letters for a user.
+      #
+      # @return [EVSS::Letters::LettersResponse] Contains the user's name and an
+      # array of letter objects
+      #
       def get_letters
         with_monitoring do
           raw_response = perform(:get, '')
@@ -25,6 +37,12 @@ module EVSS
         end
       end
 
+      ##
+      # Returns benefit and service information for a user.
+      #
+      # @return [EVSS::Letters::BeneficiaryResponse] Contains benefit information and
+      # an array of military service objects
+      #
       def get_letter_beneficiary
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'letterBeneficiary')
