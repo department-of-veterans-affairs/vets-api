@@ -40,11 +40,11 @@ module ClaimsApi
     end
 
     def mvi
-      unless @mvi
-        @mvi = Mvi.for_user(self)
-        raise MVI::Errors::RecordNotFound unless @mvi.mvi_response.ok?
-      end
-      @mvi
+      @mvi ||= Mvi.for_user(self)
+    end
+
+    def mvi_record?
+      @mvi.profile_response.ok?
     end
 
     def ssn=(new_ssn)
