@@ -22,8 +22,6 @@ module ClaimsApi
           create_claim(raw_claim['id'], :list_data, raw_claim)
         end
       end.flatten
-    rescue Sentry::IgnoredError
-      []
     end
 
     def update_from_remote(evss_id)
