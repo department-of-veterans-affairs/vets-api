@@ -9,8 +9,6 @@ Raven.configure do |config|
   config.processors << Sentry::Processor::PIISanitizer
   config.processors << Sentry::Processor::LogAsWarning
 
-  config.excluded_exceptions += ['Sentry::IgnoredError']
-
   config.async = lambda { |event|
     SentryJob.perform_async(event)
   }
