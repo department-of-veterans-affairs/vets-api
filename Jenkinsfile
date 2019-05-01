@@ -93,16 +93,6 @@ pipeline {
       when { branch staging_branch }
 
       steps {
-        build job: 'deploys/vets-api-server-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
-
-        build job: 'deploys/vets-api-worker-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
-
         build job: 'deploys/vets-api-server-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
