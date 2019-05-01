@@ -17,7 +17,10 @@ RSpec.describe 'Intent to file', type: :request do
   let(:path) { '/services/claims/v1/forms/0966' }
   let(:data) { { 'data': { 'attributes': { 'type': 'compensation' } } } }
 
-  before(:each) { stub_poa_verification }
+  before(:each) do
+    stub_poa_verification
+    stub_mvi
+  end
 
   describe '#0966' do
     it 'should return a payload with an expiration date' do
