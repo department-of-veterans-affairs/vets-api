@@ -74,6 +74,46 @@ module Swagger
             end
           end
         end
+
+        operation :patch do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::RecordNotFoundError
+
+          key :description, 'Update an existing Notification record'
+          key :operationId, 'patchNotification'
+          key :tags, %w[notifications]
+
+          parameter :authorization
+
+          parameter do
+            key :name, 'subject'
+            key :in, :path
+            key :description, 'The subject of the notification (i.e. "form_10_10ez")'
+            key :required, true
+            key :type, :string
+          end
+
+          parameter do
+            key :name, :body
+            key :in, :body
+            key :description, 'The properties to update an existing notification record'
+            key :required, true
+
+            schema do
+              key :required, %i[read]
+
+              property :read, type: :boolean, example: true, enum: [true, false]
+            end
+          end
+
+          response 200 do
+            key :description, 'Response is OK'
+            schema do
+              key :'$ref', :Notification
+            end
+          end
+        end
       end
 
       swagger_path '/v0/notifications/dismissed_statuses/{subject}' do
