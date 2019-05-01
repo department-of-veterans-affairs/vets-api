@@ -32,7 +32,7 @@ binaries:
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
+db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
 

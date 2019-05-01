@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS Combat Pay data for a veteran
     class CombatPay
       include Virtus.model
 

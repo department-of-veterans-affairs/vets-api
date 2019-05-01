@@ -25,7 +25,7 @@ end
 
 namespace :connectivity do
   desc 'Check connectivity to all backend services'
-  task all: %i[db edu evss gi hca logs mvi redis rx sm statsd vha]
+  task all: %i[db edu evss gi hca logs mvi redis rx sm statsd]
 
   desc 'Check DB'
   task db: :environment do
@@ -67,7 +67,7 @@ namespace :connectivity do
   desc 'Check GI'
   task gi: :environment do
     check 'GIDS', Settings.gids.url do
-      GI::Client.new.get_autocomplete_suggestions('university')
+      GI::Client.new.get_autocomplete_suggestions(term: 'university')
     end
   end
 

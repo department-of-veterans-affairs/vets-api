@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS veteran disability pay data
     class Disability
       include Virtus.model
 
