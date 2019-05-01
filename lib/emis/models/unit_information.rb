@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS unit information data
     class UnitInformation
       include Virtus.model
 

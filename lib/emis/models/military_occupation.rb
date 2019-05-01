@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS Military Occupation data
     class MilitaryOccupation
       include Virtus.model
 
