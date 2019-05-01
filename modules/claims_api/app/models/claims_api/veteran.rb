@@ -43,6 +43,10 @@ module ClaimsApi
       @mvi ||= Mvi.for_user(self)
     end
 
+    def mvi_record?
+      mvi.mvi_response.ok?
+    end
+
     def ssn=(new_ssn)
       raise Common::Exceptions::ParameterMissing 'X-VA-SSN' unless SSN_REGEX.match(new_ssn)
       super(new_ssn)
