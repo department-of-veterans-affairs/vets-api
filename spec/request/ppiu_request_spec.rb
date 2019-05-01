@@ -95,7 +95,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 500 server error type pertaining to potential fraud' do
-      it 'should return a service error response' do
+      it 'should return a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_fraud') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:unprocessable_entity)
@@ -106,7 +106,7 @@ RSpec.describe 'PPIU', type: :request do
     end
 
     context 'with a 500 server error type pertaining to the account being flagged' do
-      it 'should return a service error response' do
+      it 'should return a service error response', :aggregate_failures do
         VCR.use_cassette('evss/ppiu/update_flagged') do
           put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:unprocessable_entity)
