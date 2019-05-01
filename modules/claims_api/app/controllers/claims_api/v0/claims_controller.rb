@@ -15,9 +15,9 @@ module ClaimsApi
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
       rescue EVSS::ErrorMiddleware::EVSSError
-        render json: [],
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: ClaimsApi::ClaimListSerializer
+        render_empty_array
+      rescue MVI::Errors::RecordNotFound
+        render_empty_array
       end
 
       def show
@@ -29,13 +29,25 @@ module ClaimsApi
             evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
             fetch_and_render_evss_claim(evss_claim_id)
           rescue EVSS::ErrorMiddleware::EVSSError
-            render json: { errors: [{ detail: 'Claim not found' }] },
-                   status: :not_found
+            render_claim_not_found
+          rescue MVI::Errors::RecordNotFound
+            render_claim_not_found
           end
         end
       end
 
       private
+
+      def render_empty_array
+        render json: [],
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: ClaimsApi::ClaimListSerializer
+      end
+
+      def render_claim_not_found
+        render json: { errors: [{ detail: 'Claim not found' }] },
+               status: :not_found
+      end
 
       def fetch_and_render_evss_claim(id)
         claim = service.update_from_remote(id)
