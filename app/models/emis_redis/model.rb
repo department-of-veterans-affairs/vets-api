@@ -5,11 +5,15 @@ require 'common/models/concerns/cache_aside'
 require_dependency 'emis/responses'
 
 module EMISRedis
+  # Generic model for caching EMIS data in Redis
   class Model < Common::RedisStore
     include Common::CacheAside
 
     attr_accessor :user
 
+    # @param user [User] User object
+    # @return [EMISRedis::Model] A new +EMISRedis::Model+
+    #  for fetching the passed in user's EMIS data
     def self.for_user(user)
       redis_config_key(:emis_response)
 

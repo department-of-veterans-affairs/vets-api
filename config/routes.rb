@@ -235,8 +235,10 @@ Rails.application.routes.draw do
       post :upgrade
     end
 
+    resources :notifications, only: %i[create show], param: :subject
+
     namespace :notifications do
-      resources :dismissed_statuses, only: :show, param: :subject
+      resources :dismissed_statuses, only: %i[show create update], param: :subject
     end
 
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
@@ -248,7 +250,6 @@ Rails.application.routes.draw do
       'dashboard',
       'veteran_id_card',
       'all_claims',
-      'hca2',
       FormProfile::EMIS_PREFILL_KEY
     ].each do |feature|
       resource(

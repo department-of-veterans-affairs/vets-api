@@ -9,13 +9,13 @@
             "subject": {
               "type": "string"
             },
-            "dismissed_status": {
+            "status": {
               "type": "string"
             },
             "status_effective_at": {
               "type": "string"
             },
-            "dismissed_at": {
+            "read_at": {
               "type": "string"
             }
           },

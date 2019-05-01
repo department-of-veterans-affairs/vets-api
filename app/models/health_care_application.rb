@@ -3,7 +3,6 @@
 class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
-  include HCA::EnrollmentEligibility::ParsedStatuses
 
   FORM_ID = '10-10EZ'
 
@@ -14,7 +13,9 @@ class HealthCareApplication < ApplicationRecord
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
-  after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
+  after_save(:send_failure_mail, if: proc do |hca|
+    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.parsed_form&.dig('email')
+  end)
 
   def self.get_user_identifier(user)
     return if user.nil?
@@ -82,7 +83,7 @@ class HealthCareApplication < ApplicationRecord
     else
       {
         parsed_status:
-          ee_data[:enrollment_status].present? ? LOGIN_REQUIRED : NONE
+          ee_data[:enrollment_status].present? ? Notification::LOGIN_REQUIRED : Notification::NONE_OF_THE_ABOVE
       }
     end
   end
