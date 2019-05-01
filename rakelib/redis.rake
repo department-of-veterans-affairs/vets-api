@@ -4,25 +4,26 @@ require 'emis/responses/response'
 require 'emis/responses/get_veteran_status_response'
 
 namespace :redis do
+  desc 'Flush RedisStore: Account'
+  task flush_account_store: :environment do
+    # Account uses ActiveRecordCacheAside so we don't have #redis_namespace
+    namespace = 'user-account-details'
+    flush_keys(namespace)
+  end
+
   desc 'Flush Vets.gov User/Sessions'
   task flush_session: %i[flush_session_store flush_users_store]
 
   desc 'Flush RedisStore: Session'
   task flush_session_store: :environment do
     namespace = Session.new.redis_namespace.namespace
-    redis = Redis.current
-    redis.scan_each(match: "#{namespace}:*") do |key|
-      redis.del(key)
-    end
+    flush_keys(namespace)
   end
 
   desc 'Flush RedisStore: User'
   task flush_users_store: :environment do
     namespace = User.new.redis_namespace.namespace
-    redis = Redis.current
-    redis.scan_each(match: "#{namespace}:*") do |key|
-      redis.del(key)
-    end
+    flush_keys(namespace)
   end
 
   namespace :audit do
@@ -127,4 +128,11 @@ def addressee?(addr)
   return false if addr.country.blank?
   return false if addr.state.blank?
   true
+end
+
+def flush_keys(namespace)
+  redis = Redis.current
+  redis.scan_each(match: "#{namespace}:*") do |key|
+    redis.del(key)
+  end
 end

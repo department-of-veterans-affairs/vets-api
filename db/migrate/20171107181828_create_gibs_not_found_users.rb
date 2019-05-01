@@ -1,4 +1,4 @@
-class CreateGibsNotFoundUsers < ActiveRecord::Migration
+class CreateGibsNotFoundUsers < ActiveRecord::Migration[4.2]
   def change
     create_table :gibs_not_found_users do |t|
       t.string :edipi, null: false, unique: true

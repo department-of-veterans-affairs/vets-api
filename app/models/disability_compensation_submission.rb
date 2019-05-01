@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class DisabilityCompensationSubmission < ActiveRecord::Base
+class DisabilityCompensationSubmission < ApplicationRecord
   belongs_to :disability_compensation_claim,
              class_name: 'SavedClaim::DisabilityCompensation',
              foreign_key: 'disability_compensation_id',

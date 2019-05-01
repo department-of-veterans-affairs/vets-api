@@ -1,4 +1,4 @@
-class AddPreneedsAttachmentsTable < ActiveRecord::Migration
+class AddPreneedsAttachmentsTable < ActiveRecord::Migration[4.2]
   def change
     create_table "preneed_attachments" do |t|
       t.timestamps(null: false)

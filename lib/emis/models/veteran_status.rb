@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS veteran status data
     class VeteranStatus
       include Virtus.model
 

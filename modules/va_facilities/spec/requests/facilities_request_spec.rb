@@ -11,6 +11,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   let(:pdx_bbox) { '?bbox[]=-122.440689&bbox[]=45.451913&bbox[]=-122.786758&bbox[]=45.64' }
   let(:empty_bbox) { '?bbox[]=-122&bbox[]=45&bbox[]=-122&bbox[]=45' }
   let(:lat_long) { '?lat=45.451913&long=-122.440689' }
+  let(:zip) { '?zip=97204' }
   let(:ids_query) do
     ids = setup_pdx.map { |facility| facility.facility_type_prefix + '_' + facility.unique_id }
     "?ids=#{ids.join(',')}"
@@ -40,7 +41,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   context 'when requesting JSON API format' do
     it 'responds to GET #show for VHA prefix' do
       create :vha_648A4
-      get base_query_path + '/vha_648A4', nil, accept_json
+      get base_query_path + '/vha_648A4', params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -49,7 +50,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with bbox' do
       setup_pdx
-      get base_query_path + pdx_bbox, nil, accept_json
+      get base_query_path + pdx_bbox, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -59,7 +60,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with lat/long' do
       setup_pdx
-      get base_query_path + lat_long, nil, accept_json
+      get base_query_path + lat_long, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -67,9 +68,39 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances'].length).to eq(10)
     end
 
+    it 'responds to GET #index with ids sorted by distance from lat/long' do
+      setup_pdx
+      get "#{base_query_path}#{ids_query}&lat=45.451913&long=-122.440689", params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(10)
+      expect(json['meta']['distances'].length).to eq(10)
+    end
+
+    it 'responds to GET #index with zip' do
+      setup_pdx
+      get base_query_path + zip, params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      expect(json['meta']['distances']).to eq([])
+    end
+
+    it 'responds to GET #index with zip+4' do
+      setup_pdx
+      get base_query_path + zip + '-3432', params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(4)
+      expect(json['meta']['distances']).to eq([])
+    end
+
     it 'responds such that record and distance metadata IDs match up' do
       setup_pdx
-      get base_query_path + lat_long, nil, accept_json
+      get base_query_path + lat_long, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -79,7 +110,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
 
     it 'responds to GET #index with ids' do
-      get base_query_path + ids_query, nil, accept_json
+      get base_query_path + ids_query, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -89,7 +120,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with one id' do
       first_pdx = setup_pdx[1]
       id_query = "?ids=#{first_pdx.facility_type_prefix}_#{first_pdx.unique_id}"
-      get base_query_path + id_query, nil, accept_json
+      get base_query_path + id_query, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -98,7 +129,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with a malformed id' do
       ids_query_with_extra = ids_query + ',0618B'
-      get base_query_path + ids_query_with_extra, nil, accept_json
+      get base_query_path + ids_query_with_extra, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -107,16 +138,25 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with ids where one does not exist' do
       ids_query_with_extra = ids_query + ',vc_0618B'
-      get base_query_path + ids_query_with_extra, nil, accept_json
+      get base_query_path + ids_query_with_extra, params: nil, headers: accept_json
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
     end
 
+    it 'responds to GET #index with state code' do
+      setup_pdx
+      get base_query_path, params: 'state=WA', headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(2)
+    end
+
     it 'responds with pagination links' do
       setup_pdx
-      get base_query_path + pdx_bbox, nil, accept_json
+      get base_query_path + pdx_bbox, params: nil, headers: accept_json
       expect(response).to be_success
       json = JSON.parse(response.body)
       expect(json).to have_key('links')
@@ -130,7 +170,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds with pagination metadata' do
       setup_pdx
-      get base_query_path + pdx_bbox, nil, accept_json
+      get base_query_path + pdx_bbox, params: nil, headers: accept_json
       expect(response).to be_success
       json = JSON.parse(response.body)
       expect(json).to have_key('meta')
@@ -144,7 +184,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'paginates according to parameters' do
       setup_pdx
-      get base_query_path + pdx_bbox + '&page=2&per_page=3', nil, accept_json
+      get base_query_path + pdx_bbox + '&page=2&per_page=3', params: nil, headers: accept_json
       expect(response).to be_success
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(3)
@@ -160,7 +200,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'paginates empty result set' do
       setup_pdx
-      get base_query_path + empty_bbox, nil, accept_json
+      get base_query_path + empty_bbox, params: nil, headers: accept_json
       expect(response).to be_success
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(0)
@@ -175,7 +215,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
   context 'when requesting GeoJSON format' do
     it 'responds to GET #show for VHA prefix' do
       create :vha_648A4
-      get base_query_path + '/vha_648A4', nil, accept_geojson
+      get base_query_path + '/vha_648A4', params: nil, headers: accept_geojson
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -186,7 +226,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with bbox' do
       setup_pdx
-      get base_query_path + pdx_bbox, nil, accept_geojson
+      get base_query_path + pdx_bbox, params: nil, headers: accept_geojson
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -197,7 +237,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds with pagination link header' do
       setup_pdx
-      get base_query_path + pdx_bbox, nil, accept_geojson
+      get base_query_path + pdx_bbox, params: nil, headers: accept_geojson
       expect(response).to be_success
       expect(response.headers['Link']).to be_present
       parsed = parse_link_header(response.headers['Link'])
@@ -210,7 +250,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'paginates according to parameters' do
       setup_pdx
-      get base_query_path + pdx_bbox + '&page=2&per_page=3', nil, accept_geojson
+      get base_query_path + pdx_bbox + '&page=2&per_page=3', params: nil, headers: accept_geojson
       expect(response).to be_success
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
@@ -226,7 +266,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'paginates empty result set' do
       setup_pdx
-      get base_query_path + empty_bbox, nil, accept_geojson
+      get base_query_path + empty_bbox, params: nil, headers: accept_geojson
       expect(response).to be_success
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
@@ -243,7 +283,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GeoJSON format' do
       setup_pdx
       create :dod_001
-      get base_query_path + '/all', nil, accept_geojson
+      get base_query_path + '/all', params: nil, headers: accept_geojson
       expect(response).to be_success
       expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
@@ -254,7 +294,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to CSV format' do
       setup_pdx
       create :dod_001
-      get base_query_path + '/all', nil, accept_csv
+      get base_query_path + '/all', params: nil, headers: accept_csv
       expect(response).to be_success
       expect(response.headers['Content-Type']).to eq 'text/csv'
       expect(response.body).to be_a(String)
@@ -286,6 +326,11 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       get base_query_path + '?bbox[]=-45&bbox[]=-45&bbox[]=45&bbox=abc'
       expect(response).to have_http_status(:bad_request)
     end
+    it 'responds to GET #index with a malformed zip' do
+      setup_pdx
+      get base_query_path + '?zip=-3432', params: nil, headers: accept_json
+      expect(response).to have_http_status(:bad_request)
+    end
     it 'returns 400 for invalid type parameter' do
       get base_query_path + pdx_bbox + '&type=bogus'
       expect(response).to have_http_status(:bad_request)
@@ -296,6 +341,10 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
     it 'returns 400 for health query with unknown service' do
       get base_query_path + pdx_bbox + '&type=health&services[]=OilChange'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for an invalid state code' do
+      get base_query_path, params: 'state=meow', headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
   end

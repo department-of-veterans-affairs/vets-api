@@ -18,7 +18,6 @@
             "required": ["branch_of_service_cd", "military_rank_detail"],
             "properties": {
               "branch_of_service_cd": { "type": "string" },
-              "officer_ind": { "type": ["null", "string"] },
               "activated_one_date": { "type": ["null", "string"] },
               "activated_two_date": { "type": ["null", "string"] },
               "activated_three_date": { "type": ["null", "string"] },

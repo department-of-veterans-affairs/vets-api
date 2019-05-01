@@ -28,7 +28,7 @@ shared_examples_for 'a controller that deletes an InProgressForm' do |param_name
 
   describe '#create' do
     def send_create
-      post(:create, param_name => { form: form.form })
+      post(:create, params: { param_name => { form: form.form } })
     end
 
     context 'with a valid form' do

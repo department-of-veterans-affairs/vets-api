@@ -17,7 +17,7 @@ RSpec.describe 'Requesting ID Card Announcement Subscription', type: :request do
     end
 
     it 'creates the subscription' do
-      post '/v0/id_card/announcement_subscription', params
+      post '/v0/id_card/announcement_subscription', params: params
       expect(response).to have_http_status(:accepted)
       expect(IdCardAnnouncementSubscription.find_by(email: email)).to be_present
     end
@@ -37,7 +37,7 @@ RSpec.describe 'Requesting ID Card Announcement Subscription', type: :request do
     end
 
     it 'creates the subscription' do
-      post '/v0/id_card/announcement_subscription', params
+      post '/v0/id_card/announcement_subscription', params: params
       expect(response).to have_http_status(:accepted)
     end
   end
@@ -52,7 +52,7 @@ RSpec.describe 'Requesting ID Card Announcement Subscription', type: :request do
     end
 
     it 'responds with unprocessable entity and validation error' do
-      post '/v0/id_card/announcement_subscription', params
+      post '/v0/id_card/announcement_subscription', params: params
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.body).to be_a(String)
 

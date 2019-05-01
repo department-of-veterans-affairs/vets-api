@@ -1,4 +1,4 @@
-class SubmissionChangesFor1995 < ActiveRecord::Migration
+class SubmissionChangesFor1995 < ActiveRecord::Migration[4.2]
   def up
     add_column(:education_benefits_submissions, :transfer_of_entitlement, :boolean, default: false, null: false)
     add_column(:education_benefits_submissions, :chapter1607, :boolean, default: false, null: false)

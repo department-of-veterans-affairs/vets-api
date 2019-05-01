@@ -18,14 +18,14 @@ RSpec.describe V0::DependentsApplicationsController do
 
     it 'should return a dependents application' do
       id = dependents_application.id
-      get(:show, id: id)
+      get(:show, params: { id: id })
       expect(JSON.parse(response.body)['data']['id']).to eq id
     end
   end
 
   describe 'POST create' do
     subject do
-      post(:create, params)
+      post(:create, params: params)
     end
 
     context 'with valid params' do

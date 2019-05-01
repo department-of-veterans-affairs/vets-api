@@ -3,10 +3,10 @@
 module Veteran
   # Not technically a Service Object, this is a term used by the VA internally.
   module Service
-    class Organization < ActiveRecord::Base
+    class Organization < ApplicationRecord
       self.primary_key = :poa
 
-      validates_presence_of :poa
+      validates :poa, presence: true
     end
   end
 end

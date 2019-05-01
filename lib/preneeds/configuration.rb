@@ -8,21 +8,37 @@ require 'preneeds/middleware/response/eoas_xml_errors'
 require 'preneeds/middleware/response/preneeds_parser'
 
 module Preneeds
+  # Configuration for the {Preneeds::Service} to communicate to
+  # set the base path, a default timeout, and a service name for breakers and metrics.
+  # Communicates with the EOAS external service.
+  #
   class Configuration < Common::Client::Configuration::SOAP
+    # Number of seconds before timeout
+    #
     TIMEOUT = 30
 
+    # @return [String] The base path for the external EOAS service
+    #
     def self.url
       "#{Settings.preneeds.host}/eoas_SOA/PreNeedApplicationPort"
     end
 
+    # (see .url)
+    #
     def base_path
       self.class.url
     end
 
+    # @return [String] The name of the service, used by breakers to set a metric name for the service
+    #
     def service_name
       'Preneeds'
     end
 
+    # Creates the a connection with middleware for mapping errors, parsing XML, and adding breakers functionality.
+    #
+    # @return [Faraday::Connection] a Faraday connection instance.
+    #
     def connection
       path = Preneeds::Configuration.url
       @faraday ||= Faraday.new(

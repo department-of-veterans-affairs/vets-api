@@ -1,4 +1,4 @@
-class CreatePreneedSubmissions < ActiveRecord::Migration
+class CreatePreneedSubmissions < ActiveRecord::Migration[4.2]
   def change
     create_table :preneed_submissions do |t|
       t.string :tracking_number, null: false
