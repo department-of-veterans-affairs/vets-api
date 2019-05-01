@@ -102,6 +102,16 @@ pipeline {
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
+
+        build job: 'deploys/vets-api-server-vagov-staging', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+
+        build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
       }
     }
   }
