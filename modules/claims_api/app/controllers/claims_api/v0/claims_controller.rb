@@ -17,7 +17,6 @@ module ClaimsApi
       rescue EVSS::ErrorMiddleware::EVSSError => e
         log_message_to_sentry('EVSSError in claims v0',
                               :warning,
-                              status: e.status,
                               body: e.message)
         render json: [],
                serializer: ActiveModel::Serializer::CollectionSerializer,
