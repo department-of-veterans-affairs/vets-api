@@ -1,5 +1,5 @@
 dev_branch = 'master'
-staging_branch = 'rails-5.1'
+staging_branch = 'master'
 main_branch = 'master'
 
 pipeline {
@@ -77,12 +77,12 @@ pipeline {
       when { branch dev_branch }
 
       steps {
-        build job: 'deploys/vets-api-server-dev', parameters: [
+        build job: 'deploys/vets-api-server-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-worker-dev', parameters: [
+        build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
@@ -93,12 +93,12 @@ pipeline {
       when { branch staging_branch }
 
       steps {
-        build job: 'deploys/vets-api-server-staging', parameters: [
+        build job: 'deploys/vets-api-server-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-worker-staging', parameters: [
+        build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false

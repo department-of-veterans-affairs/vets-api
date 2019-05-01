@@ -68,6 +68,16 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(json['meta']['distances'].length).to eq(10)
     end
 
+    it 'responds to GET #index with ids sorted by distance from lat/long' do
+      setup_pdx
+      get "#{base_query_path}#{ids_query}&lat=45.451913&long=-122.440689", params: nil, headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(10)
+      expect(json['meta']['distances'].length).to eq(10)
+    end
+
     it 'responds to GET #index with zip' do
       setup_pdx
       get base_query_path + zip, params: nil, headers: accept_json
@@ -133,6 +143,15 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
+    end
+
+    it 'responds to GET #index with state code' do
+      setup_pdx
+      get base_query_path, params: 'state=WA', headers: accept_json
+      expect(response).to be_success
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(2)
     end
 
     it 'responds with pagination links' do
@@ -322,6 +341,10 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     end
     it 'returns 400 for health query with unknown service' do
       get base_query_path + pdx_bbox + '&type=health&services[]=OilChange'
+      expect(response).to have_http_status(:bad_request)
+    end
+    it 'returns 400 for an invalid state code' do
+      get base_query_path, params: 'state=meow', headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
   end

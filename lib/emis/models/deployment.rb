@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS veteran deployments data
     class Deployment
       include Virtus.model
 

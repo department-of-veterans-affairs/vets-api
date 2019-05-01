@@ -4,6 +4,7 @@ class Notification < ApplicationRecord
   belongs_to :account
 
   validates :subject, :account_id, presence: true
+  validates :subject, uniqueness: { scope: :account_id }
 
   # Creates the ActiveRecord::Enum mappings between the attribute values and
   # their associated database integers.

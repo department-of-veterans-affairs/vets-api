@@ -151,13 +151,37 @@ class BaseFacility < ApplicationRecord
     end
 
     def query(params)
-      # TODO: Sort hours similar to `find_factility_by_id` method on line 146
+      if location_query_requested?(params)
+        return query_by_location(params)
+      elsif params[:ids]
+        return build_result_set_from_ids(params[:ids]).flatten
+      end
+
+      BaseFacility.none
+    end
+
+    def query_by_location(params)
+      return state_query(params) if params[:state]
       return radial_query(params) if params[:lat] && params[:long]
       return zip_query(params) if params[:zip]
-      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
-      return BaseFacility.none unless params[:bbox]
+      build_bbox_result_set(params) if params[:bbox]
+    end
+
+    def build_bbox_result_set(params)
       bbox_num = params[:bbox].map { |x| Float(x) }
       build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
+    end
+
+    def location_query_requested?(params)
+      params[:state] || (params[:lat] && params[:long]) || params[:zip] || params[:bbox]
+    end
+
+    def state_query(params)
+      state = params[:state]
+      conditions = "address @> '{ \"physical\": {\"state\": \"#{state}\"}}'"
+      TYPES.flat_map do |facility_type|
+        get_facility_data(conditions, params[:type], facility_type, params[:services])
+      end
     end
 
     def radial_query(params)
@@ -209,16 +233,16 @@ class BaseFacility < ApplicationRecord
       # TODO: iterate over zcta, pushing each zip code that is within distance into an array
       # TODO: change zip criteria to array of zip codes
       conditions = "address ->'physical'->>'zip' ilike '#{requested_zip[0][0]}%'"
-      TYPES.map do |facility_type|
+      TYPES.flat_map do |facility_type|
         get_facility_data(conditions, params[:type], facility_type, params[:services])
-      end.flatten
+      end
     end
 
     def build_result_set(bbox_num, type, services)
       lats = bbox_num.values_at(1, 3)
       longs = bbox_num.values_at(2, 0)
       conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
-      TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
+      TYPES.flat_map { |facility_type| get_facility_data(conditions, type, facility_type, services) }
     end
 
     def ids_for_types(ids)
