@@ -27,7 +27,10 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
   let(:scopes) { %w[claim.read] }
 
-  before(:each) { stub_poa_verification }
+  before(:each) do
+    stub_poa_verification
+    stub_mvi
+  end
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     with_okta_user(scopes) do |auth_header|

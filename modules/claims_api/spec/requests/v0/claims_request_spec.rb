@@ -21,10 +21,11 @@ RSpec.describe 'EVSS Claims management', type: :request do
            id: 'd5536c5c-0465-4038-a368-1a9d9daf65c9')
   end
 
+  before(:each) do
+    stub_mvi
+  end
+
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-    verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-    allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-    allow(verifier_stub).to receive(:verify)
     VCR.use_cassette('evss/claims/claims') do
       get '/services/claims/v0/claims',
           params: nil,
@@ -78,9 +79,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
   context 'POA verifier' do
     it 'should user the poa verifier when the header is present' do
       VCR.use_cassette('evss/claims/claim') do
-        verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-        allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-        allow(verifier_stub).to receive(:verify)
         get(
           '/services/claims/v0/claims/d5536c5c-0465-4038-a368-1a9d9daf65c9',
           params: nil,
