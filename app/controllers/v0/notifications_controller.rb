@@ -7,7 +7,7 @@ module V0
 
     before_action -> { validate_subject!(subject) }
     before_action :set_account
-    before_action :set_notification, only: :show
+    before_action :set_notification, only: %i[show update]
 
     def create
       notification = @account.notifications.build(subject: subject, read_at: read_at)
@@ -24,6 +24,16 @@ module V0
         render json: @notification, serializer: NotificationSerializer
       else
         raise Common::Exceptions::RecordNotFound.new(subject), 'No matching record found for that user'
+      end
+    end
+
+    def update
+      validate_record_present!(@notification, subject)
+
+      if @notification.update(read_at: read_at)
+        render json: @notification, serializer: NotificationSerializer
+      else
+        raise Common::Exceptions::ValidationErrors.new(@notification), 'Validation errors present'
       end
     end
 
