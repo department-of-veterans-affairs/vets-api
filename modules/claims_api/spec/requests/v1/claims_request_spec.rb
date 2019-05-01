@@ -31,9 +31,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
 
   it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
     with_okta_user(scopes) do |auth_header|
-      verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-      allow(verifier_stub).to receive(:verify)
       VCR.use_cassette('evss/claims/claims') do
         get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
         expect(response).to match_response_schema('claims_api/claims')
@@ -42,12 +39,6 @@ RSpec.describe 'EVSS Claims management', type: :request do
   end
 
   context 'for a single claim' do
-    before do
-      verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
-      allow(EVSS::PowerOfAttorneyVerifier).to receive(:new) { verifier_stub }
-      allow(verifier_stub).to receive(:verify)
-    end
-
     it 'shows a single Claim', run_at: 'Wed, 13 Dec 2017 03:28:23 GMT' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/claims/claim') do
