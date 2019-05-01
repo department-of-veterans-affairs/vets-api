@@ -32,11 +32,23 @@ RSpec.describe 'EVSS Claims management', type: :request do
     stub_mvi
   end
 
-  it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
-    with_okta_user(scopes) do |auth_header|
-      VCR.use_cassette('evss/claims/claims') do
-        get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
-        expect(response).to match_response_schema('claims_api/claims')
+  context 'index' do
+    it 'lists all Claims', run_at: 'Tue, 12 Dec 2017 03:09:06 GMT' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/claims/claims') do
+          get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
+          expect(response).to match_response_schema('claims_api/claims')
+        end
+      end
+    end
+    context 'with errors' do
+      it 'renders an empty array' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claims_with_errors') do
+            get '/services/claims/v1/claims', params: nil, headers: request_headers.merge(auth_header)
+            expect(JSON.parse(response.body)['data'].length).to eq(0)
+          end
+        end
       end
     end
   end
@@ -63,6 +75,16 @@ RSpec.describe 'EVSS Claims management', type: :request do
             params: nil, headers: request_headers.merge(auth_header)
           )
           expect(response).to match_response_schema('claims_api/claim')
+        end
+      end
+    end
+    context 'with errors' do
+      it '404s' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/claims/claim_with_errors') do
+            get '/services/claims/v1/claims/123123131', params: nil, headers: request_headers.merge(auth_header)
+            expect(response.status).to eq(404)
+          end
         end
       end
     end
