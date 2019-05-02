@@ -18,6 +18,7 @@ session_cookie:
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
+  validate_user_attributes_loa3: true
   cookie_enabled: true
   cookie_signout_enabled: true
   cookie_name: vagov_session_dev
