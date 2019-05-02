@@ -38,7 +38,9 @@ module Swagger
 
       swagger_path '/v0/health_care_applications/enrollment_status' do
         operation :get do
-          key :description, 'Check the status of a health care application'
+          key :description, 'Check the status of a health care application.'\
+            ' Non-logged in users must pass query parameters with user attributes.'\
+            ' No parameters needed for logged in loa3 users.'
           key :operationId, 'enrollmentStatusHealthCareApplication'
           key :tags, %w[benefits_forms]
 
@@ -87,10 +89,14 @@ module Swagger
             key :description, 'enrollment_status response'
 
             schema do
-              property :application_date, type: %i[string null]
-              property :enrollment_date, type: %i[string null]
-              property :preferred_facility, type: %i[string null]
-              property :parsed_status, type: :string
+              property :application_date, type: %i[string null], example: '2018-12-27T00:00:00.000-06:00'
+              property :enrollment_date, type: %i[string null], example: '2018-12-27T17:15:39.000-06:00'
+              property :preferred_facility, type: %i[string null], example: '988 - DAYT20'
+              property :parsed_status,
+                       type: :string,
+                       example: Notification::ENROLLED,
+                       enum: HCA::EnrollmentEligibility::StatusMatcher::ELIGIBLE_STATUS_CATEGORIES
+              property :effective_date, type: :string, example: '2019-01-02T21:58:55.000-06:00'
             end
           end
         end

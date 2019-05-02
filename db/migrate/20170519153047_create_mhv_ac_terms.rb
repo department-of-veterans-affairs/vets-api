@@ -1,4 +1,4 @@
-class CreateMhvAcTerms < ActiveRecord::Migration
+class CreateMhvAcTerms < ActiveRecord::Migration[4.2]
   def change
     header_content = <<-EOF
 <div>

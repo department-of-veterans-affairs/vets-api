@@ -30,6 +30,10 @@ module HCA
           ineligibility_reason: get_xpath(
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/ineligibilityFactor/reason"
+          ),
+          effective_date: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/effectiveDate"
           )
         }
       end

@@ -1,4 +1,4 @@
-class AddStatusToEducationBenefitsSubmissions < ActiveRecord::Migration
+class AddStatusToEducationBenefitsSubmissions < ActiveRecord::Migration[4.2]
   def change
     add_column(:education_benefits_submissions, :status, :string, null: false, default: 'submitted')
     EducationBenefitsSubmission.update_all(status: 'processed')

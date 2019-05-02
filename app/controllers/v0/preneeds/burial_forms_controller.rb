@@ -11,10 +11,10 @@ module V0
       FORM = '40-10007'
 
       def create
-        form = ::Preneeds::BurialForm.new(burial_form_params)
-        validate!(burial_form_params.deep_transform_keys { |k| k.camelize(:lower) })
+        @form = ::Preneeds::BurialForm.new(burial_form_params)
+        validate!(Common::HashHelpers.deep_transform_parameters!(burial_form_params) { |k| k.camelize(:lower) })
 
-        resource = client.receive_pre_need_application(form)
+        resource = client.receive_pre_need_application(@form)
         ::Preneeds::PreneedSubmission.create!(
           tracking_number: resource.tracking_number,
           application_uuid: resource.application_uuid,

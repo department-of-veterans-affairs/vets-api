@@ -1,4 +1,4 @@
-class EduBenefitsDataMigration < ActiveRecord::Migration
+class EduBenefitsDataMigration < ActiveRecord::Migration[4.2]
   def change
     # form_type is `1990 1995 1990e 5490 5495 1990n` all lowercase
     insert_sql = <<-sql

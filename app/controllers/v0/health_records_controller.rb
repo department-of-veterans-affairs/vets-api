@@ -20,9 +20,9 @@ module V0
     end
 
     def create
-      client.post_generate(params)
+      client.post_generate(params.permit(:from_date, :to_date, data_classes: []))
 
-      render nothing: true, status: :accepted
+      head :accepted
     end
   end
 end
