@@ -4,6 +4,17 @@ require 'common/client/concerns/service_status'
 
 module EVSS
   module Letters
+    ##
+    # Model for beneficiary responses.
+    #
+    # @param status [Integer] The HTTP status code
+    # @param response [Hash] The API response
+    #
+    # @!attribute benefit_information
+    #   @return [EVSS::Letters::BenefitInformation] The user's benefit information
+    # @!attribute military_service
+    #   @return Array[EVSS::Letters::MilitaryService] An array of military service data
+    #
     class BeneficiaryResponse < EVSS::Response
       attribute :benefit_information, EVSS::Letters::BenefitInformation
       attribute :military_service, Array[EVSS::Letters::MilitaryService]
