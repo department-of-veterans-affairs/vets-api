@@ -93,5 +93,27 @@ RSpec.describe 'PPIU', type: :request do
         end
       end
     end
+
+    context 'with a 500 server error type pertaining to potential fraud' do
+      it 'should return a service error response', :aggregate_failures do
+        VCR.use_cassette('evss/ppiu/update_fraud') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('evss_errors')
+          expect(JSON.parse(response.body)['errors'].first['title']).to eq('Potential Fraud')
+        end
+      end
+    end
+
+    context 'with a 500 server error type pertaining to the account being flagged' do
+      it 'should return a service error response', :aggregate_failures do
+        VCR.use_cassette('evss/ppiu/update_flagged') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response).to match_response_schema('evss_errors')
+          expect(JSON.parse(response.body)['errors'].first['title']).to eq('Account Flagged')
+        end
+      end
+    end
   end
 end

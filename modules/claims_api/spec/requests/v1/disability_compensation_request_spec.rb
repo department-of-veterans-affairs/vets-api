@@ -14,7 +14,10 @@ RSpec.describe 'Disability Claims ', type: :request do
       'X-VA-Gender': 'M' }
   end
   let(:scopes) { %w[claim.write] }
-  before(:each) { stub_poa_verification }
+  before(:each) do
+    stub_poa_verification
+    stub_mvi
+  end
 
   describe '#526' do
     let(:data) { File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json')) }

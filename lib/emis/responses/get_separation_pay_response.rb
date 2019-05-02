@@ -5,11 +5,14 @@ require 'emis/responses/response'
 
 module EMIS
   module Responses
+    # EMIS separation pay data
     class GetSeparationPayResponse < EMIS::Responses::Response
+      # (see EMIS::Responses::GetCombatPayResponse#item_tag_name)
       def item_tag_name
         'separationPayData'
       end
 
+      # (see EMIS::Responses::GetCombatPayResponse#item_schema)
       def item_schema
         {
           'separationPaySegmentIdentifier' => { rename: 'segment_identifier' },
@@ -25,6 +28,7 @@ module EMIS
         }
       end
 
+      # (see EMIS::Responses::GetCombatPayResponse#model_class)
       def model_class
         EMIS::Models::SeparationPay
       end
