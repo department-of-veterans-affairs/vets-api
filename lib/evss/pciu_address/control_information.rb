@@ -4,6 +4,14 @@ require 'common/models/base'
 
 module EVSS
   module PCIUAddress
+    ##
+    # Determines if the user can update their address.
+    # Updates are only allowed when all member variables of this object are 'true'
+    #
+    # @!attribute can_update
+    #   @return [Boolean] Global flag indicating if the user can update their address.
+    #   All other variables in this object must be true for this to be true.
+    #
     class ControlInformation
       include ActiveModel::Serialization
       include Virtus.model(nullify_blank: true)
