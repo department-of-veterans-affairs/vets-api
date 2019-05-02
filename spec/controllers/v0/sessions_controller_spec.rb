@@ -564,13 +564,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         let(:saml_user_attributes) do
           mhv_premium_user.attributes.merge(mhv_premium_user.identity.attributes).merge(first_name: nil)
         end
-        let(:frozen_time) { Time.current }
-
-        around(:each) do |example|
-          Timecop.freeze(frozen_time)
-          example.run
-          Timecop.return
-        end
 
         it 'returns 004 when MHV premium users lack data because MVI is unavilable' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
