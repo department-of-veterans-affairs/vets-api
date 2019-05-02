@@ -10,7 +10,7 @@ module EVSS
     ##
     # Proxy Service for Letters Caseflow.
     #
-    # @example Create a service and fetching letters for a user
+    # @example Creating a service and fetching letters for a user
     #   letters_response = EVSS::Letters::Service.new.get_letters
     #
     class Service < EVSS::Service
