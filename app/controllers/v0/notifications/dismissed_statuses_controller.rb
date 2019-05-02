@@ -2,6 +2,11 @@
 
 module V0
   module Notifications
+    # This class is for any notification `status` and `status_effective_at` related updates and use cases,
+    # for a given subject.
+    #
+    # For any conventional read/unread notification use cases, use the notifications_controller.rb
+    #
     class DismissedStatusesController < ApplicationController
       include Accountable
       include ::Notifications::Validateable

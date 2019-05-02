@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
 module V0
+  # This class is for any conventional read/unread notification use cases, for a given subject.
+  #
+  # For any `status` and `status_effective_at` related updates and use cases, use the
+  # notifications/dismissed_statuses_controller.rb
+  #
   class NotificationsController < ApplicationController
     include Accountable
     include ::Notifications::Validateable
