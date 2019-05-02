@@ -2060,6 +2060,54 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         end
       end
 
+      describe 'PATCH /v0/notifications/{subject}' do
+        let(:patch_body) { { read: true } }
+
+        context 'user has an existing Notification record with the passed subject' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports updating notification data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              200,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
+          end
+
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              401,
+              '_data' => patch_body, 'subject' => notification_subject
+            )
+          end
+
+          it 'supports validating updated notification data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              422,
+              headers.merge('_data' => patch_body, 'subject' => 'random_subject')
+            )
+          end
+        end
+
+        context 'user does not have a Notification record with the passed subject' do
+          it 'supports validating the presence of an existing record to be updated' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              404,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
+          end
+        end
+      end
+
       describe 'GET /v0/notifications/dismissed_statuses/{subject}' do
         context 'when user has an associated Notification record' do
           let!(:notification) do
