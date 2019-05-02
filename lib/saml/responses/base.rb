@@ -7,7 +7,7 @@ module SAML
                                    tag: :clicked_deny,
                                    short_message: 'Subject did not consent to attribute release',
                                    level: :warn },
-                 auth_too_late:  { code: '002',
+                 auth_too_late:  { code: '005',
                                    tag: :auth_too_late,
                                    short_message: 'Current time is on or after NotOnOrAfter condition',
                                    level: :warn },

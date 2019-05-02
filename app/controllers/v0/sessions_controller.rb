@@ -57,7 +57,7 @@ module V0
         log_message_to_sentry(
           saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
         )
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: saml_response.error_code)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
         stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
     rescue StandardError => e
@@ -69,6 +69,14 @@ module V0
     end
 
     private
+
+    def auth_error_code(code)
+      if code == '005' && validate_session
+        UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
+      else
+        code
+      end
+    end
 
     def authenticate
       return unless action_name == 'new'
