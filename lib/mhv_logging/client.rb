@@ -27,7 +27,7 @@ module MHVLogging
     # @return [Faraday::Response] a Faraday response object
     #
     def auditlogin
-      body = { isSuccessful: true, activityDetails: 'Signed in Vets.gov' }
+      body = { isSuccessful: true, activityDetails: 'Signed in VA.GOV' }
       perform(:post, 'activity/auditlogin', body, token_headers)
     end
 
@@ -37,7 +37,7 @@ module MHVLogging
     # @return [Faraday::Response] a Faraday response object
     #
     def auditlogout
-      body = { isSuccessful: true, activityDetails: 'Signed out Vets.gov' }
+      body = { isSuccessful: true, activityDetails: 'Signed out VA.GOV' }
       perform(:post, 'activity/auditlogout', body, token_headers)
     end
 
