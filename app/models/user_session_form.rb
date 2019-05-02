@@ -76,7 +76,7 @@ class UserSessionForm
   def mvi_context
     latest_outage = MVI::Configuration.instance.breakers_service.latest_outage
     if latest_outage && !latest_outage.ended?
-      "breakers is closed for MVI"
+      'breakers is closed for MVI"'
     else
       'breakers is open for MVI'
     end
