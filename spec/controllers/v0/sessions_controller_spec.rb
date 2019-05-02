@@ -572,11 +572,34 @@ RSpec.describe V0::SessionsController, type: :controller do
           Timecop.return
         end
 
-        it 'returns 006 when MHV premium users lack data because MVI is unavilable' do
+        it 'returns 004 when MHV premium users lack data because MVI is unavilable' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          expect_any_instance_of(SSOService).to receive(:log_message_to_sentry)
-            .with('Login Fail! MVI is unavilable', :error, "MVI has been unavailable since #{frozen_time}")
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=006')
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Failed! on User/Session Validation',
+              :error,
+              code: '004',
+              tag: :validations_failed,
+              short_message: 'on User/Session Validation',
+              level: :error,
+              uuid: uuid,
+              user: {
+                valid: false,
+                errors: ["First name can't be blank"]
+              },
+              session: {
+                valid: true,
+                errors: []
+              },
+              identity: {
+                valid: true,
+                errors: [],
+                authn_context: 'myhealthevet',
+                loa: { current: 3, highest: 3 }
+              },
+              mvi: 'breakers is closed for MVI'
+            )
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
@@ -613,7 +636,8 @@ RSpec.describe V0::SessionsController, type: :controller do
                 errors: ["Uuid can't be blank"],
                 authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                 loa: { current: 1, highest: 1 }
-              }
+              },
+              mvi: 'breakers is open for MVI'
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(response).to have_http_status(:found)
