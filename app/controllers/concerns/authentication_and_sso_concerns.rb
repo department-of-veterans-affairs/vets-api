@@ -9,7 +9,6 @@ module AuthenticationAndSSOConcerns
 
   included do
     before_action :authenticate
-    before_action :set_api_cookie!
     before_action :set_session_expiration_header
   end
 
@@ -76,7 +75,6 @@ module AuthenticationAndSSOConcerns
   end
 
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
-  # Ensures that we maintain session of currently signed-in user before switch to session cookies
   def set_api_cookie!
     return unless @session_object
     @session_object.to_hash.each { |k, v| session[k] = v }
