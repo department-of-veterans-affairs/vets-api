@@ -3,16 +3,16 @@
 require 'common/models/base'
 
 module EVSS
-	module PPIU
-		##
-		# Determines if the user can update their address.
-		# Updates are only allowed when all member variables of this object are 'true'
-		#
-		# @!attribute can_update_address
-		#   @return [Boolean] Global flag indicating if the user can update their address.
-		#   All other variables in this object must be true for this to be true.
-		#
-		class ControlInformation
+  module PPIU
+    ##
+    # Determines if the user can update their address.
+    # Updates are only allowed when all member variables of this object are 'true'
+    #
+    # @!attribute can_update_address
+    #   @return [Boolean] Global flag indicating if the user can update their address.
+    #   All other variables in this object must be true for this to be true.
+    #
+    class ControlInformation
       include Virtus.model
 
       attribute :can_update_address, Boolean
