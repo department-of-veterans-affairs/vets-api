@@ -87,7 +87,7 @@ RSpec.describe VBADocuments::MultipartParser do
       empty_doc = get_fixture('emptyfile.blob')
       expect { described_class.parse(empty_doc) }.to raise_error do |error|
         expect(error).to be_a(VBADocuments::UploadError)
-        expect(error.code).to eq('DOC106')
+        expect(error.code).to eq('DOC107')
         expect(error.detail).to eq('Empty payload')
       end
     end

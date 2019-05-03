@@ -29,8 +29,8 @@ module VBADocuments
 
     def self.validate_size(infile)
       unless infile.size.positive?
-        raise VBADocuments::UploadError.new(code: 'DOC106',
-                                            detail: VBADocuments::UploadError::DOC106)
+        raise VBADocuments::UploadError.new(code: 'DOC107',
+                                            detail: VBADocuments::UploadError::DOC107)
       end
     end
 
