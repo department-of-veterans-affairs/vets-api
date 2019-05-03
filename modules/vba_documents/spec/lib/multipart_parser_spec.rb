@@ -82,5 +82,14 @@ RSpec.describe VBADocuments::MultipartParser do
         expect(error.detail).to eq('Missing part name parameter in header')
       end
     end
+
+    it 'raises on an empty payload' do
+      empty_doc = get_fixture('emptyfile.blob')
+      expect { described_class.parse(empty_doc) }.to raise_error do |error|
+        expect(error).to be_a(VBADocuments::UploadError)
+        expect(error.code).to eq('DOC106')
+        expect(error.detail).to eq('Empty payload')
+      end
+    end
   end
 end
