@@ -14,7 +14,7 @@ module VBADocuments
       def create
         statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params[ID_PARAM])
         render json: statuses,
-               each_serializer: VBADocuments::UploadSerializer
+               each_serializer: VBADocuments::V1::UploadSerializer
       end
 
       private

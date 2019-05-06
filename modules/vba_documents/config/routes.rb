@@ -16,9 +16,6 @@ VBADocuments::Engine.routes.draw do
     namespace :v0 do
       resources :upload_complete, only: [:create]
     end
-    namespace :v1 do
-      resources :upload_complete, only: [:create]
-    end
   end
 
   namespace :v1, defaults: { format: 'json' } do

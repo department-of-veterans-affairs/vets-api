@@ -15,7 +15,7 @@ module VBADocuments
         )
         render status: :accepted,
                json: submission,
-               serializer: VBADocuments::UploadSerializer,
+               serializer: VBADocuments::V1::UploadSerializer,
                render_location: true
       end
 
@@ -35,7 +35,7 @@ module VBADocuments
         else
           submission.refresh_status!
           render json: submission,
-                 serializer: VBADocuments::UploadSerializer,
+                 serializer: VBADocuments::V1::UploadSerializer,
                  render_location: false
         end
       end
