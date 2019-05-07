@@ -121,6 +121,7 @@ paths:
         --17de1ed8f01442b2a2d7a93506314b76
         Content-Disposition: form-data; name="metadata"
         Content-Type: application/json
+
         {"veteranFirstName": "Jane",
         "veteranLastName": "Doe",
         "fileNumber": "012345678",
@@ -130,10 +131,12 @@ paths:
         --17de1ed8f01442b2a2d7a93506314b76
         Content-Disposition: form-data; name="content"
         Content-Type: application/pdf
+
         <Binary PDF contents>
         --17de1ed8f01442b2a2d7a93506314b76
         Content-Disposition: form-data; name="attachment1"
         Content-Type: application/pdf
+
         <Binary PDF attachment contents>
         --17de1ed8f01442b2a2d7a93506314b76--
         ```
