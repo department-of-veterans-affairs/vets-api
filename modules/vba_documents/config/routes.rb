@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 VBADocuments::Engine.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
@@ -33,4 +32,3 @@ VBADocuments::Engine.routes.draw do
     end
   end
 end
-# rubocop:enable Metrics/BlockLength
