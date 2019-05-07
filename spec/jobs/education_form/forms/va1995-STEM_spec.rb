@@ -2,8 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::Forms::VA1995-STEM do
-  let(:education_benefits_claim) { build(:va1995-STEM).education_benefits_claim }
+RSpec.describe EducationForm::Forms::VA1995_STEM do
+  let(:education_benefits_claim) { build(:va1995_STEM).education_benefits_claim }
 
   subject { described_class.new(education_benefits_claim) }
 
@@ -15,7 +15,7 @@ RSpec.describe EducationForm::Forms::VA1995-STEM do
   end
 
   context '#direct_deposit_type' do
-    let(:education_benefits_claim) { create(:va1995-STEM_full_form).education_benefits_claim }
+    let(:education_benefits_claim) { create(:va1995_STEM_full_form).education_benefits_claim }
     it 'converts internal keys to text' do
       expect(subject.direct_deposit_type('startUpdate')).to eq('Start or Update')
       expect(subject.direct_deposit_type('stop')).to eq('Stop')

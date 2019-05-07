@@ -123,7 +123,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
     context 'with a form type of 1995-STEM' do
       subject do
-        create(:va1995-STEM)
+        create(:va1995_STEM)
       end
 
       it 'should create a submission' do

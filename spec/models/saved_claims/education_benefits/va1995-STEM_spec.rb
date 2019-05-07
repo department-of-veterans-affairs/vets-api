@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
-RSpec.describe SavedClaim::EducationBenefits::VA1995-STEM do
+RSpec.describe SavedClaim::EducationBenefits::VA1995_STEM do
   let(:instance) { FactoryBot.build(:va1995) }
   it_should_behave_like 'saved_claim'
 
