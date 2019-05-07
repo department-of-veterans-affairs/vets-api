@@ -66,10 +66,10 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     end
 
     context 'with vbms complete' do
-      let!(:vbms_complete_upload) { FactoryBot.create(:upload_submission, status: 'vbms_complete') }
+      let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
 
       it 'should report status of success' do
-        get "/services/vba_documents/v0/uploads/#{vbms_complete_upload.guid}"
+        get "/services/vba_documents/v0/uploads/#{vbms_upload.guid}"
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('success')
       end
     end

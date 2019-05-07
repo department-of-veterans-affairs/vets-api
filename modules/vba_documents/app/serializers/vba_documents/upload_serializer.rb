@@ -16,7 +16,7 @@ module VBADocuments
     delegate :detail, to: :object
 
     def status
-      object.status == 'vbms_complete' ? 'success' : object.status
+      object.status == 'vbms' ? 'success' : object.status
     end
 
     def location

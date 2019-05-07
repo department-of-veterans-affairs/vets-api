@@ -110,7 +110,7 @@ module VBADocuments
       when 'Success'
         self.status = 'success'
       when 'VBMS Success'
-        self.status = 'vbms_complete'
+        self.status = 'vbms'
       when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
