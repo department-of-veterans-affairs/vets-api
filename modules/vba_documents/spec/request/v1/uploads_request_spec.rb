@@ -83,7 +83,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         get(
           "/services/vba_documents/v1/uploads/#{upload.guid}",
           params: nil,
-          headers: { 'Status-Override' => 'success' }
+          headers: { 'Status-Override' => 'vbms' }
         )
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
