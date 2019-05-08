@@ -6,7 +6,11 @@ class UserSessionForm
   ERRORS = { validations_failed: { code: '004',
                                    tag: :validations_failed,
                                    short_message: 'on User/Session Validation',
-                                   level: :error } }.freeze
+                                   level: :error },
+             saml_replay_valid_session:  { code: '002',
+                                           tag: :saml_replay_valid_session,
+                                           short_message: 'SamlResponse is too late but user has current session',
+                                           level: :warn } }.freeze
 
   attr_reader :user, :user_identity, :session
 

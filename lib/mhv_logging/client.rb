@@ -19,12 +19,12 @@ module MHVLogging
     client_session Rx::ClientSession
 
     def auditlogin
-      body = { isSuccessful: true, activityDetails: 'Signed in Vets.gov' }
+      body = { isSuccessful: true, activityDetails: 'Signed in VA.GOV' }
       perform(:post, 'activity/auditlogin', body, token_headers)
     end
 
     def auditlogout
-      body = { isSuccessful: true, activityDetails: 'Signed out Vets.gov' }
+      body = { isSuccessful: true, activityDetails: 'Signed out VA.GOV' }
       perform(:post, 'activity/auditlogout', body, token_headers)
     end
 

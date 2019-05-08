@@ -32,6 +32,7 @@ module VetsAPI
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    config.load_defaults(5.1)
     config.api_only = true
 
     config.relative_url_root = Settings.relative_url_root
@@ -53,7 +54,8 @@ module VetsAPI
                       expose: [
                         'X-RateLimit-Limit',
                         'X-RateLimit-Remaining',
-                        'X-RateLimit-Reset'
+                        'X-RateLimit-Reset',
+                        'X-Session-Expiration'
                       ]
       end
     end

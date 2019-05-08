@@ -8,6 +8,7 @@ module VBADocuments
     LINE_BREAK = "\r\n"
 
     def self.parse(infile)
+      validate_size(infile)
       File.open(infile, 'rb') do |input|
         lines = input.each_line(LINE_BREAK).lazy.each_with_index
 
@@ -23,6 +24,13 @@ module VBADocuments
           break unless moreparts
         end
         parts
+      end
+    end
+
+    def self.validate_size(infile)
+      unless infile.size.positive?
+        raise VBADocuments::UploadError.new(code: 'DOC107',
+                                            detail: VBADocuments::UploadError::DOC107)
       end
     end
 

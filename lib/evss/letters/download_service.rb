@@ -6,11 +6,24 @@ require 'common/exceptions/external/gateway_timeout'
 
 module EVSS
   module Letters
+    ##
+    # Proxy Service for Letters Download Caseflow
+    #
+    # @example Create a service and download letter by type
+    #   letter_response = EVSS::Letters::DownloadService.new.download_letter("commissary")
+    #
     class DownloadService < EVSS::Service
       include Common::Client::Monitoring
 
       configuration EVSS::Letters::DownloadConfiguration
 
+      ##
+      # Downloads a letter for a user
+      #
+      # @param type [String] The type of letter to be downloaded;
+      # one of EVSS::Letters::Letter::LETTER_TYPES
+      # @return [String] Service response body
+      #
       def download_letter(type, options = nil)
         with_monitoring do
           response = if options.blank?
