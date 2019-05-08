@@ -1,4 +1,10 @@
 class FacilitiesQuery
+  class HighlanderError < StandardError
+    def message
+      "You may only query by location using ONE of the following parameter sets: lat and long, zip, state, or bbox"
+    end
+  end
+
   attr_reader :params
 
   HEALTH = 'health'
@@ -37,19 +43,60 @@ class FacilitiesQuery
   # Returns a list of facilities based on the type of location param
   def query_by_location
     #  Only one of these params is allowed for logic to continue
-    if (params[:lat] && params[:long]) && !(params[:state] || params[:zip] || params[:bbox])
-      RadialQuery.new(params).run
-    elsif params[:state] && !(params[:lat] || params[:long] || params[:zip] || params[:bbox])
-      StateQuery.new(params).run
-    elsif params[:zip] && !(params[:lat] || params[:long] || params[:state] || params[:bbox])
-      ZipQuery.new(params).run
-    elsif params[:bbox] && !(params[:lat] || params[:long] || params[:state] || params[:zip])
-      BoundingBoxQuery.new(params).run
+    # if (lat_long?) && !(state? || zip? || bbox?)
+    #   RadialQuery.new(params).run
+    # elsif state? && !(lat_long? || zip? || bbox?)
+    #   StateQuery.new(params).run
+    # elsif zip? && !(lat_long? || state? || bbox?)
+    #   ZipQuery.new(params).run
+    # elsif bbox? && !(lat_long? || state? || zip?)
+    #   BoundingBoxQuery.new(params).run
+
+    if geo_query?
+      query_klass.new(params).run
     else
       # There can only be one
-      raise HighlanderException("You may only query by location using ONE of the following parameter sets: lat and long, zip, state, or bbox")
+      raise HighlanderError.new
     end
   end
+
+  def query_klasses
+    {
+      :lat_long? => RadialQuery,
+      :zip? => ZipQuery,
+      :state? => StateQuery,
+      :bbox? => BoundingBoxQuery
+    }
+  end
+
+  def query_klass
+    @query_klass ||= query_klasses.detect{ |k, v|
+      params.key?(k) && !(query_klasses.keys - k).detect{ |forbidden_method|
+        params.key?(forbidden_method)
+      }
+    }&.last
+  end
+
+  def geo_query?
+    !!query_klass
+  end
+
+  def lat_long?
+    params[:lat] && params[:long]
+  end
+
+  def state?
+    params[:state]
+  end
+
+  def zip?
+    params[:zip]
+  end
+
+  def bbox?
+    params[:bbox]
+  end
+
 
   def build_result_set_from_ids(ids)
     ids_for_types(ids).map do |facility_type, unique_ids|

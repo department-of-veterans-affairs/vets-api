@@ -18,13 +18,6 @@ class BaseFacility < ApplicationRecord
 
   HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
 
-  HEALTH = 'health'
-  CEMETERY = 'cemetery'
-  BENEFITS = 'benefits'
-  VET_CENTER = 'vet_center'
-  DOD_HEALTH = 'dod_health'
-  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER, DOD_HEALTH].freeze
-
   PREFIX_MAP = {
     'va_health_facility' => 'vha',
     'va_benefits_facility' => 'vba',
@@ -38,14 +31,6 @@ class BaseFacility < ApplicationRecord
     'vet_center' => 'Facilities::VCFacility',
     'va_health_facility' => 'Facilities::VHAFacility',
     'dod_health' => 'Facilities::DODFacility'
-  }.freeze
-
-  TYPE_MAP = {
-    CEMETERY => 'Facilities::NCAFacility',
-    HEALTH => 'Facilities::VHAFacility',
-    BENEFITS => 'Facilities::VBAFacility',
-    VET_CENTER => 'Facilities::VCFacility',
-    DOD_HEALTH => 'Facilities::DODFacility'
   }.freeze
 
   TYPE_NAME_MAP = {
