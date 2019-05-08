@@ -12,9 +12,12 @@ module VBADocuments
       object.guid
     end
 
-    delegate :status, to: :object
     delegate :code, to: :object
     delegate :detail, to: :object
+
+    def status
+      object.status == 'vbms' ? 'success' : object.status
+    end
 
     def location
       return nil unless @instance_options[:render_location]
