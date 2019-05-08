@@ -14,4 +14,14 @@ namespace :load_test do
     raise 'No sessions JSON file provided' unless args[:sessions_json_file]
     puts SessionsFileSerializer.new(args[:sessions_json_file]).generate_cookies_sessions
   end
+
+  task :hca_ee, [:icn] => [:environment] do |_, args|
+    require './rakelib/support/vic_load_test'
+
+    LoadTest.measure_elapsed do
+      10.times do
+        HCA::EnrollmentEligibility::Service.new.lookup_user(args.icn)
+      end
+    end
+  end
 end
