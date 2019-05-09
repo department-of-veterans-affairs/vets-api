@@ -44,6 +44,7 @@ module EMIS
       attribute :combat_pay, Array[EMIS::Models::CombatPay]
     end
 
+    # Military service eligibility data
     class MilitaryServiceEligibilityInfo
       include Virtus.model
 

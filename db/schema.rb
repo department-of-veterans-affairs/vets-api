@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190419012709) do
+ActiveRecord::Schema.define(version: 20190424212410) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -306,6 +306,7 @@ ActiveRecord::Schema.define(version: 20190419012709) do
     t.datetime "read_at"
     t.datetime "created_at",          null: false
     t.datetime "updated_at",          null: false
+    t.index ["account_id", "subject"], name: "index_notifications_on_account_id_and_subject", unique: true, using: :btree
     t.index ["account_id"], name: "index_notifications_on_account_id", using: :btree
     t.index ["status"], name: "index_notifications_on_status", using: :btree
     t.index ["subject"], name: "index_notifications_on_subject", using: :btree

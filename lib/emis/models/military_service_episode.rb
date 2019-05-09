@@ -2,9 +2,11 @@
 
 module EMIS
   module Models
+    # EMIS military service episode data
     class MilitaryServiceEpisode
       include Virtus.model
 
+      # Service branch codes
       SERVICE_BRANCHES = {
         'A' => 'Army',
         'C' => 'Coast Guard',
@@ -16,6 +18,7 @@ module EMIS
         'O' => 'NOAA'
       }.freeze
 
+      # Military service branch codes mapped to HCA schema values
       HCA_SERVICE_BRANCHES = {
         'F' => 'air force',
         'A' => 'army',
@@ -26,6 +29,7 @@ module EMIS
         'H' => 'usphs'
       }.freeze
 
+      # Personnel category codes
       PERSONNEL_CATEGORY_TYPE = {
         'A' => 'Regular Active',
         'N' => 'Guard',
@@ -58,14 +62,20 @@ module EMIS
       attribute :dod_beneficiary_type_code, String
       attribute :reserve_under_age60_code, String
 
+      # Military service branch in HCA schema format
+      # @return [String] Military service branch in HCA schema format
       def hca_branch_of_service
         HCA_SERVICE_BRANCHES[branch_of_service_code] || 'other'
       end
 
+      # Human readable military branch of service
+      # @return [String] Human readable military branch of service
       def branch_of_service
         SERVICE_BRANCHES[branch_of_service_code]
       end
 
+      # Human readable personnel category type
+      # @return [String] Human readable personnel category type
       def personnel_category_type
         PERSONNEL_CATEGORY_TYPE[personnel_category_type_code]
       end

@@ -5,6 +5,18 @@ require 'evss/response'
 
 module EVSS
   module Letters
+    ##
+    # Model for a letter service response, containing the recipient's name
+    # and an array of letter objects
+    #
+    # @param status [Integer] The HTTP status code
+    # @param response [Hash] The API response
+    #
+    # @!attribute letters
+    #   @return [Array[EVSS::Letters::Letter]] An array of the user's letters
+    # @!attribute full_name
+    #   @return [String] The recipient's full name
+    #
     class LettersResponse < EVSS::Response
       attribute :letters, Array[EVSS::Letters::Letter]
       attribute :full_name, String

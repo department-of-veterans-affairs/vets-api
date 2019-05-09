@@ -32,12 +32,11 @@ describe EVSS::DocumentsService do
     end
 
     context 'with a backend service error' do
-      it 'should rescue EVSSError, and raise Sentry::IgnoredError' do
+      it 'raises EVSSError' do
         VCR.use_cassette('evss/documents/upload_with_errors') do
           demo_file_name = "#{::Rails.root}/spec/fixtures/files/doctors-note.pdf"
           File.open(demo_file_name, 'rb') do |f|
-            expect(subject).to receive(:log_exception_to_sentry)
-            expect { subject.upload(f, document_data) }.to raise_exception(Sentry::IgnoredError)
+            expect { subject.upload(f, document_data) }.to raise_exception(EVSS::ErrorMiddleware::EVSSError)
           end
         end
       end
