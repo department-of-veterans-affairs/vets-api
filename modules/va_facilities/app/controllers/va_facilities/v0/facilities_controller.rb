@@ -6,6 +6,7 @@ require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
 require_dependency 'va_facilities/geo_serializer'
 require_dependency 'va_facilities/csv_serializer'
+require 'facilities_query'
 
 module VaFacilities
   module V0
@@ -34,11 +35,9 @@ module VaFacilities
       end
 
       def index
-        begin
-          resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
-        rescue FacilitiesQuery::HighlanderError => e
-          render json: {error: e.message}, status: 400
-        end
+        raise FacilitiesQuery::HighlanderError.new
+        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
+
         respond_to do |format|
           format.json do
             render json: resource,
@@ -50,6 +49,8 @@ module VaFacilities
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
           end
         end
+      rescue FacilitiesQuery::HighlanderError => e
+        render json: {error: e.message}, status: 400
       end
 
       def show

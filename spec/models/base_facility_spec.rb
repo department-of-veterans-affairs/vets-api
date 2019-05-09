@@ -185,6 +185,12 @@ RSpec.describe BaseFacility, type: :model do
       point = nca_facility.location.factory.point attrs['long'], attrs['lat']
       expect(nca_facility.location).to eq(point)
     end
+
+    it 'should error if only state is a param and other stuff' do
+      bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
+      params = {:state => "FL", :bbox => bbox }
+      expect{BaseFacility.query(params) }.to raise_error(FacilitiesQuery::HighlanderError)
+    end
   end
 
   describe '#find_facility_by_id' do

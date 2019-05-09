@@ -42,17 +42,7 @@ class FacilitiesQuery
 
   # Returns a list of facilities based on the type of location param
   def query_by_location
-    #  Only one of these params is allowed for logic to continue
-    # if (lat_long?) && !(state? || zip? || bbox?)
-    #   RadialQuery.new(params).run
-    # elsif state? && !(lat_long? || zip? || bbox?)
-    #   StateQuery.new(params).run
-    # elsif zip? && !(lat_long? || state? || bbox?)
-    #   ZipQuery.new(params).run
-    # elsif bbox? && !(lat_long? || state? || zip?)
-    #   BoundingBoxQuery.new(params).run
-
-    if geo_query?
+    if valid_geo_query?
       query_klass.new(params).run
     else
       # There can only be one
@@ -60,7 +50,7 @@ class FacilitiesQuery
     end
   end
 
-  def query_klasses
+  def geo_query_klasses
     {
       :lat_long? => RadialQuery,
       :zip? => ZipQuery,
@@ -69,15 +59,29 @@ class FacilitiesQuery
     }
   end
 
+  # Iterates through the methods that check the existence of each type of
+  # geo query param (listed in geo_query_klasses) and checks that
+  # only one set of geo query params. Then returns the Class of the
+  # proper geo query to make based on the params.
   def query_klass
-    @query_klass ||= query_klasses.detect{ |k, v|
-      params.key?(k) && !(query_klasses.keys - k).detect{ |forbidden_method|
-        params.key?(forbidden_method)
-      }
+    @query_klass ||= geo_query_klasses.detect{ |geo_method, v|
+      only_one_set_of_geo_params?(geo_method)
     }&.last
   end
 
-  def geo_query?
+  def only_one_set_of_geo_params?(geo_method)
+    self.send(geo_method) && !other_geo_query_params?(geo_method)
+  end
+
+  def other_geo_query_params?(excluded_geo_method)
+    other_geo_query_params = geo_query_klasses.keys - [excluded_geo_method]
+
+    other_geo_query_params.detect{ |geo_method|
+      self.send(geo_method)
+    }
+  end
+
+  def valid_geo_query?
     !!query_klass
   end
 
@@ -169,7 +173,7 @@ class RadialQuery < FacilitiesQuery
         distance_query(lat, long)
       )
       if ids_map
-        ids_for_type = ids_map[PREFIX_MAP[TYPE_NAME_MAP[facility_type]]]
+        ids_for_type = ids_map[BaseFacility.PREFIX_MAP[BaseFacility.TYPE_NAME_MAP[facility_type]]]
         facilities = facilities.where(unique_id: ids_for_type)
       end
       facilities.order('distance')
