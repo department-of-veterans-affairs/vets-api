@@ -13,7 +13,7 @@ FactoryBot.define do
     }.to_json)
 
     factory :va1995_STEM_full_form do
-      form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995_STEM', 'kitchen_sink.json')))
+      form(File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '1995-STEM', 'kitchen_sink.json')))
     end
   end
 end
