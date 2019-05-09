@@ -38,7 +38,7 @@ module V0
         user_logout(saml_response)
       else
         log_message_to_sentry(
-          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
+          saml_response.errors_message, saml_response.errors_hash[:level], error_context: saml_response.errors_context
         )
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
@@ -55,7 +55,7 @@ module V0
         user_login(saml_response)
       else
         log_message_to_sentry(
-          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
+          saml_response.errors_message, saml_response.errors_hash[:level], error_context: saml_response.errors_context
         )
         redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
         stats(:failure, saml_response, saml_response.error_instrumentation_code)
