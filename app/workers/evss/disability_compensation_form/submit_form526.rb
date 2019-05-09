@@ -31,6 +31,13 @@ module EVSS
         end
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
+      rescue EVSS::DisabilityCompensationForm::ServiceException => e
+        # retry any errors caused by an upstream service from EVSS being unavailable
+        if e.key == 'evss.external_service_unavailable'
+          retryable_error_handler(e)
+        else
+          non_retryable_error_handler(e)
+        end
       rescue StandardError => e
         non_retryable_error_handler(e)
       end
