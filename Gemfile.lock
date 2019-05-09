@@ -53,6 +53,7 @@ PATH
   specs:
     appeals_api (0.0.1)
       rails (~> 5.1.6.2)
+
 PATH
   remote: modules/claims_api
   specs:
@@ -770,7 +771,7 @@ GEM
     down (2.4.3)
     encryptor (3.0.0)
     equalizer (0.0.11)
-    erubis (2.7.0)
+    erubi (1.8.0)
     et-orbi (1.1.8)
       tzinfo
     ethon (0.10.1)
@@ -1234,8 +1235,8 @@ DEPENDENCIES
   sentry-raven (= 2.7.4)
   shrine
   shrine-memory
+  sidekiq
   sidekiq-ent!
-  sidekiq (~> 4.2.9)
   sidekiq-instrument
   sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
@@ -1267,4 +1268,4 @@ DEPENDENCIES
   zero_downtime_migrations
 
 BUNDLED WITH
-   1.17.3
+   2.0.1
