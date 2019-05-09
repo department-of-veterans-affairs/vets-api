@@ -17,7 +17,7 @@ namespace :veteran do
     Veteran::Service::Representative.create(
       poa: '074',
       first_name: 'Greg',
-      last_name: 'Anderso',
+      last_name: 'Anderson',
       email: 'vets.gov.user+1@gmail.com'
     )
     Veteran::Service::Representative.create(
@@ -44,6 +44,19 @@ namespace :veteran do
       last_name: 'Lee',
       email: 'vets.gov.user+5@gmail.com'
     )
+    Veteran::Service::Representative.create(
+      poa: '083',
+      first_name: 'Tamara',
+      last_name: 'Ellis',
+      email: 'va.api.user+idme.001@gmail.com'
+    )
+    Veteran::Service::Representative.create(
+      poa: '2NY',
+      first_name: 'John',
+      last_name: 'Doe',
+      email: 'va.api.user+idme.007@gmail.com'
+    )
+  end
   end
 end
 # rubocop:enable Metrics/BlockLength
