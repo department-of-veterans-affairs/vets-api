@@ -57,6 +57,5 @@ namespace :veteran do
       email: 'va.api.user+idme.007@gmail.com'
     )
   end
-  end
 end
 # rubocop:enable Metrics/BlockLength
