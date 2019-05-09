@@ -27,8 +27,8 @@ class FacilitiesQuery
   end
 
   def query
-    if location_query_requested?
-      query_by_location
+    if valid_location_query?
+      location_query_klass.new(params).run
     elsif @params[:ids]
       build_result_set_from_ids(params[:ids]).flatten
     else
@@ -36,71 +36,26 @@ class FacilitiesQuery
     end
   end
 
-  def location_query_requested?
-    @params[:state] || (@params[:lat] && @params[:long]) || @params[:zip] || @params[:bbox]
+  def valid_location_query?
+    !!location_query_klass
   end
 
-  # Returns a list of facilities based on the type of location param
-  def query_by_location
-    if valid_geo_query?
-      query_klass.new(params).run
+  def location_query_klass
+    @location_query_klass ||= case location_keys
+    when []           then nil
+    when [:lat,:long] then RadialQuery
+    when [:state]     then StateQuery
+    when [:zip]       then ZipQuery
+    when [:bbox]      then BoundingBoxQuery
     else
       # There can only be one
-      raise HighlanderError.new
+      raise HighlanderError
     end
   end
 
-  def geo_query_klasses
-    {
-      :lat_long? => RadialQuery,
-      :zip? => ZipQuery,
-      :state? => StateQuery,
-      :bbox? => BoundingBoxQuery
-    }
+  def location_keys
+    ([:lat,:long,:state,:zip,:bbox] & params.keys).sort
   end
-
-  # Iterates through the methods that check the existence of each type of
-  # geo query param (listed in geo_query_klasses) and checks that
-  # only one set of geo query params. Then returns the Class of the
-  # proper geo query to make based on the params.
-  def query_klass
-    @query_klass ||= geo_query_klasses.detect{ |geo_method, v|
-      only_one_set_of_geo_params?(geo_method)
-    }&.last
-  end
-
-  def only_one_set_of_geo_params?(geo_method)
-    self.send(geo_method) && !other_geo_query_params?(geo_method)
-  end
-
-  def other_geo_query_params?(excluded_geo_method)
-    other_geo_query_params = geo_query_klasses.keys - [excluded_geo_method]
-
-    other_geo_query_params.detect{ |geo_method|
-      self.send(geo_method)
-    }
-  end
-
-  def valid_geo_query?
-    !!query_klass
-  end
-
-  def lat_long?
-    params[:lat] && params[:long]
-  end
-
-  def state?
-    params[:state]
-  end
-
-  def zip?
-    params[:zip]
-  end
-
-  def bbox?
-    params[:bbox]
-  end
-
 
   def build_result_set_from_ids(ids)
     ids_for_types(ids).map do |facility_type, unique_ids|

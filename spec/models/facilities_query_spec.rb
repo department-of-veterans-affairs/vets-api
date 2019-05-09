@@ -96,16 +96,40 @@ RSpec.describe FacilitiesQuery do
     end
   end
 
-  describe '#query_klass' do
-    it 'should error if only state is a param and other stuff' do
-      bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
-      params = {:state => "FL", :bbox => bbox }
-      expect(FacilitiesQuery.new(params).geo_query?).to eq(false)
+  describe '#location_query_klass' do
+    it 'should raise FacilitiesQuery::HighlanderError if redundant location params are passed' do
+      params = { :state => "FL", :bbox => ['-122.440689', '45.451913', '-122.786758', '45.64'] }
+      expect { FacilitiesQuery.new(params).location_query_klass }.to raise_error(FacilitiesQuery::HighlanderError)
     end
 
-    it 'should return a state query and do good ' do
-      params = {:state => "FL" }
-      expect(FacilitiesQuery.new(params).geo_query?).to eq(true)
+    it 'should raise FacilitiesQuery::HighlanderError if only one of :lat or :long are passed' do
+      expect { FacilitiesQuery.new({ :lat => '-122.440689' }).location_query_klass }.to raise_error(FacilitiesQuery::HighlanderError)
+      expect { FacilitiesQuery.new({ :long => '45.451913' }).location_query_klass }.to raise_error(FacilitiesQuery::HighlanderError)
+    end
+
+    it 'should be falsy if no location params are passed' do
+      params = { :foo => "bar" }
+      expect(FacilitiesQuery.new(params).location_query_klass).to be_falsy
+    end
+
+    it 'should return RadialQuery if both :lat and :long are passed' do
+      params = { :lat => '-122.440689', long: '45.451913' }
+      expect(FacilitiesQuery.new(params).location_query_klass).to eq(FacilitiesQuery::RadialQuery)
+    end
+
+    it 'should return StateQuery if :state is passed' do
+      params = { :state => 'FL' }
+      expect(FacilitiesQuery.new(params).location_query_klass).to eq(FacilitiesQuery::StateQuery)
+    end
+
+    it 'should return ZipQuery if :zip is passed' do
+      params = { :zip => '32708' }
+      expect(FacilitiesQuery.new(params).location_query_klass).to eq(FacilitiesQuery::ZipQuery)
+    end
+
+    it 'should return BoundingBoxQuery if :bbox is passed' do
+      params = { :bbox => ['-122.440689', '45.451913', '-122.786758', '45.64'] }
+      expect(FacilitiesQuery.new(params).location_query_klass).to eq(FacilitiesQuery::BoundingBoxQuery)
     end
   end
 end
