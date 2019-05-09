@@ -11,7 +11,7 @@ module Preneeds
         # @return [Faraday::Env]
         #
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bxml/
+          return unless env.response_headers['content-type'].match?(/\bxml/)
           env[:body] = parse(env.body) if env.body.present?
         end
 

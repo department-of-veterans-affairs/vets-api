@@ -108,9 +108,9 @@ module VBADocuments
 
     def map_downstream_error(status, body)
       if status.between?(400, 499)
-        detail = if body =~ INVALID_ZIP_CODE_ERROR_REGEX
+        detail = if body.match?(INVALID_ZIP_CODE_ERROR_REGEX)
                    INVALID_ZIP_CODE_ERROR_MSG
-                 elsif body =~ MISSING_ZIP_CODE_ERROR_REGEX
+                 elsif body.match?(MISSING_ZIP_CODE_ERROR_REGEX)
                    MISSING_ZIP_CODE_ERROR_MSG
                  else
                    body

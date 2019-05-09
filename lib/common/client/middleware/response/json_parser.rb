@@ -10,7 +10,7 @@ module Common
           UNPARSABLE_STATUS_CODES = [204, 301, 302, 304].freeze
 
           def on_complete(env)
-            if env.response_headers['content-type'] =~ /\bjson/
+            if env.response_headers['content-type'].match?(/\bjson/)
               if env.body =~ WHITESPACE_REGEX || env.body =~ MHV_SUCCESS_REGEX
                 env.body = ''
               else
