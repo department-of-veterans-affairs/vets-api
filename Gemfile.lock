@@ -177,6 +177,9 @@ GEM
       aws-sdk-core (~> 3)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.0)
+    aws-sdk-sns (1.1.0)
+      aws-sdk-core (~> 3)
+      aws-sigv4 (~> 1.0)
     aws-sigv4 (1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -611,6 +614,7 @@ DEPENDENCIES
   awesome_print (~> 1.8)
   awrence
   aws-sdk-s3 (~> 1)
+  aws-sdk-sns (~> 1)
   betamocks!
   brakeman
   breakers
