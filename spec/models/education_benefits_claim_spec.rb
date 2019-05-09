@@ -7,7 +7,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     create(:va1990).education_benefits_claim
   end
 
-  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995-STEM].each do |form_type|
+  %w[1990 1995 1990e 5490 5495 1990n 0993 0994 1995_STEM].each do |form_type|
     method = "is_#{form_type}?"
 
     describe "##{method}" do
@@ -121,7 +121,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       end
     end
 
-    context 'with a form type of 1995-STEM' do
+    context 'with a form type of 1995_STEM' do
       subject do
         create(:va1995_STEM)
       end
@@ -131,7 +131,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
         expect(associated_submission).to eq(
              submission_attributes.merge(
-                 'form_type' => '1995-STEM',
+                 'form_type' => '1995_STEM',
                  'transfer_of_entitlement' => true
              )
          )
