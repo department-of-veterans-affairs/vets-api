@@ -172,8 +172,7 @@ class User < Common::RedisStore
   # we are experimenting with disabling user attribute validation so that user validation does not prevent user
   # user persistence when MVI is down for MHV premium users signing in during an outage.
   def validate_attributes_for_loa3?
-    # Settings.sso.validate_user_attributes_loa3 == true ? loa3? : false
-    false
+    Settings.sso.disable_user_validations_loa3 == true ? loa3? : false
   end
 
   def ssn_mismatch?
