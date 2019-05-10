@@ -5,6 +5,7 @@ module EMIS
     # rubocop:disable Layout/TrailingWhitespace
 
     # EMIS Combat Pay data for a veteran
+    #
     # @!attribute segment_identifier
     #   @return [String] identifier that is used to ensure a unique key on each Military Pay record
     # @!attribute begin_date
