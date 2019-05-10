@@ -118,7 +118,7 @@ paths:
           required: false
           schema:
             type: string
-            format: #####
+            format: '##### or #####-####'
         - name: state
           in: query
           description: |
