@@ -1,6 +1,12 @@
 # frozen_string_literal: true
 
-# Message drafts are essentially messages with an implied folder (drafts), and if a reply an implied message
+##
+# Models Message draft
+# @note drafts are essentially messages with an implied folder (drafts), and if a reply, an implied message
+#
+# @!attribute has_message
+#   @return [Boolean]
+#
 class MessageDraft < Message
   validate :check_as_replydraft, if: proc { reply? }
   validate :check_as_draft, unless: proc { reply? }

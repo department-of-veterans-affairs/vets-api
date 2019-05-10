@@ -3,9 +3,16 @@
 module Rx
   module Middleware
     module Response
+      ##
+      # Middleware class responsible for logging Rx Failed Station messages to Sentry
+      #
       class RxFailedStation < Faraday::Response::Middleware
         include SentryLogging
-
+        ##
+        # Override the Faraday #on_complete method to log Rx failed station message to Sentry
+        # @param env [Faraday::Env] the request environment
+        # @return [Faraday::Env]
+        #
         def on_complete(env)
           return unless env.body.is_a? Hash
 

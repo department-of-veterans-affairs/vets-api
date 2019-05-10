@@ -10,19 +10,38 @@ require 'common/client/middleware/response/snakecase'
 require 'sm/middleware/response/sm_parser'
 
 module SM
+  ##
+  # HTTP client configuration for {SM::Client}, sets the token, base path and a service name for breakers and metrics
+  #
   class Configuration < Common::Client::Configuration::REST
+    ##
+    # @return [String] Client token set in `settings.yml` via credstash
+    #
     def app_token
       Settings.mhv.sm.app_token
     end
 
+    ##
+    # @return [String] Base path for dependent URLs
+    #
     def base_path
       "#{Settings.mhv.sm.host}/mhv-sm-api/patient/v1/"
     end
 
+    ##
+    # @return [String] Service name to use in breakers and metrics
+    #
     def service_name
       'SM'
     end
 
+    ##
+    # Creates a connection with middleware for mapping errors, parsing XML, and
+    # adding breakers functionality
+    #
+    # @see SM::Middleware::Response::SMParser
+    # @return [Faraday::Connection] a Faraday connection instance
+    #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
