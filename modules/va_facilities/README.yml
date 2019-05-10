@@ -453,7 +453,7 @@ paths:
             type: number
             format: float
         - name: drivetime
-          description: Drive time is the maximum number of minutes to from the requested point that are included in the response.
+          description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested point.
           in: query
           required: false
           schema:
