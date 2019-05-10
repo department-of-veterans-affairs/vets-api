@@ -17,6 +17,9 @@ module EMIS
     #     01 => Combat Zone Tax Exclusion (CZTE)  
     #     02 => Hostile Fire/Imminent Danger  
     #     03 => Hazardous Duty incentive
+    # @!attribute combat_zone_country_code
+    #   @return [String] 2 letter ISO code that represents the country designated a Combat Zone.
+    #     Used only when CZTE is indicated by +type_code+
     class CombatPay
       # rubocop:enable Layout/TrailingWhitespace
       include Virtus.model
