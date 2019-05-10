@@ -9,7 +9,7 @@ class PersistentAttachment < ApplicationRecord
   include SetGuid
 
   attr_encrypted(:file_data, key: Settings.db_encryption_key)
-  belongs_to :saved_claim, inverse_of: :persistent_attachments
+  belongs_to :saved_claim, inverse_of: :persistent_attachments, optional: true
   delegate :original_filename, :size, to: :file
 
   def to_pdf

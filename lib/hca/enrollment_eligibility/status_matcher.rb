@@ -6,25 +6,71 @@ module HCA
     module StatusMatcher
       module_function
 
+      # Defines the collection of eligible HCA enrollment statuses.
+      #
+      # To add a new status, it **must also be added** to the
+      # /app/models/notification#status enum values hash.
+      #
+      ELIGIBLE_STATUS_CATEGORIES = [
+        Notification::ACTIVEDUTY,
+        Notification::CANCELED_DECLINED,
+        Notification::CLOSED,
+        Notification::DECEASED,
+        Notification::ENROLLED,
+        Notification::INELIG_CHAMPVA,
+        Notification::INELIG_CHARACTER_OF_DISCHARGE,
+        Notification::INELIG_CITIZENS,
+        Notification::INELIG_FILIPINOSCOUTS,
+        Notification::INELIG_FUGITIVEFELON,
+        Notification::INELIG_GUARD_RESERVE,
+        Notification::INELIG_MEDICARE,
+        Notification::INELIG_NOT_ENOUGH_TIME,
+        Notification::INELIG_NOT_VERIFIED,
+        Notification::INELIG_OTHER,
+        Notification::INELIG_OVER65,
+        Notification::INELIG_REFUSEDCOPAY,
+        Notification::INELIG_TRAINING_ONLY,
+        Notification::LOGIN_REQUIRED,
+        Notification::NONE_OF_THE_ABOVE,
+        Notification::PENDING_MT,
+        Notification::PENDING_OTHER,
+        Notification::PENDING_PURPLEHEART,
+        Notification::PENDING_UNVERIFIED,
+        Notification::REJECTED_INC_WRONGENTRY,
+        Notification::REJECTED_RIGHTENTRY,
+        Notification::REJECTED_SC_WRONGENTRY
+      ].freeze
+
+      CATCHALL_CATEGORIES = [
+        {
+          enrollment_status: 'rejected',
+          category: Notification::REJECTED_RIGHTENTRY
+        },
+        {
+          enrollment_status: 'not eligible',
+          category: Notification::INELIG_OTHER
+        }
+      ].freeze
+
       CATEGORIES = [
         {
           enrollment_status: 'verified',
-          category: :enrolled
+          category: Notification::ENROLLED
         },
         {
           enrollment_status: ['not eligible', 'not eligible; ineligible date'],
           text_matches: [
             {
-              category: :inelig_not_enough_time,
+              category: Notification::INELIG_NOT_ENOUGH_TIME,
               strings: ['24 months', 'less than', '24 mos', '24months', 'two years']
             },
             {
-              category: :inelig_training_only,
+              category: Notification::INELIG_TRAINING_ONLY,
               strings: ['training only', 'trng only'],
               acronyms: %w[ADT ACDUTRA ADUTRA]
             },
             {
-              category: :inelig_character_of_discharge,
+              category: Notification::INELIG_CHARACTER_OF_DISCHARGE,
               strings: [
                 'other than honorable', 'dishonorable',
                 'bad conduct', 'dis for va pur'
@@ -32,86 +78,84 @@ module HCA
               acronyms: %w[OTH DVA]
             },
             {
-              category: :inelig_not_verified,
+              category: Notification::INELIG_NOT_VERIFIED,
               strings: ['no proof', 'no record', 'non-vet', 'non vet', 'unable to verify', 'not a veteran', '214']
             },
             {
-              category: :inelig_guard_reserve,
+              category: Notification::INELIG_GUARD_RESERVE,
               strings: %w[guard reserve reservist]
             },
             {
-              category: :inelig_champva,
+              category: Notification::INELIG_CHAMPVA,
               strings: ['champva']
             },
             {
-              category: :inelig_fugitivefelon,
+              category: Notification::INELIG_FUGITIVEFELON,
               strings: ['felon']
             },
             {
-              category: :inelig_medicare,
+              category: Notification::INELIG_MEDICARE,
               strings: ['medicare']
             },
             {
-              category: :inelig_over65,
+              category: Notification::INELIG_OVER65,
               strings: ['over 65']
             },
             {
-              category: :inelig_citizens,
+              category: Notification::INELIG_CITIZENS,
               strings: ['citizen']
             },
             {
-              category: :inelig_filipinoscouts,
+              category: Notification::INELIG_FILIPINOSCOUTS,
               strings: ['filipino']
             },
             {
-              category: :rejected_sc_wrongentry,
+              category: Notification::REJECTED_SC_WRONGENTRY,
               strings: ['disability']
             },
             {
-              category: :rejected_inc_wrongentry,
+              category: Notification::REJECTED_INC_WRONGENTRY,
               strings: ['income']
             }
           ]
         },
         {
           enrollment_status: 'not applicable',
-          category: :activeduty
+          category: Notification::ACTIVEDUTY
         },
         {
           enrollment_status: 'deceased',
-          category: :deceased
+          category: Notification::DECEASED
         },
         {
           enrollment_status: 'closed application',
-          category: :closed
+          category: Notification::CLOSED
         },
         {
           enrollment_status: 'not eligible; refused to pay copay',
-          category: :inelig_refusedcopay
+          category: Notification::INELIG_REFUSEDCOPAY
         },
         {
           enrollment_status: 'pending; means test required',
-          category: :pending_mt
+          category: Notification::PENDING_MT
         },
         {
           enrollment_status: 'pending; eligibility status is unverified',
-          category: :pending_unverified
+          category: Notification::PENDING_UNVERIFIED
         },
         {
           enrollment_status: 'pending; other',
-          category: :pending_other
+          category: Notification::PENDING_OTHER
         },
         {
           enrollment_status: 'pending; purple heart unconfirmed',
-          category: :pending_purpleheart
+          category: Notification::PENDING_PURPLEHEART
         },
         {
           enrollment_status: 'cancelled/declined',
-          category: :canceled_declined
+          category: Notification::CANCELED_DECLINED
         }
       ].freeze
-
-      NONE = :none_of_the_above
 
       def process_text_match(text_matches, ineligibility_reason)
         text_matches.each do |text_match_data|
@@ -138,8 +182,16 @@ module HCA
         enroll_status == statuses
       end
 
+      def parse_catchall_categories(enrollment_status)
+        CATCHALL_CATEGORIES.each do |category_data|
+          return category_data[:category] if enrollment_status.include?(category_data[:enrollment_status])
+        end
+
+        nil
+      end
+
       def parse(enrollment_status, ineligibility_reason = '')
-        return NONE if enrollment_status.blank?
+        return Notification::NONE_OF_THE_ABOVE if enrollment_status.blank?
         enrollment_status = enrollment_status.downcase.strip
 
         CATEGORIES.find { |c| category_matcher(c[:enrollment_status], enrollment_status) }.tap do |category_data|
@@ -153,9 +205,9 @@ module HCA
           end
         end
 
-        return :rejected_rightentry if enrollment_status.include?('rejected')
+        parse_catchall_categories(enrollment_status).tap { |c| return c if c.present? }
 
-        NONE
+        Notification::NONE_OF_THE_ABOVE
       end
     end
   end

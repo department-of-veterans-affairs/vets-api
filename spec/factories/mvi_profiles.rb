@@ -14,7 +14,7 @@ end
 FactoryBot.define do
   factory :mvi_profile_address, class: 'MVI::Models::MviProfileAddress' do
     street { "#{street}, #{street2}" }
-    city { Faker::Address.city }
+    city { Faker::Address.city[0...20] }
     state { Faker::Address.state_abbr }
     postal_code { Faker::Address.zip }
     country 'USA'

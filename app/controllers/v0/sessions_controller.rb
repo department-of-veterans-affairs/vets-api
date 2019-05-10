@@ -2,6 +2,8 @@
 
 require 'base64'
 require 'saml/url_service'
+require 'saml/responses/login'
+require 'saml/responses/logout'
 
 module V0
   class SessionsController < ApplicationController
@@ -23,45 +25,43 @@ module V0
         Rails.logger.info('SSO: LOGOUT', sso_logging_info)
         reset_session
       end
-      redirect_to url
+      # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
+      # extensions with their browser.
+      redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
     end
 
     def saml_logout_callback
-      logout_response = OneLogin::RubySaml::Logoutresponse.new(params[:SAMLResponse], saml_settings,
-                                                               raw_get_params: params)
-      logout_request  = SingleLogoutRequest.find(logout_response&.in_response_to)
+      saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
+      Raven.extra_context(in_response_to: saml_response.try(:in_response_to) || 'ERROR')
 
-      errors = build_logout_errors(logout_response, logout_request)
-      additional_logging_for_logout_request(logout_response, logout_request)
-
-      if errors.size.positive?
-        extra_context = { in_response_to: logout_response&.in_response_to }
-        log_message_to_sentry("SAML Logout failed!\n  " + errors.join("\n  "), :error, extra_context)
+      if saml_response.valid?
+        user_logout(saml_response)
+      else
+        log_message_to_sentry(
+          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
+        )
+        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
-    rescue => e
+    rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
-      logout_request&.destroy
       redirect_to url_service.logout_redirect_url
     end
 
     def saml_callback
-      saml_response = SAML::Response.new(params[:SAMLResponse], settings: saml_settings)
-      @sso_service = SSOService.new(saml_response)
-      if @sso_service.persist_authentication!
-        @current_user = @sso_service.new_user
-        @session_object = @sso_service.new_session
-        set_cookies
-        after_login_actions
-        redirect_to url_service.login_redirect_url
-        stats(:success)
+      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+
+      if saml_response.valid?
+        user_login(saml_response)
       else
-        log_auth_too_late if @sso_service.auth_error_code == '002'
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: @sso_service.auth_error_code)
-        stats(:failure)
+        log_message_to_sentry(
+          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
+        )
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
+        stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
-    rescue NoMethodError => e
-      log_message_to_sentry('NoMethodError', :error, full_message: e.message)
+    rescue StandardError => e
+      log_exception_to_sentry(e, {}, {}, :error)
       redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
       stats(:failed_unknown)
     ensure
@@ -69,6 +69,14 @@ module V0
     end
 
     private
+
+    def auth_error_code(code)
+      if code == '005' && validate_session
+        UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
+      else
+        code
+      end
+    end
 
     def authenticate
       return unless action_name == 'new'
@@ -79,16 +87,45 @@ module V0
       end
     end
 
-    def stats(status)
+    def user_login(saml_response)
+      user_session_form = UserSessionForm.new(saml_response)
+      if user_session_form.valid?
+        @current_user, @session_object = user_session_form.persist
+        set_cookies
+        after_login_actions
+        redirect_to url_service.login_redirect_url
+        stats(:success, saml_response)
+      else
+        log_message_to_sentry(
+          user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
+        )
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: user_session_form.error_code)
+        stats(:failure, saml_response, user_session_form.error_instrumentation_code)
+      end
+    end
+
+    def user_logout(saml_response)
+      logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
+      if logout_request.present?
+        logout_request.destroy
+        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
+          "'#{originating_request_id}'")
+      else
+        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+          "'#{originating_request_id}'")
+      end
+    end
+
+    def stats(status, saml_response = nil, failure_tag = nil)
       case status
       when :success
-        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if @sso_service.new_login?
+        StatsD.increment(STATSD_LOGIN_NEW_USER_KEY) if request_type == 'signup'
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{@sso_service.saml_response.authn_context}"])
+                         tags: ['status:success', "context:#{saml_response.authn_context}"])
       when :failure
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{@sso_service.saml_response.authn_context}"])
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [@sso_service.failure_instrumentation_tag])
+                         tags: ['status:failure', "context:#{saml_response.authn_context}"])
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [failure_tag])
       when :failed_unknown
         StatsD.increment(STATSD_SSO_CALLBACK_KEY,
                          tags: ['status:failure', 'context:unknown'])
@@ -120,44 +157,14 @@ module V0
       end
     end
 
-    # this method is intended to be temporary as we gather more information on the auth_too_late SAML error
-    def log_auth_too_late
-      session_object = Session.find(session[:token])
-      user = User.find(session_object&.uuid)
-
-      log_message_to_sentry('auth_too_late ',
-                            :warn,
-                            code: @sso_service.auth_error_code,
-                            errors: @sso_service.errors.messages,
-                            last_signed_in_if_logged_in: user&.last_signed_in,
-                            authn_context: user&.authn_context)
-    end
-
-    def build_logout_errors(logout_response, logout_request)
-      errors = []
-      errors.concat(logout_response.errors) unless logout_response.validate(true)
-      errors << 'inResponseTo attribute is nil!' if logout_response&.in_response_to.nil?
-      errors << 'Logout Request not found!' if logout_request.nil?
-      errors
-    end
-
-    # temporarily logging for discovery
-    def additional_logging_for_logout_request(logout_response, logout_request)
-      if logout_response.errors.empty?
-        if logout_request.present?
-          Rails.logger.info("SLO callback response to '#{logout_response&.in_response_to}' for originating_request_id "\
-            "'#{originating_request_id}'")
-        else
-          Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
-            "'#{originating_request_id}'")
-        end
-      else
-        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
-      end
-    end
-
     def originating_request_id
       JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+    rescue
+      'UNKNOWN'
+    end
+
+    def request_type
+      JSON.parse(params[:RelayState] || '{}')['type']
     rescue
       'UNKNOWN'
     end
