@@ -65,6 +65,15 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(response).to have_http_status(:not_found)
     end
 
+    context 'with vbms complete' do
+      let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
+
+      it 'should report status of success' do
+        get "/services/vba_documents/v0/uploads/#{vbms_upload.guid}"
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('success')
+      end
+    end
+
     it 'should allow updating of the status' do
       with_settings(
         Settings.vba_documents,
@@ -74,7 +83,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         get(
           "/services/vba_documents/v0/uploads/#{upload.guid}",
           params: nil,
-          headers: { 'Status-Override' => 'success' }
+          headers: { 'Status-Override' => 'vbms' }
         )
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
