@@ -11,6 +11,22 @@ module EVSS
     # @!attribute can_update_address
     #   @return [Boolean] Global flag indicating if the user can update their address.
     #   All other variables in this object must be true for this to be true.
+    # @!attribute corp_avail_indicator
+    #   @return [Boolean] BGS indicator for which BGS has not provided further documentation
+    # @!attribute corp_rec_found_indicator
+    #   @return [Boolean] BGS indicator for which BGS has not provided further documentation
+    # @!attribute has_no_bdn_payments_indicator
+    #   @return [Boolean] Returns true unless the veteran has received BDN payments
+    # @!attribute identity_indicator
+    #   @return [Boolean] BGS indicator for which BGS has not provided further documentation
+    # @!attribute is_competent_indicator
+    #   @return [Boolean] Returns true if the veteran has not been deemed legally incompetent
+    # @!attribute index_indicator
+    #   @return [Boolean] BGS indicator for which BGS has not provided further documentation
+    # @!attribute no_fiduciary_assigned_indicator
+    #   @return [Boolean] Returns true if the veteran has not been assigned a fiduciary
+    # @!attribute not_deceased_indicator
+    #   @return [Boolean] Returns true if the veteran is still alive
     #
     class ControlInformation
       include Virtus.model
