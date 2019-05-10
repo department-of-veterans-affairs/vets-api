@@ -88,7 +88,7 @@ paths:
         a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
-        One of the `ids` parameter, the `bbox` parameter, or the `lat` and `long` parameters are
+        One of the `ids` parameter, the `bbox` parameter, or the `lat` and `lng` parameters are
         *required* to query this API. Requests without one or the other will return `400 Bad Request`.
 
         Results of this operation are paginated. JSON responses include pagination information
@@ -136,7 +136,7 @@ paths:
           schema:
             type: number
             format: float
-        - name: long
+        - name: lng
           in: query
           description: |
             Longitude of point to search for nearest VA Facilities.
@@ -144,6 +144,18 @@ paths:
           required: false
           style: form
           explode: true
+          schema:
+            type: number
+            format: float
+        - name: long
+          in: query
+          deprecated: true
+          description: |
+            Deprecated in favor of `lng`.
+            Longitude of point to search for nearest VA Facilities.
+            Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
+          required: false
+          style: form
           schema:
             type: number
             format: float
