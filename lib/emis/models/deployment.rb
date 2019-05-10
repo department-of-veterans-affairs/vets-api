@@ -3,6 +3,10 @@
 module EMIS
   module Models
     # EMIS veteran deployments data
+    #
+    # @!attribute segment_identifier
+    #   @return [String] identifier that is used to ensure a unique
+    #     key on each deployment location record
     class Deployment
       include Virtus.model
 
