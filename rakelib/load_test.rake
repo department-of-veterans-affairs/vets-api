@@ -15,6 +15,8 @@ namespace :load_test do
     puts SessionsFileSerializer.new(args[:sessions_json_file]).generate_cookies_sessions
   end
 
+  # usage: bundle exec rake 'load_test:hca_ee[1235]'
+  desc 'Load test the HCA Enrollment & Eligibility API'
   task :hca_ee, [:icn] => [:environment] do |_, args|
     require './rakelib/support/vic_load_test'
 
