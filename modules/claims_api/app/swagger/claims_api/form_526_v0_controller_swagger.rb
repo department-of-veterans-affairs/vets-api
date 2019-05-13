@@ -25,7 +25,7 @@ module ClaimsApi
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -33,7 +33,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -41,7 +41,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -49,7 +49,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -65,7 +65,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -133,7 +133,7 @@ module ClaimsApi
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -141,7 +141,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -149,7 +149,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -157,7 +157,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -173,7 +173,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
