@@ -73,7 +73,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
