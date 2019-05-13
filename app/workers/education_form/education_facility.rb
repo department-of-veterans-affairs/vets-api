@@ -109,7 +109,7 @@ module EducationForm
         record.educationProgram&.address || record.veteranAddress
       when '1990E', '5490', '5495'
         record.educationProgram&.address || record.relativeAddress
-      when '1995', '1995_STEM'
+      when '1995', '1995stem'
         record.newSchool&.address || record.veteranAddress
       end
     end

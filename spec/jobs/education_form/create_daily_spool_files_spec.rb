@@ -87,13 +87,13 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
     end
 
-    context 'with a 1995_STEM form' do
-      let(:application_1606) { create(:va1995_STEM_full_form).education_benefits_claim }
+    context 'with a 1995stem form' do
+      let(:application_1606) { create(:va1995stem_full_form).education_benefits_claim }
 
-      it 'tracks the 1995_STEM form' do
-        expect(subject).to receive(:track_form_type).with('22-1995_STEM', 999)
+      it 'tracks the 1995stem form' do
+        expect(subject).to receive(:track_form_type).with('22-1995stem', 999)
         result = subject.format_application(application_1606, rpo: 999)
-        expect(result).to be_a(EducationForm::Forms::VA1995_STEM)
+        expect(result).to be_a(EducationForm::Forms::VA1995stem)
       end
     end
 
@@ -119,7 +119,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
         FactoryBot.create(:va1990_western_region)
         FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va1995_STEM_full_form)
+        FactoryBot.create(:va1995stem_full_form)
         FactoryBot.create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))

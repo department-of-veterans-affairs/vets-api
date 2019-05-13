@@ -26,7 +26,7 @@ module Swagger
           parameter do
             key :name, :form_type
             key :in, :path
-            key :description, 'Form code. Allowed values: 1990 1995 1990e 5490 1995_STEM'
+            key :description, 'Form code. Allowed values: 1990 1995 1990e 5490 1995stem'
             key :required, true
             key :type, :string
           end

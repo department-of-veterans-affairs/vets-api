@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EducationForm::Forms
-  class VA1995_STEM < Base
+  class VA1995stem < Base
     FORM_TYPES = {
       'chapter30': 'CH30',
       'chapter32': 'CH32',
