@@ -130,11 +130,11 @@ RSpec.describe EducationBenefitsClaim, type: :model do
         subject
 
         expect(associated_submission).to eq(
-             submission_attributes.merge(
-                 'form_type' => '1995stem',
-                 'transfer_of_entitlement' => true
-             )
-         )
+          submission_attributes.merge(
+            'form_type' => '1995stem',
+            'transfer_of_entitlement' => true
+          )
+        )
       end
     end
 
