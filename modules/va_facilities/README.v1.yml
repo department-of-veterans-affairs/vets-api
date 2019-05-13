@@ -9,7 +9,7 @@ info:
     This API provides information about physical VA facilities. Information available includes
     geographic location, address, phone, hours of operation, and available services. 
 
-    VA operates several different types of facilities, the types represented in this API include:
+    VA operates several different types of facilities. The types represented in this API include:
     - Health facilities
     - Benefits facilities
     - Cemeteries
@@ -73,7 +73,7 @@ paths:
         - facilities
       summary: Query facilities based on drive time from a specified point
       description: |
-        Retrieve all facilities contained within an isochrone based on a the passed `lat`, `lng`, and `drive_time` parameters.
+        Retrieve all facilities contained within an isochrone (a polygon composed of the area reachable in a certain amount of time from a central point) based on a the passed `lat`, `lng`, and `drive_time` parameters.
 
         Additionally one can filter the facilities within the isochrone by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
