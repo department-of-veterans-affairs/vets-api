@@ -102,7 +102,7 @@ module ClaimsApi
 
               property :attributes do
                 key :type, :object
-                
+
                 property :token do
                   key :type, :string
                   key :example, '65d0f2d2-d4a0-4a66-b8fe-e9a968a79fd0'
@@ -113,11 +113,11 @@ module ClaimsApi
                   key :type, :string
                   key :example, 'pending'
                   key :description, 'Current status of the claim (See API description for more details)'
-                  key :enum, [
-                    'pending',
-                    'submitted',
-                    'established',
-                    'errored'
+                  key :enum, %w[
+                    pending
+                    submitted
+                    established
+                    errored
                   ]
                 end
 
