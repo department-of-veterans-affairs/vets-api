@@ -86,10 +86,10 @@ module ClaimsApi
                   key :type, :string
                   key :example, 'compensation'
                   key :description, 'Required by JSON API standard'
-                  key :enum, [
-                    'compensation',
-                    'burial',
-                    'pension'
+                  key :enum, %w[
+                    compensation
+                    burial
+                    pension
                   ]
                 end
               end
@@ -201,10 +201,10 @@ module ClaimsApi
                   key :type, :string
                   key :example, 'compensation'
                   key :description, 'Required by JSON API standard'
-                  key :enum, [
-                    'compensation',
-                    'burial',
-                    'pension'
+                  key :enum, %w[
+                    compensation
+                    burial
+                    pension
                   ]
                 end
               end
