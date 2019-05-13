@@ -249,7 +249,7 @@ components:
             - name
             - facility_type
             - lat
-            - long
+            - lng
           properties:
             name:
               type: string
@@ -269,7 +269,7 @@ components:
               type: number
               format: float
               example: 38.9311137
-            long:
+            lng:
               description: Facility longitude
               type: number
               format: float
