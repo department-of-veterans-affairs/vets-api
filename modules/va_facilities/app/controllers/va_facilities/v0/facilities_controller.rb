@@ -35,9 +35,7 @@ module VaFacilities
       end
 
       def index
-        raise FacilitiesQuery::HighlanderError.new
         resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
-
         respond_to do |format|
           format.json do
             render json: resource,

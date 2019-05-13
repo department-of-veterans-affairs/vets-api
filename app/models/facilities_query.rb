@@ -54,7 +54,7 @@ class FacilitiesQuery
   end
 
   def location_keys
-    ([:lat,:long,:state,:zip,:bbox] & params.keys).sort
+    ([:lat,:long,:state,:zip,:bbox] & params.keys.map{|k| k.to_sym}).sort
   end
 
   def build_result_set_from_ids(ids)

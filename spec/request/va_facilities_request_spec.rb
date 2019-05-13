@@ -162,7 +162,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     get BASE_QUERY_PATH + NY_BBOX + '&state=FL' + '&type=benefits&services[]=DisabilityClaimAssistance'
 
     json = JSON.parse(response.body)
-    puts json['errors'].inspect
+    puts "#{json}"
     expect(response.status).to eq(400)
     expect(response.body['errors']).to eq("hello world")
 
