@@ -22,7 +22,7 @@ module ClaimsApi
         end
 
         parameter do
-          key :name, 'api_key'
+          key :name, 'apikey'
           key :in, :header
           key :description, 'API Key given to access data'
           key :required, true
