@@ -4,10 +4,18 @@ module Common
   module Client
     module Middleware
       module Response
+        ##
+        # Faraday response middleware that checks the MHV service XML/HTML response for errors and raises
+        # the appropriate exception for our application.
+        #
         class MhvXmlHtmlErrors < Faraday::Response::Middleware
           include SentryLogging
           attr_reader :status
 
+          ##
+          # @raise [Common::Exceptions::BackendServiceException] if there are parsing errors
+          # @return [Faraday::Env]
+          #
           def on_complete(env)
             return if env.success?
             return unless env.response_headers['content-type'] =~ /\b(xml|html)/
