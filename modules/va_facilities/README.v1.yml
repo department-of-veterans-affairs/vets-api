@@ -1,6 +1,6 @@
 openapi: '3.0.0'
 info:
-  version: 0.0.1
+  version: 1.0.0
   title: VA Facilities
   description: |
 
@@ -40,7 +40,7 @@ info:
 
     ## Reference
 
-    - [Raw VA Facilities Open API Spec](http://dev-api.va.gov/services/va_facilities/docs/v0/api)
+    - [Raw VA Facilities Open API Spec](http://dev-api.va.gov/services/va_facilities/docs/v1/api)
     - [GeoJSON Format](https://tools.ietf.org/html/rfc7946)
     - [JSON API Format](http://jsonapi.org/format/)
 
@@ -55,113 +55,63 @@ servers:
     description: VA.gov API development environment
     variables:
       version:
-        default: v0
+        default: v1
   - url: https://staging-api.va.gov/services/va_facilities/{version}
     description: VA.gov API staging environment
     variables:
       version:
-        default: v0
+        default: v1
   - url: https://api.va.gov/services/va_facilities/{version}
     description: VA.gov API production environment
     variables:
       version:
-        default: v0
+        default: v1
 paths:
-  /facilities:
+  /nearby:
     get:
       tags:
         - facilities
-      summary: Query facilities based on a geographic bounding box and optional attribute filters
+      summary: Query facilities based on drive time from a specified point
       description: |
-        Retrieve all facilities contained within the specified bounding box. Bounding box is
-        specified as four parameters long1, lat1, long2, lat2. Relative ordering of longitude and
-        latitude parameters is unimportant.
+        Retrieve all facilities contained within an isochrone based on a the passed `lat`, `lng`, and `drivetime` parameters.
 
         Additionally one can filter the facilities within the bounding box by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
         services.
 
-        Alternatively, one can retrieve multiple facilities by id using this endpoint by making a
-        request with a comma-separated list of ids like `?ids=id1,id2`. When requesting facilities
-        in bulk by `id`, the API will return as many ids as it can find matches for and omit any
-        ids where there is no match. It will not return an HTTP error code if it is unable to match
-        a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
-        URI path lengths -- usually 2,048 characters.
-
-        One of the `ids` parameter, the `bbox` parameter, or the `lat` and `long` parameters are
-        *required* to query this API. Requests without one or the other will return `400 Bad Request`.
-
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
         information in the "Link" header.
-      operationId: getFacilitiesByLocation
+      operationId: getNearbyFacilities
       security:
         - api_key: []
       parameters:
-        - name: ids
-          description: |
-            List of comma separated ids of facilities to retrieve in a single request.
-            Can be combined with lat and long parameters to retrieve the facilities sorted by distance from a location.
-          in: query
-          style: form
-          explode: false
-          required: false
-          schema:
-            type: array
-            items:
-              type: string
-        - name: zip
-          in: query
-          description: |
-            Zip code to search for VA Facilities. 
-            More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
-          required: false
-          schema:
-            type: string
-            format: '##### or #####-####'
-        - name: state
-          in: query
-          description: |
-            Two character state code to search for VA Facilities.
-          required: false
-          schema:
-            type: string
-            format: XX
         - name: lat
           in: query
           description: |
             Latitude of point to search for nearest VA Facilities.
             Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
-          required: false
+          required: true
           schema:
             type: number
             format: float
-        - name: long
+        - name: lng
           in: query
           description: |
             Longitude of point to search for nearest VA Facilities.
             Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
-          required: false
+          required: true
           style: form
-          explode: true
           schema:
             type: number
             format: float
-        - name: bbox[]
+        - name: drivetime
+          description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested point.
           in: query
-          description: |
-            Bounding longitude/latitude/longitude/latitude within which facilities will be returned.
-            Bounding box parameters should be specified in WGS84 coordinate reference system.
           required: false
-          style: form
-          explode: true
           schema:
-            type: array
-            minItems: 4
-            maxItems: 4
-            items:
-              type: number
-              format: float
+            type: integer
+            default: 60
         - name: type
           description: Optional facility type search filter
           in: query
@@ -214,23 +164,7 @@ paths:
                     type: object
                     required:
                       - pagination
-                      - distances
                     properties:
-                      distances:
-                        type: array
-                        description: "For lat/long queries, a list of mappings between facility ids and the distance from the search location. Distance is expressed in miles and represents straight-line distance, not driving distance."
-                        items:
-                          type: object
-                          properties:
-                            id:
-                              type: string
-                              description: "Facility id. Matches the facility id in the data part of the response."
-                              example: vha_688
-                            distance:
-                              type: number
-                              format: float
-                              description: "Distance from search location"
-                              example: 3.14
                       pagination:
                         type: object
                         required:
@@ -269,133 +203,7 @@ paths:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
               schema:
                 type: string
-                example: '<https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
-        '401':
-          description: Missing API token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthorizationError"
-        '403':
-          description: Invalid API token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthorizationError"
-        '406':
-          description: Requested format unacceptable
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/APIError"
-  /facilities/{id}:
-    get:
-      tags:
-        - facilities
-      summary: Retrieve a specific facility by ID
-      operationId: getFacilityById
-      security:
-        - api_key: []
-      parameters:
-        - in: path
-          name: id
-          description: |
-            Facility ID, in the form `<prefix>_<id>`, where prefix is one of "vha", "vba", "nca", or "vc"
-            for health, benefits, cemetery, or Vet Center facilities respectively.
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                required:
-                  - data
-                properties:
-                  data:
-                    $ref: "#/components/schemas/Facility"
-            application/vnd.geo+json:
-              schema:
-                $ref: "#/components/schemas/FacilityFeature"
-        '400':
-          description: Bad request - invalid or missing query parameters
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/APIError"
-        '401':
-          description: Missing API token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthorizationError"
-        '403':
-          description: Invalid API token
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/AuthorizationError"
-        '404':
-          description: Facility not found
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/APIError"
-        '406':
-          description: Requested format unacceptable
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/APIError"
-  /facilities/all:
-    get:
-      tags:
-        - facilities
-      summary: Bulk download of all available facilities
-      description: |
-        Retrieve all available facilities in a single operation, formatted as either a GeoJSON
-        FeatureCollection or as a CSV. Due to the complexity of the facility resource type, the CSV
-        response contains a subset of available facility data - specifically it omits the
-        available services, patient satisfaction, and patient wait time data.
-      operationId: getAllFacilities
-      security:
-        - api_key: []
-      parameters:
-        - in: header
-          name: Accept
-          schema:
-            enum:
-              - application/vnd.geo+json
-              - text/csv
-          required: true
-      responses:
-        '200':
-          description: Success
-          content:
-            application/vnd.geo+json:
-              schema:
-                required:
-                  - type
-                  - features
-                properties:
-                  type:
-                    type: string
-                    enum: ["FeatureCollection"]
-                  features:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/FacilityFeature"
-            text/csv:
-              schema:
-                type: string
-                example: |
-                  id,name,station_id,latitude,longitude,facility_type,classification,website,physical_address_1,physical_address_2,physical_address_3,physical_city,physical_state,physical_zip,mailing_address_1,mailing_address_2,mailing_address_3,mailing_city,mailing_state,mailing_zip,phone_main,phone_fax,phone_mental_health_clinic,phone_pharmacy,phone_after_hours,phone_patient_advocate,phone_enrollment_coordinator,hours_monday,hours_tuesay,hours_wednesday,hours_thursday,hours_friday,hours_saturday,hours_sunday
-                  vc_0101V,Boston Vet Center,0101V,42.3445959000001,-71.0361051099999,vet_center,,,7 Drydock Avenue,Suite 2070,,Boston,MA,02210,,,,,,,857-203-6461 x,,,,,,,800AM-700PM,800AM-800PM,800AM-700PM,800AM-800PM,800AM-600PM,-,-
-                  vba_362b,Houston Regional Benefit Office at Frank Tejeda Outpatient Clinic,362b,29.51690196,-98.59601936,va_benefits_facility,Outbased,NULL,5788 Eckhert Road,,,San Antonio,TX,78240,,,,,,,210-699-5040,210-699-5079,,,,,,,,,,,,
-                  vha_402GC,Rumford VA Clinic,402GC,44.55185578,-70.55746856,va_health_facility,Primary Care CBOC,http://www.maine.va.gov/locations/rumford.asp,431 Franklin Street,,,Rumford,ME,04276-2100,,,,,,,207-369-3200 x,207-369-3277 x,207-369-3200 x 3200,207-623-8411 x5770,866-757-7503 x,207-623-5760 x,207-626-4743 x,,,,,,,
-                  nca_800,Alton National Cemetery,800,38.8905166870001,-90.1630421139999,va_cemetery,National Cemetery,https://www.cem.va.gov/cems/nchp/alton.asp,600 Pearl St,,,Alton,IL,62002,2900 Sheridan Rd,,,St. Louis,MO,63125,314-845-8320,314-845-8355,,,,,,,,,,,,
+                example: '<https://dev-api.va.gov/services/va_facilities/v1/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
         '401':
           description: Missing API token
           content:
