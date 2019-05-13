@@ -299,9 +299,7 @@ components:
                     enum:
                       - "Online Scheduling"
                 health:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/HealthService"
+                  $ref: "#/components/schemas/HealthServices"
                 benefits:
                   type: array
                   items:
@@ -315,17 +313,6 @@ components:
               properties:
                 health:
                   $ref: "#/components/schemas/PatientSatisfaction"
-                effective_date:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
-            wait_times:
-              type: object
-              properties:
-                health:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/PatientWaitTime"
                 effective_date:
                   type: string
                   format: date
@@ -397,9 +384,7 @@ components:
                     enum:
                       - "Online Scheduling"
                 health:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/HealthService"
+                  $ref: "#/components/schemas/HealthServices"
                 benefits:
                   type: array
                   items:
@@ -413,17 +398,6 @@ components:
               properties:
                 health:
                   $ref: "#/components/schemas/PatientSatisfaction"
-                effective_date:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
-            wait_times:
-              type: object
-              properties:
-                health:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/PatientWaitTime"
                 effective_date:
                   type: string
                   format: date
@@ -497,23 +471,45 @@ components:
         Sunday:
           type: string
           example: "Closed"
+    HealthServices:
+      description: Health care services at a given facility, not all will be included at every facility
+      type: array
+      items:
+        type: object
+        properties:
+          PrimaryCare:
+            $ref: "#/components/schemas/HealthService" 
+          MentalHealthCare:
+            $ref: "#/components/schemas/HealthService" 
+          UrgentCare:
+            $ref: "#/components/schemas/HealthService" 
+          EmergencyCare:
+            $ref: "#/components/schemas/HealthService" 
+          Audiology:
+            $ref: "#/components/schemas/HealthService" 
+          Cardiology:
+            $ref: "#/components/schemas/HealthService" 
+          Dermatology:
+            $ref: "#/components/schemas/HealthService" 
+          Gastroenterology:
+            $ref: "#/components/schemas/HealthService" 
+          Gynecology:
+            $ref: "#/components/schemas/HealthService" 
+          Ophthalmology:
+            $ref: "#/components/schemas/HealthService" 
+          Optometry:
+            $ref: "#/components/schemas/HealthService" 
+          Orthopedics:
+            $ref: "#/components/schemas/HealthService" 
+          Urology:
+            $ref: "#/components/schemas/HealthService" 
+          WomensHealth:
+            $ref: "#/components/schemas/HealthService" 
     HealthService:
-      type: string
-      enum:
-        - PrimaryCare
-        - MentalHealthCare
-        - UrgentCare
-        - EmergencyCare
-        - Audiology
-        - Cardiology
-        - Dermatology
-        - Gastroenterology
-        - Gynecology
-        - Ophthalmology
-        - Optometry
-        - Orthopedics
-        - Urology
-        - WomensHealth
+      type: object
+      properties:
+        wait_times:
+          $ref: "#/components/schemas/PatientWaitTime" 
     BenefitsService:
       type: string
       enum:
@@ -561,8 +557,6 @@ components:
       description: Expected wait times for new and established patients for a given health care service
       type: object
       properties:
-        service:
-          $ref: "#/components/schemas/HealthService"
         new:
           description: The average number of days a Veteran who hasn’t been to this location has to wait for a non-urgent appointment
           type: integer
@@ -571,6 +565,10 @@ components:
           description: The average number of days a patient who has already been to this location has to wait for a non-urgent appointment
           type: integer
           example: 5
+        effective_date:
+          type: string
+          format: date
+          example: "2018-01-01"
     APIError:
       description: API invocation or processing error
       type: object
