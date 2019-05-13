@@ -4,7 +4,7 @@ module ClaimsApi
   class Form0966ModelSwagger
     include Swagger::Blocks
 
-    swagger_schema :Form0966 do
+    swagger_schema :Form0966Output do
       key :required, %i[type attributes]
       key :description, '526 Claim Form submission with minimum required for auto establishment'
 
