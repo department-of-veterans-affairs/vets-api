@@ -8,7 +8,7 @@ module V0
 
     # Returns a page of search results from the Search.gov API, based on the passed query and page.
     #
-    # Pagination schema follows precedence from other controllers that return pagination.
+    # Pagination schema follows precedent from other controllers that return pagination.
     # For example, the app/controllers/v0/prescriptions_controller.rb.
     #
     def index
