@@ -73,9 +73,9 @@ paths:
         - facilities
       summary: Query facilities based on drive time from a specified point
       description: |
-        Retrieve all facilities contained within an isochrone based on a the passed `lat`, `lng`, and `drivetime` parameters.
+        Retrieve all facilities contained within an isochrone based on a the passed `lat`, `lng`, and `drive_time` parameters.
 
-        Additionally one can filter the facilities within the bounding box by type and available
+        Additionally one can filter the facilities within the isochrone by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
         services.
 
@@ -105,7 +105,7 @@ paths:
           schema:
             type: number
             format: float
-        - name: drivetime
+        - name: drive_time
           description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested point.
           in: query
           required: false
