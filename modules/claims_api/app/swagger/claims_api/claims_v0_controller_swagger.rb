@@ -22,7 +22,7 @@ module ClaimsApi
         end
 
         parameter do
-          key :name, 'api_key'
+          key :name, 'apikey'
           key :in, :header
           key :description, 'API Key given to access data'
           key :required, true
@@ -73,7 +73,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, false
+          key :required, true
           key :type, :string
         end
 
@@ -116,7 +116,7 @@ module ClaimsApi
         ]
 
         parameter do
-          key :name, 'api_key'
+          key :name, 'apikey'
           key :in, :header
           key :description, 'API Key given to access data'
           key :required, true
