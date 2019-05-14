@@ -139,7 +139,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
-  gem 'sidekiq'
+  gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
