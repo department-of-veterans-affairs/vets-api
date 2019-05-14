@@ -1,7 +1,15 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-# Prescription Notification Preference Model
+
+##
+# Models Prescription notification preference
+#
+# @!attribute email_address
+#   @return [String]
+# @!attribute rx_flag
+#   @return [Boolean]
+#
 class PrescriptionPreference < Common::Base
   include ActiveModel::Validations
 
@@ -16,11 +24,22 @@ class PrescriptionPreference < Common::Base
     length: { maximum: 255, minimum: 6 }
   )
 
+  ##
+  # Build the object for MHV
+  #
+  # @raise [Common::Exceptions::ValidationErrors] if invalid attributes
+  # @return [Hash]
+  #
   def mhv_params
     raise Common::Exceptions::ValidationErrors, self unless valid?
     { email_address: email_address, rx_flag: rx_flag }
   end
 
+  ##
+  # Compute a hex-formatted digest of the attributes to be used as an ID
+  #
+  # @return [String]
+  #
   def id
     Digest::SHA256.hexdigest(instance_variable_get(:@original_attributes).to_json)
   end
