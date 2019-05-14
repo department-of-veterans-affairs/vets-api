@@ -20,7 +20,7 @@ module EVSS
     # @!attribute is_competent_indicator
     #   @return [Boolean] Returns true if the veteran has not been deemed legally incompetent
     # @!attribute indentity_indicator
-    #   @return [Boolean] BGS indicator for which BGS has not provided further documentation. 
+    #   @return [Boolean] BGS indicator for which BGS has not provided further documentation.
     #   "indentity" is believed to be a misspelling of "identity"
     # @!attribute index_indicator
     #   @return [Boolean] BGS indicator for which BGS has not provided further documentation
