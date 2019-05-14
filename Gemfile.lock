@@ -10,7 +10,7 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/connect_vbms.git
-  revision: dddc821c2335c7de234a5454e4b4874e3f658420
+  revision: 7c40e73c3730905752c1c1077e8d53ada8f9e048
   branch: master
   specs:
     connect_vbms (1.2.0)
@@ -292,7 +292,7 @@ GEM
     hashie (3.5.7)
     holidays (5.4.0)
     httpclient (2.8.3)
-    httpi (2.4.2)
+    httpi (2.4.4)
       rack
       socksify
     i18n (0.9.5)
@@ -327,7 +327,7 @@ GEM
     method_source (0.8.2)
     mime-types (3.2.2)
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2018.0812)
+    mime-types-data (3.2019.0331)
     mimemagic (0.3.2)
     mini_magick (4.7.0)
     mini_portile2 (2.4.0)
@@ -384,7 +384,7 @@ GEM
     puma (3.12.0)
     pundit (1.1.0)
       activesupport (>= 3.0.0)
-    rack (2.0.6)
+    rack (2.0.7)
     rack-attack (5.0.1)
       rack
     rack-cors (0.4.1)
@@ -536,7 +536,7 @@ GEM
       simplecov-html (~> 0.10.0)
     simplecov-html (0.10.2)
     slop (3.6.0)
-    socksify (1.7.0)
+    socksify (1.7.1)
     spring (2.0.2)
       activesupport (>= 4.2)
     spring-commands-rspec (1.0.4)
