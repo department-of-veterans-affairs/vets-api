@@ -1,10 +1,4 @@
 class FacilitiesQuery
-  class HighlanderError < StandardError
-    def message
-      "You may only query by location using ONE of the following parameter sets: lat and long, zip, state, or bbox"
-    end
-  end
-
   attr_reader :params
 
   HEALTH = 'health'
@@ -48,8 +42,7 @@ class FacilitiesQuery
     when [:zip]       then ZipQuery
     when [:bbox]      then BoundingBoxQuery
     else
-      # There can only be one
-      raise HighlanderError
+      nil
     end
   end
 
@@ -101,6 +94,7 @@ class FacilitiesQuery
 end
 
 class RadialQuery < FacilitiesQuery
+  METERS_PER_MILE = 1609.344
 
   def run
     # check for radial limiter if so grab all where distance < distance_query
@@ -128,7 +122,7 @@ class RadialQuery < FacilitiesQuery
         distance_query(lat, long)
       )
       if ids_map
-        ids_for_type = ids_map[BaseFacility.PREFIX_MAP[BaseFacility.TYPE_NAME_MAP[facility_type]]]
+        ids_for_type = ids_map[BaseFacility::PREFIX_MAP[BaseFacility::TYPE_NAME_MAP[facility_type]]]
         facilities = facilities.where(unique_id: ids_for_type)
       end
       facilities.order('distance')
@@ -195,9 +189,5 @@ class BoundingBoxQuery < FacilitiesQuery
     conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
     TYPES.flat_map { |facility_type| get_facility_data(conditions, type, facility_type, services) }
   end
-
-end
-
-class IdQuery < FacilitiesQuery
 
 end

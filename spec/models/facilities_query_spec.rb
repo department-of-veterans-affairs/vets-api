@@ -87,24 +87,23 @@ RSpec.describe FacilitiesQuery do
       expect(result.size).to eq(2)
     end
 
-    it 'should throw an error when more than one distance param is given' do
+    it 'should return an empty relation when more than one distance param is given' do
       bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
       params = {:state => "FL", :bbox => bbox }
-      expect { FacilitiesQuery.new(params).query }.to raise_error(FacilitiesQuery::HighlanderError)
-      expect { FacilitiesQuery.new(params).query }.to raise_error(FacilitiesQuery::HighlanderError)
-      expect { FacilitiesQuery.new(params).query }.to raise_error(FacilitiesQuery::HighlanderError)
+      results = FacilitiesQuery.new(params).query
+      assert results.empty?
     end
   end
 
   describe '#location_query_klass' do
-    it 'should raise FacilitiesQuery::HighlanderError if redundant location params are passed' do
+    it 'should return nil if redundant location params are passed' do
       params = { :state => "FL", :bbox => ['-122.440689', '45.451913', '-122.786758', '45.64'] }
-      expect { FacilitiesQuery.new(params).location_query_klass }.to raise_error(FacilitiesQuery::HighlanderError)
+      expect(FacilitiesQuery.new(params).location_query_klass).to be_nil
     end
 
-    it 'should raise FacilitiesQuery::HighlanderError if only one of :lat or :long are passed' do
-      expect { FacilitiesQuery.new({ :lat => '-122.440689' }).location_query_klass }.to raise_error(FacilitiesQuery::HighlanderError)
-      expect { FacilitiesQuery.new({ :long => '45.451913' }).location_query_klass }.to raise_error(FacilitiesQuery::HighlanderError)
+    it 'should return nil if only one of :lat or :long are passed' do
+      expect( FacilitiesQuery.new({ :lat => '-122.440689' } ).location_query_klass ).to be_nil
+      expect( FacilitiesQuery.new({ :long => '45.451913' } ).location_query_klass ).to be_nil
     end
 
     it 'should be falsy if no location params are passed' do
