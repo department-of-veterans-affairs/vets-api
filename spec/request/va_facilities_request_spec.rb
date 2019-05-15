@@ -157,18 +157,6 @@ RSpec.describe 'VA GIS Integration', type: :request do
     expect(json['data'].length).to eq(7)
   end
 
-  it 'returns 400 for more than one distance location param type' do
-    setup_ny_vba
-    get BASE_QUERY_PATH + NY_BBOX + '&state=FL' + '&type=benefits&services[]=DisabilityClaimAssistance'
-
-    json = JSON.parse(response.body)
-    puts "#{json}"
-    expect(response.status).to eq(400)
-    expect(response.body['errors']).to eq("hello world")
-
-    expect(response).to have_http_status(:bad_request)
-  end
-
   it 'returns 400 for invalid type parameter' do
     get BASE_QUERY_PATH + NY_BBOX + '&type=bogus'
     expect(response).to have_http_status(:bad_request)

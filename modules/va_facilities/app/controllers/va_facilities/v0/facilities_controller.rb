@@ -47,8 +47,6 @@ module VaFacilities
             render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
           end
         end
-      rescue FacilitiesQuery::HighlanderError => e
-        render json: {error: e.message}, status: 400
       end
 
       def show
@@ -80,6 +78,7 @@ module VaFacilities
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
         validate_zip
+        valid_location_query?
       end
 
       def validate_a_param_exists
@@ -137,6 +136,28 @@ module VaFacilities
           raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
             requested_zip.any?
         end
+      end
+
+      def valid_location_query?
+        !!location_query_klass
+      end
+
+      def location_query_klass
+        @location_query_klass ||= case location_keys
+        when []           then true
+        when [:lat,:long] then true
+        when [:state]     then true
+        when [:zip]       then true
+        when [:bbox]      then true
+        else
+          # There can only be one
+          render json: {errors: ["You may only query by location using ONE of the following parameter sets: lat and long, zip, state, or bbox"]}, 
+                status: 422
+        end
+      end
+
+      def location_keys
+        ([:lat,:long,:state,:zip,:bbox] & params.keys.map{|k| k.to_sym}).sort
       end
 
       def metadata(resource)
