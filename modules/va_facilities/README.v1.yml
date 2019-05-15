@@ -71,9 +71,11 @@ paths:
     get:
       tags:
         - facilities
-      summary: Query facilities based on drive time from a specified point
+      summary: Query facilities based on drive time from a specified location
       description: |
-        Retrieve all facilities contained within an isochrone (a polygon composed of the area reachable in a certain amount of time from a central point) based on a the passed `lat`, `lng`, and `drive_time` parameters.
+        Retrieve all facilities contained within an isochrone (a polygon composed of the area 
+        reachable in a certain amount of time from a central location) based on a the passed 
+        `address_1`, `city`, `state`, `zip`, and `drive_time` parameters.
 
         Additionally one can filter the facilities within the isochrone by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
@@ -86,27 +88,37 @@ paths:
       security:
         - api_key: []
       parameters:
-        - name: lat
+        - name: address_1
           in: query
           description: |
-            Latitude of point to search for nearest VA Facilities.
-            Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
+            Street address of the location from which drive time is to be calculated.
           required: true
           schema:
-            type: number
-            format: float
-        - name: lng
+            type: string
+        - name: city
           in: query
           description: |
-            Longitude of point to search for nearest VA Facilities.
-            Latitude and Longitude parameters should be specified in WGS84 coordinate reference system.
+            City of the location from which drive time is to be calculated.
           required: true
-          style: form
           schema:
-            type: number
-            format: float
+            type: string
+        - name: state
+          in: query
+          description: |
+            Two character state code of the location from which drive time is to be calculated.
+          required: true
+          schema:
+            type: string
+        - name: zip
+          in: query
+          description: |
+            Zip code of the location from which drive time is to be calculated.
+          required: true
+          schema:
+            type: string
+            format: '##### or #####-####'
         - name: drive_time
-          description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested point.
+          description:  Filter to only include facilities that are within the specified number of drive time minutes from the requested location.
           in: query
           required: false
           schema:
