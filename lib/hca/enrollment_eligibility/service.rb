@@ -3,12 +3,18 @@
 module HCA
   module EnrollmentEligibility
     class Service < Common::Client::Base
+      include Common::Client::Monitoring
+
       XPATH_PREFIX = 'env:Envelope/env:Body/getEESummaryResponse/summary/'
       configuration HCA::EnrollmentEligibility::Configuration
 
+      STATSD_KEY_PREFIX = 'api.hca_ee'
+
       # rubocop:disable Metrics/MethodLength
       def lookup_user(icn)
-        response = perform(:post, '', build_lookup_user_xml(icn)).body
+        response = with_monitoring do
+          perform(:post, '', build_lookup_user_xml(icn)).body
+        end
 
         {
           enrollment_status: get_xpath(
