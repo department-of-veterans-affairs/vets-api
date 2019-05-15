@@ -199,7 +199,7 @@ RSpec.describe BaseFacility, type: :model do
 
   it 'should return an empty relation if given more than one distance query param' do
     bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']
-    params = {:state => "FL", :bbox => bbox }
+    params = { state: 'FL', bbox: bbox }
     facilities = BaseFacility.query(params)
     assert facilities.empty?
   end

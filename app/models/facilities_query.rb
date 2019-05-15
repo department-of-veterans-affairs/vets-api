@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class FacilitiesQuery
   attr_reader :params
 
@@ -30,24 +32,29 @@ class FacilitiesQuery
     end
   end
 
+  # Massages the location_query_klass return value to be boolean
   def valid_location_query?
-    !!location_query_klass
+    !location_query_klass.nil?
   end
 
+  # When given more than one type of distance query param,
+  # return nil because the app will not choose preference for the user.
+  # In the controller, this logic is somewhat duplicated
+  # and will render an error when given multiple params.
+  # In the case that only one of these types is given,
+  # return the class used to make that type of query.
   def location_query_klass
     @location_query_klass ||= case location_keys
-    when []           then nil
-    when [:lat,:long] then RadialQuery
-    when [:state]     then StateQuery
-    when [:zip]       then ZipQuery
-    when [:bbox]      then BoundingBoxQuery
-    else
-      nil
-    end
+                              when [] then nil
+                              when %i[lat long] then RadialQuery
+                              when [:state]     then StateQuery
+                              when [:zip]       then ZipQuery
+                              when [:bbox]      then BoundingBoxQuery
+                              end
   end
 
   def location_keys
-    ([:lat,:long,:state,:zip,:bbox] & params.keys.map{|k| k.to_sym}).sort
+    (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
   end
 
   def build_result_set_from_ids(ids)
@@ -56,7 +63,6 @@ class FacilitiesQuery
       klass.where(unique_id: unique_ids)
     end
   end
-
 
   def ids_for_types(ids)
     ids.split(',').each_with_object({}) do |type_id, obj|
@@ -89,8 +95,6 @@ class FacilitiesQuery
       "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
     end
   end
-
-
 end
 
 class RadialQuery < FacilitiesQuery
@@ -109,7 +113,7 @@ class RadialQuery < FacilitiesQuery
     )
   end
 
-    # rubocop:disable Metrics/ParameterLists
+  # rubocop:disable Metrics/ParameterLists
   def build_distance_result_set(lat, long, type, services, ids, limit = nil)
     conditions = limit.nil? ? {} : "where distance < #{limit}"
     ids_map = ids_for_types(ids) unless ids.nil?
@@ -138,9 +142,7 @@ class RadialQuery < FacilitiesQuery
       ST_MakePoint(#{long},#{lat})) / #{METERS_PER_MILE} AS distance
     SQL
   end
-
 end
-
 
 class StateQuery < FacilitiesQuery
   def run
@@ -167,7 +169,6 @@ class ZipQuery < FacilitiesQuery
 end
 
 class BoundingBoxQuery < FacilitiesQuery
-
   def run
     bbox_num = @params[:bbox].map { |x| Float(x) }
     build_result_set(bbox_num, @params[:type], @params[:services]).sort_by(&(dist_from_center bbox_num))
@@ -189,5 +190,4 @@ class BoundingBoxQuery < FacilitiesQuery
     conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
     TYPES.flat_map { |facility_type| get_facility_data(conditions, type, facility_type, services) }
   end
-
 end

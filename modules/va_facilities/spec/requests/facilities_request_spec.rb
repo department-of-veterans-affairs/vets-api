@@ -352,7 +352,9 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
       json = JSON.parse(response.body)
       expect(response.status).to eq(422)
-      expect(json['errors'].first).to eq("You may only query by location using ONE of the following parameter sets: lat and long, zip, state, or bbox")
+      expect(json['errors'].first).to eq(
+        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
+      )
 
       expect(response).to have_http_status(:unprocessable_entity)
     end

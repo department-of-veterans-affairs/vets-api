@@ -139,25 +139,23 @@ module VaFacilities
       end
 
       def valid_location_query?
-        !!location_query_klass
-      end
-
-      def location_query_klass
-        @location_query_klass ||= case location_keys
-        when []           then true
-        when [:lat,:long] then true
+        case location_keys
+        when [] then true
+        when %i[lat long] then true
         when [:state]     then true
         when [:zip]       then true
         when [:bbox]      then true
         else
           # There can only be one
-          render json: {errors: ["You may only query by location using ONE of the following parameter sets: lat and long, zip, state, or bbox"]}, 
-                status: 422
+          render json: {
+            errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
+          },
+                 status: 422
         end
       end
 
       def location_keys
-        ([:lat,:long,:state,:zip,:bbox] & params.keys.map{|k| k.to_sym}).sort
+        (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
       end
 
       def metadata(resource)
