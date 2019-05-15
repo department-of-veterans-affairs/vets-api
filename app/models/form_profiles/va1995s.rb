@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::VA1995stem < FormProfile
+class FormProfiles::VA1995s < FormProfile
   def metadata
     {
       version: 0,

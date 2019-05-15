@@ -1,15 +1,15 @@
 *INIT*
-FIRST
-MIDDLE
-LAST
-111223333
-111223333
-V1995stem
+TEST
 
-SCHOOL NAME
-TransferOfEntitlement
+FAKE
+
+
+V1995s
+
+
+
 *START*
-VA Form 22-1995stem
+VA Form 22-1995S
 DEC 2016
 
 
@@ -20,55 +20,47 @@ DEC 2016
                             APPLICANT INFORMATION
                             ---------------------
 
-SSN: 111223333    VA File Number: c12345678
+SSN: N/A    VA File Number: 12345678
 
-Name:   first middle last
+Name:   Test Fake
 
 Address:
-123 MAIN ST
-MILWAUKEE, WI, 53130
+123 CENTRAL ST
+BALTIMORE, MD, 21231
 USA
 
-Telephone Numbers:     Primary:    5551110000
-                       Secondary:  5551110001
+Telephone Numbers:     Primary:
+                       Secondary:
 
 Email Address:  test@sample.com
-Preferred Method of Contact: email
+Preferred Method of Contact: mail
 
-Direct Deposit: Start or Update EFT
-Type of Account: checking
-Name of Financial Inst.: First Bank of JSON
-Routing/Transit #: 123456789   Account #: 88888888888
+Direct Deposit:     Type of Account:
+Name of Financial Inst.:
+Routing/Transit #:    Account #:
 
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: Transfer Of Entitlement
-Type of Education or Training: Tuition Top Up
-Education or Career Goal: bachelor's degree
+Benefit You Are Receiving:
+Type of Education or Training:
+Education or Career Goal:
 
 New School or Training Establishment:
-school name
-111 UNI DRIVE
-MILWAUKEE, WI, 53135
-USA
+
 
 Current/Prior School or Training Establishment:
-old school name
-2222 UNI DRIVE
-ANYTOWN, MA, 41414
-USA
 
-Date You Stopped Training: 2007-06-XX
-Reason for Change: reason for change
+
+Date You Stopped Training:
+Reason for Change:
 
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
 
 Date Entered   Date Separated     Service Component
-2012-06-26     2013-04-10         Army Reserve
-2013-04-22     2013-06-14         navy
+                                  Army
 
 
 
@@ -80,13 +72,13 @@ receiving any money (including but not limited to Federal Tuition Assistance)
 from the Armed Forces or Public Health Service for the course for which you
 have applied to the VA for Education Benefits?  If you receive such benefits
 during any part of your training, check 'Yes.' Note:  If you are only applying
-for Tuition Assistance Top-Up, check 'No' to this item.    YES
+for Tuition Assistance Top-Up, check 'No' to this item.    N/A
 
 For Civilian Employees of the U.S. Federal Government Only. Are you receiving
 or do you anticipate receiving any money from your agency (including but not
 limited to the Government Employees Training Act) for the same period for
 which you have applied to the VA for Education Benefits? If you will receive
-such benefits during any part of your training, check Yes.    YES
+such benefits during any part of your training, check Yes.    N/A
 
 
                         MARITAL AND DEPENDENCY STATUS
@@ -94,9 +86,7 @@ such benefits during any part of your training, check Yes.    YES
            ---------------------------------------------------------
 
 
-Married: YES
-Has Dependents: YES
-Parent Dependent: NO
+N/A
 
 
       Certification and Signature of Applicant
