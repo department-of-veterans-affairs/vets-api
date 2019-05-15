@@ -2,6 +2,18 @@
 
 module EVSS
   module PCIUAddress
+    ##
+    # Model for military addresses
+    #
+    # @!attribute military_post_office_type_code
+    #   @return [String] The type of military post office; one of %w[APO FPO DPO]
+    # @!attribute military_state_code
+    #   return [String] The military state code; one of %w[AA AE AP]
+    # @!attribute zip_code
+    #   @return [String] Zip code (exactly 5 digits)
+    # @!attribute zip_suffix
+    #   @return [String] Zip code suffix (exactly 4 digits with optional leading dash)
+    #
     class MilitaryAddress < Address
       MILITARY_POST_OFFICE_TYPES = %w[APO FPO DPO].freeze
       MILITARY_STATE_CODES = %w[AA AE AP].freeze

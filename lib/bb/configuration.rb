@@ -10,24 +10,45 @@ require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'bb/middleware/response/bb_parser'
 
 module BB
-  # Configuration class used to setup the environment used by client
+  ##
+  # HTTP client configuration for {BB::Client}, sets the token, base path and a service name for breakers and metrics
+  #
   class Configuration < Common::Client::Configuration::REST
+    ##
+    # @return [String] Client token set in `settings.yml` via credstash
+    #
     def app_token
       Settings.mhv.rx.app_token
     end
 
+    ##
+    # @return [String] Base path for dependent URLs
+    #
     def base_path
       "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
+    ##
+    # @return [Boolean] if the MHV BB collections should be cached
+    #
     def caching_enabled?
       Settings.mhv.bb.collection_caching_enabled || false
     end
 
+    ##
+    # @return [String] Service name to use in breakers and metrics
+    #
     def service_name
       'BB'
     end
 
+    ##
+    # Creates a connection with middleware for mapping errors, parsing XML, and
+    # adding breakers functionality
+    #
+    # @see BB::Middleware::Response::BBParser
+    # @return [Faraday::Connection] a Faraday connection instance
+    #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers

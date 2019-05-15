@@ -13,5 +13,9 @@ VaFacilities::Engine.routes.draw do
     namespace :v0 do
       resources :api, only: [:index]
     end
+
+    namespace :v1 do
+      resources :api, only: [:index]
+    end
   end
 end
