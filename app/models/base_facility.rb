@@ -19,6 +19,13 @@ class BaseFacility < ApplicationRecord
 
   HOURS_STANDARD_MAP = DateTime::DAYNAMES.each_with_object({}) { |d, h| h[d] = d }
 
+  HEALTH = 'health'
+  CEMETERY = 'cemetery'
+  BENEFITS = 'benefits'
+  VET_CENTER = 'vet_center'
+  DOD_HEALTH = 'dod_health'
+  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER, DOD_HEALTH].freeze
+
   PREFIX_MAP = {
     'va_health_facility' => 'vha',
     'va_benefits_facility' => 'vba',
@@ -33,13 +40,6 @@ class BaseFacility < ApplicationRecord
     'va_health_facility' => 'Facilities::VHAFacility',
     'dod_health' => 'Facilities::DODFacility'
   }.freeze
-
-  HEALTH = 'health'
-  CEMETERY = 'cemetery'
-  BENEFITS = 'benefits'
-  VET_CENTER = 'vet_center'
-  DOD_HEALTH = 'dod_health'
-  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER, DOD_HEALTH].freeze
 
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
@@ -78,8 +78,6 @@ class BaseFacility < ApplicationRecord
   }.freeze
 
   PENSION_LOCATIONS = %w[310 330 335].freeze
-
-  METERS_PER_MILE = 1609.344
 
   class << self
     attr_writer :validate_on_load

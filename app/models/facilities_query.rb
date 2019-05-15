@@ -3,21 +3,6 @@
 class FacilitiesQuery
   attr_reader :params
 
-  HEALTH = 'health'
-  CEMETERY = 'cemetery'
-  BENEFITS = 'benefits'
-  VET_CENTER = 'vet_center'
-  DOD_HEALTH = 'dod_health'
-  TYPES = [HEALTH, CEMETERY, BENEFITS, VET_CENTER, DOD_HEALTH].freeze
-
-  TYPE_MAP = {
-    CEMETERY => 'Facilities::NCAFacility',
-    HEALTH => 'Facilities::VHAFacility',
-    BENEFITS => 'Facilities::VBAFacility',
-    VET_CENTER => 'Facilities::VCFacility',
-    DOD_HEALTH => 'Facilities::DODFacility'
-  }.freeze
-
   def initialize(params)
     @params = params
   end
@@ -75,7 +60,7 @@ class FacilitiesQuery
   end
 
   def get_facility_data(conditions, type, facility_type, services, additional_data = nil)
-    klass = TYPE_MAP[facility_type].constantize
+    klass = BaseFacility::TYPE_MAP[facility_type].constantize
     return klass.none unless type.blank? || type == facility_type
     klass = klass.select(additional_data) if additional_data
     facilities = klass.where(conditions)
@@ -83,7 +68,7 @@ class FacilitiesQuery
       service_condition(type, service)
     end
     facilities = facilities.where(service_conditions.join(' OR ')) if service_conditions&.any?
-    facilities = facilities.where.not(facility_type: DOD_HEALTH)
+    facilities = facilities.where.not(facility_type: BaseFacility::DOD_HEALTH)
     facilities
   end
 
@@ -117,7 +102,7 @@ class RadialQuery < FacilitiesQuery
   def build_distance_result_set(lat, long, type, services, ids, limit = nil)
     conditions = limit.nil? ? {} : "where distance < #{limit}"
     ids_map = ids_for_types(ids) unless ids.nil?
-    TYPES.map do |facility_type|
+    BaseFacility::TYPES.map do |facility_type|
       facilities = get_facility_data(
         conditions,
         type,
@@ -148,7 +133,7 @@ class StateQuery < FacilitiesQuery
   def run
     state = params[:state]
     conditions = "address @> '{ \"physical\": {\"state\": \"#{state}\"}}'"
-    TYPES.flat_map do |facility_type|
+    BaseFacility::TYPES.flat_map do |facility_type|
       get_facility_data(conditions, params[:type], facility_type, params[:services])
     end
   end
@@ -162,7 +147,7 @@ class ZipQuery < FacilitiesQuery
     # TODO: iterate over zcta, pushing each zip code that is within distance into an array
     # TODO: change zip criteria to array of zip codes
     conditions = "address ->'physical'->>'zip' ilike '#{requested_zip[0][0]}%'"
-    TYPES.flat_map do |facility_type|
+    BaseFacility::TYPES.flat_map do |facility_type|
       get_facility_data(conditions, params[:type], facility_type, params[:services])
     end
   end
@@ -188,6 +173,6 @@ class BoundingBoxQuery < FacilitiesQuery
     lats = bbox_num.values_at(1, 3)
     longs = bbox_num.values_at(2, 0)
     conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
-    TYPES.flat_map { |facility_type| get_facility_data(conditions, type, facility_type, services) }
+    BaseFacility::TYPES.flat_map { |facility_type| get_facility_data(conditions, type, facility_type, services) }
   end
 end
