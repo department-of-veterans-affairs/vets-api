@@ -91,7 +91,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       let(:application_1606) { create(:va1995stem_full_form).education_benefits_claim }
 
       it 'tracks the 1995stem form' do
-        expect(subject).to receive(:track_form_type).with('22-1995stem', 999)
+        expect(subject).to receive(:track_form_type).with('22-1995STEM', 999)
         result = subject.format_application(application_1606, rpo: 999)
         expect(result).to be_a(EducationForm::Forms::VA1995stem)
       end
