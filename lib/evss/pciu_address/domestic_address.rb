@@ -2,6 +2,20 @@
 
 module EVSS
   module PCIUAddress
+    ##
+    # Model for addresses within the United States
+    #
+    # @!attribute city
+    #   @return [String] City name, under 30 characters
+    # @!attribute state_code
+    #   @return [String] Two-letter state abbreviation, e.g. VA for Virginia
+    # @!attribute country_name
+    #   @return [String] Country name
+    # @!attribute zip_code
+    #   @return [String] Zip code (exactly 5 digits)
+    # @!attribute zip_suffix
+    #   @return [String] Zip code suffix (exactly 4 digits with optional leading dash)
+    #
     class DomesticAddress < Address
       attribute :city, String
       attribute :state_code, String
