@@ -7,5 +7,5 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995s do
   let(:instance) { FactoryBot.build(:va1995s) }
   it_should_behave_like 'saved_claim'
 
-  validate_inclusion(:form_id, '22-1995S')
+  validate_inclusion(:form_id, '22-1995-STEM')
 end
