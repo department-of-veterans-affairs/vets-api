@@ -30,7 +30,6 @@ class FacilitiesQuery
   # return the class used to make that type of query.
   def location_query_klass
     @location_query_klass ||= case location_keys
-                              when [] then nil
                               when %i[lat long] then RadialQuery
                               when [:state]     then StateQuery
                               when [:zip]       then ZipQuery
@@ -50,12 +49,9 @@ class FacilitiesQuery
   end
 
   def ids_for_types(ids)
-    ids.split(',').each_with_object({}) do |type_id, obj|
+    ids.split(',').each_with_object(Hash.new{|h,k| h[k] = []}) do |type_id, obj|
       facility_type, unique_id = type_id.split('_')
-      if facility_type && unique_id
-        obj[facility_type] ||= []
-        obj[facility_type].push unique_id
-      end
+      obj[facility_type].push unique_id if (facility_type && unique_id)
     end
   end
 
@@ -102,7 +98,7 @@ class RadialQuery < FacilitiesQuery
   def build_distance_result_set(lat, long, type, services, ids, limit = nil)
     conditions = limit.nil? ? {} : "where distance < #{limit}"
     ids_map = ids_for_types(ids) unless ids.nil?
-    BaseFacility::TYPES.map do |facility_type|
+    BaseFacility::TYPES.flat_map do |facility_type|
       facilities = get_facility_data(
         conditions,
         type,
@@ -115,7 +111,7 @@ class RadialQuery < FacilitiesQuery
         facilities = facilities.where(unique_id: ids_for_type)
       end
       facilities.order('distance')
-    end.flatten
+    end
   end
   # rubocop:enable Metrics/ParameterLists
 

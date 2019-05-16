@@ -351,7 +351,6 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       get base_query_path + pdx_bbox + '&state=FL' + '&type=benefits&services[]=DisabilityClaimAssistance'
 
       json = JSON.parse(response.body)
-      expect(response.status).to eq(422)
       expect(json['errors'].first).to eq(
         'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
       )
