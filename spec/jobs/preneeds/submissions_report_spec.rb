@@ -9,8 +9,7 @@ RSpec.describe Preneeds::SubmissionsReport, type: :job do
 
   before do
     error_class = 'PreneedsBurial'
-    Settings.reports.token = 'asdf'
-    Settings.reports.server = 'stage-tms.govdelivery.com'
+    Settings.govdelivery.token = 'asdf'
     2.times do
       create(:personal_information_log, created_at: '2018-05-27')
       create(:personal_information_log,

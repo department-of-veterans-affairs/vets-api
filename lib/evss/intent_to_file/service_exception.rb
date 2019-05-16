@@ -4,6 +4,8 @@ require 'evss/service_exception'
 
 module EVSS
   module IntentToFile
+    # Custom exception that maps EVSS ITF errors to error details defined in config/locales/exceptions.en.yml
+    #
     class ServiceException < EVSS::ServiceException
       ERROR_MAP = {
         'partner.service.error' => 'evss.intent_to_file.partner_service_error',

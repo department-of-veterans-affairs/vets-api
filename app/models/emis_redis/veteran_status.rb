@@ -3,6 +3,7 @@
 require 'emis/veteran_status_service'
 
 module EMISRedis
+  # EMIS veteran status service redis cached model.
   # Much of this class depends on the Title 38 Status codes, which are:
   #
   # V1 = Title 38 Veteran
@@ -15,12 +16,15 @@ module EMISRedis
   # @see https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/SiP-Prefill/Prefill/eMIS_Integration/eMIS_Documents/MIS%20Service%20Description%20Document.docx
   #
   class VeteranStatus < Model
+    # Class name of the EMIS service used to fetch data
     CLASS_NAME = 'VeteranStatusService'
 
+    # @return [Boolean] true if user is a title 38 veteran
     def veteran?
       title38_status == 'V1'
     end
 
+    # @return [String] Title 38 status code
     def title38_status
       validated_response&.title38_status_code
     end
@@ -34,6 +38,8 @@ module EMISRedis
       title38_status == 'V3' || title38_status == 'V6'
     end
 
+    # Not authorized error raised if user
+    # doesn't have permission to access EMIS API
     class NotAuthorized < StandardError
       attr_reader :status
 
@@ -44,6 +50,7 @@ module EMISRedis
       end
     end
 
+    # Record not found error raised if user is not found in EMIS
     class RecordNotFound < StandardError
       attr_reader :status
 

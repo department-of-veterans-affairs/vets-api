@@ -5,11 +5,14 @@ require 'emis/responses/response'
 
 module EMIS
   module Responses
+    # EMIS unit information response
     class GetUnitInformationResponse < EMIS::Responses::Response
+      # (see EMIS::Responses::GetCombatPayResponse#item_tag_name)
       def item_tag_name
         'unitInformation'
       end
 
+      # (see EMIS::Responses::GetCombatPayResponse#item_schema)
       def item_schema
         {
           'unitSegmentIdentifier' => { rename: 'segment_identifier' },
@@ -19,6 +22,7 @@ module EMIS
         }
       end
 
+      # (see EMIS::Responses::GetCombatPayResponse#model_class)
       def model_class
         EMIS::Models::UnitInformation
       end
