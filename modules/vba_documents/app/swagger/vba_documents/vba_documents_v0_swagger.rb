@@ -63,7 +63,7 @@ module VbaDocuments
           }
 
       key :host, 'api.va.gov'
-      key :basePath, '/services/vba_documents/v1'
+      key :basePath, '/services/vba_documents/v0'
       key :consumes, ['application/json']
       key :produces, ['application/json']
     end
