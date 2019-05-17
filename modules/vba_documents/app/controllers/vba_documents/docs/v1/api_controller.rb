@@ -13,6 +13,7 @@ module VBADocuments
 
         SWAGGERED_CLASSES = [
           VbaDocuments::V1::ControllerSwagger,
+          VbaDocuments::V1::ErrorModelSwagger,
           VbaDocuments::DocumentUpload::StatusReportSwagger,
           VbaDocuments::DocumentUpload::StatusGuidListSwagger,
           VbaDocuments::DocumentUpload::FailureSwagger,

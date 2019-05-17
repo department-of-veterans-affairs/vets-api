@@ -34,6 +34,20 @@ module VbaDocuments
           response 403 do
             key :description, 'Bad API Token'
           end
+
+          response :default do
+            key :description, 'unexpected error'
+            schema do
+              key :type, :object
+              key :required, [:errors]
+              property :errors do
+                key :type, :array
+                items do
+                  key :'$ref', :ErrorModel
+                end
+              end
+            end
+          end
         end
       end
 
@@ -134,6 +148,20 @@ module VbaDocuments
           response 404 do
             key :description, 'Not Found'
           end
+
+          response :default do
+            key :description, 'unexpected error'
+            schema do
+              key :type, :object
+              key :required, [:errors]
+              property :errors do
+                key :type, :array
+                items do
+                  key :'$ref', :ErrorModel
+                end
+              end
+            end
+          end
         end
       end
 
@@ -173,6 +201,20 @@ module VbaDocuments
 
           response 403 do
             key :description, 'Bad API Token'
+          end
+
+          response :default do
+            key :description, 'unexpected error'
+            schema do
+              key :type, :object
+              key :required, [:errors]
+              property :errors do
+                key :type, :array
+                items do
+                  key :'$ref', :ErrorModel
+                end
+              end
+            end
           end
         end
       end
