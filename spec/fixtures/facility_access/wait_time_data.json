@@ -265,7 +265,7 @@
     "url": "http://www.birmingham.va.gov/",
     "latitude": 33.50455985,
     "longitude": -86.80090691,
-    "ApptTypeName": "WOMEN'S HEALTH",
+    "ApptTypeName": "COMP WOMEN'S HLTH",
     "estWaitTime": 10.0,
     "newWaitTime": 12.0,
     "sliceEndDate": "2017-03-31T00:00:00",
