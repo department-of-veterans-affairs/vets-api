@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require_dependency 'vba_documents/vba_documents_v0_swagger'
+require_dependency 'vba_documents/v1/swagger_root'
 require_dependency 'vba_documents/document_upload/status_report_swagger'
-require_dependency 'vba_documents/document_upload/status_attributes_swagger'
+require_dependency 'vba_documents/document_upload/v1/status_attributes_swagger'
 
 module VBADocuments
   module Docs
@@ -12,15 +12,15 @@ module VBADocuments
         include Swagger::Blocks
 
         SWAGGERED_CLASSES = [
-          VbaDocuments::VbaDocumentsV0ControllerSwagger,
+          VbaDocuments::V1::ControllerSwagger,
           VbaDocuments::DocumentUpload::StatusReportSwagger,
           VbaDocuments::DocumentUpload::StatusGuidListSwagger,
           VbaDocuments::DocumentUpload::FailureSwagger,
           VbaDocuments::DocumentUpload::MetadataSwagger,
-          VbaDocuments::DocumentUpload::StatusAttributesSwagger,
+          VbaDocuments::DocumentUpload::V1::StatusAttributesSwagger,
           VbaDocuments::DocumentUpload::StatusSwagger,
           VbaDocuments::DocumentUpload::SubmissionSwagger,
-          VbaDocuments::VbaDocumentsV0Swagger
+          VbaDocuments::V1::SwaggerRoot
         ].freeze
 
         def index
