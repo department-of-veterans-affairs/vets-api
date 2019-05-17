@@ -75,7 +75,7 @@ paths:
       description: |
         Retrieve all facilities contained within an isochrone (a polygon composed of the area 
         reachable in a certain amount of time from a central location) based on the passed 
-        `address_1`, `city`, `state`, `zip`, and `drive_time` parameters.
+        `street_address`, `city`, `state`, `zip`, and `drive_time` parameters.
 
         Additionally one can filter the facilities within the isochrone by type and available
         services. Only facilities of type "health" and "benefits" may be filtered by available
