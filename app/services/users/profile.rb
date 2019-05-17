@@ -52,9 +52,12 @@ module Users
     end
 
     def account
-      {
-        account_uuid: user.account_uuid
-      }
+      account = Account.cache_or_create_by!(user)
+
+      { account_uuid: account.uuid }
+    rescue StandardError => e
+      scaffold.errors << Users::ExceptionHandler.new(e, 'Account').serialize_error
+      nil
     end
 
     def profile
