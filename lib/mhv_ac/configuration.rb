@@ -9,20 +9,38 @@ require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'common/client/middleware/response/snakecase'
 
 module MHVAC
-  # Configuration class used to setup the environment used by client
+  ##
+  # HTTP client configuration for the {MHVAC::Client}, sets the token, base path and a service name for
+  # breakers and metrics
+  #
   class Configuration < Common::Client::Configuration::REST
+    ##
+    # @return [String] Client token set in `settings.yml` via credstash
+    #
     def app_token
       Settings.mhv.rx.app_token
     end
 
+    ##
+    # @return [String] Base path for dependent URLs
+    #
     def base_path
       "#{Settings.mhv.rx.host}/mhv-api/patient/v1/"
     end
 
+    ##
+    # @return [String] Service name to use in breakers and metrics
+    #
     def service_name
       'MHVAcctCreation'
     end
 
+    ##
+    # Creates a connection with middleware for mapping errors, parsing XML, and
+    # adding breakers functionality
+    #
+    # @return [Faraday::Connection] a Faraday connection instance
+    #
     def connection
       Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
