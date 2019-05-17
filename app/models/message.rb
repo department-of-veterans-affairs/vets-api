@@ -2,7 +2,34 @@
 
 require 'common/models/base'
 
-# Message model
+##
+# Models a secure message
+#
+# @!attribute id
+#   @return [Integer]
+# @!attribute category
+#   @return [String]
+# @!attribute subject
+#   @return [String]
+# @!attribute body
+#   @return [String]
+# @!attribute attachment
+#   @return [Boolean]
+# @!attribute sent_date
+#   @return [Common::UTCTime]
+# @!attribute sender_id
+#   @return [Integer]
+# @!attribute sender_name
+#   @return [String]
+# @!attribute recipient_id
+#   @return [Integer]
+# @!attribute recipient_name
+#   @return [String]
+# @!attribute read_receipt
+#   @return [String]
+# @!attribute attachments
+#   @return [Array[Attachment]] an array of Attachments
+#
 class Message < Common::Base
   per_page 10
   max_per_page 100
@@ -41,17 +68,24 @@ class Message < Common::Base
 
   alias attachment? attachment
 
-  # Default sort should be sent date in descending order
+  ##
+  # @note Default sort should be sent date in descending order
+  #
   def <=>(other)
     -(sent_date <=> other.sent_date)
   end
 
-  # This returns self so that it can be chained: Message.new(params).as_reply
+  ##
+  # @note This returns self so that it can be chained: Message.new(params).as_reply
+  #
   def as_reply
     @reply = true
     self
   end
 
+  ##
+  # @return [Boolean] is there a reply?
+  #
   def reply?
     @reply || false
   end

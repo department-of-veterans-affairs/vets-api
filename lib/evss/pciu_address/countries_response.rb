@@ -4,6 +4,15 @@ require 'evss/response'
 
 module EVSS
   module PCIUAddress
+    ##
+    # Model for countries returned by PCIU
+    #
+    # @param status [Integer] The HTTP status code
+    # @param response [Hash] The API response
+    #
+    # @!attribute countries
+    #   @return [Array[String]] An array of country names
+    #
     class CountriesResponse < EVSS::Response
       attribute :countries, Array[String]
 

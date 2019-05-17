@@ -54,7 +54,8 @@ module VetsAPI
                       expose: [
                         'X-RateLimit-Limit',
                         'X-RateLimit-Remaining',
-                        'X-RateLimit-Reset'
+                        'X-RateLimit-Reset',
+                        'X-Session-Expiration'
                       ]
       end
     end

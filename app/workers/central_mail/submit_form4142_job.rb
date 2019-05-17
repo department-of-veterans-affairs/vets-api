@@ -21,7 +21,7 @@ module CentralMail
         :error,
         "Failed all retries on Form4142 submit, last error: #{msg['error_message']}"
       )
-      Metrics.new(STATSD_KEY_PREFIX, msg['jid']).increment_exhausted
+      EVSS::DisabilityCompensationForm::Metrics.new(STATSD_KEY_PREFIX).increment_exhausted
     end
 
     # Performs an asynchronous job for submitting a Form 4142 to central mail service

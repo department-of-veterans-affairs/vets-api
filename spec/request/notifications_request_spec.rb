@@ -120,4 +120,42 @@ RSpec.describe 'notifications', type: :request do
       end
     end
   end
+
+  describe 'PATCH /v0/notifications/:subject' do
+    let(:patch_body) do
+      {
+        read: true
+      }.to_json
+    end
+
+    context 'user has an existing Notification record with the passed subject' do
+      let!(:notification) do
+        create :notification, subject: notification_subject, account_id: user.account.id
+      end
+
+      it 'should match the Notification schema', :aggregate_failures do
+        patch "/v0/notifications/#{notification_subject}", params: patch_body, headers: headers
+
+        expect(response).to have_http_status(:ok)
+        expect(response).to match_response_schema('notification')
+      end
+
+      it 'correctly updates their Notification record' do
+        patch "/v0/notifications/#{notification_subject}", params: patch_body, headers: headers
+
+        notification.reload
+
+        expect(notification.read_at).to be_present
+      end
+    end
+
+    context 'user does not have a Notification record with the passed subject' do
+      it 'should return a 404 record not found', :aggregate_failures do
+        patch "/v0/notifications/#{notification_subject}", params: patch_body, headers: headers
+
+        expect(response.status).to eq 404
+        expect(response.body).to include 'Record not found'
+      end
+    end
+  end
 end

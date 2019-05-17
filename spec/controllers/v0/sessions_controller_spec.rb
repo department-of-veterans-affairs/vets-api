@@ -118,6 +118,29 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
     end
+
+    describe 'POST saml_callback' do
+      context 'when too much time passed to consume the SAML Assertion' do
+        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
+
+        it 'redirects to an auth failure page' do
+          expect(Rails.logger)
+            .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
+      context 'loa3_user' do
+        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
+
+        it 'creates an after login job' do
+          allow(SAML::User).to receive(:new).and_return(saml_user)
+          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
+        end
+      end
+    end
   end
 
   context 'when logged in' do
@@ -476,7 +499,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          expect(cookies['vagov_session_dev']).not_to be_nil
         end
       end
 
@@ -511,12 +534,12 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! Other SAML Response Error(s)',
               :error,
-              [{ code: '007',
-                 tag: :unknown,
-                 short_message: 'Other SAML Response Error(s)',
-                 level: :error,
-                 full_message: 'The status code of the Response was not Success, was Requester => NoAuthnContext ->'\
-                               ' AuthnRequest without an authentication context.' }]
+              saml_error_context: [{ code: '007',
+                                     tag: :unknown,
+                                     short_message: 'Other SAML Response Error(s)',
+                                     level: :error,
+                                     full_message: 'The status code of the Response was not Success, was Requester =>'\
+                                  ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
@@ -542,10 +565,16 @@ RSpec.describe V0::SessionsController, type: :controller do
             .with(
               'Login Failed! Subject did not consent to attribute release Multiple SAML Errors',
               :warn,
-              [{ code: '001', tag: :clicked_deny, short_message: 'Subject did not consent to attribute release',
-                 level: :warn, full_message: 'Subject did not consent to attribute release' },
-               { code: '007', tag: :unknown, short_message: 'Other SAML Response Error(s)', level: :error,
-                 full_message: 'Other random error' }]
+              saml_error_context: [{ code: '001',
+                                     tag: :clicked_deny,
+                                     short_message: 'Subject did not consent to attribute release',
+                                     level: :warn,
+                                     full_message: 'Subject did not consent to attribute release' },
+                                   { code: '007',
+                                     tag: :unknown,
+                                     short_message: 'Other SAML Response Error(s)',
+                                     level: :error,
+                                     full_message: 'Other random error' }]
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
@@ -561,6 +590,46 @@ RSpec.describe V0::SessionsController, type: :controller do
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+        end
+      end
+
+      context 'MVI is down', :aggregate_failuresdo do
+        let(:mhv_premium_user) { build(:user, :mhv, uuid: uuid) }
+        let(:saml_user_attributes) do
+          mhv_premium_user.attributes.merge(mhv_premium_user.identity.attributes).merge(first_name: nil)
+        end
+
+        it 'returns 004 when MHV premium users lack data because MVI is unavilable' do
+          MVI::Configuration.instance.breakers_service.begin_forced_outage!
+          expect(controller).to receive(:log_message_to_sentry)
+            .with(
+              'Login Failed! on User/Session Validation',
+              :error,
+              code: '004',
+              tag: :validations_failed,
+              short_message: 'on User/Session Validation',
+              level: :error,
+              uuid: uuid,
+              user: {
+                valid: false,
+                errors: ["First name can't be blank"]
+              },
+              session: {
+                valid: true,
+                errors: []
+              },
+              identity: {
+                valid: true,
+                errors: [],
+                authn_context: 'myhealthevet',
+                loa: { current: 3, highest: 3 }
+              },
+              mvi: 'breakers is closed for MVI'
+            )
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+          MVI::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
 
@@ -594,7 +663,8 @@ RSpec.describe V0::SessionsController, type: :controller do
                 errors: ["Uuid can't be blank"],
                 authn_context: 'http://idmanagement.gov/ns/assurance/loa/1/vets',
                 loa: { current: 1, highest: 1 }
-              }
+              },
+              mvi: 'breakers is open for MVI'
             )
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(response).to have_http_status(:found)
@@ -637,19 +707,6 @@ RSpec.describe V0::SessionsController, type: :controller do
             expect(Account.count).to eq 1
             expect(Account.first.idme_uuid).to eq account.idme_uuid
           end
-        end
-      end
-    end
-  end
-
-  context 'when not logged in' do
-    describe 'POST saml_callback' do
-      context 'loa3_user' do
-        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
-
-        it 'creates an after login job' do
-          allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
     end

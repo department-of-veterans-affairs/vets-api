@@ -37,9 +37,7 @@ module V0
       if saml_response.valid?
         user_logout(saml_response)
       else
-        log_message_to_sentry(
-          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
-        )
+        log_error(saml_response)
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
       end
     rescue StandardError => e
@@ -54,10 +52,8 @@ module V0
       if saml_response.valid?
         user_login(saml_response)
       else
-        log_message_to_sentry(
-          saml_response.errors_message, saml_response.errors_hash[:level], saml_response.errors_context
-        )
-        redirect_to url_service.login_redirect_url(auth: 'fail', code: saml_response.error_code)
+        log_error(saml_response)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
         stats(:failure, saml_response, saml_response.error_instrumentation_code)
       end
     rescue StandardError => e
@@ -70,6 +66,14 @@ module V0
 
     private
 
+    def auth_error_code(code)
+      if code == '005' && validate_session
+        UserSessionForm::ERRORS[:saml_replay_valid_session][:code]
+      else
+        code
+      end
+    end
+
     def authenticate
       return unless action_name == 'new'
       if %w[mfa verify slo].include?(params[:type])
@@ -77,6 +81,12 @@ module V0
       else
         reset_session
       end
+    end
+
+    def log_error(saml_response)
+      log_message_to_sentry(saml_response.errors_message,
+                            saml_response.errors_hash[:level],
+                            saml_error_context: saml_response.errors_context)
     end
 
     def user_login(saml_response)

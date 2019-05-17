@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require_dependency 'vba_documents/upload_error'
+
 module VBADocuments
   class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
 
-    IN_FLIGHT_STATUSES = %w[received processing].freeze
+    IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
     after_save :report_errors
 
@@ -105,8 +107,10 @@ module VBADocuments
         self.status = 'received'
       when 'In Process', 'Processing Success'
         self.status = 'processing'
-      when 'Success', 'VBMS Success'
+      when 'Success'
         self.status = 'success'
+      when 'VBMS Success'
+        self.status = 'vbms'
       when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
@@ -121,7 +125,11 @@ module VBADocuments
 
     def report_errors
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
+<<<<<<< HEAD
       StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
+=======
+      StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_status? && status == 'error'
+>>>>>>> master
     end
   end
 end
