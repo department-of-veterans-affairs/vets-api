@@ -8,11 +8,11 @@ module FacilitiesQuery
       @params = params
     end
 
-    def query
+    def run
       if valid_location_query?
         location_query_klass.new(params).run
       elsif @params[:ids]
-        build_result_set_from_ids(params[:ids]).flatten
+        IdsQuery.new(params).run
       else
         BaseFacility.none
       end
@@ -40,20 +40,6 @@ module FacilitiesQuery
 
     def location_keys
       (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
-    end
-
-    def build_result_set_from_ids(ids)
-      ids_for_types(ids).map do |facility_type, unique_ids|
-        klass = "Facilities::#{facility_type.upcase}Facility".constantize
-        klass.where(unique_id: unique_ids)
-      end
-    end
-
-    def ids_for_types(ids)
-      ids.split(',').each_with_object(Hash.new { |h, k| h[k] = [] }) do |type_id, obj|
-        facility_type, unique_id = type_id.split('_')
-        obj[facility_type].push unique_id if facility_type && unique_id
-      end
     end
 
     def get_facility_data(conditions, type, facility_type, services, additional_data = nil)

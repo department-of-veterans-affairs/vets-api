@@ -150,7 +150,7 @@ class BaseFacility < ApplicationRecord
     end
 
     def query(params)
-      FacilitiesQuery::Base.new(params).query
+      FacilitiesQuery::Base.new(params).run
     end
 
     def per_page
