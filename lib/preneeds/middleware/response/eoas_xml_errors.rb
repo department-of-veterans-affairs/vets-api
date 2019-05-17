@@ -15,7 +15,7 @@ module Preneeds
         # @return [Faraday::Env]
         #
         def on_complete(env)
-          return unless env.response_headers['content-type'].match?(/\b(xml)/)
+          return unless env.response_headers['content-type']&.match?(/\b(xml)/)
 
           @fault = fault_string(env)
           @code = return_code(env)
