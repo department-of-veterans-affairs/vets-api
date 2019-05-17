@@ -29,7 +29,7 @@ module V0
     private
 
     def set_account
-      @account = current_user.account.presence || create_user_account
+      @account = create_user_account
     end
 
     def destroy_user_preferences!

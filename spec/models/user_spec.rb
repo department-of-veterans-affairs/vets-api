@@ -452,4 +452,39 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#account' do
+    context 'when user has an existing Account record' do
+      let(:user) { create :user, :accountable }
+
+      it 'returns the users Account record' do
+        account = Account.find_by(idme_uuid: user.uuid)
+
+        expect(user.account).to eq account
+      end
+
+      it 'first attempts to fetch the Account record from the Redis cache' do
+        expect(Account).to receive(:do_cached_with)
+
+        user.account
+      end
+    end
+
+    context 'when user does not have an existing Account record' do
+      let(:user) { create :user, :loa3 }
+
+      before do
+        account = Account.find_by(idme_uuid: user.uuid)
+
+        expect(account).to be_nil
+      end
+
+      it 'creates and returns the users Account record', :aggregate_failures do
+        account = user.account
+
+        expect(account.class).to eq Account
+        expect(account.idme_uuid).to eq user.uuid
+      end
+    end
+  end
 end
