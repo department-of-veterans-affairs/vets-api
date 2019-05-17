@@ -92,7 +92,7 @@ module ClaimsApi
         last_signed_in: Time.now.utc,
         loa: identity.loa,
         gender: identity.gender,
-        edipi: identity.edipi
+        edipi: identity&.edipi
       )
     end
 
