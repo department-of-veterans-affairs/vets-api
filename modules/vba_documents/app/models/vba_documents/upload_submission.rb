@@ -125,11 +125,7 @@ module VBADocuments
 
     def report_errors
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
-<<<<<<< HEAD
       StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
-=======
-      StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_status? && status == 'error'
->>>>>>> master
     end
   end
 end
