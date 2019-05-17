@@ -24,11 +24,6 @@ module VBADocuments
         ].freeze
 
         def index
-          swagger = YAML.safe_load(File.read(VBADocuments::Engine.root.join('README.yml')))
-          render json: swagger
-        end
-
-        def blocks
           render json: Swagger::Blocks.build_root_json(SWAGGERED_CLASSES)
         end
       end

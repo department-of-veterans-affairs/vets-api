@@ -29,7 +29,6 @@ VBADocuments::Engine.routes.draw do
   namespace :docs do
     namespace :v0 do
       resources :api, only: [:index]
-      get 'blocks', to: 'api#blocks'
     end
   end
 end
