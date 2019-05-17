@@ -21,7 +21,7 @@ RSpec.describe FacilitiesQuery do
       before(:each) do
         %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348
            vba_348a vba_348d vba_348e vba_348h dod_001 dod_002].map { |id| create id }
-      end 
+      end
 
       it 'should find facility by type' do
         bbox = ['-122.440689', '45.451913', '-122.786758', '45.64']

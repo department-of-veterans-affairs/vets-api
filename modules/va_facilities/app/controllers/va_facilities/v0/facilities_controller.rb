@@ -6,7 +6,6 @@ require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
 require_dependency 'va_facilities/geo_serializer'
 require_dependency 'va_facilities/csv_serializer'
-require 'facilities_query'
 
 module VaFacilities
   module V0
