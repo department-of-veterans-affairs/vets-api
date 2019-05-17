@@ -1,8 +1,43 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-# Prescription model
-# Reference: https://github.com/department-of-veterans-affairs/prescriptions-team/blob/master/API/sample_mvh_api_calls
+
+##
+# Models a Prescription
+#
+# @see https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Rx%20Refills/API/sample_mvh_api_calls
+#
+# @!attribute prescription_id
+#   @return [Integer]
+# @!attribute refill_status
+#   @return [String]
+# @!attribute refill_submit_date
+#   @return [Common::UTCTime]
+# @!attribute refill_date
+#   @return [Common::UTCTime]
+# @!attribute refill_remaining
+#   @return [Integer]
+# @!attribute facility_name
+#   @return [String]
+# @!attribute ordered_date
+#   @return [Common::UTCTime]
+# @!attribute quantity
+#   @return [Integer]
+# @!attribute expiration_date
+#   @return [Common::UTCTime]
+# @!attribute prescription_number
+#   @return [String]
+# @!attribute prescription_name
+#   @return [String]
+# @!attribute dispensed_date
+#   @return [Common::UTCTime]
+# @!attribute station_number
+#   @return [String]
+# @!attribute is_refillable
+#   @return [Boolean]
+# @!attribute is_trackable
+#   @return [Boolean]
+#
 class Prescription < Common::Base
   attribute :prescription_id, Integer, sortable: { order: 'ASC' }, filterable: %w[eq not_eq]
   attribute :refill_status, String, sortable: { order: 'ASC' }, filterable: %w[eq not_eq]

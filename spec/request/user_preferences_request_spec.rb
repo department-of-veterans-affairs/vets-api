@@ -56,9 +56,13 @@ describe 'user_preferences', type: :request do
     context 'current user does not have an Account record' do
       let(:user) { build(:user, :loa3) }
 
-      it 'creates an Account record for the current user', :aggregate_failures do
-        expect(user.account).to be_nil
+      before do
+        account = Account.find_by(idme_uuid: user.uuid)
 
+        expect(account).to be_nil
+      end
+
+      it 'creates an Account record for the current user', :aggregate_failures do
         post '/v0/user/preferences', params: request_body.to_json, headers: headers
 
         expect(user.account).to be_present
