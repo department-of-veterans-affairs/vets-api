@@ -41,12 +41,13 @@ class User < Common::RedisStore
   # This delegated method is called with #account_uuid
   delegate :uuid, to: :account, prefix: true, allow_nil: true
 
-  # Retrieve a user's Account record.
+  # Retrieve a user's Account record.  Checks the cache before executing
+  # any database calls.
   #
   # @return [Account] an instance of the Account object
   #
   def account
-    Account.find_by(idme_uuid: uuid)
+    Account.cache_or_create_by!(self)
   end
 
   def pciu_email
