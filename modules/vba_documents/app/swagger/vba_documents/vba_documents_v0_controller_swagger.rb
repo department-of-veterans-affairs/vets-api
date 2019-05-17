@@ -39,7 +39,7 @@ module VbaDocuments
     swagger_path '/path' do
       operation :put do
         key :summary, 'Accepts document upload.'
-        key :description, File.read(Rails.root.join('modules', 'vba_documents', 'app', 'swagger', 'vba_documents', 'document_upload_put_description.md'))
+        key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'document_upload', 'put_description.md'))
 
         key :tags, [
           'document_uploads'

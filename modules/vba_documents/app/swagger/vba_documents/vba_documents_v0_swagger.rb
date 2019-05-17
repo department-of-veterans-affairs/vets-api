@@ -8,7 +8,7 @@ module VbaDocuments
       info do
         key :version, '0.0.0'
         key :title, 'Benefits Intake'
-        key :description, File.read(Rails.root.join('modules', 'vba_documents', 'app', 'swagger', 'description.md'))
+        key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'description.md'))
         contact do
           key :name, 'va.gov'
         end
