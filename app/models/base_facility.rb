@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'facilities/client'
-require_relative './facilities_query'
+require_relative './facilities_query/base'
 
 class BaseFacility < ApplicationRecord
   self.inheritance_column = 'facility_type'
@@ -150,7 +150,7 @@ class BaseFacility < ApplicationRecord
     end
 
     def query(params)
-      FacilitiesQuery.new(params).query
+      FacilitiesQuery::Base.new(params).query
     end
 
     def per_page
