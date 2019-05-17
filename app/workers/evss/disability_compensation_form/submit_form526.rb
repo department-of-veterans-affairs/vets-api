@@ -31,6 +31,9 @@ module EVSS
         end
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
+      rescue EVSS::DisabilityCompensationForm::ServiceException => e
+        # retry any errors caused by an upstream service from EVSS being unavailable
+        retry_for_unavailable_external_service!(e)
       rescue StandardError => e
         non_retryable_error_handler(e)
       end
@@ -49,6 +52,19 @@ module EVSS
 
       def service(_auth_headers)
         raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
+      end
+
+      # Retries any errors caused by an upstream service from EVSS being unavailable
+      # Otherwise it marks it as non-retryable and stops the job
+      #
+      # @param error [ErrorClass] An exception object of type {EVSS::DisabilityCompensationForm::ServiceException}
+      #
+      def retry_for_unavailable_external_service!(error)
+        if error.key == 'evss.external_service_unavailable'
+          retryable_error_handler(error)
+        else
+          non_retryable_error_handler(error)
+        end
       end
     end
   end

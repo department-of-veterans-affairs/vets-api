@@ -92,13 +92,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
     end
 
-    context 'with a server error' do
-      it 'sets the transaction to "non_retryable_error"' do
+    context 'with an upstream service error' do
+      it 'sets the transaction to "retrying"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_err_msg') do
           subject.perform_async(submission.id)
-          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
-          described_class.drain
-          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_retryable).once
+          expect(Form526JobStatus).to receive(:upsert).twice
+          expect { described_class.drain }.to raise_error(EVSS::DisabilityCompensationForm::GatewayTimeout)
         end
       end
     end
