@@ -8,7 +8,7 @@ module EMIS
     #   @return [String] identifier that is used to ensure a unique
     #     key on each deployment location record
     # @!attribute begin_date
-    #   @return [String] the date on which a Service member's deployment began. This is a
+    #   @return [Date] the date on which a Service member's deployment began. This is a
     #     generated field. It is the date of the first location event in a series of location events
     #     in which the amount of time between events is 21 days or less. However, for the Navy
     #     these events must also be of 14 days or greater in length. Example for the Navy: A
@@ -16,7 +16,7 @@ module EMIS
     #     would create two separate deployment dates. However, if both deployments lasted 15
     #     days, then it would be considered one long deployment.
     # @!attribute end_date
-    #   @return [String] the date on which a Service member's deployment ended. This is a
+    #   @return [Date] the date on which a Service member's deployment ended. This is a
     #     generated field. It is the date of the final location event in a series of location events
     #     in which the amount of time between events is 21 days or less. However, for the Navy
     #     these events must also be of 14 days or greater in length. Example for the Navy: A
@@ -56,6 +56,16 @@ module EMIS
     #       B26 => FTNGD - AGR
     #       B27 => FTNGD - Involuntary
     #       B99 => FTNGD - Unknown (derived period)
+    # @!attribute termination_reason
+    #   @return [String] the code that represents the reason that deployment segment was terminated.
+    #
+    #     C => Completion of Deployment Period
+    #
+    #     W => Not Applicable
+    # @!attribute transaction_date
+    #   @return [Date] the calendar date of the deployment.
+    # @!attribute locations
+    #   @return [Array<DeploymentLocation>] locations of the deployments.
     class Deployment
       include Virtus.model
 
