@@ -347,5 +347,15 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       get base_query_path, params: 'state=meow', headers: accept_json
       expect(response).to have_http_status(:bad_request)
     end
+    it 'returns 400 for more than one distance location param type' do
+      get base_query_path + pdx_bbox + '&state=FL' + '&type=benefits&services[]=DisabilityClaimAssistance'
+
+      json = JSON.parse(response.body)
+      expect(json['errors'].first).to eq(
+        'You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox'
+      )
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
   end
 end

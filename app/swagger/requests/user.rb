@@ -36,6 +36,7 @@ module Swagger
                     property :id, type: :string
                     property :type, type: :string
                     property :attributes, type: :object do
+                      property :account, type: %i[object null]
                       property :va_profile, type: %i[object null]
                       property :veteran_status, type: %i[object null]
                       property :vet360_contact_information, type: %i[object null]
@@ -74,6 +75,12 @@ module Swagger
               property :id, type: :string
               property :type, type: :string
               property :attributes, type: :object do
+                property :account, type: :object do
+                  property :account_uuid,
+                           type: %w[string null],
+                           example: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef',
+                           description: 'A UUID correlating all user identifiers. Intended to become the user\'s UUID.'
+                end
                 property :va_profile, type: :object do
                   property :status, type: :string
                   property :birthdate, type: :string

@@ -1,4 +1,4 @@
-dev_branch = 'master'
+dev_branch = 'rails-5.2'
 staging_branch = 'master'
 main_branch = 'master'
 
