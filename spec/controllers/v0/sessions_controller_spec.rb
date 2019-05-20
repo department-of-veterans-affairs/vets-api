@@ -593,42 +593,22 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
       end
 
-      context 'MVI is down', :aggregate_failuresdo do
+      context 'MVI is down', :aggregate_failures do
+        let(:authn_context) { 'myhealthevet' }
         let(:mhv_premium_user) { build(:user, :mhv, uuid: uuid) }
         let(:saml_user_attributes) do
           mhv_premium_user.attributes.merge(mhv_premium_user.identity.attributes).merge(first_name: nil)
         end
 
-        it 'returns 004 when MHV premium users lack data because MVI is unavilable' do
+        it 'allows user to sign in even if user attributes are not available' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          expect(controller).to receive(:log_message_to_sentry)
-            .with(
-              'Login Failed! on User/Session Validation',
-              :error,
-              code: '004',
-              tag: :validations_failed,
-              short_message: 'on User/Session Validation',
-              level: :error,
-              uuid: uuid,
-              user: {
-                valid: false,
-                errors: ["First name can't be blank"]
-              },
-              session: {
-                valid: true,
-                errors: []
-              },
-              identity: {
-                valid: true,
-                errors: [],
-                authn_context: 'myhealthevet',
-                loa: { current: 3, highest: 3 }
-              },
-              mvi: 'breakers is closed for MVI'
-            )
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
-          expect(response).to have_http_status(:found)
-          expect(cookies['vagov_session_dev']).to be_nil
+          once = { times: 1, value: 1 }
+          callback_tags = ['status:success', "context:myhealthevet"]
+          expect { post(:saml_callback) }
+            .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
+            .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
+          expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
+          expect(cookies['vagov_session_dev']).not_to be_nil
           MVI::Configuration.instance.breakers_service.end_forced_outage!
         end
       end
