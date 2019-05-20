@@ -32,6 +32,8 @@ module VBADocuments
                  json: VBADocuments::UploadSubmission.fake_status(params[:id]),
                  serializer: VBADocuments::UploadSerializer,
                  render_location: false
+        elsif submission.status == 'error'
+          raise(Common::Exceptions::InternalServerError, '')
         else
           submission.refresh_status!
           render json: submission,
