@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# :nocov:
+
 require 'facilities/client'
 
 class NearbyFacility < BaseFacility
@@ -56,3 +58,4 @@ class NearbyFacility < BaseFacility
     self.location = "POINT(#{long} #{lat})" if new_record? && !location
   end
 end
+# :nocov:
