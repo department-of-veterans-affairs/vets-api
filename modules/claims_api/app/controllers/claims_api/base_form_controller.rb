@@ -16,11 +16,11 @@ module ClaimsApi
     end
 
     def form_attributes
-      if request.body.string.present?
-        JSON.parse(request.body.string).dig('data', 'attributes')
-      else
-        {}
-      end
+      payload_attributes = JSON.parse(request.body.string).dig('data', 'attributes') if request.body.string.present?
+
+      payload_attributes ||= {}
+
+      payload_attributes
     end
   end
 end
