@@ -77,6 +77,7 @@ module VaFacilities
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
         validate_zip
+        valid_location_query?
       end
 
       def validate_a_param_exists
@@ -134,6 +135,26 @@ module VaFacilities
           raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
             requested_zip.any?
         end
+      end
+
+      def valid_location_query?
+        case location_keys
+        when [] then true
+        when %i[lat long] then true
+        when [:state]     then true
+        when [:zip]       then true
+        when [:bbox]      then true
+        else
+          # There can only be one
+          render json: {
+            errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
+          },
+                 status: 422
+        end
+      end
+
+      def location_keys
+        (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
       end
 
       def metadata(resource)

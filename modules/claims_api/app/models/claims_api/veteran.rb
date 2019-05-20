@@ -91,7 +91,8 @@ module ClaimsApi
         va_profile: OpenStruct.new(birth_date: identity.birth_date),
         last_signed_in: Time.now.utc,
         loa: identity.loa,
-        gender: identity.gender
+        gender: identity.gender,
+        edipi: identity.edipi
       )
     end
 
