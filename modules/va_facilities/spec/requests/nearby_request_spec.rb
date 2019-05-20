@@ -9,6 +9,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
   let(:address_params) { '?street_address=2400%20E%20Fort%20Ave&city=Baltimore&state=MD&zip=21230' }
+  let(:empty_address) { '?street_address=2400%20E%20Fort%20Ave&city=Baltimore&state=MD&zip=21230&drive_time=1' }
 
   let(:accept_json) { { 'HTTP_ACCEPT' => 'application/json' } }
   let(:accept_geojson) { { 'HTTP_ACCEPT' => 'application/vnd.geo+json' } }
