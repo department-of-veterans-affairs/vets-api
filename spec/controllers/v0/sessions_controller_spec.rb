@@ -603,7 +603,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'allows user to sign in even if user attributes are not available' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
           once = { times: 1, value: 1 }
-          callback_tags = ['status:success', "context:myhealthevet"]
+          callback_tags = ['status:success', 'context:myhealthevet']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
