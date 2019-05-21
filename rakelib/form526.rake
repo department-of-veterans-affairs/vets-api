@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pp'
+require 'set'
 
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
@@ -53,7 +54,7 @@ namespace :form526 do
         version = 'version 2: AC' if j.job_class == 'SubmitForm526AllClaim'
         if (j.job_class == 'SubmitForm526IncreaseOnly' || j.job_class == 'SubmitForm526AllClaim') &&
            j.error_message.present?
-          j.error_message.include?('submit.establishClaim.serviceError') ? (outage_errors += 1) : (other_errors += 1)
+          j.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         end
 
         # Store all Errors for error reporting
@@ -104,6 +105,75 @@ namespace :form526 do
     print_total('Other Failures: ', other_errors)
     puts '------------------------------------------------------------'
     puts '* Error Report *'
+    puts ''
+    print_errors(errors)
+  end
+
+  desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
+  task :errors, %i[start_date end_date] => [:environment] do |_, args|
+    def print_row(sub_id, p_id, created_at)
+      printf "%-20s %-20s %s\n", sub_id, p_id, created_at
+    end
+
+    def print_errors(errors)
+      errors.each do |k, v|
+        puts k
+        puts '*****************'
+        puts "Unique Participant ID count: #{v[:participant_ids].count}"
+        print_row('submission_id:', 'participant_id:', 'created_at:')
+        v[:submission_ids].each do |submission|
+          print_row(submission[:sub_id], submission[:p_id], submission[:date])
+        end
+        puts '*****************'
+        puts ''
+      end
+    end
+
+    MSGS_REGEX = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/
+
+    start_date = args[:start_date]&.to_date || 30.days.ago.utc
+    end_date = args[:end_date]&.to_date || Time.zone.now.utc
+
+    submissions = Form526Submission.where(
+      'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
+    )
+
+    errors = {}
+
+    submissions.find_each do |s|
+      auth_headers = JSON.parse(s.auth_headers_json)
+      s.form526_job_statuses.each do |j|
+        if j.error_class.present?
+          messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
+                       j.error_message.scan(MSGS_REGEX)
+                     else
+                       [[j.error_message]]
+                     end
+          messages.each do |m|
+            message = m[1].present? ? "#{m[0]}: #{m[1]}" : m[0]
+            if errors[message].blank?
+              errors[message] = {
+                submission_ids: [
+                  { sub_id: s.id, p_id: auth_headers['va_eauth_dodedipnid'], date: s.created_at }
+                ],
+                participant_ids: Set[auth_headers['va_eauth_dodedipnid']]
+              }
+            else
+              errors[message][:submission_ids].append(
+                sub_id: s.id,
+                p_id: auth_headers['va_eauth_dodedipnid'],
+                date: s.created_at
+              )
+              errors[message][:participant_ids].add(auth_headers['va_eauth_dodedipnid'])
+            end
+          end
+        end
+      end
+    end
+
+    puts '------------------------------------------------------------'
+    puts "* Form526 Submission Errors from #{start_date} to #{end_date} *"
+    puts '------------------------------------------------------------'
     puts ''
     print_errors(errors)
   end
