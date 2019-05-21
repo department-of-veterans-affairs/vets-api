@@ -31,10 +31,10 @@ RSpec.describe 'Intent to file', type: :request do
       expect(response.status).to eq(422)
     end
 
-    it 'should default a type of compensation if none is passed in' do
+    it 'should fail if none is passed in' do
       VCR.use_cassette('evss/intent_to_file/create_compensation') do
         post path, headers: headers
-        expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('compensation')
+        expect(response.status).to eq(422)
       end
     end
   end
@@ -42,9 +42,16 @@ RSpec.describe 'Intent to file', type: :request do
   describe '#active' do
     it 'should return the latest itf of a type' do
       VCR.use_cassette('evss/intent_to_file/active_compensation') do
-        get "#{path}/active", params: data.to_json, headers: headers
+        get "#{path}/active", params: { type: 'compensation' }, headers: headers
         expect(response.status).to eq(200)
         expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+      end
+    end
+
+    it 'should fail if none is passed in' do
+      VCR.use_cassette('evss/intent_to_file/active_compensation') do
+        get "#{path}/active", headers: headers
+        expect(response.status).to eq(400)
       end
     end
   end
