@@ -22,8 +22,11 @@ class User < Common::RedisStore
   redis_key :uuid
 
   validates :uuid, presence: true
-  validates :ssn, format: /\A\d{9}\z/, allow_blank: true
-  validates :gender, format: /\A(M|F)\z/, allow_blank: true
+
+  with_options if: :loa3? do
+    validates :ssn, format: /\A\d{9}\z/, allow_blank: true
+    validates :gender, format: /\A(M|F)\z/, allow_blank: true
+  end
 
   attribute :uuid
   attribute :last_signed_in, Common::UTCTime # vaafi attributes
