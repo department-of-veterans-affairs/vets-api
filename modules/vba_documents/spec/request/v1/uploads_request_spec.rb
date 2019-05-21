@@ -92,4 +92,15 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       end
     end
   end
+
+  describe '#download /v1/uploads/{id}' do
+    let(:upload) { FactoryBot.create(:upload_submission) }
+
+    it "should raise if settings aren't set" do
+      with_settings(Settings.vba_documents, enable_download_endpoint: false) do
+        get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
+        expect(response.status).to eq(404)
+      end
+    end
+  end
 end
