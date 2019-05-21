@@ -14,8 +14,6 @@ module VBADocuments
           consumer_id: request.headers['X-Consumer-ID']
         )
 
-        # raise(Common::Exceptions::RecordNotFound, submission.guid) if submission.status == 'error'
-
         render status: :accepted,
                json: submission,
                serializer: VBADocuments::V1::UploadSerializer,
@@ -24,8 +22,6 @@ module VBADocuments
 
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
-
-        #  if submission.status == 'error'
 
         if Settings.vba_documents.enable_status_override && request.headers['Status-Override']
           submission.status = request.headers['Status-Override']
