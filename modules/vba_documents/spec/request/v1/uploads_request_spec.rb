@@ -54,7 +54,6 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     it 'should return not_found with data for a non-existent submission' do
       get '/services/vba_documents/v1/uploads/non_existent_guid'
       expect(response).to have_http_status(:not_found)
-      puts response.body
       json = JSON.parse(response.body)
       expect(json['data']['attributes']['guid']).to eq('non_existent_guid')
       expect(json['data']['attributes']['status']).to eq('error')
