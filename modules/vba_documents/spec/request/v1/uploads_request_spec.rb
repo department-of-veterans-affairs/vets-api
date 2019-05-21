@@ -55,8 +55,10 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       get '/services/vba_documents/v1/uploads/non_existent_guid'
       expect(response).to have_http_status(:not_found)
       json = JSON.parse(response.body)
-      expect(json['data']['attributes']['guid']).to eq('non_existent_guid')
-      expect(json['data']['attributes']['status']).to eq('error')
+      expect(json['errors']).to be_an(Array)
+      expect(json['errors'].size).to eq(1)
+      status = json['errors'][0]
+      expect(status['detail']).to include('non_existent_guid')
     end
 
     it 'should return not_found for an expired submission' do
