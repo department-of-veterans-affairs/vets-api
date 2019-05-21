@@ -7,7 +7,7 @@ module ClaimsApi
     swagger_path '/form/526' do
       operation :post do
         key :summary, 'Accepts 526 claim form submission'
-        key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+        key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
         key :operationId, 'post526Claim'
         key :tags, [
           'Disability'
@@ -222,25 +222,19 @@ module ClaimsApi
           key :type, :string
         end
 
-        key :requestBody,
-            "content": {
-              "multipart/form-data": {
-                "schema": {
-                  "type": 'object',
-                  "properties": {
-                    "metadata": {
-                      "$ref": '#/components/schemas/SupportingDocument'
-                    },
-                    "attachment1": {
-                      "type": 'string',
-                      "example": '<<PDF BINARY>>',
-                      "format": 'binary',
-                      "description": 'Attachment contents. Must be provided in PDF format'
-                    }
-                  }
-                }
-              }
-            }
+        parameter do
+          key :name, 'attachment1'
+          key :in, :formData
+          key :type, :file
+          key :description, 'Attachment contents. Must be provided in PDF format'
+        end
+
+        parameter do
+          key :name, 'attachment2'
+          key :in, :formData
+          key :type, :file
+          key :description, 'Attachment contents. Must be provided in PDF format'
+        end
 
         response 200 do
           key :description, 'upload response'
