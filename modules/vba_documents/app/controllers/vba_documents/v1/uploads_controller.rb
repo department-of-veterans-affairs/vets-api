@@ -11,6 +11,7 @@ module VBADocuments
   module V1
     class UploadsController < ApplicationController
       skip_before_action(:authenticate)
+      before_action :verify_settings, only: [:download]
 
       def create
         submission = VBADocuments::UploadSubmission.create(
@@ -43,8 +44,6 @@ module VBADocuments
       end
 
       def download
-        raise ActionController::RoutingError, 'Not Found' unless Settings.vba_documents.enable_download_endpoint
-
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
         raw_file = download_raw_file(submission.guid)
         parsed = VBADocuments::MultipartParser.parse(raw_file.path)
@@ -87,6 +86,10 @@ module VBADocuments
         tempfile.write(parsed['metadata'])
         tempfile.close
         tempfile
+      end
+
+      def verify_settings
+        render plain: 'Not found', status: 404 unless Settings.vba_documents.enable_download_endpoint
       end
     end
   end
