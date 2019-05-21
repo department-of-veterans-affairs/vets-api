@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require 'zip'
+
 require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/upload_error'
+require_dependency 'vba_documents/object_store'
+require_dependency 'vba_documents/multipart_parser'
 
 module VBADocuments
   module V0
@@ -38,6 +42,43 @@ module VBADocuments
                  serializer: VBADocuments::UploadSerializer,
                  render_location: false
         end
+      end
+
+      def download
+        raise ActionController::RoutingError, 'Not Found' unless Settings.vba_documents.enable_download_endpoint
+
+        submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
+        raw_file = download_raw_file(submission.guid)
+        parsed = VBADocuments::MultipartParser.parse(raw_file.path)
+        files = [{ name: 'content', path: parsed['content'].path }] + attachments(parsed)
+        zip_file_name = "/tmp/#{submission.guid}.zip"
+
+        Zip::File.open(zip_file_name, Zip::File::CREATE) do |zipfile|
+          files.each do |file|
+            zipfile.add(file[:name], file[:path])
+          end
+        end
+
+        File.open(zip_file_name, 'r') do |f|
+          send_data f.read, filename: "#{submission.guid}.zip", type: 'application/zip'
+        end
+
+        File.delete(zip_file_name)
+      end
+
+      private
+
+      def download_raw_file(guid)
+        store = VBADocuments::ObjectStore.new
+        tempfile = Tempfile.new(guid)
+        version = store.first_version(guid)
+        store.download(version, tempfile.path)
+        tempfile
+      end
+
+      def attachments(parsed)
+        attachment_keys = parsed.keys.select { |key| key.include? 'attachment' }
+        parsed.slice(*attachment_keys).map { |k, v| { name: k, path: v.path } }
       end
     end
   end
