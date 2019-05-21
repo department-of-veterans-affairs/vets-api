@@ -76,6 +76,11 @@ namespace :form526 do
       end
     end
 
+    # This regex will parse out the errors returned from EVSS.
+    # The error message will be in an ugly stringified hash. There can be multiple
+    # errors in a message. Each error will have a `key` and a `text` key. The
+    # following regex will group all key/text pairs together that are present in
+    # the string.
     MSGS_REGEX = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/
 
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
@@ -90,29 +95,29 @@ namespace :form526 do
     submissions.find_each do |s|
       auth_headers = JSON.parse(s.auth_headers_json)
       s.form526_job_statuses.each do |j|
-        if j.error_class.present?
-          messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
-                       j.error_message.scan(MSGS_REGEX)
-                     else
-                       [[j.error_message]]
-                     end
-          messages.each do |m|
-            message = m[1].present? ? "#{m[0]}: #{m[1]}" : m[0]
-            if errors[message].blank?
-              errors[message] = {
-                submission_ids: [
-                  { sub_id: s.id, p_id: auth_headers['va_eauth_dodedipnid'], date: s.created_at }
-                ],
-                participant_ids: Set[auth_headers['va_eauth_dodedipnid']]
-              }
-            else
-              errors[message][:submission_ids].append(
-                sub_id: s.id,
-                p_id: auth_headers['va_eauth_dodedipnid'],
-                date: s.created_at
-              )
-              errors[message][:participant_ids].add(auth_headers['va_eauth_dodedipnid'])
-            end
+        next if j.error_class.blank?
+        # Check if its an EVSS error and parse, otherwise store the entire message
+        messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
+                     j.error_message.scan(MSGS_REGEX)
+                   else
+                     [[j.error_message]]
+                   end
+        messages.each do |m|
+          message = m[1].present? ? "#{m[0]}: #{m[1]}" : m[0]
+          if errors[message].blank?
+            errors[message] = {
+              submission_ids: [
+                { sub_id: s.id, p_id: auth_headers['va_eauth_dodedipnid'], date: s.created_at }
+              ],
+              participant_ids: Set[auth_headers['va_eauth_dodedipnid']]
+            }
+          else
+            errors[message][:submission_ids].append(
+              sub_id: s.id,
+              p_id: auth_headers['va_eauth_dodedipnid'],
+              date: s.created_at
+            )
+            errors[message][:participant_ids].add(auth_headers['va_eauth_dodedipnid'])
           end
         end
       end
