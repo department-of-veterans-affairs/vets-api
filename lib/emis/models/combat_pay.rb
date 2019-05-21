@@ -12,13 +12,11 @@ module EMIS
     #   @return [Date] date the specified pay terminated.
     #     Day is not available from the pay files and is defaulted to the end of the month
     # @!attribute type_code
-    #   @return [String] code that indicates the type of pay being reported.
-    #
-    #     01 => Combat Zone Tax Exclusion (CZTE)
-    #
-    #     02 => Hostile Fire/Imminent Danger
-    #
-    #     03 => Hazardous Duty incentive
+    #   @return [String] code that indicates the type of pay being
+    #     reported.
+    #       01 => Combat Zone Tax Exclusion (CZTE)
+    #       02 => Hostile Fire/Imminent Danger
+    #       03 => Hazardous Duty incentive
     # @!attribute combat_zone_country_code
     #   @return [String] 2 letter ISO code that represents the country designated a Combat Zone.
     #     Used only when CZTE is indicated by +type_code+

@@ -18,10 +18,8 @@ module EMIS
     # @!attribute termination_reason_code
     #   @return [String] code that represents the reason why the deployment at that location
     #     terminated.
-    #
-    #     C => Completion of Deployment Period at a location
-    #
-    #     W => Not Applicable
+    #       C => Completion of Deployment Period at a location
+    #       W => Not Applicable
     # @!attribute transaction_date
     #   @return [Date] date for the transaction updating deployment location data.
     class DeploymentLocation
