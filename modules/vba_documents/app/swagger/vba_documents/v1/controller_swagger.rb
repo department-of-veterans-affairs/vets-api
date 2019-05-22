@@ -168,6 +168,7 @@ module VbaDocuments
       swagger_path '/uploads/{id}/download' do
         operation :get do
           key :summary, 'Download zip of "what the server sees"'
+          key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Only available in dev and staging'
           key :operationId, 'getBenefitsDocumentUploadDownload'
 
           key :tags, ['document_uploads']
