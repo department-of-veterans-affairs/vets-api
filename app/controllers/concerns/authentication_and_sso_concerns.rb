@@ -9,7 +9,7 @@ module AuthenticationAndSSOConcerns
 
   included do
     before_action :authenticate
-    before_action :set_api_cookie!
+    before_action :set_session_expiration_header
   end
 
   protected
@@ -75,7 +75,6 @@ module AuthenticationAndSSOConcerns
   end
 
   # Sets a cookie "api_session" with all of the key/value pairs from session object.
-  # Ensures that we maintain session of currently signed-in user before switch to session cookies
   def set_api_cookie!
     return unless @session_object
     @session_object.to_hash.each { |k, v| session[k] = v }
@@ -95,6 +94,10 @@ module AuthenticationAndSSOConcerns
       httponly: true,
       domain: Settings.sso.cookie_domain
     }
+  end
+
+  def set_session_expiration_header
+    headers['X-Session-Expiration'] = @session_object.ttl_in_time.httpdate if @session_object.present?
   end
 
   # The contents of MHV SSO Cookie with specifications found here:

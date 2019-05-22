@@ -15,7 +15,7 @@ require 'attr_encrypted'
 #    in the `process_attachments!` method to associate the previously unmoored
 #    files to the submitted claim, and to begin processing them.
 
-class SavedClaim < ActiveRecord::Base
+class SavedClaim < ApplicationRecord
   include SetGuid
 
   validates(:form, presence: true)

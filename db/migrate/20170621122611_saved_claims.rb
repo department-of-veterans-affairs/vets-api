@@ -1,4 +1,4 @@
-class SavedClaims < ActiveRecord::Migration
+class SavedClaims < ActiveRecord::Migration[4.2]
   def change
     create_table(:saved_claims) do |t|
       t.timestamps

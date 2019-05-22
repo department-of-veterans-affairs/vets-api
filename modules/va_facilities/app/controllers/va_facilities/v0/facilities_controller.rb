@@ -16,8 +16,10 @@ module VaFacilities
       before_action :set_default_format
       before_action :validate_params, only: [:index]
 
+      REQUIRE_ONE_PARAM = %i[bbox long lat zip ids state].freeze
       TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
-      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bounding box, or ids parameter to query facilities data.'
+      MISSING_PARAMS_ERR =
+        'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -68,22 +70,23 @@ module VaFacilities
       private
 
       def validate_params
-        validate_bbox_lat_and_long_or_ids
+        validate_a_param_exists
         validate_bbox
+        validate_state_code
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
+        validate_zip
+        valid_location_query?
       end
 
-      def validate_bbox_lat_and_long_or_ids
-        bbox = params.key?(:bbox)
+      def validate_a_param_exists
         lat_and_long = params.key?(:lat) && params.key?(:long)
-        ids = params.key? :ids
 
-        if !bbox && !lat_and_long && !ids
-          %i[bbox long lat ids].each do |param|
+        if !lat_and_long && REQUIRE_ONE_PARAM.none? { |param| params.key? param }
+          REQUIRE_ONE_PARAM.each do |param|
             unless params.key? param
-              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: LAT_AND_LONG_OR_ID_ERR)
+              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
             end
           end
         end
@@ -115,6 +118,43 @@ module VaFacilities
           BaseFacility::TYPES.include?(params[:type])
         unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
         raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+      end
+
+      def validate_state_code
+        if params[:state] && STATE_CODES.exclude?(params[:state])
+          raise Common::Exceptions::InvalidFieldValue.new('state', params[:state])
+        end
+      end
+
+      def validate_zip
+        if params[:zip]
+          raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
+            params[:zip] =~ /\A\d{5}(-\d{4})?\z/
+          zip_plus0 = params[:zip][0...5]
+          requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
+          raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
+            requested_zip.any?
+        end
+      end
+
+      def valid_location_query?
+        case location_keys
+        when [] then true
+        when %i[lat long] then true
+        when [:state]     then true
+        when [:zip]       then true
+        when [:bbox]      then true
+        else
+          # There can only be one
+          render json: {
+            errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
+          },
+                 status: 422
+        end
+      end
+
+      def location_keys
+        (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
       end
 
       def metadata(resource)

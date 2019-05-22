@@ -103,7 +103,7 @@ describe Search::Service do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
           expect_any_instance_of(described_class).to_not receive(:log_message_to_sentry)
 
-          expect { subject.results }.to raise_error
+          expect { subject.results }.to raise_error(Common::Exceptions::BackendServiceException)
         end
       end
     end

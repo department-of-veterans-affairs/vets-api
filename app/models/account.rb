@@ -8,10 +8,11 @@ require 'common/models/concerns/active_record_cache_aside'
 #
 # The account.uuid is intended to become the Vets-API user's uuid.
 #
-class Account < ActiveRecord::Base
+class Account < ApplicationRecord
   include Common::ActiveRecordCacheAside
 
   has_many :user_preferences, dependent: :destroy
+  has_many :notifications, dependent: :destroy
 
   validates :uuid, presence: true, uniqueness: true
   validates :idme_uuid, presence: true, uniqueness: true

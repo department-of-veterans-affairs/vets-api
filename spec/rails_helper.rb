@@ -3,7 +3,7 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV['RAILS_ENV'] ||= 'test'
 ENV['RACK_ENV'] ||= 'test' # Shrine uses this to determine log levels
-require File.expand_path('../../config/environment', __FILE__)
+require File.expand_path('../config/environment', __dir__)
 # Prevent database truncation if the environment is production
 abort('The Rails environment is running in production mode!') if Rails.env.production?
 require 'spec_helper'
@@ -46,21 +46,6 @@ def with_settings(settings, temp_values)
   ensure
     old_settings.each do |k, v|
       settings[k] = v
-    end
-  end
-end
-
-def with_okta_configured(&block)
-  with_settings(
-    Settings.oidc,
-    auth_server_metadata_url: 'https://example.com/oauth2/default/.well-known/openid-configuration',
-    issuer: 'https://example.com/oauth2/default',
-    audience: 'api://default',
-    base_api_url: 'https://example.com/',
-    base_api_token: 'token'
-  ) do
-    VCR.use_cassette('okta/metadata') do
-      yield block
     end
   end
 end

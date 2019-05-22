@@ -2,7 +2,10 @@
 
 require 'mhv_ac/client'
 
-class MhvAccount < ActiveRecord::Base
+##
+# Models an MHV Account
+#
+class MhvAccount < ApplicationRecord
   include AASM
   # http://grafana.vetsgov-internal/dashboard/db/mhv-account-creation
   # the following scopes are used for dashboard metrics in grafana and are collected
@@ -15,7 +18,7 @@ class MhvAccount < ActiveRecord::Base
   scope :created_failed_upgrade, -> { created.where(account_state: :upgrade_failed) }
   scope :created_and_upgraded, -> { created.where.not(upgraded_at: nil) }
   scope :failed_create, -> { where(registered_at: nil, account_state: :register_failed) }
-  # Prior to 8/18 we did not track mhv_correlation_id, so we will be duplicating mhv account records, but because
+  # Prior to 08/2018 we did not track mhv_correlation_id, so we will be duplicating mhv account records, but because
   # accounts could have been deleted / reregistered etc, there is no way to reconcile the historic accounts without
   # reaching out to MHV for "historic" mhv_correlation_ids. Newly created records will be reflected as "active", but
   # "existing" even though they might have actually been created by us and a single uuid can track multiple
@@ -42,7 +45,7 @@ class MhvAccount < ActiveRecord::Base
 
     after_all_transitions :track_state
 
-    # NOTE: This is eligibility for account creation or upgrade, not for access to services.
+    # This is eligibility for account creation or upgrade, not for access to services.
     event :check_eligibility do
       transitions from: ALL_STATES, to: :needs_identity_verification, unless: :identity_proofed?
       transitions from: ALL_STATES, to: :needs_ssn_resolution, if: :ssn_mismatch?
@@ -53,7 +56,7 @@ class MhvAccount < ActiveRecord::Base
       transitions from: ALL_STATES, to: :eligible
     end
 
-    # FIXME: revisit these in the future and see if they can be cleaned up
+    # @todo revisit these in the future and see if they can be cleaned up
     # in the future might need to consider downgrades from upgrade, if account level can be changed.
     event :check_account_state do
       transitions from: %i[eligible], to: :no_account, unless: :exists?
@@ -86,18 +89,31 @@ class MhvAccount < ActiveRecord::Base
   end
   # rubocop:enable Metrics/BlockLength
 
+  ##
+  # @return [Boolean] is the MHV Account creatable?
+  #
   def creatable?
     may_register?
   end
 
+  ##
+  # @return [Boolean] is the MHV Account upgradeable?
+  #
   def upgradable?
     may_upgrade? && account_level.in?(UPGRADABLE_ACCOUNT_LEVELS)
   end
 
+  ##
+  # @return [Boolean] if the T&C have been accepted or not
+  #
   def terms_and_conditions_accepted?
     terms_and_conditions_accepted.present?
   end
 
+  ##
+  # @return [TermsAndConditionsAcceptance] if the T&C have been accepted
+  # @return [NilClass] if the T&C have not been accepted
+  #
   def terms_and_conditions_accepted
     @terms_and_conditions_accepted ||=
       TermsAndConditionsAcceptance.joins(:terms_and_conditions)
@@ -106,19 +122,31 @@ class MhvAccount < ActiveRecord::Base
                                   .where(user_uuid: user_uuid).limit(1).first
   end
 
+  ##
+  # @return [Boolean] is there an MHV Correlation ID?
+  #
   def exists?
     mhv_correlation_id.present?
   end
 
-  # TODO: fix specs around these
+  ##
+  # @return [String] the user's MHV account type
+  # @todo fix specs around these
+  #
   def account_level
     user.mhv_account_type
   end
 
+  ##
+  # @return [Boolean] is the MHV Account already premium?
+  #
   def already_premium?
     !previously_upgraded? && !created_at? && account_level == 'Premium'
   end
 
+  ##
+  # @param user [User] verifies UUID matches and then sets the user account
+  #
   def user=(user)
     raise 'Invalid User UUID' unless user.uuid.to_s == user_uuid.to_s
     @user = user

@@ -1,4 +1,4 @@
-class AddHealthCareApplications < ActiveRecord::Migration
+class AddHealthCareApplications < ActiveRecord::Migration[4.2]
   def change
     create_table "health_care_applications" do |t|
       t.timestamps(null: false)

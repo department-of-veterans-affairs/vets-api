@@ -8,6 +8,11 @@ module EVSS
       FORM_ID = '21-526EZ'
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_cleanup'
 
+      # Cleans up a 526 submission by removing its {InProgressForm} and deleting the
+      # active Intent to File record (via EVSS)
+      #
+      # @param submission_id [Integer] The {Form526Submission} id
+      #
       def perform(submission_id)
         super(submission_id)
         with_tracking('Form526 Cleanup', submission.saved_claim_id, submission.id) do

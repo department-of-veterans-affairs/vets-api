@@ -7,11 +7,18 @@ module ClaimsApi
   module V0
     class ClaimsController < ApplicationController
       skip_before_action(:authenticate)
-      before_action :verify_power_of_attorney
+      skip_before_action(:verify_power_of_attorney)
 
       def index
         claims = service.all
         render json: claims,
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: ClaimsApi::ClaimListSerializer
+      rescue EVSS::ErrorMiddleware::EVSSError => e
+        log_message_to_sentry('EVSSError in claims v0',
+                              :warning,
+                              body: e.message)
+        render json: [],
                serializer: ActiveModel::Serializer::CollectionSerializer,
                each_serializer: ClaimsApi::ClaimListSerializer
       end
@@ -21,8 +28,13 @@ module ClaimsApi
           render json: pending_claim,
                  serializer: ClaimsApi::AutoEstablishedClaimSerializer
         else
-          evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
-          fetch_and_render_evss_claim(evss_claim_id)
+          begin
+            evss_claim_id = ClaimsApi::AutoEstablishedClaim.evss_id_by_token(params[:id]) || params[:id]
+            fetch_and_render_evss_claim(evss_claim_id)
+          rescue EVSS::ErrorMiddleware::EVSSError
+            render json: { errors: [{ detail: 'Claim not found' }] },
+                   status: :not_found
+          end
         end
       end
 
@@ -35,17 +47,6 @@ module ClaimsApi
 
       def service
         ClaimsApi::UnsynchronizedEVSSClaimService.new(target_veteran)
-      end
-
-      def target_veteran
-        ClaimsApi::Veteran.from_headers(request.headers)
-      end
-
-      def verify_power_of_attorney
-        if header('X-Consumer-PoA').present?
-          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
-          verifier.verify(header('X-Consumer-PoA'))
-        end
       end
     end
   end

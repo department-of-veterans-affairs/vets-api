@@ -2,9 +2,21 @@
 
 module EVSS
   module VsoSearch
+    ##
+    # Proxy Service for VSO search
+    #
+    # @example Create a service and fetching current info for a user
+    #   vso_search_response = VsoSearch::Service.new.get_current_info
+    #
     class Service < EVSS::Service
       configuration EVSS::VsoSearch::Configuration
 
+      ##
+      # Returns current info for a user by their SSN
+      #
+      # @param additional_headers [Hash] Any additional HTTP headers you want to include in the request.
+      # @return [Faraday::Response] Faraday response instance
+      #
       def get_current_info(addtional_headers = {})
         with_monitoring_and_error_handling do
           perform(:post, 'getCurrentInfo', nil, request_headers(addtional_headers)).body

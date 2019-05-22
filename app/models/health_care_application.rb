@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class HealthCareApplication < ActiveRecord::Base
+class HealthCareApplication < ApplicationRecord
   include TempFormValidation
   include SentryLogging
 
@@ -13,7 +13,9 @@ class HealthCareApplication < ActiveRecord::Base
   validates(:state, presence: true, inclusion: %w[success error failed pending])
   validates(:form_submission_id_string, :timestamp, presence: true, if: :success?)
 
-  after_save :send_failure_mail, if: proc { |hca| hca.state_changed? && hca.failed? && hca.parsed_form&.dig('email') }
+  after_save(:send_failure_mail, if: proc do |hca|
+    hca.saved_change_to_attribute?(:state) && hca.failed? && hca.parsed_form&.dig('email')
+  end)
 
   def self.get_user_identifier(user)
     return if user.nil?
@@ -75,12 +77,13 @@ class HealthCareApplication < ActiveRecord::Base
       ee_data.slice(
         :application_date,
         :enrollment_date,
-        :preferred_facility
+        :preferred_facility,
+        :effective_date
       ).merge(parsed_status: parsed_status)
     else
       {
         parsed_status:
-          ee_data[:enrollment_status].present? ? :login_required : :none_of_the_above
+          ee_data[:enrollment_status].present? ? Notification::LOGIN_REQUIRED : Notification::NONE_OF_THE_ABOVE
       }
     end
   end

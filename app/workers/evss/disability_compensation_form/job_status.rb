@@ -2,11 +2,18 @@
 
 module EVSS
   module DisabilityCompensationForm
+    # Module that is mixed in to {EVSS::DisabilityCompensationForm::Job} so that it's sub-classes
+    # get automatic metrics and logging.
+    #
     module JobStatus
       extend ActiveSupport::Concern
       include SentryLogging
 
       class_methods do
+        # Callback that fires when a job has exhausted its retries
+        #
+        # @param msg [Hash] The message payload from Sidekiq
+        #
         def job_exhausted(msg)
           submission_id = msg['args'].first
           jid = msg['jid']
@@ -33,6 +40,12 @@ module EVSS
         end
       end
 
+      # Code wrapped by this block will run between the {job_try} and {job_success} methods
+      #
+      # @param job_title [String] Description of the job being run
+      # @param saved_claim_id [Integer] The {SavedClaim} id
+      # @param submission_id [Integer] The {Form526Submission} id
+      #
       def with_tracking(job_title, saved_claim_id, submission_id)
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
@@ -43,6 +56,8 @@ module EVSS
         job_success
       end
 
+      # Metrics and logging for each Sidekiq try
+      #
       def job_try
         upsert_job_status(Form526JobStatus::STATUS[:try])
         log_info('try')
@@ -51,6 +66,8 @@ module EVSS
         Rails.logger.error('error tracking job try', error: error, class: klass)
       end
 
+      # Metrics and logging for when the job succeeds
+      #
       def job_success
         upsert_job_status(Form526JobStatus::STATUS[:success])
         log_info('success')
@@ -59,12 +76,18 @@ module EVSS
         Rails.logger.error('error tracking job success', error: error, class: klass)
       end
 
+      # Metrics and logging for any retryable errors that occurred.
+      # Retryable are system recoverable, e.g. an upstream http timeout
+      #
       def retryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:retryable_error], error)
         log_error('retryable_error', error)
         metrics.increment_retryable(error)
       end
 
+      # Metrics and logging for any non-retryable errors that occurred.
+      # Non-retryable errors will always fail, e.g. an ArgumentError in the job class
+      #
       def non_retryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:non_retryable_error], error)
         log_exception_to_sentry(error, status: :non_retryable_error, jid: jid)

@@ -100,7 +100,8 @@ paths:
       parameters:
         - name: ids
           description: |
-            List of command separated ids of facilities to retrieve in a single request
+            List of comma separated ids of facilities to retrieve in a single request.
+            Can be combined with lat and long parameters to retrieve the facilities sorted by distance from a location.
           in: query
           style: form
           explode: false
@@ -109,6 +110,23 @@ paths:
             type: array
             items:
               type: string
+        - name: zip
+          in: query
+          description: |
+            Zip code to search for VA Facilities. 
+            More detailed zip codes can be passed in, but only the first five digits are used to determine facilities to return.
+          required: false
+          schema:
+            type: string
+            format: '##### or #####-####'
+        - name: state
+          in: query
+          description: |
+            Two character state code to search for VA Facilities.
+          required: false
+          schema:
+            type: string
+            format: XX
         - name: lat
           in: query
           description: |

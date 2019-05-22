@@ -3,6 +3,16 @@
 require 'common/models/base'
 
 module Preneeds
+  # Models the input needed to query {Preneeds::Service#get_military_rank_for_branch_of_service}
+  # For use within the {Preneeds::BurialForm} form.
+  #
+  # @!attribute branch_of_service
+  #   @return [String] branch of service abbreviated code
+  # @!attribute start_date
+  #   @return [XmlDate] start date for branch of service
+  # @!attribute end_date
+  #   @return [XmlDate] end date of branch of service.
+  #
   class MilitaryRankInput < Common::Base
     include ActiveModel::Validations
 

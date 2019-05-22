@@ -1,0 +1,237 @@
+# frozen_string_literal: true
+
+module ClaimsApi
+  class Form0966V1ControllerSwagger
+    include Swagger::Blocks
+
+    swagger_path '/form/0966' do
+      operation :post do
+        key :summary, 'Accepts 0966 Intent to File form submission'
+        key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
+        key :operationId, 'post0966itf'
+        key :tags, [
+          'Intent to File'
+        ]
+
+        parameter do
+          key :name, 'bearer_token'
+          key :in, :header
+          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'payload'
+          key :in, :body
+          key :description, 'JSON API Payload of Veteran being submitted'
+          key :required, true
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :object
+              key :required, [:attributes]
+              property :attributes do
+                key :type, :object
+                property :type do
+                  key :type, :string
+                  key :example, 'compensation'
+                  key :description, 'Required by JSON API standard'
+                  key :enum, %w[
+                    compensation
+                    burial
+                    pension
+                  ]
+                end
+              end
+            end
+          end
+        end
+
+        response 200 do
+          key :description, '0966 response'
+          schema do
+            key :'$ref', :Form0966Output
+          end
+        end
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+    end
+
+    swagger_path '/form/0966/active' do
+      operation :get do
+        key :summary, 'Returns last active 0966 Intent to File form submission'
+        key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
+        key :operationId, 'post0966itf'
+        key :tags, [
+          'Intent to File'
+        ]
+
+        parameter do
+          key :name, 'bearer_token'
+          key :in, :header
+          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-SSN'
+          key :in, :header
+          key :description, 'SSN of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-First-Name'
+          key :in, :header
+          key :description, 'First Name of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Last-Name'
+          key :in, :header
+          key :description, 'Last Name of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-Birth-Date'
+          key :in, :header
+          key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-EDIPI'
+          key :in, :header
+          key :description, 'EDIPI Number of Veteran to fetch'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'X-VA-User'
+          key :in, :header
+          key :description, 'VA username of the person making the request'
+          key :required, false
+          key :type, :string
+        end
+
+        parameter do
+          key :name, 'payload'
+          key :in, :body
+          key :description, 'JSON API Payload of Veteran being submitted'
+          key :required, true
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :object
+              key :required, [:attributes]
+              property :attributes do
+                key :type, :object
+                property :type do
+                  key :type, :string
+                  key :example, 'compensation'
+                  key :description, 'Required by JSON API standard'
+                  key :enum, %w[
+                    compensation
+                    burial
+                    pension
+                  ]
+                end
+              end
+            end
+          end
+        end
+
+        response 200 do
+          key :description, '0966 response'
+          schema do
+            key :'$ref', :Form0966Output
+          end
+        end
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+    end
+  end
+end

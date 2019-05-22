@@ -2,9 +2,18 @@
 
 module EVSS
   module PCIUAddress
+    ##
+    # Proxy Service for PCIU Address Caseflow.
+    #
+    # @example Creating a service and fetching a country list
+    #   letters_response = EVSS::PCIUAddress::Service.new.get_countries
+    #
     class Service < EVSS::Service
       configuration EVSS::PCIUAddress::Configuration
 
+      ##
+      # @return [EVSS::PCIUAddress::CountriesResponse] A list of country names
+      #
       def get_countries
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'countries')
@@ -12,6 +21,9 @@ module EVSS
         end
       end
 
+      ##
+      # @return [EVSS::PCIUAddress::StatesResponse] A list of state names
+      #
       def get_states
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'states')
@@ -19,6 +31,9 @@ module EVSS
         end
       end
 
+      ##
+      # @return [EVSS::PCIUAddress::AddressResponse] Mailing address for a user
+      #
       def get_address
         with_monitoring_and_error_handling do
           raw_response = perform(:get, 'mailingAddress')
@@ -26,6 +41,9 @@ module EVSS
         end
       end
 
+      ##
+      # @return [EVSS::PCIUAddress::AddressResponse] The updated mailing address for a user
+      #
       def update_address(address)
         with_monitoring_and_error_handling do
           raw_response = perform(:post, 'mailingAddress', request_body(address), headers)

@@ -8,6 +8,7 @@ require 'rx/client'
 require 'support/rx_client_helpers'
 require 'bb/client'
 require 'support/bb_client_helpers'
+require 'support/pagerduty/services/spec_setup'
 
 RSpec.describe 'API doc validations', type: :request do
   context 'json validation' do
@@ -35,8 +36,36 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
-    it 'supports getting backend service status' do
-      expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
+    describe 'backend statuses' do
+      describe '/v0/backend_statuses/{service}' do
+        it 'supports getting backend service status' do
+          expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
+        end
+      end
+
+      describe '/v0/backend_statuses' do
+        context 'without a signed in user' do
+          it 'returns a 401' do
+            expect(subject).to validate(:get, '/v0/backend_statuses', 401)
+          end
+        end
+
+        context 'when successful' do
+          include_context 'simulating Redis caching of PagerDuty#get_services'
+
+          it 'supports getting external services status data' do
+            expect(subject).to validate(:get, '/v0/backend_statuses', 200, headers)
+          end
+        end
+
+        context 'when the PagerDuty API rate limit has been exceeded' do
+          it 'returns a 429 with error details' do
+            VCR.use_cassette('pagerduty/external_services/get_services_429') do
+              expect(subject).to validate(:get, '/v0/backend_statuses', 429, headers)
+            end
+          end
+        end
+      end
     end
 
     it 'supports listing in-progress forms' do
@@ -189,6 +218,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
     end
 
     context 'HCA tests' do
+      let(:login_required) { Notification::LOGIN_REQUIRED }
       let(:test_veteran) do
         File.read(
           Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
@@ -199,7 +229,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         expect(HealthCareApplication).to receive(:user_icn).and_return('123')
         expect(HealthCareApplication).to receive(:enrollment_status).with(
           '123', nil
-        ).and_return(parsed_status: :login_required)
+        ).and_return(parsed_status: login_required)
 
         expect(subject).to validate(
           :get,
@@ -363,6 +393,12 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         )
       end
 
+      let(:form526v2) do
+        File.read(
+          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
+        )
+      end
+
       it 'supports getting rated disabilities' do
         expect(subject).to validate(:get, '/v0/disability_compensation_form/rated_disabilities', 401)
         VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
@@ -400,6 +436,28 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                   200,
                   headers.update(
                     '_data' => form526
+                  )
+                )
+              end
+            end
+          end
+        end
+      end
+
+      it 'supports submitting the v2 form' do
+        allow(EVSS::DisabilityCompensationForm::SubmitForm526)
+          .to receive(:perform_async).and_return('57ca1a62c75e551fd2051ae9')
+        expect(subject).to validate(:post, '/v0/disability_compensation_form/submit_all_claim', 401)
+        VCR.use_cassette('evss/ppiu/payment_information') do
+          VCR.use_cassette('evss/intent_to_file/active_compensation') do
+            VCR.use_cassette('emis/get_military_service_episodes/valid', allow_playback_repeats: true) do
+              VCR.use_cassette('evss/disability_compensation_form/submit_form_v2') do
+                expect(subject).to validate(
+                  :post,
+                  '/v0/disability_compensation_form/submit_all_claim',
+                  200,
+                  headers.update(
+                    '_data' => form526v2
                   )
                 )
               end
@@ -469,26 +527,39 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
           expect(subject).to validate(:get, '/v0/ppiu/payment_information', 200, headers)
         end
       end
+
+      it 'supports updating payment information' do
+        expect(subject).to validate(:put, '/v0/ppiu/payment_information', 401)
+        VCR.use_cassette('evss/ppiu/update_payment_information') do
+          expect(subject).to validate(
+            :put,
+            '/v0/ppiu/payment_information',
+            200,
+            headers.update(
+              '_data' => {
+                'account_type' => 'Checking',
+                'financial_institution_name' => 'Bank of Amazing',
+                'account_number' => '1234567890',
+                'financial_institution_routing_number' => '123456789'
+              }
+            )
+          )
+        end
+      end
     end
 
     describe 'supporting evidence upload' do
-      let(:form_attachment) do
-        {
-          id: 272,
-          created_at: Time.now.utc,
-          updated_at: Time.now.utc,
-          guid: '1e4d33f4-2bf7-44b9-ba2c-121d9a794d87',
-          ecrypted_file_data: 'WVTedVIfvkqLePMMGNUrrtRvLPXiURrJS8ZuEvQ//Lim',
-          encrypted_file_data: 'ayqrfIpruCPtLGnA'
-        }
-      end
-
       it 'supports uploading a file' do
-        allow_any_instance_of(FormAttachmentCreate)
-          .to receive(:create)
-          .and_return(form_attachment)
-        expect(subject).to validate(:post, '/v0/upload_supporting_evidence', 200,
-                                    'supporting_evidence_attachment' => { 'file_data' => 'foo.pdf' })
+        expect(subject).to validate(
+          :post,
+          '/v0/upload_supporting_evidence',
+          200,
+          '_data' => {
+            'supporting_evidence_attachment' => {
+              'file_data' => fixture_file_upload('spec/fixtures/pdf_fill/extras.pdf')
+            }
+          }
+        )
       end
 
       it 'returns a 500 if no attachment data is given' do
@@ -859,7 +930,7 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
                   headers.merge('_data' => {
                                   'from_date' => 10.years.ago.iso8601.to_json,
                                   'to_date' => Time.now.iso8601.to_json,
-                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES.to_json
+                                  'data_classes' => BB::GenerateReportRequestForm::ELIGIBLE_DATA_CLASSES
                                 })
                 )
               end
@@ -1076,32 +1147,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
 
       it 'supports getting user with some external errors', skip_mvi: true do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
-      end
-    end
-
-    context '#feedback' do
-      before(:all) do
-        Rack::Attack.cache.store = Rack::Attack::StoreProxy::RedisStoreProxy.new(Redis.current)
-      end
-      before(:each) do
-        Rack::Attack.cache.store.flushdb
-      end
-      let(:feedback_params) do
-        {
-          'description' => 'I liked this page',
-          'target_page' => '/some/example/page.html',
-          'owner_email' => 'example@email.com'
-        }
-      end
-      let(:missing_feedback_params) { feedback_params.except('target_page') }
-
-      it 'returns 202 for valid feedback' do
-        expect(subject).to validate(:post, '/v0/feedback', 202,
-                                    '_data' => { 'feedback' => feedback_params })
-      end
-      it 'returns 400 if a param is missing or invalid' do
-        expect(subject).to validate(:post, '/v0/feedback', 400,
-                                    '_data' => { 'feedback' => missing_feedback_params })
       end
     end
 
@@ -1921,6 +1966,284 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
         it 'returns a 429 with error details' do
           VCR.use_cassette('search/exceeds_rate_limit') do
             expect(subject).to validate(:get, '/v0/search', 429, '_query_string' => 'query=benefits')
+          end
+        end
+      end
+    end
+
+    describe 'notifications' do
+      let(:notification_subject) { Notification::FORM_10_10EZ }
+
+      describe 'POST /v0/notifications' do
+        let(:post_body) do
+          {
+            subject: notification_subject,
+            read: false
+          }
+        end
+
+        it 'supports posting notification data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            200,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            401,
+            '_data' => post_body
+          )
+        end
+
+        it 'supports validating posted notification data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications',
+            422,
+            headers.merge('_data' => post_body.merge(subject: 'random_subject'))
+          )
+        end
+      end
+
+      describe 'GET /v0/notifications/{subject}' do
+        context 'when user has an associated Notification record' do
+          let!(:notification) do
+            create :notification, account_id: mhv_user.account.id, subject: notification_subject
+          end
+
+          it 'supports getting dismissed status data' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/{subject}',
+              200,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'when user does not have an associated Notification record' do
+          it 'supports record not found feedback' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/{subject}',
+              404,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'authorization' do
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/{subject}',
+              401,
+              'subject' => notification_subject
+            )
+          end
+        end
+
+        context 'when the passed subject is not defined in the Notification#subject enum' do
+          it 'supports invalid subject validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/{subject}',
+              422,
+              headers.merge('subject' => 'random_subject')
+            )
+          end
+        end
+      end
+
+      describe 'PATCH /v0/notifications/{subject}' do
+        let(:patch_body) { { read: true } }
+
+        context 'user has an existing Notification record with the passed subject' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports updating notification data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              200,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
+          end
+
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              401,
+              '_data' => patch_body, 'subject' => notification_subject
+            )
+          end
+
+          it 'supports validating updated notification data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              422,
+              headers.merge('_data' => patch_body, 'subject' => 'random_subject')
+            )
+          end
+        end
+
+        context 'user does not have a Notification record with the passed subject' do
+          it 'supports validating the presence of an existing record to be updated' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/{subject}',
+              404,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
+          end
+        end
+      end
+
+      describe 'GET /v0/notifications/dismissed_statuses/{subject}' do
+        context 'when user has an associated Notification record' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports getting dismissed status data' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              200,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'when user does not have an associated Notification record' do
+          it 'supports record not found feedback' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              404,
+              headers.merge('subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'authorization' do
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              401,
+              'subject' => notification_subject
+            )
+          end
+        end
+
+        context 'when the passed subject is not defined in the Notification#subject enum' do
+          it 'supports invalid subject validation' do
+            expect(subject).to validate(
+              :get,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              422,
+              headers.merge('subject' => 'random_subject')
+            )
+          end
+        end
+      end
+
+      describe 'POST /v0/notifications/dismissed_statuses' do
+        let(:post_body) do
+          {
+            subject: notification_subject,
+            status: Notification::PENDING_MT,
+            status_effective_at: '2019-04-23T00:00:00.000-06:00'
+          }
+        end
+
+        it 'supports posting dismissed status data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            200,
+            headers.merge('_data' => post_body)
+          )
+        end
+
+        it 'supports authorization validation' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            401,
+            '_data' => post_body
+          )
+        end
+
+        it 'supports validating posted dismissed status data' do
+          expect(subject).to validate(
+            :post,
+            '/v0/notifications/dismissed_statuses',
+            422,
+            headers.merge('_data' => post_body.merge(status: 'random_status'))
+          )
+        end
+      end
+
+      describe 'PATCH /v0/notifications/dismissed_statuses/{subject}' do
+        let(:patch_body) do
+          {
+            status: Notification::CLOSED,
+            status_effective_at: '2019-04-23T00:00:00.000-06:00'
+          }
+        end
+
+        context 'user has an existing Notification record with the passed subject' do
+          let!(:notification) do
+            create :notification, :dismissed_status, account_id: mhv_user.account.id, read_at: Time.current
+          end
+
+          it 'supports updating dismissed status data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              200,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
+          end
+
+          it 'supports authorization validation' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              401,
+              '_data' => patch_body, 'subject' => notification_subject
+            )
+          end
+
+          it 'supports validating updated dismissed status data' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              422,
+              headers.merge('_data' => patch_body.merge(status: 'random_status'), 'subject' => notification_subject)
+            )
+          end
+        end
+
+        context 'user does not have a Notification record with the passed subject' do
+          it 'supports validating the presence of an existing record to be updated' do
+            expect(subject).to validate(
+              :patch,
+              '/v0/notifications/dismissed_statuses/{subject}',
+              404,
+              headers.merge('_data' => patch_body, 'subject' => notification_subject)
+            )
           end
         end
       end

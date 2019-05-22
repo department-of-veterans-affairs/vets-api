@@ -12,7 +12,7 @@ RSpec.describe Preneeds::MilitaryRank do
     it 'populates attributes' do
       expect(described_class.attribute_set.map(&:name)).to contain_exactly(
         :branch_of_service_cd, :activated_one_date, :activated_two_date, :activated_three_date,
-        :deactivated_one_date, :deactivated_two_date, :deactivated_three_date, :officer_ind, :military_rank_detail
+        :deactivated_one_date, :deactivated_two_date, :deactivated_three_date, :military_rank_detail
       )
 
       expect(subject.branch_of_service_cd).to eq(params[:branch_of_service_cd])
@@ -22,7 +22,6 @@ RSpec.describe Preneeds::MilitaryRank do
       expect(subject.deactivated_one_date).to eq(params[:deactivated_one_date])
       expect(subject.deactivated_two_date).to eq(params[:deactivated_two_date])
       expect(subject.deactivated_three_date).to eq(params[:deactivated_three_date])
-      expect(subject.officer_ind).to eq(params[:officer_ind])
       expect(subject.military_rank_detail.attributes).to eq(params[:military_rank_detail])
     end
 

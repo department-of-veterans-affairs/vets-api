@@ -11,7 +11,7 @@ Gem::Specification.new do |s|
   s.version     = ClaimsApi::VERSION
   s.authors     = ['Alex Teal']
   s.email       = ['alex.teal@oddball.io']
-  s.homepage    = 'https://api.vets.gov/services/claims/docs/v0'
+  s.homepage    = 'https://api.va.gov/services/claims/docs/v0'
   s.summary     = 'EVSS Claims Status'
   s.description = 'EVSS claim status API'
   s.license     = 'CC0'
@@ -19,7 +19,7 @@ Gem::Specification.new do |s|
   s.files = Dir['{app,config,db,lib}/**/*', 'MIT-LICENSE', 'Rakefile', 'README.rdoc']
   s.test_files = Dir['spec/**/*']
 
-  s.add_dependency 'rails', '~> 4.2.11'
+  s.add_dependency 'rails', '~> 5.1.6.2'
 
   s.add_development_dependency 'factory_bot_rails'
   s.add_development_dependency 'pg'

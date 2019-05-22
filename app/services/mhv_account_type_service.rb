@@ -3,6 +3,11 @@
 require 'bb/client'
 require 'sentry_logging'
 
+##
+# Models logic pertaining to the verification and logging of MHV accounts
+#
+# @param user [User] the user object
+#
 class MhvAccountTypeService
   include SentryLogging
   ELIGIBLE_DATA_CLASS_COUNT_TO_ACCOUNT_LEVEL = {
@@ -21,6 +26,12 @@ class MhvAccountTypeService
 
   attr_reader :user, :eligible_data_classes
 
+  ##
+  # Retrieve the MHV account type
+  #
+  # @return [NilClass] if the account is not an MHV account
+  # @return [String] if the account is an MHV account, returns the account type
+  #
   def mhv_account_type
     return nil unless mhv_account?
 
@@ -36,10 +47,16 @@ class MhvAccountTypeService
     DEFAULT_ACCOUNT_LEVEL
   end
 
+  ##
+  # @return [Boolean] does the user have an MHV correlation ID?
+  #
   def mhv_account?
     user.mhv_correlation_id.present?
   end
 
+  ##
+  # @return [Boolean] is the user MHV account type known?
+  #
   def account_type_known?
     user.identity.mhv_account_type.present?
   end
