@@ -115,13 +115,15 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         expect(response.status).to eq(404)
       end
     end
+
+    # rubocop:enable Style/DateTime
     it 'should return a 200 with content-type of zip' do
       objstore = instance_double(VBADocuments::ObjectStore)
       version = instance_double(Aws::S3::ObjectVersion)
       allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
       allow(objstore).to receive(:first_version).and_return(version)
       allow(objstore).to receive(:download)
-      allow(version).to receive(:last_modified).and_return(Date.now.utc)
+      allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
 
       get "/services/vba_documents/v1/uploads/#{upload.guid}/download"

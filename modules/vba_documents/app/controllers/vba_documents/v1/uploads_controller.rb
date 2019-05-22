@@ -4,8 +4,7 @@ require 'zip'
 
 require_dependency 'vba_documents/application_controller'
 require_dependency 'vba_documents/upload_error'
-require_dependency 'vba_documents/object_store'
-require_dependency 'vba_documents/multipart_parser'
+require_dependency 'vba_documents/payload_manager'
 
 module VBADocuments
   module V1
@@ -45,19 +44,8 @@ module VBADocuments
 
       def download
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
-        raw_file = download_raw_file(submission.guid)
-        parsed = VBADocuments::MultipartParser.parse(raw_file.path)
-        files = [
-          { name: 'content.pdf', path: parsed['content'].path },
-          { name: 'metadata.json', path: write_json(submission.guid, parsed).path }
-        ] + attachments(parsed)
-        zip_file_name = "/tmp/#{submission.guid}.zip"
 
-        Zip::File.open(zip_file_name, Zip::File::CREATE) do |zipfile|
-          files.each do |file|
-            zipfile.add(file[:name], file[:path])
-          end
-        end
+        zip_file_name = VBADocuments::PayloadManager.zip(submission)
 
         File.open(zip_file_name, 'r') do |f|
           send_data f.read, filename: "#{submission.guid}.zip", type: 'application/zip'
@@ -67,26 +55,6 @@ module VBADocuments
       end
 
       private
-
-      def download_raw_file(guid)
-        store = VBADocuments::ObjectStore.new
-        tempfile = Tempfile.new(guid)
-        version = store.first_version(guid)
-        store.download(version, tempfile.path)
-        tempfile
-      end
-
-      def attachments(parsed)
-        attachment_keys = parsed.keys.select { |key| key.include? 'attachment' }
-        parsed.slice(*attachment_keys).map { |k, v| { name: "#{k}.pdf", path: v.path } }
-      end
-
-      def write_json(guid, parsed)
-        tempfile = Tempfile.new("#{guid}_metadata.json")
-        tempfile.write(parsed['metadata'])
-        tempfile.close
-        tempfile
-      end
 
       def verify_settings
         render plain: 'Not found', status: 404 unless Settings.vba_documents.enable_download_endpoint
