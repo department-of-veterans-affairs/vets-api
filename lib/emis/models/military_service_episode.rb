@@ -3,6 +3,31 @@
 module EMIS
   module Models
     # EMIS military service episode data
+    #
+    # @!attribute personnel_category_type_code
+    #   @return [String] code that represents the personnel category of the
+    #     unit.
+    #       A => Active Duty
+    #       B => Presidential Appointee
+    #       C => DoD Civil Service
+    #       D => Disabled Veteran
+    #       E => DoD Contractor
+    #       F => Former Member
+    #       H => Medal of Honor
+    #       I => Othr Gov Agcy Empl
+    #       J => Academy Student
+    #       K => NAF DoD Employee
+    #       L => Lighthouse Service
+    #       M => Non-gov Agcy Pnl
+    #       N => National Guard
+    #       O => Othr Gov Agcy Cntrct
+    #       Q => Reserve Retiree
+    #       R => Retired
+    #       T => Foreign Military
+    #       U => Foreign National
+    #       V => Reserve
+    #       W => DoD Beneficiary
+    #       Y => Civilian Retirees
     class MilitaryServiceEpisode
       include Virtus.model
 

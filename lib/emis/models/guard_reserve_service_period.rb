@@ -75,38 +75,7 @@ module EMIS
     #       Y => Section 802 of 10 U.S.C.
     #       Z => Unknown (for use with Project Code A99 or B99)
     # @!attribute project_code
-    #   @return [String] this data element provides the granularity to differentiate between
-    #     the various contingencies. Currently that granularity is not available, so it is
-    #     defaulted to 9GF for OCO contingencies.
-    #       3GC => Deepwater Horizon
-    #       3JH => Mexico Wildland Firefighting
-    #       3JO => Border Patrol (Jump Start)
-    #       3JT => Unified Response
-    #       9BU => Southern Watch/Desert Thunder
-    #       9EC => Uphold Democracy
-    #       9EV => Joint Endeavor/Guard
-    #       9FF => Joint Forge
-    #       9FS => Allied Force
-    #       9FV => Joint Guardian
-    #       9GF => Overseas Contingency Operation (OCO)
-    #       9GY => Hurricane Katrina (Aug 31, 2005)
-    #       9HA => Hurricane Ophelia (Wilma Sep 14, 2005)
-    #       9HB => Hurricane Rita (Sep 21, 2005)
-    #       9HC => Pakistan
-    #       A20 => AD - ADT - IADT
-    #       A21 => AD - ADT - AT
-    #       A22 => AD - ADT - OTD
-    #       A25 => AD - ADOT - ADOS
-    #       A26 => AD - ADOT - AGR
-    #       A27 => AD - ADOT - Involuntary
-    #       A28 => AD - Other
-    #       A99 => AD - Unknown (derived period)
-    #       B21 => FTNG - AT
-    #       B22 => FTNGD - OTD
-    #       B25 => FTNGD - OS
-    #       B26 => FTNGD - AGR
-    #       B27 => FTNGD - Involuntary
-    #       B99 => FTNGD - Unknown (derived period)
+    #   (see EMIS::Models::Deployment#project_code)
     # @!attribute post_911_gibill_loss_category_code
     #   @return [String] This is a DMDC derived data element created by grouping the
     #     Separation Program Designator code into categories used by the Department of
