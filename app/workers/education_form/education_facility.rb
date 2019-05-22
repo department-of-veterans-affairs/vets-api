@@ -76,6 +76,9 @@ module EducationForm
         return :eastern
       end
 
+      # special case 1995 STEM
+      return :eastern if model.form_type == '1995' && record.applyingForStem
+
       check_area(address)
     end
 
