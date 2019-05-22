@@ -76,7 +76,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('myhealthevet_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123')
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (myhealthevet authn_context) first time verification' do
@@ -94,7 +94,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('myhealthevet_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123')
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (myhealthevet_multifactor authn_context) first time verification' do
@@ -112,7 +112,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('dslogon_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123')
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (dslogon authn_context) first time verification' do
@@ -130,7 +130,7 @@ RSpec.describe SAML::URLService do
             .to receive(:authn_context=).with('dslogon_loa3')
           expect(subject.verify_url)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => '123')
+            .with_relay_state('originating_request_id' => '123', 'type' => 'verify')
         end
 
         it 'has sign in url: with (dslogon_multifactor authn_context) first time verification' do

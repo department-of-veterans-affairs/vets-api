@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'routes for Session', type: :routing do
-  V0::SessionsController::REDIRECT_URLS.each do |type|
+  SessionActivity::SESSION_ACTIVITY_TYPES.each do |type|
     it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
       expect(get("/sessions/#{type}/new")).to route_to(
         controller: 'v0/sessions',

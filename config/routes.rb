@@ -10,7 +10,7 @@ Rails.application.routes.draw do
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
   get '/sessions/:type/new',
       to: 'v0/sessions#new',
-      constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+      constraints: ->(request) { SessionActivity::SESSION_ACTIVITY_TYPES.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index
