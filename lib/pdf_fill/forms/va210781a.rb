@@ -236,7 +236,7 @@ module PdfFill
       end
 
       def combine_source_name_address(incident)
-        return if incident.blank?
+        return if incident.blank? || incident['sources'].blank?
 
         incident['sources'].each_with_index do |source, index|
           combined_source_address = combine_full_address(source['address'])
