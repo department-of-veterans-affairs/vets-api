@@ -13,10 +13,8 @@ saml:
   callback_url: http://localhost:3000/auth/saml/callback
   metadata_url: https://api.idmelabs.com/saml/metadata/provider
 
-# This is permanently true, there is no going back, consider removing altogether
 session_cookie:
-  enabled: true
-  secure: true
+  secure: false
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
