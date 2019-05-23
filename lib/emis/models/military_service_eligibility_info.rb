@@ -93,8 +93,17 @@ module EMIS
     # @!attribute end_date
     #   @return [Date] date when the personnel segment terminated.
     # @!attribute branch_of_service_code
-    #   @return [String] date when the personnel segment terminated.
-
+    #   (see EMIS::Models::MilitaryServiceEpisode#branch_of_service_code)
+    # @!attribute discharge_character_of_service_code
+    #   (see EMIS::Models::MilitaryServiceEpisode#discharge_character_of_service_code)
+    # @!attribute honorable_discharge_for_va_purpose_code
+    #   (see EMIS::Models::MilitaryServiceEpisode#honorable_discharge_for_va_purpose_code)
+    # @!attribute narrative_reason_for_separation_code
+    #   (see EMIS::Models::MilitaryServiceEpisode#narrative_reason_for_separation_code)
+    # @!attribute deployments
+    #   @return [Array<EMIS::Models::EligibilityDeployment>] associated eligibility deployments
+    # @!attribute combat_pay
+    #   @return [Array<EMIS::Models::CombatPay>] associated combat pay data
     class EligibilityMilitaryServiceEpisode
       include Virtus.model
 
@@ -108,7 +117,15 @@ module EMIS
       attribute :combat_pay, Array[EMIS::Models::CombatPay]
     end
 
-    # Military service eligibility data
+    # EMIS Military service eligibility data
+    #
+    # @!attribute veteran_status
+    #   @return [Array<EMIS::Models::VeteranStatus>] associated veteran status data
+    # @!attribute dental_indicator
+    #   @return [Array<EMIS::Models::DentalIndicator>] associated dental indicator data
+    # @!attribute military_service_episodes
+    #   @return [Array<EMIS::Models::EligibilityMilitaryServiceEpisode>] associated
+    #     eligibility military service episodes
     class MilitaryServiceEligibilityInfo
       include Virtus.model
 
