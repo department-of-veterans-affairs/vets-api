@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
+require_dependency 'vba_documents/payload_manager'
 require 'vba_documents/object_store'
 require 'vba_documents/upload_error'
 
@@ -24,7 +25,7 @@ module VBADocuments
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
-      tempfile, timestamp = download_raw_file(guid)
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(guid)
       begin
         Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
@@ -123,14 +124,6 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC201',
                                             detail: "Downstream status: #{status} - #{body}")
       end
-    end
-
-    def download_raw_file(guid)
-      store = VBADocuments::ObjectStore.new
-      tempfile = Tempfile.new(guid)
-      version = store.first_version(guid)
-      store.download(version, tempfile.path)
-      [tempfile, version.last_modified]
     end
 
     def validate_parts(parts)
