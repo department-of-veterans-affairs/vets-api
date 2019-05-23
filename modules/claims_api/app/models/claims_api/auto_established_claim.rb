@@ -19,18 +19,11 @@ module ClaimsApi
     validates :md5, uniqueness: true
 
     # these attributes are added to match the serializer with the claims detail serializer
-    attribute :date_filed
-    attribute :min_est_date
-    attribute :max_est_date
-    attribute :open
-    attribute :waiver_submitted
-    attribute :documents_needed
-    attribute :development_letter_sent
-    attribute :decision_letter_sent
-    attribute :requested_decision
+    attributes :date_filed, :min_est_date, :max_est_date, :open, :waiver_submitted,
+               :documents_needed, :development_letter_sent, :decision_letter_sent,
+               :requested_decision, :va_representative
     attribute :claim_type, default: 'Compensation'
     attribute :contention_list, default: []
-    attribute :va_representative
     attribute :events_timeline, default: []
 
     alias token id
