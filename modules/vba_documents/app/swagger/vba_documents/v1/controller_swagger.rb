@@ -165,6 +165,48 @@ module VbaDocuments
         end
       end
 
+      swagger_path '/uploads/{id}/download' do
+        operation :get do
+          key :summary, 'Download zip of "what the server sees"'
+          key :description, 'An endpoint that will allow you to see exactly what the server sees. We split apart all submitted docs and metadata and zip the file to make it available to you to help with debugging purposes. Only available in dev and staging'
+          key :operationId, 'getBenefitsDocumentUploadDownload'
+
+          key :tags, ['document_uploads']
+
+          security do
+            key :api_key, []
+          end
+
+          parameter do
+            key :name, 'id'
+            key :in, :path
+            key :description, 'ID as returned by a previous create upload request'
+            key :required, true
+            key :example, '6d8433c1-cd55-4c24-affd-f592287a7572'
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'Zip file with the contents of your payload as parsed by our server'
+            schema do
+              key :type, :file
+            end
+          end
+
+          response 401 do
+            key :description, 'Unauthorized request'
+          end
+
+          response 403 do
+            key :description, 'Bad API Token'
+          end
+
+          response 404 do
+            key :description, 'Not Found'
+          end
+        end
+      end
+
       swagger_path '/uploads/report' do
         operation :post do
           key :tags, %i[document_uploads]
