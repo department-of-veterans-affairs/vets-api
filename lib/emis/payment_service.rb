@@ -4,6 +4,7 @@ require 'emis/service'
 require 'emis/payment_configuration'
 
 module EMIS
+  # HTTP Client for EMIS Payment Service requests.
   class PaymentService < Service
     configuration EMIS::PaymentConfiguration
 
@@ -18,6 +19,8 @@ module EMIS
 
     protected
 
+    # Custom namespaces used in EMIS SOAP request message
+    # @return [Config::Options] Custom namespaces object
     def custom_namespaces
       Settings.emis.payment.soap_namespaces
     end

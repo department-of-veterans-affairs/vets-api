@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS Guard and Reserve service period data
     class GuardReserveServicePeriod
       include Virtus.model
 

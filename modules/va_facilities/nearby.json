@@ -1,0 +1,1598 @@
+[
+  {
+    "id": "vha_570GB",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Tulare VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": null,
+      "lat": 36.2233760600001,
+      "long": -119.33742083,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "93274-2251",
+          "city": "Tulare",
+          "state": "CA",
+          "address_1": "1050 North Cherry Street",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "559-685-2405 x",
+        "main": "559-684-8703 x",
+        "pharmacy": "888-826-2838 x",
+        "after_hours": "559-228-6933 x",
+        "patient_advocate": "559-225-6100 x6970",
+        "mental_health_clinic": "559-684-8703",
+        "enrollment_coordinator": "559-225-6100 x6950"
+      },
+      "hours": {
+        "friday": "800AM-430PM",
+        "monday": "800AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-430PM",
+        "saturday": "Closed",
+        "thursday": "800AM-430PM",
+        "wednesday": "800AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_570GC",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Oakhurst VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.fresno.va.gov/locations/oakhurst.asp",
+      "lat": 37.33854245,
+      "long": -119.66929717,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "93644-9024",
+          "city": "Oakhurst",
+          "state": "CA",
+          "address_1": "40597 Westlake Drive",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "559-683-5303 x",
+        "main": "559-683-5300 x",
+        "pharmacy": "888-826-2838 x",
+        "after_hours": "559-228-6933 x",
+        "patient_advocate": "559-225-6100 x6970",
+        "mental_health_clinic": "559-683-5300",
+        "enrollment_coordinator": "559-225-6100 x6950"
+      },
+      "hours": {
+        "friday": "800AM-430PM",
+        "monday": "800AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-430PM",
+        "saturday": "Closed",
+        "thursday": "800AM-430PM",
+        "wednesday": "800AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_600GC",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Cabrillo VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.longbeach.va.gov/locations/Villages_at_Cabrillo.asp",
+      "lat": 33.79171129,
+      "long": -118.22226541,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "90806-3622",
+          "city": "Long Beach",
+          "state": "CA",
+          "address_1": "2001 River Avenue",
+          "address_2": "Villages at Cabrillo",
+          "address_3": "Building 28"
+        }
+      },
+      "phone": {
+        "fax": "562-388-7908 x",
+        "main": "562-826-8414 x",
+        "pharmacy": "562-826-5744 x",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "562-826-5467 x",
+        "mental_health_clinic": "562-826-5603",
+        "enrollment_coordinator": "562-826-5915 x"
+      },
+      "hours": {
+        "friday": "730AM-400PM",
+        "monday": "730AM-400PM",
+        "sunday": "Closed",
+        "tuesday": "730AM-400PM",
+        "saturday": "Closed",
+        "thursday": "730AM-400PM",
+        "wednesday": "730AM-400PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_570",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Fresno VA Medical Center",
+      "facility_type": "va_health_facility",
+      "classification": "VA Medical Center (VAMC)",
+      "website": "http://www.fresno.va.gov",
+      "lat": 36.77229815,
+      "long": -119.77924902,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "93703-2223",
+          "city": "Fresno",
+          "state": "CA",
+          "address_1": "2615 East Clinton Avenue",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "559-228-6903 x",
+        "main": "559-225-6100 x",
+        "pharmacy": "559-225-6100 x5119",
+        "after_hours": "559-228-5387 x",
+        "patient_advocate": "559-225-6100 x6970",
+        "mental_health_clinic": "559-228-5336",
+        "enrollment_coordinator": "559-225-6100 x6950"
+      },
+      "hours": {
+        "friday": "24/7",
+        "monday": "24/7",
+        "sunday": "24/7",
+        "tuesday": "24/7",
+        "saturday": "24/7",
+        "thursday": "24/7",
+        "wednesday": "24/7"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_640GA",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Capitola VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": null,
+      "lat": 36.9705900000001,
+      "long": -121.964826,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "95010-3906",
+          "city": "Capitola",
+          "state": "CA",
+          "address_1": "1350 41st Avenue",
+          "address_2": null,
+          "address_3": "Suite 102"
+        }
+      },
+      "phone": {
+        "fax": "831-465-9872 x",
+        "main": "831-464-5519 x",
+        "pharmacy": "800-311-2511 x",
+        "after_hours": "650-493-5000 x60462",
+        "patient_advocate": "650-493-5000 x65544",
+        "mental_health_clinic": "408-363-3050",
+        "enrollment_coordinator": "650-493-5000 x65804"
+      },
+      "hours": {
+        "friday": "800AM-430PM",
+        "monday": "800AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-430PM",
+        "saturday": "Closed",
+        "thursday": "800AM-430PM",
+        "wednesday": "800AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_600",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Tibor Rubin VA Medical Center",
+      "facility_type": "va_health_facility",
+      "classification": "VA Medical Center (VAMC)",
+      "website": "http://www.longbeach.va.gov/",
+      "lat": 33.77532848,
+      "long": -118.11992957,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "90822-5201",
+          "city": "Long Beach",
+          "state": "CA",
+          "address_1": "5901 East Seventh Street",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "562-826-5906 x",
+        "main": "562-826-8000 x",
+        "pharmacy": "562-826-5744 x",
+        "after_hours": "562-826-8000 x",
+        "patient_advocate": "562-826-5467 x",
+        "mental_health_clinic": "562-826-5603",
+        "enrollment_coordinator": "562-826-5915 x"
+      },
+      "hours": {
+        "friday": "24/7",
+        "monday": "24/7",
+        "sunday": "24/7",
+        "tuesday": "24/7",
+        "saturday": "24/7",
+        "thursday": "24/7",
+        "wednesday": "24/7"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_600GA",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Anaheim VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.longbeach.va.gov/locations/Anaheim.asp",
+      "lat": 33.8497817900001,
+      "long": -117.97460188,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92801-2608",
+          "city": "Anaheim",
+          "state": "CA",
+          "address_1": "2569 West Woodland Drive",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "714-484-5934 x",
+        "main": "714-763-5300 x",
+        "pharmacy": "562-826-5744 x",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "562-826-5467 x",
+        "mental_health_clinic": "562-826-5603",
+        "enrollment_coordinator": "562-826-5915 x"
+      },
+      "hours": {
+        "friday": "800AM-500PM",
+        "monday": "800AM-500PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-500PM",
+        "saturday": "Closed",
+        "thursday": "800AM-500PM",
+        "wednesday": "800AM-500PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_600GB",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Santa Ana VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Multi-Specialty CBOC",
+      "website": "http://www.longbeach.va.gov/locations/SantaAna.asp",
+      "lat": 33.7147411,
+      "long": -117.84968831,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92705-5405",
+          "city": "Santa Ana",
+          "state": "CA",
+          "address_1": "1506 Brookhollow Drive",
+          "address_2": null,
+          "address_3": "Suite 100"
+        }
+      },
+      "phone": {
+        "fax": "714-434-4680 x",
+        "main": "714-434-4600 x",
+        "pharmacy": "562-826-5744 x",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "562-826-5467 x",
+        "mental_health_clinic": "562-826-5603",
+        "enrollment_coordinator": "562-826-5915 x"
+      },
+      "hours": {
+        "friday": "800AM-530PM",
+        "monday": "800AM-530PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-530PM",
+        "saturday": "Closed",
+        "thursday": "800AM-530PM",
+        "wednesday": "800AM-530PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_600GE",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Laguna Hills VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.longbeach.va.gov/locations/LagunaHills.asp",
+      "lat": 33.618525,
+      "long": -117.731512,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92653-5422",
+          "city": "Laguna Hills",
+          "state": "CA",
+          "address_1": "23719 Moulton Parkway",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "949-462-0793 x",
+        "main": "949-587-3700 x",
+        "pharmacy": "562-826-5744 x",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "562-826-5467 x",
+        "mental_health_clinic": "562-826-5603",
+        "enrollment_coordinator": "562-826-5915 x"
+      },
+      "hours": {
+        "friday": "800AM-430PM",
+        "monday": "800AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-430PM",
+        "saturday": "Closed",
+        "thursday": "800AM-430PM",
+        "wednesday": "800AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_605",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Jerry L. Pettis Memorial Veterans' Hospital",
+      "facility_type": "va_health_facility",
+      "classification": "VA Medical Center (VAMC)",
+      "website": "http://www.lomalinda.va.gov",
+      "lat": 34.0501543500001,
+      "long": -117.25236402,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92357-1000",
+          "city": "Loma Linda",
+          "state": "CA",
+          "address_1": "11201 Benton Street",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "909-422-3107 x",
+        "main": "909-825-7084 x",
+        "pharmacy": "909-825-7084 x3259",
+        "after_hours": "909-825-7084 x",
+        "patient_advocate": "909-583-6133 x",
+        "mental_health_clinic": "909-825-7084 x 7415",
+        "enrollment_coordinator": "909-825-7084 x7812"
+      },
+      "hours": {
+        "friday": "24/7",
+        "monday": "24/7",
+        "sunday": "24/7",
+        "tuesday": "24/7",
+        "saturday": "24/7",
+        "thursday": "24/7",
+        "wednesday": "24/7"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_605GA",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Victorville VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.lomalinda.va.gov/locations/victorville.asp",
+      "lat": 34.47189739,
+      "long": -117.28292378,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92392-4757",
+          "city": "Victorville",
+          "state": "CA",
+          "address_1": "12138 Industrial Boulevard",
+          "address_2": null,
+          "address_3": "Suite 120"
+        }
+      },
+      "phone": {
+        "fax": "760-951-5819 x",
+        "main": "760-951-2599 x",
+        "pharmacy": "909-825-7084 x3259",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "909-583-6133 x",
+        "mental_health_clinic": "909-825-7084 x 5085",
+        "enrollment_coordinator": "909-825-7084 x7812"
+      },
+      "hours": {
+        "friday": "800AM-230PM",
+        "monday": "800AM-500PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-500PM",
+        "saturday": "Closed",
+        "thursday": "800AM-500PM",
+        "wednesday": "800AM-500PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_605GB",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Murrieta VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.lomalinda.va.gov/locations/murrieta.asp",
+      "lat": 33.61323672,
+      "long": -117.16777165,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92563-1405",
+          "city": "Murrieta",
+          "state": "CA",
+          "address_1": "28078 Baxter Road",
+          "address_2": null,
+          "address_3": "Suite 540"
+        }
+      },
+      "phone": {
+        "fax": "909-679-9438 x",
+        "main": "951-290-6500 x",
+        "pharmacy": "909-825-7084 x3259",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "909-583-6133 x",
+        "mental_health_clinic": "909-825-7084 x 5085",
+        "enrollment_coordinator": "909-825-7084 x7812"
+      },
+      "hours": {
+        "friday": "800AM-230PM",
+        "monday": "800AM-500PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-500PM",
+        "saturday": "Closed",
+        "thursday": "800AM-500PM",
+        "wednesday": "800AM-500PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_605GC",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Palm Desert VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Multi-Specialty CBOC",
+      "website": "http://www.lomalinda.va.gov/locations/palm_desert.asp",
+      "lat": 33.7435274200001,
+      "long": -116.35618511,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92211-6100",
+          "city": "Palm Desert",
+          "state": "CA",
+          "address_1": "41-990 Cook Street",
+          "address_2": null,
+          "address_3": "Building F, Suite 1004"
+        }
+      },
+      "phone": {
+        "fax": "760-341-5622 x",
+        "main": "760-341-5570 x",
+        "pharmacy": "909-825-7084 x3259",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "909-583-6133 x",
+        "mental_health_clinic": "909-825-7084 x 5085",
+        "enrollment_coordinator": "909-825-7084 x7812"
+      },
+      "hours": {
+        "friday": "800AM-230PM",
+        "monday": "800AM-500PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-500PM",
+        "saturday": "Closed",
+        "thursday": "800AM-500PM",
+        "wednesday": "800AM-500PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_605GD",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Corona VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.lomalinda.va.gov/locations/corona.asp",
+      "lat": 33.84953003,
+      "long": -117.53615606,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "92881-7286",
+          "city": "Corona",
+          "state": "CA",
+          "address_1": "2045 Compton Avenue",
+          "address_2": null,
+          "address_3": "Building 7 Suite 101"
+        }
+      },
+      "phone": {
+        "fax": "909-817-8856 x",
+        "main": "951-817-8820 x",
+        "pharmacy": "909-825-7084 x3259",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "909-583-6133 x",
+        "mental_health_clinic": "909-825-7084 x 5085",
+        "enrollment_coordinator": "909-825-7084 x7812"
+      },
+      "hours": {
+        "friday": "800AM-230PM",
+        "monday": "800AM-500PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-500PM",
+        "saturday": "Closed",
+        "thursday": "800AM-500PM",
+        "wednesday": "800AM-500PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_605GE",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Rancho Cucamonga VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": "http://www.lomalinda.va.gov/locations/rancho_cucamonga.asp",
+      "lat": 34.0972607300001,
+      "long": -117.57568631,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "91730-4849",
+          "city": "Rancho Cucamonga",
+          "state": "CA",
+          "address_1": "8599 Haven Avenue",
+          "address_2": null,
+          "address_3": "Suite 102"
+        }
+      },
+      "phone": {
+        "fax": "909-946-6598 x",
+        "main": "909-946-5348 x",
+        "pharmacy": "909-825-7084 x3259",
+        "after_hours": "877-252-4866 x",
+        "patient_advocate": "909-583-6133 x",
+        "mental_health_clinic": "909-825-7084 x 5085",
+        "enrollment_coordinator": "909-825-7084 x7812"
+      },
+      "hours": {
+        "friday": "800AM-230PM",
+        "monday": "800AM-500PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-500PM",
+        "saturday": "Closed",
+        "thursday": "800AM-500PM",
+        "wednesday": "800AM-500PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_612B4",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Redding VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Multi-Specialty CBOC",
+      "website": null,
+      "lat": 40.56453578,
+      "long": -122.36761503,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "96002-1845",
+          "city": "Redding",
+          "state": "CA",
+          "address_1": "351 Hartnell Avenue",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "530-226-7505 x",
+        "main": "530-226-7555 x",
+        "pharmacy": "866-600-8279 x",
+        "after_hours": "800-382-8387 x",
+        "patient_advocate": "530-226-7508 x",
+        "mental_health_clinic": "530-226-7675",
+        "enrollment_coordinator": "530-226-7576 x"
+      },
+      "hours": {
+        "friday": "730AM-430PM",
+        "monday": "730AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "730AM-430PM",
+        "saturday": "Closed",
+        "thursday": "730AM-430PM",
+        "wednesday": "730AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_612GE",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Mare Island VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Multi-Specialty CBOC",
+      "website": null,
+      "lat": 38.1141803300001,
+      "long": -122.2868141,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "94592-1107",
+          "city": "Mare Island",
+          "state": "CA",
+          "address_1": "201 Walnut Avenue",
+          "address_2": null,
+          "address_3": "Building 201"
+        }
+      },
+      "phone": {
+        "fax": "707-647-8948 x",
+        "main": "707-562-8200 x",
+        "pharmacy": "866-600-8279 x",
+        "after_hours": "800-382-8387 x",
+        "patient_advocate": "707-562-8391 x",
+        "mental_health_clinic": "707-562-8462",
+        "enrollment_coordinator": "707-562-8201 x"
+      },
+      "hours": {
+        "friday": "800AM-430PM",
+        "monday": "800AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-430PM",
+        "saturday": "Closed",
+        "thursday": "800AM-430PM",
+        "wednesday": "800AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_612GF",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Martinez VA Medical Center",
+      "facility_type": "va_health_facility",
+      "classification": "VA Medical Center (VAMC)",
+      "website": null,
+      "lat": 37.99467923,
+      "long": -122.11172737,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "94553-4668",
+          "city": "Martinez",
+          "state": "CA",
+          "address_1": "150 Muir Road",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "925-372-2851 x",
+        "main": "925-372-2000 x",
+        "pharmacy": "866-600-8279 x",
+        "after_hours": "800-382-8387 x",
+        "patient_advocate": "925-372-2883 x",
+        "mental_health_clinic": "925-372-2105",
+        "enrollment_coordinator": "925-370-4177 x"
+      },
+      "hours": {
+        "friday": "24/7",
+        "monday": "24/7",
+        "sunday": "24/7",
+        "tuesday": "24/7",
+        "saturday": "24/7",
+        "thursday": "24/7",
+        "wednesday": "24/7"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_612GG",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Chico VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Other Outpatient Services (OOS)",
+      "website": null,
+      "lat": 39.75176716,
+      "long": -121.85187218,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "95926-2210",
+          "city": "Chico",
+          "state": "CA",
+          "address_1": "280 Cohasset Road",
+          "address_2": null,
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "530-879-5025 x",
+        "main": "530-879-5000 x",
+        "pharmacy": "866-600-8279 x",
+        "after_hours": "800-382-8387 x",
+        "patient_advocate": "530-879-5009 x",
+        "mental_health_clinic": "855-771-9321",
+        "enrollment_coordinator": "530-879-5002 x"
+      },
+      "hours": {
+        "friday": "730AM-430PM",
+        "monday": "730AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "730AM-430PM",
+        "saturday": "Closed",
+        "thursday": "730AM-430PM",
+        "wednesday": "730AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_612GH",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "McClellan VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Multi-Specialty CBOC",
+      "website": null,
+      "lat": 38.66413506,
+      "long": -121.38716917,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "95652-1012",
+          "city": "McClellan Park",
+          "state": "CA",
+          "address_1": "5342 Dudley Boulevard",
+          "address_2": "",
+          "address_3": "Building 88"
+        }
+      },
+      "phone": {
+        "fax": "916-843-7417 x",
+        "main": "916-561-7400 x",
+        "pharmacy": "866-600-8279 x",
+        "after_hours": "800-382-8387 x",
+        "patient_advocate": "916-561-7540 x",
+        "mental_health_clinic": "855-771-9321",
+        "enrollment_coordinator": "916-561-7580 x"
+      },
+      "hours": {
+        "friday": "730AM-430PM",
+        "monday": "730AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "730AM-430PM",
+        "saturday": "Closed",
+        "thursday": "730AM-430PM",
+        "wednesday": "730AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  },
+  {
+    "id": "vha_612GI",
+    "type": "va_facilities",
+    "attributes": {
+      "name": "Yuba City VA Clinic",
+      "facility_type": "va_health_facility",
+      "classification": "Primary Care CBOC",
+      "website": null,
+      "lat": 39.13107849,
+      "long": -121.61385738,
+      "address": {
+        "mailing": {},
+        "physical": {
+          "zip": "95991-5074",
+          "city": "Yuba City",
+          "state": "CA",
+          "address_1": "425 Plumas Boulevard",
+          "address_2": "",
+          "address_3": null
+        }
+      },
+      "phone": {
+        "fax": "530-673-3735 x",
+        "main": "530-751-4500 x",
+        "pharmacy": "866-600-8279 x",
+        "after_hours": "800-382-8387 x",
+        "patient_advocate": "916-561-7540 x",
+        "mental_health_clinic": "855-771-9321",
+        "enrollment_coordinator": "530-751-4500 x"
+      },
+      "hours": {
+        "friday": "800AM-430PM",
+        "monday": "800AM-430PM",
+        "sunday": "Closed",
+        "tuesday": "800AM-430PM",
+        "saturday": "Closed",
+        "thursday": "800AM-430PM",
+        "wednesday": "800AM-430PM"
+      },
+      "services": {
+        "services": {
+          "other": [
+            "Online Scheduling"
+          ],
+          "health": [
+            {
+              "PrimaryCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              },
+              "MentalHealthCare": {
+                "wait_times": {
+                  "new": 10,
+                  "established": 5,
+                  "effective_date": "2018-01-01"
+                }
+              }
+            }
+          ],
+          "last_updated": "2018-01-01"
+        },
+        "satisfaction": {
+          "health": {
+            "primary_care_urgent": 0.85,
+            "primary_care_routine": 0.85,
+            "specialty_care_urgent": 0.85,
+            "specialty_care_routine": 0.85
+          },
+          "effective_date": "2018-01-01"
+        }
+      }
+    }
+  }
+]

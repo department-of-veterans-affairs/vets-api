@@ -11,4 +11,14 @@ AllCops:
 
 Metrics/BlockLength:
   Exclude:
+    - config/*.rb
     - spec/**/*.rb
+    - app/swagger/**/*.rb
+
+Metrics/ClassLength:
+  Exclude:
+    - app/swagger/**/*.rb
+
+Metrics/LineLength:
+  Exclude:
+    - app/swagger/**/*.rb

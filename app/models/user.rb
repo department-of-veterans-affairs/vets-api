@@ -23,12 +23,8 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
 
-  # conditionally validate if user is LOA3
   with_options if: :loa3? do
-    validates :first_name, presence: true
-    validates :last_name, presence: true
-    validates :birth_date, presence: true
-    validates :ssn, presence: true, format: /\A\d{9}\z/
+    validates :ssn, format: /\A\d{9}\z/, allow_blank: true
     validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
@@ -41,12 +37,13 @@ class User < Common::RedisStore
   # This delegated method is called with #account_uuid
   delegate :uuid, to: :account, prefix: true, allow_nil: true
 
-  # Retrieve a user's Account record.
+  # Retrieve a user's Account record.  Checks the cache before executing
+  # any database calls.
   #
   # @return [Account] an instance of the Account object
   #
   def account
-    Account.find_by(idme_uuid: uuid)
+    Account.cache_or_create_by!(self)
   end
 
   def pciu_email

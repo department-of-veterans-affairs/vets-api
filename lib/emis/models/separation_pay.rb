@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS separation pay data
     class SeparationPay
       include Virtus.model
 

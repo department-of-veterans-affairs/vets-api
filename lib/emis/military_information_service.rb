@@ -4,6 +4,7 @@ require 'emis/service'
 require 'emis/military_information_configuration'
 
 module EMIS
+  # HTTP Client for EMIS Military Information Service requests.
   class MilitaryInformationService < Service
     configuration EMIS::MilitaryInformationConfiguration
 
@@ -22,6 +23,8 @@ module EMIS
 
     protected
 
+    # Custom namespaces used in EMIS SOAP request message
+    # @return [Config::Options] Custom namespaces object
     def custom_namespaces
       Settings.emis.military_information.soap_namespaces
     end

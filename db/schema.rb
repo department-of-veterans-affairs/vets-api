@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190408160432) do
+ActiveRecord::Schema.define(version: 20190424212410) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -98,7 +98,7 @@ ActiveRecord::Schema.define(version: 20190408160432) do
     t.string   "md5"
   end
 
-  create_table "claims_api_supporting_documents", id: :uuid, default: "uuid_generate_v4()", force: :cascade do |t|
+  create_table "claims_api_supporting_documents", id: :uuid, default: -> { "uuid_generate_v4()" }, force: :cascade do |t|
     t.string   "encrypted_file_data",       null: false
     t.string   "encrypted_file_data_iv",    null: false
     t.datetime "created_at",                null: false
@@ -298,6 +298,20 @@ ActiveRecord::Schema.define(version: 20190408160432) do
     t.index ["user_uuid", "mhv_correlation_id"], name: "index_mhv_accounts_on_user_uuid_and_mhv_correlation_id", unique: true, using: :btree
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.integer  "account_id",          null: false
+    t.integer  "subject",             null: false
+    t.integer  "status"
+    t.datetime "status_effective_at"
+    t.datetime "read_at"
+    t.datetime "created_at",          null: false
+    t.datetime "updated_at",          null: false
+    t.index ["account_id", "subject"], name: "index_notifications_on_account_id_and_subject", unique: true, using: :btree
+    t.index ["account_id"], name: "index_notifications_on_account_id", using: :btree
+    t.index ["status"], name: "index_notifications_on_status", using: :btree
+    t.index ["subject"], name: "index_notifications_on_subject", using: :btree
+  end
+
   create_table "persistent_attachments", force: :cascade do |t|
     t.uuid     "guid"
     t.string   "type"
@@ -448,6 +462,10 @@ ActiveRecord::Schema.define(version: 20190408160432) do
     t.string   "phone"
     t.datetime "created_at",                  null: false
     t.datetime "updated_at",                  null: false
+    t.string   "encrypted_ssn"
+    t.string   "encrypted_ssn_iv"
+    t.string   "encrypted_dob"
+    t.string   "encrypted_dob_iv"
     t.index ["first_name"], name: "index_veteran_representatives_on_first_name", using: :btree
     t.index ["last_name"], name: "index_veteran_representatives_on_last_name", using: :btree
     t.index ["representative_id"], name: "index_veteran_representatives_on_representative_id", unique: true, using: :btree

@@ -2,6 +2,7 @@
 
 module EMIS
   module Models
+    # EMIS retirement pay data
     class RetirementPay
       include Virtus.model
 

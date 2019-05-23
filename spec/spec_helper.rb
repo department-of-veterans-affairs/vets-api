@@ -16,6 +16,7 @@ require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
 require 'support/okta_users_helpers'
+require 'support/poa_stub'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -56,6 +57,7 @@ unless ENV['NOCOVERAGE']
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_filter 'version.rb'
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
+    add_filter 'app/models/nearby_facility.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end

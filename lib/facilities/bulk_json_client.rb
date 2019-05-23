@@ -8,8 +8,7 @@ module Facilities
     configuration Facilities::AccessWaitTimeConfiguration
 
     def download
-      query = { 'location' => '*' }
-      perform(:get, 'Main/getRawData', query, nil).body
+      perform(:get, 'atcapis/v1.1/patientwaittimes', {}, nil).body
     end
   end
 
