@@ -26,7 +26,7 @@ module VBADocuments
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
       tempfile, timestamp = download_raw_file(guid)
       begin
-        Rails.logger.info('VBADocuments: Start Processing: ' + upload.inspect)
+        Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
@@ -39,12 +39,10 @@ module VBADocuments
         UploadProcessor.perform_in(30.minutes, guid) if e.code == 'DOC201'
         log_error(e, upload)
       ensure
-        Rails.logger.info('VBADocuments: Stop Processing: ' + upload.inspect)
+        Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
         tempfile.close
         close_part_files(parts) if parts.present?
       end
-    rescue => e
-      log_error(e, upload)
     end
 
     private
