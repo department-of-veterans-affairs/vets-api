@@ -4,6 +4,17 @@ require 'evss/response'
 
 module EVSS
   module PCIUAddress
+    ##
+    # Model for PCIU address response
+    #
+    # @param status [Integer] The HTTP status code
+    # @param response [Hash] The API response
+    #
+    # @!attribute address
+    #   @return [EVSS::PCIUAddress::Address] The address data returned by the service
+    # @!attribute control_information
+    #   @return[EVSS::PCIUAddress::ControlInformation]
+    #
     class AddressResponse < EVSS::Response
       attribute :address, EVSS::PCIUAddress::Address
       attribute :control_information, EVSS::PCIUAddress::ControlInformation

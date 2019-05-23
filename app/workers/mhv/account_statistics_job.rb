@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module MHV
+  ##
+  # This job collects and logs MHV account statistics to StatsD and the logger
+  #
   class AccountStatisticsJob
     include Sidekiq::Worker
 

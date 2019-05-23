@@ -13,6 +13,7 @@ module VBADocuments
           consumer_name: request.headers['X-Consumer-Username'],
           consumer_id: request.headers['X-Consumer-ID']
         )
+
         render status: :accepted,
                json: submission,
                serializer: VBADocuments::V1::UploadSerializer,
@@ -28,10 +29,7 @@ module VBADocuments
         end
 
         if submission.nil? || submission.status == 'expired'
-          render status: :not_found,
-                 json: VBADocuments::UploadSubmission.fake_status(params[:id]),
-                 serializer: VBADocuments::UploadSerializer,
-                 render_location: false
+          raise Common::Exceptions::RecordNotFound, params[:id]
         else
           submission.refresh_status!
           render json: submission,

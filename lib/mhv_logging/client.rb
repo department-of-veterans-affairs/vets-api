@@ -6,23 +6,36 @@ require 'common/client/middleware/response/mhv_xml_html_errors'
 require 'rx/configuration'
 require 'rx/client_session'
 
-# NOTE: This client uses the exact same configuration and client session
-# as Rx does. It is the same server, but we're building it as a separate client
-# for better separation of concerns since it can be invoked when using secure messaging
-
+##
+# @note This client uses the exact same configuration and client session as Rx does. It is the same server,
+#   but we're building it as a separate client for better separation of concerns since it can be
+#   invoked when using secure messaging.
+#
 module MHVLogging
-  # Core class responsible for api interface operations
+  ##
+  # Core class responsible for MHV logging interface operations
+  #
   class Client < Common::Client::Base
     include Common::Client::MHVSessionBasedClient
 
     configuration Rx::Configuration
     client_session Rx::ClientSession
 
+    ##
+    # Communicate to MHV, for compliance purposes, that the user has signed in
+    #
+    # @return [Faraday::Response] a Faraday response object
+    #
     def auditlogin
       body = { isSuccessful: true, activityDetails: 'Signed in VA.GOV' }
       perform(:post, 'activity/auditlogin', body, token_headers)
     end
 
+    ##
+    # Communicate to MHV, for compliance purposes, that the user has signed in
+    #
+    # @return [Faraday::Response] a Faraday response object
+    #
     def auditlogout
       body = { isSuccessful: true, activityDetails: 'Signed out VA.GOV' }
       perform(:post, 'activity/auditlogout', body, token_headers)
@@ -30,7 +43,13 @@ module MHVLogging
 
     private
 
-    # Override connection in superclass because we don't want breakers for this client
+    ##
+    # @note Override connection in superclass because we don't want breakers for this client
+    #   Creates a connection with middleware for mapping errors, parsing XML, and
+    #   adding breakers functionality
+    #
+    # @return [Faraday::Connection] a Faraday connection instance
+    #
     def connection
       @connection ||=
         Faraday.new(config.base_path, headers: config.base_request_headers, request: config.request_options) do |conn|

@@ -1,5 +1,5 @@
 dev_branch = 'master'
-staging_branch = 'master'
+staging_branch = 'rails-5.2'
 main_branch = 'master'
 
 pipeline {
