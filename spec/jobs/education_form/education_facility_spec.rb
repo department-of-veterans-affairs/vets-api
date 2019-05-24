@@ -68,7 +68,6 @@ RSpec.describe EducationForm::EducationFacility do
   describe '#regional_office_for' do
     {
       eastern: ['VA', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      # rubocop:disable Metrics/LineLength
       central: ['CO', "Central Region\nVA Regional Office\n9770 Page Avenue\nSuite 101 Education\nSt. Louis, MO 63132-1502"],
       # rubocop:enable Metrics/LineLength
       western: ['AK', "Western Region\nVA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
@@ -111,9 +110,10 @@ RSpec.describe EducationForm::EducationFacility do
     end
     context 'address country Phillipines' do
       it 'should route to Western RPO' do
-        new_form = education_benefits_claim.parsed_form
-        new_form['newSchool']['address']['country'] = 'PHL'
-        education_benefits_claim.saved_claim.form = new_form.to_json
+        form.newSchool = school(OpenStruct.new(country: 'PHL'))
+        # new_form = education_benefits_claim.parsed_form
+        # new_form['newSchool']['address']['country'] = 'PHL'
+        education_benefits_claim.saved_claim.form = form.to_json
         expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
     end
