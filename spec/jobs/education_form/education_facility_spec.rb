@@ -68,7 +68,6 @@ RSpec.describe EducationForm::EducationFacility do
   describe '#regional_office_for' do
     {
       eastern: ['VA', "Eastern Region\nVA Regional Office\nP.O. Box 4616\nBuffalo, NY 14240-4616"],
-      # rubocop:disable Metrics/LineLength
       central: ['CO', "Central Region\nVA Regional Office\n9770 Page Avenue\nSuite 101 Education\nSt. Louis, MO 63132-1502"],
       # rubocop:enable Metrics/LineLength
       western: ['AK', "Western Region\nVA Regional Office\nP.O. Box 8888\nMuskogee, OK 74402-8888"]
@@ -99,20 +98,16 @@ RSpec.describe EducationForm::EducationFacility do
     # end
     # context '22-0994' do
     #   it 'should route to Eastern RPO' do
-    #     education_benefits_claim.form_type = '0994'
-    #     expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
+    #     form = OpenStruct.new(form_type: '0994')
+    #     expect(described_class.region_for(form)).to eq(:eastern)
     #   end
     # end
     context '22-0993' do
       it 'should route to Western RPO' do
-        # new_form = education_benefits_claim
-        # new_form.form_type = '0993'
+        form = double(education_benefits_claim)
+        form.stub(:form_type) { '0993' }
 
-        # verifier_stub = double(education_benefits_claim)
-
-        form = OpenStruct.new(form_type: '0993')
-
-        expect(form.form_type).to eq('0993')
+        # form = OpenStruct.new(form_type: '0993')
         expect(described_class.region_for(form)).to eq(:western)
       end
     end
