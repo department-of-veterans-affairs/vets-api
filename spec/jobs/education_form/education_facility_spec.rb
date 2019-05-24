@@ -86,4 +86,16 @@ RSpec.describe EducationForm::EducationFacility do
       end
     end
   end
+
+  describe '#region_for' do
+    context '22-1995' do
+      it 'should return the right address' do
+        new_form = education_benefits_claim.parsed_form
+        new_form['isActiveDuty'] = true
+        education_benefits_claim.saved_claim.form = new_form.to_json
+        education_benefits_claim.form_type = '1995'
+        expect(described_class.region_for(education_benefits_claim)).to eq('BUFFALO (307)')
+      end
+    end
+  end
 end
