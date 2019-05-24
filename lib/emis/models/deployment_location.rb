@@ -7,7 +7,7 @@ module EMIS
     #   @return [String] identifier that is used to ensure a unique key on each
     #     deployment location record.
     # @!attribute country
-    #   @return [String] alpha-2 code that represents the country of the person’s location.
+    #   @return [String] alpha-2 code that represents the country of the person's location.
     #     The valid values also include dependencies and areas of special sovereignty.
     # @!attribute iso_alpha3_country
     #   @return [String] ISO alpha 3 code representing the country of deployment.

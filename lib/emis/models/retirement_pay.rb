@@ -25,7 +25,7 @@ module EMIS
     # @!attribute stop_payment_reason
     #   @return [String] code that represents the reason for the total reduction or waiver (
     #     including refusal) or the suspension or termination of military retired pay.
-    #     Applicable if Retired Pay Status Code equals 2–5.
+    #     Applicable if Retired Pay Status Code equals 2-5.
     #       A => Member died
     #       B => Recalled to Active Duty
     #       C => Rmvd fm TDRL to AD
