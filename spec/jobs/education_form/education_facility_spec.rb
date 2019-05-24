@@ -94,7 +94,7 @@ RSpec.describe EducationForm::EducationFacility do
         new_form['isActiveDuty'] = true
         education_benefits_claim.saved_claim.form = new_form.to_json
         education_benefits_claim.form_type = '1995'
-        expect(described_class.region_for(education_benefits_claim)).to eq('BUFFALO (307)')
+        expect(described_class.region_for(education_benefits_claim)).to eq(':eastern')
       end
     end
   end
