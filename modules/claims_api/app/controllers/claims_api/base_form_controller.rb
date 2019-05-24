@@ -7,6 +7,10 @@ module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
     before_action :validate_json_schema
 
+    def schema
+      ClaimsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]
+    end
+
     private
 
     def validate_json_schema
