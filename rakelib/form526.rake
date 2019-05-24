@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pp'
+require 'set'
 
 namespace :form526 do
   desc 'Get all submissions within a date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
@@ -13,24 +14,6 @@ namespace :form526 do
       printf "%-20s %s\n", header, total
     end
 
-    def print_errors(errors)
-      errors.each do |k, v|
-        puts "< Submission id: #{k} >"
-        puts '*****************'
-        results = v.map do |e|
-          msgs = e['messages'].map { |m| "Message:  #{m}" }
-          <<~ERRORS
-            Class:    #{e['class']}
-            Status:   #{e['status']}
-            Error:    #{e['error']}
-            #{msgs.join("\n")}
-          ERRORS
-        end
-        puts results.join("\n")
-        puts '*****************'
-        puts ''
-      end
-    end
     start_date = args[:start_date]&.to_date || 30.days.ago.utc
     end_date = args[:end_date]&.to_date || Time.zone.now.utc
 
@@ -43,7 +26,6 @@ namespace :form526 do
 
     outage_errors = 0
     other_errors = 0
-    errors = {}
 
     # Scoped order are ignored for find_each. Its forced to be batch order (on primary key)
     # This should be fine as created_at dates correlate directly to PKs
@@ -53,37 +35,7 @@ namespace :form526 do
         version = 'version 2: AC' if j.job_class == 'SubmitForm526AllClaim'
         if (j.job_class == 'SubmitForm526IncreaseOnly' || j.job_class == 'SubmitForm526AllClaim') &&
            j.error_message.present?
-          j.error_message.include?('submit.establishClaim.serviceError') ? (outage_errors += 1) : (other_errors += 1)
-        end
-
-        # Store all Errors for error reporting
-        if j.error_class.present?
-          errors[s.id] = [] if errors[s.id].blank?
-          error = {
-            'class' => j.job_class.to_s,
-            'status' => j.status,
-            'error' => j.error_class,
-            'messages' => []
-          }
-
-          # This regex will parse out the errors returned from EVSS.
-          # The error message will be in an ugly stringified hash. There can be multiple
-          # errors in a message. Each error will have a `key` and a `text` key. The
-          # following regex will group all key/text pairs together that are present in
-          # the string.
-          msgs_regex = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/
-          # Check if its an EVSS error and parse, otherwise store the entire message
-          messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
-                       j.error_message.scan(msgs_regex)
-                     else
-                       [[j.error_message]]
-                     end
-          messages.each do |m|
-            message = m[1].present? ? "#{m[0]}: #{m[1]}" : m[0]
-            error['messages'].append(message)
-          end
-
-          errors[s.id].append(error)
+          j.error_message.include?('.serviceError') ? (outage_errors += 1) : (other_errors += 1)
         end
       end
       print_row(s.created_at, s.updated_at, s.id, s.submitted_claim_id, s.workflow_complete, version)
@@ -102,8 +54,78 @@ namespace :form526 do
     puts '* Failure Counts for form526 Submission Job (not including uploads/cleanup/etc...) *'
     print_total('Outage Failures: ', outage_errors)
     print_total('Other Failures: ', other_errors)
+  end
+
+  desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
+  task :errors, %i[start_date end_date] => [:environment] do |_, args|
+    def print_row(sub_id, p_id, created_at)
+      printf "%-20s %-20s %s\n", sub_id, p_id, created_at
+    end
+
+    def print_errors(errors)
+      errors.each do |k, v|
+        puts k
+        puts '*****************'
+        puts "Unique Participant ID count: #{v[:participant_ids].count}"
+        print_row('submission_id:', 'participant_id:', 'created_at:')
+        v[:submission_ids].each do |submission|
+          print_row(submission[:sub_id], submission[:p_id], submission[:date])
+        end
+        puts '*****************'
+        puts ''
+      end
+    end
+
+    # This regex will parse out the errors returned from EVSS.
+    # The error message will be in an ugly stringified hash. There can be multiple
+    # errors in a message. Each error will have a `key` and a `text` key. The
+    # following regex will group all key/text pairs together that are present in
+    # the string.
+    MSGS_REGEX = /key\\"=>\\"(.*?)\\".*?text\\"=>\\"(.*?)\\"/
+
+    start_date = args[:start_date]&.to_date || 30.days.ago.utc
+    end_date = args[:end_date]&.to_date || Time.zone.now.utc
+
+    submissions = Form526Submission.where(
+      'created_at BETWEEN ? AND ?', start_date.beginning_of_day, end_date.end_of_day
+    )
+
+    errors = {}
+
+    submissions.find_each do |s|
+      auth_headers = JSON.parse(s.auth_headers_json)
+      s.form526_job_statuses.each do |j|
+        next if j.error_class.blank?
+        # Check if its an EVSS error and parse, otherwise store the entire message
+        messages = if j.error_message.include?('=>') && j.error_class != 'Common::Exceptions::BackendServiceException'
+                     j.error_message.scan(MSGS_REGEX)
+                   else
+                     [[j.error_message]]
+                   end
+        messages.each do |m|
+          message = m[1].present? ? "#{m[0]}: #{m[1]}" : m[0]
+          if errors[message].blank?
+            errors[message] = {
+              submission_ids: [
+                { sub_id: s.id, p_id: auth_headers['va_eauth_dodedipnid'], date: s.created_at }
+              ],
+              participant_ids: Set[auth_headers['va_eauth_dodedipnid']]
+            }
+          else
+            errors[message][:submission_ids].append(
+              sub_id: s.id,
+              p_id: auth_headers['va_eauth_dodedipnid'],
+              date: s.created_at
+            )
+            errors[message][:participant_ids].add(auth_headers['va_eauth_dodedipnid'])
+          end
+        end
+      end
+    end
+
     puts '------------------------------------------------------------'
-    puts '* Error Report *'
+    puts "* Form526 Submission Errors from #{start_date} to #{end_date} *"
+    puts '------------------------------------------------------------'
     puts ''
     print_errors(errors)
   end
