@@ -17,7 +17,7 @@ module Common
 
         # @!group Class Attributes
         # @!attribute [rw]
-        # timeout for reading a resonse
+        # timeout for reading a response
         class_attribute :read_timeout
 
         # @!group Class Attributes
