@@ -88,28 +88,25 @@ RSpec.describe EducationForm::EducationFacility do
   end
 
   describe '#region_for' do
-    # context '22-1995' do
-    #   it 'should route to Eastern RPO' do
-    #     new_form = education_benefits_claim.parsed_form
-    #     new_form['isActiveDuty'] = true
-    #     education_benefits_claim.saved_claim.form = new_form.to_json
-    #     education_benefits_claim.form_type = '1995'
-    #     expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
-    #   end
-    # end
-    # context '22-0994' do
-    #   it 'should route to Eastern RPO' do
-    #     form = OpenStruct.new(form_type: '0994')
-    #     expect(described_class.region_for(form)).to eq(:eastern)
-    #   end
-    # end
+    context '22-1995' do
+      it 'should route to Eastern RPO' do
+        new_form = education_benefits_claim.parsed_form
+        new_form['isActiveDuty'] = true
+        education_benefits_claim.saved_claim.form = new_form.to_json
+        education_benefits_claim.saved_claim.form_id = '22-1995'
+        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
+      end
+    end
+    context '22-0994' do
+      it 'should route to Eastern RPO' do
+        education_benefits_claim.saved_claim.form_id = '22-0994'
+        expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
+      end
+    end
     context '22-0993' do
       it 'should route to Western RPO' do
-        new_form = education_benefits_claim.parsed_form
-        new_form['form_id'] = '22-0993'
-        education_benefits_claim.saved_claim.form = new_form.to_json
-        # form = OpenStruct.new(form_type: '0993')
-        expect(described_class.region_for(form)).to eq(:western)
+        education_benefits_claim.saved_claim.form_id = '22-0993'
+        expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
     end
     # context 'address country Phillipines' do
