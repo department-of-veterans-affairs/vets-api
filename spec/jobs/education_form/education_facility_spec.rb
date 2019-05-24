@@ -104,16 +104,17 @@ RSpec.describe EducationForm::EducationFacility do
     #   end
     # end
     context '22-0993' do
+      let(:form_type) do
+        '0993'
+      end
       it 'should route to Western RPO' do
-        new_form = education_benefits_claim
-        new_form.form_type = '0993'
+        # new_form = education_benefits_claim
+        # new_form.form_type = '0993'
 
-        let(:form_type) do
-          '0993'
-        end
+        # verifier_stub = instance_double('EVSS::PowerOfAttorneyVerifier')
 
-        expect(new_form.form_type).to eq('0993')
-        expect(described_class.region_for(new_form)).to eq(:western)
+        expect(education_benefits_claim.form_type).to eq('0993')
+        expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
     end
     # context 'address country Phillipines' do
