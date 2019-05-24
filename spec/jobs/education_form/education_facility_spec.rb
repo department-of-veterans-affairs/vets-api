@@ -94,12 +94,14 @@ RSpec.describe EducationForm::EducationFacility do
         new_form['isActiveDuty'] = true
         education_benefits_claim.saved_claim.form = new_form.to_json
         education_benefits_claim.form_type = '1995'
+        expect(education_benefits_claim.form_type).to eq('1995')
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
     end
     context '22-0994' do
       it 'should route to Eastern RPO' do
         education_benefits_claim.form_type = '0994'
+        expect(education_benefits_claim.form_type).to eq('0994')
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
     end
