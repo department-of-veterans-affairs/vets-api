@@ -106,6 +106,7 @@ RSpec.describe EducationForm::EducationFacility do
     context '22-0993' do
       it 'should route to Western RPO' do
         education_benefits_claim.form_type = '0993'
+        expect(education_benefits_claim.form_type).to eq('0993')
         expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
     end
