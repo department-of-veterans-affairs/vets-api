@@ -112,7 +112,7 @@ RSpec.describe EducationForm::EducationFacility do
     context 'address country Phillipines' do
       it 'should route to Western RPO' do
         new_form = education_benefits_claim.parsed_form
-        new_form.address = OpenStruct.new(relativeAddress: OpenStruct.new(country: 'PHL'))
+        new_form['veteranAddress'] = OpenStruct.new(relativeAddress: OpenStruct.new(country: 'PHL'))
         education_benefits_claim.saved_claim.form = new_form.to_json
         expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
