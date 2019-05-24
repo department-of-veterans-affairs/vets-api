@@ -105,9 +105,9 @@ RSpec.describe EducationForm::EducationFacility do
     # end
     context '22-0993' do
       it 'should route to Western RPO' do
-        form = double(education_benefits_claim)
-        form.stub(:form_type) { '0993' }
-
+        new_form = education_benefits_claim.parsed_form
+        new_form['form_id'] = '22-0993'
+        education_benefits_claim.saved_claim.form = new_form.to_json
         # form = OpenStruct.new(form_type: '0993')
         expect(described_class.region_for(form)).to eq(:western)
       end
