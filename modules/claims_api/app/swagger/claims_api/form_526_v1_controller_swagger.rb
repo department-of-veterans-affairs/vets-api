@@ -4,7 +4,7 @@ module ClaimsApi
   class Form526V1ControllerSwagger
     include Swagger::Blocks
 
-    swagger_path '/form/526' do
+    swagger_path '/forms/526' do
       operation :post do
         key :summary, 'Accepts 526 claim form submission'
         key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
@@ -146,7 +146,7 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/form/526/{id}/attachments' do
+    swagger_path '/forms/526/{id}/attachments' do
       operation :post do
         key :summary, 'Upload documents in support of a 526 claim'
         key :description, 'Accpets document binaries as part of a multipart payload.'
