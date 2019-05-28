@@ -4,7 +4,7 @@ module ClaimsApi
   class Form0966V1ControllerSwagger
     include Swagger::Blocks
 
-    swagger_path '/form/0966' do
+    swagger_path '/forms/0966' do
       operation :post do
         key :summary, 'Accepts 0966 Intent to File form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
@@ -119,7 +119,7 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/form/0966/active' do
+    swagger_path '/forms/0966/active' do
       operation :get do
         key :summary, 'Returns last active 0966 Intent to File form submission'
         key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'
