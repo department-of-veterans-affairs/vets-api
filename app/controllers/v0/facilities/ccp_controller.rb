@@ -3,7 +3,7 @@
 class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
 
-  URGENT_CARE_CODE='261QU0200X'
+  URGENT_CARE_CODE = '261QU0200X'
 
   def show
     ppms = Facilities::PPMSClient.new
