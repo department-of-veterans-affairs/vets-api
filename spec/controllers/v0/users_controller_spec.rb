@@ -23,7 +23,7 @@ RSpec.describe V0::UsersController, type: :controller do
     it 'returns a JSON user profile' do
       get :show
       json = json_body_for(response)
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(json['attributes']['profile']['email']).to eq(user.email)
     end
   end

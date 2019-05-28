@@ -33,7 +33,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #show for VHA prefix' do
     create :vha_648A4
     get '/v0/facilities/va/vha_648A4'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data']['id']).to eq('vha_648A4')
@@ -42,7 +42,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #show for NCA prefix' do
     create :nca_888
     get '/v0/facilities/va/nca_888'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data']['id']).to eq('nca_888')
@@ -51,7 +51,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #show for VBA prefix' do
     create :vba_314c
     get '/v0/facilities/va/vba_314c'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data']['id']).to eq('vba_314c')
@@ -60,7 +60,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #show for VC prefix' do
     create :vc_0543V
     get '/v0/facilities/va/vc_0543V'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data']['id']).to eq('vc_0543V')
@@ -79,7 +79,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox' do
     setup_pdx
     get BASE_QUERY_PATH + PDX_BBOX
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(10)
@@ -88,7 +88,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with ids' do
     setup_pdx
     get BASE_QUERY_PATH + ids_query
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(10)
@@ -97,7 +97,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox and health type' do
     setup_pdx
     get BASE_QUERY_PATH + PDX_BBOX + '&type=health'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(3)
@@ -106,7 +106,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox and cemetery type' do
     setup_ny_nca
     get BASE_QUERY_PATH + NY_BBOX + '&type=cemetery'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(6)
@@ -115,7 +115,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox and benefits type' do
     setup_ny_vba
     get BASE_QUERY_PATH + NY_BBOX + '&type=benefits'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(12)
@@ -128,7 +128,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox, address, and ccp type' do
     VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher], allow_playback_repeats: true) do
       get BASE_QUERY_PATH + NOVA_BBOX + '&type=cc_provider&address=22033'
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(4)
@@ -141,7 +141,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with success even if no providers are found' do
     VCR.use_cassette('facilities/va/ppms_empty_search', match_requests_on: [:method], allow_playback_repeats: true) do
       get BASE_QUERY_PATH + PDX_BBOX + '&type=cc_provider&address=97089'
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(0)
@@ -151,7 +151,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
   it 'responds to GET #index with bbox and filter' do
     setup_ny_vba
     get BASE_QUERY_PATH + NY_BBOX + '&type=benefits&services[]=DisabilityClaimAssistance'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data'].length).to eq(7)
@@ -204,7 +204,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     it 'should include the appropriate services from wait time data' do
       setup_pdx
       get '/v0/facilities/va/vha_648'
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       services = JSON.parse(response.body)['data']['attributes']['services']
       expect(services['health']).to include('sl1' => ['EmergencyCare'], 'sl2' => [])
@@ -216,7 +216,7 @@ RSpec.describe 'VA GIS Integration', type: :request do
     it 'should not include services that have no wait_time_data' do
       setup_pdx
       get '/v0/facilities/va/vha_648A4'
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       services = JSON.parse(response.body)['data']['attributes']['services']
       expect(services['health']).not_to include('sl1' => ['EmergencyCare'], 'sl2' => [])

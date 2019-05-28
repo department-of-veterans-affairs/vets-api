@@ -15,7 +15,7 @@ RSpec.describe 'Form526 Opt In Endpoint', type: :request do
 
   it 'returns the email' do
     post '/v0/form526_opt_in', params: email
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['data']['attributes']['email']).to eq(email['email'])
