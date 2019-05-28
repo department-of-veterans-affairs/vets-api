@@ -89,10 +89,23 @@ RSpec.describe EducationForm::EducationFacility do
 
   describe '#region_for' do
     context '22-1995' do
+      it 'should route to Central RPO' do
+        form = education_benefits_claim.parsed_form
+        form['newSchool'] = {
+          'address' => {
+            'state': 'IL'
+          }
+        }
+        education_benefits_claim.saved_claim.form = form.to_json
+        education_benefits_claim.saved_claim.form_id = '22-1995'
+        expect(described_class.region_for(education_benefits_claim)).to eq(:central)
+      end
+    end
+    context '22-1995 STEM' do
       it 'should route to Eastern RPO' do
-        new_form = education_benefits_claim.parsed_form
-        new_form['isEdithNourseRogersScholarship'] = true
-        education_benefits_claim.saved_claim.form = new_form.to_json
+        form = education_benefits_claim.parsed_form
+        form['isEdithNourseRogersScholarship'] = true
+        education_benefits_claim.saved_claim.form = form.to_json
         education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
