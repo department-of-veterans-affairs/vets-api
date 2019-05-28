@@ -7,15 +7,49 @@ require 'sentry_logging'
 
 module Common
   module Client
+    ##
+    # Raised if the Faraday adapter is a Faraday::Adapter::HTTPClient and the
+    # Common::Client::Middleware::Request::RemoveCookies middleware in not included.
+    #
     class SecurityError < StandardError
     end
 
+    ##
+    # Raised when the breakers Faraday middleware is not first in the stack.
+    #
     class BreakersImplementationError < StandardError
     end
 
+    ##
+    # Base class for creating HTTP services. Wraps the Faraday gem and is configured via by passing in a
+    # {Common::Client::Configuration::REST} or {Common::Client::Configuration::SOAP} depending on the type
+    # of service you're connecting to. Once configured requests are made via the `perform` method.
+    #
+    # @example Create a service and make a GET request
+    #   class MyService < Common::Client::Base
+    #     configuration MyConfiguration
+    #
+    #     def get_resource
+    #       perform(:get, '/api/v1/resource')
+    #     end
+    #   end
+    #
+    #   service = MyService.new
+    #   response = service.get_resource
+    #
+    # @example a POST request with a body, headers, and Faraday options
+    #   def post_resource(json)
+    #     headers = { 'Content-Type' => 'application/json' }
+    #     options = { timeout: 60 }
+    #     response = perform(:post, '/submit', json, headers, options)
+    #   end
+    #
     class Base
       include SentryLogging
 
+      ##
+      # Sets the configuration singleton to use
+      #
       def self.configuration(configuration = nil)
         @configuration ||= configuration.instance
       end
@@ -26,7 +60,6 @@ module Common
         self.class.configuration
       end
 
-      # memoize the connection from config
       def connection
         @connection ||= lambda do
           connection = config.connection

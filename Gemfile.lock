@@ -33,10 +33,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: b8962e19a1dd9ab8e797f363fa5510e5fa5a3fc4
+  revision: 690941f6034314c85c3a50a7e83ba83bf3334b47
   branch: master
   specs:
-    vets_json_schema (3.138.3)
+    vets_json_schema (3.138.7)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -484,6 +484,7 @@ GEM
     ruby-rc4 (0.1.5)
     ruby-saml (1.7.0)
       nokogiri (>= 1.5.10)
+    rubyzip (1.2.2)
     rufus-scheduler (3.1.10)
     safe_shell (1.0.3)
     safe_yaml (1.0.4)
@@ -696,6 +697,7 @@ DEPENDENCIES
   rubocop (~> 0.52.1)
   rubocop-junit-formatter
   ruby-saml
+  rubyzip (>= 1.0.0)
   savon
   sdoc (~> 0.4.0)
   seedbank

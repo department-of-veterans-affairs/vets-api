@@ -82,6 +82,12 @@ describe PdfFill::Forms::Va210781a do
         'combinedAddress1' => '456 Main Street, 1B, Baltimore, MD, 21200-1111, USA'
       )
     end
+
+    it 'should handle sources being empty correctly' do
+      incident = {}
+
+      expect(new_form_class.send(:combine_source_name_address, incident)).to be_nil
+    end
   end
 
   describe '#expand_other_information' do
