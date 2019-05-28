@@ -118,6 +118,7 @@ RSpec.describe EducationForm::EducationFacility do
           }
         }
         education_benefits_claim.saved_claim.form = form.to_json
+        education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:western)
       end
     end
