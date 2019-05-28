@@ -10,7 +10,7 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/search?name=illinois'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('gi/institutions')
   end
@@ -20,7 +20,7 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/search?name=%ADillinois'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
   end
 
   it 'responds to GET #show' do
@@ -28,7 +28,7 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/20603613'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('gi/institution')
   end
@@ -38,7 +38,7 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/autocomplete?term=university'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('gi/autocomplete')
   end
@@ -48,6 +48,6 @@ RSpec.describe 'institutions', type: :request do
       get '/v0/gi/institutions/autocomplete?term=%ADuniversity'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
   end
 end

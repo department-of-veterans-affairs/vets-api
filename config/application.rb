@@ -32,7 +32,7 @@ module VetsAPI
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
-    config.load_defaults(5.1)
+    config.load_defaults(5.2)
     config.api_only = true
 
     config.relative_url_root = Settings.relative_url_root
