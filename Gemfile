@@ -141,10 +141,10 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
-  gem 'selenium-webdriver'
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
+  gem 'wist'
   gem 'yard'
 end
 
