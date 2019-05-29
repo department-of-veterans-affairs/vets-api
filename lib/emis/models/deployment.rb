@@ -57,11 +57,10 @@ module EMIS
     #       B27 => FTNGD - Involuntary
     #       B99 => FTNGD - Unknown (derived period)
     # @!attribute termination_reason
-    #   @return [String] the code that represents the reason that deployment segment was terminated.
-    #
-    #     C => Completion of Deployment Period
-    #
-    #     W => Not Applicable
+    #   @return [String] the code that represents the reason that deployment segment was
+    #     terminated.
+    #       C => Completion of Deployment Period
+    #       W => Not Applicable
     # @!attribute transaction_date
     #   @return [Date] the calendar date of the deployment.
     # @!attribute locations
