@@ -7,6 +7,8 @@ require 'saml/responses/logout'
 
 module V0
   class SessionsController < ApplicationController
+    before_action :set_extra_context, only: [:saml_callback, :saml_logout_callback]
+
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -17,11 +19,11 @@ module V0
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       if SessionActivity::SESSION_ACTIVITY_TYPES.include?(params[:type])
-        session_activity = SessionActivity.create(
+        @session_activity = SessionActivity.create(
           name: params[:type],
           originating_request_id: Thread.current['request_id'],
           originating_ip_address: request.remote_ip,
-          originating_user_agent: request.user_agent,
+          additional_data: { originating_user_agent: request.user_agent },
           generated_url: url_service.send("#{params[:type]}_url")
         )
 
@@ -30,7 +32,7 @@ module V0
           reset_session
         end
 
-        url = session_activity.generated_url
+        url = @session_activity.generated_url
         # clientId must be added at the end because of  "Do not track" browser extensions
         redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
       else
@@ -50,7 +52,6 @@ module V0
           Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
         end
       else
-        log_message_to_sentry('SLO: No SessionActivity found.')
         raise Common::Exceptions::RoutingError, params[:path]
       end
     rescue StandardError => e
@@ -72,7 +73,6 @@ module V0
           stats(:failure, saml_response, saml_response.error_instrumentation_code)
         end
       else
-        log_message_to_sentry('SSO: No SessionActivity found.')
         raise Common::Exceptions::RoutingError, params[:path]
       end
     rescue StandardError => e
@@ -167,22 +167,6 @@ module V0
       set_sso_cookie! # Sets a cookie "vagov_session_<env>" with attributes needed for SSO.
     end
 
-    def originating_request_id
-      saml_response_relay_state_params['originating_request_id']
-    end
-
-    def session_activity_id
-      saml_response_relay_state_params['session_activity_id']
-    end
-
-    def saml_response_relay_state_params
-      return {} unless %w[saml_callback saml_logout_callback].include?(action_name)
-      @relay_state_params ||= params['RelayState'].present? ? JSON.parse(params['RelayState']) : {}
-    rescue
-      log_message_to_sentry('RelayState could not be parsed', :warn)
-      {}
-    end
-
     def after_login_actions
       AfterLoginJob.perform_async('user_uuid' => @current_user&.uuid)
       log_persisted_session_and_warnings
@@ -199,16 +183,32 @@ module V0
       end
     end
 
+    def session_activity_id
+      @session_activity_id ||= JSON.parse(params[:RelayState] || '{}')['session_activity_id']
+    rescue
+      'UNKNOWN'
+    end
+
     def originating_request_id
-      JSON.parse(params[:RelayState] || '{}')['originating_request_id']
+      @originating_request_id ||= JSON.parse(params[:RelayState] || '{}')['originating_request_id']
     rescue
       'UNKNOWN'
     end
 
     def request_type
-      JSON.parse(params[:RelayState] || '{}')['type']
+      @request_type ||= JSON.parse(params[:RelayState] || '{}')['type']
     rescue
       'UNKNOWN'
+    end
+
+    def set_extra_context
+      Raven.extra_context(
+        RelayState: params[:RelayState],
+        session_activity_id: session_activity_id,
+        originating_request_id: originating_request_id,
+        request_type: request_type,
+        session_activity: session_activity.attributes
+      )
     end
 
     def url_service
