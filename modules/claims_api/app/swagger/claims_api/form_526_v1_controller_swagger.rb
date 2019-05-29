@@ -29,7 +29,7 @@ module ClaimsApi
             end
           end
         end
-        
+
         response :default do
           key :description, 'unexpected error'
           schema do
@@ -44,7 +44,7 @@ module ClaimsApi
           end
         end
       end
-      
+
       operation :post do
         key :summary, 'Accepts 526 claim form submission'
         key :description, 'Accpets document binaries as part of a multipart payload. Accepts N number of attachments, via attachment1 .. attachmentN'
