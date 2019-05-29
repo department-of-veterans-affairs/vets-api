@@ -68,7 +68,7 @@ RSpec.describe 'Account creation and upgrade', type: :request do
   shared_examples 'a successful GET #show' do |options|
     it 'responds with JSON indicating current account state / level' do
       get v0_mhv_account_path
-      expect(response).to be_success
+      expect(response).to be_successful
       base_response_body = JSON.parse(response.body)['data']['attributes']
       expect(base_response_body['account_state']).to eq(options[:account_state])
       expect(base_response_body['account_level']).to eq(options[:account_level])

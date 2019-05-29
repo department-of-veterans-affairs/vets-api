@@ -48,7 +48,7 @@ RSpec.describe 'Triage Teams Integration', type: :request do
         get '/v0/messaging/health/recipients'
       end
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('triage_teams')
     end
