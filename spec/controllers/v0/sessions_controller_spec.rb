@@ -77,16 +77,36 @@ RSpec.describe V0::SessionsController, type: :controller do
   context 'when not logged in' do
     describe 'new' do
       context 'routes not requiring auth' do
-        %w[mhv dslogon idme].each do |type|
-          context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it 'redirects' do
-              get(:new, params: { type: type, clientId: '123123' })
-              expect(response).to have_http_status(:found)
-              expect(response.location)
-                .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
-                .with_relay_state('originating_request_id' => nil, 'type' => type)
-                .with_params('clientId' => '123123')
-            end
+        context "routes /sessions/mhv/new to SessionsController#new with type: mhv" do
+          it 'redirects' do
+            get(:new, params: { type: 'mhv', clientId: '123123' })
+            expect(response).to have_http_status(:found)
+            expect(response.location)
+              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .with_relay_state('originating_request_id' => nil, 'type' => 'mhv')
+              .with_params('clientId' => '123123')
+          end
+        end
+
+        context "routes /sessions/dslogon/new to SessionsController#new with type: dslogon" do
+          it 'redirects' do
+            get(:new, params: { type: 'dslogon', clientId: '123123' })
+            expect(response).to have_http_status(:found)
+            expect(response.location)
+              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .with_relay_state('originating_request_id' => nil, 'type' => 'dslogon')
+              .with_params('clientId' => '123123')
+          end
+        end
+
+        context "routes /sessions/idme/new to SessionsController#new with type: idme" do
+          it 'redirects' do
+            get(:new, params: { type: 'idme', clientId: '123123' })
+            expect(response).to have_http_status(:found)
+            expect(response.location)
+              .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+              .with_relay_state('originating_request_id' => nil, 'type' => 'idme')
+              .with_params('clientId' => '123123')
           end
         end
 
@@ -103,18 +123,40 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'routes requiring auth' do
-        %w[mfa verify slo].each do |type|
-          it "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            get(:new, params: { type: type })
-            expect(response).to have_http_status(:unauthorized)
-            expect(JSON.parse(response.body))
-              .to eq('errors' => [{
-                       'title' => 'Not authorized',
-                       'detail' => 'Not authorized',
-                       'code' => '401',
-                       'status' => '401'
-                     }])
-          end
+        it "routes /sessions/mfa/new to SessionsController#new with type: mfa" do
+          get(:new, params: { type: 'mfa' })
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body))
+            .to eq('errors' => [{
+                     'title' => 'Not authorized',
+                     'detail' => 'Not authorized',
+                     'code' => '401',
+                     'status' => '401'
+                   }])
+        end
+
+        it "routes /sessions/verify/new to SessionsController#new with type: verify" do
+          get(:new, params: { type: 'verify' })
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body))
+            .to eq('errors' => [{
+                     'title' => 'Not authorized',
+                     'detail' => 'Not authorized',
+                     'code' => '401',
+                     'status' => '401'
+                   }])
+        end
+
+        it "routes /sessions/slo/new to SessionsController#new with type: slo" do
+          get(:new, params: { type: 'slo' })
+          expect(response).to have_http_status(:unauthorized)
+          expect(JSON.parse(response.body))
+            .to eq('errors' => [{
+                     'title' => 'Not authorized',
+                     'detail' => 'Not authorized',
+                     'code' => '401',
+                     'status' => '401'
+                   }])
         end
       end
     end
@@ -129,15 +171,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
-        end
-      end
-
-      context 'loa3_user' do
-        let(:saml_user_attributes) { loa3_user.attributes.merge(loa3_user.identity.attributes) }
-
-        it 'creates an after login job' do
-          allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
     end
@@ -155,19 +188,57 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe 'new' do
       context 'all routes' do
-        %w[mhv dslogon idme mfa verify slo].each do |type|
-          around(:each) do |example|
-            Settings.sso.cookie_enabled = true
-            example.run
-            Settings.sso.cookie_enabled = false
-          end
+        around(:each) do |example|
+          Settings.sso.cookie_enabled = true
+          example.run
+          Settings.sso.cookie_enabled = false
+        end
 
-          context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
-            it 'redirects' do
-              get(:new, params: { type: type })
-              expect(response).to have_http_status(:found)
-              expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
-            end
+        context "routes /sessions/mhv/new to SessionsController#new with type: mhv" do
+          it 'redirects' do
+            get(:new, params: { type: 'mhv' })
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+          end
+        end
+
+        context "routes /sessions/dslogon/new to SessionsController#new with type: dslogon" do
+          it 'redirects' do
+            get(:new, params: { type: 'dslogon' })
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+          end
+        end
+
+        context "routes /sessions/idme/new to SessionsController#new with type: idme" do
+          it 'redirects' do
+            get(:new, params: { type: 'idme' })
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+          end
+        end
+
+        context "routes /sessions/mfa/new to SessionsController#new with type: mfa" do
+          it 'redirects' do
+            get(:new, params: { type: 'mfa' })
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+          end
+        end
+
+        context "routes /sessions/verify/new to SessionsController#new with type: verify" do
+          it 'redirects' do
+            get(:new, params: { type: 'verify' })
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+          end
+        end
+
+        context "routes /sessions/slo/new to SessionsController#new with type: slo" do
+          it 'redirects' do
+            get(:new, params: { type: 'slo' })
+            expect(response).to have_http_status(:found)
+            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
           end
         end
       end
@@ -365,6 +436,8 @@ RSpec.describe V0::SessionsController, type: :controller do
                    'signIn' => { 'serviceName' => 'idme' },
                    'credential_used' => 'id_me',
                    'expirationTime' => expire_at.iso8601(0))
+
+          expect { post :saml_callback }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
 
