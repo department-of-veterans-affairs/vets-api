@@ -15,7 +15,7 @@ module V0
       raise Common::Exceptions::ValidationErrors, pay_info unless pay_info.valid?
       response = service.update_payment_information(pay_info)
       email = current_user.vet360_contact_info&.email || current_user.email
-      DirectDepositMailer.build(email).deliver_now if email
+      DirectDepositMailer.build(email, params[:ga_client_id]).deliver_now if email
       render json: response,
              serializer: PPIUSerializer
     end
