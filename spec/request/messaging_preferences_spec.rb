@@ -48,7 +48,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
         get '/v0/messaging/health/preferences'
       end
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       attrs = JSON.parse(response.body)['data']['attributes']
       expect(attrs['email_address']).to eq('muazzam.khan@va.gov')
