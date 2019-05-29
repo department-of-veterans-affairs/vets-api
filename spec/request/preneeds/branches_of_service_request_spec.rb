@@ -10,7 +10,7 @@ RSpec.describe 'Branches of Service Integration', type: :request do
       get '/v0/preneeds/branches_of_service/'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('preneeds/branches_of_service')
   end

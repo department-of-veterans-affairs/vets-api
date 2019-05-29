@@ -29,7 +29,7 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
 
   it 'accepts register request' do
     post '/v0/beta_registration/veteran_id_card'
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     json = JSON.parse(response.body)
     expect(json['user']).to eq(user.email)
@@ -38,7 +38,7 @@ RSpec.describe 'Beta Registration Endpoint', type: :request do
   it 'accepts register request' do
     post '/v0/beta_registration/veteran_id_card'
     get '/v0/beta_registration/veteran_id_card'
-    expect(response).to be_success
+    expect(response).to be_successful
     json = JSON.parse(response.body)
     expect(json['user']).to eq(user.email)
   end
