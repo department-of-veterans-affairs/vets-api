@@ -125,6 +125,7 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'capybara', '3.15.1'
   gem 'factory_bot_rails'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
@@ -140,6 +141,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
+  gem 'selenium-webdriver'
   gem 'sidekiq'
   gem 'timecop'
   gem 'webmock'
