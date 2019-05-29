@@ -5,6 +5,46 @@ module ClaimsApi
     include Swagger::Blocks
 
     swagger_path '/forms/0966' do
+      operation :get do
+        key :summary, 'Get 0966 JSON Schema for form'
+        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :operationId, 'get0966JsonSchema'
+        key :produces, [
+          'application/json'
+        ]
+        key :tags, [
+          'Disability'
+        ]
+
+        response 200 do
+          key :description, 'schema response'
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :array
+              items do
+                key :'$ref', :Form526Input
+              end
+            end
+          end
+        end
+        
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+
       operation :post do
         key :summary, 'Accepts 0966 Intent to File form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'

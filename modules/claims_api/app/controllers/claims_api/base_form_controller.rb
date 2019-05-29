@@ -15,7 +15,7 @@ module ClaimsApi
     skip_before_action :log_request, only: %i[schema]
 
     def schema
-      render json: ClaimsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]
+      render json: {data: [ClaimsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]]}
     end
 
     private
