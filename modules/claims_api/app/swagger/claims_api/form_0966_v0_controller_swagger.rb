@@ -13,7 +13,7 @@ module ClaimsApi
           'application/json'
         ]
         key :tags, [
-          'Disability'
+          'Intent to File'
         ]
 
         response 200 do
