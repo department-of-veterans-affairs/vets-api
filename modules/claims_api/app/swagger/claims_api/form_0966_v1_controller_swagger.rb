@@ -24,7 +24,17 @@ module ClaimsApi
             property :data do
               key :type, :array
               items do
-                key :'$ref', :Form526Input
+                key :type, :object
+                property :type do
+                  key :type, :string
+                  key :example, 'compensation'
+                  key :description, 'Required by JSON API standard'
+                  key :enum, %w[
+                    compensation
+                    burial
+                    pension
+                  ]
+                end
               end
             end
           end
