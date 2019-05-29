@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
+RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
   subject do
     described_class.new
   end
@@ -10,6 +10,35 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
   before do
     Settings.govdelivery.token = 'asdf'
     Settings.google_analytics_tracking_id = 'UA-XXXXXXXXX-1'
+  end
+
+  describe 'ensure all subclasses are properly configured' do
+    EmailStruct = Struct.new(:subject, :status, :created_at, :id) do
+      def initialize(subject, status = 'completed', created_at = 24.hours.ago.to_s, id = rand(50_000_000..99_999_999))
+        super
+      end
+
+      def failed
+        Struct.new(:get, :collection).new(false, [])
+      end
+    end
+
+    it 'works' do
+      client = double('GovDelivery::TMS::Client')
+      email_messages = double('GovDelivery::TMS::EmailMessages')
+      allow(email_messages).to receive(:collection) {
+        emails = described_class::TRANSACTIONAL_MAILERS.each_with_object([]) do |mailer, arr|
+          arr << EmailStruct.new(mailer::SUBJECT)
+          arr << EmailStruct.new(mailer::SUBJECT, 'sending')
+        end
+        emails << EmailStruct.new('Spool submissions report')
+      }
+      allow(client).to receive_message_chain(:email_messages, :get).and_return(email_messages)
+      expect(subject).to receive(:govdelivery_client).and_return(client)
+      expect(subject).to receive(:relevant_emails).at_least(:once).and_call_original
+      expect_any_instance_of(Staccato::Tracker).to receive(:event).twice
+      subject.perform
+    end
   end
 
   describe '#perform', run_at: '2018-05-30 18:18:56' do
@@ -29,7 +58,7 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
 
     it 'should retrieve messages at least once, and stop when loop-break conditions are met' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        expect(subject).to receive(:hca_emails).twice.and_call_original
+        expect(subject).to receive(:relevant_emails).twice.and_call_original
         subject.perform
       end
     end
@@ -52,7 +81,7 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
   describe '#we_should_break?', run_at: '2018-05-30 18:27:56' do
     before do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        subject.send(:hca_emails, 1)
+        subject.send(:relevant_emails, 1)
         @emails = subject.instance_variable_get(:@all_emails)
       end
     end
