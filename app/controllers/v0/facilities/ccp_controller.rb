@@ -16,7 +16,7 @@ class V0::Facilities::CcpController < FacilitiesController
 
   def services
     ppms = Facilities::PPMSClient.new
-    result = ppms.specialties - [URGENT_CARE_CODE]
+    result = ppms.specialties.reject { |item| item['SpecialtyCode'] == URGENT_CARE_CODE }
     render json: result
   end
 
