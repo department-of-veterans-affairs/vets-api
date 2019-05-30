@@ -39,7 +39,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records/refresh'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('extract_statuses')
   end
@@ -49,7 +49,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records/eligible_data_classes'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('eligible_data_classes')
   end
@@ -77,7 +77,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.headers['Content-Disposition'])
       .to eq('inline; filename=mhv_GPTESTKFIVE_20161229_0057.pdf')
     expect(response.headers['Content-Type']).to eq('application/pdf')
@@ -89,7 +89,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records', params: { doc_type: 'txt' }
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.headers['Content-Disposition'])
       .to eq('inline; filename=mhv_GPTESTKFIVE_20170130_1901.txt')
     expect(response.headers['Content-Type']).to eq('text/plain')

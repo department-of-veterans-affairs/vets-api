@@ -11,6 +11,7 @@ module ClaimsApi
         skip_before_action(:authenticate)
         skip_before_action(:verify_power_of_attorney)
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
+        skip_before_action :verify_mvi, only: [:submit_form_526]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(

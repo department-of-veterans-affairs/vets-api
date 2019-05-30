@@ -1,10 +1,54 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/form_schemas'
+
 module ClaimsApi
   class Form0966V0ControllerSwagger
     include Swagger::Blocks
 
-    swagger_path '/form/0966' do
+    swagger_path '/forms/0966' do
+      operation :get do
+        key :summary, 'Get 0966 JSON Schema for form'
+        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :operationId, 'get0966JsonSchema'
+        key :produces, [
+          'application/json'
+        ]
+        key :tags, [
+          'Intent to File'
+        ]
+
+        response 200 do
+          key :description, 'schema response'
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :array
+              items do
+                key :type, :object
+                key :description, 'Returning Variety of JSON and UI Schema Objects'
+                key :example, ClaimsApi::FormSchemas::SCHEMAS['0966']
+              end
+            end
+          end
+        end
+
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+
       operation :post do
         key :summary, 'Accepts 0966 Intent to File form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
@@ -119,7 +163,7 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/form/0966/active' do
+    swagger_path '/forms/0966/active' do
       operation :get do
         key :summary, 'Returns last active 0966 Intent to File form submission'
         key :description, 'Returns last active JSON payload. Full URL, including\nquery parameters.'

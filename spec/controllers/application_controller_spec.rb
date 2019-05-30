@@ -245,7 +245,7 @@ RSpec.describe ApplicationController, type: :controller do
       context 'with valid session and user' do
         it 'returns success' do
           get :test_authentication
-          expect(response).to have_http_status(:success)
+          expect(response).to have_http_status(200)
         end
 
         context 'with a virtual host that is invalid' do
@@ -262,7 +262,7 @@ RSpec.describe ApplicationController, type: :controller do
 
           it 'returns success' do
             get :test_authentication
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(200)
           end
         end
 
@@ -302,7 +302,7 @@ RSpec.describe ApplicationController, type: :controller do
 
           it 'returns success' do
             get :test_authentication
-            expect(response).to have_http_status(:success)
+            expect(response).to have_http_status(200)
           end
         end
       end

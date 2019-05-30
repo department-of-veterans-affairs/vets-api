@@ -13,7 +13,7 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '~> 5.1.6.2'
+gem 'rails', '~> 5.2.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
@@ -71,6 +71,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
+gem 'rubyzip', '>= 1.0.0'
 gem 'savon'
 gem 'sentry-raven', '2.7.4' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
