@@ -1,10 +1,54 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/form_schemas'
+
 module ClaimsApi
   class Form526V0ControllerSwagger
     include Swagger::Blocks
 
     swagger_path '/forms/526' do
+      operation :get do
+        key :summary, 'Get 526 JSON Schema for form'
+        key :description, 'Returns a single JSON schema to auto generate a form'
+        key :operationId, 'get526JsonSchema'
+        key :produces, [
+          'application/json'
+        ]
+        key :tags, [
+          'Disability'
+        ]
+
+        response 200 do
+          key :description, 'schema response'
+          schema do
+            key :type, :object
+            key :required, [:data]
+            property :data do
+              key :type, :array
+              items do
+                key :type, :object
+                key :description, 'Returning Variety of JSON and UI Schema Objects'
+                key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
+              end
+            end
+          end
+        end
+
+        response :default do
+          key :description, 'unexpected error'
+          schema do
+            key :type, :object
+            key :required, [:errors]
+            property :errors do
+              key :type, :array
+              items do
+                key :'$ref', :ErrorModel
+              end
+            end
+          end
+        end
+      end
+
       operation :post do
         key :summary, 'Accepts 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'
