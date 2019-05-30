@@ -27,7 +27,7 @@ console:
 
 .PHONY: db
 db:
-	@$(BASH_DEV) "bundle exec rake db:setup db:migrate"
+	@$(BASH_DEV) "bundle exec rails db:environment:set RAILS_ENV=development; bundle exec rake db:setup db:migrate"
 
 .PHONY: down
 down:

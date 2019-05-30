@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+require 'json'
+require 'fileutils'
+
+def apply_local_kong
+  `kongfig apply --path local_kong.yml --host localhost:8001`
+end
+
+task :initial_setup do
+  FileUtils.cp('local_kong.yml.example', 'local_kong.yml')
+  apply_local_kong
+  consumers = `curl localhost:8001/consumers`
+  consumers.strip!
+  jsonified = JSON.parse consumers
+  anonymous = jsonified['data'].find { |consumer| consumer['username'] == 'anonymous' }
+
+  config = File.open('local_kong.yml').read
+  config.gsub!(/11111111-1111-1111-1111-111111111111/, anonymous['id'])
+
+  FileUtils.rm('local_kong.yml')
+  File.open('local_kong.yml', 'w') { |f| f.puts config }
+
+  apply_local_kong
+end
+
+task :apply_config do
+  apply_local_kong
+end

@@ -1,0 +1,823 @@
+headers: []
+apis: []
+services:
+  - name: kong_admin_consumers
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - api-management
+      - name: request-transformer
+        attributes:
+          enabled: true
+          config:
+            append:
+              headers:
+                - 'Authorization:Basic $$$_httpAuth_$$$'
+    attributes:
+      host: vets-api
+      port: 8001
+      protocol: http
+      retries: 0
+      path: /consumers
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: consumer
+        id: 74d696e4-7c3b-4b56-bd4f-83ca904c2d0b
+        attributes:
+          methods:
+            - POST
+            - GET
+          strip_path: true
+          paths:
+            - /api_management/consumers
+          preserve_host: false
+          protocols:
+            - http
+            - https
+          regex_priority: 0
+  - name: meta
+    plugins: []
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: https
+      path: /v0/status
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: meta-ping
+        id: 635b527e-674b-4955-be3b-2050357040fa
+        plugins:
+          - name: request-termination
+            attributes:
+              enabled: true
+              config:
+                status_code: 200
+                message: Hello from the va.gov public API! You're all set.
+        attributes:
+          strip_path: true
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/meta/v0/ping
+          methods:
+            - GET
+          protocols:
+            - http
+            - https
+      - name: meta-version
+        id: 9b2fe5bc-5897-43c3-9340-55d946367399
+        plugins: []
+        attributes:
+          strip_path: true
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/meta/v0/version
+          methods:
+            - GET
+          protocols:
+            - http
+            - https
+  - name: openid_auth
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - openid_auth
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: auth
+        id: fe05d16e-60a7-4a46-b681-269023833c54
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /internal/auth/docs/v0
+          methods:
+            - GET
+          protocols:
+            - http
+            - https
+      - name: validated-token
+        id: 86e18c20-124b-490b-80d4-99f03417313f
+        plugins: []
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /internal/auth/v0
+          methods:
+            - GET
+            - POST
+          protocols:
+            - http
+            - https
+  - name: claims
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - claims
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: claims-docs
+        id: 96ab19a3-bea9-4def-aa74-10dafe660e3f
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/claims/docs/v0
+          methods:
+            - OPTIONS
+            - GET
+          protocols:
+            - http
+            - https
+      - name: claims-endpoints
+        id: fbe8a838-6ec6-42f2-9c59-4bb3a377514d
+        plugins: []
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/claims/v0
+          methods:
+            - OPTIONS
+            - GET
+            - POST
+          protocols:
+            - http
+            - https
+  - name: claims-v1
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - claims-v1
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: claims-v1-docs
+        id: 1c5b1fdb-91dd-4dd4-87fe-58c21b288748
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/claims/docs/v1
+          methods:
+            - OPTIONS
+            - GET
+          protocols:
+            - http
+            - https
+      - name: claims-v1-endpoints
+        id: 7d6ca5a0-bf12-41be-bb67-f556ccd275fe
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/claims/v1
+          methods:
+            - GET
+            - POST
+            - OPTIONS
+          protocols:
+            - http
+            - https
+  - name: veteran_verification
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - veteran_verification
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: veteran_verification-docs
+        id: 5f01f6fb-46e4-4215-9888-2a6a409bcd02
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/veteran_verification/docs/v0
+          methods:
+            - OPTIONS
+            - GET
+          protocols:
+            - http
+            - https
+      - name: veteran_verification
+        id: 1df3f089-8b3e-46cd-a0ac-7a98cbfdc2f3
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/veteran_verification/v0
+          methods:
+            - GET
+            - OPTIONS
+          protocols:
+            - http
+            - https
+  - name: vba_documents
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - vba_documents
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: vba-documents-sns
+        id: bc5548d0-8e70-4f3a-a0b0-4e09e9b612a1
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/internal/v0
+          methods:
+            - OPTIONS
+            - POST
+          protocols:
+            - http
+            - https
+      - name: vba-documents-docs
+        id: ae2445b5-f2e3-4891-a551-7b014852a054
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/docs/v0
+          methods:
+            - OPTIONS
+            - GET
+          protocols:
+            - http
+            - https
+      - name: vba-documents-uploads
+        id: 7667fd6f-1535-4dd5-9105-1ad7745aa1d1
+        plugins: []
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/v0/uploads
+          methods:
+            - OPTIONS
+            - GET
+            - POST
+          protocols:
+            - http
+            - https
+      - name: vba-documents-report
+        id: 802ca1d0-aba5-4874-a407-f65cecc3cff7
+        plugins:
+          - name: rate-limiting
+            attributes:
+              enabled: true
+              config:
+                minute: 10
+                policy: cluster
+                redis_timeout: 2000
+                hide_client_headers: false
+                hour: 20
+                limit_by: consumer
+                redis_port: 6379
+                redis_database: 0
+                fault_tolerant: true
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/v0/uploads/report
+          methods:
+            - OPTIONS
+            - POST
+          protocols:
+            - http
+            - https
+  - name: vba_documents-v1
+    plugins:
+      - name: acl
+        attributes:
+          enabled: true
+          config:
+            whitelist:
+              - vba_documents
+    attributes:
+      host: vets-api
+      port: 3000
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: vba-documents-docs
+        id: f9a7a5a7-eb8e-491d-b77e-c3a99f12c9f5
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/docs/v1
+          methods:
+            - OPTIONS
+            - GET
+          protocols:
+            - http
+            - https
+      - name: vba-documents-uploads
+        id: d355de7e-9fef-412a-8337-d0de26b8d60a
+        plugins: []
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/v1/uploads
+          methods:
+            - OPTIONS
+            - GET
+            - POST
+          protocols:
+            - http
+            - https
+      - name: vba-documents-report
+        id: 691086f8-1490-47c8-8591-dafc91bc6ba6
+        plugins:
+          - name: rate-limiting
+            attributes:
+              enabled: true
+              config:
+                minute: 10
+                policy: cluster
+                redis_timeout: 2000
+                hide_client_headers: false
+                hour: 20
+                limit_by: consumer
+                redis_port: 6379
+                redis_database: 0
+                fault_tolerant: true
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/vba_documents/v1/uploads/report
+          methods:
+            - OPTIONS
+            - POST
+          protocols:
+            - http
+            - https
+  - name: developer_application
+    plugins: []
+    attributes:
+      host: www.example.com
+      port: 80
+      protocol: http
+      path: /
+      retries: 0
+      connect_timeout: 10000
+      read_timeout: 10000
+      write_timeout: 60000
+    routes:
+      - name: application_lambda
+        id: fd9b9e64-c282-4667-bb9e-e61bc78b91b9
+        plugins:
+          - name: key-auth
+            attributes:
+              enabled: true
+              config:
+                key_in_body: false
+                run_on_preflight: true
+                anonymous: 11111111-1111-1111-1111-111111111111
+                hide_credentials: false
+                key_names:
+                  - function
+          - name: acl
+            attributes:
+              enabled: true
+              config:
+                whitelist:
+                  - anonymous
+          - name: aws-lambda
+            attributes:
+              enabled: true
+              config:
+                aws_key: $$$_awsLambdaKey_$$$
+                aws_secret: $$$_awsLambdaSecret_$$$
+                aws_region: us-gov-west-1
+                function_name: dsva-vetsgov-dev-developer-portal-lambda
+          - name: rate-limiting
+            attributes:
+              enabled: true
+              config:
+                minute: 2
+                policy: cluster
+                redis_timeout: 2000
+                hide_client_headers: false
+                hour: 10
+                limit_by: ip
+                redis_port: 6379
+                redis_database: 0
+                fault_tolerant: true
+        attributes:
+          strip_path: false
+          hosts: null
+          preserve_host: false
+          regex_priority: 0
+          paths:
+            - /services/meta/developer_application
+          methods:
+            - POST
+            - OPTIONS
+          protocols:
+            - http
+            - https
+consumers:
+  - username: adhoc
+    acls:
+      - group: api-users
+      - group: appeals
+      - group: claims
+      - group: vba_documents
+      - group: va_facilities
+      - group: loan_guaranty
+      - group: 'internal-va:address_validation'
+      - group: openid_auth
+  - username: blackbox-monitoring
+    acls:
+      - group: monitoring
+      - group: va_facilities
+      - group: 'internal-va:address_validation'
+  - username: ERPartners
+    acls:
+      - group: vba_documents
+      - group: api-users
+  - username: Libera
+    acls:
+      - group: api-users
+      - group: vba_documents
+  - username: SterlingSolutions
+    acls:
+      - group: vba_documents
+  - username: VAEntServices
+    acls:
+      - group: api-users
+      - group: vba_documents
+  - username: VetPro
+    acls:
+      - group: vba_documents
+  - username: VetraSpec
+    acls:
+      - group: vba_documents
+  - username: VBANationalCallCenter
+    acls:
+      - group: api-users
+      - group: appeals
+      - group: claims
+    credentials: []
+  - username: WhiteHouseCallCenter
+    acls:
+      - group: api-users
+      - group: appeals
+    credentials: []
+  - username: MicroPact
+    acls:
+      - group: vba_documents
+    credentials: []
+  - username: Mapbox
+    acls:
+      - group: va_facilities
+    credentials: []
+  - username: GeoffreyClapp
+    acls:
+      - group: va_facilities
+    credentials: []
+  - username: Mapbox-Davidson
+    acls:
+      - group: va_facilities
+    credentials: []
+  - username: ScibrainVA
+    acls:
+      - group: va_facilities
+    credentials: []
+  - username: DSVAAppeals
+    acls:
+      - group: api-users
+      - group: va_facilities
+      - group: 'internal-va:address_validation'
+    credentials: []
+  - username: JamesCalby
+    acls:
+      - group: api-users
+      - group: va_facilities
+    credentials: []
+  - username: RandyT-EMPD
+    acls:
+      - group: api-users
+      - group: va_facilities
+      - group: vba_documents
+    credentials: []
+  - username: AngelaS-VA
+    acls:
+      - group: api-users
+      - group: va_facilities
+    credentials: []
+  - username: _internal_DeveloperPortal
+    acls:
+      - group: api-users
+      - group: api-management
+    credentials: []
+  - username: anonymous
+    acls:
+      - group: anonymous
+    credentials: []
+  - username: va-oauth-proxy
+    acls:
+      - group: api-users
+      - group: openid_auth
+    credentials: []
+plugins:
+  - name: prometheus
+    attributes:
+      enabled: true
+  - name: syslog
+    attributes:
+      enabled: false
+      config:
+        server_errors_severity: info
+        successful_severity: info
+        client_errors_severity: info
+        log_level: info
+  - name: key-auth
+    attributes:
+      enabled: true
+      config:
+        key_in_body: false
+        run_on_preflight: true
+        anonymous: ''
+        hide_credentials: false
+        key_names:
+          - apikey
+  - name: rate-limiting
+    attributes:
+      enabled: true
+      config:
+        hide_client_headers: false
+        minute: 60
+        policy: cluster
+        redis_database: 0
+        redis_timeout: 2000
+        redis_port: 6379
+        limit_by: consumer
+        fault_tolerant: true
+  - name: cors
+    attributes:
+      enabled: true
+      config:
+        origins:
+          - '*'
+        max_age: 3600
+upstreams: []
+certificates: []

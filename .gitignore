@@ -57,5 +57,8 @@ rspec.xml
 # Ignore certificates directory
 config/certs
 
+# Ignore local kong setup
+kong_setup/local_kong.yml
+
 dump.rdb
 /.project

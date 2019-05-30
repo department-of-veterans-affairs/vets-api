@@ -9,6 +9,11 @@ services:
       POSTGRES_USER: "${POSTGRES_USER:-postgres}"
     volumes:
       - ./data:/var/lib/postgresql/data:cached
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-postgres}"]
+      interval: 30s
+      timeout: 30s
+      retries: 3
     ports:
       - "54320:5432"
   vets-api:
@@ -40,5 +45,34 @@ services:
     links:
       - postgres
       - redis
+    command: "foreman start"
+  kong:
+    image: "kong:0.14.0"
+    depends_on:
+      - postgres
+      - vets-api
+    environment:
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: '0.0.0.0:8001'
+      KONG_CASSANDRA_CONTACT_POINTS: db
+      KONG_DATABASE: 'postgres'
+      KONG_PG_DATABASE: 'postgres'
+      KONG_PG_HOST: db
+      KONG_PG_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      KONG_PG_USER: ${POSTGRES_USER:-postgres}
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+    links:
+      - postgres:db
+      - vets-api:vets-api
+    ports:
+      - "8000:8000/tcp"
+      - "8001:8001/tcp"
+      - "8443:8443/tcp"
+      - "8444:8444/tcp"
+    restart: on-failure
+    command: kong start --run-migrations
+
 volumes:
   db-data:
