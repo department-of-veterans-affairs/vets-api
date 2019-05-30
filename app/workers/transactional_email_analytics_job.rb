@@ -5,8 +5,6 @@ class TransactionalEmailAnalyticsJob
 
   sidekiq_options(unique_for: 30.minutes, retry: false)
 
-  TRANSACTIONAL_MAILERS = [HCASubmissionFailureMailer, DirectDepositMailer].freeze
-
   def initialize
     Sentry::TagRainbows.tag
 
@@ -53,16 +51,13 @@ class TransactionalEmailAnalyticsJob
       sort_order: 'DESC',
       page_size: 50
     )
-    # @all_emails.collection.select do |email|
-    #   [HCASubmissionFailureMailer::SUBJECT, DirectDepositMailer::SUBJECT].include?(email.subject) &&
-    #     Time.zone.parse(email.created_at) > @time_range_start
-    # end
-    grouped_emails = TRANSACTIONAL_MAILERS.each_with_object({}) { |mailer, hash| hash[mailer] = [] }
+
+    grouped_emails = TransactionalEmailMailer.descendants.each_with_object({}) { |mailer, hash| hash[mailer] = [] }
 
     @all_emails.collection.each do |email|
       created_at = Time.zone.parse(email.created_at)
       if created_at > @time_range_start && created_at <= @time_range_end && email.status == 'completed'
-        TRANSACTIONAL_MAILERS.each_with_object(grouped_emails) do |mailer, grouped|
+        TransactionalEmailMailer.descendants.each_with_object(grouped_emails) do |mailer, grouped|
           grouped[mailer] << email if mailer::SUBJECT == email.subject
         end
       end
