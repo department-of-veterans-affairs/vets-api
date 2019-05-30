@@ -51,7 +51,7 @@ RSpec.describe 'Messages Integration', type: :request do
         get '/v0/messaging/health/messages/categories'
       end
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('category')
     end
@@ -61,7 +61,7 @@ RSpec.describe 'Messages Integration', type: :request do
         get "/v0/messaging/health/messages/#{message_id}"
       end
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('message')
     end
@@ -86,7 +86,7 @@ RSpec.describe 'Messages Integration', type: :request do
             post '/v0/messaging/health/messages', params: { message: params }
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
@@ -98,7 +98,7 @@ RSpec.describe 'Messages Integration', type: :request do
             post '/v0/messaging/health/messages', params: params_with_attachments
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
@@ -114,7 +114,7 @@ RSpec.describe 'Messages Integration', type: :request do
             post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: { message: params }
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
@@ -126,7 +126,7 @@ RSpec.describe 'Messages Integration', type: :request do
             post "/v0/messaging/health/messages/#{reply_message_id}/reply", params: params_with_attachments
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(JSON.parse(response.body)['data']['attributes']['subject']).to eq('CI Run')
           expect(JSON.parse(response.body)['data']['attributes']['body']).to eq('Continuous Integration')
@@ -143,7 +143,7 @@ RSpec.describe 'Messages Integration', type: :request do
           get "/v0/messaging/health/messages/#{thread_id}/thread"
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('messages_thread')
       end
@@ -157,7 +157,7 @@ RSpec.describe 'Messages Integration', type: :request do
           delete "/v0/messaging/health/messages/#{message_id}"
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
       end
     end
@@ -170,7 +170,7 @@ RSpec.describe 'Messages Integration', type: :request do
           patch "/v0/messaging/health/messages/#{message_id}/move?folder_id=0"
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
       end
     end

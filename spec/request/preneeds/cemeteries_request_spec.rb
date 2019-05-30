@@ -10,7 +10,7 @@ RSpec.describe 'Cemeteries Integration', type: :request do
       get '/v0/preneeds/cemeteries/'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('preneeds/cemeteries')
   end
