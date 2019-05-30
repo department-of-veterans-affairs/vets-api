@@ -6,7 +6,7 @@ Capybara.register_driver :chrome do |app|
   driver = Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
 Capybara.server_port = "3000"
-
+Capybara.default_max_wait_time = 10
 Capybara.javascript_driver = :chrome
 
 VCR.configure do |c|
