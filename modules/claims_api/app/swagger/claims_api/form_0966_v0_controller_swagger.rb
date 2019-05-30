@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/form_schemas'
+
 module ClaimsApi
   class Form0966V0ControllerSwagger
     include Swagger::Blocks
@@ -25,16 +27,8 @@ module ClaimsApi
               key :type, :array
               items do
                 key :type, :object
-                property :type do
-                  key :type, :string
-                  key :example, 'compensation'
-                  key :description, 'Required by JSON API standard'
-                  key :enum, %w[
-                    compensation
-                    burial
-                    pension
-                  ]
-                end
+                key :description, 'Returning Variety of JSON and UI Schema Objects'
+                key :example, ClaimsApi::FormSchemas::SCHEMAS['0966']
               end
             end
           end

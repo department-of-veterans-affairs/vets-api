@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'claims_api/form_schemas'
+
 module ClaimsApi
   class Form526V1ControllerSwagger
     include Swagger::Blocks
@@ -24,7 +26,9 @@ module ClaimsApi
             property :data do
               key :type, :array
               items do
-                key :'$ref', :Form526Input
+                key :type, :object
+                key :description, 'Returning Variety of JSON and UI Schema Objects'
+                key :example, ClaimsApi::FormSchemas::SCHEMAS['526']
               end
             end
           end
