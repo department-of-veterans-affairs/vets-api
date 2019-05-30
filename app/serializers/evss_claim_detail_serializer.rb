@@ -8,7 +8,7 @@ class EVSSClaimDetailSerializer < EVSSClaimBaseSerializer
   end
 
   def va_representative
-    object.data['poa']
+    ActionView::Base.full_sanitizer.sanitize(object.data['poa'])
   end
 
   def events_timeline
