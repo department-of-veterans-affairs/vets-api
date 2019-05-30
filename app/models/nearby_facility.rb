@@ -17,7 +17,7 @@ class NearbyFacility < ApplicationRecord
 
     def request_isochrone(params)
       params[:drive_time] = '30' unless params[:drive_time]
-      address = '#params[:street_address] params[:city] params[:state] params[:zip]'
+      address = "#{params[:street_address]} #{params[:city]} #{params[:state]} #{params[:zip]}"
       query = {
         waypoint: address,
         maxtime: params[:drive_time],
