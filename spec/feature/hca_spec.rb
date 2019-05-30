@@ -62,5 +62,6 @@ RSpec.describe('hca', type: :feature) do
     # review application
     click('#errorable-checkbox-8', visible: false)
     wait_for_new_url('.usa-button-primary')
+    expect(current_path).to eq('/health-care/apply/application/confirmation')
   end
 end
