@@ -36,7 +36,7 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
-          head :ok
+          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
 
         private

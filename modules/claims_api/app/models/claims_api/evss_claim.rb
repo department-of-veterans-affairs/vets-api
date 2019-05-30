@@ -39,5 +39,9 @@ module ClaimsApi
     def status_from_phase(phase)
       PHASE_TO_STATUS[phase]
     end
+
+    def supporting_documents
+      []
+    end
   end
 end

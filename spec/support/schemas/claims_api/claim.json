@@ -44,7 +44,8 @@
             "development_letter_sent": { "type": "boolean" },
             "decision_letter_sent": { "type": "boolean" },
             "status": { "type": ["string", "null"] },
-            "claim_type": { "type": ["string", "null"] }
+            "claim_type": { "type": ["string", "null"] },
+            "supporting_documents": { "type": "array", "items": { "type": "object" } }
           }
         }
       }
