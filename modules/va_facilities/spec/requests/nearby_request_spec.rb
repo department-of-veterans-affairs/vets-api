@@ -8,12 +8,15 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   include SchemaMatchers
 
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
-  let(:address_params) { '?street_address=2400%20E%20Fort%20Ave&city=Baltimore&state=MD&zip=21230' }
-  let(:empty_address) { '?street_address=2400%20E%20Fort%20Ave&city=Baltimore&state=MD&zip=21230&drive_time=1' }
+  let(:address_params) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=60' }
+  let(:empty_address) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=1' }
 
   let(:accept_json) { { 'HTTP_ACCEPT' => 'application/json' } }
   let(:accept_geojson) { { 'HTTP_ACCEPT' => 'application/vnd.geo+json' } }
-  let(:accept_csv) { { 'HTTP_ACCEPT' => 'text/csv' } }
+
+  let(:setup_pdx) do
+    %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
+  end
 
   def parse_link_header(header)
     links = header.split(',').map(&:strip)
@@ -31,12 +34,15 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
   context 'when requesting JSON API format' do
     it 'responds to GET #index' do
-      get base_query_path + address_params, params: nil, headers: accept_json
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(21)
-      # expect(json['meta']['distances']).to eq([])
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+        get base_query_path + address_params, params: nil, headers: accept_json
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(10)
+        # expect(json['meta']['distances']).to eq([])
+      end
     end
 
     xit 'responds with pagination links' do
@@ -54,45 +60,55 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
 
     it 'responds with pagination metadata' do
-      get base_query_path + address_params, params: nil, headers: accept_json
-      expect(response).to be_success
-      json = JSON.parse(response.body)
-      expect(json).to have_key('meta')
-      expect(json['meta']).to have_key('pagination')
-      pagination = json['meta']['pagination']
-      expect(pagination).to have_key('current_page')
-      expect(pagination).to have_key('per_page')
-      expect(pagination).to have_key('total_pages')
-      expect(pagination).to have_key('total_entries')
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+        get base_query_path + address_params, params: nil, headers: accept_json
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        expect(json).to have_key('meta')
+        expect(json['meta']).to have_key('pagination')
+        pagination = json['meta']['pagination']
+        expect(pagination).to have_key('current_page')
+        expect(pagination).to have_key('per_page')
+        expect(pagination).to have_key('total_pages')
+        expect(pagination).to have_key('total_entries')
+      end
     end
 
     it 'paginates according to parameters' do
-      get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_json
-      expect(response).to be_success
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(3)
-      # TODO: links object not currently being returned
-      # links = json['links']
-      # expect(query_params(links['self'])['page']).to eq(['2'])
-      # expect(query_params(links['self'])['per_page']).to eq(['3'])
-      # pagination = json['meta']['pagination']
-      # expect(pagination['current_page']).to eq(2)
-      # expect(pagination['per_page']).to eq(3)
-      # expect(pagination['total_pages']).to eq(4)
-      # expect(pagination['total_entries']).to eq(10)
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+        get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_json
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(3)
+        # TODO: links object not currently being returned
+        # links = json['links']
+        # expect(query_params(links['self'])['page']).to eq(['2'])
+        # expect(query_params(links['self'])['per_page']).to eq(['3'])
+        # pagination = json['meta']['pagination']
+        # expect(pagination['current_page']).to eq(2)
+        # expect(pagination['per_page']).to eq(3)
+        # expect(pagination['total_pages']).to eq(4)
+        # expect(pagination['total_entries']).to eq(10)
+      end
     end
 
-    xit 'paginates empty result set' do
-      # TODO: once we're using real data
-      get base_query_path + empty_address, params: nil, headers: accept_json
-      expect(response).to be_success
-      json = JSON.parse(response.body)
-      expect(json['data'].length).to eq(0)
-      links = json['links']
-      expect(query_params(links['last'])['page']).to eq(['1'])
-      pagination = json['meta']['pagination']
-      expect(pagination['total_pages']).to eq(1)
-      expect(pagination['total_entries']).to eq(0)
+    it 'paginates empty result set' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_1') do
+        get base_query_path + empty_address, params: nil, headers: accept_json
+        puts response.body
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(0)
+        # TODO: links object not currently being returned
+        # links = json['links']
+        # expect(query_params(links['last'])['page']).to eq(['1'])
+        pagination = json['meta']['pagination']
+        expect(pagination['total_pages']).to eq(1)
+        expect(pagination['total_entries']).to eq(0)
+      end
     end
   end
 
@@ -135,8 +151,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       expect(parsed['next']['page']).to eq(['3'])
     end
 
-    xit 'paginates empty result set' do
-      # TODO: once we're using real data
+    it 'paginates empty result set' do
       get base_query_path + empty_address, params: nil, headers: accept_geojson
       expect(response).to be_success
       json = JSON.parse(response.body)
