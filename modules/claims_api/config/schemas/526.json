@@ -33,11 +33,11 @@
           "properties": {
             "addressLine1": {
               "type": "string",
-              "format": "address-line-pattern"
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$"
             },
             "addressLine2": {
               "type": "string",
-              "format": "address-line-pattern"
+              "pattern": "^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$"
             },
             "city": {
               "type": "string",
@@ -200,11 +200,11 @@
               },
               "activeDutyBeginDate": {
                 "type": "string",
-                "format": "date-pattern"
+                "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
               },
               "activeDutyEndDate": {
                 "type": "string",
-                "format": "date-pattern"
+                "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
               }
             }
           }
@@ -222,11 +222,11 @@
             "properties": {
               "confinementBeginDate": {
                 "type": "string",
-                "format": "date-pattern"
+                "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
               },
               "confinementEndDate": {
                 "type": "string",
-                "format": "date-pattern"
+                "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
               }
             }
           }
@@ -259,11 +259,11 @@
             },
             "obligationTermOfServiceFromDate": {
               "type": "string",
-              "format": "date-pattern"
+              "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
             },
             "obligationTermOfServiceToDate": {
               "type": "string",
-              "format": "date-pattern"
+              "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
             },
             "unitName": {
               "type": "string"
@@ -379,11 +379,11 @@
         "properties": {
           "startDate": {
             "type": "string",
-            "format": "date-pattern"
+            "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
           },
           "endDate": {
             "type": "string",
-            "format": "date-pattern"
+            "pattern": "^(\\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$"
           },
           "treatedDisabilityNames": {
             "type": "array",
