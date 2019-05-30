@@ -145,6 +145,13 @@ RSpec.describe ApplicationController, type: :controller do
       expect(Raven).to receive(:extra_context).once.with(
         request_uuid: nil
       )
+      expect(Raven).to receive(:extra_context).once.with(
+        va_exception_errors: [{
+          :title=>"Service unavailable", 
+          :detail=>"Backend Service Outage", 
+          :code=>"503", 
+          :status=>"503"}]
+      )
       # if current user is nil it means user is not signed in.
       expect(Raven).to receive(:tags_context).once.with(
         controller_name: 'anonymous',
@@ -171,6 +178,13 @@ RSpec.describe ApplicationController, type: :controller do
           .to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
         expect(Raven).to receive(:extra_context).once.with(
           request_uuid: nil
+        )
+        expect(Raven).to receive(:extra_context).once.with(
+          va_exception_errors: [{
+            :title=>"Service unavailable", 
+            :detail=>"Backend Service Outage", 
+            :code=>"503", 
+            :status=>"503"}]
         )
         # if authn_context is nil on current_user it means idme
         expect(Raven).to receive(:tags_context).once.with(
