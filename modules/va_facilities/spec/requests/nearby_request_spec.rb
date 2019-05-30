@@ -45,18 +45,20 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       end
     end
 
-    xit 'responds with pagination links' do
-      # TODO: links object not currently being returned
-      get base_query_path + address_params, params: nil, headers: accept_json
-      expect(response).to be_success
-      json = JSON.parse(response.body)
-      expect(json).to have_key('links')
-      links = json['links']
-      expect(links).to have_key('self')
-      expect(links).to have_key('first')
-      expect(links).to have_key('last')
-      expect(links).to have_key('prev')
-      expect(links).to have_key('next')
+    it 'responds with pagination links' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+        get base_query_path + address_params, params: nil, headers: accept_json
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        expect(json).to have_key('links')
+        links = json['links']
+        expect(links).to have_key('self')
+        expect(links).to have_key('first')
+        expect(links).to have_key('last')
+        expect(links).to have_key('prev')
+        expect(links).to have_key('next')
+      end
     end
 
     it 'responds with pagination metadata' do
@@ -82,15 +84,14 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response).to be_success
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(3)
-        # TODO: links object not currently being returned
-        # links = json['links']
-        # expect(query_params(links['self'])['page']).to eq(['2'])
-        # expect(query_params(links['self'])['per_page']).to eq(['3'])
-        # pagination = json['meta']['pagination']
-        # expect(pagination['current_page']).to eq(2)
-        # expect(pagination['per_page']).to eq(3)
-        # expect(pagination['total_pages']).to eq(4)
-        # expect(pagination['total_entries']).to eq(10)
+        links = json['links']
+        expect(query_params(links['self'])['page']).to eq(['2'])
+        expect(query_params(links['self'])['per_page']).to eq(['3'])
+        pagination = json['meta']['pagination']
+        expect(pagination['current_page']).to eq(2)
+        expect(pagination['per_page']).to eq(3)
+        expect(pagination['total_pages']).to eq(4)
+        expect(pagination['total_entries']).to eq(10)
       end
     end
 
@@ -98,13 +99,11 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_1') do
         get base_query_path + empty_address, params: nil, headers: accept_json
-        puts response.body
         expect(response).to be_success
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(0)
-        # TODO: links object not currently being returned
-        # links = json['links']
-        # expect(query_params(links['last'])['page']).to eq(['1'])
+        links = json['links']
+        expect(query_params(links['last'])['page']).to eq(['1'])
         pagination = json['meta']['pagination']
         expect(pagination['total_pages']).to eq(1)
         expect(pagination['total_entries']).to eq(0)
@@ -115,7 +114,6 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   xcontext 'when requesting GeoJSON format' do
     it 'responds to GET #index' do
       get base_query_path + address_params, params: nil, headers: accept_geojson
-      puts response.body
       expect(response).to be_success
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
