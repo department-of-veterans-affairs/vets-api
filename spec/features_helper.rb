@@ -7,7 +7,7 @@ Capybara.register_driver :chrome do |app|
 end
 Capybara.server_port = "3000"
 Capybara.default_max_wait_time = 10
-Capybara.javascript_driver = :chrome
+Capybara.javascript_driver = :selenium_chrome_headless
 
 VCR.configure do |c|
   c.allow_http_connections_when_no_cassette = true
