@@ -2,9 +2,9 @@
 
 class DirectDepositMailer < TransactionalEmailMailer
   SUBJECT = 'Confirmation - Your direct deposit information changed on VA.gov'
-  GA_CAMPAIGN_NAME = 'direct-deposit-update' # TODO: confirm
-  GA_DOCUMENT_PATH = '/placeholder' # TODO: replace
-  GA_LABEL = 'placeholder' # TODO: replace
+  GA_CAMPAIGN_NAME = 'direct-deposit-update'
+  GA_DOCUMENT_PATH = '/email/profile'
+  GA_LABEL = 'direct-deposit-update'
 
   TEMPLATE = 'direct_deposit'
 end
