@@ -33,6 +33,17 @@ Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
 Education or Career Goal: <%= @applicant.educationObjective %>
 
+Are you applying for the Edith Nourse Rogers STEM Scholarship
+(Chapter 33)?: <%= yesno(@applicant.isEdithNourseRogersScholarship) %>
+
+Are you enrolled in an undergraduate STEM degree program?: <%= yesno(@applicant.isEnrolledStem) %>
+
+Do you have a STEM undergraduate degree and are now pursuing a teaching
+certification?: <%= yesno(@applicant.isPursuingTeachingCert) %>
+
+Are you currently on active duty or do you anticipate you will be going
+on active duty?: <%= yesno(@applicant.isActiveDuty) %>
+
 New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
 
