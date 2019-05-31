@@ -198,7 +198,10 @@ RSpec.describe ApplicationController, type: :controller do
           loa: user.loa,
           mhv_icn: user.mhv_icn
         )
-        expect(Raven).to receive(:capture_exception).once
+        expect(Raven).to receive(:capture_exception).once.with(
+          Faraday::ConnectionFailed,
+          level: 'error'
+        )
         with_settings(Settings.sentry, dsn: 'T') do
           get :client_connection_failed
         end
@@ -214,6 +217,31 @@ RSpec.describe ApplicationController, type: :controller do
       context 'with Rails.env.test or Rails.env.development' do
         it 'renders json object with developer attributes' do
           get :not_authorized
+
+          expect(response.status).to eq(403)
+          expect(subject.keys).to eq(keys_for_all_env)
+        end
+
+        it 'logs info level and extra context to Sentry' do
+          expect(Raven).to receive(:capture_exception).once.with(
+            Pundit::NotAuthorizedError,
+            level: 'info'
+          )
+          expect(Raven).to receive(:extra_context).once.with(
+            va_exception_errors: [{
+              title: "Forbidden", 
+              detail: "User does not have access to the requested resource", 
+              code: "403", 
+              status: "403"}]
+          )
+          expect(Raven).to receive(:extra_context).once.with(
+            request_uuid: nil
+          )
+
+          with_settings(Settings.sentry, dsn: 'T') do
+            get :not_authorized
+          end
+
           expect(response.status).to eq(403)
           expect(subject.keys).to eq(keys_for_all_env)
         end
