@@ -147,10 +147,11 @@ RSpec.describe ApplicationController, type: :controller do
       )
       expect(Raven).to receive(:extra_context).once.with(
         va_exception_errors: [{
-          :title=>"Service unavailable", 
-          :detail=>"Backend Service Outage", 
-          :code=>"503", 
-          :status=>"503"}]
+          title: 'Service unavailable',
+          detail: 'Backend Service Outage',
+          code: '503',
+          status: '503'
+        }]
       )
       # if current user is nil it means user is not signed in.
       expect(Raven).to receive(:tags_context).once.with(
@@ -181,10 +182,11 @@ RSpec.describe ApplicationController, type: :controller do
         )
         expect(Raven).to receive(:extra_context).once.with(
           va_exception_errors: [{
-            :title=>"Service unavailable", 
-            :detail=>"Backend Service Outage", 
-            :code=>"503", 
-            :status=>"503"}]
+            title: 'Service unavailable',
+            detail: 'Backend Service Outage',
+            code: '503',
+            status: '503'
+          }]
         )
         # if authn_context is nil on current_user it means idme
         expect(Raven).to receive(:tags_context).once.with(
@@ -229,10 +231,11 @@ RSpec.describe ApplicationController, type: :controller do
           )
           expect(Raven).to receive(:extra_context).once.with(
             va_exception_errors: [{
-              title: "Forbidden", 
-              detail: "User does not have access to the requested resource", 
-              code: "403", 
-              status: "403"}]
+              title: 'Forbidden',
+              detail: 'User does not have access to the requested resource',
+              code: '403',
+              status: '403'
+            }]
           )
           expect(Raven).to receive(:extra_context).once.with(
             request_uuid: nil

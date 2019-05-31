@@ -101,7 +101,7 @@ class ApplicationController < ActionController::API
 
     unless skip_sentry_exception_types.include?(exception.class)
       va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
-      log_exception_to_sentry(exception, extra.merge(va_exception_info)) 
+      log_exception_to_sentry(exception, extra.merge(va_exception_info))
     end
 
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)

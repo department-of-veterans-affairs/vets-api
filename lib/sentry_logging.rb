@@ -62,10 +62,10 @@ module SentryLogging
     h.is_a?(Hash) && !h.empty?
   end
 
-  private 
+  private
 
   def client_error?(va_exception_errors)
-    va_exception_errors.present? && va_exception_errors.detect{ |h| client_error_status?(h[:status]) }.present?
+    va_exception_errors.present? && va_exception_errors.detect { |h| client_error_status?(h[:status]) }.present?
   end
 
   def client_error_status?(status)
