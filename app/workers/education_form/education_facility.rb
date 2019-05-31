@@ -70,11 +70,13 @@ module EducationForm
       address = routing_address(record, form_type: model.form_type)
 
       # special case Philippines
-      if address&.country == 'PHL' || model.form_type == '0993'
-        return :western
-      elsif model.form_type == '0994'
-        return :eastern
-      end
+      return :western if address&.country == 'PHL' || model.form_type == '0993'
+
+      # special case 0994
+      return :eastern if model.form_type == '0994'
+
+      # special case 1995 STEM
+      return :eastern if model.form_type == '1995' && record.isEdithNourseRogersScholarship
 
       check_area(address)
     end
