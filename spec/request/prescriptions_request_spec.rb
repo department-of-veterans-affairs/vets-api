@@ -44,7 +44,7 @@ RSpec.describe 'prescriptions', type: :request do
           get '/v0/prescriptions/13651310'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescription')
       end
@@ -54,7 +54,7 @@ RSpec.describe 'prescriptions', type: :request do
           get '/v0/prescriptions'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescriptions')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
@@ -65,7 +65,7 @@ RSpec.describe 'prescriptions', type: :request do
           get '/v0/prescriptions?refill_status=active'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescriptions')
         expect(JSON.parse(response.body)['meta']['sort']).to eq('prescription_name' => 'ASC')
@@ -76,7 +76,7 @@ RSpec.describe 'prescriptions', type: :request do
           get '/v0/prescriptions?filter[[refill_status][eq]]=refillinprocess'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('prescriptions_filtered')
       end
@@ -86,7 +86,7 @@ RSpec.describe 'prescriptions', type: :request do
           patch '/v0/prescriptions/13650545/refill'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_empty
       end
 
@@ -96,7 +96,7 @@ RSpec.describe 'prescriptions', type: :request do
             get '/v0/prescriptions/13650541/trackings'
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
@@ -107,7 +107,7 @@ RSpec.describe 'prescriptions', type: :request do
             get '/v0/prescriptions/13650541/trackings'
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('trackings')
           expect(JSON.parse(response.body)['meta']['sort']).to eq('shipped_date' => 'DESC')
@@ -120,7 +120,7 @@ RSpec.describe 'prescriptions', type: :request do
             get '/v0/prescriptions/preferences'
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           attrs = JSON.parse(response.body)['data']['attributes']
           expect(attrs['email_address']).to eq('Praneeth.Gaganapally@va.gov')

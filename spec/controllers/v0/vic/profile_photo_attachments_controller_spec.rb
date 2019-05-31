@@ -27,7 +27,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
     context 'with an anonymous user' do
       it 'fails' do
         get(:show, params: { id: guid })
-        expect(response).not_to be_success
+        expect(response).not_to be_successful
       end
     end
 
@@ -40,7 +40,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
 
       it 'allows retrieval of the file' do
         get(:show, params: { id: guid })
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.headers['Content-Type']).to eq('image/jpeg')
         expect(response.headers).to have_key('Content-Disposition')
       end
@@ -48,7 +48,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
       context 'with an invalid guid' do
         it 'fails' do
           get(:show, params: { id: '../../../../../../../../../../../etc/passwd' })
-          expect(response).not_to be_success
+          expect(response).not_to be_successful
           expect(response.status).to eq(404)
         end
       end
@@ -56,7 +56,7 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
       context 'with a guid that doesnt exist' do
         it 'fails' do
           get(:show, params: { id: SecureRandom.uuid })
-          expect(response).not_to be_success
+          expect(response).not_to be_successful
           expect(response.status).to eq(404)
         end
       end

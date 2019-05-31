@@ -20,7 +20,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir['spec/**/*']
 
   s.add_dependency 'aws-sdk-s3', '~> 1'
-  s.add_dependency 'rails', '~> 5.1.6.2'
+  s.add_dependency 'rails', '~> 5.2.3'
   s.add_dependency 'sidekiq'
 
   s.add_development_dependency 'factory_bot_rails'
