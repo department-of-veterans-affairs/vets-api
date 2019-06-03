@@ -1,4 +1,4 @@
-FROM ruby:2.3-slim-stretch
+FROM ruby:2.4.5-slim-stretch
 
 ARG sidekiq_license
 ENV BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$sidekiq_license

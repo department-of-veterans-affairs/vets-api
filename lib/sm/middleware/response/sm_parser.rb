@@ -13,7 +13,7 @@ module SM
         # @return [Faraday::Env]
         #
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bjson/
+          return unless env.response_headers['content-type']&.match?(/\bjson/)
           env[:body] = parse(env.body) if env.body.present?
         end
 

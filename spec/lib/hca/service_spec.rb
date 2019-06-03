@@ -34,7 +34,7 @@ describe HCA::Service do
         it "properly formats #{form} for transmission" do
           allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
           service =
-            if form =~ /authenticated/
+            if form.match?(/authenticated/)
               described_class.new(
                 HealthCareApplication.get_user_identifier(current_user)
               )
