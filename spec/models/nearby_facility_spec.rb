@@ -15,6 +15,12 @@ RSpec.describe NearbyFacility, type: :model do
     %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
   end
 
+  VCR.configure do |c|
+    c.default_cassette_options = {
+      match_requests_on: [:method, VCR.request_matchers.uri_without_params(:key)]
+    }
+  end
+
   describe '#query' do
     it 'should find facilities' do
       setup_pdx

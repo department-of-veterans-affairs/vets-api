@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: https://dev.virtualearth.net/REST/v1/Routes/Isochrones?dateTime=07:30:00&key=Ak3iYZoIL5GOneUuzyicpUoQ3QPASjIA24yEU7pnI73IbXQVcBx79iKrS5Jd82o6&maxtime=60&optimize=timeWithTraffic&timeUnit=minute&waypoint=9729%20SE%20222nd%20Dr%20Damascus%20OR%2097089
+    uri: https://dev.virtualearth.net/REST/v1/Routes/Isochrones?dateTime=07:30:00&key=fake_key&maxtime=60&optimize=timeWithTraffic&timeUnit=minute&waypoint=9729%20SE%20222nd%20Dr%20Damascus%20OR%2097089
     body:
       encoding: US-ASCII
       string: ''
