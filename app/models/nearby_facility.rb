@@ -42,10 +42,7 @@ class NearbyFacility < ApplicationRecord
     end
 
     def make_linestring(polygon)
-      linestring = polygon.reduce('') do |string, point|
-        string + point[1].to_s + ' ' + point[0].to_s + ','
-      end
-      linestring.chomp!(',')
+      polygon.map{|point| "#{point[1]} #{point[0]}"}.join(',')
     end
 
     def per_page
