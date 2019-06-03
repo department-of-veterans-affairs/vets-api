@@ -35,7 +35,7 @@ RSpec.describe 'Burial Claim Integration', type: %i[request serializer] do
         expect(response.code).to eq('422')
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/claimantAddress' of type String"
+            "The property '#/claimantAddress' of type string"
           )
         ).to eq(true)
       end

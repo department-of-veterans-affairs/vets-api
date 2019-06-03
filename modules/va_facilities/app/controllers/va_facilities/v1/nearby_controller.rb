@@ -69,7 +69,7 @@ module VaFacilities
       def validate_street_address
         if params[:street_address]
           raise Common::Exceptions::InvalidFieldValue.new('street_address', params[:street_address]) unless
-            params[:street_address] =~ /\d/
+            params[:street_address].match?(/\d/)
         end
       end
 
@@ -82,7 +82,7 @@ module VaFacilities
       def validate_zip
         if params[:zip]
           raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
-            params[:zip] =~ /\A\d{5}(-\d{4})?\z/
+            params[:zip].match?(/\A\d{5}(-\d{4})?\z/)
           zip_plus0 = params[:zip][0...5]
           requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
           raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless

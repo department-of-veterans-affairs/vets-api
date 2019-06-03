@@ -44,8 +44,9 @@ module OIDC
 
     def self.build_key(jwks_object)
       key = OpenSSL::PKey::RSA.new
-      key.e = OpenSSL::BN.new(Base64.urlsafe_decode64(jwks_object['e']), 2)
-      key.n = OpenSSL::BN.new(Base64.urlsafe_decode64(jwks_object['n']), 2)
+      e = OpenSSL::BN.new(Base64.urlsafe_decode64(jwks_object['e']), 2)
+      n = OpenSSL::BN.new(Base64.urlsafe_decode64(jwks_object['n']), 2)
+      key.set_key(n, e, nil)
       [jwks_object['kid'], key]
     end
   end
