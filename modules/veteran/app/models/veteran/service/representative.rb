@@ -52,7 +52,8 @@ module Veteran
 
       def self.find_or_create_representative(hash)
         representative = Representative.find_or_initialize_by(representative_id: hash['Registration Num'])
-        representative.poa = hash['POA'].gsub!(/\W/, '')
+        representative.poa_codes ||= []
+        representative.poa_codes << hash['POA'].gsub!(/\W/, '')
         representative.first_name = hash['Representative'].split(' ').second
         representative.last_name = hash['Representative'].split(',').first
         representative.phone = hash['Org Phone']
