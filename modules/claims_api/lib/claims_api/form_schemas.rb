@@ -19,7 +19,7 @@ module ClaimsApi
 
     def self.date_validator
       lambda do |value|
-        unless value =~ /^(\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/
+        unless value.match?(/^(\d{4}|XXXX)-(0[1-9]|1[0-2]|XX)-(0[1-9]|[1-2][0-9]|3[0-1]|XX)$/)
           raise JSON::Schema::CustomFormatError, 'must be in format YYYY-MM-DD'
         end
       end
@@ -27,7 +27,7 @@ module ClaimsApi
 
     def self.address_line_validator
       lambda do |value|
-        unless value =~ /^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/
+        unless value.match?(/^([-a-zA-Z0-9'.,&#]([-a-zA-Z0-9'.,&# ])?)+$/)
           raise JSON::Schema::CustomFormatError, 'contains invalid characters'
         end
       end

@@ -3,6 +3,7 @@ COMPOSE_TEST := docker-compose -f docker-compose.test.yml
 BASH         := run --rm --service-ports vets-api bash
 BASH_DEV     := $(COMPOSE_DEV) $(BASH) -c
 BASH_TEST    := $(COMPOSE_TEST) $(BASH) --login -c
+SPEC_PATH    := spec/
 
 .PHONY: default
 default: ci
@@ -13,7 +14,7 @@ bash:
 
 .PHONY: ci
 ci:
-	@$(BASH_TEST) "bundle exec rake db:setup db:migrate ci"
+	@$(BASH_TEST) "bin/rails db:setup db:migrate ci"
 
 .PHONY: clean
 clean:
@@ -27,7 +28,7 @@ console:
 
 .PHONY: db
 db:
-	@$(BASH_DEV) "bundle exec rake db:setup db:migrate"
+	@$(BASH_DEV) "bin/rails db:setup db:migrate"
 
 .PHONY: down
 down:
@@ -39,11 +40,11 @@ guard:
 
 .PHONY: lint
 lint:
-	@$(BASH_DEV) "bundle exec rake lint"
+	@$(BASH_DEV) "bin/rails lint"
 
 .PHONY: migrate
 migrate:
-	@$(BASH_TEST) "bundle exec rake db:migrate"
+	@$(BASH_TEST) "bin/rails db:migrate"
 
 .PHONY: rebuild
 rebuild: down
@@ -51,7 +52,7 @@ rebuild: down
 
 .PHONY: security
 security:
-	@$(BASH_DEV) "bundle exec rake security"
+	@$(BASH_DEV) "bin/rails security"
 
 .PHONY: server
 server:
@@ -59,7 +60,7 @@ server:
 
 .PHONY: spec
 spec:
-	@$(BASH_TEST) "bundle exec rake spec SPEC=${SPEC}"
+	@$(BASH_TEST) "bin/rspec ${SPEC_PATH}"
 
 .PHONY: up
 up: db

@@ -11,34 +11,54 @@ module EVSS
       def initialize(user, form_content)
         @user = user
         @phone_email = form_content.dig('form526', 'phoneAndEmail')
-        @final_output = form_content.dig('form526', 'form0781')
+        @form_content = form_content.dig('form526', 'form0781')
+        @translated_forms = {}
       end
 
       # Merges the user data and performs the translation
       #
-      # @return [Hash] The translated form ready for submission
+      # @return [Hash] The translated form(s) ready for submission
       #
       def translate
-        return nil unless @final_output
-        @final_output['vaFileNumber'] = @user.ssn
-        @final_output['veteranSocialSecurityNumber'] = @user.ssn
-        @final_output['veteranFullName'] = full_name
-        @final_output['veteranDateOfBirth'] = @user.birth_date
-        @final_output['email'] = @phone_email['emailAddress']
-        @final_output['veteranPhone'] = @phone_email['primaryPhone']
-        @final_output['veteranSecondaryPhone'] = '' # No secondary phone available in 526 PreFill
-        @final_output['veteranServiceNumber'] = '' # No veteran service number available in 526 PreFill
+        return nil unless @form_content
 
         # The pdf creation functionality is looking for a single street address
         # instead of a hash
-        @final_output['incidents'].each do |incident|
+        @form_content['incidents'].each do |incident|
           incident['incidentLocation'] = join_location(incident['incidentLocation']) if incident['incidentLocation']
         end
 
-        @final_output
+        incs0781a, incs0781 = split_incidents(@form_content['incidents'])
+
+        @translated_forms['form0781'] = create_form(incs0781) if incs0781.present?
+        @translated_forms['form0781a'] = create_form(incs0781a) if incs0781a.present?
+
+        @translated_forms
       end
 
       private
+
+      def create_form(incidents)
+        {
+          'vaFileNumber' => @user.ssn,
+          'veteranSocialSecurityNumber' => @user.ssn,
+          'veteranFullName' => full_name,
+          'veteranDateOfBirth' => @user.birth_date,
+          'email' => @phone_email['emailAddress'],
+          'veteranPhone' => @phone_email['primaryPhone'],
+          'veteranSecondaryPhone' => '', # No secondary phone available in 526 PreFill
+          'veteranServiceNumber' => '', # No veteran service number available in 526 PreFill
+          'incidents' => incidents,
+          'remarks' => @form_content['remarks'],
+          'additionalIncidentText' => @form_content['additionalIncidentText'],
+          'otherInformation' => @form_content['otherInformation']
+        }
+      end
+
+      def split_incidents(incidents)
+        return nil if incidents.blank?
+        incidents.partition { |incident| incident['personalAssault'] }
+      end
 
       def join_location(location)
         [
