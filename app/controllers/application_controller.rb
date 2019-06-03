@@ -78,7 +78,6 @@ class ApplicationController < ActionController::API
           log_message_to_sentry(exception.va900_warning, :warn, i18n_exception_hint: exception.va900_hint)
         end
       end
-      log_exception_to_sentry(exception, extra)
     end
 
     va_exception =
@@ -99,6 +98,11 @@ class ApplicationController < ActionController::API
       else
         Common::Exceptions::InternalServerError.new(exception)
       end
+
+    unless skip_sentry_exception_types.include?(exception.class)
+      va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
+      log_exception_to_sentry(exception, extra.merge(va_exception_info))
+    end
 
     headers['WWW-Authenticate'] = 'Token realm="Application"' if va_exception.is_a?(Common::Exceptions::Unauthorized)
     render json: { errors: va_exception.errors }, status: va_exception.status_code
