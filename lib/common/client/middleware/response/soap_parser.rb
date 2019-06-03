@@ -34,7 +34,7 @@ module Common
           end
 
           def ensure_xml_prolog(xml)
-            xml = xml.dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+            xml = xml.dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml.match?(/^<\?xml/)
             xml
           end
 

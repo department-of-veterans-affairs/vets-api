@@ -15,7 +15,7 @@ RSpec.describe 'Military Ranks Integration', type: :request do
         get '/v0/preneeds/military_ranks', params: params
       end
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       expect(response).to match_response_schema('preneeds/military_ranks')
     end

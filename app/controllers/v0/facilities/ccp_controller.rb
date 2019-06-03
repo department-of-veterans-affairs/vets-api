@@ -23,7 +23,7 @@ class V0::Facilities::CcpController < FacilitiesController
   private
 
   def validate_id
-    if /^ccp_/ =~ params[:id]
+    if /^ccp_/.match?(params[:id])
       params[:id] = params[:id].sub(/^ccp_/, '')
     else
       raise Common::Exceptions::InvalidFieldValue.new('id', params[:id])

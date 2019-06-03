@@ -42,7 +42,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #show for VHA prefix' do
       create :vha_648A4
       get base_query_path + '/vha_648A4', params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data']['id']).to eq('vha_648A4')
@@ -51,7 +51,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with bbox' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
@@ -61,7 +61,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with lat/long' do
       setup_pdx
       get base_query_path + lat_long, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
@@ -101,7 +101,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds such that record and distance metadata IDs match up' do
       setup_pdx
       get base_query_path + lat_long, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       record_ids = json['data'].map { |x| x['id'] }
@@ -111,7 +111,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
 
     it 'responds to GET #index with ids' do
       get base_query_path + ids_query, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
@@ -121,7 +121,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       first_pdx = setup_pdx[1]
       id_query = "?ids=#{first_pdx.facility_type_prefix}_#{first_pdx.unique_id}"
       get base_query_path + id_query, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(1)
@@ -130,7 +130,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with a malformed id' do
       ids_query_with_extra = ids_query + ',0618B'
       get base_query_path + ids_query_with_extra, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
@@ -139,7 +139,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with ids where one does not exist' do
       ids_query_with_extra = ids_query + ',vc_0618B'
       get base_query_path + ids_query_with_extra, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(10)
@@ -157,7 +157,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds with pagination links' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json).to have_key('links')
       links = json['links']
@@ -171,7 +171,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds with pagination metadata' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json).to have_key('meta')
       expect(json['meta']).to have_key('pagination')
@@ -185,7 +185,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'paginates according to parameters' do
       setup_pdx
       get base_query_path + pdx_bbox + '&page=2&per_page=3', params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(3)
       links = json['links']
@@ -201,7 +201,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'paginates empty result set' do
       setup_pdx
       get base_query_path + empty_bbox, params: nil, headers: accept_json
-      expect(response).to be_success
+      expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json['data'].length).to eq(0)
       links = json['links']
@@ -216,7 +216,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #show for VHA prefix' do
       create :vha_648A4
       get base_query_path + '/vha_648A4', params: nil, headers: accept_geojson
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('Feature')
@@ -227,7 +227,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds to GET #index with bbox' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_geojson
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
@@ -238,7 +238,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'responds with pagination link header' do
       setup_pdx
       get base_query_path + pdx_bbox, params: nil, headers: accept_geojson
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.headers['Link']).to be_present
       parsed = parse_link_header(response.headers['Link'])
       expect(parsed).to have_key('self')
@@ -251,7 +251,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'paginates according to parameters' do
       setup_pdx
       get base_query_path + pdx_bbox + '&page=2&per_page=3', params: nil, headers: accept_geojson
-      expect(response).to be_success
+      expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
       expect(json['features'].length).to eq(3)
@@ -267,7 +267,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
     it 'paginates empty result set' do
       setup_pdx
       get base_query_path + empty_bbox, params: nil, headers: accept_geojson
-      expect(response).to be_success
+      expect(response).to be_successful
       json = JSON.parse(response.body)
       expect(json['type']).to eq('FeatureCollection')
       expect(json['features'].length).to eq(0)
@@ -284,7 +284,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       setup_pdx
       create :dod_001
       get base_query_path + '/all', params: nil, headers: accept_geojson
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
@@ -295,7 +295,7 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       setup_pdx
       create :dod_001
       get base_query_path + '/all', params: nil, headers: accept_csv
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.headers['Content-Type']).to eq 'text/csv'
       expect(response.body).to be_a(String)
     end

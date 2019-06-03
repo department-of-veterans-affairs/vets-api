@@ -10,7 +10,6 @@ describe Cookies do
 
   describe '#api_session_header' do
     def decrypt_session_cookie(cookie)
-      cookie = CGI.unescape(cookie)
       salt = Rails.application.config.action_dispatch.encrypted_cookie_salt
       signed_salt = Rails.application.config.action_dispatch.encrypted_signed_cookie_salt
       key_generator = ActiveSupport::KeyGenerator.new(Rails.application.secrets.secret_key_base, iterations: 1000)
