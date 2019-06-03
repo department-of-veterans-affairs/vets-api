@@ -35,18 +35,16 @@ module EVSS
       def perform(submission_id)
         super(submission_id)
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
-          parsed_form = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
-          parsed_form0781 = get_form_0781(parsed_form.deep_dup)
-          parsed_form0781a = get_form_0781a(parsed_form.deep_dup)
+          parsed_forms = JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))
 
           # process 0781 and 0781a
-          if parsed_form0781.present?
+          if parsed_forms['form0781'].present?
             process_0781(submission.auth_headers,
-                         submission.submitted_claim_id, FORM_ID_0781, parsed_form0781)
+                         submission.submitted_claim_id, FORM_ID_0781, parsed_forms['form0781'])
           end
-          if parsed_form0781a.present?
+          if parsed_forms['form0781a'].present?
             process_0781(submission.auth_headers,
-                         submission.submitted_claim_id, FORM_ID_0781A, parsed_form0781a)
+                         submission.submitted_claim_id, FORM_ID_0781A, parsed_forms['form0781a'])
           end
         end
       rescue StandardError => error
@@ -59,25 +57,10 @@ module EVSS
 
       private
 
-      def get_form_0781(parsed_form)
-        parsed_form['incidents'].delete_if { |incident| true if incident['personalAssault'] }
-        parse_0781(parsed_form)
-      end
-
-      def get_form_0781a(parsed_form)
-        parsed_form['incidents'].delete_if { |incident| true unless incident['personalAssault'] }
-        parse_0781(parsed_form)
-      end
-
-      def parse_0781(parsed_form)
-        return '' if parsed_form['incidents'].empty?
-        parsed_form
-      end
-
       def process_0781(auth_headers, evss_claim_id, form_id, form_content)
         # generate and stamp PDF file
-        pdf_path0781 = generate_stamp_pdf(form_content, evss_claim_id, form_id) if form_content.present?
-        upload_to_vbms(auth_headers, evss_claim_id, pdf_path0781, form_id) if pdf_path0781.present?
+        pdf_path0781 = generate_stamp_pdf(form_content, evss_claim_id, form_id)
+        upload_to_vbms(auth_headers, evss_claim_id, pdf_path0781, form_id)
       end
 
       # Invokes Filler ancillary form method to generate PDF document
@@ -86,8 +69,8 @@ module EVSS
       # and second time to stamp with text "VA.gov Submission" at the top of each page
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
-        stamped_path1 = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
-        CentralMail::DatestampPdf.new(stamped_path1).run(
+        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5)
+        CentralMail::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
