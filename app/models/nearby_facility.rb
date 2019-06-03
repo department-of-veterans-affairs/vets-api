@@ -24,9 +24,9 @@ class NearbyFacility < ApplicationRecord
         timeUnit: 'minute',
         dateTime: '07:30:00',
         optimize: 'timeWithTraffic',
-        key: Settings.Bing.key
+        key: Settings.bing.key
       }
-      response = Faraday.get 'https://dev.virtualearth.net/REST/v1/Routes/Isochrones', query
+      response = Faraday.get "#{Settings.bing.base_api_url}/Isochrones", query
       response.body
     end
 
