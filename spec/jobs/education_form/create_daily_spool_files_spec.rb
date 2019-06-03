@@ -32,8 +32,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
       it 'is only triggered by sidekiq-scheduler on weekdays' do
         upcoming_runs = scheduler.timeline(Time.zone.now, 1.week.from_now).map(&:first)
-        expected_runs = possible_runs.keys.map { |d| Time.zone.parse(d.to_s) }
-        expect(upcoming_runs).to eq(expected_runs)
+        expected_runs = possible_runs.keys.map { |d| EtOrbi.parse(d.to_s) }
+        expect(upcoming_runs.map(&:seconds)).to eq(expected_runs.map(&:seconds))
       end
 
       it 'should skip observed holidays' do

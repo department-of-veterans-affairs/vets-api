@@ -36,7 +36,7 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
         expect(response.code).to eq('422')
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/bankAccount' of type String"
+            "The property '#/bankAccount' of type string"
           )
         ).to eq(true)
       end
