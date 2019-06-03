@@ -48,7 +48,7 @@ class NearbyFacility < ApplicationRecord
 
     def make_linestring(polygon)
       # convert array of latitude and longitude points into a string of comma-separated longitude and latitude points
-      polygon.map{|point| "#{point[1]} #{point[0]}"}.join(',')
+      polygon.map { |point| "#{point[1]} #{point[0]}" }.join(',')
     end
 
     def per_page
