@@ -69,6 +69,6 @@ module SentryLogging
   end
 
   def client_error_status?(status)
-    (400..499).include?(status.to_i)
+    (400..499).cover?(status.to_i)
   end
 end
