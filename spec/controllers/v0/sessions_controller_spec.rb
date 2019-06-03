@@ -162,13 +162,34 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe 'POST saml_callback' do
-      context 'when too much time passed to consume the SAML Assertion' do
-        before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
+      context 'when no session activity context exists' do
+        it 'redirects to an auth failure page code 700' do
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
 
-        it 'redirects to an auth failure page' do
+      context 'when too much time passed to consume the SAML Assertion' do
+        let(:session_activity) { create(:session_activity, generated_url: 'url', name: 'signup', status: 'incomplete') }
+        let(:expected_relay_params) do
+            {
+              originating_request_id: session_activity.originating_request_id,
+              session_activity_id: session_activity.id,
+              request_type: session_activity.name
+            }.to_json
+        end
+        let(:relay_state_params) { { RelayState: expected_relay_params } }
+
+        before(:each) do
+          allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late)
+        end
+
+        it 'redirects to an auth failure page code 500' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect(post :saml_callback, params: relay_state_params)
+            .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -198,7 +219,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: 'mhv' })
             expect(response).to have_http_status(:found)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            expect(cookies['vagov_session_dev']).to be_nil
           end
         end
 
@@ -206,7 +227,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: 'dslogon' })
             expect(response).to have_http_status(:found)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            expect(cookies['vagov_session_dev']).to be_nil
           end
         end
 
@@ -214,7 +235,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: 'idme' })
             expect(response).to have_http_status(:found)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            expect(cookies['vagov_session_dev']).to be_nil
           end
         end
 
@@ -222,7 +243,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: 'mfa' })
             expect(response).to have_http_status(:found)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            expect(cookies['vagov_session_dev']).not_to be_nil
           end
         end
 
@@ -230,7 +251,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: 'verify' })
             expect(response).to have_http_status(:found)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            expect(cookies['vagov_session_dev']).not_to be_nil
           end
         end
 
@@ -238,7 +259,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           it 'redirects' do
             get(:new, params: { type: 'slo' })
             expect(response).to have_http_status(:found)
-            expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
+            expect(cookies['vagov_session_dev']).to be_nil
           end
         end
       end

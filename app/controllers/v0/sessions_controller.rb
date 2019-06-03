@@ -207,7 +207,7 @@ module V0
         session_activity_id: session_activity_id,
         originating_request_id: originating_request_id,
         request_type: request_type,
-        session_activity: session_activity.attributes
+        session_activity: session_activity&.attributes
       )
     end
 
