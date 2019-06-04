@@ -4,10 +4,10 @@ class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
 
   ##
-  # 
+  #
   # Urgent Care:261QU0200X
   # Community/Retail Pharmacy:3336C0003X
-  
+
   EXCLUDED_PROVIDER_TYPES = %w[261QU0200X 3336C0003X].freeze
 
   def show
