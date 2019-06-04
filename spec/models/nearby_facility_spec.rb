@@ -23,6 +23,9 @@ RSpec.describe NearbyFacility, type: :model do
         expect(NearbyFacility.query(address_params).length).to eq(10)
       end
     end
+    it 'should return no facilities when missing params' do
+      expect(NearbyFacility.query({}).length).to eq(0)
+    end
   end
 
   describe '#make_linestring' do
