@@ -18,12 +18,6 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     %w[vc_0617V nca_907 vha_648 vha_648A4 vha_648GI vba_348 vba_348a vba_348d vba_348e vba_348h].map { |id| create id }
   end
 
-  VCR.configure do |c|
-    c.default_cassette_options = {
-      match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]
-    }
-  end
-
   def parse_link_header(header)
     links = header.split(',').map(&:strip)
     links = links.map { |x| x.split(';').map(&:strip).reverse }
@@ -41,7 +35,8 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   context 'when requesting JSON API format' do
     it 'responds to GET #index' do
       setup_pdx
-      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
         expect(response).to be_success
         expect(response.body).to be_a(String)
@@ -53,7 +48,8 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
     it 'responds with pagination links' do
       setup_pdx
-      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
         expect(response).to be_success
         json = JSON.parse(response.body)
@@ -69,7 +65,8 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
     it 'responds with pagination metadata' do
       setup_pdx
-      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params, params: nil, headers: accept_json
         expect(response).to be_success
         json = JSON.parse(response.body)
@@ -85,7 +82,8 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
     it 'paginates according to parameters' do
       setup_pdx
-      VCR.use_cassette('bing/isochrone/pdx_drive_time_60') do
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_json
         expect(response).to be_success
         json = JSON.parse(response.body)
@@ -103,7 +101,8 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
     it 'paginates empty result set' do
       setup_pdx
-      VCR.use_cassette('bing/isochrone/pdx_drive_time_1') do
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_1',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
         get base_query_path + empty_address, params: nil, headers: accept_json
         expect(response).to be_success
         json = JSON.parse(response.body)
