@@ -3,7 +3,12 @@
 class V0::Facilities::CcpController < FacilitiesController
   before_action :validate_id, only: [:show]
 
-  URGENT_CARE_CODES = %w[261QU0200X 3336C0003X].freeze
+  ##
+  # 
+  # Urgent Care:261QU0200X
+  # Community/Retail Pharmacy:3336C0003X
+  
+  EXCLUDED_PROVIDER_TYPES = %w[261QU0200X 3336C0003X].freeze
 
   def show
     ppms = Facilities::PPMSClient.new
@@ -16,7 +21,7 @@ class V0::Facilities::CcpController < FacilitiesController
 
   def services
     ppms = Facilities::PPMSClient.new
-    result = ppms.specialties.reject { |item| URGENT_CARE_CODES.include? item['SpecialtyCode'] }
+    result = ppms.specialties.reject { |item| EXCLUDED_PROVIDER_TYPES.include? item['SpecialtyCode'] }
     render json: result
   end
 
