@@ -7,11 +7,11 @@ describe Veteran::Service::Representative, type: :model do
 
   describe 'individual record' do
     it 'is valid with valid attributes' do
-      expect(Veteran::Service::Representative.new(poa: '000')).to be_valid
+      expect(Veteran::Service::Representative.new(poa_codes: ['000'])).to be_valid
     end
 
     it 'is not valid without a poa' do
-      representative = Veteran::Service::Representative.new(poa: nil)
+      representative = Veteran::Service::Representative.new(poa_codes: nil)
       expect(representative).to_not be_valid
     end
   end

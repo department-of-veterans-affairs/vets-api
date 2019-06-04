@@ -13,7 +13,7 @@ module Veteran
       attr_encrypted(:ssn, key: Settings.db_encryption_key)
       attr_encrypted(:dob, key: Settings.db_encryption_key)
 
-      validates :poa, presence: true
+      validates :poa_codes, presence: true
 
       def self.for_user(first_name:, last_name:, ssn: nil, dob: nil)
         reps = where('lower(first_name) = ? AND lower(last_name) = ?', first_name.downcase, last_name.downcase)
