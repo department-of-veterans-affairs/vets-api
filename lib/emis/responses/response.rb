@@ -117,7 +117,7 @@ module EMIS
         #
         [].tap do |result|
           if !skip_el && el.respond_to?(:value)
-            result << el if el.value =~ /^NS\d+:#{tag_without_namespace}$/i
+            result << el if el.value.match?(/^NS\d+:#{tag_without_namespace}$/i)
           end
 
           if el.respond_to?(:nodes)
