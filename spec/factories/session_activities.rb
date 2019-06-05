@@ -5,7 +5,7 @@ FactoryBot.define do
     originating_request_id { SecureRandom.uuid }
     originating_ip_address { '0.0.0.0' }
     name nil
-    status nil
+    status 'incomplete'
     user_uuid nil
     sign_in_service_name nil
     sign_in_account_type nil

@@ -55,6 +55,7 @@ module V0
         raise Common::Exceptions::RoutingError, params[:path]
       end
     rescue StandardError => e
+      binding.pry
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       redirect_to url_service.logout_redirect_url
