@@ -43,6 +43,7 @@ module PdfFill
       def expand_unit_assigned_dates(incident)
         incident_unit_assigned_dates = incident['unitAssignedDates']
         return if incident_unit_assigned_dates.blank?
+
         from_dates = split_approximate_date(incident_unit_assigned_dates['from'])
         to_dates = split_approximate_date(incident_unit_assigned_dates['to'])
         unit_assignment_dates = {
@@ -60,6 +61,8 @@ module PdfFill
       end
 
       def split_approximate_date(date)
+        # from/to are optional but need to be accounted for
+        date = 'XXXX-XX-XX' if date.blank?
         year, month, day = date.split('-')
 
         # year/month/day are optional and can be XXed out
@@ -88,8 +91,16 @@ module PdfFill
         split_incident_unit_assignment
       end
 
+      def combine_date_range(date_range)
+        return if date_range.nil?
+
+        from = "from: #{date_range['from']}" if date_range['from'].present?
+        to = "to: #{date_range['to']}" if date_range['to'].present?
+        "#{from} #{to}".strip
+      end
+
       def get_unit_date_overflow(unit_assigned_dates)
-        unit_assigned_dates_overflow = combine_date_ranges(unit_assigned_dates)
+        unit_assigned_dates_overflow = combine_date_range(unit_assigned_dates)
         unit_assigned_dates_overflow || ''
       end
 
@@ -100,7 +111,7 @@ module PdfFill
         incident_date = incident['incidentDate'] || ''
         incident_overflow.push('Incident Date: ' + incident_date)
 
-        incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_overflow([incident['unitAssignedDates']]))
+        incident_overflow.push('Dates of Unit Assignment: ' + get_unit_date_overflow(incident['unitAssignedDates']))
 
         incident_location = incident['incidentLocation'] || ''
         incident_overflow.push("Incident Location: \n\n" + incident_location)
