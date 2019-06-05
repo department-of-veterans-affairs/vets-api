@@ -10,7 +10,7 @@ module VaFacilities
     def services(object)
       result = object.services.dup
       if result.key?('health')
-         health_services = result['health'].map do |s|
+        health_services = result['health'].map do |s|
           [s['sl1'], s['sl2']]
         end.flatten
         result['health'] = add_wait_times(health_services, object)
@@ -29,23 +29,21 @@ module VaFacilities
 
     def add_wait_times(services, object)
       result = object.access.dup
-      
-      services.reduce([]) do |with_times, service|
+
+      services.each_with_object([]) do |service, with_times|
         times = result['health'][service.underscore]
         unless times.nil?
-          with_times << Hash[service, {
+          with_times << {
+            service: service,
             wait_times: {
               new: times['new'],
               established: times['established'],
-              effective_date: result['health']['effective_date'] 
+              effective_date: result['health']['effective_date']
             }
-          }]
+          }
         end
-
-        with_times
       end
     end
     module_function :add_wait_times
-
   end
 end
