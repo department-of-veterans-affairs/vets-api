@@ -1,7 +1,7 @@
 require 'features_helper'
 
 RSpec.describe('hca', type: :feature) do
-  it 'foo', js: true do
+  it 'anonymous application', js: true do
     visit('http://localhost:3001/health-care/apply/application/introduction')
     wait_for_new_url('.schemaform-start-button')
     # user details page
