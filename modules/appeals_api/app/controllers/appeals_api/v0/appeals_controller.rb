@@ -9,10 +9,6 @@ module AppealsApi
 
       def index
         log_request
-        if header('X-Consumer-PoA').present?
-          verifier = EVSS::PowerOfAttorneyVerifier.new(target_veteran)
-          verifier.verify(header('X-Consumer-PoA'))
-        end
         appeals_response = Appeals::Service.new.get_appeals(
           target_veteran,
           'Consumer' => consumer,
@@ -85,18 +81,7 @@ module AppealsApi
       end
 
       def target_veteran
-        if header('X-Consumer-PoA').present?
-          ClaimsApi::Veteran.new(
-            ssn: ssn,
-            loa: { current: :loa3 },
-            first_name: first_name,
-            last_name: last_name,
-            edipi: edipi,
-            last_signed_in: Time.zone.now
-          )
-        else
-          OpenStruct.new(ssn: ssn)
-        end
+        OpenStruct.new(ssn: ssn)
       end
     end
   end
