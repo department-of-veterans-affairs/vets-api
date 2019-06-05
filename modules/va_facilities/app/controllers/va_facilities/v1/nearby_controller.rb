@@ -26,7 +26,7 @@ module VaFacilities
         respond_to do |format|
           format.json do
             render json: resource,
-                   each_serializer: VaFacilities::FacilitySerializer,
+                   each_serializer: VaFacilities::NearbyFacilitySerializer,
                    meta: metadata(resource)
           end
           format.geojson do
