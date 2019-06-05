@@ -111,7 +111,8 @@ module VaFacilities
         { pagination: { current_page: resource.current_page,
                         per_page: resource.per_page,
                         total_pages: resource.total_pages,
-                        total_entries: resource.total_entries } }
+                        total_entries: resource.total_entries },
+          distances: [] }
       end
     end
   end

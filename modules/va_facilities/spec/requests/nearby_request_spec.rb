@@ -42,7 +42,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
         expect(json['data'].length).to eq(10)
-        # expect(json['meta']['distances']).to eq([])
+        expect(json['meta']['distances']).to eq([])
       end
     end
 
