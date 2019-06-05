@@ -124,7 +124,7 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
-  gem 'capybara', '3.15.1'
+  gem 'capybara', '3.22.0'
   gem 'factory_bot_rails'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
