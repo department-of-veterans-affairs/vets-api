@@ -47,37 +47,17 @@ module AppealsApi
       end
 
       def ssn
-        ssn = request.headers['X-VA-SSN']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-SSN' unless ssn
-        ssn
+        header('X-VA-SSN')
       end
 
       def requesting_va_user
-        va_user = request.headers['X-VA-User']
-        raise Common::Exceptions::ParameterMissing, 'X-VA-User' unless va_user
-        va_user
-      end
-
-      def first_name
-        va_first_name = header('X-VA-First-Name')
-        raise Common::Exceptions::ParameterMissing, 'X-VA-First-Name' unless va_first_name
-        va_first_name
-      end
-
-      def last_name
-        va_last_name = header('X-VA-Last-Name')
-        raise Common::Exceptions::ParameterMissing, 'X-VA-Last-Name' unless va_last_name
-        va_last_name
-      end
-
-      def edipi
-        va_edipi = header('X-VA-EDIPI')
-        raise Common::Exceptions::ParameterMissing, 'X-VA-EDIPI' unless va_edipi
-        va_edipi
+        header('X-VA-User')
       end
 
       def header(key)
-        request.headers[key]
+        value = request.headers[key]
+        raise Common::Exceptions::ParameterMissing, key unless value
+        value
       end
 
       def target_veteran
