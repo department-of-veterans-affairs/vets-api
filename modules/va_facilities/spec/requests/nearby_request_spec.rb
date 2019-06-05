@@ -114,6 +114,36 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(pagination['total_entries']).to eq(0)
       end
     end
+
+    it 'responds with lng in v1 instead of long' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: nil, headers: accept_json
+
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        lng = json['data'][0]['attributes']['lng']
+        expect(lng).to eq(-122.68287208)
+      end
+    end
+
+    it 'responds with wait times as part of health services in v1' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: nil, headers: accept_json
+
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        health_service = json['data'][0]['attributes']['services']['health'][0]
+
+        expect(health_service['service']).to eq('PrimaryCare')
+        expect(health_service['wait_times']['new']).to eq(27.0)
+        expect(health_service['wait_times']['established']).to eq(6.0)
+        expect(health_service['wait_times']['effective_date']).to eq('2018-03-05')
+      end
+    end
   end
 
   xcontext 'when requesting GeoJSON format' do
