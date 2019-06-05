@@ -11,9 +11,9 @@ RSpec.describe('hca', type: :feature) do
     find('#root_dobDay').find(:option, '1').select_option
     find('#root_dobYear').set('1950')
     find('#root_ssn').set('111-22-3333')
-    click('.usa-button')
-    wait_until { current_path == '/health-care/apply/application/veteran-information/personal-information' }
+    wait_for_new_url('.usa-button')
     # veteran information
+    sleep(1)
     wait_for_new_url('.usa-button-primary')
     # dob
     wait_for_new_url('.usa-button-primary')
