@@ -7,12 +7,9 @@ class NearbyFacility < ApplicationRecord
     attr_writer :validate_on_load
 
     def query(params)
-      if params[:street_address] && params[:city] && params[:state] && params[:zip]
-        isochrone_response = request_isochrone(params)
-        return get_facilities_in_isochrone(params, isochrone_response)
-      end
-
-      NearbyFacility.none
+      return NearbyFacility.none unless params[:street_address] && params[:city] && params[:state] && params[:zip]
+      isochrone_response = request_isochrone(params)
+      get_facilities_in_isochrone(params, isochrone_response)
     end
 
     def request_isochrone(params)
