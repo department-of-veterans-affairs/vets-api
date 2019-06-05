@@ -16,6 +16,8 @@ end
 Settings.virtual_hosts = ["127.0.0.1", "localhost"]
 Settings.web_origin = 'http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001'
 
+DEFAULT_HOST = ENV['DEFAULT_HOST'] || 'http://localhost:3001'
+
 RSpec.configure do |config|
   config.include(Wist)
 end
