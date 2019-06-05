@@ -18,7 +18,6 @@ gem 'rails', '~> 5.2.3'
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-# bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
@@ -141,7 +140,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
-  gem 'sidekiq'
+  gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'
   gem 'wist'
