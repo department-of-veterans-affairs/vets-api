@@ -7,7 +7,7 @@ require 'saml/responses/logout'
 
 module V0
   class SessionsController < ApplicationController
-    before_action :set_extra_context, only: [:saml_callback, :saml_logout_callback]
+    before_action :set_extra_context, only: %i[saml_callback saml_logout_callback]
 
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
@@ -55,12 +55,10 @@ module V0
         raise Common::Exceptions::RoutingError, params[:path]
       end
     rescue StandardError => e
-      binding.pry
       log_exception_to_sentry(e, {}, {}, :error)
     ensure
       redirect_to url_service.logout_redirect_url
     end
-
 
     def saml_callback
       if session_activity.present?
@@ -105,7 +103,10 @@ module V0
 
     def session_activity
       return @session_activity if defined?(@session_activity)
-      @session_activity = SessionActivity.find_by(id: session_activity_id, originating_request_id: originating_request_id)
+      @session_activity = SessionActivity.find_by(
+        id: session_activity_id,
+        originating_request_id: originating_request_id
+      )
     end
 
     def log_error(saml_response)

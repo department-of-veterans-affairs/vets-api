@@ -54,11 +54,11 @@ RSpec.describe V0::SessionsController, type: :controller do
   let(:originating_request_type) { 'signup' }
   let(:session_activity) { create(:session_activity, generated_url: 'url', name: originating_request_type) }
   let(:expected_relay_params) do
-      {
-        originating_request_id: session_activity.originating_request_id,
-        session_activity_id: session_activity.id,
-        request_type: originating_request_type
-      }.to_json
+    {
+      originating_request_id: session_activity.originating_request_id,
+      session_activity_id: session_activity.id,
+      request_type: originating_request_type
+    }.to_json
   end
   let(:relay_state_params) { expected_relay_params }
 
@@ -88,7 +88,7 @@ RSpec.describe V0::SessionsController, type: :controller do
   context 'when not logged in' do
     describe 'new' do
       context 'routes not requiring auth' do
-        context "routes /sessions/mhv/new to SessionsController#new with type: mhv" do
+        context 'routes /sessions/mhv/new to SessionsController#new with type: mhv' do
           it 'redirects' do
             get(:new, params: { type: 'mhv', clientId: '123123' })
             expect(response).to have_http_status(:found)
@@ -99,7 +99,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/dslogon/new to SessionsController#new with type: dslogon" do
+        context 'routes /sessions/dslogon/new to SessionsController#new with type: dslogon' do
           it 'redirects' do
             get(:new, params: { type: 'dslogon', clientId: '123123' })
             expect(response).to have_http_status(:found)
@@ -110,7 +110,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/idme/new to SessionsController#new with type: idme" do
+        context 'routes /sessions/idme/new to SessionsController#new with type: idme' do
           it 'redirects' do
             get(:new, params: { type: 'idme', clientId: '123123' })
             expect(response).to have_http_status(:found)
@@ -134,7 +134,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'routes requiring auth' do
-        it "routes /sessions/mfa/new to SessionsController#new with type: mfa" do
+        it 'routes /sessions/mfa/new to SessionsController#new with type: mfa' do
           get(:new, params: { type: 'mfa' })
           expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body))
@@ -146,7 +146,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                    }])
         end
 
-        it "routes /sessions/verify/new to SessionsController#new with type: verify" do
+        it 'routes /sessions/verify/new to SessionsController#new with type: verify' do
           get(:new, params: { type: 'verify' })
           expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body))
@@ -158,7 +158,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                    }])
         end
 
-        it "routes /sessions/slo/new to SessionsController#new with type: slo" do
+        it 'routes /sessions/slo/new to SessionsController#new with type: slo' do
           get(:new, params: { type: 'slo' })
           expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body))
@@ -189,7 +189,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page code 500' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post :saml_callback, params: { RelayState: relay_state_params } )
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -216,7 +216,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           Settings.sso.cookie_enabled = false
         end
 
-        context "routes /sessions/mhv/new to SessionsController#new with type: mhv" do
+        context 'routes /sessions/mhv/new to SessionsController#new with type: mhv' do
           it 'redirects' do
             get(:new, params: { type: 'mhv' })
             expect(response).to have_http_status(:found)
@@ -224,7 +224,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/dslogon/new to SessionsController#new with type: dslogon" do
+        context 'routes /sessions/dslogon/new to SessionsController#new with type: dslogon' do
           it 'redirects' do
             get(:new, params: { type: 'dslogon' })
             expect(response).to have_http_status(:found)
@@ -232,7 +232,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/idme/new to SessionsController#new with type: idme" do
+        context 'routes /sessions/idme/new to SessionsController#new with type: idme' do
           it 'redirects' do
             get(:new, params: { type: 'idme' })
             expect(response).to have_http_status(:found)
@@ -240,7 +240,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/mfa/new to SessionsController#new with type: mfa" do
+        context 'routes /sessions/mfa/new to SessionsController#new with type: mfa' do
           it 'redirects' do
             get(:new, params: { type: 'mfa' })
             expect(response).to have_http_status(:found)
@@ -248,7 +248,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/verify/new to SessionsController#new with type: verify" do
+        context 'routes /sessions/verify/new to SessionsController#new with type: verify' do
           it 'redirects' do
             get(:new, params: { type: 'verify' })
             expect(response).to have_http_status(:found)
@@ -256,7 +256,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           end
         end
 
-        context "routes /sessions/slo/new to SessionsController#new with type: slo" do
+        context 'routes /sessions/slo/new to SessionsController#new with type: slo' do
           it 'redirects' do
             get(:new, params: { type: 'slo' })
             expect(response).to have_http_status(:found)
@@ -350,7 +350,8 @@ RSpec.describe V0::SessionsController, type: :controller do
             # this will be destroyed
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
 
-            msg = "SLO callback response could not resolve logout request for originating_request_id '#{session_activity.originating_request_id}'"
+            r_id = session_activity.originating_request_id
+            msg = "SLO callback response could not resolve logout request for originating_request_id '#{r_id}'"
             expect_logger_msg(:info, msg)
             expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: relay_state_params }))
               .to redirect_to(logout_redirect_url)
@@ -379,7 +380,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           # this will be destroyed
           expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to_not be_nil
 
-          msg = "SLO callback response to '1234' for originating_request_id '#{session_activity.originating_request_id}'"
+          r_id = session_activity.originating_request_id
+          msg = "SLO callback response to '1234' for originating_request_id '#{r_id}'"
           expect_logger_msg(:info, msg)
           expect(controller).not_to receive(:log_message_to_sentry)
           expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: relay_state_params }))
@@ -566,7 +568,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
           expect(controller).to receive(:log_exception_to_sentry)
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
         end
 
@@ -591,7 +593,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).to receive(:tags_context).once
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
@@ -604,7 +606,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).not_to be_nil
@@ -617,7 +619,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger)
             .to receive(:error).with(/#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -650,7 +652,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                                      full_message: 'The status code of the Response was not Success, was Requester =>'\
                                   ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -686,7 +688,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                                      level: :error,
                                      full_message: 'Other random error' }]
             )
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
@@ -757,7 +759,7 @@ RSpec.describe V0::SessionsController, type: :controller do
               },
               mvi: 'breakers is open for MVI'
             )
-          expect(post :saml_callback, params: { RelayState: relay_state_params })
+          expect(post(:saml_callback, params: { RelayState: relay_state_params }))
             .to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
