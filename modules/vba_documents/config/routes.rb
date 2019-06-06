@@ -29,12 +29,12 @@ VBADocuments::Engine.routes.draw do
   end
 
   namespace :docs do
+    match '/metadata', to: 'metadata#index', via: [:get]
+
     namespace :v0 do
       resources :api, only: [:index]
     end
-  end
-
-  namespace :docs do
+    
     namespace :v1 do
       resources :api, only: [:index]
     end
