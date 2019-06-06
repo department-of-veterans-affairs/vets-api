@@ -107,17 +107,17 @@ namespace :form526 do
           if errors[message].blank?
             errors[message] = {
               submission_ids: [
-                { sub_id: s.id, p_id: auth_headers['va_eauth_dodedipnid'], date: s.created_at }
+                { sub_id: s.id, p_id: auth_headers['va_eauth_pid'], date: s.created_at }
               ],
-              participant_ids: Set[auth_headers['va_eauth_dodedipnid']]
+              participant_ids: Set[auth_headers['va_eauth_pid']]
             }
           else
             errors[message][:submission_ids].append(
               sub_id: s.id,
-              p_id: auth_headers['va_eauth_dodedipnid'],
+              p_id: auth_headers['va_eauth_pid'],
               date: s.created_at
             )
-            errors[message][:participant_ids].add(auth_headers['va_eauth_dodedipnid'])
+            errors[message][:participant_ids].add(auth_headers['va_eauth_pid'])
           end
         end
       end

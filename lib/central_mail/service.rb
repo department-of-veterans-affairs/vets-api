@@ -49,17 +49,6 @@ module CentralMail
         body
       )
 
-      if Rails.env.production?
-        log_message_to_sentry(
-          'central mail api status',
-          :info,
-          response: {
-            status: response.status,
-            body: response.body
-          }
-        )
-      end
-
       response
     end
   end
