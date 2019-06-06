@@ -9,7 +9,6 @@ module VaFacilities
         render json: {
           meta: [
             {
-              name: 'Facilities',
               version: 'V1',
               internal_only: false,
               status: VERSION_STATUS[:rel],
@@ -18,7 +17,6 @@ module VaFacilities
               staging_source: 'https://staging-api.va.gov/services/va_facilities/docs/v1/api'
             },
             {
-              name: 'Facilities',
               version: 'V0',
               internal_only: true,
               status: VERSION_STATUS[:cur],
@@ -31,4 +29,4 @@ module VaFacilities
       end
     end
   end
-  end
+end

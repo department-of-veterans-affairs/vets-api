@@ -9,7 +9,6 @@ module ClaimsApi
         render json: {
           meta: [
             {
-              name: 'Claims, Intent to File & Disability',
               version: 'V1',
               internal_only: false,
               status: VERSION_STATUS[:rel],
@@ -18,7 +17,6 @@ module ClaimsApi
               staging_source: 'https://staging-api.va.gov/services/claims/docs/v1/api'
             },
             {
-              name: 'Claims, Intent to File & Disability',
               version: 'V0',
               internal_only: true,
               status: VERSION_STATUS[:cur],

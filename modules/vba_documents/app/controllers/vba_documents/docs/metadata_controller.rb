@@ -9,7 +9,6 @@ module ClaimsApi
         render json: {
           meta: [
             {
-              name: 'Benefits Intake API',
               version: 'V1',
               internal_only: false,
               status: VERSION_STATUS[:rel],
@@ -18,7 +17,6 @@ module ClaimsApi
               staging_source: 'https://staging-api.va.gov/services/vba_documents/docs/v1/api'
             },
             {
-              name: 'Benefits Intake API',
               version: 'V0',
               internal_only: false,
               status: VERSION_STATUS[:cur],
@@ -31,4 +29,4 @@ module ClaimsApi
       end
     end
   end
-  end
+end
