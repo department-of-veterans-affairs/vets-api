@@ -6,7 +6,8 @@ class PreneedsSubmissionsReportMailer < ApplicationMailer
     Ronald.Newcomb@va.gov
     Anthony.Tignola@va.gov
     Ashutosh.Shah@va.gov
-    Caitlyn.McIntosh@va.gov
+    Caroline.Javornisky@va.gov
+    Dale.Beehler@va.gov
   ].freeze
 
   def build(data)
