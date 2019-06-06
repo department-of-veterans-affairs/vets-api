@@ -23,13 +23,11 @@ module VaFacilities
 
       def index
         resource = NearbyFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
-        resource = { data: resource, meta: metadata(resource) }
         respond_to do |format|
           format.json do
-            render json: resource # ,
-            #  commented out for sending back mocked data that is already in response format
-            #  each_serializer: VaFacilities::FacilitySerializer,
-            #  meta: metadata(resource)
+            render json: resource,
+                   each_serializer: VaFacilities::NearbyFacilitySerializer,
+                   meta: metadata(resource)
           end
           format.geojson do
             response.headers['Link'] = link_header(resource)
@@ -113,7 +111,8 @@ module VaFacilities
         { pagination: { current_page: resource.current_page,
                         per_page: resource.per_page,
                         total_pages: resource.total_pages,
-                        total_entries: resource.total_entries } }
+                        total_entries: resource.total_entries },
+          distances: [] }
       end
     end
   end
