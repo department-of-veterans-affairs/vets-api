@@ -2,6 +2,14 @@
 
 # rubocop:disable Metrics/BlockLength
 namespace :veteran do
+  desc 'Reload VSO Information'
+  task reload_vso_data: :environment do
+    puts 'Loading VSO data from OGC'
+    Veteran::VsoReloader.perform_async
+    puts "#{Veteran::Service::Organization.count} Organizations loaded"
+    puts "#{Veteran::Service::Representative.count} Representatives loaded"
+  end
+
   desc 'Load sample data for VSO Reps and Orgs'
   task load_sample_vso_data: :environment do
     Veteran::Service::Organization.create(poa: '074', name: '074 - AMERICAN LEGION')

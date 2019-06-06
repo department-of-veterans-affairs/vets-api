@@ -7,22 +7,12 @@ describe Veteran::Service::Representative, type: :model do
 
   describe 'individual record' do
     it 'is valid with valid attributes' do
-      expect(Veteran::Service::Representative.new(poa: '000')).to be_valid
+      expect(Veteran::Service::Representative.new(poa_codes: ['000'])).to be_valid
     end
 
     it 'is not valid without a poa' do
-      representative = Veteran::Service::Representative.new(poa: nil)
+      representative = Veteran::Service::Representative.new(poa_codes: nil)
       expect(representative).to_not be_valid
-    end
-  end
-
-  describe 'importer' do
-    it 'should reload data from pulldown' do
-      VCR.use_cassette('veteran/ogc_poa_data') do
-        Veteran::Service::Representative.reload!
-        expect(Veteran::Service::Representative.count).to eq 152
-        expect(Veteran::Service::Organization.count).to eq 3
-      end
     end
   end
 
