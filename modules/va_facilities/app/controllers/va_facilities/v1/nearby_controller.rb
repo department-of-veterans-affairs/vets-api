@@ -4,7 +4,7 @@ require 'will_paginate/array'
 
 require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
-require_dependency 'va_facilities/geo_serializer'
+require_dependency 'va_facilities/geo_serializer_v1'
 require_dependency 'va_facilities/csv_serializer'
 
 module VaFacilities
@@ -31,7 +31,7 @@ module VaFacilities
           end
           format.geojson do
             response.headers['Link'] = link_header(resource)
-            render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
+            render geojson: VaFacilities::GeoSerializerV1.to_geojson(resource)
           end
         end
       end

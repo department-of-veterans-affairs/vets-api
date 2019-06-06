@@ -146,55 +146,88 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     end
   end
 
-  xcontext 'when requesting GeoJSON format' do
+  context 'when requesting GeoJSON format' do
     it 'responds to GET #index' do
-      get base_query_path + address_params, params: nil, headers: accept_geojson
-      expect(response).to be_success
-      expect(response.body).to be_a(String)
-      json = JSON.parse(response.body)
-      expect(json['type']).to eq('FeatureCollection')
-      expect(json['features'].length).to eq(10)
-      expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: nil, headers: accept_geojson
+        expect(response).to be_success
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['type']).to eq('FeatureCollection')
+        expect(json['features'].length).to eq(10)
+        expect(response.headers['Content-Type']).to eq 'application/vnd.geo+json; charset=utf-8'
+      end
     end
 
     it 'responds with pagination link header' do
-      get base_query_path + address_params, params: nil, headers: accept_geojson
-      expect(response).to be_success
-      expect(response.headers['Link']).to be_present
-      parsed = parse_link_header(response.headers['Link'])
-      expect(parsed).to have_key('self')
-      expect(parsed).to have_key('first')
-      expect(parsed).to have_key('last')
-      expect(parsed).not_to have_key('prev')
-      expect(parsed).not_to have_key('next')
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: nil, headers: accept_geojson
+        expect(response).to be_success
+        expect(response.headers['Link']).to be_present
+        parsed = parse_link_header(response.headers['Link'])
+        expect(parsed).to have_key('self')
+        expect(parsed).to have_key('first')
+        expect(parsed).to have_key('last')
+        expect(parsed).not_to have_key('prev')
+        expect(parsed).not_to have_key('next')
+      end
     end
 
     it 'paginates according to parameters' do
-      get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_geojson
-      expect(response).to be_success
-      json = JSON.parse(response.body)
-      expect(json['type']).to eq('FeatureCollection')
-      expect(json['features'].length).to eq(3)
-      expect(response.headers['Link']).to be_present
-      parsed = parse_link_header(response.headers['Link'])
-      expect(parsed['self']['page']).to eq(['2'])
-      expect(parsed['first']['page']).to eq(['1'])
-      expect(parsed['last']['page']).to eq(['4'])
-      expect(parsed['prev']['page']).to eq(['1'])
-      expect(parsed['next']['page']).to eq(['3'])
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params + '&page=2&per_page=3', params: nil, headers: accept_geojson
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        expect(json['type']).to eq('FeatureCollection')
+        expect(json['features'].length).to eq(3)
+        expect(response.headers['Link']).to be_present
+        parsed = parse_link_header(response.headers['Link'])
+        expect(parsed['self']['page']).to eq(['2'])
+        expect(parsed['first']['page']).to eq(['1'])
+        expect(parsed['last']['page']).to eq(['4'])
+        expect(parsed['prev']['page']).to eq(['1'])
+        expect(parsed['next']['page']).to eq(['3'])
+      end
     end
 
     it 'paginates empty result set' do
-      get base_query_path + empty_address, params: nil, headers: accept_geojson
-      expect(response).to be_success
-      json = JSON.parse(response.body)
-      expect(json['type']).to eq('FeatureCollection')
-      expect(json['features'].length).to eq(0)
-      expect(response.headers['Link']).to be_present
-      parsed = parse_link_header(response.headers['Link'])
-      expect(parsed['self']['page']).to eq(['1'])
-      expect(parsed['first']['page']).to eq(['1'])
-      expect(parsed['last']['page']).to eq(['1'])
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_1',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + empty_address, params: nil, headers: accept_geojson
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        expect(json['type']).to eq('FeatureCollection')
+        expect(json['features'].length).to eq(0)
+        expect(response.headers['Link']).to be_present
+        parsed = parse_link_header(response.headers['Link'])
+        expect(parsed['self']['page']).to eq(['1'])
+        expect(parsed['first']['page']).to eq(['1'])
+        expect(parsed['last']['page']).to eq(['1'])
+      end
+    end
+
+    it 'responds with wait times as part of health services in v1' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: nil, headers: accept_geojson
+
+        expect(response).to be_success
+        json = JSON.parse(response.body)
+        health_service = json['features'][0]['properties']['services']['health'][0]
+
+        expect(health_service['service']).to eq('PrimaryCare')
+        expect(health_service['wait_times']['new']).to eq(27.0)
+        expect(health_service['wait_times']['established']).to eq(6.0)
+        expect(health_service['wait_times']['effective_date']).to eq('2018-03-05')
+      end
     end
   end
 
