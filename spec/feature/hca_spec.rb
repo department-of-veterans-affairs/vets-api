@@ -5,22 +5,7 @@ RSpec.describe('hca', type: :feature) do
     wait_for_new_url('.usa-button-primary')
   end
 
-  it 'anonymous application', js: true do
-    visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
-    wait_for_new_url('.schemaform-start-button')
-    # user details page
-    find('#root_firstName').set('first')
-    find('#root_lastName').set('last')
-    find('#root_dobMonth').find(:option, 'Jan').select_option
-    find('#root_dobDay').find(:option, '1').select_option
-    find('#root_dobYear').set('1950')
-    find('#root_ssn').set('111-22-3333')
-    wait_for_new_url('.usa-button')
-    # veteran information
-    sleep(1)
-    next_form_page
-    # dob
-    next_form_page
+  def common_fill_hca_form
     # gender
     find('#root_gender').find(:option, 'Male').select_option
     find('#root_maritalStatus').find(:option, 'Never Married').select_option
@@ -68,5 +53,57 @@ RSpec.describe('hca', type: :feature) do
     click('#errorable-checkbox-8', visible: false)
     next_form_page
     expect(current_path).to eq('/health-care/apply/application/confirmation')
+  end
+
+  it 'logged in application', js: true do
+    visit(DEFAULT_HOST)
+    sleep(1)
+    # close announcement
+    if has_css_instant?('#modal-announcement')
+      click('.va-modal-close')
+    end
+    # login
+    click('.sign-in-link')
+    click('.usa-button-primary')
+    find('#user_email').set('vets.gov.user+5@gmail.com')
+    find('#user_password').set(Settings.feature_specs.login_password)
+    wait_for_new_url('.btn-primary')
+    wait_for_new_url('.btn-primary')
+    wait_for_new_url('.btn-primary')
+    wait_until { get_js('localStorage.hasSession') == 'true' }
+
+    visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
+    wait_for_new_url { first_with_wait('.schemaform-start-button').click }
+    # veteran info
+    find('#root_veteranFullName_first').set('first')
+    find('#root_veteranFullName_last').set('last')
+    next_form_page
+    # dob
+    find('#root_veteranDateOfBirthMonth').find(:option, 'Jan').select_option
+    find('#root_veteranDateOfBirthDay').find(:option, '1').select_option
+    find('#root_veteranDateOfBirthYear').set('1950')
+    find('#root_veteranSocialSecurityNumber').set('111-22-3333')
+    next_form_page
+    common_fill_hca_form
+  end
+
+  it 'anonymous application', js: true do
+    visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
+    wait_for_new_url('.schemaform-start-button')
+    # user details page
+    find('#root_firstName').set('first')
+    find('#root_lastName').set('last')
+    find('#root_dobMonth').find(:option, 'Jan').select_option
+    find('#root_dobDay').find(:option, '1').select_option
+    find('#root_dobYear').set('1950')
+    find('#root_ssn').set('111-22-3333')
+    wait_for_new_url('.usa-button')
+    # veteran information
+    sleep(1)
+    next_form_page
+    # dob
+    next_form_page
+
+    common_fill_hca_form
   end
 end
