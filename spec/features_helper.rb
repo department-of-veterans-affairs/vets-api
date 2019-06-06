@@ -1,5 +1,6 @@
 require 'rails_helper'
 require 'capybara/rspec'
+require 'capybara-screenshot/rspec'
 
 Capybara.register_driver :chrome do |app|
   options = Selenium::WebDriver::Chrome::Options.new(args: ['--disable-gpu'])

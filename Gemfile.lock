@@ -209,6 +209,9 @@ GEM
       rack-test (>= 0.6.3)
       regexp_parser (~> 1.5)
       xpath (~> 3.2)
+    capybara-screenshot (1.0.22)
+      capybara (>= 1.0, < 4)
+      launchy
     carrierwave (0.11.2)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -330,6 +333,8 @@ GEM
     jsonapi-parser (0.1.1.beta3)
     jsonapi-renderer (0.1.1.beta1)
     jwt (2.1.0)
+    launchy (2.4.3)
+      addressable (~> 2.3)
     levenshtein-ffi (1.1.0)
       ffi (~> 1.9)
     liquid (4.0.0)
@@ -657,6 +662,7 @@ DEPENDENCIES
   bundler-audit
   byebug
   capybara (= 3.22.0)
+  capybara-screenshot
   carrierwave (~> 0.11)
   carrierwave-aws
   claims_api!

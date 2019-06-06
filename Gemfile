@@ -105,6 +105,7 @@ end
 group :test do
   gem 'apivore'
   gem 'awrence'
+  gem 'capybara-screenshot'
   gem 'climate_control'
   gem 'faker'
   gem 'faker-medical'
