@@ -7,7 +7,7 @@ module ClaimsApi
   
           def index
             render json: {
-                metadata: [
+                meta: [
                     {
                       name: "Benefits Intake API",
                       version: "V1",

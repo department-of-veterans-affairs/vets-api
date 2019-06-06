@@ -7,7 +7,7 @@ module ClaimsApi
 
         def index
           render json: {
-              metadata: [
+              meta: [
                   {
                     name: "Claims, Intent to File & Disability",
                     version: "V1",

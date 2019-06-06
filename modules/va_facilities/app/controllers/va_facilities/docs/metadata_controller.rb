@@ -7,7 +7,7 @@ module VaFacilities
   
           def index
             render json: {
-                metadata: [
+                meta: [
                     {
                       name: "Facilities",
                       version: "V1",
