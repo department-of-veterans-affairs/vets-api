@@ -35,16 +35,6 @@ RSpec.describe 'Claim Appeals API endpoint', type: :request do
       end
     end
 
-    it 'checks PoA when present?' do
-      VCR.use_cassette('appeals/appeals') do
-        get '/services/appeals/v0/appeals', params: nil, headers: { 'X-Consumer-PoA' => 'A1Q' }.merge(user_headers)
-
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('appeals')
-      end
-    end
-
     it 'should log details about the request' do
       VCR.use_cassette('appeals/appeals') do
         allow(Rails.logger).to receive(:info)

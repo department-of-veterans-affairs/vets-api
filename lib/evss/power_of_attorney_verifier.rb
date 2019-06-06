@@ -8,16 +8,20 @@ module EVSS
     end
 
     def verify(user)
-      representitive = Veteran::Service::Representative.for_user(first_name: user.first_name, last_name: user.last_name)
-      if representitive.present?
+      rep = Veteran::Service::Representative.for_user(first_name: user.first_name, last_name: user.last_name)
+      if rep.present?
         veteran_poa_code = @veteran.power_of_attorney.try(:code)
-        unless veteran_poa_code == representitive.poa
-          Rails.logger.info("POA code of #{representitive.poa} not valid for veteran code #{veteran_poa_code}")
+        unless matches(veteran_poa_code, rep)
+          Rails.logger.info("POA code of #{rep.poa_codes.join(', ')} not valid for veteran code #{veteran_poa_code}")
           raise Common::Exceptions::Unauthorized, detail: "Power of Attorney code doesn't match Veteran's"
         end
       else
         raise Common::Exceptions::Unauthorized, detail: 'VSO Representitive Not Found'
       end
+    end
+
+    def matches(veteran_poa_code, representitive)
+      representitive.poa_codes.include?(veteran_poa_code)
     end
 
     def auth_headers
