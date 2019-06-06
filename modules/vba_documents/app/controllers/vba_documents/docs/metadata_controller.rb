@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module ClaimsApi
+module VBADocuments
   module Docs
     class MetadataController < ::ApplicationController
       skip_before_action(:authenticate)
