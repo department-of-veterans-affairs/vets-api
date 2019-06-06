@@ -16,16 +16,6 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
-  describe 'importer' do
-    it 'should reload data from pulldown' do
-      VCR.use_cassette('veteran/ogc_poa_data') do
-        Veteran::Service::Representative.reload!
-        expect(Veteran::Service::Representative.count).to eq 152
-        expect(Veteran::Service::Organization.count).to eq 3
-      end
-    end
-  end
-
   def basic_attributes
     {
       representative_id: SecureRandom.hex(8),
