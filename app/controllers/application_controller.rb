@@ -20,14 +20,14 @@ class ApplicationController < ActionController::API
   ].freeze
 
   VERSION_STATUS = {
-            alp: 'Alpha',
-            bet: 'Beta',
-            rel: 'Release Candidate',
-            cur: 'Current Version',
-            pre: 'Previous Version',
-            eol: 'End of Life',
-            dep: 'Depricated'
-}.freeze
+    alp: 'Alpha',
+    bet: 'Beta',
+    rel: 'Release Candidate',
+    cur: 'Current Version',
+    pre: 'Previous Version',
+    eol: 'End of Life',
+    dep: 'Deprecated'
+  }.freeze
 
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters

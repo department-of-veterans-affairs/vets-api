@@ -16,7 +16,7 @@ VaFacilities::Engine.routes.draw do
 
   namespace :docs do
     match '/metadata', to: 'metadata#index', via: [:get]
-    
+
     namespace :v0 do
       resources :api, only: [:index]
     end
