@@ -9,15 +9,15 @@ module VaFacilities
         render json: {
           meta: [
             {
-              version: 'V1',
+              version: '1.0.0',
               internal_only: false,
-              status: VERSION_STATUS[:rel],
+              status: VERSION_STATUS[:dra],
               source: 'https://api.va.gov/services/va_facilities/docs/v1/api',
               dev_source: 'https://dev-api.va.gov/services/va_facilities/docs/v1/api',
               staging_source: 'https://staging-api.va.gov/services/va_facilities/docs/v1/api'
             },
             {
-              version: 'V0',
+              version: '0.0.1',
               internal_only: true,
               status: VERSION_STATUS[:cur],
               source: 'https://api.va.gov/services/va_facilities/docs/v0/api',

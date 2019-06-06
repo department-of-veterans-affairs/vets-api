@@ -20,12 +20,9 @@ class ApplicationController < ActionController::API
   ].freeze
 
   VERSION_STATUS = {
-    alp: 'Alpha',
-    bet: 'Beta',
-    rel: 'Release Candidate',
-    cur: 'Current Version',
-    pre: 'Previous Version',
-    eol: 'End of Life',
+    dra: 'Draft',
+    cur: 'Current',
+    pre: 'Previous',
     dep: 'Deprecated'
   }.freeze
 
