@@ -273,13 +273,13 @@ FactoryBot.define do
           'Thursday' => '800AM-430PM',
           'Wednesday' => 'Closed'
     services 'other' => [
-               {
-                 'sl1' => [
-                   'Online Scheduling'
-                 ],
-                 'sl2' => []
-               }
-             ],
+      {
+        'sl1' => [
+          'Online Scheduling'
+        ],
+        'sl2' => []
+      }
+    ],
              'health' => [],
              'last_updated' => '2019-06-04'
     feedback 'health' => {}
