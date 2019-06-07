@@ -55,7 +55,7 @@ RSpec.describe('hca', type: :feature) do
     expect(current_path).to eq('/health-care/apply/application/confirmation')
   end
 
-  it 'logged in application', js: true do
+  pending 'logged in application', js: true do
     visit(DEFAULT_HOST)
     sleep(1)
     # close announcement
@@ -85,6 +85,7 @@ RSpec.describe('hca', type: :feature) do
     find('#root_veteranSocialSecurityNumber').set('111-22-3333')
     next_form_page
     common_fill_hca_form
+    # TODO: run background job and make sure it succeeds
   end
 
   it 'anonymous application', js: true do
