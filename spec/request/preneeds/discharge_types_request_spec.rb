@@ -10,7 +10,7 @@ RSpec.describe 'Discharge Types Integration', type: :request do
       get '/v0/preneeds/discharge_types/'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('preneeds/discharge_types')
   end

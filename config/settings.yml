@@ -18,7 +18,6 @@ session_cookie:
 
 # Generate key and iv with: openssl enc -nosalt -aes-256-cbc -k <passphrase> -P
 sso:
-  disable_user_validations_loa3: false
   cookie_enabled: true
   cookie_signout_enabled: true
   cookie_name: vagov_session_dev
@@ -358,3 +357,7 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+bing:
+  base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
+  key: fake_key

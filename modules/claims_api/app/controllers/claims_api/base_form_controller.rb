@@ -7,6 +7,17 @@ module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
     before_action :validate_json_schema
 
+    # schema endpoint should be wide open
+    skip_before_action :validate_json_schema, only: %i[schema]
+    skip_before_action :authenticate, only: %i[schema]
+    skip_before_action :verify_power_of_attorney, only: %i[schema]
+    skip_before_action :verify_mvi, only: %i[schema]
+    skip_before_action :log_request, only: %i[schema]
+
+    def schema
+      render json: { data: [ClaimsApi::FormSchemas::SCHEMAS[self.class::FORM_NUMBER]] }
+    end
+
     private
 
     def validate_json_schema
@@ -16,11 +27,11 @@ module ClaimsApi
     end
 
     def form_attributes
-      if request.body.string.present?
-        JSON.parse(request.body.string).dig('data', 'attributes')
-      else
-        {}
-      end
+      payload_attributes = JSON.parse(request.body.string).dig('data', 'attributes') if request.body.string.present?
+
+      payload_attributes ||= {}
+
+      payload_attributes
     end
   end
 end

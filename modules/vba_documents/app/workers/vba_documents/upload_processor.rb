@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require_dependency 'vba_documents/multipart_parser'
+require_dependency 'vba_documents/payload_manager'
 require 'vba_documents/object_store'
 require 'vba_documents/upload_error'
 
@@ -24,8 +25,9 @@ module VBADocuments
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.find_by(guid: guid)
-      tempfile, timestamp = download_raw_file(guid)
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(guid)
       begin
+        Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
         validate_parts(parts)
         validate_metadata(parts[META_PART_NAME])
@@ -38,6 +40,7 @@ module VBADocuments
         UploadProcessor.perform_in(30.minutes, guid) if e.code == 'DOC201'
         log_error(e, upload)
       ensure
+        Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
         tempfile.close
         close_part_files(parts) if parts.present?
       end
@@ -108,9 +111,9 @@ module VBADocuments
 
     def map_downstream_error(status, body)
       if status.between?(400, 499)
-        detail = if body =~ INVALID_ZIP_CODE_ERROR_REGEX
+        detail = if body.match?(INVALID_ZIP_CODE_ERROR_REGEX)
                    INVALID_ZIP_CODE_ERROR_MSG
-                 elsif body =~ MISSING_ZIP_CODE_ERROR_REGEX
+                 elsif body.match?(MISSING_ZIP_CODE_ERROR_REGEX)
                    MISSING_ZIP_CODE_ERROR_MSG
                  else
                    body
@@ -121,14 +124,6 @@ module VBADocuments
         raise VBADocuments::UploadError.new(code: 'DOC201',
                                             detail: "Downstream status: #{status} - #{body}")
       end
-    end
-
-    def download_raw_file(guid)
-      store = VBADocuments::ObjectStore.new
-      tempfile = Tempfile.new(guid)
-      version = store.first_version(guid)
-      store.download(version, tempfile.path)
-      [tempfile, version.last_modified]
     end
 
     def validate_parts(parts)

@@ -59,8 +59,7 @@
     "personalAssault": true,
     "incidentDate": "2000-01-01",
     "unitAssignedDates": {
-      "from": "2001-01-01",
-      "to": "2002-02-02"
+      "from": "2001-01-01"
     },
     "incidentLocation": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
     "unitAssigned": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",

@@ -13,12 +13,11 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '~> 5.1.6.2'
+gem 'rails', '~> 5.2.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-# bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
@@ -72,6 +71,7 @@ gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
+gem 'rubyzip', '>= 1.0.0'
 gem 'savon'
 gem 'sentry-raven', '2.7.4' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
@@ -139,7 +139,7 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
-  gem 'sidekiq'
+  gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
