@@ -7,7 +7,7 @@ LAST
 V1995
 
 SCHOOL NAME
-TransferOfEntitlement
+STEM
 *START*
 VA Form 22-1995
 DEC 2016
@@ -43,20 +43,15 @@ Routing/Transit #: 123456789   Account #: 88888888888
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: Transfer Of Entitlement
-Type of Education or Training: Tuition Top Up
-Education or Career Goal: bachelor's degree
-
+Benefit You Are Receiving: STEM
 Are you applying for the Edith Nourse Rogers STEM Scholarship
 (Chapter 33)?: YES
-
 Are you enrolled in an undergraduate STEM degree program?: YES
+Do you have a STEM undergraduate degree and are now pursuing a
+teaching certification?: YES
 
-Do you have a STEM undergraduate degree and are now pursuing a teaching
-certification?: YES
-
-Are you currently on active duty or do you anticipate you will be going
-on active duty?: YES
+Type of Education or Training: Tuition Top Up
+Education or Career Goal: bachelor's degree
 
 New School or Training Establishment:
 school name
@@ -76,6 +71,9 @@ Reason for Change: reason for change
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
+
+Are you currently on active duty or do you anticipate you will
+be going on active duty?: YES
 
 Date Entered   Date Separated     Service Component
 2012-06-26     2013-04-10         Army Reserve

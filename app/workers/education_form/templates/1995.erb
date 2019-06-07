@@ -29,20 +29,15 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
-Type of Education or Training: <%= @applicant.educationType&.titleize %>
-Education or Career Goal: <%= @applicant.educationObjective %>
-
+Benefit You Are Receiving: <%= form_benefit(@applicant) %>
 Are you applying for the Edith Nourse Rogers STEM Scholarship
 (Chapter 33)?: <%= yesno(@applicant.isEdithNourseRogersScholarship) %>
-
 Are you enrolled in an undergraduate STEM degree program?: <%= yesno(@applicant.isEnrolledStem) %>
+Do you have a STEM undergraduate degree and are now pursuing a
+teaching certification?: <%= yesno(@applicant.isPursuingTeachingCert) %>
 
-Do you have a STEM undergraduate degree and are now pursuing a teaching
-certification?: <%= yesno(@applicant.isPursuingTeachingCert) %>
-
-Are you currently on active duty or do you anticipate you will be going
-on active duty?: <%= yesno(@applicant.isActiveDuty) %>
+Type of Education or Training: <%= @applicant.educationType&.titleize %>
+Education or Career Goal: <%= @applicant.educationObjective %>
 
 New School or Training Establishment:
 <%= school_name_and_addr(@applicant.newSchool) %>
@@ -56,6 +51,9 @@ Reason for Change: <%= @applicant.reasonForChange %>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
+
+Are you currently on active duty or do you anticipate you will
+be going on active duty?: <%= yesno(@applicant.isActiveDuty) %>
 
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
