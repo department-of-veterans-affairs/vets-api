@@ -9,6 +9,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
 
   let(:base_query_path) { '/services/va_facilities/v1/nearby' }
   let(:address_params) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=60' }
+  let(:no_health_services_address_params) { '?street_address=197%20East%20Main%20Street&city=Fort%20Kent&state=ME&zip=04743&drive_time=60' }
   let(:empty_address) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=1' }
 
   let(:accept_json) { { 'HTTP_ACCEPT' => 'application/json' } }
@@ -227,6 +228,20 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(health_service['wait_times']['new']).to eq(27.0)
         expect(health_service['wait_times']['established']).to eq(6.0)
         expect(health_service['wait_times']['effective_date']).to eq('2018-03-05')
+      end
+    end
+
+    it 'responds successfully even if health facilities return no health services' do
+      create 'vha_402QA'
+      VCR.use_cassette('bing/isochrone/no_health_services_drive_time',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+
+        get base_query_path + no_health_services_address_params, params: nil, headers: accept_json
+        expect(response).to be_success
+        
+        json = JSON.parse(response.body)
+        health_services = json['data'][0]['attributes']['services']['health']
+        expect(health_services.length).to eq(0)
       end
     end
   end
