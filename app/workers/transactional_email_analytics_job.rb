@@ -74,7 +74,6 @@ class TransactionalEmailAnalyticsJob
   end
 
   def eval_email(email, mailer)
-    # return if Time.zone.parse(email.created_at) > @time_range_end || email.status != 'completed'
     email.failed.get
     event_params = {
       category: 'email',
