@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'features_helper'
 
 RSpec.describe('hca', type: :feature) do
@@ -5,6 +7,8 @@ RSpec.describe('hca', type: :feature) do
     wait_for_new_url('.usa-button-primary')
   end
 
+  # rubocop:disable Metrics/AbcSize
+  # rubocop:disable Metrics/MethodLength
   def common_fill_hca_form
     # gender
     find('#root_gender').find(:option, 'Male').select_option
@@ -49,19 +53,19 @@ RSpec.describe('hca', type: :feature) do
     find('#root_view\:preferredFacility_view\:facilityState option[value="AL"]').select_option
     find('#root_view\:preferredFacility_vaMedicalFacility option[value="521GE"]').select_option
     next_form_page
-    # review application
+    # REVIEW: application
     click('#errorable-checkbox-8', visible: false)
     next_form_page
     expect(current_path).to eq('/health-care/apply/application/confirmation')
+    # rubocop:enable Metrics/AbcSize
+    # rubocop:enable Metrics/MethodLength
   end
 
   skip 'logged in application', js: true do
     visit(DEFAULT_HOST)
     sleep(1)
     # close announcement
-    if has_css_instant?('#modal-announcement')
-      click('.va-modal-close')
-    end
+    click('.va-modal-close') if has_css_instant?('#modal-announcement')
     # login
     click('.sign-in-link')
     click('.usa-button-primary')
