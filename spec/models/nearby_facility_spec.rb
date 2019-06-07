@@ -26,6 +26,18 @@ RSpec.describe NearbyFacility, type: :model do
     it 'should return no facilities when missing params' do
       expect(NearbyFacility.query({}).length).to eq(0)
     end
+    it 'should filter by type and service' do
+      params = {
+        'type': 'health',
+        'services[]': 'PrimaryCare'
+      }
+      params.merge!(address_params)
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60+services_primarycare',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        expect(NearbyFacility.query(params).length).to eq(3)
+      end
+    end
   end
 
   describe '#make_linestring' do
