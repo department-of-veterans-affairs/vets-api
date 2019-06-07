@@ -157,7 +157,7 @@ paths:
           required: false
           schema:
             type: integer
-            default: 20
+            default: 30
       responses:
         '200':
           description: Success
@@ -487,39 +487,27 @@ components:
       description: Health care services at a given facility, not all will be included at every facility
       type: array
       items:
-        type: object
-        properties:
-          PrimaryCare:
-            $ref: "#/components/schemas/HealthService" 
-          MentalHealthCare:
-            $ref: "#/components/schemas/HealthService" 
-          UrgentCare:
-            $ref: "#/components/schemas/HealthService" 
-          EmergencyCare:
-            $ref: "#/components/schemas/HealthService" 
-          Audiology:
-            $ref: "#/components/schemas/HealthService" 
-          Cardiology:
-            $ref: "#/components/schemas/HealthService" 
-          Dermatology:
-            $ref: "#/components/schemas/HealthService" 
-          Gastroenterology:
-            $ref: "#/components/schemas/HealthService" 
-          Gynecology:
-            $ref: "#/components/schemas/HealthService" 
-          Ophthalmology:
-            $ref: "#/components/schemas/HealthService" 
-          Optometry:
-            $ref: "#/components/schemas/HealthService" 
-          Orthopedics:
-            $ref: "#/components/schemas/HealthService" 
-          Urology:
-            $ref: "#/components/schemas/HealthService" 
-          WomensHealth:
-            $ref: "#/components/schemas/HealthService" 
+        $ref: "#/components/schemas/HealthService" 
     HealthService:
       type: object
       properties:
+        service:
+          type: string
+          enum:
+            - PrimaryCare
+            - MentalHealthCare
+            - UrgentCare
+            - EmergencyCare
+            - Audiology
+            - Cardiology
+            - Dermatology
+            - Gastroenterology
+            - Gynecology
+            - Ophthalmology
+            - Optometry
+            - Orthopedics
+            - Urology
+            - WomensHealth
         wait_times:
           $ref: "#/components/schemas/PatientWaitTime" 
     BenefitsService:

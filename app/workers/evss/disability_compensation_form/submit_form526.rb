@@ -32,8 +32,8 @@ module EVSS
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        # retry any errors caused by an upstream service from EVSS being unavailable
-        retry_for_unavailable_external_service!(e)
+        # retry submitting the form for specific upstream errors
+        retry_form526_error_handler!(e)
       rescue StandardError => e
         non_retryable_error_handler(e)
       end
@@ -54,13 +54,15 @@ module EVSS
         raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
 
-      # Retries any errors caused by an upstream service from EVSS being unavailable
+      # Retries any errors caused by an upstream service from EVSS being unavailable or
+      # if getting a "PIF in use" error
       # Otherwise it marks it as non-retryable and stops the job
       #
       # @param error [ErrorClass] An exception object of type {EVSS::DisabilityCompensationForm::ServiceException}
       #
-      def retry_for_unavailable_external_service!(error)
-        if error.key == 'evss.external_service_unavailable'
+      def retry_form526_error_handler!(error)
+        if error.key == 'evss.external_service_unavailable' ||
+           error.key == 'evss.disability_compensation_form.pif_in_use'
           retryable_error_handler(error)
         else
           non_retryable_error_handler(error)

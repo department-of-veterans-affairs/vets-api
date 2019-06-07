@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../../support/vba_document_fixtures'
+
+require_dependency 'vba_documents/object_store'
+require_dependency 'vba_documents/multipart_parser'
 
 RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
+  include VBADocuments::Fixtures
+
   describe '#create /v1/uploads' do
     it 'should return a UUID and location' do
       with_settings(Settings.vba_documents.location,
@@ -55,8 +61,10 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       get '/services/vba_documents/v1/uploads/non_existent_guid'
       expect(response).to have_http_status(:not_found)
       json = JSON.parse(response.body)
-      expect(json['data']['attributes']['guid']).to eq('non_existent_guid')
-      expect(json['data']['attributes']['status']).to eq('error')
+      expect(json['errors']).to be_an(Array)
+      expect(json['errors'].size).to eq(1)
+      status = json['errors'][0]
+      expect(status['detail']).to include('non_existent_guid')
     end
 
     it 'should return not_found for an expired submission' do
@@ -89,5 +97,39 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
         expect(JSON.parse(response.body)['data']['attributes']['status']).not_to eq(starting_status)
       end
     end
+  end
+
+  describe '#download /v1/uploads/{id}' do
+    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:valid_doc) { get_fixture('valid_doc.pdf') }
+    let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+
+    let(:valid_parts) do
+      { 'metadata' => valid_metadata,
+        'content' => valid_doc }
+    end
+
+    it "should raise if settings aren't set" do
+      with_settings(Settings.vba_documents, enable_download_endpoint: false) do
+        get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
+        expect(response.status).to eq(404)
+      end
+    end
+
+    # rubocop:disable Style/DateTime
+    it 'should return a 200 with content-type of zip' do
+      objstore = instance_double(VBADocuments::ObjectStore)
+      version = instance_double(Aws::S3::ObjectVersion)
+      allow(VBADocuments::ObjectStore).to receive(:new).and_return(objstore)
+      allow(objstore).to receive(:first_version).and_return(version)
+      allow(objstore).to receive(:download)
+      allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+
+      get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
+      expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to eq('application/zip')
+    end
+    # rubocop:enable Style/DateTime
   end
 end

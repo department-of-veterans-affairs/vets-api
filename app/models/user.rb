@@ -23,12 +23,8 @@ class User < Common::RedisStore
 
   validates :uuid, presence: true
 
-  # conditionally validate if user is LOA3
-  with_options if: :validate_attributes_for_loa3? do
-    validates :first_name, presence: true
-    validates :last_name, presence: true
-    validates :birth_date, presence: true
-    validates :ssn, presence: true, format: /\A\d{9}\z/
+  with_options if: :loa3? do
+    validates :ssn, format: /\A\d{9}\z/, allow_blank: true
     validates :gender, format: /\A(M|F)\z/, allow_blank: true
   end
 
@@ -167,13 +163,6 @@ class User < Common::RedisStore
   # See also lib/saml/user_attributes/mhv
   def loa3?
     loa[:current] == LOA::THREE
-  end
-
-  # This is essentially a feature toggle convenience method.
-  # we are experimenting with disabling user attribute validation so that user validation does not prevent user
-  # user persistence when MVI is down for MHV premium users signing in during an outage.
-  def validate_attributes_for_loa3?
-    Settings.sso.disable_user_validations_loa3 == true ? false : loa3?
   end
 
   def ssn_mismatch?

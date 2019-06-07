@@ -41,11 +41,20 @@ RSpec.describe 'Intent to file', type: :request do
       end
     end
 
-    it 'should default a type of compensation if none is passed in' do
+    it 'should fail if none is passed in' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/create_compensation') do
           post path, headers: headers.merge(auth_header)
-          expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('compensation')
+          expect(response.status).to eq(422)
+        end
+      end
+    end
+
+    it 'should fail if none is passed in as non-poa request' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/create_compensation') do
+          post path, headers: auth_header, params: ''
+          expect(response.status).to eq(422)
         end
       end
     end
@@ -55,9 +64,27 @@ RSpec.describe 'Intent to file', type: :request do
     it 'should return the latest itf of a type' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation') do
-          get "#{path}/active", params: data.to_json, headers: headers.merge(auth_header)
+          get "#{path}/active", params: { type: 'compensation' }, headers: headers.merge(auth_header)
           expect(response.status).to eq(200)
           expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('active')
+        end
+      end
+    end
+
+    it 'should fail if none is passed in for poa request' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          get "#{path}/active", headers: headers.merge(auth_header)
+          expect(response.status).to eq(400)
+        end
+      end
+    end
+
+    it 'should fail if none is passed in for non-poa request' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          get "#{path}/active", headers: auth_header, params: ''
+          expect(response.status).to eq(400)
         end
       end
     end

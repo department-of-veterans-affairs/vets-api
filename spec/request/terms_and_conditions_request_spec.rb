@@ -14,7 +14,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   it 'responds to GET #index' do
     get '/v0/terms_and_conditions'
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('terms_and_conditions')
   end
@@ -22,7 +22,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
   it 'responds to GET #latest' do
     get "/v0/terms_and_conditions/#{terms2.name}/versions/latest"
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('terms_and_conditions_single')
 
@@ -46,7 +46,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
       it 'responds to GET #user_data' do
         get "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data"
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('terms_and_conditions_acceptance')
       end
@@ -91,7 +91,7 @@ RSpec.describe 'terms_and_conditions', type: :request do
         it 'lets me accept it' do
           post "/v0/terms_and_conditions/#{terms2.name}/versions/latest/user_data"
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('terms_and_conditions_acceptance')
         end

@@ -56,7 +56,7 @@ RSpec.describe 'Messages Integration', type: :request do
           post '/v0/messaging/health/message_drafts', params: params
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
         expect(response).to have_http_status(:created)
@@ -70,7 +70,7 @@ RSpec.describe 'Messages Integration', type: :request do
           put "/v0/messaging/health/message_drafts/#{created_draft_id}", params: params
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
       end
     end
@@ -83,7 +83,7 @@ RSpec.describe 'Messages Integration', type: :request do
           post "/v0/messaging/health/message_drafts/#{reply_id}/replydraft", params: params
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('message')
         expect(response).to have_http_status(:created)
@@ -96,7 +96,7 @@ RSpec.describe 'Messages Integration', type: :request do
           put "/v0/messaging/health/message_drafts/#{reply_id}/replydraft/#{created_draft_reply_id}", params: params
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response).to have_http_status(:no_content)
       end
     end

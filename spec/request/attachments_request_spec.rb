@@ -51,7 +51,7 @@ RSpec.describe 'Message Attachments Integration', type: :request do
           get '/v0/messaging/health/messages/629999/attachments/629993'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.headers['Content-Disposition'])
           .to eq('attachment; filename="noise300x200.png"')
         expect(response.headers['Content-Transfer-Encoding']).to eq('binary')
