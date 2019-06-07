@@ -134,6 +134,4 @@ RSpec.configure do |config|
     example.run
     Timecop.return
   end
-
-  config.filter_run_excluding(type: :feature)
 end

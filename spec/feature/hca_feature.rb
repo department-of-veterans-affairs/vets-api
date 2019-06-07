@@ -5,6 +5,11 @@ RSpec.describe('hca', type: :feature) do
     wait_for_new_url('.usa-button-primary')
   end
 
+  before do
+    allow(HCA::Configuration.instance).to receive(:ssl_options).and_return(
+    )
+  end
+
   def common_fill_hca_form
     # gender
     find('#root_gender').find(:option, 'Male').select_option

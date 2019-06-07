@@ -122,7 +122,7 @@ describe HCA::Service do
         allow(HCA::Configuration.instance).to receive(:ssl_cert) { nil }
         allow(HCA::Configuration.instance).to receive(:ssl_key) { nil }
         expect(HCA::Configuration.instance.ssl_options).to eq(
-          verify: true,
+          verify: false,
           cert_store: store
         )
       end
@@ -130,7 +130,7 @@ describe HCA::Service do
     context 'when there are SSL options' do
       it 'should return the wsdl, cert and key paths' do
         expect(HCA::Configuration.instance.ssl_options).to eq(
-          verify: true,
+          verify: false,
           cert_store: store,
           client_cert: cert,
           client_key: key
