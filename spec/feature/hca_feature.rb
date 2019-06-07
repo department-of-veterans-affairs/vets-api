@@ -55,7 +55,7 @@ RSpec.describe('hca', type: :feature) do
     expect(current_path).to eq('/health-care/apply/application/confirmation')
   end
 
-  pending 'logged in application', js: true do
+  skip 'logged in application', js: true do
     visit(DEFAULT_HOST)
     sleep(1)
     # close announcement
