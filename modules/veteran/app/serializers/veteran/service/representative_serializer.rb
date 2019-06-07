@@ -5,7 +5,7 @@ module Veteran
     class RepresentativeSerializer < ActiveModel::Serializer
       attribute :first_name
       attribute :last_name
-      attribute :poa
+      attribute :poa_codes, array: true
     end
   end
 end

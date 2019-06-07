@@ -57,7 +57,6 @@ unless ENV['NOCOVERAGE']
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_filter 'version.rb'
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
-    add_filter 'app/models/nearby_facility.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end
