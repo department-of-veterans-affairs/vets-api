@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://icmhsgc-test.csrarad.com/VADocument/upload
+    uri: https://icmhs-api-test.csrarad.com/VADocument/upload
     body:
       encoding: ASCII-8BIT
       string: !binary |-
@@ -27627,6 +27627,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: 'Request was received successfully  [uuid: ba4a1f2e-43df-4e4d-a293-55e646fbe077] '
-    http_version: 
+    http_version:
   recorded_at: Tue, 10 Apr 2018 19:48:55 GMT
 recorded_with: VCR 3.0.3
