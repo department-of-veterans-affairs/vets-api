@@ -90,7 +90,7 @@ middle_name="W" last_name="Smith" birth_date="1945-01-25" gender="M" ssn="555443
 
     path = File.join(Settings.betamocks.cache_dir, 'mvi', 'profile', "#{ssn}.yml")
     yaml = YAML.safe_load(File.read(path))
-    xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml =~ /^<\?xml/
+    xml = yaml.dig(:body).dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml.match?(/^<\?xml/)
 
     yaml[:body] = update_ids(xml, ids)
     File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
@@ -203,7 +203,7 @@ def valid_user_vars
 end
 
 def validate_date(s)
-  raise ArgumentError, 'Date string must be of format YYYY-MM-DD' unless s =~ /\d{4}-\d{2}-\d{2}/
+  raise ArgumentError, 'Date string must be of format YYYY-MM-DD' unless s.match?(/\d{4}-\d{2}-\d{2}/)
   Time.parse(s).utc
   true
 rescue => e

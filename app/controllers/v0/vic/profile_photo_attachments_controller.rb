@@ -20,7 +20,7 @@ module V0
       def show
         guid = params[:id]
 
-        raise Common::Exceptions::RecordNotFound, guid unless GUID_PATTERN.match(guid)
+        raise Common::Exceptions::RecordNotFound, guid unless GUID_PATTERN.match?(guid)
 
         form_attachment = ::VIC::ProfilePhotoAttachment.find_by(guid: guid)
         raise Common::Exceptions::RecordNotFound, guid unless form_attachment
