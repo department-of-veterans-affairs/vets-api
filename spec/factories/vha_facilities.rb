@@ -240,4 +240,55 @@ FactoryBot.define do
       'effective_date' => '2018-03-05'
     }
   end
+  factory :vha_402QA, class: Facilities::VHAFacility do
+    unique_id '402QA'
+    name 'Fort Kent VA Clinic'
+    facility_type 'va_health_facility'
+    classification 'Other Outpatient Services (OOS)'
+    website nil
+    lat 47.26560990000007
+    long(-68.59126328999997)
+    location 'POINT(-68.59126328999997, 47.26560990000007)'
+    address 'mailing' => {},
+            'physical' => {
+              'zip' => '04743-1409',
+              'city' => 'Fort Kent',
+              'state' => 'ME',
+              'address_1' => '197 East Main Street',
+              'address_2' => 'Medical Office Building',
+              'address_3' => nil
+            }
+    phone 'fax' => '207-834-2351 x',
+          'main' => '207-834-1572 x',
+          'pharmacy' => '207-623-5353 x',
+          'after_hours' => '844-750-8426 x',
+          'patient_advocate' => '207-623-5760 x',
+          'mental_health_clinic' => '',
+          'enrollment_coordinator' => '207-623-8411 x5688'
+    hours 'Friday' => 'Closed',
+          'Monday' => 'Closed',
+          'Sunday' => 'Closed',
+          'Tuesday' => 'Closed',
+          'Saturday' => 'Closed',
+          'Thursday' => '800AM-430PM',
+          'Wednesday' => 'Closed'
+    services 'other' => [
+      {
+        'sl1' => [
+          'Online Scheduling'
+        ],
+        'sl2' => []
+      }
+    ],
+             'health' => [],
+             'last_updated' => '2019-06-04'
+    feedback 'health' => {}
+    access('health' => {
+             'primary_care' => {
+               'new' => nil,
+               'established' => 4.807692
+             },
+             'effective_date' => '2018-05-27'
+           })
+  end
 end
