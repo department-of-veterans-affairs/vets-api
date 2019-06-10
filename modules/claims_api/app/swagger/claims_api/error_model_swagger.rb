@@ -15,6 +15,12 @@ module ClaimsApi
         key :description, 'Standard HTTP Status returned with Error'
       end
 
+      property :source do
+        key :type, :string
+        key :example, '#/serviceInformation/servicePeriods/1/serviceBranch'
+        key :description, 'a JSON Pointer to the offending attribute in the payload'
+      end
+
       property :details do
         key :type, :string
         key :example, 'burial is not currently supported, but will be in a future version'
