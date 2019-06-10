@@ -35,7 +35,12 @@ RSpec.describe NearbyFacility, type: :model do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60+services_primarycare',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
-        expect(NearbyFacility.query(params).length).to eq(3)
+        facilities = NearbyFacility.query(params)
+        expect(facilities.length).to eq(3)
+        facilities.each do |facility|
+          expect(facility.facility_type).to eq('va_health_facility')
+          expect(facility.services['health']).to include('sl1' => ['PrimaryCare'], 'sl2' => [])
+        end
       end
     end
   end
