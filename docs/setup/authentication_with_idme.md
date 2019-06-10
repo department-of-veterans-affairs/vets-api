@@ -1,3 +1,8 @@
+
+Authentication with IDme now happens via SessionStore cookie. The epic outlining that work is [here](https://github.com/department-of-veterans-affairs/vets.gov-team/issues/14225) 
+---
+_Prior approach, deprecated in favor of SessionStore cookie_
+
 ## Vets-API ID.me Certificate Setup
 
 Many of the APIs are protected by a session token from ID.me. In order to obtain

@@ -24,9 +24,8 @@ info:
     ### Response Formats
 
     Clients may request several response formats by setting the `Accept` header.
-    - application/json - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`. .
+    - application/json - The default JSON response format complies with JSON API.
     - application/vnd.geo+json - GeoJSON-compliant format, representing each facility as a Feature with a Point geometry.
-    - text/csv - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.
 
     ### Response Elements
 
