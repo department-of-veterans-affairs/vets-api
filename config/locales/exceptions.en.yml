@@ -445,6 +445,12 @@ en:
         code: 'PAGERDUTY_429'
         detail: "Exceeded PagerDuty's API rate limit"
         status: 429
+      PPMS_500:
+        <<: *external_defaults
+        title: Unexpected service error
+        code: 'PPMS_500'
+        detail: 'An unexpected error has occurred'
+        status: 500
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request
