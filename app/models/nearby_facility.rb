@@ -27,7 +27,7 @@ class NearbyFacility < ApplicationRecord
       }
 
       response = Faraday.get "#{Settings.bing.base_api_url}/Isochrones", query
-      handle_bing_errors(response.body)
+      handle_bing_errors(response.body, response.headers)
 
       response.body
     end
@@ -51,14 +51,14 @@ class NearbyFacility < ApplicationRecord
       polygon.map { |point| "#{point[1]} #{point[0]}" }.join(',')
     end
 
-    def handle_bing_errors(response_body)
-      response_body = JSON.parse(response.body)
+    def handle_bing_errors(body, headers)
+      response_body = JSON.parse(body)
 
       if response_body["errors"].present?  && response_body["errors"].size > 0 
         raise StandardError.new( response_body["errors"].flat_map{ |h| h["errorDetails"] } )
       elsif response_body["errorDetails"].present?
         raise StandardError.new( response_body["errorDetails"]  )
-      elsif response.headers["x-ms-bm-ws-info"] == 1 && response_body['resourceSets'].size == 0
+      elsif headers["x-ms-bm-ws-info"] == 1 && response_body['resourceSets'].size == 0
         # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
         raise StandardError.new( "Bing server overloaded" ) 
       end
