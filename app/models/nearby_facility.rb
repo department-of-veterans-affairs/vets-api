@@ -55,13 +55,13 @@ class NearbyFacility < ApplicationRecord
     def handle_bing_errors(body, headers)
       response_body = JSON.parse(body)
 
-      if response_body["errors"].present?  && response_body["errors"].size > 0 
-        raise Common::Exceptions::BingServiceError.new( response_body["errors"].flat_map{ |h| h["errorDetails"] } )
-      elsif response_body["errorDetails"].present?
-        raise  Common::Exceptions::BingServiceError.new( response_body["errorDetails"]  )
-      elsif headers["x-ms-bm-ws-info"] == 1 && response_body['resourceSets'].size == 0
+      if response_body['errors'].present? && response_body['errors'].size.positive?
+        raise Common::Exceptions::BingServiceError, (response_body['errors'].flat_map { |h| h['errorDetails'] })
+      elsif response_body['errorDetails'].present?
+        raise Common::Exceptions::BingServiceError, response_body['errorDetails']
+      elsif headers['x-ms-bm-ws-info'] == 1 && response_body['resourceSets'].size.zero?
         # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
-        raise  Common::Exceptions::BingServiceError.new( "Bing server overloaded" ) 
+        raise Common::Exceptions::BingServiceError, 'Bing server overloaded'
       end
     end
 

@@ -240,57 +240,56 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_3000',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
-        get base_query_path + address_params, params: {drive_time: 3000}, headers: accept_json
+        get base_query_path + address_params, params: { drive_time: 3000 }, headers: accept_json
 
         expect(response.status).to eq(500)
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
-        expect(json["errors"].size).to eq(1)
-        error = json["errors"].first
-        expect(error["status"]).to eq("500")
-        expect(error["detail"].first).to eq("Timeout occurred.")
+        expect(json['errors'].size).to eq(1)
+        error = json['errors'].first
+        expect(error['status']).to eq('500')
+        expect(error['detail'].first).to eq('Timeout occurred.')
       end
     end
 
     it 'handles a rate limiting error from bing' do
       setup_pdx
-    
+
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = true
       end
 
       fake_response_body = {
-        "authenticationResultCode": "ValidCredentials", 
-        "brandLogoUri": "blah", 
-        "copyright": "Copyright", 
+        "authenticationResultCode": 'ValidCredentials',
+        "brandLogoUri": 'blah',
+        "copyright": 'Copyright',
         "errors": [
-          {"errorCode": "", "errorDetails": ["Too many requests"]}
-        ], 
-        "resourceSets": [], 
-        "statusCode": "429", 
-        "statusDescription": "Too many requests", 
-        "traceId": "gobbledygook"
+          { "errorCode": '', "errorDetails": ['Too many requests'] }
+        ],
+        "resourceSets": [],
+        "statusCode": '429',
+        "statusDescription": 'Too many requests',
+        "traceId": 'gobbledygook'
       }
 
-      stub_request(:get, /#{Settings.bing.base_api_url}/).
-        to_return(status: 429, body: JSON.generate(fake_response_body), headers:
-          {"cache-control"=>"no-cache",
-           "transfer-encoding"=>"chunked",
-           "content-type"=>"application/json; charset=utf-8",
-           "vary"=>"Accept-Encoding",
-           "server"=>"Microsoft-IIS/10.0"
-          })
+      stub_request(:get, /#{Settings.bing.base_api_url}/)
+        .to_return(status: 429, body: JSON.generate(fake_response_body), headers:
+          { 'cache-control' => 'no-cache',
+            'transfer-encoding' => 'chunked',
+            'content-type' => 'application/json; charset=utf-8',
+            'vary' => 'Accept-Encoding',
+            'server' => 'Microsoft-IIS/10.0' })
 
       get base_query_path + address_params, params: nil, headers: accept_json
 
       expect(response.status).to eq(500)
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
-      expect(json["errors"].size).to eq(1)
-      error = json["errors"].first
-      expect(error["title"]).to eq("Bing Service Error")
-      expect(error["status"]).to eq("500")
-      expect(error["detail"].first).to eq("Too many requests")
+      expect(json['errors'].size).to eq(1)
+      error = json['errors'].first
+      expect(error['title']).to eq('Bing Service Error')
+      expect(error['status']).to eq('500')
+      expect(error['detail'].first).to eq('Too many requests')
 
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = false

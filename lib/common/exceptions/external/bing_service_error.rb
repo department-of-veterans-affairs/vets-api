@@ -20,7 +20,6 @@ module Common
       def status_code
         500
       end
-
     end
   end
 end
