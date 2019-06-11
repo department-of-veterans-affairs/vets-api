@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 ClaimsApi::Engine.routes.draw do
+  match '/metadata', to: 'metadata#index', via: [:get]
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -33,8 +34,6 @@ ClaimsApi::Engine.routes.draw do
   end
 
   namespace :docs do
-    match '/metadata', to: 'metadata#index', via: [:get]
-
     namespace :v0 do
       get 'api', to: 'api#index'
     end

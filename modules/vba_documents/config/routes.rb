@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 VBADocuments::Engine.routes.draw do
+  match '/metadata', to: 'metadata#index', via: [:get]
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -29,8 +30,6 @@ VBADocuments::Engine.routes.draw do
   end
 
   namespace :docs do
-    match '/metadata', to: 'metadata#index', via: [:get]
-
     namespace :v0 do
       resources :api, only: [:index]
     end
