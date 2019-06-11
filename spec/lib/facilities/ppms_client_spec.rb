@@ -20,15 +20,18 @@ module Facilities
         end
 
         it 'should log an error and raise GatewayTimeout' do
-          expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }.to raise_error(Common::Exceptions::GatewayTimeout)
+          expect do
+            PPMSClient.new.provider_locator('bbox': bbox_bounds)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
         end
       end
 
       context 'with an unknown error from PPMS' do
         it 'raises BackendUnhandledException when errors happen' do
           VCR.use_cassette('facilities/va/ppms_500', match_requests_on: [regex_matcher]) do
-            expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }.to raise_error(Common::Exceptions::BackendServiceException) do |e|
-              expect(e.message).to match /PPMS_500/
+            expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }.to
+            raise_error(Common::Exceptions::BackendServiceException) do |e|
+              expect(e.message).to match(/PPMS_500/)
             end
           end
         end
