@@ -10,7 +10,7 @@ module VbaDocuments
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
           security do
-            key :api_key, []
+            key :apikey, []
           end
           key :tags, [
             'document_uploads'
