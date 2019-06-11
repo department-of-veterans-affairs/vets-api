@@ -2,7 +2,6 @@
 
 require 'facilities/client'
 require 'common/exceptions'
-# require_relative '../../lib/common/exceptions/external/bing_service_error'
 
 class NearbyFacility < ApplicationRecord
   class << self
