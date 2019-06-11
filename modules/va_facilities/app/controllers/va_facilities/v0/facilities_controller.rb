@@ -34,7 +34,8 @@ module VaFacilities
       end
 
       def index
-        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
+        resource = BaseFacility.query(params).paginate(page: params[:page],
+                                                       per_page: params[:per_page] || BaseFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,

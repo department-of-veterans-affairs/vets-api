@@ -22,7 +22,8 @@ module VaFacilities
         'Must supply street_address, city, state, and zip to query nearby facilities.'
 
       def index
-        resource = NearbyFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
+        resource = NearbyFacility.query(params).paginate(page: params[:page],
+                                                         per_page: params[:per_page] || BaseFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
