@@ -246,8 +246,9 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         expect(response.body).to be_a(String)
         json = JSON.parse(response.body)
         expect(json["errors"].size).to eq(1)
-        expect(json["errors"].first["status"]).to eq("500")
-        expect( JSON.parse(json["errors"].first["meta"]["exception"]).first ).to eq("Timeout occurred.")
+        error = json["errors"].first
+        expect(error["status"]).to eq("500")
+        expect(error["detail"].first).to eq("Timeout occurred.")
       end
     end
 
@@ -267,7 +268,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
         ], 
         "resourceSets": [], 
         "statusCode": "429", 
-        "statusDescription": "Too Many Requests", 
+        "statusDescription": "Too many requests", 
         "traceId": "gobbledygook"
       }
 
@@ -286,9 +287,10 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       expect(response.body).to be_a(String)
       json = JSON.parse(response.body)
       expect(json["errors"].size).to eq(1)
-      error_title = json["errors"].first["title"]
-      expect(error_title).to eq("Internal server error")
-      expect( JSON.parse(json["errors"].first["meta"]["exception"]).first ).to eq("Too many requests")
+      error = json["errors"].first
+      expect(error["title"]).to eq("Bing Service Error")
+      expect(error["status"]).to eq("500")
+      expect(error["detail"].first).to eq("Too many requests")
 
       VCR.configure do |c|
         c.allow_http_connections_when_no_cassette = false

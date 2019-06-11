@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 require 'facilities/client'
+require 'common/exceptions'
+# require_relative '../../lib/common/exceptions/external/bing_service_error'
 
 class NearbyFacility < ApplicationRecord
   class << self
@@ -55,12 +57,12 @@ class NearbyFacility < ApplicationRecord
       response_body = JSON.parse(body)
 
       if response_body["errors"].present?  && response_body["errors"].size > 0 
-        raise StandardError.new( response_body["errors"].flat_map{ |h| h["errorDetails"] } )
+        raise Common::Exceptions::BingServiceError.new( response_body["errors"].flat_map{ |h| h["errorDetails"] } )
       elsif response_body["errorDetails"].present?
-        raise StandardError.new( response_body["errorDetails"]  )
+        raise  Common::Exceptions::BingServiceError.new( response_body["errorDetails"]  )
       elsif headers["x-ms-bm-ws-info"] == 1 && response_body['resourceSets'].size == 0
         # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
-        raise StandardError.new( "Bing server overloaded" ) 
+        raise  Common::Exceptions::BingServiceError.new( "Bing server overloaded" ) 
       end
     end
 
