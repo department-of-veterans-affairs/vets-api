@@ -25,7 +25,10 @@ class NearbyFacility < ApplicationRecord
         optimize: 'timeWithTraffic',
         key: Settings.bing.key
       }
+
       response = Faraday.get "#{Settings.bing.base_api_url}/Isochrones", query
+      handle_bing_errors(response.body)
+
       response.body
     end
 
@@ -46,6 +49,19 @@ class NearbyFacility < ApplicationRecord
     def make_linestring(polygon)
       # convert array of latitude and longitude points into a string of comma-separated longitude and latitude points
       polygon.map { |point| "#{point[1]} #{point[0]}" }.join(',')
+    end
+
+    def handle_bing_errors(response_body)
+      response_body = JSON.parse(response.body)
+
+      if response_body["errors"].present?  && response_body["errors"].size > 0 
+        raise StandardError.new( response_body["errors"].flat_map{ |h| h["errorDetails"] } )
+      elsif response_body["errorDetails"].present?
+        raise StandardError.new( response_body["errorDetails"]  )
+      elsif response.headers["x-ms-bm-ws-info"] == 1 && response_body['resourceSets'].size == 0
+        # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
+        raise StandardError.new( "Bing server overloaded" ) 
+      end
     end
 
     def per_page
