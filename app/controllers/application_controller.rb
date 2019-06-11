@@ -20,10 +20,10 @@ class ApplicationController < ActionController::API
   ].freeze
 
   VERSION_STATUS = {
-    dra: 'Draft',
-    cur: 'Current',
-    pre: 'Previous',
-    dep: 'Deprecated'
+    draft: 'Draft Version',
+    current: 'Current Version',
+    previous: 'Previous Version',
+    deprecated: 'Deprecated Version'
   }.freeze
 
   prepend_before_action :block_unknown_hosts, :set_app_info_headers

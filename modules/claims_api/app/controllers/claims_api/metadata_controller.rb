@@ -10,17 +10,17 @@ module ClaimsApi
           {
             version: '1.0.0',
             internal_only: false,
-            status: VERSION_STATUS[:dra],
+            status: VERSION_STATUS[:draft],
             path: '/services/claims/docs/v1/api'
           },
           {
             version: '0.0.1',
             internal_only: true,
-            status: VERSION_STATUS[:cur],
+            status: VERSION_STATUS[:current],
             path: '/services/claims/docs/v0/api'
           }
         ]
       }
     end
-    end
+  end
 end
