@@ -29,15 +29,15 @@ module Facilities
       context 'with an unknown error from PPMS' do
         it 'raises BackendUnhandledException when errors happen' do
           VCR.use_cassette('facilities/va/ppms_500', match_requests_on: [regex_matcher]) do
-            expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }.to
-            raise_error(Common::Exceptions::BackendServiceException) do |e|
-              expect(e.message).to match(/PPMS_500/)
-            end
+            expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }
+              .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+                expect(e.message).to match(/PPMS_500/)
+              end
           end
         end
       end
 
-      it 'should afind at least one provider' do
+      it 'should find at least one provider' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_locator('bbox': [-79, 38, -77, 39])
           expect(r.length).to be > 0
