@@ -35,15 +35,22 @@ class NearbyFacility < ApplicationRecord
 
     def get_facilities_in_isochrone(params, isochrone_response)
       # an example response can be found at https://docs.microsoft.com/en-us/bingmaps/rest-services/examples/isochrone-example
-      isochrone = JSON.parse(isochrone_response)['resourceSets'][0]['resources'][0]['polygons'][0]['coordinates'][0]
-      linestring = make_linestring(isochrone)
-      # convert linestring into a polygon
-      make_polygon = "ST_MakePolygon(ST_GeomFromText('LINESTRING(#{linestring})'))"
-      # find all facilities that lie inside of the polygon
-      conditions = "ST_Intersects(#{make_polygon}, ST_MakePoint(long, lat))"
-      facilities_query_base_instance = FacilitiesQuery::Base.new(params)
-      BaseFacility::TYPES.flat_map do |facility_type|
-        facilities_query_base_instance.get_facility_data(conditions, params[:type], facility_type, params[:services])
+      response_json = JSON.parse(isochrone_response)
+
+      isochrone = parse_isochrone(response_json)
+
+      if isochrone.present?
+        linestring = make_linestring(isochrone)
+        # convert linestring into a polygon
+        make_polygon = "ST_MakePolygon(ST_GeomFromText('LINESTRING(#{linestring})'))"
+        # find all facilities that lie inside of the polygon
+        conditions = "ST_Intersects(#{make_polygon}, ST_MakePoint(long, lat))"
+        facilities_query_base_instance = FacilitiesQuery::Base.new(params)
+        BaseFacility::TYPES.flat_map do |facility_type|
+          facilities_query_base_instance.get_facility_data(conditions, params[:type], facility_type, params[:services])
+        end
+      else
+        NearbyFacility.none
       end
     end
 
@@ -52,17 +59,30 @@ class NearbyFacility < ApplicationRecord
       polygon.map { |point| "#{point[1]} #{point[0]}" }.join(',')
     end
 
+    def parse_isochrone(response_json)
+      response_json.try(:[], 'resourceSets')
+                   .try(:first)
+                   .try(:[], 'resources')
+                   .try(:first)
+                   .try(:[], 'polygons')
+                   .try(:first)
+                   .try(:[], 'coordinates')
+                   .try(:first)
+    end
+
     def handle_bing_errors(body, headers)
       response_body = JSON.parse(body)
 
       if response_body['errors'].present? && response_body['errors'].size.positive?
         raise Common::Exceptions::BingServiceError, (response_body['errors'].flat_map { |h| h['errorDetails'] })
-      elsif response_body['errorDetails'].present?
-        raise Common::Exceptions::BingServiceError, response_body['errorDetails']
-      elsif headers['x-ms-bm-ws-info'] == 1 && response_body['resourceSets'].size.zero?
+      elsif headers['x-ms-bm-ws-info'].to_i == 1 && empty_resource_set?(response_body)
         # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
         raise Common::Exceptions::BingServiceError, 'Bing server overloaded'
       end
+    end
+
+    def empty_resource_set?(response_body)
+      response_body['resourceSets'].size.zero? || response_body['resourceSets'][0]['estimatedTotal'].zero?
     end
 
     def per_page
