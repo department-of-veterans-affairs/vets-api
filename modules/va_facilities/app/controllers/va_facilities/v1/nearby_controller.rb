@@ -23,7 +23,7 @@ module VaFacilities
 
       def index
         resource = NearbyFacility.query(params).paginate(page: params[:page],
-                                                         per_page: params[:per_page] || BaseFacility.per_page)
+                                                         per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
