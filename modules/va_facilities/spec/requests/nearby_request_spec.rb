@@ -100,7 +100,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       end
     end
 
-    it 'defaults to the NearbyFacility pagination per_page if no param is provided', :focus do
+    it 'defaults to the NearbyFacility pagination per_page if no param is provided' do
       create_list(:generic_vba, 30)
       VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
                        match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
