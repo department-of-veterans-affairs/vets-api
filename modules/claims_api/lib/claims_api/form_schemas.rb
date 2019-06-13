@@ -40,7 +40,7 @@ module ClaimsApi
 
     def self.validate!(form, payload)
       register_validators
-      errors = JSON::Validator.fully_validate(SCHEMAS[form], payload)
+      errors = JSON::Validator.fully_validate(SCHEMAS[form], payload, errors_as_objects: true)
       raise ClaimsApi::JsonApiMissingAttribute, errors unless errors.empty?
       true
     end
