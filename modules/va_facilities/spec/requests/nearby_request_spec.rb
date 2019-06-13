@@ -101,6 +101,21 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
       end
     end
 
+    it 'defaults to the NearbyFacility pagination per_page if no param is provided' do
+      create_list(:generic_vba, 30)
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_60',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: nil, headers: accept_json
+        expect(response).to be_successful
+        json = JSON.parse(response.body)
+        expect(json['data'].length).to eq(20)
+        links = json['links']
+        expect(query_params(links['next'])['per_page']).to eq([NearbyFacility.per_page.to_s])
+        pagination = json['meta']['pagination']
+        expect(pagination['per_page']).to eq(NearbyFacility.per_page)
+      end
+    end
+
     it 'paginates empty result set' do
       setup_pdx
       VCR.use_cassette('bing/isochrone/pdx_drive_time_1',
