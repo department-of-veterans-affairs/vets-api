@@ -3,6 +3,7 @@
 module V0
   class PPIUController < ApplicationController
     before_action { authorize :evss, :access? }
+    before_action :validate_pay_info, only: :update
 
     def index
       response = service.get_payment_information
@@ -11,9 +12,8 @@ module V0
     end
 
     def update
-      pay_info = EVSS::PPIU::PaymentAccount.new(ppiu_params)
-      raise Common::Exceptions::ValidationErrors, pay_info unless pay_info.valid?
       response = service.update_payment_information(pay_info)
+      send_confirmation_email
       render json: response,
              serializer: PPIUSerializer
     end
@@ -31,6 +31,34 @@ module V0
         :account_number,
         :financial_institution_routing_number
       )
+    end
+
+    def current_user_email
+      current_user.vet360_contact_info&.email&.email_address || current_user.email
+    end
+
+    def pay_info
+      @pay_info ||= EVSS::PPIU::PaymentAccount.new(ppiu_params)
+    end
+
+    def validate_pay_info
+      unless pay_info.valid?
+        Raven.tags_context(validation: 'direct_deposit')
+        raise Common::Exceptions::ValidationErrors, pay_info
+      end
+    end
+
+    def send_confirmation_email
+      if current_user_email
+        DirectDepositMailer.build(current_user_email, params[:ga_client_id]).deliver_now
+      else
+        log_message_to_sentry(
+          'Direct Deposit info update: no email address present for confirmation email',
+          :info,
+          {},
+          feature: 'direct_deposit'
+        )
+      end
     end
   end
 end
