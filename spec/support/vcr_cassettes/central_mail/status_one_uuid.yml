@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://icmhsgc-test.csrarad.com/VADocument/getStatus
+    uri: https://icmhs-api-test.csrarad.com/VADocument/getStatus
     body:
       encoding: UTF-8
       string: token=%3CPENSIONS_TOKEN%3E&uuid=%5B%2234656d73-7c31-456d-9c49-2024fff1cd47%22%5D
