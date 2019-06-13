@@ -17,6 +17,7 @@ module V0
       render json: response,
              serializer: PPIUSerializer
     end
+
     private
 
     def service
