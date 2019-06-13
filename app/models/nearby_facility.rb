@@ -28,16 +28,15 @@ class NearbyFacility < ApplicationRecord
       }
 
       response = Faraday.get "#{Settings.bing.base_api_url}/Isochrones", query
-      handle_bing_errors(response.body, response.headers)
+      response_body = JSON.parse(response.body)
+      handle_bing_errors(response_body, response.headers)
 
-      response.body
+      response_body
     end
 
     def get_facilities_in_isochrone(params, isochrone_response)
       # an example response can be found at https://docs.microsoft.com/en-us/bingmaps/rest-services/examples/isochrone-example
-      response_json = JSON.parse(isochrone_response)
-
-      isochrone = parse_isochrone(response_json)
+      isochrone = parse_isochrone(isochrone_response)
 
       if isochrone.present?
         linestring = make_linestring(isochrone)
@@ -61,18 +60,16 @@ class NearbyFacility < ApplicationRecord
 
     def parse_isochrone(response_json)
       response_json.try(:[], 'resourceSets')
-                   .try(:first)
+                   &.first
                    .try(:[], 'resources')
-                   .try(:first)
+                   &.first
                    .try(:[], 'polygons')
-                   .try(:first)
+                   &.first
                    .try(:[], 'coordinates')
-                   .try(:first)
+                   &.first
     end
 
-    def handle_bing_errors(body, headers)
-      response_body = JSON.parse(body)
-
+    def handle_bing_errors(response_body, headers)
       if response_body['errors'].present? && response_body['errors'].size.positive?
         raise Common::Exceptions::BingServiceError, (response_body['errors'].flat_map { |h| h['errorDetails'] })
       elsif headers['x-ms-bm-ws-info'].to_i == 1 && empty_resource_set?(response_body)
