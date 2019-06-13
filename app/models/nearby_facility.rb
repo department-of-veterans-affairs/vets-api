@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'facilities/client'
+require 'common/exceptions'
 
 class NearbyFacility < ApplicationRecord
   class << self
@@ -25,27 +26,60 @@ class NearbyFacility < ApplicationRecord
         optimize: 'timeWithTraffic',
         key: Settings.bing.key
       }
+
       response = Faraday.get "#{Settings.bing.base_api_url}/Isochrones", query
-      response.body
+      response_body = JSON.parse(response.body)
+      handle_bing_errors(response_body, response.headers)
+
+      response_body
     end
 
     def get_facilities_in_isochrone(params, isochrone_response)
       # an example response can be found at https://docs.microsoft.com/en-us/bingmaps/rest-services/examples/isochrone-example
-      isochrone = JSON.parse(isochrone_response)['resourceSets'][0]['resources'][0]['polygons'][0]['coordinates'][0]
-      linestring = make_linestring(isochrone)
-      # convert linestring into a polygon
-      make_polygon = "ST_MakePolygon(ST_GeomFromText('LINESTRING(#{linestring})'))"
-      # find all facilities that lie inside of the polygon
-      conditions = "ST_Intersects(#{make_polygon}, ST_MakePoint(long, lat))"
-      facilities_query_base_instance = FacilitiesQuery::Base.new(params)
-      BaseFacility::TYPES.flat_map do |facility_type|
-        facilities_query_base_instance.get_facility_data(conditions, params[:type], facility_type, params[:services])
+      isochrone = parse_isochrone(isochrone_response)
+
+      if isochrone.present?
+        linestring = make_linestring(isochrone)
+        # convert linestring into a polygon
+        make_polygon = "ST_MakePolygon(ST_GeomFromText('LINESTRING(#{linestring})'))"
+        # find all facilities that lie inside of the polygon
+        conditions = "ST_Intersects(#{make_polygon}, ST_MakePoint(long, lat))"
+        facilities_query_base_instance = FacilitiesQuery::Base.new(params)
+        BaseFacility::TYPES.flat_map do |facility_type|
+          facilities_query_base_instance.get_facility_data(conditions, params[:type], facility_type, params[:services])
+        end
+      else
+        NearbyFacility.none
       end
     end
 
     def make_linestring(polygon)
       # convert array of latitude and longitude points into a string of comma-separated longitude and latitude points
       polygon.map { |point| "#{point[1]} #{point[0]}" }.join(',')
+    end
+
+    def parse_isochrone(response_json)
+      response_json.try(:[], 'resourceSets')
+                   &.first
+                   .try(:[], 'resources')
+                   &.first
+                   .try(:[], 'polygons')
+                   &.first
+                   .try(:[], 'coordinates')
+                   &.first
+    end
+
+    def handle_bing_errors(response_body, headers)
+      if response_body['errors'].present? && response_body['errors'].size.positive?
+        raise Common::Exceptions::BingServiceError, (response_body['errors'].flat_map { |h| h['errorDetails'] })
+      elsif headers['x-ms-bm-ws-info'].to_i == 1 && empty_resource_set?(response_body)
+        # https://docs.microsoft.com/en-us/bingmaps/rest-services/status-codes-and-error-handling
+        raise Common::Exceptions::BingServiceError, 'Bing server overloaded'
+      end
+    end
+
+    def empty_resource_set?(response_body)
+      response_body['resourceSets'].size.zero? || response_body['resourceSets'][0]['estimatedTotal'].zero?
     end
 
     def per_page
