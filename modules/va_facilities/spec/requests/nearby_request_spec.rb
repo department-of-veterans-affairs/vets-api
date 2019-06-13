@@ -11,6 +11,7 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
   let(:address_params) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=60' }
   let(:no_health) { '?street_address=197%20East%20Main%20Street&city=Fort%20Kent&state=ME&zip=04743&drive_time=60' }
   let(:empty_address) { '?street_address=9729%20SE%20222nd%20Dr&city=Damascus&state=OR&zip=97089&drive_time=1' }
+  let(:malformed_address) { '?street_address=9729%20Sbleepblap&city=Damascus&state=OR&zip=97089&drive_time=1' }
 
   let(:accept_json) { { 'HTTP_ACCEPT' => 'application/json' } }
   let(:accept_geojson) { { 'HTTP_ACCEPT' => 'application/vnd.geo+json' } }
@@ -280,6 +281,170 @@ RSpec.describe 'Nearby Facilities API endpoint', type: :request do
     it 'returns 400 for health query with unknown service' do
       get base_query_path + address_params + '&type=health&services[]=OilChange'
       expect(response).to have_http_status(:bad_request)
+    end
+  end
+
+  context 'with an error response from bing' do
+    it 'returns a 500 with timeout error details when bing times out' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_drive_time_3000',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + address_params, params: { drive_time: 3000 }, headers: accept_json
+
+        expect(response.status).to eq(500)
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['errors'].size).to eq(1)
+        error = json['errors'].first
+        expect(error['status']).to eq('500')
+        expect(error['detail'].first).to eq('Timeout occurred.')
+      end
+    end
+
+    it 'handles a rate limiting error from bing' do
+      setup_pdx
+
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+
+      fake_response_body = {
+        "authenticationResultCode": 'ValidCredentials',
+        "brandLogoUri": 'blah',
+        "copyright": 'Copyright',
+        "errors": [
+          { "errorCode": '', "errorDetails": ['Too many requests'] }
+        ],
+        "resourceSets": [],
+        "statusCode": '429',
+        "statusDescription": 'Too many requests',
+        "traceId": 'gobbledygook'
+      }
+
+      stub_request(:get, /#{Settings.bing.base_api_url}/)
+        .to_return(status: 429, body: JSON.generate(fake_response_body), headers:
+          { 'cache-control' => 'no-cache',
+            'transfer-encoding' => 'chunked',
+            'content-type' => 'application/json; charset=utf-8',
+            'vary' => 'Accept-Encoding',
+            'server' => 'Microsoft-IIS/10.0' })
+
+      get base_query_path + address_params, params: nil, headers: accept_json
+
+      expect(response.status).to eq(500)
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['errors'].size).to eq(1)
+      error = json['errors'].first
+      expect(error['title']).to eq('Bing Service Error')
+      expect(error['status']).to eq('500')
+      expect(error['detail'].first).to eq('Too many requests')
+
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
+    end
+
+    it 'returns no data with a malformed address that has a number' do
+      setup_pdx
+      VCR.use_cassette('bing/isochrone/pdx_malformed_address',
+                       match_requests_on: [:method, VCR.request_matchers.uri_without_param(:key)]) do
+        get base_query_path + malformed_address, params: nil, headers: accept_json
+
+        expect(response.status).to eq(200)
+        expect(response.body).to be_a(String)
+        json = JSON.parse(response.body)
+        expect(json['data']).to be_empty
+        expect(json['meta']['distances']).to eq([])
+      end
+    end
+
+    it 'handles a server overloaded error from bing' do
+      setup_pdx
+
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+
+      fake_response_body = {
+        "authenticationResultCode": 'ValidCredentials',
+        "brandLogoUri": 'blah',
+        "copyright": 'Copyright',
+        "resourceSets": [],
+        "statusCode": '200',
+        "statusDescription": 'OK',
+        "traceId": 'gobbledygook'
+      }
+
+      fake_response_headers = {
+        'cache-control' => 'no-cache',
+        'transfer-encoding' => 'chunked',
+        'content-type' => 'application/json; charset=utf-8',
+        'vary' => 'Accept-Encoding',
+        'server' => 'Microsoft-IIS/10.0',
+        'x-ms-bm-ws-info' => '1'
+      }
+
+      stub_request(:get, /#{Settings.bing.base_api_url}/)
+        .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
+          fake_response_headers)
+
+      get base_query_path + address_params, params: nil, headers: accept_json
+
+      expect(response.status).to eq(500)
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['errors'].size).to eq(1)
+      error = json['errors'].first
+      expect(error['title']).to eq('Bing Service Error')
+      expect(error['status']).to eq('500')
+      expect(error['detail']).to eq('Bing server overloaded')
+
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
+    end
+
+    it 'handles an empty result set from bing' do
+      setup_pdx
+
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = true
+      end
+
+      fake_response_body = {
+        "authenticationResultCode": 'ValidCredentials',
+        "brandLogoUri": 'blah',
+        "copyright": 'Copyright',
+        "resourceSets": [],
+        "statusCode": '200',
+        "statusDescription": 'OK',
+        "traceId": 'gobbledygook'
+      }
+
+      fake_response_headers = {
+        'cache-control' => 'no-cache',
+        'transfer-encoding' => 'chunked',
+        'content-type' => 'application/json; charset=utf-8',
+        'vary' => 'Accept-Encoding',
+        'server' => 'Microsoft-IIS/10.0'
+      }
+
+      stub_request(:get, /#{Settings.bing.base_api_url}/)
+        .to_return(status: 200, body: JSON.generate(fake_response_body), headers:
+          fake_response_headers)
+
+      get base_query_path + address_params, params: nil, headers: accept_json
+
+      expect(response.status).to eq(200)
+      expect(response.body).to be_a(String)
+      json = JSON.parse(response.body)
+      expect(json['data']).to be_empty
+      expect(json['meta']['distances']).to eq([])
+
+      VCR.configure do |c|
+        c.allow_http_connections_when_no_cassette = false
+      end
     end
   end
 end
