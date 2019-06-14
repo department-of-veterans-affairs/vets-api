@@ -31,7 +31,7 @@ module Facilities
           VCR.use_cassette('facilities/va/ppms_500', match_requests_on: [regex_matcher]) do
             expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }
               .to raise_error(Common::Exceptions::BackendServiceException) do |e|
-                expect(e.message).to match(/PPMS_500/)
+                expect(e.message).to match(/PPMS_502/)
               end
           end
         end
