@@ -48,4 +48,16 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       end
     end
   end
+
+  context 'finding by ID or EVSS ID' do
+    let(:evss_record) { create(:auto_established_claim, evss_id: 123_456) }
+
+    it 'should find by model id' do
+      expect(described_class.get_by_id_or_evss_id(evss_record.id)).id.to be(evss_record.id)
+    end
+
+    it 'should find by evss id' do
+      expect(described_class.get_by_id_or_evss_id(123_456)).id.to be(evss_record.id)
+    end
+  end
 end
