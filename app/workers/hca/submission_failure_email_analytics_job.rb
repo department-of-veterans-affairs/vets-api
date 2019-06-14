@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# TODO: This file is being renamed `TransactionalEmailAnalyticsJob`
+# Temporarily leaving this file in place so any existing queued jobs don't suffer from its disappearance.
+
 module HCA
   class SubmissionFailureEmailAnalyticsJob
     include Sidekiq::Worker
