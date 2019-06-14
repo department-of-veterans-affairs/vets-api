@@ -10,11 +10,11 @@ module ClaimsApi
     def supporting_documents
       object.supporting_documents.map do |document|
         {
-          id: document.id,
+          id: document[:id],
           type: 'claim_supporting_document',
-          md5: Digest::MD5.hexdigest(document.form_data),
-          filename: document.file_data[:filename],
-          uploaded_at: document.created_at
+          md5: document[:md5],
+          filename: document[:filename],
+          uploaded_at: document[:uploaded_at]
         }
       end
     end

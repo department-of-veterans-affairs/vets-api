@@ -41,7 +41,20 @@ module ClaimsApi
     end
 
     def supporting_documents
-      []
+      auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: evss_id
+      if auto_established_claim.present?
+        auto_established_claim.supporting_documents.map do |document|
+          {
+            id: document.id,
+            type: 'claim_supporting_document',
+            md5: document.file_data['filename'].present? ? Digest::MD5.hexdigest(document.file_data['filename']) : '',
+            filename: document.file_data['filename'],
+            uploaded_at: document.created_at
+          }
+        end
+      else
+        []
+      end
     end
   end
 end
