@@ -1,12 +1,8 @@
 # frozen_string_literal: true
 
-# TODO: The described class is being renamed `TransactionalEmailAnalyticsJob`
-# Temporarily leaving this file's described class in place so any existing queued jobs
-# don't suffer from its disappearance.
-
 require 'rails_helper'
 
-RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
+RSpec.describe TransactionalEmailAnalyticsJob, type: :job do
   subject do
     described_class.new
   end
@@ -33,21 +29,21 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
 
     it 'should retrieve messages at least once, and stop when loop-break conditions are met' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        expect(subject).to receive(:hca_emails).twice.and_call_original
+        expect(subject).to receive(:relevant_emails).twice.and_call_original
         subject.perform
       end
     end
 
-    it 'should process HCA failure emails for Google Analytics evaluation' do
+    it 'should process transactional emails for Google Analytics evaluation' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        expect(subject).to receive(:eval_email).twice
+        expect(subject).to receive(:eval_email).exactly(3).times
         subject.perform
       end
     end
 
     it 'should send events to Google Analytics' do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        expect_any_instance_of(Staccato::Tracker).to receive(:event).exactly(3).times
+        expect_any_instance_of(Staccato::Tracker).to receive(:event).exactly(4).times
         subject.perform
       end
     end
@@ -56,7 +52,7 @@ RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do
   describe '#we_should_break?', run_at: '2018-05-30 18:27:56' do
     before do
       VCR.use_cassette('govdelivery_emails', allow_playback_repeats: true) do
-        subject.send(:hca_emails, 1)
+        subject.send(:relevant_emails, 1)
         @emails = subject.instance_variable_get(:@all_emails)
       end
     end
