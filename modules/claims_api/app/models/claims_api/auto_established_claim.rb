@@ -49,7 +49,7 @@ module ClaimsApi
     end
 
     def self.get_by_id_or_evss_id(id)
-      if id.include?('-')
+      if id.to_s.include?('-')
         find(id)
       else
         find_by(evss_id: id)
