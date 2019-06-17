@@ -28,7 +28,7 @@ module ClaimsApi
         end
 
         def upload_supporting_documents
-          claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           documents.each do |document|
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
@@ -36,7 +36,7 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
-          head :ok
+          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
 
         private

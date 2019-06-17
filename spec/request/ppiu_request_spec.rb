@@ -50,10 +50,29 @@ RSpec.describe 'PPIU', type: :request do
     context 'with a valid evss response' do
       it 'should match the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
-          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          expect { put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers }.to change {
+            ActionMailer::Base.deliveries.count
+          }.by(1)
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
+        end
+      end
+
+      context 'when user does not have an associated email address' do
+        before do
+          Settings.sentry.dsn = 'asdf'
+        end
+        after do
+          Settings.sentry.dsn = nil
+        end
+        it 'should log a message to Sentry' do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(Raven).to receive(:capture_message).once
+            allow_any_instance_of(V0::PPIUController).to receive(:current_user_email).and_return(nil)
+            put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+            expect(response).to have_http_status(:ok)
+          end
         end
       end
     end

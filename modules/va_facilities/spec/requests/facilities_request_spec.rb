@@ -198,6 +198,18 @@ RSpec.describe 'Facilities API endpoint', type: :request do
       expect(pagination['total_entries']).to eq(10)
     end
 
+    it 'defaults to the BaseFacility pagination per_page if no param is provided' do
+      create_list(:generic_vba, 30)
+      get base_query_path + '?zip=97204', params: nil, headers: accept_json
+      expect(response).to be_successful
+      json = JSON.parse(response.body)
+      expect(json['data'].length).to eq(20)
+      links = json['links']
+      expect(query_params(links['next'])['per_page']).to eq([BaseFacility.per_page.to_s])
+      pagination = json['meta']['pagination']
+      expect(pagination['per_page']).to eq(BaseFacility.per_page)
+    end
+
     it 'paginates empty result set' do
       setup_pdx
       get base_query_path + empty_bbox, params: nil, headers: accept_json
