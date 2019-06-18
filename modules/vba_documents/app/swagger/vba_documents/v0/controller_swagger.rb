@@ -10,7 +10,7 @@ module VbaDocuments
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
           security do
-            key :api_key, []
+            key :apikey, []
           end
           key :tags, [
             'document_uploads'
@@ -184,6 +184,7 @@ module VbaDocuments
           key :tags, %i[document_uploads]
 
           key :summary, 'Get a bulk status report for a list of previous uploads'
+          key :description, 'This endpoint is rate limited at 25 requests per minute and 80 requests per hour'
           key :operationId, 'getBenefitsDocumentUploadStatusReport'
 
           security do

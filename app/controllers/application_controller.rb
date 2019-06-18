@@ -19,6 +19,13 @@ class ApplicationController < ActionController::API
     Breakers::OutageException
   ].freeze
 
+  VERSION_STATUS = {
+    draft: 'Draft Version',
+    current: 'Current Version',
+    previous: 'Previous Version',
+    deprecated: 'Deprecated Version'
+  }.freeze
+
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]

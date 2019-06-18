@@ -679,4 +679,38 @@ FactoryBot.define do
     feedback {}
     access {}
   end
+  factory :generic_vba, class: Facilities::VBAFacility do
+    sequence :unique_id, &:to_s
+    name 'Generic Benefits Office'
+    facility_type 'va_benefits_facility'
+    classification 'REGIONAL OFFICE (MAIN BLDG)'
+    website 'http://www.benefits.va.gov/generic'
+    lat 45.51516229
+    long(-122.6755173)
+    location 'POINT(-122.6755173 45.51516229)'
+    address 'mailing' => {},
+            'physical' => {
+              'zip' => '97204',
+              'city' => 'Portland',
+              'state' => 'OR',
+              'address_1' => '100 Generic Street',
+              'address_2' => '',
+              'address_3' => nil
+            }
+    phone 'fax' => '555-555-5555',
+          'main' => '1-800-555-5555'
+    hours 'Friday' => '8:00AM-4:00PM',
+          'Monday' => '8:00AM-4:00PM',
+          'Sunday' => 'Closed',
+          'Tuesday' => '8:00AM-4:00PM',
+          'Saturday' => 'Closed',
+          'Thursday' => '8:00AM-4:00PM',
+          'Wednesday' => '8:00AM-4:00PM'
+    services 'benefits' => {
+      'other' => '',
+      'standard' => ['ApplyingForBenefits']
+    }
+    feedback({})
+    access({})
+  end
 end
