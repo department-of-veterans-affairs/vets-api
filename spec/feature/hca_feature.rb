@@ -80,7 +80,6 @@ RSpec.describe('hca', type: :feature) do
     find('#root_veteranDateOfBirthMonth').find(:option, 'Jan').select_option
     find('#root_veteranDateOfBirthDay').find(:option, '1').select_option
     find('#root_veteranDateOfBirthYear').set('1950')
-    find('#root_veteranSocialSecurityNumber').set('111-22-3333')
     next_form_page
     common_fill_hca_form
     # TODO: run background job and make sure it succeeds
