@@ -21,6 +21,7 @@ services:
     volumes:
       - .:/src/vets-api:cached
       - "../vets-api-mockdata:/cache"
+      - bundle:/bundle
     ports:
       - "3000:3000"
     environment:
@@ -42,3 +43,4 @@ services:
       - redis
 volumes:
   db-data:
+  bundle:
