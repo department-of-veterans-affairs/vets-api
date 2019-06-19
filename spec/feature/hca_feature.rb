@@ -61,20 +61,14 @@ RSpec.describe('hca', type: :feature) do
     # rubocop:enable Metrics/MethodLength
   end
 
-  skip 'logged in application', js: true do
+  it 'logged in application', js: true do
+    extend AuthenticatedSessionHelper
+    cookie = sign_in(FactoryBot.create(:user, :loa3), nil, true)
+
     visit(DEFAULT_HOST)
-    sleep(1)
-    # close announcement
-    click('.va-modal-close') if has_css_instant?('#modal-announcement')
-    # login
-    click('.sign-in-link')
-    click('.usa-button-primary')
-    find('#user_email').set('vets.gov.user+5@gmail.com')
-    find('#user_password').set(Settings.feature_specs.login_password)
-    wait_for_new_url('.btn-primary')
-    wait_for_new_url('.btn-primary')
-    wait_for_new_url('.btn-primary')
-    wait_until { get_js('localStorage.hasSession') == 'true' }
+    Capybara.current_session.driver.browser.manage.add_cookie(name: Settings.sso.cookie_name, value: 'foo')
+    Capybara.current_session.driver.browser.manage.add_cookie(name: 'api_session', value: cookie.split(';')[0].split('=')[1])
+    page.execute_script("localStorage.setItem('hasSession', true)");
 
     visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
     wait_for_new_url { first_with_wait('.schemaform-start-button').click }
