@@ -160,6 +160,11 @@ en:
         detail: "Could not complete ID card attribute request"
         code: "VIC001"
         status: 500
+      bing_service_error:
+        <<: *defaults
+        title: Bing Service Error
+        code: 500
+        status: 500
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
