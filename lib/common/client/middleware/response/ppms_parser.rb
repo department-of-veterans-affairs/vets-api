@@ -20,7 +20,7 @@ module Common
               env[:status] = 200
               return []
             when /An error has occurred/ # PPMS has encountered an internal error
-              hash['error']['code'] = '_502' if hash['error']['code'].blank? # Set code so it can match exceptions.en.yml
+              hash['error']['code'] = '_502' if hash['error']['code'].blank? # Set code so matches in exceptions.en.yml
               hash['error']['detail'] = hash['error']['message']
               return hash['error']
             end
