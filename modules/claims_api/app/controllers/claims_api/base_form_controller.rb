@@ -20,6 +20,10 @@ module ClaimsApi
 
     private
 
+    def itf_service
+      EVSS::IntentToFile::Service.new(target_veteran)
+    end
+
     def validate_json_schema
       ClaimsApi::FormSchemas.validate!(self.class::FORM_NUMBER, form_attributes)
     rescue ClaimsApi::JsonApiMissingAttribute => e
