@@ -9,6 +9,7 @@ gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
 gem 'veteran_verification', path: 'modules/veteran_verification'
+gem 'vsp', path: 'modules/vsp'
 
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
