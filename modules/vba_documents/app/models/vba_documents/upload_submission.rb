@@ -109,7 +109,7 @@ module VBADocuments
         self.status = 'processing'
       when 'Success'
         self.status = 'success'
-      when 'VBMS Success'
+      when 'VBMS Complete'
         self.status = 'vbms'
       when 'Error', 'Processing Error'
         self.status = 'error'
