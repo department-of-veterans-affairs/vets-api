@@ -26,10 +26,11 @@ describe Sidekiq::ErrorTag do
     TestJob.drain
   end
 
-  it 'should add Thread.current[:request_attribtes] to semantic logger named tags' do
-    Sidekiq::Testing.disable! do
+  it 'should add Thread.current[:request_attributes] to semantic logger named tags' do
+    expect(Sidekiq::Logging.logger).to receive(:warn).with('Things are happening.')
+
+    Sidekiq::Testing.inline! do
       TestJob.perform_async
-      expect(Sidekiq::Logging.logger).to receive(:warn).with('Things are happening.')
       TestJob.drain
     end
   end
