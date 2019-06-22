@@ -693,13 +693,13 @@ module HCA
       end
     end
 
-    def add_attachment(file_body, is_dd214)
+    def add_attachment(file, is_dd214)
       {
         'va:document' => {
           'va:name' => 'Attachment',
-          'va:format' => 'PDF',
+          'va:format' => MIME::Types[file.content_type].first.extensions.first.upcase,
           'va:type' => is_dd214 ? '1' : '5',
-          'va:content' => Base64.encode64(file_body)
+          'va:content' => Base64.encode64(file.read)
         }
       }
     end
@@ -714,7 +714,7 @@ module HCA
       veteran['attachments']&.each do |attachment|
         hca_attachment = HcaAttachment.find_by(guid: attachment['confirmationCode'])
         request['va:form']['va:attachments'] ||= []
-        request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file.read, attachment['dd214'])
+        request['va:form']['va:attachments'] << add_attachment(hca_attachment.get_file, attachment['dd214'])
       end
 
       request['va:form']['va:summary'] = veteran_to_summary(veteran)
