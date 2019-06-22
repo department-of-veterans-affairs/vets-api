@@ -5,8 +5,8 @@ module Vsp
     configuration Vsp::Configuration
 
     def get_message
-      response = perform(:get, '/', {})
-      Appeals::Responses::Appeals.new(response.body, response.status)
+      response = perform(:get, '/')
+      Vsp::MessageResponse.new(response.body.symbolize_keys)
     end
   end
 end

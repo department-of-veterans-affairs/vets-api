@@ -2,8 +2,6 @@
 
 module Vsp
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.evss.letters.timeout || 55
-
     def base_path
       Settings.vsp.url
     end
@@ -12,8 +10,21 @@ module Vsp
       'VSP/HelloWorld'
     end
 
+    def connection
+      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+        faraday.use :breakers
+        faraday.use Faraday::Response::RaiseError
+
+        faraday.request :json
+
+        faraday.response :betamocks if mock_enabled?
+        faraday.response :json, content_type: /\bjson$/
+        faraday.adapter Faraday.default_adapter
+      end
+    end
+
     def mock_enabled?
-      false
+      [true, 'true'].include?(Settings.vsp.mock)
     end
   end
 end

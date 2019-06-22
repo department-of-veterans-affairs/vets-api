@@ -276,6 +276,8 @@ Rails.application.routes.draw do
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
 
+  mount Vsp::Engine, at: '/vsp'
+
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'
     require 'sidekiq-scheduler/web'
@@ -284,4 +286,6 @@ Rails.application.routes.draw do
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
+
+
 end

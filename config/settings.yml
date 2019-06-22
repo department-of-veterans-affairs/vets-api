@@ -361,3 +361,6 @@ search:
 bing:
   base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
   key: fake_key
+
+vsp:
+  url: 'https://api.va.gov'
