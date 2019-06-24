@@ -6,7 +6,14 @@ module Vsp
       skip_before_action :authenticate
 
       def index
-        head :ok
+        message = service.get_message
+        render json: Vsp::MessageSerializer.new(message).serialized_json
+      end
+
+      private
+
+      def service
+        Vsp::Service.new
       end
     end
   end

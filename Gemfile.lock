@@ -502,6 +502,7 @@ GEM
     rspec-expectations (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
+    rspec-json_expectations (2.2.0)
     rspec-mocks (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
@@ -689,6 +690,7 @@ DEPENDENCIES
   faraday
   faraday_curl
   faraday_middleware
+  fast_jsonapi
   fastimage
   figaro
   foreman
@@ -737,6 +739,7 @@ DEPENDENCIES
   redis
   redis-namespace
   restforce
+  rspec-json_expectations
   rspec-rails (~> 3.5)
   rspec_junit_formatter
   rubocop (~> 0.52.1)

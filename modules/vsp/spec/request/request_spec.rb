@@ -1,17 +1,24 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require "rspec/json_expectations"
 
 RSpec.describe 'vsp', type: :request do
-  # include SchemaMatchers
 
   describe 'GET /v0/hello_world' do
     context 'with a valid response' do
+      # let(:message) { response.body.dig('data', 'attributes', 'message') }
       it 'should match the vsp hello_world schema' do
         VCR.use_cassette('vsp/get_message') do
-          get '/v0/vsp/hello_world'
+          get '/vsp/v0/hello_world'
           expect(response).to have_http_status(:ok)
-          # expect(response).to match_response_schema('hello_world')
+          expect(response.body).to include_json(
+            data: {
+              attributes: {
+                message: 'Welcome to the vets.gov API'
+              }
+            }
+          )
         end
       end
     end
