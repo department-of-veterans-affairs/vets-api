@@ -51,6 +51,8 @@ RSpec.describe V0::SessionsController, type: :controller do
     )
   end
 
+  let(:once) { { times: 1, value: 1 } }
+
   def verify_session_cookie
     token = session[:token]
     expect(token).to_not be_nil
@@ -80,7 +82,9 @@ RSpec.describe V0::SessionsController, type: :controller do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
-              get(:new, params: { type: type, clientId: '123123' })
+              expect { get(:new, params: { type: type, clientId: '123123' }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
+
               expect(response).to have_http_status(:found)
               expect(response.location)
                 .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
@@ -92,7 +96,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         context 'routes /sessions/signup/new to SessionsController#new' do
           it 'redirects' do
-            get(:new, params: { type: :signup, client_id: '123123' })
+            expect { get(:new, params: { type: :signup, client_id: '123123' }) }
+              .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ['context:signup'], **once)
             expect(response).to have_http_status(:found)
             expect(response.location)
               .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
@@ -164,7 +169,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
             it 'redirects' do
-              get(:new, params: { type: type })
+              expect { get(:new, params: { type: type }) }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY, tags: ["context:#{type}"], **once)
               expect(response).to have_http_status(:found)
               expect(cookies['vagov_session_dev']).not_to be_nil unless type.in?(%w[mhv dslogon idme slo])
             end
@@ -343,7 +349,6 @@ RSpec.describe V0::SessionsController, type: :controller do
           )
           expect(Raven).to receive(:tags_context).once
 
-          once = { times: 1, value: 1 }
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
           expect { post(:saml_callback) }
@@ -468,7 +473,6 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
-          once = { times: 1, value: 1 }
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:unknown']
 
@@ -515,7 +519,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          once = { times: 1, value: 1 }
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:auth_too_early']
 
@@ -547,7 +550,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          once = { times: 1, value: 1 }
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:unknown']
 
@@ -582,7 +584,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          once = { times: 1, value: 1 }
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:clicked_deny']
 
@@ -602,7 +603,6 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'allows user to sign in even if user attributes are not available' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
-          once = { times: 1, value: 1 }
           callback_tags = ['status:success', 'context:myhealthevet']
           expect { post(:saml_callback) }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -652,7 +652,6 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          once = { times: 1, value: 1 }
           callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1}"]
           failed_tags = ['error:validations_failed']
 
