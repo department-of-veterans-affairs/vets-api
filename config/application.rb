@@ -35,22 +35,6 @@ module VetsAPI
     config.load_defaults(5.2)
     config.api_only = true
 
-    # Logging with SemanticLogger using common settings across environments
-    config.log_tags = {
-      request_id: :request_id,
-      remote_ip:  :remote_ip,
-      user_agent: ->(request) { request.user_agent },
-      ref: ->(_request) { AppInfo::GIT_REVISION },
-      consumer_id: ->(request) { request.headers['X-Consumer-ID'] },
-      consumer_username: ->(request) { request.headers['X-Consumer-Username'] },
-      consumer_custom_id: ->(request) { request.headers['X-Consumer-Custom-ID'] },
-      credential_username: ->(request) { request.headers['X-Credential-Username'] }
-    }
-
-    # Use default logging formatter so that PID and timestamp are not suppressed.
-    config.log_formatter = ::Logger::Formatter.new
-    # End Logging Section
-
     config.relative_url_root = Settings.relative_url_root
 
     # This prevents rails from escaping html like & in links when working with JSON
