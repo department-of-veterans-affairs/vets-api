@@ -31,7 +31,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         post path, params: data, headers: headers
         parsed = JSON.parse(response.body)
         expect(response.status).to eq(422)
-        expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date has expired, resubmit ITF.')
+        expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date not valid, resubmit ITF.')
       end
     end
 
