@@ -22,7 +22,15 @@ module ClaimsApi
 
     def verification_itf_expiration
       unless itf_service.get_active('compensation')['intent_to_file'].expiration_date > Time.now.utc
-        puts true
+        error = {
+          errors: [
+            {
+              status: 422,
+              details: 'Intent to File Expiration Date has expired, please resubmit ITF.'
+            }
+          ]
+        }
+        render json: error, status: 422
       end
     end
 
