@@ -13,6 +13,8 @@ module ClaimsApi
         skip_before_action :verify_mvi, only: [:submit_form_526]
 
         def submit_form_526
+          puts itf_service.get_active('compensation')['intent_to_file'].expiration_date
+          
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
