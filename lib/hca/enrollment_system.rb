@@ -693,11 +693,26 @@ module HCA
       end
     end
 
+    def get_va_format(content_type)
+      # ES only accepts these strings for 'va:format': PDF,WORD,JPG,RTF
+      extension = MIME::Types[content_type].first.extensions.first
+
+      if extension.include?('doc')
+        'WORD'
+      elsif extension == 'jpeg'
+        'JPG'
+      elsif extension == 'rtf'
+        'RTF'
+      else
+        'PDF'
+      end
+    end
+
     def add_attachment(file, is_dd214)
       {
         'va:document' => {
           'va:name' => 'Attachment',
-          'va:format' => MIME::Types[file.content_type].first.extensions.first.upcase,
+          'va:format' => get_va_format(file.content_type),
           'va:type' => is_dd214 ? '1' : '5',
           'va:content' => Base64.encode64(file.read)
         }
