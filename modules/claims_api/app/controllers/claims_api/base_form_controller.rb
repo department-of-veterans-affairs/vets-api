@@ -26,7 +26,7 @@ module ClaimsApi
           errors: [
             {
               status: 422,
-              details: 'Intent to File Expiration Date has expired, please resubmit ITF.'
+              details: 'Intent to File Expiration Date has expired, resubmit ITF.'
             }
           ]
         }
