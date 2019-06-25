@@ -8,6 +8,7 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < BaseFormController
         FORM_NUMBER = '526'
+        before_action :verification_itf_expiration, only: [:submit_form_526]
         skip_before_action(:authenticate)
         skip_before_action(:verify_power_of_attorney)
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
@@ -28,7 +29,7 @@ module ClaimsApi
         end
 
         def upload_supporting_documents
-          claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           documents.each do |document|
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
@@ -36,7 +37,7 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
-          head :ok
+          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
 
         private

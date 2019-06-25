@@ -25,26 +25,43 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'should return a successful response with all the data' do
       with_okta_user(scopes) do |auth_header|
-        post path, params: data, headers: headers.merge(auth_header)
-        parsed = JSON.parse(response.body)
-        expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
-        expect(parsed['data']['attributes']['status']).to eq('pending')
+        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          post path, params: data, headers: headers.merge(auth_header)
+          parsed = JSON.parse(response.body)
+          expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
+          expect(parsed['data']['attributes']['status']).to eq('pending')
+        end
+      end
+    end
+
+    it 'should return an unsuccessful response with an error message' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/active_compensation') do
+          post path, params: data, headers: headers.merge(auth_header)
+          parsed = JSON.parse(response.body)
+          expect(response.status).to eq(422)
+          expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date not valid, resubmit ITF.')
+        end
       end
     end
 
     it 'should create the sidekick job' do
       with_okta_user(scopes) do |auth_header|
-        expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-        post path, params: data, headers: headers.merge(auth_header)
+        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+          post path, params: data, headers: headers.merge(auth_header)
+        end
       end
     end
 
     it 'should build the auth headers' do
       with_okta_user(scopes) do |auth_header|
-        auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-        expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
-        expect(auth_header_stub).to receive(:add_headers)
-        post path, params: data, headers: headers.merge(auth_header)
+        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+          expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
+          expect(auth_header_stub).to receive(:add_headers)
+          post path, params: data, headers: headers.merge(auth_header)
+        end
       end
     end
 

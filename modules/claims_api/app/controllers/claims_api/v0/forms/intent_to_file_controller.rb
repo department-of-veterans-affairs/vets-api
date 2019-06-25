@@ -13,13 +13,13 @@ module ClaimsApi
         skip_before_action :validate_json_schema, only: [:active]
 
         def submit_form_0966
-          response = service.create_intent_to_file(form_type)
+          response = itf_service.create_intent_to_file(form_type)
           render json: response['intent_to_file'],
                  serializer: ClaimsApi::IntentToFileSerializer
         end
 
         def active
-          response = service.get_active(active_param)
+          response = itf_service.get_active(active_param)
           render json: response['intent_to_file'],
                  serializer: ClaimsApi::IntentToFileSerializer
         end
@@ -42,10 +42,6 @@ module ClaimsApi
             }
             render json: error, status: 422
           end
-        end
-
-        def service
-          EVSS::IntentToFile::Service.new(target_veteran)
         end
 
         def form_type

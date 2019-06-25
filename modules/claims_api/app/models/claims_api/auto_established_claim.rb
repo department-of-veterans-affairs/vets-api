@@ -48,6 +48,14 @@ module ClaimsApi
       find_by(id: token)&.evss_id
     end
 
+    def self.get_by_id_or_evss_id(id)
+      if id.to_s.include?('-')
+        find(id)
+      else
+        find_by(evss_id: id)
+      end
+    end
+
     def set_md5
       headers = auth_headers.except('va_eauth_issueinstant', 'Authorization')
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
