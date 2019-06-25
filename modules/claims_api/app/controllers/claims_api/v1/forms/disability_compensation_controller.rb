@@ -9,12 +9,11 @@ module ClaimsApi
       class DisabilityCompensationController < BaseFormController
         FORM_NUMBER = '526'
         before_action { permit_scopes %w[claim.write] }
+        before_action :verification_itf_expiration, only: [:submit_form_526]
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
         skip_before_action :verify_mvi, only: [:submit_form_526]
 
         def submit_form_526
-          puts itf_service.get_active('compensation')['intent_to_file'].expiration_date
-          
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,

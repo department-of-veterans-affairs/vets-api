@@ -20,6 +20,12 @@ module ClaimsApi
 
     private
 
+    def verification_itf_expiration
+      unless itf_service.get_active('compensation')['intent_to_file'].expiration_date > Time.now.utc
+        puts true
+      end
+    end
+
     def itf_service
       EVSS::IntentToFile::Service.new(target_veteran)
     end
