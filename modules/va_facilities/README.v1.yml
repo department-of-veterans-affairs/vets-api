@@ -237,7 +237,6 @@ paths:
     get:
       tags:
         - facilities
-        - draft
       summary: Retrieve polygons of the drive time bands for a facility
       description: |
         *This is a draft specification and not an available endpoint.*
