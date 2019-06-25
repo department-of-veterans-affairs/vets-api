@@ -85,7 +85,7 @@ module ClaimsApi
           }
 
       key :host, 'api.va.gov'
-      key :basePath, '/services/claims/v1'
+      key :basePath, '/services/claims/v0'
       key :consumes, ['application/json']
       key :produces, ['application/json']
     end

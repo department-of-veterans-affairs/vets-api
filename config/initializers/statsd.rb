@@ -28,6 +28,14 @@ end
   end
 end
 
+V0::SessionsController::REDIRECT_URLS.each do |ctx|
+  StatsD.increment(
+    V0::SessionsController::STATSD_SSO_NEW_KEY,
+    0,
+    tags: ["context:#{ctx}"]
+  )
+end
+
 # init GiBillStatus stats to 0
 StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY, 0)
 StatsD.increment(V0::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY, 0, tags: ['error:unknown'])
