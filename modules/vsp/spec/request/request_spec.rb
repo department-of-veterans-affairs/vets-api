@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require "rspec/json_expectations"
+require 'rspec/json_expectations'
 
 RSpec.describe 'vsp', type: :request do
-
   describe 'GET /v0/hello_world' do
     context 'with a valid response' do
       # let(:message) { response.body.dig('data', 'attributes', 'message') }
