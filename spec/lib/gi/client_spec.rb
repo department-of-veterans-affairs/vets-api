@@ -33,7 +33,7 @@ describe 'gi client' do
 
   it 'gets the institution children', :vcr do
     client_response = client.get_institution_children(id: '20603613')
-    expect(client_response[:data]).to be_a(Hash)
+    expect(client_response[:data]).to be_an(Array)
     expect(client_response[:data].first.keys).to contain_exactly(:id, :type, :attributes, :links)
   end
 
