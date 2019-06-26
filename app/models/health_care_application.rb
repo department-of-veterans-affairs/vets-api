@@ -101,7 +101,8 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def self.user_attributes(form)
-    full_name = form['veteranFullName']
+    form ||= {}
+    full_name = form['veteranFullName'] || {}
 
     return_val = HCA::UserAttributes.new(
       first_name: full_name['first'],
