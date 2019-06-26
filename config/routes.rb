@@ -148,6 +148,8 @@ Rails.application.routes.draw do
         get :autocomplete, on: :collection
       end
 
+      get 'institutions/:id/children', to: 'institutions#children'
+
       resources :calculator_constants, only: :index, defaults: { format: :json }
       resources :zipcode_rates, only: :show, defaults: { format: :json }
     end
