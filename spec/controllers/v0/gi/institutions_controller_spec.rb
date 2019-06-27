@@ -11,7 +11,7 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
       # client = double('GI::Client')
       # allow(GI::Client).to receive(:get_institution_children)
 
-      # allow(@client).to receive(:get_institution_children) { body }
+      allow(@client).to receive(:get_institution_children)
       get 'children', params: { id: 'ccp_12345' }
 
       # expect(response.content_type).to eq('application/json')
