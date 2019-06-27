@@ -14,15 +14,9 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
       allow(client).to receive(:get_institution_children)
       get 'children', params: { id: 'ccp_12345' }
 
-      # expect(response.content_type).to eq('application/json')
+      expect(response.content_type).to eq(nil)
 
       expect(client).to have_received(:get_institution_children)
-
-      # post(:create, params: { hca_attachment: {
-      #        file_data: fixture_file_upload('pdf_fill/extras.pdf')
-      #      } })
-
-      # expect(JSON.parse(response.body)['data']['attributes']['guid']).to eq HcaAttachment.last.guid
     end
   end
 end
