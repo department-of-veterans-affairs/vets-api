@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe V0::GI::InstitutionsController, type: :controller do
-  let(:@client) { instance_double('GI::Client') }
+  let(:client) { instance_double('GI::Client') }
   describe '#children' do
     it 'calls client' do
       # client_response = client.get_zipcode_rate(id: '20001')
