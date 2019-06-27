@@ -41,6 +41,22 @@ module ClaimsApi
 
         private
 
+        def validate_form526
+          response = service(auth_headers).validate_form526(form_data)
+        end
+
+        def service(auth_headers)
+          if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
+            ClaimsApi::DisabilityCompensation::MockOverrideService.new(
+              auth_headers
+            )
+          else
+            EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
+              auth_headers
+            )
+          end
+        end
+
         def documents
           document_keys = params.keys.select { |key| key.include? 'attachment' }
           params.slice(*document_keys).values
