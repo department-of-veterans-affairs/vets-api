@@ -101,7 +101,7 @@ module VbaDocuments
           ]
 
           security do
-            key :api_key, []
+            key :apikey, []
           end
 
           parameter do
@@ -146,7 +146,7 @@ module VbaDocuments
           key :tags, ['document_uploads']
 
           security do
-            key :api_key, []
+            key :apikey, []
           end
 
           parameter do
@@ -188,11 +188,18 @@ module VbaDocuments
           key :operationId, 'getBenefitsDocumentUploadStatusReport'
 
           security do
-            key :api_key, []
+            key :apikey, []
           end
 
           parameter do
-            key :$ref, :DocumentUploadStatusGuidList
+            key :name, 'content'
+            key :description, 'List of GUIDs for which to retrieve current status.'
+            key :in, :body
+            key :example, '{ "ids": [ "6d8433c1-cd55-4c24-affd-f592287a7572" ] }'
+
+            schema do
+              key :$ref, :DocumentUploadStatusGuidList
+            end
           end
 
           response 200 do
