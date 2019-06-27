@@ -11,12 +11,12 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
       # client = double('GI::Client')
       # allow(GI::Client).to receive(:get_institution_children)
 
-      allow(@client).to receive(:get_institution_children)
+      allow(client).to receive(:get_institution_children)
       get 'children', params: { id: 'ccp_12345' }
 
       # expect(response.content_type).to eq('application/json')
 
-      expect(@client).to have_received(:get_institution_children)
+      expect(client).to have_received(:get_institution_children)
 
       # post(:create, params: { hca_attachment: {
       #        file_data: fixture_file_upload('pdf_fill/extras.pdf')
