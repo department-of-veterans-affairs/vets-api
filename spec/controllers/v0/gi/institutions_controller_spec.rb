@@ -6,10 +6,11 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
   describe '#children' do
     it 'calls client' do
       client_stub = instance_double('GI::Client')
+      id = 1
 
-      get :children, id: 1
+      get :children, params: { id: id }
 
-      expect(client_stub).to have_received(:id).with(1)
+      expect(client_stub).to have_received(:id).with(id)
 
       # post(:create, params: { hca_attachment: {
       #        file_data: fixture_file_upload('pdf_fill/extras.pdf')
