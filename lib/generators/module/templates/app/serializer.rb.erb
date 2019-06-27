@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+module Vsp
+  class <%= class_name %>Serializer
+    include FastJsonapi::ObjectSerializer
+    attributes :message
+  end
+end

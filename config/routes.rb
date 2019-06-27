@@ -2,6 +2,7 @@
 
 require 'feature_flipper'
 Rails.application.routes.draw do
+  mount Foo::Engine, at: '/foo'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
