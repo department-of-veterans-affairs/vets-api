@@ -7,11 +7,13 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
     it 'calls client' do
       # client_response = client.get_zipcode_rate(id: '20001')
       # client_stub = spy('GI::Client')
+      client = instance_double('GI::Client')
+      allow(GI::Client).to receive(:children)
       get 'children', params: { id: 'ccp_12345' }
 
       expect(response.content_type).to eq('application/json')
 
-      # expect(client_stub).to have_received(:get_institution_children)
+      expect(client).to have_received(:get_institution_children)
 
       # post(:create, params: { hca_attachment: {
       #        file_data: fixture_file_upload('pdf_fill/extras.pdf')
