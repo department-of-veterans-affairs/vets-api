@@ -8,9 +8,9 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
     it 'calls client' do
       allow(client).to receive(:get_institution_children)
       controller.instance_variable_set(:@client, client)
-      get 'children', params: { id: '123' }
+      get 'children', params: { id: '123', format: 'json' }
 
-      expect(client).to have_received(:get_institution_children)
+      expect(client).to have_received(:get_institution_children).with('id' => '123')
     end
   end
 end
