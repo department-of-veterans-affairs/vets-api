@@ -48,4 +48,4 @@ Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONME
 
 ## Reference
 
-Raw Open API Spec: http://api.va.gov/services/vba_documents/docs/v0/api
+Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v0/api
