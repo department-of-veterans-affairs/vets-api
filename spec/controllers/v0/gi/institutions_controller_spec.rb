@@ -3,15 +3,17 @@
 require 'rails_helper'
 
 RSpec.describe V0::GI::InstitutionsController, type: :controller do
+  let(:client) { instance_double('GI::Client') }
   describe '#children' do
     it 'calls client' do
       # client_response = client.get_zipcode_rate(id: '20001')
       # client_stub = spy('GI::Client')
-      client = instance_double('GI::Client')
-      allow(GI::Client).to receive(:get_institution_children)
+      # client = double('GI::Client')
+      # allow(GI::Client).to receive(:get_institution_children)
+
       get 'children', params: { id: 'ccp_12345' }
 
-      expect(response.content_type).to eq('application/json')
+      # expect(response.content_type).to eq('application/json')
 
       expect(client).to have_received(:get_institution_children)
 
