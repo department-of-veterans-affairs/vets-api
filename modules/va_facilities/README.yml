@@ -85,7 +85,7 @@ paths:
         request with a comma-separated list of ids like `?ids=id1,id2`. When requesting facilities
         in bulk by `id`, the API will return as many ids as it can find matches for and omit any
         ids where there is no match. It will not return an HTTP error code if it is unable to match
-        a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
+        a requested `id`. Clients may supply ids up to the limit their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
         One of the `ids` parameter, the `bbox` parameter, or the `lat` and `long` parameters are

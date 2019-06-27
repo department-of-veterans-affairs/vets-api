@@ -247,10 +247,10 @@ paths:
         request with a comma-separated list of ids like `?ids=id1,id2`. When requesting facilities
         in bulk by `id`, the API will return as many ids as it can find matches for and omit any
         ids where there is no match. It will not return an HTTP error code if it is unable to match
-        a requested `id`. Clients may supply ids up to the limit a their HTTP client enforces for
+        a requested `id`. Clients may supply ids up to the limit their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
-        Alternatively, one can retrieve a single facility using /drive_time_bands/{id}.
+        Alternatively, one can retrieve a single facility using `/drive_time_bands/{id}`.
 
         The `ids` parameter is *required* to query this API. Requests without one or the other will return `400 Bad Request`.
 
@@ -369,6 +369,8 @@ paths:
       summary: Retrieve a specific facility by ID
       description: |
         *This is a draft specification and not an available endpoint.*
+
+        See `/drive_time_bands` for more information.
       operationId: getFacilityDriveTimeBandById
       security:
         - api_key: []
@@ -437,6 +439,8 @@ paths:
         FeatureCollection or as a CSV. Due to the complexity of the facility resource type, the CSV
         response contains a subset of available facility data - specifically it omits the
         available services, patient satisfaction, and patient wait time data.
+
+        See `/drive_time_bands` for more information.
       operationId: getAllFacilitiesDriveTimeBands
       security:
         - api_key: []
