@@ -11,10 +11,12 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
       # client = double('GI::Client')
       # allow(GI::Client).to receive(:get_institution_children)
 
+
       allow(client).to receive(:get_institution_children)
+      described_class.instance_valiable_set(:@client, client)
       get 'children', params: { id: 'ccp_12345' }
 
-      expect(response.content_type).to eq(nil)
+      # expect(response.content_type).to eq(nil)
 
       expect(client).to have_received(:get_institution_children)
     end
