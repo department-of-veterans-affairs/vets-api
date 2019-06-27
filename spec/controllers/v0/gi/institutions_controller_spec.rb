@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe V0::GI::InstitutionsController, type: :controller do
   describe '#children' do
     it 'calls client' do
-      client_stub = instance_double('GI::Client')
+      client_stub = spy('GI::Client')
       id = 1
 
       get :children, params: { id: id }
