@@ -34,7 +34,7 @@ describe HCA::Service do
         it "properly formats #{form} for transmission" do
           allow_any_instance_of(Mvi).to receive(:icn).and_return('1000123456V123456')
           service =
-            if form =~ /authenticated/
+            if form.match?(/authenticated/)
               described_class.new(
                 HealthCareApplication.get_user_identifier(current_user)
               )
@@ -64,6 +64,39 @@ describe HCA::Service do
         ) do
           result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
           expect(result[:success]).to eq(true)
+        end
+      end
+
+      context 'with a non-pdf attachment' do
+        it 'should work', run_at: 'Fri, 11 Jan 2019 04:56:26 GMT' do
+          hca_attachment = build(:hca_attachment)
+          hca_attachment.set_file_data!(
+            Rack::Test::UploadedFile.new(
+              'spec/fixtures/files/sm_file1.jpg',
+              'image/jpeg'
+            )
+          )
+          hca_attachment.save!
+
+          health_care_application = build(:health_care_application)
+          form = health_care_application.parsed_form
+          form['attachments'] = [
+            {
+              'confirmationCode' => hca_attachment.guid,
+              'dd214' => true
+            }
+          ]
+          health_care_application.form = form.to_json
+          health_care_application.send(:remove_instance_variable, :@parsed_form)
+          health_care_application.save!
+
+          VCR.use_cassette(
+            'hca/submit_with_attachment_jpg',
+            VCR::MATCH_EVERYTHING.merge(erb: true)
+          ) do
+            result = HCA::Service.new.submit_form(health_care_application.parsed_form)
+            expect(result[:success]).to eq(true)
+          end
         end
       end
     end

@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# TODO: The described class is being renamed `TransactionalEmailAnalyticsJob`
+# Temporarily leaving this file's described class in place so any existing queued jobs
+# don't suffer from its disappearance.
+
 require 'rails_helper'
 
 RSpec.describe HCA::SubmissionFailureEmailAnalyticsJob, type: :job do

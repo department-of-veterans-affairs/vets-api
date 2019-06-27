@@ -4,36 +4,36 @@ require 'will_paginate/array'
 
 require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
-require_dependency 'va_facilities/geo_serializer'
+require_dependency 'va_facilities/geo_serializer_v1'
 require_dependency 'va_facilities/csv_serializer'
+require_dependency 'va_facilities/param_validators'
 
 module VaFacilities
   module V1
     class NearbyController < ApplicationController
       include ActionController::MimeResponds
       include VaFacilities::PaginationHeaders
+      include VaFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :validate_params, only: [:index]
 
       REQUIRED_PARAMS = %i[street_address city state zip].freeze
-      TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
       MISSING_PARAMS_ERR =
         'Must supply street_address, city, state, and zip to query nearby facilities.'
 
       def index
-        resource = NearbyFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
-        resource = { data: resource, meta: metadata(resource) }
+        resource = NearbyFacility.query(params).paginate(page: params[:page],
+                                                         per_page: params[:per_page] || NearbyFacility.per_page)
         respond_to do |format|
           format.json do
-            render json: resource # ,
-            #  commented out for sending back mocked data that is already in response format
-            #  each_serializer: VaFacilities::FacilitySerializer,
-            #  meta: metadata(resource)
+            render json: resource,
+                   each_serializer: VaFacilities::NearbyFacilitySerializer,
+                   meta: metadata(resource)
           end
           format.geojson do
             response.headers['Link'] = link_header(resource)
-            render geojson: VaFacilities::GeoSerializer.to_geojson(resource)
+            render geojson: VaFacilities::GeoSerializerV1.to_geojson(resource)
           end
         end
       end
@@ -69,24 +69,7 @@ module VaFacilities
       def validate_street_address
         if params[:street_address]
           raise Common::Exceptions::InvalidFieldValue.new('street_address', params[:street_address]) unless
-            params[:street_address] =~ /\d/
-        end
-      end
-
-      def validate_state_code
-        if params[:state] && STATE_CODES.exclude?(params[:state])
-          raise Common::Exceptions::InvalidFieldValue.new('state', params[:state])
-        end
-      end
-
-      def validate_zip
-        if params[:zip]
-          raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
-            params[:zip] =~ /\A\d{5}(-\d{4})?\z/
-          zip_plus0 = params[:zip][0...5]
-          requested_zip = ZCTA.select { |area| area[0] == zip_plus0 }
-          raise Common::Exceptions::InvalidFieldValue.new('zip', params[:zip]) unless
-            requested_zip.any?
+            params[:street_address].match?(/\d/)
         end
       end
 
@@ -96,24 +79,12 @@ module VaFacilities
         raise Common::Exceptions::InvalidFieldValue.new('drive_time', params[:drive_time])
       end
 
-      def validate_no_services_without_type
-        if params[:type].nil? && params[:services].present?
-          raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
-        end
-      end
-
-      def validate_type_and_services_known
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
-          BaseFacility::TYPES.include?(params[:type])
-        unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
-        raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
-      end
-
       def metadata(resource)
         { pagination: { current_page: resource.current_page,
                         per_page: resource.per_page,
                         total_pages: resource.total_pages,
-                        total_entries: resource.total_entries } }
+                        total_entries: resource.total_entries },
+          distances: [] }
       end
     end
   end

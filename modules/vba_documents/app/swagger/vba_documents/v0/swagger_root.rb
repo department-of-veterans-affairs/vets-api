@@ -54,15 +54,13 @@ module VbaDocuments
           }
         ]
 
-        key :components,
-            "securitySchemes": {
-              "api_key": {
-                "type": 'apiKey',
-                "in": 'header',
-                "name": 'X-API-Key'
-              }
-            }
+        security_definition :apikey do
+          key :type, :apiKey
+          key :name, :apikey
+          key :in, :header
+        end
 
+        key :schemes, ['https']
         key :host, 'api.va.gov'
         key :basePath, '/services/vba_documents/v0'
         key :consumes, ['application/json']

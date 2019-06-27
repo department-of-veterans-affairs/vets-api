@@ -24,9 +24,8 @@ info:
     ### Response Formats
 
     Clients may request several response formats by setting the `Accept` header.
-    - application/json - The default JSON response format complies with JSON API. This media type is *not* available for bulk requests using the `/facilities/all` endpoint. It will return `406 Not Acceptable`. .
+    - application/json - The default JSON response format complies with JSON API.
     - application/vnd.geo+json - GeoJSON-compliant format, representing each facility as a Feature with a Point geometry.
-    - text/csv - Available for the bulk download operation only. Some structured fields are omitted from the CSV response.
 
     ### Response Elements
 
@@ -487,39 +486,27 @@ components:
       description: Health care services at a given facility, not all will be included at every facility
       type: array
       items:
-        type: object
-        properties:
-          PrimaryCare:
-            $ref: "#/components/schemas/HealthService" 
-          MentalHealthCare:
-            $ref: "#/components/schemas/HealthService" 
-          UrgentCare:
-            $ref: "#/components/schemas/HealthService" 
-          EmergencyCare:
-            $ref: "#/components/schemas/HealthService" 
-          Audiology:
-            $ref: "#/components/schemas/HealthService" 
-          Cardiology:
-            $ref: "#/components/schemas/HealthService" 
-          Dermatology:
-            $ref: "#/components/schemas/HealthService" 
-          Gastroenterology:
-            $ref: "#/components/schemas/HealthService" 
-          Gynecology:
-            $ref: "#/components/schemas/HealthService" 
-          Ophthalmology:
-            $ref: "#/components/schemas/HealthService" 
-          Optometry:
-            $ref: "#/components/schemas/HealthService" 
-          Orthopedics:
-            $ref: "#/components/schemas/HealthService" 
-          Urology:
-            $ref: "#/components/schemas/HealthService" 
-          WomensHealth:
-            $ref: "#/components/schemas/HealthService" 
+        $ref: "#/components/schemas/HealthService" 
     HealthService:
       type: object
       properties:
+        service:
+          type: string
+          enum:
+            - PrimaryCare
+            - MentalHealthCare
+            - UrgentCare
+            - EmergencyCare
+            - Audiology
+            - Cardiology
+            - Dermatology
+            - Gastroenterology
+            - Gynecology
+            - Ophthalmology
+            - Optometry
+            - Orthopedics
+            - Urology
+            - WomensHealth
         wait_times:
           $ref: "#/components/schemas/PatientWaitTime" 
     BenefitsService:

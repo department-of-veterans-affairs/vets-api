@@ -67,7 +67,7 @@ module HCA
       return '' if validated_ssn.size != 9
 
       INVALID_SSN_REGEXES.each do |invalid_ssn_regex|
-        return '' if invalid_ssn_regex.match(validated_ssn)
+        return '' if invalid_ssn_regex.match?(validated_ssn)
       end
 
       validated_ssn

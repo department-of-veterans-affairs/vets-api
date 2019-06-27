@@ -10,19 +10,14 @@ Sidekiq.configure_server do |config|
   end
 
   config.server_middleware do |chain|
+    chain.remove Sidekiq::Middleware::Server::Logging
+    chain.add Sidekiq::SemanticLogging
     chain.add Sidekiq::Instrument::ServerMiddleware
     chain.add Sidekiq::ErrorTag
   end
 
   config.client_middleware do |chain|
     chain.add Sidekiq::Instrument::ClientMiddleware
-  end
-
-  SemanticLogger.on_log do |log|
-    Raven.tags_context[:request_id].tap do |request_id|
-      next if request_id.blank?
-      log.named_tags[:request_id] = request_id
-    end
   end
 end
 
@@ -32,6 +27,7 @@ Sidekiq.configure_client do |config|
   config.client_middleware do |chain|
     chain.add Sidekiq::Instrument::ClientMiddleware
     chain.add Sidekiq::SetRequestId
+    chain.add Sidekiq::SetRequestAttributes
   end
 
   # Remove the default error handler
