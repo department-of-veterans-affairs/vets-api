@@ -40,7 +40,7 @@ info:
 
     ## Reference
 
-    - [Raw VA Facilities Open API Spec](http://dev-api.va.gov/services/va_facilities/docs/v0/api)
+    - [Raw VA Facilities Open API Spec](http://api.va.gov/services/va_facilities/docs/v0/api)
     - [GeoJSON Format](https://tools.ietf.org/html/rfc7946)
     - [JSON API Format](http://jsonapi.org/format/)
 
