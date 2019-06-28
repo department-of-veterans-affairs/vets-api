@@ -61,6 +61,15 @@ PATH
       rails (~> 5.2.3)
 
 PATH
+  remote: modules/funk
+  specs:
+    funk (0.1.0)
+      dry-struct (~> 1.0)
+      dry-types (~> 1.0)
+      fast_jsonapi (~> 1.5)
+      rails (~> 5.2.3)
+
+PATH
   remote: modules/openid_auth
   specs:
     openid_auth (0.0.1)
@@ -694,6 +703,7 @@ DEPENDENCIES
   fastimage
   figaro
   foreman
+  funk!
   govdelivery-tms (= 2.8.4)
   guard-rspec (~> 4.7)
   guard-rubocop

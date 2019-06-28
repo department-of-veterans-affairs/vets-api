@@ -5,15 +5,36 @@ require 'pry'
 class ModuleGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
 
-  def create_module
-    ns = file_name
-    app_path = "modules/#{ns}/app"
-    template 'controller.rb.erb', File.join(app_path, 'controllers', 'vsp', 'v0', "#{ns}_controller.rb")
-    template 'application_controller.rb.erb', File.join(app_path, 'controllers', 'vsp', 'application_controller.rb')
-    template 'resource.rb.erb', File.join(app_path, 'models', 'vsp', "#{ns}.rb")
-    template 'serializer.rb.erb', File.join(app_path, 'serializers', 'vsp', "#{ns}_serializer.rb")
-    template 'configuration.rb.erb', File.join(app_path, 'services', 'vsp', "configuration.rb")
-    template 'service.rb.erb', File.join(app_path, 'services', 'vsp', "service.rb")
-    route "mount #{ns.capitalize}::Engine, at: '/#{ns}'"
+  def create_app
+    path = "modules/#{file_name}/app"
+    template 'app/controllers/controller.rb.erb', File.join(path, 'controllers', file_name, 'v0', "#{file_name}_controller.rb")
+    template 'app/controllers/application_controller.rb.erb', File.join(path, 'controllers', file_name, 'application_controller.rb')
+    template 'app/models/resource.rb.erb', File.join(path, 'models', file_name, "#{file_name}.rb")
+    template 'app/serializers/serializer.rb.erb', File.join(path, 'serializers', file_name, "#{file_name}_serializer.rb")
+    template 'app/services/configuration.rb.erb', File.join(path, 'services', file_name, "configuration.rb")
+    template 'app/services/service.rb.erb', File.join(path, 'services', file_name, "service.rb")
+  end
+
+  def create_lib
+    path = "modules/#{file_name}/lib"
+    template 'lib/namespace/engine.rb.erb', File.join(path, file_name, 'engine.rb')
+    template 'lib/namespace/version.rb.erb', File.join(path, file_name, 'version.rb')
+    template 'lib/tasks/tasks.rake.erb', File.join(path, 'tasks', "#{file_name}_tasks.rake")
+    template 'lib/namespace.rb.erb', File.join(path, "#{file_name}.rb")
+  end
+
+  def create_config
+    path = "modules/#{file_name}"
+    template 'bin/rails.erb', File.join(path, 'bin', 'rails')
+    template 'config/routes.rb.erb', File.join(path, 'config', 'routes.rb')
+    template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
+    template 'Rakefile.erb', File.join(path, "Rakefile")
+    template 'Gemfile', File.join(path, "Gemfile")
+  end
+
+  def install
+    gem file_name, path: "modules/#{file_name}"
+    route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
+    run 'bundle install'
   end
 end

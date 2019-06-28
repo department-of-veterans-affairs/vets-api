@@ -2,7 +2,7 @@
 
 require 'feature_flipper'
 Rails.application.routes.draw do
-  mount Foo::Engine, at: '/foo'
+  mount Funk::Engine, at: '/funk'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
@@ -276,8 +276,6 @@ Rails.application.routes.draw do
     mount Veteran::Engine, at: '/veteran'
     mount VeteranVerification::Engine, at: '/veteran_verification'
   end
-
-  mount Vsp::Engine, at: '/vsp'
 
   if Rails.env.development? || Settings.sidekiq_admin_panel
     require 'sidekiq/web'

@@ -158,3 +158,5 @@ group :production do
     end
   end
 end
+
+gem 'funk', path: 'modules/funk'
