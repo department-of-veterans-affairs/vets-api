@@ -52,7 +52,7 @@ RSpec.describe 'institutions', type: :request do
   end
 
   it 'responds to GET #children' do
-    VCR.use_cassette('gi_client/gets_search_results') do
+    VCR.use_cassette('gi_client/gets_the_institution_children') do
       get '/v0/gi/institutions/20603613/children'
     end
 
