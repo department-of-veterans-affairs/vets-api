@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::GI::InstitutionsController, type: :controller do
+RSpec.describe V0::GI::CalculatorConstantsController, type: :controller do
   let(:client) { instance_double('GI::Client') }
   before(:each) do
     controller.instance_variable_set(:@client, client)
