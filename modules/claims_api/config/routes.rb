@@ -6,11 +6,8 @@ ClaimsApi::Engine.routes.draw do
   match '/v1/*path', to: 'application#cors_preflight', via: [:options]
 
   namespace :v0, defaults: { format: 'json' } do
-    resources :claims, only: %i[index show] do
-      collection do
-        get :healthcheck
-      end
-    end
+    get 'healthcheck', to: 'claims#healthcheck'
+    resources :claims, only: %i[index show]
     namespace :forms do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
@@ -24,11 +21,8 @@ ClaimsApi::Engine.routes.draw do
   end
 
   namespace :v1, defaults: { format: 'json' } do
-    resources :claims, only: %i[index show] do
-      collection do
-        get :healthcheck
-      end
-    end
+    get 'healthcheck', to: 'claims#healthcheck'
+    resources :claims, only: %i[index show]
     namespace :forms do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
