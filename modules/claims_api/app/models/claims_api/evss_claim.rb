@@ -56,5 +56,43 @@ module ClaimsApi
         []
       end
     end
+
+    def self.services_are_healthy?
+      last_mvi_outage = Breakers::Outage.find_latest(service: MVI::Configuration.instance.breakers_service)
+      mvi_up = (last_mvi_outage.blank? || last_mvi_outage.end_time.present?)
+
+      last_evss_claims_outage = Breakers::Outage.find_latest(service: EVSS::ClaimsService.breakers_service)
+      evss_claims_up = last_evss_claims_outage.blank? || last_evss_claims_outage.end_time.present?
+
+      last_evss_common_outage = Breakers::Outage.find_latest(service: EVSS::CommonService.breakers_service)
+      evss_common_up = last_evss_common_outage.blank? || last_evss_common_outage.end_time.present?
+      mvi_up && evss_claims_up && evss_common_up
+    end
+
+    def self.healthy_service_response
+        {
+          data:  {
+            id: 'claims_healthcheck',
+            type: 'claims_healthcheck',
+            attributes: {
+              healthy: true,
+              date: Time.zone.now.to_formatted_s(:iso8601)
+            }
+          }
+        }.to_json
+    end
+
+    def self.unhealthy_service_response
+      {
+        errors: [
+          {
+            title: 'ClaimsAPI Unavailable',
+            detail: 'ClaimsAPI is currently unavailable.',
+            code: '503',
+            status: '503'
+          }
+        ]
+      }.to_json
+    end
   end
 end

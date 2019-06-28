@@ -116,4 +116,19 @@ RSpec.describe 'EVSS Claims management', type: :request do
       end
     end
   end
+
+  context 'healthchecks' do
+    it 'should return correct response and status when healthy' do
+      get '/services/claims/v0/claims/healthcheck'
+      parsed_response = JSON.parse(response.body)
+      expect(response.status).to eq(200)
+      expect(parsed_response['data']['attributes']['healthy']).to eq(true)
+    end
+
+    it 'should return correct status when not healthy' do
+      allow(ClaimsApi::EVSSClaim).to receive(:services_are_healthy?).and_return(false)
+      get '/services/claims/v0/claims/healthcheck'
+      expect(response.status).to eq(503)
+    end
+  end
 end
