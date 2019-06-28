@@ -102,6 +102,14 @@ RSpec.describe HealthCareApplication, type: :model do
         ssn: '111111234'
       )
     end
+
+    context 'with a nil form' do
+      it 'should raise a validation error' do
+        expect do
+          described_class.user_attributes(nil)
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+      end
+    end
   end
 
   describe 'validations' do

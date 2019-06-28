@@ -450,6 +450,12 @@ en:
         code: 'PAGERDUTY_429'
         detail: "Exceeded PagerDuty's API rate limit"
         status: 429
+      PPMS_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'PPMS_502'
+        detail: 'PPMS returned an invalid response'
+        status: 502
       SEARCH_400:
         <<: *external_defaults
         title: Bad Request

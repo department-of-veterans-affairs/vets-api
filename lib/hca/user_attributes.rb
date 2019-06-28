@@ -13,7 +13,7 @@ class HCA::UserAttributes
   validates(:first_name, :last_name, :birth_date, :ssn, presence: true)
 
   def ssn=(new_ssn)
-    super(new_ssn.gsub(/\D/, ''))
+    super(new_ssn&.gsub(/\D/, ''))
   end
 
   def gender
