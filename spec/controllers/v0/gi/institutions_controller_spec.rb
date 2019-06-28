@@ -4,6 +4,9 @@ require 'rails_helper'
 
 RSpec.describe V0::GI::InstitutionsController, type: :controller do
   let(:client) { instance_double('GI::Client') }
+  before(:each) do
+    controller.instance_variable_set(:@client, client)
+  end
   describe 'institutions' do
     {
       'autocomplete' => :get_autocomplete_suggestions,
@@ -12,7 +15,6 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
       'children' => :get_institution_children
     }.each do |controller_method, client_method|
       it "\##{controller_method} calls client method #{client_method}" do
-        controller.instance_variable_set(:@client, client)
         allow(client).to receive(client_method)
         get controller_method, params: { id: '123', format: 'json' }
         expect(client).to have_received(client_method).with('id' => '123')
