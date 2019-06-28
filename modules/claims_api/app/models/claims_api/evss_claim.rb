@@ -58,6 +58,7 @@ module ClaimsApi
     end
 
     def self.services_are_healthy?
+      # TODO: we should add check for Okta and SAML Proxies being up as well
       last_mvi_outage = Breakers::Outage.find_latest(service: MVI::Configuration.instance.breakers_service)
       mvi_up = (last_mvi_outage.blank? || last_mvi_outage.end_time.present?)
 
@@ -70,16 +71,16 @@ module ClaimsApi
     end
 
     def self.healthy_service_response
-        {
-          data:  {
-            id: 'claims_healthcheck',
-            type: 'claims_healthcheck',
-            attributes: {
-              healthy: true,
-              date: Time.zone.now.to_formatted_s(:iso8601)
-            }
+      {
+        data:  {
+          id: 'claims_healthcheck',
+          type: 'claims_healthcheck',
+          attributes: {
+            healthy: true,
+            date: Time.zone.now.to_formatted_s(:iso8601)
           }
-        }.to_json
+        }
+      }.to_json
     end
 
     def self.unhealthy_service_response
