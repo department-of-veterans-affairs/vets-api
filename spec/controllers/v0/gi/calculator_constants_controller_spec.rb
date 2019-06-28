@@ -7,12 +7,9 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
   before(:each) do
     controller.instance_variable_set(:@client, client)
   end
-  describe 'institutions' do
+  describe 'calculator constants' do
     {
-      'autocomplete' => :get_autocomplete_suggestions,
-      'search' => :get_search_results,
-      'show' => :get_institution_details,
-      'children' => :get_institution_children
+      'index' => :get_calculator_constants
     }.each do |controller_method, client_method|
       it "\##{controller_method} calls client method #{client_method}" do
         allow(client).to receive(client_method)
