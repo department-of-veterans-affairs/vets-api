@@ -16,7 +16,7 @@ RSpec.describe V0::GI::InstitutionsController, type: :controller do
     }.each do |controller_method, client_method|
       it "\##{controller_method} calls client method #{client_method}" do
         allow(client).to receive(client_method)
-        get controller_method, params: { id: '123', format: 'json' }
+        get controller_method, params: { id: '123' }
         expect(client).to have_received(client_method).with('id' => '123')
       end
     end
