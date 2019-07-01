@@ -50,9 +50,12 @@ module EVSS
 
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
-          log_edipi if invalid_address_error?(e)
-          save_error_details(error)
-          raise EVSS::Letters::ServiceException, error.body
+          begin
+            log_edipi if invalid_address_error?(error)
+          ensure
+            save_error_details(error)
+            raise EVSS::Letters::ServiceException, error.body
+          end
         else
           super(error)
         end
