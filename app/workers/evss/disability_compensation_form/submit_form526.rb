@@ -54,19 +54,26 @@ module EVSS
         raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
 
-      # Retries any errors caused by an upstream service from EVSS being unavailable or
-      # if getting a "PIF in use" error
+      # Retries any errors caused by an upstream service from EVSS being unavailable (unless the
+      # external serivce is caused by an invalid EP code) or if getting a "PIF in use" error
       # Otherwise it marks it as non-retryable and stops the job
       #
       # @param error [ErrorClass] An exception object of type {EVSS::DisabilityCompensationForm::ServiceException}
       #
       def retry_form526_error_handler!(error)
-        if error.key == 'evss.external_service_unavailable' ||
+        if (error.key == 'evss.external_service_unavailable' && ep_code_valid(error)) ||
            error.key == 'evss.disability_compensation_form.pif_in_use'
           retryable_error_handler(error)
         else
           non_retryable_error_handler(error)
         end
+      end
+
+      def ep_code_valid(error)
+        error.messages.each do |message|
+          return false if message['text'].include?('EP Code is not valid')
+        end
+        true
       end
     end
   end
