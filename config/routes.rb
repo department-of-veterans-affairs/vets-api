@@ -146,6 +146,7 @@ Rails.application.routes.draw do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
         get :autocomplete, on: :collection
+        get :children, on: :member
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
