@@ -33,7 +33,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   end
 
   def install
-    gem file_name, path: "modules/#{file_name}"
+    gem file_name, path: File.join('modules', file_name)
     route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
     run 'bundle install'
   end

@@ -9,7 +9,6 @@ gem 'va_facilities', path: 'modules/va_facilities'
 gem 'vba_documents', path: 'modules/vba_documents'
 gem 'veteran', path: 'modules/veteran'
 gem 'veteran_verification', path: 'modules/veteran_verification'
-gem 'vsp', path: 'modules/vsp'
 
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
@@ -111,6 +110,7 @@ group :test do
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
+  gem "generator_spec"
   gem 'pdf-inspector'
   gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec-json_expectations'
@@ -158,5 +158,3 @@ group :production do
     end
   end
 end
-
-gem 'funk', path: 'modules/funk'
