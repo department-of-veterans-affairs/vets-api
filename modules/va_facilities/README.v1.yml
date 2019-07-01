@@ -525,7 +525,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Facility"
+                      $ref: "#/components/schemas/FacilityBasic"
                   meta:
                     description: "Metadata about the response"
                     type: object
@@ -564,7 +564,7 @@ paths:
                   features:
                     type: array
                     items:
-                      $ref: "#/components/schemas/FacilityFeature"
+                      $ref: "#/components/schemas/FacilityFeatureBasic"
           headers:
             Link:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
@@ -1178,10 +1178,130 @@ components:
           type: string
           format: date
           example: "2018-01-01"
+    FacilityBasic:
+      description: JSON API-compliant object describing a VA facility with only basic details
+      type: object
+      required:
+        - id
+        - type
+        - attributes
+      properties:
+        id:
+          type: string
+          example: vha_688
+        type:
+          type: string
+          enum: ["va_facilities"]
+        attributes:
+          type: object
+          required:
+            - name
+            - facility_type
+            - lat
+            - lng
+          properties:
+            name:
+              type: string
+              example: Washington VA Medical Center
+            facility_type:
+              type: string
+              enum:
+                - va_health_facility
+                - va_benefits_facility
+                - va_cemetery
+                - vet_center
+            lat:
+              description: Facility latitude
+              type: number
+              format: float
+              example: 38.9311137
+            lng:
+              description: Facility longitude
+              type: number
+              format: float
+              example: -77.0109110499999
+            address:
+              type: object
+              properties:
+                mailing:
+                  $ref: "#/components/schemas/Address"
+                physical:
+                  $ref: "#/components/schemas/Address"
+            services:
+              type: object
+              properties:
+                other:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - "Online Scheduling"
+                health:
+                  $ref: "#/components/schemas/HealthServices"
+                benefits:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/BenefitsService"
+                last_updated:
+                  type: string
+                  format: date
+                  example: "2018-01-01"
+    FacilityFeatureBasic:
+      description: GeoJSON-complaint Feature object describing a VA Facility with only basic details
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["Feature"]
+          example: Feature
+        geometry:
+          $ref: "#/components/schemas/Point" 
+        properties:
+          type: object
+          properties:
+            name:
+              type: string
+              example: Washington VA Medical Center
+            id:
+              type: string
+              example: vha_688
+            facility_type:
+              type: string
+              enum:
+                - va_health_facility
+                - va_benefits_facility
+                - va_cemetery
+                - vet_center
+            address:
+              type: object
+              properties:
+                mailing:
+                  $ref: "#/components/schemas/Address"
+                physical:
+                  $ref: "#/components/schemas/Address"
+            services:
+              type: object
+              properties:
+                other:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - "Online Scheduling"
+                health:
+                  $ref: "#/components/schemas/HealthServices"
+                benefits:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/BenefitsService"
+                last_updated:
+                  type: string
+                  format: date
+                  example: "2018-01-01"
     DriveTimeBands:
       description: JSON API-compliant object describing a VA facility and its drive time bands
       allOf: 
-        - $ref: "#/components/schemas/Facility"  
+        - $ref: "#/components/schemas/FacilityBasic"  
         - type: object
           properties:
             attributes:
@@ -1252,13 +1372,6 @@ components:
                 - va_benefits_facility
                 - va_cemetery
                 - vet_center
-            classification:
-              type: string
-              example: VA Medical Center (VAMC)
-            website:
-              type: string
-              format: url
-              example: http://www.washingtondc.va.gov
             address:
               type: object
               properties:
@@ -1266,10 +1379,6 @@ components:
                   $ref: "#/components/schemas/Address"
                 physical:
                   $ref: "#/components/schemas/Address"
-            phone:
-              $ref: "#/components/schemas/PhoneNumbers"
-            hours:
-              $ref: "#/components/schemas/Hours"
             services:
               type: object
               properties:
