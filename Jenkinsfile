@@ -12,7 +12,7 @@ pipeline {
   }
 
   agent {
-    label 'vetsgov-general-purpose'
+    label 'vagov-general-purpose'
   }
 
   stages {
