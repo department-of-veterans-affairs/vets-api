@@ -436,6 +436,9 @@ paths:
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
         information in the "Link" header.
+
+        The facility information returned by `/nearby` is a small subset of the information returned by `/facilities`.
+        Please use `/facilities` to detailed information.
       operationId: getNearbyFacilities
       security:
         - api_key: []
@@ -603,13 +606,17 @@ paths:
         a requested `id`. Clients may supply ids up to the limit their HTTP client enforces for
         URI path lengths -- usually 2,048 characters.
 
-        Alternatively, one can retrieve a single facility using `/drive_time_bands/{id}`.
+        Alternatively, one can retrieve a single facility using `/facilities/{id}/drive_time_bands`
+        or all facilities using `/facilities/all/drive_time_bands`.
 
         The `ids` parameter is *required* to query this API. Requests without one or the other will return `400 Bad Request`.
 
         Results of this operation are paginated. JSON responses include pagination information
         in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
         information in the "Link" header.
+
+        The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
+        Please use `/facilities` to detailed information.
       operationId: getFacilityDriveTimeBand
       security:
         - api_key: []
@@ -715,7 +722,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/APIError"
-  /drive_time_bands/{id}:
+  /facilities/{id}/drive_time_bands:
     get:
       tags:
         - facilities
@@ -780,7 +787,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/APIError"
-  /drive_time_bands/all:
+  /facilites/all/drive_time_bands:
     get:
       tags:
         - facilities
