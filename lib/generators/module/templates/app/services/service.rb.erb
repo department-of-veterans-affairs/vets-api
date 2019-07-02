@@ -5,7 +5,7 @@ module <%= class_name %>
     configuration <%= class_name %>::Configuration
 
     def get_message
-      response = perform(:get, '/')
+      response = perform(:get, '/', {})
       <%= class_name %>::<%= class_name %>.new(response.body.symbolize_keys)
     end
   end
