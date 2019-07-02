@@ -29,18 +29,24 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def create_config
     path = "modules/#{file_name}"
     template 'bin/rails.erb', File.join(path, 'bin', 'rails')
+    chmod File.join(path, 'bin', 'rails'), 0o755
     template 'config/routes.rb.erb', File.join(path, 'config', 'routes.rb')
     template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
     template 'Rakefile.erb', File.join(path, 'Rakefile')
     template 'Gemfile.erb', File.join(path, 'Gemfile')
   end
 
+  # rubocop:disable Rails/Output
   def install
     gem file_name, path: File.join('modules', file_name)
     route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
     append_to_file 'config/settings.yml', "\n#{file_name}:\n  url: 'https://api.va.gov'"
     run 'bundle install'
-    puts "\n\u{1F64C} new va module generated at ./modules/#{file_name}\n\n"
-    puts "\u{1F680} run `rails s` then visit http://localhost:3000/#{file_name}/v0/hello_world to see your new endpoint!\n\n"
+
+    puts "\n"
+    puts "\u{1F64C} new va module generated at ./modules/#{file_name}\n\n"
+    puts "\u{1F680} run `rails s` then visit http://localhost:3000/#{file_name}/v0/hello_world to see your new endpoint"
+    puts "\n"
   end
+  # rubocop:enable Rails/Output
 end
