@@ -14,6 +14,10 @@ module V0
       def show
         render json: client.get_institution_details(scrubbed_params)
       end
+
+      def children
+        render json: client.get_institution_children(scrubbed_params)
+      end
     end
   end
 end
