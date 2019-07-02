@@ -110,7 +110,7 @@ group :test do
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
-  gem "generator_spec"
+  gem 'generator_spec'
   gem 'pdf-inspector'
   gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
   gem 'rspec-json_expectations'

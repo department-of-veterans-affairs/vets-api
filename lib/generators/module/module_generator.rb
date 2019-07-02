@@ -1,18 +1,21 @@
 # frozen_string_literal: true
+
 require 'rails/generators'
-require 'pry'
 
 class ModuleGenerator < Rails::Generators::NamedBase
   source_root File.expand_path('templates', __dir__)
 
   def create_app
     path = "modules/#{file_name}/app"
-    template 'app/controllers/controller.rb.erb', File.join(path, 'controllers', file_name, 'v0', "#{file_name}_controller.rb")
-    template 'app/controllers/application_controller.rb.erb', File.join(path, 'controllers', file_name, 'application_controller.rb')
+    template 'app/controllers/controller.rb.erb',
+             File.join(path, 'controllers', file_name, 'v0', "#{file_name}_controller.rb")
+    template 'app/controllers/application_controller.rb.erb',
+             File.join(path, 'controllers', file_name, 'application_controller.rb')
     template 'app/models/resource.rb.erb', File.join(path, 'models', file_name, "#{file_name}.rb")
-    template 'app/serializers/serializer.rb.erb', File.join(path, 'serializers', file_name, "#{file_name}_serializer.rb")
-    template 'app/services/configuration.rb.erb', File.join(path, 'services', file_name, "configuration.rb")
-    template 'app/services/service.rb.erb', File.join(path, 'services', file_name, "service.rb")
+    template 'app/serializers/serializer.rb.erb',
+             File.join(path, 'serializers', file_name, "#{file_name}_serializer.rb")
+    template 'app/services/configuration.rb.erb', File.join(path, 'services', file_name, 'configuration.rb')
+    template 'app/services/service.rb.erb', File.join(path, 'services', file_name, 'service.rb')
   end
 
   def create_lib
@@ -28,8 +31,8 @@ class ModuleGenerator < Rails::Generators::NamedBase
     template 'bin/rails.erb', File.join(path, 'bin', 'rails')
     template 'config/routes.rb.erb', File.join(path, 'config', 'routes.rb')
     template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
-    template 'Rakefile.erb', File.join(path, "Rakefile")
-    template 'Gemfile', File.join(path, "Gemfile")
+    template 'Rakefile.erb', File.join(path, 'Rakefile')
+    template 'Gemfile', File.join(path, 'Gemfile')
   end
 
   def install
