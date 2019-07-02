@@ -36,7 +36,6 @@ gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/conn
 gem 'date_validator'
 gem 'faraday'
 gem 'faraday_middleware'
-gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
@@ -110,10 +109,8 @@ group :test do
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
-  gem 'generator_spec'
   gem 'pdf-inspector'
   gem 'rails-session_cookie' # because request and integration specs dont allow for setting session cookie easily
-  gem 'rspec-json_expectations'
   gem 'rspec_junit_formatter'
   gem 'rubocop-junit-formatter'
   gem 'shrine-memory'

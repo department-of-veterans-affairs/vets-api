@@ -38,6 +38,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def install
     gem file_name, path: File.join('modules', file_name)
     route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
+    append_to_file 'config/settings.yml', "\n#{file_name}:\n  url: 'https://api.va.gov'"
     run 'bundle install'
   end
 end
