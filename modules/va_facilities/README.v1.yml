@@ -726,11 +726,22 @@ paths:
     get:
       tags:
         - facilities
-      summary: Retrieve a specific facility by ID
+      summary: Retrieve polygons of the drive time bands for a facility by ID
       description: |
         *This is a draft specification and not an available endpoint.*
+        
+        Retrieve the polygons used to determine in which drive time band veterans fall into for a specified facility. 
 
-        See `/drive_time_bands` for more information.
+        Alternatively, one can retrieve drive time bands for all facilities using `/facilities/all/drive_time_bands`.
+
+        The `ids` parameter is *required* to query this API. Requests without one or the other will return `400 Bad Request`.
+
+        Results of this operation are paginated. JSON responses include pagination information
+        in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
+        information in the "Link" header.
+
+        The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
+        Please use `/facilities` to detailed information.
       operationId: getFacilityDriveTimeBandById
       security:
         - api_key: []
@@ -796,11 +807,12 @@ paths:
         *This is a draft specification and not an available endpoint.*
         
         Retrieve drive time bands for all available facilities in a single operation, formatted as either a GeoJSON
-        FeatureCollection or as a CSV. Due to the complexity of the facility resource type, the CSV
-        response contains a subset of available facility data - specifically it omits the
-        available services, patient satisfaction, and patient wait time data.
+        FeatureCollection or as a CSV. 
 
-        See `/drive_time_bands` for more information.
+        Alternatively, one can retrieve drive time bands for a specific facility using `/facilities/{id}/drive_time_bands`.
+        
+        The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
+        Please use `/facilities` to detailed information.
       operationId: getAllFacilitiesDriveTimeBands
       security:
         - api_key: []
