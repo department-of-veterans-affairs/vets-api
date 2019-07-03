@@ -5,9 +5,7 @@ module VbaDocuments
     class StatusGuidListSwagger
       include Swagger::Blocks
       swagger_schema :DocumentUploadStatusGuidList do
-        key :name, 'content'
         key :type, :object
-        key :description, 'List of GUIDs for which to retrieve current status.'
         key :required, %i[ids]
 
         property :ids do

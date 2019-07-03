@@ -9,7 +9,7 @@ module VbaDocuments
         info do
           key :version, '1.0.0'
           key :title, 'Benefits Intake'
-          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'description.md'))
+          key :description, File.read(VBADocuments::Engine.root.join('app', 'swagger', 'vba_documents', 'v1', 'description.md'))
           contact do
             key :name, 'va.gov'
           end
@@ -54,14 +54,11 @@ module VbaDocuments
           }
         ]
 
-        key :components,
-            "securitySchemes": {
-              "api_key": {
-                "type": 'apiKey',
-                "in": 'header',
-                "name": 'X-API-Key'
-              }
-            }
+        security_definition :apikey do
+          key :type, :apiKey
+          key :name, :apikey
+          key :in, :header
+        end
 
         key :host, 'api.va.gov'
         key :basePath, '/services/vba_documents/v1'
