@@ -50,6 +50,7 @@ RSpec.describe 'PPIU', type: :request do
     context 'with a valid evss response' do
       it 'should match the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
