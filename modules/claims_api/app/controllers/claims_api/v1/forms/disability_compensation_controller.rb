@@ -42,7 +42,7 @@ module ClaimsApi
         private
 
         def validate_form526
-          response = service(auth_headers).validate_form526(form_data)
+          service(auth_headers).validate_form526(form_data)
         end
 
         def service(auth_headers)
