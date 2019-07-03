@@ -1227,25 +1227,6 @@ components:
                   $ref: "#/components/schemas/Address"
                 physical:
                   $ref: "#/components/schemas/Address"
-            services:
-              type: object
-              properties:
-                other:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                      - "Online Scheduling"
-                health:
-                  $ref: "#/components/schemas/HealthServices"
-                benefits:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/BenefitsService"
-                last_updated:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
     FacilityFeatureBasic:
       description: GeoJSON-complaint Feature object describing a VA Facility with only basic details
       type: object
@@ -1265,13 +1246,6 @@ components:
             id:
               type: string
               example: vha_688
-            facility_type:
-              type: string
-              enum:
-                - va_health_facility
-                - va_benefits_facility
-                - va_cemetery
-                - vet_center
             address:
               type: object
               properties:
@@ -1279,25 +1253,6 @@ components:
                   $ref: "#/components/schemas/Address"
                 physical:
                   $ref: "#/components/schemas/Address"
-            services:
-              type: object
-              properties:
-                other:
-                  type: array
-                  items:
-                    type: string
-                    enum:
-                      - "Online Scheduling"
-                health:
-                  $ref: "#/components/schemas/HealthServices"
-                benefits:
-                  type: array
-                  items:
-                    $ref: "#/components/schemas/BenefitsService"
-                last_updated:
-                  type: string
-                  format: date
-                  example: "2018-01-01"
     DriveTimeBands:
       description: JSON API-compliant object describing a VA facility and its drive time bands
       allOf: 
