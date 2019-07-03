@@ -103,6 +103,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526IncreaseOnly, type
       end
     end
 
+    context 'with an upstream service error for EP code not valid' do
+      it 'sets the transaction to "non_retryable_error"' do
+        VCR.use_cassette('evss/disability_compensation_form/submit_500_with_ep_not_valid') do
+          subject.perform_async(submission.id)
+          expect_any_instance_of(EVSS::DisabilityCompensationForm::Metrics).to receive(:increment_non_retryable).once
+          described_class.drain
+          expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
+        end
+      end
+    end
+
     context 'with a max ep code server error' do
       it 'sets the transaction to "non_retryable_error"' do
         VCR.use_cassette('evss/disability_compensation_form/submit_500_with_max_ep_code') do
