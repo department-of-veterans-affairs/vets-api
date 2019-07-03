@@ -50,8 +50,9 @@ RSpec.describe FacilitiesQuery do
         expect(FacilitiesQuery.generate_query(params2).run.size).to eq(5)
       end
 
-      it 'should find facility by state code' do
+      it 'should find facility by state code, regardless of case' do
         expect(FacilitiesQuery.generate_query(state: 'WA').run.size).to eq(2)
+        expect(FacilitiesQuery.generate_query(state: 'wa').run.size).to eq(2)
       end
 
       it 'should find facility by state code and type' do

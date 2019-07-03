@@ -40,9 +40,9 @@ info:
 
     ## Reference
 
-    - [Raw VA Facilities Open API Spec](http://dev-api.va.gov/services/va_facilities/docs/v0/api)
+    - [Raw VA Facilities Open API Spec](https://api.va.gov/services/va_facilities/docs/v0/api)
     - [GeoJSON Format](https://tools.ietf.org/html/rfc7946)
-    - [JSON API Format](http://jsonapi.org/format/)
+    - [JSON API Format](https://jsonapi.org/format/)
 
   termsOfService: ''
   contact:
@@ -122,7 +122,7 @@ paths:
         - name: state
           in: query
           description: |
-            Two character state code to search for VA Facilities.
+            State code to search for VA Facilities. Except in rare cases, this is two characters.
           required: false
           schema:
             type: string
