@@ -50,12 +50,19 @@ RSpec.describe 'PPIU', type: :request do
     context 'with a valid evss response' do
       it 'should match the ppiu schema' do
         VCR.use_cassette('evss/ppiu/update_payment_information') do
-          expect { put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers }.to change {
-            ActionMailer::Base.deliveries.count
-          }.by(1)
+          put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('payment_information')
           expect(JSON.parse(response.body)).to eq(JSON.parse(ppiu_response))
+        end
+      end
+
+      context 'when the user does have an associated email address' do
+        it 'calls a background job to send an email' do
+          VCR.use_cassette('evss/ppiu/update_payment_information') do
+            expect(DirectDepositEmailJob).to receive(:perform_async)
+            put '/v0/ppiu/payment_information', params: ppiu_request, headers: headers
+          end
         end
       end
 
