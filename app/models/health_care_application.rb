@@ -5,6 +5,7 @@ class HealthCareApplication < ApplicationRecord
   include SentryLogging
 
   FORM_ID = '10-10EZ'
+  ACTIVEDUTY_ELIGIBILITIES = ['TRICARE', 'SHARING AGREEMENT']
 
   attr_accessor(:user)
   attr_accessor(:async_compatible)
@@ -68,11 +69,20 @@ class HealthCareApplication < ApplicationRecord
     end
   end
 
+  def self.determine_active_duty(eligibilities)
+    (ACTIVEDUTY_ELIGIBILITIES & eligibilities).present?
+  end
+
   def self.parsed_ee_data(ee_data, loa3)
     if loa3
       parsed_status = HCA::EnrollmentEligibility::StatusMatcher.parse(
         ee_data[:enrollment_status], ee_data[:ineligibility_reason]
       )
+
+      if parsed_status == Notification::ACTIVEDUTY && !determine_active_duty(ee_data[:eligibilities])
+        parsed_status = Notification::NONE_OF_THE_ABOVE
+      end
+
 
       ee_data.slice(
         :application_date,

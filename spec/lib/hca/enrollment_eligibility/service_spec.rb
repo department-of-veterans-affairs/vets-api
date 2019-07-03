@@ -19,7 +19,8 @@ describe HCA::EnrollmentEligibility::Service do
             preferred_facility: '987 - CHEY6',
             ineligibility_reason: 'for testing',
             effective_date: '2019-01-25T09:04:04.000-06:00',
-            eligibilities: ["TRICARE", "HUMANITARIAN EMERGENCY"]
+            primary_eligibility: "HUMANITARIAN EMERGENCY",
+            veteran: "false"
           )
         end
       end
@@ -39,7 +40,8 @@ describe HCA::EnrollmentEligibility::Service do
           preferred_facility: '988 - DAYT20',
           ineligibility_reason: nil,
           effective_date: '2019-01-02T21:58:55.000-06:00',
-          eligibilities: ["PURPLE HEART RECIPIENT", "AID & ATTENDANCE", "TRICARE", "COLLATERAL OF VET.", "SC LESS THAN 50%"]
+          primary_eligibility: "SC LESS THAN 50%",
+          veteran: "true"
         )
       end
     end

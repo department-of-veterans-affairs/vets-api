@@ -41,21 +41,19 @@ module HCA
             response,
             "#{XPATH_PREFIX}enrollmentDeterminationInfo/effectiveDate"
           ),
-          eligibilities: get_eligibilities(response)
+          primary_eligibility: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/primaryEligibility/type"
+          ),
+          veteran: get_xpath(
+            response,
+            "#{XPATH_PREFIX}enrollmentDeterminationInfo/veteran"
+          )
         }
       end
       # rubocop:enable Metrics/MethodLength
 
       private
-
-      def get_eligibilities(response)
-        response.locate("#{XPATH_PREFIX}enrollmentDeterminationInfo/secondaryEligibilities/eligibility/type").map do |el|
-          el.nodes[0]
-        end + [get_xpath(
-          response,
-          "#{XPATH_PREFIX}enrollmentDeterminationInfo/primaryEligibility/type"
-        )]
-      end
 
       def get_xpath(response, xpath)
         node = response.locate(xpath)
