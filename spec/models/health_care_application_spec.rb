@@ -60,8 +60,8 @@ RSpec.describe HealthCareApplication, type: :model do
             enrollment_date: nil,
             preferred_facility: '987 - CHEY6',
             ineligibility_reason: 'OTH',
-            primary_eligibility: "TRICARE",
-            veteran: "false",
+            primary_eligibility: 'TRICARE',
+            veteran: 'false',
             effective_date: '2018-01-24T00:00:00.000-09:00'
           }
         end
@@ -81,8 +81,8 @@ RSpec.describe HealthCareApplication, type: :model do
             enrollment_date: nil,
             preferred_facility: '987 - CHEY6',
             ineligibility_reason: 'OTH',
-            primary_eligibility: "SC LESS THAN 50%",
-            veteran: "true",
+            primary_eligibility: 'SC LESS THAN 50%',
+            veteran: 'true',
             effective_date: '2018-01-24T00:00:00.000-09:00'
           }
         end

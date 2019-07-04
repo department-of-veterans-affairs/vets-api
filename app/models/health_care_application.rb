@@ -79,7 +79,8 @@ class HealthCareApplication < ApplicationRecord
         ee_data[:enrollment_status], ee_data[:ineligibility_reason]
       )
 
-      if parsed_status == Notification::ACTIVEDUTY && !determine_active_duty(ee_data[:primary_eligibility], ee_data[:veteran])
+      if parsed_status == Notification::ACTIVEDUTY &&
+         !determine_active_duty(ee_data[:primary_eligibility], ee_data[:veteran])
         parsed_status = Notification::NON_MILITARY
       end
 

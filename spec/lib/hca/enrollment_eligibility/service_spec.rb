@@ -19,8 +19,8 @@ describe HCA::EnrollmentEligibility::Service do
             preferred_facility: '987 - CHEY6',
             ineligibility_reason: 'for testing',
             effective_date: '2019-01-25T09:04:04.000-06:00',
-            primary_eligibility: "HUMANITARIAN EMERGENCY",
-            veteran: "false"
+            primary_eligibility: 'HUMANITARIAN EMERGENCY',
+            veteran: 'false'
           )
         end
       end
@@ -40,8 +40,8 @@ describe HCA::EnrollmentEligibility::Service do
           preferred_facility: '988 - DAYT20',
           ineligibility_reason: nil,
           effective_date: '2019-01-02T21:58:55.000-06:00',
-          primary_eligibility: "SC LESS THAN 50%",
-          veteran: "true"
+          primary_eligibility: 'SC LESS THAN 50%',
+          veteran: 'true'
         )
       end
     end
