@@ -89,7 +89,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
         it 'should return the right parsed_status' do
           expect(described_class.parsed_ee_data(ee_data, true)[:parsed_status]).to eq(
-            Notification::NONE_OF_THE_ABOVE
+            Notification::NON_MILITARY
           )
         end
       end
