@@ -55,10 +55,11 @@ RSpec.describe Notification, type: :model do
       expect(statuses[:rejected_inc_wrongentry]).to eq 24
       expect(statuses[:rejected_rightentry]).to eq 25
       expect(statuses[:rejected_sc_wrongentry]).to eq 26
+      expect(statuses[:non_military]).to eq 27
     end
 
     it 'returns the correct number of established enum mappings' do
-      expect(statuses.size).to eq 27
+      expect(statuses.size).to eq 28
     end
   end
 
