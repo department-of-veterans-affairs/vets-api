@@ -3,7 +3,7 @@
 require 'generators/module/module_generator'
 
 module Va
-  module Command
+  class Command
     class VaCommand < Rails::Command::Base
       namespace 'va'
 
@@ -14,7 +14,7 @@ module Va
       end
 
       def perform(type = nil, *args)
-        run_generator %w[--help] unless type == 'new'
+        Rails::Command.invoke :generate, ['module', '--help'] unless type == 'new'
         ModuleGenerator.start args
       end
     end
