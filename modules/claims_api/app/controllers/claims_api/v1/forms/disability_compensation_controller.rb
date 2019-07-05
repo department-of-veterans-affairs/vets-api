@@ -39,9 +39,14 @@ module ClaimsApi
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
 
+        def validate_526_form
+          validate_form526(form_attributes)
+          render json: { data: 'success' }
+        end
+
         private
 
-        def validate_form526
+        def validate_form526(form_data)
           service(auth_headers).validate_form526(form_data)
         end
 
