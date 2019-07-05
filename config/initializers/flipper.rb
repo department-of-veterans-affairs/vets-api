@@ -5,6 +5,8 @@ require 'flipper/adapters/active_record'
 require 'active_support/cache'
 require 'flipper/adapters/active_support_cache_store'
 
+FLIPPER_FEATURES = BackendServices.all + ['flipper_demo']
+
 Flipper.configure do |config|
   config.default do
     activerecord_adapter = Flipper::Adapters::ActiveRecord.new
@@ -26,4 +28,9 @@ end
 # this registers a group
 Flipper.register(:first_name_is_hector) do |actor|
   actor.respond_to?(:first_name) && actor.first_name == 'HECTOR'
+end
+
+# Just for example initilization we're not doing anything with these yet.
+FLIPPER_FEATURES.each do |service|
+  Flipper.add(service) unless Flipper.exist?(service)
 end

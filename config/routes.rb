@@ -284,8 +284,8 @@ Rails.application.routes.draw do
   end
 
   # TODO: Secure this path
-  mount Flipper::Api.app(-> { Rails.configuration.flipper }) => '/flipper/api'
-  mount Flipper::UI.app(-> { Rails.configuration.flipper }) => '/flipper'
+  mount Flipper::Api.app(-> { Flipper }) => '/flipper/api'
+  mount Flipper::UI.app(-> { Flipper }) => '/flipper'
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
