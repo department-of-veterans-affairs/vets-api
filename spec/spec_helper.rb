@@ -48,6 +48,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'lib/search/response.rb'
     # TODO: This is temp so we can get a review instance to pull mocks
     add_filter 'lib/evss/disability_compensation_form/service.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
