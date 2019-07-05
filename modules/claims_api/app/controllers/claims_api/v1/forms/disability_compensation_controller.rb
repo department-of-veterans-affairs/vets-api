@@ -11,7 +11,9 @@ module ClaimsApi
         before_action { permit_scopes %w[claim.write] }
         before_action :verification_itf_expiration, only: [:submit_form_526]
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
-        skip_before_action :verify_mvi, only: [:submit_form_526]
+        skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
+        skip_before_action :authenticate, only: %i[validate_form_526]
+        skip_before_action :log_request, only: %i[validate_form_526]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -39,7 +41,7 @@ module ClaimsApi
           render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
         end
 
-        def validate_526_form
+        def validate_form_526
           validate_form526(form_attributes)
           render json: { data: 'success' }
         end
