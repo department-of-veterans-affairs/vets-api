@@ -22,9 +22,9 @@ if ActiveRecord::Base.connection.table_exists? 'flipper_features'
 
   Flipper::UI.configure do |config|
     config.percentage_of_actors.title = 'Percentage of Logged in Users'
-    config.percentage_of_actors.description = %(Percentage of users functions independently of percentage of time. If you
-     enable 50% of Actors and 25% of Time then the feature will always be enabled for 50% of users and occasionally
-     enabled 25% of the time for everyone.)
+    config.percentage_of_actors.description = %(Percentage of users functions independently of percentage of time.
+      If you enable 50% of Actors and 25% of Time then the feature will always be enabled for 50% of users and
+      occasionally enabled 25% of the time for everyone.)
   end
 
   # this registers a group
