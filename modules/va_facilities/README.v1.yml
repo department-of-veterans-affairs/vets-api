@@ -438,7 +438,7 @@ paths:
         information in the "Link" header.
 
         The facility information returned by `/nearby` is a small subset of the information returned by `/facilities`.
-        Please use `/facilities` to detailed information.
+        Please use `/facilities` to see detailed information.
       operationId: getNearbyFacilities
       security:
         - api_key: []
@@ -606,7 +606,7 @@ paths:
         information in the "Link" header.
 
         The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
-        Please use `/facilities` to detailed information.
+        Please use `/facilities` to see detailed information.
       operationId: getFacilityDriveTimeBandById
       security:
         - api_key: []
@@ -677,7 +677,7 @@ paths:
         Alternatively, one can retrieve drive time bands for a specific facility using `/facilities/{id}/drive_time_bands`.
         
         The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
-        Please use `/facilities` to detailed information.
+        Please use `/facilities` to see detailed information.
       operationId: getAllFacilitiesDriveTimeBands
       security:
         - api_key: []
