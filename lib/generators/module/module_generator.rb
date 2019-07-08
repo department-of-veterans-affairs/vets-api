@@ -38,6 +38,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   end
 
   # rubocop:disable Rails/Output
+  # :nocov:
   def install
     gem file_name, path: File.join('modules', file_name)
     route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
@@ -49,5 +50,6 @@ class ModuleGenerator < Rails::Generators::NamedBase
     puts "\u{1F680} run `rails s` then visit http://localhost:3000/#{file_name}/v0/hello_world to see your new endpoint"
     puts "\n"
   end
+  # :nocov:
   # rubocop:enable Rails/Output
 end
