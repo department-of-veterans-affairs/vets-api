@@ -17,7 +17,7 @@ module VaFacilities
             },
             {
               version: '0.0.1',
-              internal_only: true,
+              internal_only: false,
               status: VERSION_STATUS[:current],
               path: '/services/va_facilities/docs/v0/api',
               healthcheck: '/services/va_facilities/v0/healthcheck'
