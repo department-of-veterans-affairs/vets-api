@@ -34,6 +34,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
     template 'gemspec.erb', File.join(path, "#{file_name}.gemspec")
     template 'Rakefile.erb', File.join(path, 'Rakefile')
     template 'Gemfile.erb', File.join(path, 'Gemfile')
+    template 'README.rdoc.erb', File.join(path, 'README.rdoc')
   end
 
   # rubocop:disable Rails/Output
