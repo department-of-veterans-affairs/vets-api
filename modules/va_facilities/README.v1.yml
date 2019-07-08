@@ -589,6 +589,119 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/APIError"
+  /drive_time_bands:
+    get:
+      tags:
+        - facilities
+      summary: Retrieve polygons of the drive time bands for facilities
+      description: |
+        *This is a draft specification and not an available endpoint.*
+        
+        Retrieve the polygons used to determine in which drive time band veterans fall into for facilities.
+
+        Alternatively, one can retrieve a single facility using `/facilities/{id}/drive_time_bands`
+        or all facilities in a single request using `/facilities/all/drive_time_bands`.
+
+        Results of this operation are paginated. JSON responses include pagination information
+        in the standard JSON API "links" and "meta" elements. GeoJSON responses include pagination
+        information in the "Link" header.
+
+        The facility information returned by `/drive_time_bands` is a small subset of the information returned by `/facilities`.
+        Please use `/facilities` to detailed information.
+      operationId: getFacilityDriveTimeBand
+      security:
+        - api_key: []
+      parameters:
+        - name: page
+          description: Page of results to return per paginated response.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+        - name: per_page
+          description: Number of results to return per paginated response.
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 30
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DriveTimeBands"
+                  meta:
+                    description: "Metadata about the response"
+                    type: object
+                    required:
+                      - pagination
+                    properties:
+                      pagination:
+                        type: object
+                        required:
+                          - current_page
+                          - per_page
+                          - total_entries
+                          - total_pages
+                        properties:
+                          current_page:
+                            type: integer
+                            example: 1
+                          per_page:
+                            type: integer
+                            example: 10
+                          total_entries:
+                            type: integer
+                            example: 2162
+                          total_pages:
+                            type: integer
+                            example: 217
+            application/vnd.geo+json:
+              schema:
+                required:
+                  - type
+                  - features
+                properties:
+                  type:
+                    type: string
+                    enum: ["FeatureCollection"]
+                  features:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DriveTimeBandsFeature"
+          headers:
+            Link:
+              description: GitHub-style pagination information. Only present for GeoJSON-format responses.
+              schema:
+                type: string
+                example: '<https://dev-api.va.gov/services/va_facilities/v1/drive_time_bands?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=2&per_page=20>; rel="self", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="first", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=1&per_page=20>; rel="prev", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=3&per_page=20>; rel="next", <https://dev-api.va.gov/services/va_facilities/v0/facilities?bbox%5B%5D=-120&bbox%5B%5D=40&bbox%5B%5D=-125&bbox%5B%5D=50&page=5&per_page=20>; rel="last"'
+        '401':
+          description: Missing API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '403':
+          description: Invalid API token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthorizationError"
+        '406':
+          description: Requested format unacceptable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/APIError"
   /facilities/{id}/drive_time_bands:
     get:
       tags:
