@@ -37,7 +37,7 @@ describe MVI::Messages::MessageBuilder do
     end
 
     it 'has a version code node' do
-      expect(message.locate('versionCode').first.attributes).to eq(code: '3.0')
+      expect(message.locate('versionCode').first.attributes).to eq(code: '4.1')
     end
 
     it 'has an interaction id node' do
