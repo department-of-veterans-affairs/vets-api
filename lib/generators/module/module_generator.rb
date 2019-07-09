@@ -40,7 +40,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   # rubocop:disable Rails/Output
   # :nocov:
   def install
-    gem file_name, path: File.join('modules', file_name)
+    insert_into_file "Gemfile", "gem '#{file_name}', path: 'modules/#{file_name}'\n", :after => "# Modules\n"
     route "mount #{file_name.capitalize}::Engine, at: '/#{file_name}'"
     append_to_file 'config/settings.yml', "\n#{file_name}:\n  url: 'https://api.va.gov'"
     run 'bundle install'
