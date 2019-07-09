@@ -637,7 +637,7 @@ GEM
       nokogiri (~> 1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    yard (0.9.19)
+    yard (0.9.20)
     zero_downtime_migrations (0.0.7)
       activerecord
 
