@@ -50,7 +50,7 @@ module V0
 
     def send_confirmation_email
       if current_user_email
-        DirectDepositMailer.build(current_user_email, params[:ga_client_id]).deliver_now
+        DirectDepositEmailJob.perform_async(current_user_email, params[:ga_client_id])
       else
         log_message_to_sentry(
           'Direct Deposit info update: no email address present for confirmation email',
