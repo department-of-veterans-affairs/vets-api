@@ -67,7 +67,6 @@ module VBADocuments
           "errors": [
             {
               "status": '422',
-              "title": submission.code,
               "details": "#{submission.code} - #{submission.detail}"
             }
           ]
