@@ -423,7 +423,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: "AVAILABLE: Query facilities based on drive time from a specified location"
+      summary: Query facilities based on drive time from a specified location
       description: |
         Retrieve all facilities contained within an isochrone (a polygon composed of the area 
         reachable in a certain amount of time from a central location) based on the passed 
