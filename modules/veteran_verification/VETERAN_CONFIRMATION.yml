@@ -10,7 +10,7 @@ info:
     The use-case of this API is to allow third-parties
     to request confirmation from the VA of an individual's Veteran status
 
-    This API offers the ability to query the individual's Veteran status via receiving authorization through the Open ID Connect flow or through a combination of the individual Veteran's Personal Identifiable Information (PII) and an API Token
+    This API offers the ability to query the individual's Veteran status via receiving authorization through the Open ID Connect flow or through a combination of the individual Veteran's Sensitive Personal Information (SPI) and an API Token
 
     The Veteran Confirmation API passes requests through to eMIS, the Enterprise
     Military Information Service, and formats the response into consumable data.
@@ -37,7 +37,7 @@ info:
 
       2. Status Response: A JSON API object with the individual's veteran status
 
-    The second flow is through an API Token and Veteran's Personal Identifiable Information
+    The second flow is through an API Token and Veteran's Sensitive Personal Information
 
       1. Client Request: `POST` <https://api.vets.gov/services/veteran_verification/v0/status_check>
           * Provide API Token as a header: `apiKey: <APIKEY>`
@@ -81,7 +81,7 @@ paths:
       security:
         - api_key: []
       requestBody:
-        description: PII of individual Veteran
+        description: SPI of individual Veteran
         required: true
         content:
           application/json:
