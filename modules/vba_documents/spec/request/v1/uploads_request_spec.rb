@@ -82,6 +82,15 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       end
     end
 
+    context 'with error status' do
+      let!(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
+
+      it 'should return json api errors' do
+        get "/services/vba_documents/v1/uploads/#{error_upload.guid}"
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('error')
+      end
+    end
+
     it 'should allow updating of the status' do
       with_settings(
         Settings.vba_documents,
