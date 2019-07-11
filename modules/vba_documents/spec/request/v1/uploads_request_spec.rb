@@ -87,7 +87,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
 
       it 'should return json api errors' do
         get "/services/vba_documents/v1/uploads/#{error_upload.guid}"
-        expect(JSON.parse(response.body)['errors'].length).to eq(1)
+        expect(JSON.parse(response.body)['data']['attributes']['status']).to eq('error')
       end
     end
 
