@@ -70,7 +70,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Query facilities based on a geographic bounding box and optional attribute filters
+      summary: DRAFT: Query facilities based on a geographic bounding box and optional attribute filters
       description: |
         *This is a draft specification and not an available endpoint.*
         
@@ -293,7 +293,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Retrieve a specific facility by ID
+      summary: DRAFT: Retrieve a specific facility by ID
       description: |
         *This is a draft specification and not an available endpoint.*
       operationId: getFacilityById
@@ -356,7 +356,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Bulk download of all available facilities
+      summary: DRAFT: Bulk download of all available facilities
       description: |
         *This is a draft specification and not an available endpoint.*
 
@@ -423,7 +423,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Query facilities based on drive time from a specified location
+      summary: AVAILABLE: Query facilities based on drive time from a specified location
       description: |
         Retrieve all facilities contained within an isochrone (a polygon composed of the area 
         reachable in a certain amount of time from a central location) based on the passed 
@@ -593,7 +593,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Retrieve polygons of the drive time bands for facilities
+      summary: DRAFT: Retrieve polygons of the drive time bands for facilities
       description: |
         *This is a draft specification and not an available endpoint.*
         
@@ -706,7 +706,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Retrieve polygons of the drive time bands for a facility by ID
+      summary: DRAFT: Retrieve polygons of the drive time bands for a facility by ID
       description: |
         *This is a draft specification and not an available endpoint.*
         
@@ -780,7 +780,7 @@ paths:
     get:
       tags:
         - facilities
-      summary: Bulk download of all available facilities
+      summary: DRAFT: Bulk download of all available facilities
       description: |
         *This is a draft specification and not an available endpoint.*
         
