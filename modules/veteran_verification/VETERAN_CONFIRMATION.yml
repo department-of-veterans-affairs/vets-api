@@ -8,8 +8,9 @@ info:
     ## Background
 
     The use-case of this API is to allow third-parties
-    to request confirmation from the VA of an individual's Veteran status after
-    receiving authorization to do so using an Open ID Connect flow.
+    to request confirmation from the VA of an individual's Veteran status
+
+    This API offers the ability to query the individual's Veteran status via receiving authorization through the Open ID Connect flow or through a combination of the individual Veteran's PII information and API Token
 
     The Veteran Confirmation API passes requests through to eMIS, the Enterprise
     Military Information Service, and formats the response into consumable data.
@@ -22,19 +23,31 @@ info:
     Connect service to allow third-party applications. The token should be
     submitted as an `Authorization` header in the form `Bearer <token>`.
 
-    ### Veteran Status Request
+    API requests can also be made through a symmetric API token, provided in an HTTP header with name `apikey`.
+
+    ### Veteran Status Request Operation
 
     Allows a third-party application to request the VA confirm the Veteran Status of an
-    authorized individual:
+    authorized individual through two different flows
 
-    1. Client Request: GET https://api.vets.gov/services/veteran_verification/v0/status
-       * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+    The first flow is through OpenId Connect
 
-    2. Status Response: A JSON API object with the individual's veteran status
+      1. Client Request: `GET` <https://api.vets.gov/services/veteran_verification/v0/status>
+          * Provide the Bearer token as a header: `Authorization: Bearer <token>`
+
+      2. Status Response: A JSON API object with the individual's veteran status
+
+    The second flow is through an API Token and Veteran's PII info
+
+      1. Client Request: `POST` <https://api.vets.gov/services/veteran_verification/v0/status_check>
+          * Provide API Token as a header: `apiKey: <APIKEY>`
+          * Provide Request Body
+
+      2. Status Response: A JSON API object with the individual's veteran status
 
     ## Reference
 
-    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/status
+     * [Raw Open API Spec](https://api.va.gov/services/veteran_verification/docs/v0/status)
 
   termsOfService: ''
   contact:
@@ -59,6 +72,48 @@ servers:
       version:
         default: v0
 paths:
+  /status_check:
+    post:
+      tags:
+        - veteran_confirmation_status
+      summary: Get confirmation about an individual's Veteran status according to the VA
+      operationId: postVeteranStatus
+      security:
+        - api_key: []
+      requestBody:
+        description: PII of individual Veteran
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VeteranStatusConfirmationRequest'
+            examples:
+              request1:
+                summary: An example request
+                value:
+                  dob: 19800629
+                  ssn: 123456789
+                  firstName: "First"
+                  lastName: "Last"
+      responses:
+        '200':
+          description: Confirmation status successfully retrieved
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/VeteranStatusConfirmation'
+        '401':
+          description: Unauthorized Request
+        '403':
+          description: Bad API Token
+        '406':
+          description: Bad Request
+        '502':
+          description: eMIS failed to respond or responded in a way we cannot handle.
   /status:
     get:
       tags:
@@ -81,14 +136,39 @@ paths:
         '403':
           description: Provided Access Token Does not have the required scopes to access.
         '502':
-          description: eMIS failed to respond or responded in a way we cannot handle. 
+          description: eMIS failed to respond or responded in a way we cannot handle.
 components:
   securitySchemes:
     bearer_token:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    api_key:
+      type: apiKey
+      in: header
+      name: apiKey
   schemas:
+    VeteranStatusConfirmationRequest:
+      description: |
+        Vetern status confirmation request for an individual
+      type: object
+      properties:
+        dob:
+          type: string
+          description: Date of Birth
+          example: 19800629
+        ssn:
+          type: string
+          description: Social Security Number
+          example: 123456789
+        firstName:
+          type: string
+          description: First Name
+          example: First
+        lastName:
+          type: string
+          description: Last Name
+          example: Last
     VeteranStatusConfirmation:
       description: |
         Veteran status confirmation for an individual
