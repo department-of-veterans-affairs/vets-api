@@ -34,8 +34,6 @@ module VBADocuments
 
         if submission.nil? || submission.status == 'expired'
           raise Common::Exceptions::RecordNotFound, params[:id]
-        elsif submission.status == 'error'
-          render json: to_json_api_errors(submission)
         else
           submission.refresh_status!
           render json: submission,
@@ -60,17 +58,6 @@ module VBADocuments
 
       def verify_settings
         render plain: 'Not found', status: 404 unless Settings.vba_documents.enable_download_endpoint
-      end
-
-      def to_json_api_errors(submission)
-        {
-          "errors": [
-            {
-              "status": '422',
-              "details": "#{submission.code} - #{submission.detail}"
-            }
-          ]
-        }
       end
     end
   end
