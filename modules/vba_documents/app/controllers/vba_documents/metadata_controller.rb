@@ -28,10 +28,11 @@ module VBADocuments
     end
 
     def healthcheck
-      if CentralMail::Service.service_is_up?
-        healthy_service_response
+      if CentralMail::Service.current_breaker_outage?
+        render json: unhealthy_service_response,
+               status: :service_unavailable
       else
-        unhealthy_service_response
+        render json: healthy_service_response
       end
     end
 
