@@ -51,5 +51,10 @@ module CentralMail
 
       response
     end
+
+    def self.service_is_up?
+      last_cm_outage = Breakers::Outage.find_latest(service: CentralMail::Configuration.instance.breakers_service)
+      last_cm_outage.blank? || last_cm_outage.end_time.present?
+    end
   end
 end

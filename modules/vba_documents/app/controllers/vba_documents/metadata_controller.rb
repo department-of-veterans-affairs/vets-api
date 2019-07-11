@@ -26,5 +26,41 @@ module VBADocuments
         }
       }
     end
+
+    def healthcheck
+      if CentralMail::Service.service_is_up?
+        healthy_service_response
+      else
+        unhealthy_service_response
+      end
+    end
+
+    private
+
+    def healthy_service_response
+      {
+        data:  {
+          id: 'vba_healthcheck',
+          type: 'vba_documents_healthcheck',
+          attributes: {
+            healthy: true,
+            date: Time.zone.now.to_formatted_s(:iso8601)
+          }
+        }
+      }.to_json
+    end
+
+    def unhealthy_service_response
+      {
+        errors: [
+          {
+            title: 'VBA Documents API Unavailable',
+            detail: 'VBA Documents API is currently unavailable.',
+            code: '503',
+            status: '503'
+          }
+        ]
+      }.to_json
+    end
   end
 end
