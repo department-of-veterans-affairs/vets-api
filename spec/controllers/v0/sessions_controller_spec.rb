@@ -83,6 +83,14 @@ RSpec.describe V0::SessionsController, type: :controller do
     post(:saml_callback, params: { RelayState: relay_state_params })
   end
 
+  def self.stub_request_id
+    let(:request_id) { SecureRandom.uuid }
+
+    before do
+      allow_any_instance_of(ActionController::TestRequest).to receive(:uuid).and_return(request_id)
+    end
+  end
+
   before(:each) do
     request.host = request_host
     allow(SAML::SettingsService).to receive(:saml_settings).and_return(rubysaml_settings)
@@ -93,6 +101,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
   context 'when not logged in' do
     describe 'new' do
+      stub_request_id
+
       context 'routes not requiring auth' do
         %w[mhv dslogon idme].each do |type|
           context "routes /sessions/#{type}/new to SessionsController#new with type: #{type}" do
@@ -107,6 +117,24 @@ RSpec.describe V0::SessionsController, type: :controller do
                 .with_params('clientId' => '123123')
             end
           end
+        end
+
+        it 'creates a session activity record' do
+          expect do
+            get(:new, params: { type: :mhv, clientId: '123123' })
+          end.to change { SessionActivity.count }.by(1)
+
+          session_activity = SessionActivity.last
+
+          expect(session_activity.name).to eq('mhv')
+          expect(session_activity.originating_request_id).to eq(request_id)
+          expect(session_activity.originating_ip_address).to eq('0.0.0.0')
+          expect(session_activity.additional_data).to eq(
+            {"originating_user_agent"=>"Rails Testing"}
+          )
+          expect(session_activity.generated_url).to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+            .with_relay_state('originating_request_id' => request_id, 'type' => 'mhv')
+            .with_params('clientId' => '123123')
         end
 
         context 'routes /sessions/signup/new to SessionsController#new' do
