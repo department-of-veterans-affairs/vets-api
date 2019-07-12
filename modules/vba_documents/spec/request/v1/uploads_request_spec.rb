@@ -139,6 +139,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
     end
+
+    it 'should 200 even with an invalid doc' do
+      allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
+      get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
+      expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to eq('application/zip')
+    end
     # rubocop:enable Style/DateTime
   end
 end
