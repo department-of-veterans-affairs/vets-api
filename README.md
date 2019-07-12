@@ -146,11 +146,6 @@ ERROR: Service 'vets-api' failed to build: The command '/bin/bash --login -c bun
 make: *** [db] Error 1
 ```
 
-Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
-developers can bypass the installation of Sidekiq Enterprise with
-
-- `$ EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild`
-
 Vets.gov Team Engineers should follow instructions here: 
 
 https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Vets-API/Sidekiq%20Enterprise%20Setup.md
