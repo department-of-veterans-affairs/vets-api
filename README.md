@@ -27,6 +27,14 @@ To start, fetch this code:
 
 A Makefile provides shortcuts for interacting with the docker images. To run vets-api and its redis and postgres 
 dependencies run the following command from within the repo you cloned in the above steps.
+
+Sidekiq Enterprise is used for worker rate limiting and additional reliability. Most
+developers can bypass the installation of Sidekiq Enterprise with:
+
+```
+EXCLUDE_SIDEKIQ_ENTERPRISE=true make rebuild
+```
+then:
 ```
 make up
 ```
