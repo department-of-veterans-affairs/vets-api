@@ -50,7 +50,7 @@ module PagerDuty
         def build!(service)
           external_service = Service.new(
             service: external_service_in(service),
-            short_name: service_map[service['id']],
+            short_name: service_map[service['id']] || '',
             status: service['status'],
             last_incident_timestamp: service['last_incident_timestamp']
           )
