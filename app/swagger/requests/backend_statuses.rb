@@ -9,8 +9,6 @@ module Swagger
 
       swagger_path '/v0/backend_statuses' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Gets the current status of all external services'
           key :operationId, 'getBackendStatuses'
           key :tags, %w[backend_statuses]
