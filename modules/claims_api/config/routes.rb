@@ -13,9 +13,10 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
+      post '526_validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
-      get '526', to: 'intent_to_file#schema'
+      get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
     end
@@ -27,9 +28,10 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
+      post '526_validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
-      get '526', to: 'intent_to_file#schema'
+      get '0966', to: 'intent_to_file#schema'
       post '0966', to: 'intent_to_file#submit_form_0966'
       get '0966/active', to: 'intent_to_file#active'
     end

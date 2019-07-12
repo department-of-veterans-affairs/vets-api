@@ -219,6 +219,12 @@
     :cache_multiple_responses:
       :uid_location: header
       :uid_locator: 'va_eauth_pnid'
+  - :method: :post
+    :path: <%= "/#{Settings.evss.alternate_service_name}/rest/form526/v2/validate" %>
+    :file_path: "evss/disability_form/form526_validate"
+    :cache_multiple_responses:
+      :uid_location: header
+      :uid_locator: 'va_eauth_pnid'
 
   # Letters
   - :method: :get

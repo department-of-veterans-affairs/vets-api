@@ -10,5 +10,11 @@ FactoryBot.define do
     trait :status_uploaded do
       status 'uploaded'
     end
+
+    trait :status_error do
+      status 'error'
+      code 'DOC104'
+      detail 'Upload rejected'
+    end
   end
 end
