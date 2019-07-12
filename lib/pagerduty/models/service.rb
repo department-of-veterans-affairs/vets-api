@@ -50,7 +50,7 @@ module PagerDuty
         def build!(service)
           external_service = Service.new(
             service: external_service_in(service),
-            short_name: service_map[service['id']] || '',
+            short_name: PagerDuty::Configuration.service_map[service['id']].to_s,
             status: service['status'],
             last_incident_timestamp: service['last_incident_timestamp']
           )
@@ -60,11 +60,6 @@ module PagerDuty
 
         def external_service_in(service)
           service['name'].split('External:').last.strip
-        end
-
-#todo don't duplicate
-        def service_map
-          Settings.maintenance.services&.to_hash&.invert || {}
         end
 
         def name_present!(service)
