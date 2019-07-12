@@ -146,7 +146,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=005')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -157,7 +157,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
         it 'creates an after login job' do
           allow(SAML::User).to receive(:new).and_return(saml_user)
-          expect { post :saml_callback, params: { RelayState: relay_state_params } }.to change(AfterLoginJob.jobs, :size).by(1)
+          expect { saml_callback_with_relaystate }.to change(AfterLoginJob.jobs, :size).by(1)
         end
       end
     end
@@ -368,7 +368,7 @@ RSpec.describe V0::SessionsController, type: :controller do
 
           callback_tags = ['status:success', "context:#{LOA::IDME_LOA3}"]
 
-          expect { post(:saml_callback, params: { RelayState: relay_state_params }) }
+          expect { saml_callback_with_relaystate }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
 
@@ -402,7 +402,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(existing_user.multifactor).to be_falsey
           expect(existing_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           allow(saml_user).to receive(:changing_multifactor?).and_return(true)
-          post :saml_callback, params: { RelayState: relay_state_params }
+          saml_callback_with_relaystate
           new_user = User.find(uuid)
           expect(new_user.loa).to eq(highest: LOA::ONE, current: LOA::ONE)
           expect(new_user.multifactor).to be_truthy
@@ -410,7 +410,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'has a cookie, but values are nil because loa1 user', :aggregate_failures do
-          post :saml_callback, params: { RelayState: relay_state_params }
+          saml_callback_with_relaystate
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq(
@@ -448,12 +448,12 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'redirects to idme for up-level' do
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to(/api.idmelabs.com/)
+          expect(saml_callback_with_relaystate).to redirect_to(/api.idmelabs.com/)
         end
 
         it 'redirects to identity proof URL', :aggregate_failures do
           expect_any_instance_of(SAML::URLService).to receive(:verify_url)
-          post :saml_callback, params: { RelayState: relay_state_params }
+          saml_callback_with_relaystate
           expect(cookies['vagov_session_dev']).not_to be_nil
           expect(JSON.parse(decrypter.decrypt(cookies['vagov_session_dev'])))
             .to eq(
@@ -474,7 +474,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         it 'handles no loa_highest present on new user_identity' do
-          post :saml_callback, params: { RelayState: relay_state_params }
+          saml_callback_with_relaystate
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -507,7 +507,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(Raven).to receive(:tags_context).once
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:clicked_deny][:short_message]}/)
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
       end
@@ -518,7 +518,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page' do
           expect(Rails.logger)
             .to receive(:warn).with(/#{SAML::Responses::Login::ERRORS[:auth_too_late][:short_message]}/)
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=002')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).not_to be_nil
         end
@@ -530,7 +530,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'redirects to an auth failure page', :aggregate_failures do
           expect(Rails.logger)
             .to receive(:error).with(/#{SAML::Responses::Login::ERRORS[:auth_too_early][:short_message]}/)
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=003')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -539,7 +539,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:auth_too_early']
 
-          expect { post(:saml_callback, params: { RelayState: relay_state_params }) }
+          expect { saml_callback_with_relaystate }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -561,7 +561,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                                      full_message: 'The status code of the Response was not Success, was Requester =>'\
                                   ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -595,7 +595,7 @@ RSpec.describe V0::SessionsController, type: :controller do
                                      level: :error,
                                      full_message: 'Other random error' }]
             )
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -604,7 +604,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           callback_tags = ['status:failure', 'context:unknown']
           failed_tags = ['error:clicked_deny']
 
-          expect { post(:saml_callback, params: { RelayState: relay_state_params }) }
+          expect { saml_callback_with_relaystate }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
@@ -621,7 +621,7 @@ RSpec.describe V0::SessionsController, type: :controller do
         it 'allows user to sign in even if user attributes are not available' do
           MVI::Configuration.instance.breakers_service.begin_forced_outage!
           callback_tags = ['status:success', 'context:myhealthevet']
-          expect { post(:saml_callback, params: { RelayState: relay_state_params } ) }
+          expect { saml_callback_with_relaystate }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
           expect(response.location).to start_with('http://127.0.0.1:3001/auth/login/callback')
@@ -663,7 +663,7 @@ RSpec.describe V0::SessionsController, type: :controller do
               },
               mvi: 'breakers is open for MVI'
             )
-          expect(post(:saml_callback, params: { RelayState: relay_state_params })).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
+          expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=004')
           expect(response).to have_http_status(:found)
           expect(cookies['vagov_session_dev']).to be_nil
         end
@@ -672,7 +672,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1}"]
           failed_tags = ['error:validations_failed']
 
-          expect { post(:saml_callback, params: { RelayState: relay_state_params }) }
+          expect { saml_callback_with_relaystate }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY, tags: failed_tags, **once)
             .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_TOTAL_KEY, **once)
