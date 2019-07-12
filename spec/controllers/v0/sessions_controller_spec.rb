@@ -140,6 +140,14 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe 'POST saml_callback' do
+      context 'when no session activity context exists' do
+        it 'redirects to an auth failure page code 700' do
+          expect(post(:saml_callback)).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=007')
+          expect(response).to have_http_status(:found)
+          expect(cookies['vagov_session_dev']).to be_nil
+        end
+      end
+
       context 'when too much time passed to consume the SAML Assertion' do
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
@@ -238,12 +246,12 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
     end
 
-    it 'redirects as success even when logout fails, but it logs the failure' do
+    it 'redirects as success even when no session activity is present, but it logs the failure' do
       expect(post(:saml_logout_callback)).to redirect_to(logout_redirect_url)
     end
 
     describe 'POST saml_logout_callback' do
-      let(:logout_relay_state_param) { '{"originating_request_id": "blah"}' }
+      let(:originating_request_type) { 'slo' }
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
 
       context 'saml_logout_response is invalid' do
@@ -323,6 +331,8 @@ RSpec.describe V0::SessionsController, type: :controller do
     end
 
     describe 'POST saml_callback' do
+      let(:originating_request_type) { 'idme' }
+
       before(:each) do
         allow(SAML::User).to receive(:new).and_return(saml_user)
       end
@@ -345,6 +355,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'verifying' do
+        let(:originating_request_type) { 'verify' }
         let(:authn_context) { LOA::IDME_LOA3 }
 
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
@@ -391,6 +402,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'changing multifactor' do
+        let(:originating_request_type) { 'mfa' }
         let(:authn_context) { 'multifactor' }
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(multifactor: 'true')
@@ -441,6 +453,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when user has LOA current 1 and highest 3' do
+        let(:originating_request_type) { 'idme' }
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
             loa: { current: LOA::ONE, highest: LOA::THREE }
@@ -467,6 +480,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when user has LOA current 1 and highest nil' do
+        let(:originating_request_type) { 'idme' }
         let(:saml_user_attributes) do
           loa1_user.attributes.merge(loa1_user.identity.attributes).merge(
             loa: { current: nil, highest: nil }
@@ -481,6 +495,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when NoMethodError is encountered elsewhere' do
+        let(:originating_request_type) { 'idme' }
+
         it 'redirects to adds context and re-raises the exception', :aggregate_failures do
           allow(UserSessionForm).to receive(:new).and_raise(NoMethodError)
           expect(controller).to receive(:log_exception_to_sentry)
@@ -501,6 +517,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when user clicked DENY' do
+        let(:originating_request_type) { 'idme' }
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_click_deny) }
 
         it 'redirects to an auth failure page' do
@@ -513,6 +530,7 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'when too much time passed to consume the SAML Assertion' do
+        let(:originating_request_type) { 'idme' }
         before { allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_too_late) }
 
         it 'redirects to an auth failure page' do
