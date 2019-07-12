@@ -46,6 +46,10 @@ unless ENV['NOCOVERAGE']
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/central_mail/service.rb'
     add_filter 'lib/search/response.rb'
+    # TODO: This is temp so we can get a review instance to pull mocks
+    add_filter 'lib/evss/disability_compensation_form/service.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
@@ -57,7 +61,6 @@ unless ENV['NOCOVERAGE']
     add_group 'OpenidAuth', 'modules/openid_auth/'
     add_filter 'version.rb'
     add_filter 'modules/va_facilities/lib/va_facilities/engine.rb'
-    add_filter 'app/models/nearby_facility.rb'
     SimpleCov.minimum_coverage_by_file 90
     SimpleCov.refuse_coverage_drop
   end

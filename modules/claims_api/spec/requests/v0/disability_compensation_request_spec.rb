@@ -18,22 +18,37 @@ RSpec.describe 'Disability Claims ', type: :request do
     let(:path) { '/services/claims/v0/forms/526' }
 
     it 'should return a successful response with all the data' do
-      post path, params: data, headers: headers
-      parsed = JSON.parse(response.body)
-      expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
-      expect(parsed['data']['attributes']['status']).to eq('pending')
+      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        post path, params: data, headers: headers
+        parsed = JSON.parse(response.body)
+        expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
+        expect(parsed['data']['attributes']['status']).to eq('pending')
+      end
+    end
+
+    it 'should return an unsuccessful response with an error message' do
+      VCR.use_cassette('evss/intent_to_file/active_compensation') do
+        post path, params: data, headers: headers
+        parsed = JSON.parse(response.body)
+        expect(response.status).to eq(422)
+        expect(parsed['errors'].first['details']).to eq('Intent to File Expiration Date not valid, resubmit ITF.')
+      end
     end
 
     it 'should create the sidekick job' do
-      expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
-      post path, params: data, headers: headers
+      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
+        post path, params: data, headers: headers
+      end
     end
 
     it 'should build the auth headers' do
-      auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-      expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
-      expect(auth_header_stub).to receive(:add_headers)
-      post path, params: data, headers: headers
+      VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
+        expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
+        expect(auth_header_stub).to receive(:add_headers)
+        post path, params: data, headers: headers
+      end
     end
 
     context 'with the same request already ran' do

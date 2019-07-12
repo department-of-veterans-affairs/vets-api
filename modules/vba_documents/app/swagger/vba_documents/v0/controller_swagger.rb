@@ -10,7 +10,7 @@ module VbaDocuments
           key :summary, 'Get a location for subsequent document upload PUT request'
           key :operationId, 'postBenefitsDocumentUpload'
           security do
-            key :api_key, []
+            key :apikey, []
           end
           key :tags, [
             'document_uploads'
@@ -101,7 +101,7 @@ module VbaDocuments
           ]
 
           security do
-            key :api_key, []
+            key :apikey, []
           end
 
           parameter do
@@ -146,7 +146,7 @@ module VbaDocuments
           key :tags, ['document_uploads']
 
           security do
-            key :api_key, []
+            key :apikey, []
           end
 
           parameter do
@@ -184,14 +184,22 @@ module VbaDocuments
           key :tags, %i[document_uploads]
 
           key :summary, 'Get a bulk status report for a list of previous uploads'
+          key :description, 'This endpoint is rate limited at 25 requests per minute and 80 requests per hour'
           key :operationId, 'getBenefitsDocumentUploadStatusReport'
 
           security do
-            key :api_key, []
+            key :apikey, []
           end
 
           parameter do
-            key :$ref, :DocumentUploadStatusGuidList
+            key :name, 'content'
+            key :description, 'List of GUIDs for which to retrieve current status.'
+            key :in, :body
+            key :example, '{ "ids": [ "6d8433c1-cd55-4c24-affd-f592287a7572" ] }'
+
+            schema do
+              key :$ref, :DocumentUploadStatusGuidList
+            end
           end
 
           response 200 do

@@ -20,6 +20,25 @@ module ClaimsApi
 
     private
 
+    def verification_itf_expiration
+      active = itf_service.get_active('compensation')
+      if !active['intent_to_file'] || active['intent_to_file'].expiration_date < Time.now.utc
+        error = {
+          errors: [
+            {
+              status: 422,
+              details: 'Intent to File Expiration Date not valid, resubmit ITF.'
+            }
+          ]
+        }
+        render json: error, status: 422
+      end
+    end
+
+    def itf_service
+      EVSS::IntentToFile::Service.new(target_veteran)
+    end
+
     def validate_json_schema
       ClaimsApi::FormSchemas.validate!(self.class::FORM_NUMBER, form_attributes)
     rescue ClaimsApi::JsonApiMissingAttribute => e

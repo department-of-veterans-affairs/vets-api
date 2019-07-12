@@ -19,6 +19,13 @@ class ApplicationController < ActionController::API
     Breakers::OutageException
   ].freeze
 
+  VERSION_STATUS = {
+    draft: 'Draft Version',
+    current: 'Current Version',
+    previous: 'Previous Version',
+    deprecated: 'Deprecated Version'
+  }.freeze
+
   prepend_before_action :block_unknown_hosts, :set_app_info_headers
   # Also see AuthenticationAndSSOConcerns for more before filters
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
@@ -111,6 +118,10 @@ class ApplicationController < ActionController::API
 
   def set_tags_and_extra_context
     Thread.current['request_id'] = request.uuid
+    Thread.current['additional_request_attributes'] = {
+      'request_ip' => request.remote_ip,
+      'request_agent' => request.user_agent
+    }
     Raven.extra_context(request_uuid: request.uuid)
     Raven.user_context(user_context) if current_user
     Raven.tags_context(tags_context)

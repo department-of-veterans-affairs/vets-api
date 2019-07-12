@@ -9,6 +9,7 @@ module V0
   class SessionsController < ApplicationController
     before_action :set_extra_context, only: %i[saml_callback saml_logout_callback]
 
+    STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
@@ -19,6 +20,7 @@ module V0
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       if SessionActivity::SESSION_ACTIVITY_TYPES.include?(params[:type])
+        StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
         @session_activity = SessionActivity.create(
           name: params[:type],
           originating_request_id: Thread.current['request_id'],

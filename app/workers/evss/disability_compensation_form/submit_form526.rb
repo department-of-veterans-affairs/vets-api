@@ -32,8 +32,8 @@ module EVSS
       rescue Common::Exceptions::GatewayTimeout => e
         retryable_error_handler(e)
       rescue EVSS::DisabilityCompensationForm::ServiceException => e
-        # retry any errors caused by an upstream service from EVSS being unavailable
-        retry_for_unavailable_external_service!(e)
+        # retry submitting the form for specific upstream errors
+        retry_form526_error_handler!(e)
       rescue StandardError => e
         non_retryable_error_handler(e)
       end
@@ -54,17 +54,24 @@ module EVSS
         raise NotImplementedError, 'Subclass of SubmitForm526 must implement #service'
       end
 
-      # Retries any errors caused by an upstream service from EVSS being unavailable
-      # Otherwise it marks it as non-retryable and stops the job
+      # Logic for retrying a job due to an upstream service error.
+      # Retry if any upstream external service unavailability exceptions (unless it is caused by an invalid EP code)
+      # and any PIF-in-use exceptions are encountered.
+      # Otherwise the job is marked as non-retryable and completed.
       #
-      # @param error [ErrorClass] An exception object of type {EVSS::DisabilityCompensationForm::ServiceException}
+      # @param error [EVSS::DisabilityCompensationForm::ServiceException]
       #
-      def retry_for_unavailable_external_service!(error)
-        if error.key == 'evss.external_service_unavailable'
+      def retry_form526_error_handler!(error)
+        if (error.key == 'evss.external_service_unavailable' && ep_code_valid?(error)) ||
+           error.key == 'evss.disability_compensation_form.pif_in_use'
           retryable_error_handler(error)
         else
           non_retryable_error_handler(error)
         end
+      end
+
+      def ep_code_valid?(error)
+        error.messages.none? { |msg| msg['text'].include?('EP Code is not valid') }
       end
     end
   end

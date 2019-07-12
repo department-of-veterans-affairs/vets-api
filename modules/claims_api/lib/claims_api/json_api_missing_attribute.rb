@@ -10,7 +10,7 @@ module ClaimsApi
     end
 
     def to_json_api
-      errors = details.map { |detail| { status: 422, detail: detail } }
+      errors = details.map { |detail| { status: 422, detail: detail[:message], source: detail[:fragment] } }
       { errors: errors }
     end
   end
