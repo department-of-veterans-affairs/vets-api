@@ -20,7 +20,7 @@ describe ModuleGenerator do
       end
 
       it 'creates the model' do
-        expect(File).to exist("#{path}/app/models/foo/foo.rb")
+        expect(File).to exist("#{path}/app/models/foo/resource.rb")
       end
 
       it 'creates the serializer' do
