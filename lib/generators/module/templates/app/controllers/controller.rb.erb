@@ -7,13 +7,13 @@ module <%= class_name %>
 
       def index
         message = service.get_message
-        render json: <%= class_name %>::<%= class_name %>Serializer.new(message).serialized_json
+        render json: <%= class_name %>Serializer.new(message).serialized_json
       end
 
       private
 
       def service
-        <%= class_name %>::Service.new
+        Service.new
       end
     end
   end

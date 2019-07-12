@@ -3,7 +3,7 @@
 require 'common/models/resource'
 
 module <%= class_name %>
-  class <%= class_name %> < Common::Resource
+  class Resource < Common::Resource
     attribute :id, Types::Nil.default(nil)
     attribute :message, Types::String
   end

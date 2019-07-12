@@ -11,7 +11,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
              File.join(path, 'controllers', file_name, 'v0', "#{file_name}_controller.rb")
     template 'app/controllers/application_controller.rb.erb',
              File.join(path, 'controllers', file_name, 'application_controller.rb')
-    template 'app/models/resource.rb.erb', File.join(path, 'models', file_name, "#{file_name}.rb")
+    template 'app/models/resource.rb.erb', File.join(path, 'models', file_name, "resource.rb")
     template 'app/serializers/serializer.rb.erb',
              File.join(path, 'serializers', file_name, "#{file_name}_serializer.rb")
     template 'app/services/configuration.rb.erb', File.join(path, 'services', file_name, 'configuration.rb')

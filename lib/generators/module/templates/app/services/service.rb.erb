@@ -6,7 +6,7 @@ module <%= class_name %>
 
     def get_message
       response = perform(:get, '/', {})
-      <%= class_name %>::<%= class_name %>.new(response.body.symbolize_keys)
+      Resource.new(response.body.symbolize_keys)
     end
   end
 end
