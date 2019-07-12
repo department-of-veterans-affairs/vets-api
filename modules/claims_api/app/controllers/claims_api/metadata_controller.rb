@@ -26,5 +26,14 @@ module ClaimsApi
         }
       }
     end
+
+    def healthcheck
+      if ClaimsApi::EVSSClaim.services_are_healthy?
+        render json: ClaimsApi::EVSSClaim.healthy_service_response
+      else
+        render json: ClaimsApi::EVSSClaim.unhealthy_service_response,
+               status: :service_unavailable
+      end
+    end
   end
 end
