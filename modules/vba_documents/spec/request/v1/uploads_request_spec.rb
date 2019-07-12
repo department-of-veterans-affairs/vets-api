@@ -112,6 +112,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:valid_doc) { get_fixture('valid_doc.pdf') }
     let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+    let(:invalid_doc) { get_fixture('invalid_multipart_no_partname.blob') }
 
     let(:valid_parts) do
       { 'metadata' => valid_metadata,
