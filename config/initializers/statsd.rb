@@ -28,7 +28,7 @@ end
   end
 end
 
-V0::SessionsController::REDIRECT_URLS.each do |ctx|
+SessionActivity::SESSION_ACTIVITY_TYPES.each do |ctx|
   StatsD.increment(
     V0::SessionsController::STATSD_SSO_NEW_KEY,
     0,

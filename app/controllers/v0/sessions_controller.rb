@@ -19,17 +19,18 @@ module V0
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SettingsService and SAML::URLService
     def new
-      if SessionActivity::SESSION_ACTIVITY_TYPES.include?(params[:type])
+      type = params[:type]
+      if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
         @session_activity = SessionActivity.create(
-          name: params[:type],
+          name: type,
           originating_request_id: Thread.current['request_id'],
           originating_ip_address: request.remote_ip,
           additional_data: { originating_user_agent: request.user_agent },
-          generated_url: url_service.send("#{params[:type]}_url")
+          generated_url: url_service.send("#{type}_url")
         )
 
-        if params[:type] == 'slo'
+        if type == 'slo'
           Rails.logger.info('SSO: LOGOUT', sso_logging_info)
           reset_session
         end
