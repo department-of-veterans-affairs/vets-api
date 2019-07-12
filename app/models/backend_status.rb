@@ -8,6 +8,7 @@ class BackendStatus
   include Virtus.model(nullify_blank: true)
 
   attribute :name, String
+  attribute :short_name, String
   attribute :is_available, Boolean
   attribute :uptime_remaining, Integer
 

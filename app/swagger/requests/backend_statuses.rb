@@ -33,6 +33,7 @@ module Swagger
                     key :type, :array
                     items do
                       property :service, type: :string, example: 'Appeals'
+                      property :short_name, type: :string, example: 'appeals'
                       property :status,
                                type: :string,
                                enum: PagerDuty::Models::Service::STATUSES,
