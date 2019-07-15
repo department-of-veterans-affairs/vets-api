@@ -8,7 +8,7 @@ class SessionActivity < ApplicationRecord
   validates :originating_request_id, presence: true
   validates :originating_ip_address, presence: true
   validates :name, presence: true, inclusion: { in: SESSION_ACTIVITY_TYPES, allow_blank: true }
-  validates :status, presence: true, inclusion: { in: %w[incomplete success fail], allow_blank: true }
+  validates :status, presence: true, inclusion: { in: %w[incomplete success fail] }
 
   # Additional validations on update
   # TODO: add these later.
