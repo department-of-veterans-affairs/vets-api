@@ -14,6 +14,7 @@ module V0
     STATSD_SSO_CALLBACK_TOTAL_KEY = 'api.auth.login_callback.total'
     STATSD_SSO_CALLBACK_FAILED_KEY = 'api.auth.login_callback.failed'
     STATSD_LOGIN_NEW_USER_KEY = 'api.auth.new_user'
+    UNKNOWN_RELAYSTATE_ATTR = 'UNKNOWN'
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -190,22 +191,27 @@ module V0
       end
     end
 
+    def get_relaystate_attr(attr)
+      @relay_state ||=
+        begin
+          JSON.parse(params[:RelayState])
+        rescue
+          {}
+        end
+
+      @relay_state[attr] || UNKNOWN_RELAYSTATE_ATTR
+    end
+
     def session_activity_id
-      @session_activity_id ||= JSON.parse(params[:RelayState] || '{}')['session_activity_id']
-    rescue
-      'UNKNOWN'
+      get_relaystate_attr('session_activity_id')
     end
 
     def originating_request_id
-      @originating_request_id ||= JSON.parse(params[:RelayState] || '{}')['originating_request_id']
-    rescue
-      'UNKNOWN'
+      get_relaystate_attr('originating_request_id')
     end
 
     def request_type
-      @request_type ||= JSON.parse(params[:RelayState] || '{}')['type']
-    rescue
-      'UNKNOWN'
+      get_relaystate_attr('type')
     end
 
     def set_extra_context
