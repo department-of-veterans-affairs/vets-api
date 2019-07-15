@@ -112,6 +112,7 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
     let(:upload) { FactoryBot.create(:upload_submission) }
     let(:valid_doc) { get_fixture('valid_doc.pdf') }
     let(:valid_metadata) { get_fixture('valid_metadata.json').read }
+    let(:invalid_doc) { get_fixture('invalid_multipart_no_partname.blob') }
 
     let(:valid_parts) do
       { 'metadata' => valid_metadata,
@@ -136,6 +137,13 @@ RSpec.describe 'VBA Document Uploads Endpoint', type: :request do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
 
       get "/services/vba_documents/v1/uploads/#{upload.guid}/download"
+      expect(response.status).to eq(200)
+      expect(response.headers['Content-Type']).to eq('application/zip')
+    end
+
+    it 'should 200 even with an invalid doc' do
+      allow(VBADocuments::PayloadManager).to receive(:download_raw_file).and_return(invalid_doc)
+      get "/services/vba_documents/v0/uploads/#{upload.guid}/download"
       expect(response.status).to eq(200)
       expect(response.headers['Content-Type']).to eq('application/zip')
     end
