@@ -20,9 +20,11 @@ module V0
     # For more details see SAML::SettingsService and SAML::URLService
     def new
       type = params[:type]
+
       if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
-        @session_activity = SessionActivity.create(
+
+        session_activity = SessionActivity.create(
           name: type,
           originating_request_id: Thread.current['request_id'],
           originating_ip_address: request.remote_ip,
@@ -35,7 +37,7 @@ module V0
           reset_session
         end
 
-        url = @session_activity.generated_url
+        url = session_activity.generated_url
         # clientId must be added at the end because of  "Do not track" browser extensions
         redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
       else
