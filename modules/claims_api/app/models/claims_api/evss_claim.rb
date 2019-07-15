@@ -61,31 +61,5 @@ module ClaimsApi
       # TODO: we should add check for Okta and SAML Proxies being up as well
       MVI::Service.service_is_up? && EVSS::Service.service_is_up?
     end
-
-    def self.healthy_service_response
-      {
-        data:  {
-          id: 'claims_healthcheck',
-          type: 'claims_healthcheck',
-          attributes: {
-            healthy: true,
-            date: Time.zone.now.to_formatted_s(:iso8601)
-          }
-        }
-      }.to_json
-    end
-
-    def self.unhealthy_service_response
-      {
-        errors: [
-          {
-            title: 'ClaimsAPI Unavailable',
-            detail: 'ClaimsAPI is currently unavailable.',
-            code: '503',
-            status: '503'
-          }
-        ]
-      }.to_json
-    end
   end
 end

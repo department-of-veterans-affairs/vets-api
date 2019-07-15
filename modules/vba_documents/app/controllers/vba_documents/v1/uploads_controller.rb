@@ -27,15 +27,15 @@ module VBADocuments
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
-        if Settings.vba_documents.enable_status_override && request.headers['Status-Override']
-          submission.status = request.headers['Status-Override']
-          submission.save
-        end
-
         if submission.nil? || submission.status == 'expired'
           raise Common::Exceptions::RecordNotFound, params[:id]
         else
-          submission.refresh_status!
+          if Settings.vba_documents.enable_status_override && request.headers['Status-Override']
+            submission.status = request.headers['Status-Override']
+            submission.save
+          else
+            submission.refresh_status!
+          end
           render json: submission,
                  serializer: VBADocuments::V1::UploadSerializer,
                  render_location: false

@@ -7,9 +7,6 @@ module ClaimsApi
   module V1
     class ClaimsController < ApplicationController
       before_action { permit_scopes %w[claim.read] }
-      skip_before_action(:authenticate, only: [:healthcheck])
-      skip_before_action(:verify_mvi, only: [:healthcheck])
-      skip_before_action(:log_request, only: [:healthcheck])
 
       def index
         claims = service.all
@@ -37,15 +34,6 @@ module ClaimsApi
             render json: { errors: [{ detail: 'Claim not found' }] },
                    status: :not_found
           end
-        end
-      end
-
-      def healthcheck
-        if ClaimsApi::EVSSClaim.services_are_healthy?
-          render json: ClaimsApi::EVSSClaim.healthy_service_response
-        else
-          render json: ClaimsApi::EVSSClaim.unhealthy_service_response,
-                 status: :service_unavailable
         end
       end
 
