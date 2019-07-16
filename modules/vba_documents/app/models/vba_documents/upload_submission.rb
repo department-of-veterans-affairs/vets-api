@@ -9,6 +9,8 @@ module VBADocuments
 
     IN_FLIGHT_STATUSES = %w[received processing success].freeze
 
+    scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
+
     after_save :report_errors
 
     def self.refresh_and_get_statuses!(guids)
