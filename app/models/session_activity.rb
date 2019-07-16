@@ -11,4 +11,12 @@ class SessionActivity < ApplicationRecord
 
   # Additional validations on update
   # TODO: add these later.
+
+  def update_success
+    update(status: 'success')
+  end
+
+  def update_fail
+    update(status: 'fail')
+  end
 end

@@ -83,11 +83,29 @@ RSpec.describe V0::SessionsController, type: :controller do
     post(:saml_callback, params: { RelayState: relay_state_params })
   end
 
+  def logout_callback_with_relaystate
+    post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: relay_state_params })
+  end
+
   def self.stub_request_id
     let(:request_id) { SecureRandom.uuid }
 
     before do
       allow_any_instance_of(ActionController::TestRequest).to receive(:uuid).and_return(request_id)
+    end
+  end
+
+  def self.verify_session_activity_update(status, logout)
+    it 'should update the session_activity' do
+      expect(session_activity.status).to eq('incomplete')
+
+      if logout
+        logout_callback_with_relaystate
+      else
+        saml_callback_with_relaystate
+      end
+
+      expect(session_activity.reload.status).to eq(status)
     end
   end
 
@@ -291,9 +309,11 @@ RSpec.describe V0::SessionsController, type: :controller do
           msg = "SLO callback response invalid for originating_request_id '#{session_activity.originating_request_id}'"
           expect_logger_msg(:info, msg)
           expect(controller).to receive(:log_message_to_sentry)
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: relay_state_params }))
+          expect(logout_callback_with_relaystate)
             .to redirect_to(logout_redirect_url)
         end
+
+        verify_session_activity_update('fail', true)
       end
 
       context 'saml_logout_response is valid but saml_logout_request is not found' do
@@ -316,7 +336,7 @@ RSpec.describe V0::SessionsController, type: :controller do
             r_id = session_activity.originating_request_id
             msg = "SLO callback response could not resolve logout request for originating_request_id '#{r_id}'"
             expect_logger_msg(:info, msg)
-            expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: relay_state_params }))
+            expect(logout_callback_with_relaystate)
               .to redirect_to(logout_redirect_url)
             # these should have been destroyed in the initial call to sessions/logout, not in the callback.
             verify_session_cookie
@@ -324,6 +344,8 @@ RSpec.describe V0::SessionsController, type: :controller do
             # this should be destroyed
             expect(SingleLogoutRequest.find(successful_logout_response&.in_response_to)).to be_nil
           end
+
+          verify_session_activity_update('success', true)
         end
       end
 
@@ -347,7 +369,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           msg = "SLO callback response to '1234' for originating_request_id '#{r_id}'"
           expect_logger_msg(:info, msg)
           expect(controller).not_to receive(:log_message_to_sentry)
-          expect(post(:saml_logout_callback, params: { SAMLResponse: '-', RelayState: relay_state_params }))
+          expect(logout_callback_with_relaystate)
             .to redirect_to(logout_redirect_url)
           # these should have been destroyed in the initial call to sessions/logout, not in the callback.
           verify_session_cookie
@@ -492,6 +514,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(saml_callback_with_relaystate).to redirect_to(/api.idmelabs.com/)
         end
 
+        verify_session_activity_update('success', false)
+
         it 'redirects to identity proof URL', :aggregate_failures do
           expect_any_instance_of(SAML::URLService).to receive(:verify_url)
           saml_callback_with_relaystate
@@ -555,6 +579,8 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(saml_callback_with_relaystate).to redirect_to('http://127.0.0.1:3001/auth/login/callback?auth=fail&code=001')
           expect(response).to have_http_status(:found)
         end
+
+        verify_session_activity_update('fail', false)
       end
 
       context 'when too much time passed to consume the SAML Assertion' do
