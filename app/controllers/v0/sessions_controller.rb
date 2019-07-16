@@ -47,20 +47,16 @@ module V0
     end
 
     def saml_logout_callback
-      if session_activity.present?
-        saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
-        Raven.extra_context(in_response_to: saml_response.try(:in_response_to) || 'ERROR')
+      saml_response = SAML::Responses::Logout.new(params[:SAMLResponse], saml_settings, raw_get_params: params)
+      Raven.extra_context(in_response_to: saml_response.try(:in_response_to) || 'ERROR')
 
-        if saml_response.valid?
-          user_logout(saml_response)
-          session_activity.update_success
-        else
-          log_error(saml_response)
-          Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
-          session_activity.update_fail
-        end
+      if saml_response.valid?
+        user_logout(saml_response)
+        session_activity&.update_success
       else
-        raise Common::Exceptions::RoutingError, params[:path]
+        log_error(saml_response)
+        Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
+        session_activity&.update_fail
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
