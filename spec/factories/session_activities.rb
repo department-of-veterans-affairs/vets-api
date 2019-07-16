@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :session_activity do
     originating_request_id { SecureRandom.uuid }
     originating_ip_address { '0.0.0.0' }
-    name nil
+    name 'idme'
     status 'incomplete'
     user_uuid nil
     sign_in_service_name nil
