@@ -22,28 +22,28 @@ module V0
     def new
       type = params[:type]
 
-      if SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
-        StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
-
-        session_activity = SessionActivity.create(
-          name: type,
-          originating_request_id: Thread.current['request_id'],
-          originating_ip_address: request.remote_ip,
-          additional_data: { originating_user_agent: request.user_agent },
-          generated_url: url_service.send("#{type}_url")
-        )
-
-        if type == 'slo'
-          Rails.logger.info('SSO: LOGOUT', sso_logging_info)
-          reset_session
-        end
-
-        url = session_activity.generated_url
-        # clientId must be added at the end because of  "Do not track" browser extensions
-        redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
-      else
+      unless SessionActivity::SESSION_ACTIVITY_TYPES.include?(type)
         raise Common::Exceptions::RoutingError, params[:path]
       end
+
+      StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
+
+      session_activity = SessionActivity.create(
+        name: type,
+        originating_request_id: Thread.current['request_id'],
+        originating_ip_address: request.remote_ip,
+        additional_data: { originating_user_agent: request.user_agent },
+        generated_url: url_service.send("#{type}_url")
+      )
+
+      if type == 'slo'
+        Rails.logger.info('SSO: LOGOUT', sso_logging_info)
+        reset_session
+      end
+
+      url = session_activity.generated_url
+      # clientId must be added at the end because of  "Do not track" browser extensions
+      redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
     end
 
     def saml_logout_callback
@@ -65,20 +65,18 @@ module V0
     end
 
     def saml_callback
-      if session_activity.present?
-        saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+      raise Common::Exceptions::RoutingError, params[:path] if session_activity.blank?
 
-        if saml_response.valid?
-          user_login(saml_response)
-          session_activity.update_success
-        else
-          log_error(saml_response)
-          redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
-          stats(:failure, saml_response, saml_response.error_instrumentation_code)
-          session_activity.update_fail
-        end
+      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+
+      if saml_response.valid?
+        user_login(saml_response)
+        session_activity.update_success
       else
-        raise Common::Exceptions::RoutingError, params[:path]
+        log_error(saml_response)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
+        stats(:failure, saml_response, saml_response.error_instrumentation_code)
+        session_activity.update_fail
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
