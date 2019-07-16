@@ -148,7 +148,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           expect(session_activity.originating_request_id).to eq(request_id)
           expect(session_activity.originating_ip_address).to eq('0.0.0.0')
           expect(session_activity.additional_data).to eq(
-            {"originating_user_agent"=>"Rails Testing"}
+            'originating_user_agent' => 'Rails Testing'
           )
           expect(session_activity.generated_url).to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
             .with_relay_state('originating_request_id' => request_id, 'type' => 'mhv')
