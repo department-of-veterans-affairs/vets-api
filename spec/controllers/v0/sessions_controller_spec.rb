@@ -229,6 +229,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
     describe 'new' do
       context 'all routes' do
+        stub_request_id
+
         %w[mhv dslogon idme mfa verify slo].each do |type|
           around(:each) do |example|
             Settings.sso.cookie_enabled = true
@@ -266,6 +268,8 @@ RSpec.describe V0::SessionsController, type: :controller do
       end
 
       context 'can find an active session' do
+        stub_request_id
+
         it 'destroys the user, session, and cookie, persists logout_request object, sets url to SLO url' do
           # these should not have been destroyed yet
           verify_session_cookie
@@ -278,7 +282,7 @@ RSpec.describe V0::SessionsController, type: :controller do
           get(:new, params: { type: 'slo' })
           expect(response.location)
             .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleLogoutService?SAMLRequest=')
-            .with_relay_state('originating_request_id' => nil, 'type' => 'slo')
+            .with_relay_state('originating_request_id' => request_id, 'type' => 'slo')
 
           # these should be destroyed.
           expect(Session.find(token)).to be_nil

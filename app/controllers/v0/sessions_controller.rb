@@ -29,7 +29,7 @@ module V0
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
       url = url_service.send("#{type}_url")
 
-      SessionActivity.create(
+      SessionActivity.create!(
         name: type,
         originating_request_id: Thread.current['request_id'],
         originating_ip_address: request.remote_ip,
