@@ -27,13 +27,14 @@ module V0
       end
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags: ["context:#{type}"])
+      url = url_service.send("#{type}_url")
 
-      session_activity = SessionActivity.create(
+      SessionActivity.create(
         name: type,
         originating_request_id: Thread.current['request_id'],
         originating_ip_address: request.remote_ip,
         additional_data: { originating_user_agent: request.user_agent },
-        generated_url: url_service.send("#{type}_url")
+        generated_url: url
       )
 
       if type == 'slo'
@@ -41,8 +42,8 @@ module V0
         reset_session
       end
 
-      url = session_activity.generated_url
-      # clientId must be added at the end because of  "Do not track" browser extensions
+      # clientId must be added at the end or the URL will be invalid for users using various "Do not track"
+      # extensions with their browser.
       redirect_to params[:client_id].present? ? url + "&clientId=#{params[:client_id]}" : url
     end
 
