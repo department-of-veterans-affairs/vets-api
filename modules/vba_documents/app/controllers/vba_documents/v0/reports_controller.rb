@@ -22,7 +22,7 @@ module VBADocuments
       def with_spoofed(statuses)
         guids = statuses.map(&:guid)
         missing = params[ID_PARAM] - guids
-        statuses.to_a + missing.map { |id| VBADocuments.fake_status(id) }
+        statuses.to_a + missing.map { |id| VBADocuments::UploadSubmission.fake_status(id) }
       end
 
       def validate_params
