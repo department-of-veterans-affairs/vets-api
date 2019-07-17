@@ -51,10 +51,10 @@ module MVI
       end
     rescue Breakers::OutageException => e
       Raven.extra_context(breakers_error_message: e.message)
-      log_console_and_sentry('MVI find_profile connection failed.', :error)
+      log_console_and_sentry('MVI find_profile connection failed.', :warn)
       mvi_profile_exception_response_for('MVI_503', e)
     rescue Faraday::ConnectionFailed => e
-      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :error)
+      log_console_and_sentry("MVI find_profile connection failed: #{e.message}", :warn)
       mvi_profile_exception_response_for('MVI_504', e)
     rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout => e
       log_console_and_sentry("MVI find_profile error: #{e.message}", :error)
