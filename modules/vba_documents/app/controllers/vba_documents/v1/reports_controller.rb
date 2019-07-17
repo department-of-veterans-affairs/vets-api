@@ -12,7 +12,7 @@ module VBADocuments
       ID_PARAM = 'ids'
 
       def create
-        statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params[ID_PARAM])
+        statuses = VBADocuments::UploadSubmission.where(guid: params[ID_PARAM])
         render json: with_spoofed(statuses),
                each_serializer: VBADocuments::V1::UploadSerializer
       end
@@ -22,7 +22,7 @@ module VBADocuments
       def with_spoofed(statuses)
         guids = statuses.map(&:guid)
         missing = params[ID_PARAM] - guids
-        statuses.to_a + missing.map { |id| VBADocuments.fake_status(id) }
+        statuses.to_a + missing.map { |id| VBADocuments::UploadSubmission.fake_status(id) }
       end
 
       def validate_params
