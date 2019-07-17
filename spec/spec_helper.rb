@@ -46,6 +46,10 @@ unless ENV['NOCOVERAGE']
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/central_mail/service.rb'
     add_filter 'lib/search/response.rb'
+    # TODO: This is temp so we can get a review instance to pull mocks
+    add_filter 'lib/evss/disability_compensation_form/service.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'
