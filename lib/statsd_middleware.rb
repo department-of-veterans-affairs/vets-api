@@ -44,3 +44,9 @@ class StatsdMiddleware
     [status, headers, response]
   end
 end
+
+ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
+  tags = ["controller:#{payload.fetch(:controller)}", "action:#{payload.fetch(:action)}"]
+  StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
+  StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
+end
