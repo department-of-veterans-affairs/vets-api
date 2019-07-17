@@ -18,8 +18,8 @@ module VBADocuments
 
     def already_running?
       queue = Sidekiq::Queue.new('vba_documents')
-      job_classes = queue.map{ |job| job.klass} 
-      job_classes.include? 'UploadStatusUpdater' 
+      job_classes = queue.map(&:klass)
+      job_classes.include? 'UploadStatusUpdater'
     end
   end
 end
