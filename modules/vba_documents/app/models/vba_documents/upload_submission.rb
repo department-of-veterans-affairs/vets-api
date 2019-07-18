@@ -13,14 +13,6 @@ module VBADocuments
 
     after_save :report_errors
 
-    def self.refresh_and_get_statuses!(guids)
-      submissions = where(guid: guids)
-      in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
-      refresh_statuses!(in_flights)
-      missing = guids - submissions.map(&:guid)
-      submissions.to_a + missing.map { |id| fake_status(id) }
-    end
-
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
                                         status: 'error',
