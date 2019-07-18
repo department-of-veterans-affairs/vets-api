@@ -75,7 +75,7 @@ RSpec.describe('hca', type: :feature) do
   end
 
   it 'logged in application', js: true do
-    feature_set_user_session
+    user = feature_set_user_session
 
     start_application
     # veteran info
