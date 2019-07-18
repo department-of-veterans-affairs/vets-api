@@ -67,7 +67,7 @@ RSpec.describe('hca', type: :feature) do
     find('#root_view\:preferredFacility_vaMedicalFacility option[value="521GE"]').select_option
     next_form_page
     # REVIEW: application
-    click('#errorable-checkbox-8', visible: false)
+    click('[name="privacyAgreementAccepted"]', visible: false)
     next_form_page
     expect(current_path).to eq('/health-care/apply/application/confirmation')
     # rubocop:enable Metrics/AbcSize
