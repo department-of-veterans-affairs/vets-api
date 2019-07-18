@@ -63,6 +63,34 @@ namespace :form526 do
     print_total('Other Failures: ', other_errors)
   end
 
+  desc 'Show all v1 forms'
+  task show_v1: :environment do
+    def print_row(created_at, updated_at, id)
+      printf "%-24s %-24s %s\n", created_at, updated_at, id
+    end
+
+    def print_total(header, total)
+      printf "%-20s %s\n", header, total
+    end
+
+    progress_forms = InProgressForm.where(form_id: '21-526EZ').order(:created_at)
+
+    puts '------------------------------------------------------------'
+    print_row('created at:', 'updated at:', 'id:')
+
+    total_v1_forms = 0
+    progress_forms.each do |progress_form|
+      form_data = JSON.parse(progress_form.form_data)
+      if form_data['veteran'].present?
+        total_v1_forms += 1
+        print_row(progress_form.created_at, progress_form.updated_at, progress_form.id)
+      end
+    end
+
+    puts '------------------------------------------------------------'
+    print_total('Total V1 forms:', total_v1_forms)
+  end
+
   desc 'Get an error report within a given date period. [<start date: yyyy-mm-dd>,<end date: yyyy-mm-dd>]'
   task :errors, %i[start_date end_date] => [:environment] do |_, args|
     def print_row(sub_id, p_id, created_at)
