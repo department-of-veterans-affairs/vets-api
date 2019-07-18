@@ -100,3 +100,7 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+# init gibft
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)
