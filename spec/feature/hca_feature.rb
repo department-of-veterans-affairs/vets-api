@@ -7,14 +7,14 @@ RSpec.describe('hca', type: :feature) do
     wait_for_new_url('.usa-button-primary')
   end
 
-  def start_form
+  def start_application
     visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
     wait_for_new_url { first_with_wait('.schemaform-start-button').click }
   end
 
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
-  def common_fill_hca_form
+  def common_fill_hca_form(logged_in)
     # gender
     find('#root_gender').find(:option, 'Male').select_option
     find('#root_maritalStatus').find(:option, 'Never Married').select_option
@@ -23,9 +23,13 @@ RSpec.describe('hca', type: :feature) do
     find('#root_veteranAddress_street').set('123 fake st')
     find('#root_veteranAddress_city').set('city')
     find('#root_veteranAddress_state').find(:option, 'Arizona').select_option
-    find('#root_veteranAddress_postalCode').set('12345')
+    find('#root_veteranAddress_postalCode').set('').set('12345')
     next_form_page
     # email
+    find('#root_email').value.tap do |email|
+      next if email.blank?
+      find('#root_view\:emailConfirmation').set(email)
+    end
     next_form_page
     # service
     find('#root_lastServiceBranch').find(:option, 'Army').select_option
@@ -39,8 +43,12 @@ RSpec.describe('hca', type: :feature) do
     next_form_page
     # service special options
     next_form_page
-    # dd214
-    next_form_page
+
+    unless logged_in
+      # dd214
+      next_form_page
+    end
+
     # compensation
     click('#root_vaCompensationType_3', visible: false)
     next_form_page
@@ -59,7 +67,7 @@ RSpec.describe('hca', type: :feature) do
     find('#root_view\:preferredFacility_vaMedicalFacility option[value="521GE"]').select_option
     next_form_page
     # REVIEW: application
-    click('[name="privacyAgreementAccepted"]', visible: false)
+    click('#errorable-checkbox-8', visible: false)
     next_form_page
     expect(current_path).to eq('/health-care/apply/application/confirmation')
     # rubocop:enable Metrics/AbcSize
@@ -68,14 +76,15 @@ RSpec.describe('hca', type: :feature) do
 
   it 'logged in application', js: true do
     extend AuthenticatedSessionHelper
-    cookie = sign_in(FactoryBot.create(:user, :loa3), nil, true)
+    user = FactoryBot.create(:user, :loa3)
+    cookie = sign_in(user, nil, true)
 
     visit(DEFAULT_HOST)
     Capybara.current_session.driver.browser.manage.add_cookie(name: Settings.sso.cookie_name, value: 'foo')
     Capybara.current_session.driver.browser.manage.add_cookie(name: 'api_session', value: cookie.split(';')[0].split('=')[1])
     page.execute_script("localStorage.setItem('hasSession', true)");
 
-    start_form
+    start_application
     # veteran info
     find('#root_veteranFullName_first').set('first')
     find('#root_veteranFullName_last').set('last')
@@ -85,12 +94,17 @@ RSpec.describe('hca', type: :feature) do
     find('#root_veteranDateOfBirthDay').find(:option, '1').select_option
     find('#root_veteranDateOfBirthYear').set('1950')
     next_form_page
-    common_fill_hca_form
-    # TODO: run background job and make sure it succeeds
+    common_fill_hca_form(true)
+
+    # run job and make sure it succeeds
+    job = HCA::SubmissionJob.jobs.last
+    expect(job['args'][0]['icn']).to eq(user.icn)
+    HCA::SubmissionJob.drain
+    expect(HealthCareApplication.find(job['args'][2]).state).to eq('success')
   end
 
   it 'anonymous application', js: true do
-    start_form
+    start_application
     # user details page
     find('#root_firstName').set('first')
     find('#root_lastName').set('last')
@@ -105,6 +119,6 @@ RSpec.describe('hca', type: :feature) do
     # dob
     next_form_page
 
-    common_fill_hca_form
+    common_fill_hca_form(false)
   end
 end
