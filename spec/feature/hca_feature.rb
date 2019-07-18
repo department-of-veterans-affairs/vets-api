@@ -7,6 +7,11 @@ RSpec.describe('hca', type: :feature) do
     wait_for_new_url('.usa-button-primary')
   end
 
+  def start_form
+    visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
+    wait_for_new_url { first_with_wait('.schemaform-start-button').click }
+  end
+
   # rubocop:disable Metrics/AbcSize
   # rubocop:disable Metrics/MethodLength
   def common_fill_hca_form
@@ -70,8 +75,7 @@ RSpec.describe('hca', type: :feature) do
     Capybara.current_session.driver.browser.manage.add_cookie(name: 'api_session', value: cookie.split(';')[0].split('=')[1])
     page.execute_script("localStorage.setItem('hasSession', true)");
 
-    visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
-    wait_for_new_url { first_with_wait('.schemaform-start-button').click }
+    start_form
     # veteran info
     find('#root_veteranFullName_first').set('first')
     find('#root_veteranFullName_last').set('last')
@@ -86,8 +90,7 @@ RSpec.describe('hca', type: :feature) do
   end
 
   it 'anonymous application', js: true do
-    visit("#{DEFAULT_HOST}/health-care/apply/application/introduction")
-    wait_for_new_url('.schemaform-start-button')
+    start_form
     # user details page
     find('#root_firstName').set('first')
     find('#root_lastName').set('last')
