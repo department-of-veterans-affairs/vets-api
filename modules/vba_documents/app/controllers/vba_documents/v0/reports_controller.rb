@@ -12,7 +12,7 @@ module VBADocuments
       ID_PARAM = 'ids'
 
       def create
-        statuses = VBADocuments::UploadSubmission.refresh_and_get_statuses!(params[ID_PARAM])
+        statuses = VBADocuments::UploadSubmission.where(guid: params[ID_PARAM])
         render json: with_spoofed(statuses),
                each_serializer: VBADocuments::UploadSerializer
       end
