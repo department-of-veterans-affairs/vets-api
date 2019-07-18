@@ -8,10 +8,12 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < BaseFormController
         FORM_NUMBER = '526'
+        before_action :verification_itf_expiration, only: [:submit_form_526]
         skip_before_action(:authenticate)
         skip_before_action(:verify_power_of_attorney)
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
-        skip_before_action :verify_mvi, only: [:submit_form_526]
+        skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
+        skip_before_action :log_request, only: %i[validate_form_526]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -28,7 +30,7 @@ module ClaimsApi
         end
 
         def upload_supporting_documents
-          claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           documents.each do |document|
             claim_document = claim.supporting_documents.build
             claim_document.set_file_data!(document, params[:doc_type], params[:description])
@@ -36,10 +38,31 @@ module ClaimsApi
             ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
-          head :ok
+          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+        end
+
+        def validate_form_526
+          validate_form526(form_attributes)
+          render json: { data: 'success' }
         end
 
         private
+
+        def validate_form526(form_data)
+          service(auth_headers).validate_form526(form_data)
+        end
+
+        def service(auth_headers)
+          if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
+            ClaimsApi::DisabilityCompensation::MockOverrideService.new(
+              auth_headers
+            )
+          else
+            EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
+              auth_headers
+            )
+          end
+        end
 
         def documents
           document_keys = params.keys.select { |key| key.include? 'attachment' }
