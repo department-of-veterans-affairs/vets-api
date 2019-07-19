@@ -107,3 +107,7 @@ ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_
   StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
   StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
 end
+
+# init gibft
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)
