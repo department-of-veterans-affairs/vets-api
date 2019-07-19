@@ -29,7 +29,7 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
+Benefit You Are Receiving: <%= form_benefit %>
 Are you applying for the Edith Nourse Rogers STEM Scholarship
 (Chapter 33)?: <%= yesno(@applicant.isEdithNourseRogersScholarship) %>
 Are you enrolled in an undergraduate STEM degree program?: <%= yesno(@applicant.isEnrolledStem) %>
