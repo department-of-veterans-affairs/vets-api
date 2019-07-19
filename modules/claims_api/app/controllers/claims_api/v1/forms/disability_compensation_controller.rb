@@ -12,7 +12,6 @@ module ClaimsApi
         before_action :verification_itf_expiration, only: [:submit_form_526]
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
         skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
-        skip_before_action :authenticate, only: %i[validate_form_526]
         skip_before_action :log_request, only: %i[validate_form_526]
 
         def submit_form_526
@@ -42,14 +41,19 @@ module ClaimsApi
         end
 
         def validate_form_526
-          validate_form526(form_attributes)
-          render json: { data: 'success' }
+          valid_service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          validation_result = valid_service.validate_form526(form_attributes.to_json)
+          render json: validation_result
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
         end
 
         private
 
-        def validate_form526(form_data)
-          service(auth_headers).validate_form526(form_data)
+        def format_errors(errors)
+          errors.map do |error|
+            { status: 422, detail: "#{error['key']} #{error['detail']}", source: nil }
+          end
         end
 
         def service(auth_headers)

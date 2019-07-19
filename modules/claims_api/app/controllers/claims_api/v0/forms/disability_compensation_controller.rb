@@ -45,9 +45,8 @@ module ClaimsApi
           valid_service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
           validation_result = valid_service.validate_form526(form_attributes.to_json)
           render json: validation_result
-          rescue EVSS::ErrorMiddleware::EVSSError => e
-            render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
-          end
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
         end
 
         private
