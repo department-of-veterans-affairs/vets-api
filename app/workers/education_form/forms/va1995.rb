@@ -16,7 +16,13 @@ module EducationForm::Forms
     end
 
     def form_type(applicant)
+      return 'STEM' if applicant.isEdithNourseRogersScholarship
       FORM_TYPES[applicant.benefit&.to_sym]
+    end
+
+    def form_benefit(applicant)
+      return 'STEM' if applicant.isEdithNourseRogersScholarship
+      applicant.benefit&.titleize
     end
   end
 end
