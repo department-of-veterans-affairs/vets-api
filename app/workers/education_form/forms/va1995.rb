@@ -11,18 +11,18 @@ module EducationForm::Forms
       'transferOfEntitlement': 'TransferOfEntitlement'
     }.freeze
 
+    def header_form_type
+      return 'STEM-1995' if @applicant.isEdithNourseRogersScholarship
+      'V1995'
+    end
+
     def school
       @applicant.newSchool
     end
 
-    def form_type(applicant)
-      return 'STEM' if applicant.isEdithNourseRogersScholarship
-      FORM_TYPES[applicant.benefit&.to_sym]
-    end
-
-    def form_benefit(applicant)
-      return 'STEM' if applicant.isEdithNourseRogersScholarship
-      applicant.benefit&.titleize
+    def form_type
+      return 'STEM' if @applicant.isEdithNourseRogersScholarship
+      FORM_TYPES[@applicant.benefit&.to_sym]
     end
   end
 end
