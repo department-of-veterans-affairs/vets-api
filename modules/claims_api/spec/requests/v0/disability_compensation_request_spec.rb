@@ -82,6 +82,36 @@ RSpec.describe 'Disability Claims ', type: :request do
         expect(JSON.parse(response.body)['errors'].size).to eq(2)
       end
     end
+
+    context 'form 526 validation' do
+      it 'should return a successful response when valid' do
+        VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
+          post '/services/claims/v0/forms/526_validate', params: data, headers: headers
+          parsed = JSON.parse(response.body)
+          expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
+          expect(parsed['data']['attributes']['status']).to eq('valid')
+        end
+      end
+
+      it 'should return a list of errors when invalid hitting EVSS' do
+        VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
+          post '/services/claims/v0/forms/526_validate', params: data, headers: headers
+          parsed = JSON.parse(response.body)
+          expect(response.status).to eq(422)
+          expect(parsed['errors'].size).to eq(2)
+        end
+      end
+
+      it 'should return a list of errors when invalid via internal validation' do
+        json_data = JSON.parse data
+        params = json_data
+        params['data']['attributes']['veteran']['currentMailingAddress'] = {}
+        post '/services/claims/v0/forms/526_validate', params: params.to_json, headers: headers
+        parsed = JSON.parse(response.body)
+        expect(response.status).to eq(422)
+        expect(parsed['errors'].size).to eq(6)
+      end
+    end
   end
 
   describe '#upload_supporting_documents' do
