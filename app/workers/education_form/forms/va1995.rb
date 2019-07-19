@@ -21,7 +21,7 @@ module EducationForm::Forms
     end
 
     def header_form_type
-      return 'STEM-1995' if @applicant.isEdithNourseRogersScholarship
+      return 'STEM1995' if @applicant.isEdithNourseRogersScholarship
       'V1995'
     end
   end
