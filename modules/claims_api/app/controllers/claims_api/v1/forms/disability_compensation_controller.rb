@@ -10,6 +10,7 @@ module ClaimsApi
         FORM_NUMBER = '526'
         before_action { permit_scopes %w[claim.write] }
         before_action :verification_itf_expiration, only: [:submit_form_526]
+        before_action :validate_526_payload, only: [:submit_form_526]
         skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
         skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
         skip_before_action :log_request, only: %i[validate_form_526]

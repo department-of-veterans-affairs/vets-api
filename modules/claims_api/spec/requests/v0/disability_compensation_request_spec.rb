@@ -19,6 +19,8 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'should return a successful response with all the data' do
       VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+        allow_any_instance_of(klass).to receive(:validate_form526).and_return(true)
         post path, params: data, headers: headers
         parsed = JSON.parse(response.body)
         expect(parsed['data']['type']).to eq('claims_api_auto_established_claims')
@@ -37,6 +39,8 @@ RSpec.describe 'Disability Claims ', type: :request do
 
     it 'should create the sidekick job' do
       VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+        klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+        expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
         expect(ClaimsApi::ClaimEstablisher).to receive(:perform_async)
         post path, params: data, headers: headers
       end
