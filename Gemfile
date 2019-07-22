@@ -93,6 +93,7 @@ gem 'will_paginate'
 gem 'zero_downtime_migrations'
 
 group :development do
+  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'socksify'
