@@ -31,4 +31,4 @@ do
   echo "============================================================================================"
 done
 git checkout Gemfile.lock
-git checkout $current_branch
+git checkout $current_branch > /dev/null
