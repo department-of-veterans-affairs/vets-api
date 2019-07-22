@@ -71,5 +71,9 @@
   "nonVaAssistance": true,
   "remarks": "remarks",
   "programName": "program name",
-  "privacyAgreementAccepted": true
+  "privacyAgreementAccepted": true,
+  "isEdithNourseRogersScholarship": true,
+  "isEnrolledStem": true,
+  "isPursuingTeachingCert": true,
+  "isActiveDuty": true
 }
