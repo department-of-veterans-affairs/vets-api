@@ -27,10 +27,10 @@ module VBADocuments
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
         if submission.nil?
-          render status: :not_found,
-                 json: VBADocuments::UploadSubmission.fake_status(params[:id]),
-                 serializer: VBADocuments::UploadSerializer,
-                 render_location: false
+          return render status: :not_found,
+                        json: VBADocuments::UploadSubmission.fake_status(params[:id]),
+                        serializer: VBADocuments::UploadSerializer,
+                        render_location: false
         elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
           submission.status = request.headers['Status-Override']
           submission.save
