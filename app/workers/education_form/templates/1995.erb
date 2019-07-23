@@ -1,5 +1,5 @@
 <%= header %>
-<%= form_type(@applicant) %>
+<%= form_type %>
 *START*
 VA Form 22-1995
 DEC 2016
@@ -29,7 +29,13 @@ Preferred Method of Contact: <%= @applicant.preferredContactMethod %>
                   TYPE AND PROGRAM OF EDUCATION OR TRAINING
                   -----------------------------------------
 
-Benefit You Are Receiving: <%= @applicant.benefit&.titleize %>
+Benefit You Are Receiving: <%= form_benefit %>
+Are you applying for the Edith Nourse Rogers STEM Scholarship
+(Chapter 33)?: <%= yesno(@applicant.isEdithNourseRogersScholarship) %>
+Are you enrolled in an undergraduate STEM degree program?: <%= yesno(@applicant.isEnrolledStem) %>
+Do you have a STEM undergraduate degree and are now pursuing a
+teaching certification?: <%= yesno(@applicant.isPursuingTeachingCert) %>
+
 Type of Education or Training: <%= @applicant.educationType&.titleize %>
 Education or Career Goal: <%= @applicant.educationObjective %>
 
@@ -45,6 +51,9 @@ Reason for Change: <%= @applicant.reasonForChange %>
 
                        ACTIVE DUTY SERVICE INFORMATION
                        -------------------------------
+
+Are you currently on active duty or do you anticipate you will
+be going on active duty?: <%= yesno(@applicant.isActiveDuty) %>
 
 Date Entered   Date Separated     Service Component
 <% @applicant&.toursOfDuty&.each do |tour| -%>
