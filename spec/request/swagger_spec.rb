@@ -44,12 +44,6 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       end
 
       describe '/v0/backend_statuses' do
-        context 'without a signed in user' do
-          it 'returns a 401' do
-            expect(subject).to validate(:get, '/v0/backend_statuses', 401)
-          end
-        end
-
         context 'when successful' do
           include_context 'simulating Redis caching of PagerDuty#get_services'
 
