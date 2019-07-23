@@ -190,7 +190,7 @@ module ClaimsApi
       end
     end
 
-    swagger_path '/forms/526_validate' do
+    swagger_path '/forms/526/validate' do
       operation :post do
         key :summary, 'Validates a 526 claim form submission'
         key :description, 'Accepts JSON payload. Full URL, including\nquery parameters.'

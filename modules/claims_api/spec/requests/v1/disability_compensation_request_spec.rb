@@ -98,7 +98,7 @@ RSpec.describe 'Disability Claims ', type: :request do
         VCR.use_cassette('evss/disability_compensation_form/form_526_valid_validation') do
           with_okta_user(scopes) do |auth_header|
             data = File.read(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_526_json_api.json'))
-            post '/services/claims/v1/forms/526_validate', params: data, headers: headers.merge(auth_header)
+            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
             parsed = JSON.parse(response.body)
             expect(parsed['data']['type']).to eq('claims_api_auto_established_claim_validation')
             expect(parsed['data']['attributes']['status']).to eq('valid')
@@ -109,7 +109,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'should return a list of errors when invalid hitting EVSS' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
-            post '/services/claims/v1/forms/526_validate', params: data, headers: headers.merge(auth_header)
+            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
             parsed = JSON.parse(response.body)
             expect(response.status).to eq(422)
             expect(parsed['errors'].size).to eq(2)
@@ -122,7 +122,7 @@ RSpec.describe 'Disability Claims ', type: :request do
           json_data = JSON.parse data
           params = json_data
           params['data']['attributes']['veteran']['currentMailingAddress'] = {}
-          post '/services/claims/v1/forms/526_validate', params: params.to_json, headers: headers.merge(auth_header)
+          post '/services/claims/v1/forms/526/validate', params: params.to_json, headers: headers.merge(auth_header)
           parsed = JSON.parse(response.body)
           expect(response.status).to eq(422)
           expect(parsed['errors'].size).to eq(6)
