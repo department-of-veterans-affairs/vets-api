@@ -303,6 +303,7 @@ RSpec.describe V0::SessionsController, type: :controller do
     describe 'POST saml_logout_callback' do
       let(:originating_request_type) { 'slo' }
       before { SingleLogoutRequest.create(uuid: logout_uuid, token: token) }
+      stub_request_id
 
       context 'saml_logout_response is invalid' do
         before do
@@ -393,6 +394,8 @@ RSpec.describe V0::SessionsController, type: :controller do
 
       let(:frozen_time) { Time.current }
       let(:expire_at) { frozen_time + 1800 }
+
+      stub_request_id
 
       around(:each) do |example|
         Timecop.freeze(frozen_time)
@@ -519,6 +522,18 @@ RSpec.describe V0::SessionsController, type: :controller do
         end
 
         verify_session_activity_update('success', false)
+
+        context 'when the users ip address changes' do
+          it 'should update the session activity' do
+            ip = '192.168.1.1'
+            allow_any_instance_of(ActionController::TestRequest).to receive(:remote_ip).and_return(ip)
+            expect(session_activity.originating_ip_address).to eq('0.0.0.0')
+
+            saml_callback_with_relaystate
+
+            expect(session_activity.reload.originating_ip_address).to eq(ip)
+          end
+        end
 
         it 'redirects to identity proof URL', :aggregate_failures do
           expect_any_instance_of(SAML::URLService).to receive(:verify_url)

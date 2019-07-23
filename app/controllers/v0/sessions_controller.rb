@@ -52,11 +52,11 @@ module V0
 
       if saml_response.valid?
         user_logout(saml_response)
-        session_activity&.update_success
+        session_activity&.update_success(sa_metadata)
       else
         log_error(saml_response)
         Rails.logger.info("SLO callback response invalid for originating_request_id '#{originating_request_id}'")
-        session_activity&.update_fail
+        session_activity&.update_fail(sa_metadata)
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)
@@ -71,12 +71,12 @@ module V0
 
       if saml_response.valid?
         user_login(saml_response)
-        session_activity.update_success
+        session_activity.update_success(sa_metadata)
       else
         log_error(saml_response)
         redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
         stats(:failure, saml_response, saml_response.error_instrumentation_code)
-        session_activity.update_fail
+        session_activity.update_fail(sa_metadata)
       end
     rescue StandardError => e
       log_exception_to_sentry(e, {}, {}, :error)

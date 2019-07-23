@@ -12,11 +12,9 @@ class SessionActivity < ApplicationRecord
   # Additional validations on update
   # TODO: add these later.
 
-  def update_success
-    update(status: 'success')
-  end
-
-  def update_fail
-    update(status: 'fail')
+  %w[success fail].each do |status|
+    define_method("update_#{status}") do |metadata|
+      update(metadata.merge(status: status))
+    end
   end
 end
