@@ -21,9 +21,12 @@ RSpec.describe VBADocuments::UploadStatusUpdater, type: :job do
       in_process_element[0]['uuid'] = upload.guid
       expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
 
-      VBADocuments::UploadStatusUpdater.new.perform
-      upload.reload
-      expect(upload.status).to eq('processing')
+      with_settings(Settings.vba_documents,
+                    updater_enabled: true) do
+        VBADocuments::UploadStatusUpdater.new.perform
+        upload.reload
+        expect(upload.status).to eq('processing')
+      end
     end
   end
 end
