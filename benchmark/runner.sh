@@ -6,7 +6,7 @@
 #   -a  supply the "after" commit SHA.  Defaults to current branch
 #   -f  supply the file name that contains the code to benchmark. Defaults to 'benchmark/test_code.rb'
 #
-# Full example: ./benchmark/runner.sh -b 8aaf03f42 -a 3cb6a9260 -f benchmark/testing.rb
+# Full example: ./benchmark/runner.sh -b 8dfe3c5 -a 21d51bb -f benchmark/testing.rb
 
 
 current_branch="$(git branch | grep \\* | cut -d ' ' -f2)"
