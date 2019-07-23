@@ -30,11 +30,10 @@ module V0
       url = url_service.send("#{type}_url")
 
       SessionActivity.create!(
-        name: type,
-        originating_request_id: Thread.current['request_id'],
-        originating_ip_address: request.remote_ip,
-        additional_data: { originating_user_agent: request.user_agent },
-        generated_url: url
+        sa_metadata.merge(
+          name: type,
+          generated_url: url
+        )
       )
 
       if type == 'slo'
@@ -88,6 +87,14 @@ module V0
     end
 
     private
+
+    def sa_metadata
+      {
+        originating_request_id: Thread.current['request_id'],
+        originating_ip_address: request.remote_ip,
+        additional_data: { originating_user_agent: request.user_agent }
+      }
+    end
 
     def auth_error_code(code)
       if code == '005' && validate_session
