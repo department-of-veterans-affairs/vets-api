@@ -52,5 +52,29 @@ module ClaimsApi
 
       payload_attributes
     end
+
+    def validate_526_payload
+      service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+      service.validate_form526(form_attributes.to_json)
+    rescue EVSS::ErrorMiddleware::EVSSError => e
+      render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
+    end
+
+    def valid_526_response
+      {
+        data: {
+          type: 'claims_api_auto_established_claim_validation',
+          attributes: {
+            status: 'valid'
+          }
+        }
+      }.to_json
+    end
+
+    def format_526_errors(errors)
+      errors.map do |error|
+        { status: 422, detail: "#{error['key']} #{error['detail']}", source: error['key'] }
+      end
+    end
   end
 end
