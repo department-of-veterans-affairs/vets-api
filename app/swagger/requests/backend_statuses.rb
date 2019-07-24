@@ -9,8 +9,6 @@ module Swagger
 
       swagger_path '/v0/backend_statuses' do
         operation :get do
-          extend Swagger::Responses::AuthenticationError
-
           key :description, 'Gets the current status of all external services'
           key :operationId, 'getBackendStatuses'
           key :tags, %w[backend_statuses]
@@ -33,6 +31,7 @@ module Swagger
                     key :type, :array
                     items do
                       property :service, type: :string, example: 'Appeals'
+                      property :service_id, type: :string, example: 'appeals'
                       property :status,
                                type: :string,
                                enum: PagerDuty::Models::Service::STATUSES,
