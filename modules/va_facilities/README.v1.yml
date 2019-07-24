@@ -525,7 +525,7 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: "#/components/schemas/Facility"
+                      $ref: "#/components/schemas/FacilityBasic"
                   meta:
                     description: "Metadata about the response"
                     type: object
@@ -564,7 +564,7 @@ paths:
                   features:
                     type: array
                     items:
-                      $ref: "#/components/schemas/FacilityFeature"
+                      $ref: "#/components/schemas/FacilityFeatureBasic"
           headers:
             Link:
               description: GitHub-style pagination information. Only present for GeoJSON-format responses.
