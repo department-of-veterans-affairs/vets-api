@@ -9,10 +9,10 @@ module ClaimsApi
       class DisabilityCompensationController < BaseFormController
         FORM_NUMBER = '526'
         before_action { permit_scopes %w[claim.write] }
-        before_action :verification_itf_expiration, only: [:submit_form_526]
-        skip_before_action :validate_json_schema, only: [:upload_supporting_documents]
+        before_action :verification_itf_expiration, only: %i[submit_form_526]
+        before_action :validate_526_payload, only: %i[submit_form_526]
+        skip_before_action :validate_json_schema, only: %i[upload_supporting_documents]
         skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
-        skip_before_action :authenticate, only: %i[validate_form_526]
         skip_before_action :log_request, only: %i[validate_form_526]
 
         def submit_form_526
@@ -42,15 +42,14 @@ module ClaimsApi
         end
 
         def validate_form_526
-          validate_form526(form_attributes)
-          render json: { data: 'success' }
+          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          service.validate_form526(form_attributes.to_json)
+          render json: valid_526_response
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
         end
 
         private
-
-        def validate_form526(form_data)
-          service(auth_headers).validate_form526(form_data)
-        end
 
         def service(auth_headers)
           if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
