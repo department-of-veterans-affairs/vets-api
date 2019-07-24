@@ -43,6 +43,13 @@ Allows a client to upload a document package (form + attachments + metadata).
     submitted payload. This can be compared to the submitted payload to ensure data
     integrity of the upload
 
+### Document Status Caching
+Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.
+
+A request to the `/uploads/{id}` endpoint will return a real-time status for that GUID, and update its status in `/uploads/report`.
+
+The `updated_at` field indicates the last time the status for a given GUID was updated.
+
 ### Status Simulation
 Given the downstream connections of this API, we allow (**IN DEVELOPER ENVIRONMENT ONLY**) passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `error`.
 
