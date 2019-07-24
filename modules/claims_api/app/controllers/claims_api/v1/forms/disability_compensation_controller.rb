@@ -42,20 +42,14 @@ module ClaimsApi
         end
 
         def validate_form_526
-          valid_service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
-          validation_result = valid_service.validate_form526(form_attributes.to_json)
-          render json: validation_result
+          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          service.validate_form526(form_attributes.to_json)
+          render json: valid_526_response
         rescue EVSS::ErrorMiddleware::EVSSError => e
-          render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
+          render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
         end
 
         private
-
-        def format_errors(errors)
-          errors.map do |error|
-            { status: 422, detail: "#{error['key']} #{error['detail']}", source: nil }
-          end
-        end
 
         def service(auth_headers)
           if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']

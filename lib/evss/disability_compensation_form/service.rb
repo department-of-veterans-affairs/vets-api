@@ -58,40 +58,11 @@ module EVSS
         with_monitoring_and_error_handling do
           headers = { 'Content-Type' => 'application/json' }
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
-          raw_response = perform(:post, 'validate', form_content, headers, options)
-          if raw_response.status == 200
-            valid_response
-          else
-            # when evss returns invalid, the middleware will catch the error and it will be rescued
-            # by the caller. This is the fallback response for an unknown error response
-            error_response
-          end
+          perform(:post, 'validate', form_content, headers, options)
         end
       end
 
       private
-
-      def valid_response
-        {
-          data: {
-            type: 'claims_api_auto_established_claim_validation',
-            attributes: {
-              status: 'valid'
-            }
-          }
-        }.to_json
-      end
-
-      def error_response(response)
-        {
-          errors: [
-            {
-              status: response.status,
-              detail: 'An unknown error has occurred'
-            }
-          ]
-        }.to_json
-      end
 
       def handle_error(error)
         if error.is_a?(Common::Client::Errors::ClientError) && error.status != 403 && error.body.is_a?(Hash)
