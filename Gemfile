@@ -111,6 +111,7 @@ group :test do
   gem 'apivore'
   gem 'awrence'
   gem 'climate_control'
+  gem 'database_cleaner'
   gem 'faker'
   gem 'faker-medical'
   gem 'fakeredis'
