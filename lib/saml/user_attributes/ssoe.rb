@@ -65,7 +65,7 @@ module SAML
         attributes['va_eauth_credentialassurancelevel']&.to_i
       end
 
-      # TODO: Is loa_current === loa_highest in SSOe authentication flow?
+      # TODO: This should be IDmeLOA, perhaps check in existing_user_identity?
       def loa_highest
         loa_current
       end
