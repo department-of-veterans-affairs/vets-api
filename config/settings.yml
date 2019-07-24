@@ -335,7 +335,20 @@ github:
 maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
-  services: ~
+  services:
+    appeals: P9S4RFU
+    arcgis: P45YBFA
+    dslogon: P9DJJAV
+    emis: P0HNT0I
+    es: PH7OPR4
+    evss: PZKWB6Y
+    idme: PVWB4R8
+    mvi: PCIPVGJ
+    mhv: PP2ZZ2V
+    search: PRG8HJI
+    tims: PUL8OQ4
+    vet360: PHVOGQ1
+    vic: P7LW3MS
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file

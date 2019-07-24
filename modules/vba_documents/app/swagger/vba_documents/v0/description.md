@@ -29,7 +29,7 @@ Allows a client to upload a document package (form + attachments + metadata).
     * `location`: A URL to which the actual document package payload can be submitted
       in the next step. The URL is specific to this upload request and should not be
       re-used for subsequent uploads. The URL is valid for 900 seconds (15 minutes)
-      from the time of this response.
+      from the time of this response. Once expired, status checks on the GUID will return a status of expired.
 
 3. Client Request: PUT to the location URL returned in Step 2.
     * Request body should be encoded as multipart/form-data, equivalent to that

@@ -190,6 +190,7 @@ GEM
       descendants_tracker (~> 0.0.4)
       ice_nine (~> 0.11.0)
       thread_safe (~> 0.3, >= 0.3.1)
+    benchmark-ips (2.7.2)
     binding_of_caller (0.7.2)
       debug_inspector (>= 0.0.1)
     brakeman (4.4.0)
@@ -684,6 +685,7 @@ DEPENDENCIES
   awrence
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
+  benchmark-ips
   betamocks!
   brakeman
   breakers
