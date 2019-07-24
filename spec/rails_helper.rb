@@ -33,19 +33,23 @@ WebMock.disable_net_connect!(allow_localhost: true)
 #   expect(something).to equal(2)
 # end
 def with_settings(settings, temp_values)
-  old_settings = temp_values.keys.map { |k| [k, settings[k]] }.to_h
+  mutex = Mutex.new
 
-  # The `Config` object doesn't support `.merge!`, so manually copy
-  # the updated values.
-  begin
-    temp_values.each do |k, v|
-      settings[k] = v
-    end
+  mutex.synchronize do
+    old_settings = temp_values.keys.map { |k| [k, settings[k]] }.to_h
 
-    yield
-  ensure
-    old_settings.each do |k, v|
-      settings[k] = v
+    # The `Config` object doesn't support `.merge!`, so manually copy
+    # the updated values.
+    begin
+      temp_values.each do |k, v|
+        settings[k] = v
+      end
+
+      yield
+    ensure
+      old_settings.each do |k, v|
+        settings[k] = v
+      end
     end
   end
 end

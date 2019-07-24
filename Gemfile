@@ -139,11 +139,13 @@ group :development, :test do
   gem 'foreman'
   gem 'guard-rspec', '~> 4.7'
   gem 'overcommit'
+  gem 'parallel_tests'
   gem 'rack-test', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
   gem 'sidekiq', '~> 4.2'
+  gem 'test-prof'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
