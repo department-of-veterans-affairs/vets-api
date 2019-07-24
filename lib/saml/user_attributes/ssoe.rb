@@ -65,16 +65,11 @@ module SAML
         attributes['va_eauth_credentialassurancelevel']&.to_i
       end
 
-      # TODO: This should be IDmeLOA, perhaps check in existing_user_identity?
-      def loa_highest
-        loa_current
-      end
-
       ### Unsupported attributes
 
-      # ID.me level of assurance. This is not supported by SSOe.
-      def idme_loa
-        nil
+      # TODO: This should be the ID.me highest level of assurance attained; how is this propogated from ID.me after SSOe is interposed in the login flow?
+      def loa_highest
+        # defined as attributes['level_of_assurance']&.to_i
       end
 
       # TODO: This is not supported by SSOe. Denotes whether ID.me wallet is MFA enabled. Is this attribute still necessary?
