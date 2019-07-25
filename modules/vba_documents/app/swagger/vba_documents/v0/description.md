@@ -2,13 +2,10 @@ The Benefits Intake API allows authorized third-party systems used by Veteran Se
 
 This API provides a secure and efficient alternative to paper or fax document submissions. VBA can begin processing documents submitted through this API immediately, which ultimately allows VA to provide Veterans with claim decisions more quickly.
 
-It also saves users time by reporting documents' status until they reach Veterans Benefits Management System (VBMS), where the documents are reviewed. This eliminates the need for users to switch between systems to manually check whether documents have reached VBMS.
-
 ## Technical Summary
 The Benefits Intake API accepts a payload consisting of a document in PDF format, zero or more optional attachments in PDF format, and some JSON metadata. The metadata describes the document and attachments, and identifies the person for whom it is being submitted. This payload is encoded as multipart/form-data. A unique identifier supplied with the payload can subsequently be used to request the processing status of the uploaded document package.
 
 API consumers are encouraged to validate the `zipcode` and `fileNumber` fields before submission according to their description in the DocumentUploadMetadata model.
-
 
 ## Design
 ### Attachment & File Size Limits
@@ -17,7 +14,7 @@ There is not a limit on the number of documents that can be submitted at once, b
 The file size limit for each document is 100 MB. The entire package, which is all documents combined into one file, is limited to 5 GB.
 
 ### Date of Receipt
-The date and time documents are submitted to the Benefits Intake API is used as the official VA date of receipt. However, note that until a document status of `received`, `processing`, `success`, or `vbms` is returned, a client cannot consider the document received by VA.
+The date and time documents are submitted to the Benefits Intake API is used as the official VA date of receipt. However, note that until a document status of `received`, `processing`, or `success` is returned, a client cannot consider the document received by VA.
 
 A status of `received` means that the document package has been transmitted, but possibly not validated. Any errors with the document package (unreadable PDF, etc) may cause the status to change to `error`.
 
@@ -44,7 +41,7 @@ Allows a client to upload a document package (form + attachments + metadata).
     * Additionally, the response includes an ETag header containing an MD5 hash of the submitted payload. This can be compared to the submitted payload to ensure data integrity of the upload.
 
 ### Status Simulation
-Given the downstream connections of this API, we allow **(IN DEVELOPER ENVIRONMENT ONLY)** passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, `vbms`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
+Given the downstream connections of this API, we allow **(IN DEVELOPER ENVIRONMENT ONLY)** passing in a header `Status-Override` on the `/uploads/{id}` endpoint that will allow you to change the status of your submission to simulate the various scenarios. The available statuses are `pending`, `uploaded`, `received`, `processing`, `success`, and `error`. The meaning of the various statuses is listed below in Models under DocumentUploadStatusAttributes.
 
 ### Status Caching
 Due to current system limitations, data for the `/uploads/report` endpoint is cached for one hour.
@@ -54,4 +51,4 @@ A request to the `/uploads/{id}` endpoint will return a real-time status for tha
 The `updated_at` field indicates the last time the status for a given GUID was updated.
 
 ## Reference
-Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v1/api
+Raw Open API Spec: https://api.va.gov/services/vba_documents/docs/v0/api
