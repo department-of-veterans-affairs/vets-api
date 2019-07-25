@@ -12,8 +12,8 @@ module VBADocuments
       unique_until: :success
     )
 
-    def perform(submissions)
-      submissions.each_slice(100) do |slice|
+    def perform(submission_guids)
+      VBADocuments::UploadSubmission.where(guid: submission_guids).find_in_batches(batch_size: 100) do |slice|
         VBADocuments::UploadSubmission.refresh_statuses!(slice)
       end
     end
