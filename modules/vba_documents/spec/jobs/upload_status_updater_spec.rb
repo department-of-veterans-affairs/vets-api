@@ -23,7 +23,7 @@ RSpec.describe VBADocuments::UploadStatusUpdater, type: :job do
 
       with_settings(Settings.vba_documents,
                     updater_enabled: true) do
-        VBADocuments::UploadStatusUpdater.new.perform
+        VBADocuments::UploadStatusUpdater.new.perform([upload])
         upload.reload
         expect(upload.status).to eq('processing')
       end
