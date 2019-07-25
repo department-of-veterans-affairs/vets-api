@@ -208,14 +208,6 @@ module ClaimsApi
         end
 
         parameter do
-          key :name, 'apikey'
-          key :in, :header
-          key :description, 'API Key given to access data'
-          key :required, true
-          key :type, :string
-        end
-
-        parameter do
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
