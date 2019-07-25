@@ -72,7 +72,7 @@ module SAML
         # defined as attributes['level_of_assurance']&.to_i
       end
 
-      # TODO: This is not supported by SSOe. Denotes whether ID.me wallet is MFA enabled. Is this attribute still necessary?
+      # TODO: This is not supported by SSOe. Denotes whether ID.me wallet is MFA enabled. Investigate front-end use of this attribute to determine whether this attribute is still necessary
       def multifactor
         nil
       end
