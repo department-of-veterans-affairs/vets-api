@@ -12,11 +12,9 @@ module VBADocuments
       unique_until: :success
     )
 
-    def perform
-      if Settings.vba_documents.updater_enabled
-        VBADocuments::UploadSubmission.in_flight.order(created_at: :asc).find_in_batches(batch_size: 100) do |batch|
-          VBADocuments::UploadSubmission.refresh_statuses!(batch)
-        end
+    def perform(submissions)
+      submissions.each_slice(100) do |slice|
+        VBADocuments::UploadSubmission.refresh_statuses!(slice)
       end
     end
   end
