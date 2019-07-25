@@ -13,7 +13,7 @@ module VBADocuments
     # We don't want to check successes before
     # this date as it used to be the endpoint
     VBMS_IMPLEMENTATION_DATE = Date.parse('28-06-2019')
-    DIVISION_SIZE = 3
+    DIVISION_SIZE = 5
 
     def perform
       if Settings.vba_documents.updater_enabled
