@@ -17,8 +17,7 @@ module VBADocuments
 
     def perform
       if Settings.vba_documents.updater_enabled
-        batch = Sidekiq::Batch.new
-        batch.jobs do
+        Sidekiq::Batch.new.jobs do
           submissions = filtered_submissions
           submissions.each_slice(submissions.count / DIVISION_SIZE) do |slice|
             VBADocuments::UploadStatusUpdater.perform_async(slice)
