@@ -242,6 +242,7 @@ GEM
     crack (0.4.3)
       safe_yaml (~> 1.0.0)
     crass (1.0.4)
+    database_cleaner (1.7.0)
     date_validator (0.9.0)
       activemodel
       activesupport
@@ -591,9 +592,6 @@ GEM
       rufus-scheduler (~> 3.2)
       sidekiq (>= 3)
       tilt (>= 1.4.0)
-    sidekiq-unique-jobs (5.0.10)
-      sidekiq (>= 4.0, <= 6.0)
-      thor (~> 0)
     simplecov (0.15.1)
       docile (~> 1.1.0)
       json (>= 1.8, < 3)
@@ -700,6 +698,7 @@ DEPENDENCIES
   climate_control
   config
   connect_vbms!
+  database_cleaner
   date_validator
   dry-struct
   dry-types
@@ -777,7 +776,6 @@ DEPENDENCIES
   sidekiq-instrument
   sidekiq-pro!
   sidekiq-scheduler (~> 2.0)
-  sidekiq-unique-jobs
   simplecov
   socksify
   spring

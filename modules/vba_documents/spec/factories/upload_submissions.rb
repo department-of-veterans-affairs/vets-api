@@ -7,6 +7,10 @@ FactoryBot.define do
     consumer_id 'f7027a14-6abd-4087-b397-3d84d445f4c3'
     consumer_name 'adhoc'
 
+    trait :status_received do
+      status 'received'
+    end
+
     trait :status_uploaded do
       status 'uploaded'
     end

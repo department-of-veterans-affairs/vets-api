@@ -80,7 +80,6 @@ gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
-gem 'sidekiq-unique-jobs'
 gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
@@ -131,6 +130,7 @@ group :development, :test do
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'capybara', '3.22.0'
+  gem 'database_cleaner'
   gem 'factory_bot_rails'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
