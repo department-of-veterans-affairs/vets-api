@@ -200,6 +200,14 @@ module ClaimsApi
         ]
 
         parameter do
+          key :name, 'bearer_token'
+          key :in, :header
+          key :description, 'Oauth Token of Veteran requesting to access data'
+          key :required, true
+          key :type, :string
+        end
+
+        parameter do
           key :name, 'apikey'
           key :in, :header
           key :description, 'API Key given to access data'
@@ -211,7 +219,7 @@ module ClaimsApi
           key :name, 'X-VA-SSN'
           key :in, :header
           key :description, 'SSN of Veteran to fetch'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -219,7 +227,7 @@ module ClaimsApi
           key :name, 'X-VA-First-Name'
           key :in, :header
           key :description, 'First Name of Veteran to fetch'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -227,7 +235,7 @@ module ClaimsApi
           key :name, 'X-VA-Last-Name'
           key :in, :header
           key :description, 'Last Name of Veteran to fetch'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -235,7 +243,7 @@ module ClaimsApi
           key :name, 'X-VA-Birth-Date'
           key :in, :header
           key :description, 'Date of Birth of Veteran to fetch in iso8601 format'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
@@ -251,7 +259,7 @@ module ClaimsApi
           key :name, 'X-VA-User'
           key :in, :header
           key :description, 'VA username of the person making the request'
-          key :required, true
+          key :required, false
           key :type, :string
         end
 
