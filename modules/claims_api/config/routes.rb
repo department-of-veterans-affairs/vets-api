@@ -13,7 +13,7 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
-      post '526_validate', to: 'disability_compensation#validate_form_526'
+      post '526/validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
       get '0966', to: 'intent_to_file#schema'
@@ -28,7 +28,7 @@ ClaimsApi::Engine.routes.draw do
       ## 526 Forms
       get '526', to: 'disability_compensation#schema'
       post '526', to: 'disability_compensation#submit_form_526'
-      post '526_validate', to: 'disability_compensation#validate_form_526'
+      post '526/validate', to: 'disability_compensation#validate_form_526'
       post '526/:id/attachments', to: 'disability_compensation#upload_supporting_documents'
       ## 0966 Forms
       get '0966', to: 'intent_to_file#schema'

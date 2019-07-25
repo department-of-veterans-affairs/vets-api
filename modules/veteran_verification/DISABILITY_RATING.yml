@@ -21,14 +21,14 @@ info:
 
     Allows a third-party application to request a Veteran's disability rating with the authorization of the Veteran.
 
-    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/diability_rating
+    1. Client Request: GET https://dev-api.va.gov/services/veteran_verification/v0/disability_rating
        *  Provide the Bearer token as a header: `Authorization: Bearer <token>`
 
     2. Service Response: A JSON API object with the Veteran's disability rating
 
     ## Reference
 
-    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/api
+    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/disability_rating
 
   termsOfService: ''
   contact:
