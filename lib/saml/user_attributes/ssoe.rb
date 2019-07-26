@@ -34,7 +34,8 @@ module SAML
         attributes['va_eauth_gender']&.chars&.first&.upcase
       end
 
-      # This attribute may sometimes be TIN, Patient identifier, etc. It is not guaranteed to be a SSN
+      # This attribute may sometimes be TIN, Patient identifier, etc.
+      # It is not guaranteed to be a SSN
       def ssn
         attributes['va_eauth_pnid']&.delete('-') if attributes['va_eauth_pnidtype'] == 'SSN'
       end
