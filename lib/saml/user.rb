@@ -77,7 +77,7 @@ module SAML
       raise
     end
 
-    # TODO: add SSOe class here?
+    # TODO: add SSOe class here
     def user_attributes_class
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'

@@ -160,6 +160,13 @@ module SAML
       )
     end
 
+    # TODO: Verify that attributes are available, in particular level_of_assurance and multifactor
+    # TODO: fill out method for building SSOe saml atributes
+    def build_ssoe_saml_attributes(authn_context:, level_of_assurance:, multifactor:)
+
+    end
+
+
     def build_mhv_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       OneLogin::RubySaml::Attributes.new(
         'mhv_icn' => (account_type == 'Basic' ? [''] : ['1012853550V207686']),
