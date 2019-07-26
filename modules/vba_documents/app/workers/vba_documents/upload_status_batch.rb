@@ -5,7 +5,6 @@ module VBADocuments
     include Sidekiq::Worker
 
     sidekiq_options(
-      queue: 'vba_documents',
       retry: true,
       unique_until: :success
     )
