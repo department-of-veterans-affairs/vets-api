@@ -80,7 +80,6 @@ gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
-gem 'sidekiq-unique-jobs'
 gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
