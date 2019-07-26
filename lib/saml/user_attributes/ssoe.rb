@@ -68,6 +68,7 @@ module SAML
       ### Unsupported attributes
 
       # TODO: This should be the ID.me highest level of assurance attained; how is this propogated from ID.me after SSOe is interposed in the login flow?
+      # VA IAM team to get this integrated and propagated
       def loa_highest
         # defined as attributes['level_of_assurance']&.to_i
       end
