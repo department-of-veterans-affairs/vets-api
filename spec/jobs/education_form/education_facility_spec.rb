@@ -109,7 +109,7 @@ RSpec.describe EducationForm::EducationFacility do
         education_benefits_claim.saved_claim.form_id = '22-1995'
         expect(described_class.region_for(education_benefits_claim)).to eq(:eastern)
       end
-      it 'should route Philippines to Easter RPO' do
+      it 'should route Philippines to Eastern RPO' do
         form = education_benefits_claim.parsed_form
         form['isEdithNourseRogersScholarship'] = true
         form['newSchool'] = {
