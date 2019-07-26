@@ -245,6 +245,7 @@ Rails.application.routes.draw do
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code
     resources :user_preferences, only: %i[create index], path: 'user/preferences', param: :code
     delete 'user/preferences/:code/delete_all', to: 'user_preferences#delete_all'
+    get 'feature_flags/:features', to: 'feature_flags#index'
 
     [
       'profile',

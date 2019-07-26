@@ -7,7 +7,8 @@ if ActiveRecord::Base.connection.table_exists? 'flipper_features'
   require 'active_support/cache'
   require 'flipper/adapters/active_support_cache_store'
 
-  FLIPPER_FEATURES = BackendServices.all + ['flipper_demo']
+  # Add new Feature toggles here.  The will be off until toggled int the UI
+  FLIPPER_FEATURES = BackendServices.all + ['flipper_demo', 'another_toggle']
 
   Flipper.configure do |config|
     config.default do
