@@ -69,17 +69,18 @@ module SAML
       ### Unsupported attributes
 
       # TODO: This should be the ID.me highest level of assurance attained;
-      # how is this propogated from ID.me after SSOe is interposed in the login
-      # flow? VA IAM team to get this integrated and propagated
+      # VA IAM team to get this integrated and propagated from ID.me
+      # double check attribute name after VA IAM finalizes
       def loa_highest
-        # defined as attributes['level_of_assurance']&.to_i
+        attributes['level_of_assurance']&.to_i
       end
 
       # TODO: This is not supported by SSOe. Denotes whether ID.me wallet is MFA
-      # enabled. Investigate front-end use of this attribute to determine
-      # whether this attribute is still necessary
+      # enabled. VA IAM team to get this integrated and propagated from ID.me
+      # Investigate front-end use of this attribute to determine
+      # what this attribute is used for
       def multifactor
-        nil
+        attributes['multifactor']&.to_i
       end
 
       def sign_in

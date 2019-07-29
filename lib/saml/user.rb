@@ -3,6 +3,7 @@
 require 'saml/user_attributes/id_me'
 require 'saml/user_attributes/mhv'
 require 'saml/user_attributes/dslogon'
+require 'saml/user_attributes/ssoe'
 require 'sentry_logging'
 require 'base64'
 
@@ -86,6 +87,8 @@ module SAML
         SAML::UserAttributes::DSLogon
       when 'multifactor', 'dslogon_loa3', 'myhealthevet_loa3', LOA::IDME_LOA3, LOA::IDME_LOA1
         SAML::UserAttributes::IdMe
+      when 'ssoe'
+        SAML::UserAttributes::SSOe
       else
         Raven.tags_context(
           authn_context: authn_context,
