@@ -11,6 +11,10 @@ module Vet360
     end
 
     def perform(method, path, body = nil, headers = {})
+      Raven.extra_context(
+        request_body: body
+      )
+
       Vet360::Stats.increment('total_operations')
       config.base_request_headers.merge(headers)
       response = super(method, path, body, headers)
