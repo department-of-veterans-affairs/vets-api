@@ -109,9 +109,9 @@ VBADocuments::UploadRemover:
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
 
-VBADocuments::UploadStatusUpdater:
+VBADocuments::UploadStatusBatch:
   every: "60m"
-  class: VBADocuments::UploadStatusUpdater
+  class: VBADocuments::UploadStatusBatch
   description: "Cache Statuses for VBA Documents"
 
 TransactionalEmailAnalyticsJob:
