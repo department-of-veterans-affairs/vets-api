@@ -80,7 +80,7 @@ module SAML
       # Investigate front-end use of this attribute to determine
       # what this attribute is used for
       def multifactor
-        attributes['multifactor']&.to_i
+        attributes['multifactor']
       end
 
       def sign_in
