@@ -51,7 +51,7 @@ RSpec.describe SAML::User do
 
     context 'LOA3 user' do
       let(:account_type) { '3' }
-      let(:highest_attained_loa) { nil }
+      let(:highest_attained_loa) { '3' }
 
       it 'has various important attributes' do
         expect(subject.to_hash).to eq(
