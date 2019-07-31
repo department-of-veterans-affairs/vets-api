@@ -11,14 +11,13 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
     allow(s3_client).to receive(:bucket).and_return(@s3_bucket)
   end
 
-  describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+  let(:upload) { FactoryBot.create(:upload_submission) }
 
+  describe '#perform' do
     it 'spawns processor jobs and updates state' do
       with_settings(Settings.vba_documents.s3, 'enabled': true) do
         expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
         expect(@s3_object).to receive(:exists?).and_return(true)
-        expect(@s3_object).to receive(:last_modified).and_return(6.minutes.ago)
         processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
         expect(processor).to receive(:perform_async).with(upload.guid)
         described_class.new.perform
@@ -57,7 +56,6 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
       with_settings(Settings.vba_documents.s3, 'enabled': true) do
         expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
         expect(@s3_object).to receive(:exists?).and_return(true)
-        expect(@s3_object).to receive(:last_modified).and_return(6.minutes.ago)
         processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
         expect(processor).to receive(:perform_async).with(upload.guid)
         Timecop.travel(Time.zone.now + 25.minutes) do
@@ -65,19 +63,6 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
           expect(updated.status).to eq('uploaded')
         end
-      end
-    end
-
-    it 'does not upload objects uploaded in the last 5 minutes' do
-      with_settings(Settings.vba_documents.s3, 'enabled': true) do
-        expect(@s3_bucket).to receive(:object).with(upload.guid).and_return(@s3_object)
-        expect(@s3_object).to receive(:exists?).and_return(true)
-        expect(@s3_object).to receive(:last_modified).and_return(4.minutes.ago)
-        processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
-        expect(processor).not_to receive(:perform_async).with(upload.guid)
-        described_class.new.perform
-        updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-        expect(updated.status).to eq('pending')
       end
     end
   end
