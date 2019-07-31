@@ -25,6 +25,12 @@ module VBADocuments
 
     def perform(guid)
       upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
+      download_and_process(upload) if upload
+    end
+
+    private
+
+    def download_and_process(upload)
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(guid)
       begin
         Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
@@ -45,8 +51,6 @@ module VBADocuments
         close_part_files(parts) if parts.present?
       end
     end
-
-    private
 
     def log_error(e, upload)
       Rails.logger.info('VBADocuments: Submission failure',
