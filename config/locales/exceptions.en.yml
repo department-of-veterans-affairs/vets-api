@@ -160,6 +160,11 @@ en:
         detail: "Could not complete ID card attribute request"
         code: "VIC001"
         status: 500
+      bing_service_error:
+        <<: *defaults
+        title: Bing Service Error
+        code: 500
+        status: 500
 
 # EXTERNAL EXCEPTIONS
     # This is a Generic Error corresponding to backend services
@@ -438,6 +443,18 @@ en:
         title: Unexpected response body
         code: 'MVI_BD502'
         detail: MVI service responded without a birthday or a gender.
+        status: 502
+      PAGERDUTY_429:
+        <<: *external_defaults
+        title: Exceeded rate limit
+        code: 'PAGERDUTY_429'
+        detail: "Exceeded PagerDuty's API rate limit"
+        status: 429
+      PPMS_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: 'PPMS_502'
+        detail: 'PPMS returned an invalid response'
         status: 502
       SEARCH_400:
         <<: *external_defaults
@@ -1655,6 +1672,18 @@ en:
       code: 128
       status: 400
     ppiu:
+      potential_fraud:
+        <<: *defaults
+        title: Potential Fraud
+        detail: 'Routing number related to potential fraud'
+        code: 135
+        status: 422
+      account_flagged:
+        <<: *defaults
+        title: Account Flagged
+        detail: 'The account has been flagged'
+        code: 136
+        status: 422
       unprocessable_entity:
         <<: *defaults
         title: Unprocessable Entity

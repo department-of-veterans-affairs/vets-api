@@ -1,3 +1,8 @@
+
+Authentication with IDme now happens via SessionStore cookie. The epic outlining that work is [here](https://github.com/department-of-veterans-affairs/vets.gov-team/issues/14225) 
+---
+_Prior approach, deprecated in favor of SessionStore cookie_
+
 ## Vets-API ID.me Certificate Setup
 
 Many of the APIs are protected by a session token from ID.me. In order to obtain
@@ -42,7 +47,7 @@ bundle exec rails s
 Copy and paste the URL into your browser.
 
 3. Enter ID.me credentials using one of our 
-    [test accounts](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users_s1a.csv). If you do not have access to the vets.gov-team repository, you may optionally create your own account with ID.me.
+    [test accounts](https://github.com/department-of-veterans-affairs/vets.gov-team/blob/master/Products/Identity/MVI%20Integration/reference_documents/mvi_users-dev.md). If you do not have access to the vets.gov-team repository, you may optionally create your own account with ID.me.
   - **Note**: Accounts created on the https://api.id.me/ ID.me site are
     separate from accounts created in the https://api.idmelabs.com sandbox.
 4. The browser should get redirected to the SAML relay URL of http://localhost:3001/auth/login/callback?token=abcd1234-efgh5678

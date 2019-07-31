@@ -32,7 +32,7 @@ binaries:
   pdftk: pdftk
   clamdscan: /usr/bin/clamdscan
 
-db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb48ebb708021e4c76c3807d37f6b4e389d5aa45ea171f2f5074222784c1ee2bb8272390d1b9517a7a6987c22733ef00b2
+db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
 
@@ -70,7 +70,7 @@ pension_burial:
 central_mail:
   upload:
     enabled: true
-    host: 'icmhsgc-test.csrarad.com'
+    host: 'icmhs-api-test.csrarad.com'
     token: '<PENSIONS_TOKEN>'
 
 # Settings for Vet360
@@ -173,7 +173,7 @@ locators:
   vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
   vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
   vha_access_satisfaction: https://www.accesstopwt.va.gov/
-  vha_access_waittime: https://www.accesstopwt.va.gov/
+  vha_access_waittime: https://www.accesstocare.va.gov/
   base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
   providers_enabled: false
 
@@ -259,11 +259,9 @@ vic:
     bucket: 'bucket'
 
 # Settings for (preneeds) burials.
-# TODO: enpoint needs to be set up for https and production api when available
 preneeds:
   host: http://some.fakesite.com
   wsdl: 'config/preneeds/wsdl/preneeds.wsdl'
-  burial_form_schema: 'config/preneeds/burial_form_schema.json'
 
 # Settings for VBA Document upload service module
 vba_documents:
@@ -279,17 +277,32 @@ vba_documents:
   sns:
     topic_arn: ~
 
+#Settings for Claims Api Module
+claims_api:
+  s3:
+    enabled: false
+    aws_access_key_id: ~
+    aws_secret_access_key: ~
+    region: ~
+    bucket: ~
+  disability_claims_mock_override: false
+  schema_dir: config/schemas
+
 # Settings for Redis
 # TODO(knkski): Move all redis settings here?
 redis:
   host: localhost
   port: 6379
 
+# Settings for GovDelivery (email delivery)
+govdelivery:
+  staging_service: true
+  server: stage-tms.govdelivery.com
+  token: ~
+
 # Settings for Education Benefits report uploading
 reports:
   send_email: true
-  server: stage-tms.govdelivery.com
-  token: ~
   aws:
     access_key_id: ~
     bucket: ~
@@ -322,7 +335,20 @@ github:
 maintenance:
   pagerduty_api_url: https://api.pagerduty.com
   pagerduty_api_token: FAKE
-  services: ~
+  services:
+    appeals: P9S4RFU
+    arcgis: P45YBFA
+    dslogon: P9DJJAV
+    emis: P0HNT0I
+    es: PH7OPR4
+    evss: PZKWB6Y
+    idme: PVWB4R8
+    mvi: PCIPVGJ
+    mhv: PP2ZZ2V
+    search: PRG8HJI
+    tims: PUL8OQ4
+    vet360: PHVOGQ1
+    vic: P7LW3MS
 
 # Note: in addition to enabling / disabling betamocks here, you _must_ also
 # change the 'mock' bool for each service you want to mock in this settings file
@@ -344,3 +370,7 @@ search:
   affiliate: va
   mock_search: true
   url: https://search.usa.gov/api/v2
+
+bing:
+  base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
+  key: fake_key

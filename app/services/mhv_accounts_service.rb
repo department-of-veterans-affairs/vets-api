@@ -3,6 +3,12 @@
 require 'mhv_ac/client'
 require 'sentry_logging'
 
+##
+# Models MHV Account creation and upgrade logic processes
+#
+# @param mhv_account [MhvAccount] the user's MhvAccount object from DB
+# @param user [User] the user's User object from Redis cache
+#
 class MhvAccountsService
   include SentryLogging
 
@@ -21,6 +27,12 @@ class MhvAccountsService
 
   delegate :user, to: :mhv_account
 
+  ##
+  # Create a new MHV account if possible, else rescue and log failures before raising
+  #
+  # @raise [StandardError] if the account creation fails
+  # @return [TrueClass] if the account creation succeeds
+  #
   def create
     if mhv_account.creatable?
       client_response = mhv_ac_client.post_register(params_for_registration)
@@ -42,11 +54,19 @@ class MhvAccountsService
     raise e
   end
 
+  ##
+  # Upgrade an MHV account if possible, else rescue and log failures before raising
+  #
+  # @raise [StandardError] if the upgrade process fails
+  # @return [TrueClass] if the upgrade is successful
+  #
   def upgrade
     if mhv_account.upgradable?
       handle_upgrade!
-    elsif mhv_account.already_premium? && mhv_account.registered_at? # we have historic evidence that some accounts
-      mhv_account.upgrade! # we registered became 'Premium' on their own, so we want track it similarly as before.
+    elsif mhv_account.already_premium? && mhv_account.registered_at?
+      # we have historic evidence that some accounts we registered became 'Premium' on their own,
+      # so we want to track it similarly as before.
+      mhv_account.upgrade!
     else
       StatsD.increment(STATSD_ACCOUNT_EXISTED_KEY.to_s)
       mhv_account.existing_premium! # without updating the timestamp since account was not created at vets.gov
@@ -95,7 +115,7 @@ class MhvAccountsService
       province: nil, # TODO: We need to determine if this is something that could actually happen (non USA)
       email: user.email,
       home_phone: user.va_profile&.home_phone,
-      sign_in_partners: 'VETS.GOV',
+      sign_in_partners: 'VA.GOV',
       terms_version: mhv_account.terms_and_conditions_accepted.terms_and_conditions.version,
       terms_accepted_date: mhv_account.terms_and_conditions_accepted.created_at
     }.merge!(address_params)

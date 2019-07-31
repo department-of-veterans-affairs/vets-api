@@ -81,7 +81,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def unencrypted_pdf?
-    return unless file_name =~ /\.pdf$/i
+    return unless file_name.match?(/\.pdf$/i)
     metadata = PdfInfo::Metadata.read(file_obj.tempfile)
     errors.add(:base, 'PDF must not be encrypted') if metadata.encrypted?
     file_obj.tempfile.rewind
@@ -90,7 +90,7 @@ class EVSSClaimDocument < Common::Base
   end
 
   def normalize_text
-    return unless file_name =~ /\.txt$/i
+    return unless file_name.match?(/\.txt$/i)
     text = file_obj.read
     text = text.encode(EVSS_TEXT_ENCODING)
     file_obj.tempfile = Tempfile.new(encoding: EVSS_TEXT_ENCODING)
@@ -98,6 +98,5 @@ class EVSSClaimDocument < Common::Base
     file_obj.tempfile.rewind
   rescue Encoding::UndefinedConversionError
     errors.add(:base, 'Cannot read file encoding. Text files must be ASCII encoded.')
-    false
   end
 end

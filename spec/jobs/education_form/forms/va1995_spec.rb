@@ -7,14 +7,10 @@ RSpec.describe EducationForm::Forms::VA1995 do
 
   subject { described_class.new(education_benefits_claim) }
 
-  SAMPLE_APPLICATIONS = %i[
-    minimal kitchen_sink
-  ].freeze
-
   # For each sample application we have, format it and compare it against a 'known good'
   # copy of that submission. This technically covers all the helper logic found in the
   # `Form` specs, but are a good safety net for tracking how forms change over time.
-  SAMPLE_APPLICATIONS.each do |application_name|
+  %i[minimal kitchen_sink kitchen_sink_stem].each do |application_name|
     test_spool_file('1995', application_name)
   end
 

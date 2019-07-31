@@ -52,7 +52,7 @@ RSpec.describe 'Folders Integration', type: :request do
           get '/v0/messaging/health/folders'
         end
 
-        expect(response).to be_success
+        expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_response_schema('folders')
       end
@@ -65,7 +65,7 @@ RSpec.describe 'Folders Integration', type: :request do
             get "/v0/messaging/health/folders/#{inbox_id}"
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('folder')
         end
@@ -78,10 +78,10 @@ RSpec.describe 'Folders Integration', type: :request do
 
         it 'response to POST #create' do
           VCR.use_cassette('sm_client/folders/creates_a_folder_and_deletes_a_folder') do
-            post '/v0/messaging/health/folders', params
+            post '/v0/messaging/health/folders', params: params
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to have_http_status(:created)
           expect(response).to match_response_schema('folder')
         end
@@ -97,7 +97,7 @@ RSpec.describe 'Folders Integration', type: :request do
             delete "/v0/messaging/health/folders/#{id}"
           end
 
-          expect(response).to be_success
+          expect(response).to be_successful
           expect(response).to have_http_status(:no_content)
         end
       end
@@ -109,8 +109,8 @@ RSpec.describe 'Folders Integration', type: :request do
           get "/v0/messaging/health/folders/#{inbox_id}/messages"
         end
 
-        expect(response).to be_success
-        expect(response).to have_http_status(:success)
+        expect(response).to be_successful
+        expect(response).to have_http_status(200)
         expect(response).to match_response_schema('messages')
       end
     end

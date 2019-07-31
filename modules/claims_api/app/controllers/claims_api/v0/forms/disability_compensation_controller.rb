@@ -1,14 +1,20 @@
 # frozen_string_literal: true
 
-require_dependency 'claims_api/application_controller'
+require_dependency 'claims_api/base_form_controller'
 require 'jsonapi/parser'
 
 module ClaimsApi
   module V0
     module Forms
-      class DisabilityCompensationController < ApplicationController
+      class DisabilityCompensationController < BaseFormController
+        FORM_NUMBER = '526'
+        before_action :verification_itf_expiration, only: %i[submit_form_526]
+        before_action :validate_526_payload, only: %i[submit_form_526]
         skip_before_action(:authenticate)
-        # before_action :validate_json_api_payload
+        skip_before_action(:verify_power_of_attorney)
+        skip_before_action :validate_json_schema, only: %i[upload_supporting_documents]
+        skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
+        skip_before_action :log_request, only: %i[validate_form_526]
 
         def submit_form_526
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -16,34 +22,46 @@ module ClaimsApi
             auth_headers: auth_headers,
             form_data: form_attributes
           )
+          auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           auto_claim.form.to_internal
 
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue RuntimeError => e
-          render json: { errors: e.message }, status: 422
         end
 
         def upload_supporting_documents
-          claim = ClaimsApi::AutoEstablishedClaim.find(params[:id])
+          claim = ClaimsApi::AutoEstablishedClaim.get_by_id_or_evss_id(params[:id])
           documents.each do |document|
             claim_document = claim.supporting_documents.build
-            claim_document.set_file_data!(document)
+            claim_document.set_file_data!(document, params[:doc_type], params[:description])
             claim_document.save!
+            ClaimsApi::ClaimEstablisher.perform_async(claim_document.id)
           end
 
-          head :ok
+          render json: claim, serializer: ClaimsApi::ClaimDetailSerializer
+        end
+
+        def validate_form_526
+          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          service.validate_form526(form_attributes.to_json)
+          render json: valid_526_response
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
         end
 
         private
 
-        def validate_json_api_payload
-          JSONAPI.parse_resource!(params)
-        end
-
-        def form_attributes
-          params[:data][:attributes]
+        def service(auth_headers)
+          if Settings.claims_api.disability_claims_mock_override && !auth_headers['Mock-Override']
+            ClaimsApi::DisabilityCompensation::MockOverrideService.new(
+              auth_headers
+            )
+          else
+            EVSS::DisabilityCompensationForm::ServiceAllClaim.new(
+              auth_headers
+            )
+          end
         end
 
         def documents
@@ -51,16 +69,19 @@ module ClaimsApi
           params.slice(*document_keys).values
         end
 
-        def target_veteran
-          @target_veteran ||= ClaimsApi::Veteran.from_headers(request.headers, with_gender: true)
-        end
-
         def auth_headers
-          EVSS::DisabilityCompensationAuthHeaders
-            .new(target_veteran)
-            .add_headers(
-              EVSS::AuthHeaders.new(target_veteran).to_h
-            )
+          evss_headers = EVSS::DisabilityCompensationAuthHeaders
+                         .new(target_veteran(with_gender: true))
+                         .add_headers(
+                           EVSS::AuthHeaders.new(target_veteran(with_gender: true)).to_h
+                         )
+          if request.headers['Mock-Override'] &&
+             Settings.claims_api.disability_claims_mock_override
+            evss_headers['Mock-Override'] = true
+            Rails.logger.info('ClaimsApi: Mock Override Engaged')
+          end
+
+          evss_headers
         end
       end
     end

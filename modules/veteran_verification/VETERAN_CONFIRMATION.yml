@@ -7,9 +7,7 @@ info:
 
     ## Background
 
-    This API is provided as a proof of concept for a general-purpose VA
-    API that allows Veterans to provide authorization to a third-party to access
-    information on their behalf. The use-case of this API is to allow third-parties
+    The use-case of this API is to allow third-parties
     to request confirmation from the VA of an individual's Veteran status after
     receiving authorization to do so using an Open ID Connect flow.
 
@@ -29,14 +27,14 @@ info:
     Allows a third-party application to request the VA confirm the Veteran Status of an
     authorized individual:
 
-    1. Client Request: GET https://api.vets.gov/services/veteran_verification/v0/status
+    1. Client Request: GET https://api.va.gov/services/veteran_verification/v0/status
        * Provide the Bearer token as a header: `Authorization: Bearer <token>`
 
     2. Status Response: A JSON API object with the individual's veteran status
 
     ## Reference
 
-    Raw Open API Spec: http://dev-api.va.gov/services/veteran_verification/docs/v0/status
+    Raw Open API Spec: https://api.va.gov/services/veteran_verification/docs/v0/status
 
   termsOfService: ''
   contact:

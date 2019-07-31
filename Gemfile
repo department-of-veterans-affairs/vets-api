@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+# Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
@@ -13,27 +14,32 @@ gem 'veteran_verification', path: 'modules/veteran_verification'
 # Anchored versions, do not change
 gem 'puma', '~> 3.12.0'
 gem 'puma-plugin-statsd', git: 'https://github.com/department-of-veterans-affairs/puma-plugin-statsd', branch: 'master'
-gem 'rails', '4.2.11.1'
+gem 'rails', '~> 5.2.3'
 
 # Gems with special version/repo needs
 gem 'active_model_serializers', '0.10.4' # breaking changed in 0.10.5 relating to .to_json
 gem 'carrierwave', '~> 0.11' # TODO: explanation
-# bundle exec rake doc:rails generates the API under doc/api.
 gem 'sdoc', '~> 0.4.0', group: :doc # TODO: explanation
 gem 'sidekiq-scheduler', '~> 2.0' # TODO: explanation
 
 gem 'aasm'
-gem 'activerecord-postgis-adapter', '~> 3'
-gem 'attr_encrypted'
-gem 'aws-sdk', '~> 3'
+gem 'activerecord-import'
+gem 'activerecord-postgis-adapter', '~> 5.2.2'
+gem 'attr_encrypted', '3.1.0'
+gem 'aws-sdk-s3', '~> 1'
+gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'breakers'
 gem 'carrierwave-aws'
 gem 'clam_scan'
 gem 'config'
+gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master'
 gem 'date_validator'
+gem 'dry-struct'
+gem 'dry-types'
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
 gem 'govdelivery-tms', '2.8.4', require: 'govdelivery/tms/mail/delivery_method'
@@ -50,9 +56,9 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.6.6'
 gem 'memoist'
-gem 'mini_magick'
+gem 'mini_magick', '~> 4.9.4'
 gem 'net-sftp'
-gem 'nokogiri', '1.8.5'
+gem 'nokogiri', '~> 1.10', '>= 1.10.3'
 gem 'octokit'
 gem 'oj' # Amazon Linux `json` gem causes conflicts, but `multi_json` will prefer `oj` if installed
 gem 'olive_branch'
@@ -64,35 +70,36 @@ gem 'prawn'
 gem 'pundit'
 gem 'rack-attack'
 gem 'rack-cors', require: 'rack/cors'
-gem 'rails-api'
-gem 'rails_semantic_logger', '~> 4.2'
+gem 'rails_semantic_logger', '~> 4.4'
 gem 'redis'
 gem 'redis-namespace'
 gem 'restforce'
 gem 'ruby-saml'
+gem 'rubyzip', '>= 1.0.0'
 gem 'savon'
-gem 'sentry-raven', '2.7.4' # don't change gem version unless sentry server is also upgraded
+gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
-gem 'sidekiq-unique-jobs'
 gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
 gem 'typhoeus'
 gem 'upsert'
+gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
 gem 'zero_downtime_migrations'
 
 group :development do
+  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'socksify'
   gem 'spring', platforms: :ruby # Spring speeds up development by keeping your application running in the background
   gem 'spring-commands-rspec'
 
-  # Include the IANA Time Zone Database on Windows, where Windows doens't ship with a timezone database.
+  # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
   # POSIX systems should have this already, so we're not going to bring it in on other platforms
   gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
   # Access an IRB console on exception pages or by using <%= console %> in views
@@ -121,6 +128,7 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'database_cleaner'
   gem 'factory_bot_rails'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks
@@ -136,9 +144,10 @@ group :development, :test do
   gem 'rack-vcr'
   gem 'rspec-rails', '~> 3.5'
   gem 'rubocop', '~> 0.52.1', require: false
-  gem 'sidekiq'
+  gem 'sidekiq', '~> 4.2'
   gem 'timecop'
   gem 'webmock'
+  gem 'yard'
 end
 
 group :production do

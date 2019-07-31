@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'attr_encrypted'
-class EducationBenefitsClaim < ActiveRecord::Base
+class EducationBenefitsClaim < ApplicationRecord
   FORM_TYPES = %w[1990 1995 1990e 5490 5495 1990n 0993 0994].freeze
 
   APPLICATION_TYPES = %w[
@@ -137,7 +137,7 @@ class EducationBenefitsClaim < ActiveRecord::Base
   end
 
   def update_education_benefits_submission_status
-    if processed_at.present? && processed_at_was.nil?
+    if processed_at.present? && attribute_before_last_save(:processed).nil?
       # old claims don't have an education benefits submission associated
       education_benefits_submission&.update_attributes!(status: 'processed')
     end

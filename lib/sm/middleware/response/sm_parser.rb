@@ -3,12 +3,21 @@
 module SM
   module Middleware
     module Response
-      # class responsible for customizing parsing
+      ##
+      # Middleware class responsible for customizing MHV SM response parsing
+      #
       class SMParser < Faraday::Response::Middleware
+        ##
+        # Override the Faraday #on_complete method to filter body through custom #parse
+        # @param env [Faraday::Env] the request environment
+        # @return [Faraday::Env]
+        #
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bjson/
+          return unless env.response_headers['content-type']&.match?(/\bjson/)
           env[:body] = parse(env.body) if env.body.present?
         end
+
+        private
 
         def parse(body = nil)
           @parsed_json = body
@@ -29,8 +38,6 @@ module SM
 
           @parsed_json
         end
-
-        private
 
         def preferences
           %i[notify_me 0].any? { |k| @parsed_json.key?(k) } ? @parsed_json : nil

@@ -1104,6 +1104,37 @@ describe HCA::EnrollmentSystem do
     ]
   )
 
+  test_method(
+    described_class,
+    'get_va_format',
+    [
+      [
+        'application/msword',
+        'WORD'
+      ],
+      [
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'WORD'
+      ],
+      [
+        'image/jpeg',
+        'JPG'
+      ],
+      [
+        'application/rtf',
+        'RTF'
+      ],
+      [
+        'application/pdf',
+        'PDF'
+      ],
+      [
+        'application/octet-stream',
+        'PDF'
+      ]
+    ]
+  )
+
   describe '#veteran_to_save_submit_form' do
     subject do
       described_class.veteran_to_save_submit_form(test_veteran, nil).with_indifferent_access

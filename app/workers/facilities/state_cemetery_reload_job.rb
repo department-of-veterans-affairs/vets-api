@@ -60,9 +60,9 @@ module Facilities
     end
 
     def parse_address(part1, part2, part3)
-      return nil if part1.blank?
+      return {} if part1.blank?
       if part2.blank?
-        part1 =~ /, / ? city_state_zip(part1) : { 'address_1' => part1 }
+        part1.match?(/, /) ? city_state_zip(part1) : { 'address_1' => part1 }
       elsif part3.blank?
         { 'address_1' => part1 }.merge(city_state_zip(part2))
       else

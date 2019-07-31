@@ -7,12 +7,9 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
     let(:data) { JSON.parse(response.body)['data']['attributes'] }
 
     it 'uploads a profile photo attachment' do
-      post(
-        :create,
-        profile_photo_attachment: {
-          file_data: fixture_file_upload('files/sm_file1.jpg')
-        }
-      )
+      post(:create, params: { profile_photo_attachment: {
+             file_data: fixture_file_upload('files/sm_file1.jpg')
+           } })
       expect(data['guid']).not_to be_nil
     end
   end
@@ -21,19 +18,16 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
     let(:guid) { ::VIC::ProfilePhotoAttachment.last.guid }
 
     before do
-      post(
-        :create,
-        profile_photo_attachment: {
-          file_data: fixture_file_upload('files/sm_file1.jpg')
-        }
-      )
+      post(:create, params: { profile_photo_attachment: {
+             file_data: fixture_file_upload('files/sm_file1.jpg')
+           } })
       ProcessFileJob.drain
     end
 
     context 'with an anonymous user' do
       it 'fails' do
-        get(:show, id: guid)
-        expect(response).not_to be_success
+        get(:show, params: { id: guid })
+        expect(response).not_to be_successful
       end
     end
 
@@ -45,24 +39,24 @@ RSpec.describe V0::VIC::ProfilePhotoAttachmentsController, type: :controller do
       end
 
       it 'allows retrieval of the file' do
-        get(:show, id: guid)
-        expect(response).to be_success
+        get(:show, params: { id: guid })
+        expect(response).to be_successful
         expect(response.headers['Content-Type']).to eq('image/jpeg')
         expect(response.headers).to have_key('Content-Disposition')
       end
 
       context 'with an invalid guid' do
         it 'fails' do
-          get(:show, id: '../../../../../../../../../../../etc/passwd')
-          expect(response).not_to be_success
+          get(:show, params: { id: '../../../../../../../../../../../etc/passwd' })
+          expect(response).not_to be_successful
           expect(response.status).to eq(404)
         end
       end
 
       context 'with a guid that doesnt exist' do
         it 'fails' do
-          get(:show, id: SecureRandom.uuid)
-          expect(response).not_to be_success
+          get(:show, params: { id: SecureRandom.uuid })
+          expect(response).not_to be_successful
           expect(response.status).to eq(404)
         end
       end

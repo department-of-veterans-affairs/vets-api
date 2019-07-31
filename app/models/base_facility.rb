@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'facilities/client'
+require_relative './facilities_query/facilities_query'
 
-class BaseFacility < ActiveRecord::Base
+class BaseFacility < ApplicationRecord
   self.inheritance_column = 'facility_type'
   self.primary_key = 'unique_id'
   after_initialize :generate_fingerprint
@@ -78,8 +79,6 @@ class BaseFacility < ActiveRecord::Base
 
   PENSION_LOCATIONS = %w[310 330 335].freeze
 
-  METERS_PER_MILE = 1609.344
-
   class << self
     attr_writer :validate_on_load
 
@@ -151,110 +150,7 @@ class BaseFacility < ActiveRecord::Base
     end
 
     def query(params)
-      # TODO: Sort hours similar to `find_factility_by_id` method on line 146
-      return radial_query(params) if params[:lat] && params[:long]
-      return build_result_set_from_ids(params[:ids]).flatten if params[:ids]
-      return BaseFacility.none unless params[:bbox]
-      bbox_num = params[:bbox].map { |x| Float(x) }
-      build_result_set(bbox_num, params[:type], params[:services]).sort_by(&(dist_from_center bbox_num))
-    end
-
-    def radial_query(params)
-      # check for radial limiter if so grab all where distance < distance_query
-      limit = Float(params[:radial_limit]) if params[:radial_limit]
-      build_distance_result_set(
-        Float(params[:lat]),
-        Float(params[:long]),
-        params[:type],
-        params[:services],
-        params[:ids],
-        limit
-      )
-    end
-
-    def distance_query(lat, long)
-      <<-SQL
-        base_facilities.*,
-        ST_Distance(base_facilities.location,
-        ST_MakePoint(#{long},#{lat})) / #{METERS_PER_MILE} AS distance
-      SQL
-    end
-
-    # rubocop:disable Metrics/ParameterLists
-    def build_distance_result_set(lat, long, type, services, ids, limit = nil)
-      conditions = limit.nil? ? {} : "where distance < #{limit}"
-      ids_map = ids_for_types(ids) unless ids.nil?
-      TYPES.map do |facility_type|
-        facilities = get_facility_data(
-          conditions,
-          type,
-          facility_type,
-          services,
-          distance_query(lat, long)
-        )
-        if ids_map
-          ids_for_type = ids_map[PREFIX_MAP[TYPE_NAME_MAP[facility_type]]]
-          facilities = facilities.where(unique_id: ids_for_type)
-        end
-        facilities.order('distance')
-      end.flatten
-    end
-    # rubocop:enable Metrics/ParameterLists
-
-    def build_result_set(bbox_num, type, services)
-      lats = bbox_num.values_at(1, 3)
-      longs = bbox_num.values_at(2, 0)
-      conditions = { lat: (lats.min..lats.max), long: (longs.min..longs.max) }
-      TYPES.map { |facility_type| get_facility_data(conditions, type, facility_type, services) }.flatten
-    end
-
-    def ids_for_types(ids)
-      ids.split(',').each_with_object({}) do |type_id, obj|
-        facility_type, unique_id = type_id.split('_')
-        if facility_type && unique_id
-          obj[facility_type] ||= []
-          obj[facility_type].push unique_id
-        end
-      end
-    end
-
-    def build_result_set_from_ids(ids)
-      ids_for_types(ids).map do |facility_type, unique_ids|
-        klass = "Facilities::#{facility_type.upcase}Facility".constantize
-        klass.where(unique_id: unique_ids)
-      end
-    end
-
-    def get_facility_data(conditions, type, facility_type, services, additional_data = nil)
-      klass = TYPE_MAP[facility_type].constantize
-      return klass.none unless type.blank? || type == facility_type
-      klass = klass.select(additional_data) if additional_data
-      facilities = klass.where(conditions)
-      service_conditions = services&.map do |service|
-        service_condition(type, service)
-      end
-      facilities = facilities.where(service_conditions.join(' OR ')) if service_conditions&.any?
-      facilities = facilities.where.not(facility_type: DOD_HEALTH)
-      facilities
-    end
-
-    def service_condition(type, service)
-      case type
-      when 'benefits'
-        "services->'benefits'->'standard' @> '[\"#{service}\"]'"
-      when 'health'
-        "services->'health' @> '[{\"sl1\":[\"#{service}\"]}]'"
-      end
-    end
-
-    # Naive distance calculation, but accurate enough for map display sorting.
-    # If greater precision is ever needed, use Haversine formula.
-    def dist_from_center(bbox)
-      lambda do |facility|
-        center_x = (bbox[0] + bbox[2]) / 2.0
-        center_y = (bbox[1] + bbox[3]) / 2.0
-        Math.sqrt((facility.long - center_x)**2 + (facility.lat - center_y)**2)
-      end
+      FacilitiesQuery.generate_query(params).run
     end
 
     def per_page

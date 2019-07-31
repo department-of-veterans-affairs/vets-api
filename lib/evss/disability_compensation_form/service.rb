@@ -31,6 +31,9 @@ module EVSS
       #
       def get_rated_disabilities
         with_monitoring_and_error_handling do
+          if @headers['va_eauth_birlsfilenumber'].blank?
+            Rails.logger.info('Missing `birls_id`', edipi: @headers['va_eauth_dodedipnid'])
+          end
           raw_response = perform(:get, 'ratedDisabilities')
           RatedDisabilitiesResponse.new(raw_response.status, raw_response)
         end
@@ -48,6 +51,14 @@ module EVSS
           options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
           raw_response = perform(:post, 'submit', form_content, headers, options)
           FormSubmitResponse.new(raw_response.status, raw_response)
+        end
+      end
+
+      def validate_form526(form_content)
+        with_monitoring_and_error_handling do
+          headers = { 'Content-Type' => 'application/json' }
+          options = { timeout: Settings.evss.disability_compensation_form.submit_timeout || 355 }
+          perform(:post, 'validate', form_content, headers, options)
         end
       end
 

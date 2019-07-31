@@ -48,7 +48,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
         get '/v0/messaging/health/preferences'
       end
 
-      expect(response).to be_success
+      expect(response).to be_successful
       expect(response.body).to be_a(String)
       attrs = JSON.parse(response.body)['data']['attributes']
       expect(attrs['email_address']).to eq('muazzam.khan@va.gov')
@@ -59,7 +59,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       VCR.use_cassette('sm_client/preferences/sets_the_email_notification_settings', record: :none) do
         params = { email_address: 'kamyar.karshenas@va.gov',
                    frequency: 'none' }
-        put '/v0/messaging/health/preferences', params
+        put '/v0/messaging/health/preferences', params: params
       end
 
       expect(response).to have_http_status(200)
@@ -72,7 +72,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
     it 'requires all parameters for update' do
       VCR.use_cassette('sm_client/preferences/sets_the_email_notification_settings', record: :none) do
         params = { email_address: 'kamyar.karshenas@va.gov' }
-        put '/v0/messaging/health/preferences', params
+        put '/v0/messaging/health/preferences', params: params
       end
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -82,7 +82,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       VCR.use_cassette('sm_client/preferences/sets_the_email_notification_settings', record: :none) do
         params = { email_address: 'kamyar.karshenas@va.gov',
                    frequency: 'hourly' }
-        put '/v0/messaging/health/preferences', params
+        put '/v0/messaging/health/preferences', params: params
       end
 
       expect(response).to have_http_status(:unprocessable_entity)
@@ -92,7 +92,7 @@ RSpec.describe 'Messaging Preferences Integration', type: :request do
       VCR.use_cassette('sm_client/preferences/raises_a_backend_service_exception_when_email_includes_spaces') do
         params = { email_address: 'kamyar karshenas@va.gov',
                    frequency: 'daily' }
-        put '/v0/messaging/health/preferences', params
+        put '/v0/messaging/health/preferences', params: params
       end
 
       expect(response).to have_http_status(:unprocessable_entity)

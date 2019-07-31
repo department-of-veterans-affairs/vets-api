@@ -8,7 +8,7 @@
       We're sorry. Your health care application didn't go through because of a technical issue on our end. You didn't do anything wrong when you filled out the application. We apologize for the inconvenience, but you'll need to go back and apply again.
     </p>
     <p>
-      <a href="https://www.vets.gov/health-care/apply/application/introduction?utm_source=gov-delivery&utm_medium=email&utm_campaign=hca-failure">Apply for VA health care.</a>
+      <a href="https://www.vets.gov/health-care/apply/application/introduction?utm_source=gov-delivery&utm_medium=email&utm_campaign=<%=self.class::GA_CAMPAIGN_NAME%>">Apply for VA health care.</a>
     </p>
     <p>
       We'll send you an email to let you know when we've successfully received and processed your application.
@@ -19,6 +19,6 @@
     <p>
       Note: This is an automated email, so you can’t reply to us here.
     </p>
-    <img src="https://www.google-analytics.com/collect?v=1&tid=<%=@google_analytics_tracking_id%>&cid=<%=@google_analytics_client_id%>&t=event&ec=email&el=hca--submission-failed&ea=open&cn=hca-failure&cm=email&cs=gov-delivery&dp=/email/health-care/apply/application/introduction"/>
+    <img src="https://www.google-analytics.com/collect?v=1&tid=<%=@google_analytics_tracking_id%>&cid=<%=@google_analytics_client_id%>&t=event&ec=email&el=<%=self.class::GA_LABEL%>&ea=open&cn=<%=self.class::GA_CAMPAIGN_NAME%>&cm=email&cs=gov-delivery&dp=<%=self.class::GA_DOCUMENT_PATH%>"/>
   </body>
 </html>

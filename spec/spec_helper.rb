@@ -15,6 +15,8 @@ require 'support/sidekiq/batch'
 require 'support/stub_emis'
 require 'support/stub_evss_pciu'
 require 'support/vet360/stub_vet360'
+require 'support/okta_users_helpers'
+require 'support/poa_stub'
 require 'pundit/rspec'
 
 # By default run SimpleCov, but allow an environment variable to disable.
@@ -29,6 +31,7 @@ unless ENV['NOCOVERAGE']
     add_filter 'config/initializers/mvi_settings.rb'
     add_filter 'config/initializers/clamscan.rb'
     add_filter 'config/initializers/config.rb'
+    add_filter 'lib/common/hash_helpers.rb'
     add_filter 'lib/data_migrations/uuid_unique_index.rb'
     add_filter 'lib/tasks/support/shell_command.rb'
     add_filter 'lib/config_helper.rb'
@@ -43,6 +46,10 @@ unless ENV['NOCOVERAGE']
     # TODO: remove this filter after removing sentry logging
     add_filter 'lib/central_mail/service.rb'
     add_filter 'lib/search/response.rb'
+    # TODO: This is temp so we can get a review instance to pull mocks
+    add_filter 'lib/evss/disability_compensation_form/service.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v1/forms/disability_compensation_controller.rb'
+    add_filter 'modules/claims_api/app/controllers/claims_api/v0/forms/disability_compensation_controller.rb'
     add_filter 'spec'
     add_filter 'vendor'
     add_group 'VBADocuments', 'modules/vba_documents/'

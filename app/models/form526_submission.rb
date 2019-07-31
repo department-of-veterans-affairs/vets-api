@@ -1,27 +1,27 @@
 # frozen_string_literal: true
 
-# A 526 disability compensation form record. This class is used to persist the post transformation form
-# and track submission workflow steps.
-#
-# @!attribute id
-#   @return [Integer] auto-increment primary key.
-# @!attribute user_uuid
-#   @return [String] points to the user's uuid from the identity provider.
-# @!attribute saved_claim_id
-#   @return [Integer] the related saved claim id {SavedClaim::DisabilityCompensation}.
-# @!attribute auth_headers_json
-#   @return [String] encrypted EVSS auth headers as JSON {EVSS::DisabilityCompensationAuthHeaders}.
-# @!attribute form_json
-#   @return [String] encrypted form submission as JSON.
-# @!attribute workflow_complete
-#   @return [Boolean] are all the steps (jobs {EVSS::DisabilityCompensationForm::Job}) of the submission
-#     workflow complete.
-# @!attribute created_at
-#   @return [Timestamp] created at date.
-# @!attribute workflow_complete
-#   @return [Timestamp] updated at date.
-#
-class Form526Submission < ActiveRecord::Base
+class Form526Submission < ApplicationRecord
+  # A 526 disability compensation form record. This class is used to persist the post transformation form
+  # and track submission workflow steps.
+  #
+  # @!attribute id
+  #   @return [Integer] auto-increment primary key.
+  # @!attribute user_uuid
+  #   @return [String] points to the user's uuid from the identity provider.
+  # @!attribute saved_claim_id
+  #   @return [Integer] the related saved claim id {SavedClaim::DisabilityCompensation}.
+  # @!attribute auth_headers_json
+  #   @return [String] encrypted EVSS auth headers as JSON {EVSS::DisabilityCompensationAuthHeaders}.
+  # @!attribute form_json
+  #   @return [String] encrypted form submission as JSON.
+  # @!attribute workflow_complete
+  #   @return [Boolean] are all the steps (jobs {EVSS::DisabilityCompensationForm::Job}) of the submission
+  #     workflow complete.
+  # @!attribute created_at
+  #   @return [Timestamp] created at date.
+  # @!attribute workflow_complete
+  #   @return [Timestamp] updated at date.
+  #
   attr_encrypted(:auth_headers_json, key: Settings.db_encryption_key)
   attr_encrypted(:form_json, key: Settings.db_encryption_key)
 
@@ -31,6 +31,8 @@ class Form526Submission < ActiveRecord::Base
              inverse_of: false
 
   has_many :form526_job_statuses, dependent: :destroy
+
+  validates(:auth_headers_json, presence: true)
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'

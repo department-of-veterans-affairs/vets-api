@@ -1,4 +1,4 @@
-class ConvertInProgressGuidToString < ActiveRecord::Migration
+class ConvertInProgressGuidToString < ActiveRecord::Migration[4.2]
   def up
     change_column :in_progress_forms, :user_uuid, :string, :null => false
 

@@ -1,4 +1,4 @@
-class AddMhvCorrelationIdToMhvAccounts < ActiveRecord::Migration
+class AddMhvCorrelationIdToMhvAccounts < ActiveRecord::Migration[4.2]
   def change
     # accounts can be disabled, new ones could be created
     # it is entirely feasible to have more than one mhv account created by vets.gov

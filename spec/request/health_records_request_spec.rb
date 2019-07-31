@@ -39,7 +39,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records/refresh'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('extract_statuses')
   end
@@ -49,7 +49,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records/eligible_data_classes'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.body).to be_a(String)
     expect(response).to match_response_schema('eligible_data_classes')
   end
@@ -64,7 +64,7 @@ RSpec.describe 'health records', type: :request do
 
   it 'responds to POST #create to generate a new report' do
     VCR.use_cassette('bb_client/generates_a_report') do
-      post '/v0/health_records', params
+      post '/v0/health_records', params: params
     end
 
     expect(response).to be_accepted
@@ -77,7 +77,7 @@ RSpec.describe 'health records', type: :request do
       get '/v0/health_records'
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.headers['Content-Disposition'])
       .to eq('inline; filename=mhv_GPTESTKFIVE_20161229_0057.pdf')
     expect(response.headers['Content-Type']).to eq('application/pdf')
@@ -86,10 +86,10 @@ RSpec.describe 'health records', type: :request do
 
   it 'responds to GET #show with txt to fetch the txt version of created report' do
     VCR.use_cassette('bb_client/gets_a_text_version_of_a_report') do
-      get '/v0/health_records', doc_type: 'txt'
+      get '/v0/health_records', params: { doc_type: 'txt' }
     end
 
-    expect(response).to be_success
+    expect(response).to be_successful
     expect(response.headers['Content-Disposition'])
       .to eq('inline; filename=mhv_GPTESTKFIVE_20170130_1901.txt')
     expect(response.headers['Content-Type']).to eq('text/plain')
@@ -98,7 +98,7 @@ RSpec.describe 'health records', type: :request do
 
   it 'handles an error response for a report request' do
     VCR.use_cassette('bb_client/report_error_response') do
-      get '/v0/health_records', doc_type: 'txt'
+      get '/v0/health_records', params: { doc_type: 'txt' }
     end
 
     expect(response).to have_http_status(503)

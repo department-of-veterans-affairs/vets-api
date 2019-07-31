@@ -4,6 +4,8 @@ require 'rails_helper'
 
 RSpec.describe HealthCareApplication, type: :model do
   let(:health_care_application) { create(:health_care_application) }
+  let(:inelig_character_of_discharge) { Notification::INELIG_CHARACTER_OF_DISCHARGE }
+  let(:login_required) { Notification::LOGIN_REQUIRED }
 
   describe '.enrollment_status' do
     it 'should return parsed enrollment status' do
@@ -14,13 +16,15 @@ RSpec.describe HealthCareApplication, type: :model do
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        ineligibility_reason: 'OTH'
+        ineligibility_reason: 'OTH',
+        effective_date: '2018-01-24T00:00:00.000-09:00'
       )
       expect(described_class.enrollment_status('123', true)).to eq(
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        parsed_status: :inelig_character_of_discharge
+        parsed_status: inelig_character_of_discharge,
+        effective_date: '2018-01-24T00:00:00.000-09:00'
       )
     end
   end
@@ -32,7 +36,8 @@ RSpec.describe HealthCareApplication, type: :model do
         application_date: '2018-01-24T00:00:00.000-06:00',
         enrollment_date: nil,
         preferred_facility: '987 - CHEY6',
-        ineligibility_reason: 'OTH'
+        ineligibility_reason: 'OTH',
+        effective_date: '2018-01-24T00:00:00.000-09:00'
       }
     end
 
@@ -42,7 +47,8 @@ RSpec.describe HealthCareApplication, type: :model do
           application_date: '2018-01-24T00:00:00.000-06:00',
           enrollment_date: nil,
           preferred_facility: '987 - CHEY6',
-          parsed_status: :inelig_character_of_discharge
+          parsed_status: inelig_character_of_discharge,
+          effective_date: '2018-01-24T00:00:00.000-09:00'
         )
       end
     end
@@ -50,7 +56,7 @@ RSpec.describe HealthCareApplication, type: :model do
     context 'with a loa1 user' do
       it 'should return partial ee data' do
         expect(described_class.parsed_ee_data(ee_data, false)).to eq(
-          parsed_status: :login_required
+          parsed_status: login_required
         )
       end
     end
@@ -95,6 +101,14 @@ RSpec.describe HealthCareApplication, type: :model do
         last_name: 'ZZTEST', birth_date: '1923-01-02',
         ssn: '111111234'
       )
+    end
+
+    context 'with a nil form' do
+      it 'should raise a validation error' do
+        expect do
+          described_class.user_attributes(nil)
+        end.to raise_error(Common::Exceptions::ValidationErrors)
+      end
     end
   end
 

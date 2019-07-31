@@ -49,18 +49,12 @@ module CentralMail
         body
       )
 
-      if Rails.env.production?
-        log_message_to_sentry(
-          'central mail api status',
-          :info,
-          response: {
-            status: response.status,
-            body: response.body
-          }
-        )
-      end
-
       response
+    end
+
+    def self.current_breaker_outage?
+      last_cm_outage = Breakers::Outage.find_latest(service: CentralMail::Configuration.instance.breakers_service)
+      last_cm_outage.present? && last_cm_outage.end_time.blank?
     end
   end
 end

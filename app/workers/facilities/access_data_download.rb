@@ -25,7 +25,7 @@ module Facilities
     WT_KEY_MAP = {
       'PRIMARY CARE' => 'primary_care',
       'MENTAL HEALTH' => 'mental_health',
-      'WOMEN\'S HEALTH' => 'womens_health',
+      'COMP WOMEN\'S HLTH' => 'womens_health',
       'AUDIOLOGY' => 'audiology',
       'CARDIOLOGY' => 'cardiology',
       'DERMATOLOGY' => 'dermatology',
@@ -34,7 +34,8 @@ module Facilities
       'OPHTHALMOLOGY' => 'ophthalmology',
       'OPTOMETRY' => 'optometry',
       'ORTHOPEDICS' => 'orthopedics',
-      'UROLOGY CLINIC' => 'urology'
+      'UROLOGY CLINIC' => 'urology',
+      'SPECIALTY CARE' => 'specialty_care'
     }.freeze
 
     WT_REQUIRED_KEYS = %w[facilityID ApptTypeName newWaitTime estWaitTime sliceEndDate].freeze
@@ -116,7 +117,7 @@ module Facilities
     def update_wait_time_data(client)
       records = client.download
       uniq_specialties = records.map { |facility| facility['ApptTypeName'] }.uniq
-      unless uniq_specialties == WT_KEY_MAP.keys
+      unless uniq_specialties.sort == WT_KEY_MAP.keys.sort
         log_message_to_sentry(
           'Facility Locator Specialty Wait Time Inconsistency',
           :error,

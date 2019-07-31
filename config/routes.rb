@@ -44,7 +44,6 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show]
     resource :post911_gi_bill_status, only: [:show]
-    resource :feedback, only: [:create]
     resource :vso_appointments, only: [:create]
 
     resource :education_benefits_claims, only: [:create] do
@@ -89,6 +88,7 @@ Rails.application.routes.draw do
     get 'status', to: 'admin#status'
 
     get 'ppiu/payment_information', to: 'ppiu#index'
+    put 'ppiu/payment_information', to: 'ppiu#update'
 
     resources :maintenance_windows, only: [:index]
 
@@ -145,6 +145,7 @@ Rails.application.routes.draw do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
         get :autocomplete, on: :collection
+        get :children, on: :member
       end
 
       resources :calculator_constants, only: :index, defaults: { format: :json }
@@ -221,7 +222,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: [:show]
+    resources :backend_statuses, param: :service, only: %i[index show]
 
     resources :apidocs, only: [:index]
 
@@ -232,6 +233,12 @@ Rails.application.routes.draw do
 
     resource :mhv_account, only: %i[show create] do
       post :upgrade
+    end
+
+    resources :notifications, only: %i[create show update], param: :subject
+
+    namespace :notifications do
+      resources :dismissed_statuses, only: %i[show create update], param: :subject
     end
 
     resources :preferences, only: %i[index show], path: 'user/preferences/choices', param: :code

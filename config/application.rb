@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require File.expand_path('../boot', __FILE__)
+require_relative 'boot'
 
 require 'rails'
 # Pick the frameworks you want:
@@ -20,9 +20,6 @@ Bundler.require(*Rails.groups)
 
 module VetsAPI
   class Application < Rails::Application
-    # This needs to be enabled for Shrine to surface errors properly for
-    # file uploads.
-    config.active_record.raise_in_transactional_callbacks = true
     # Settings in config/environments/* take precedence over those specified here.
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
@@ -35,6 +32,7 @@ module VetsAPI
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
 
+    config.load_defaults(5.2)
     config.api_only = true
 
     config.relative_url_root = Settings.relative_url_root
@@ -47,7 +45,7 @@ module VetsAPI
     config.eager_load_paths << Rails.root.join('app')
 
     # CORS configuration; see also cors_preflight route
-    config.middleware.insert_before 0, 'Rack::Cors', logger: (-> { Rails.logger }) do
+    config.middleware.insert_before 0, Rack::Cors, logger: (-> { Rails.logger }) do
       allow do
         origins { |source, _env| Settings.web_origin.split(',').include?(source) }
         resource '*', headers: :any,
@@ -56,15 +54,16 @@ module VetsAPI
                       expose: [
                         'X-RateLimit-Limit',
                         'X-RateLimit-Remaining',
-                        'X-RateLimit-Reset'
+                        'X-RateLimit-Reset',
+                        'X-Session-Expiration'
                       ]
       end
     end
 
     config.middleware.insert_before(0, HttpMethodNotAllowed)
-    config.middleware.use 'OliveBranch::Middleware'
-    config.middleware.use 'StatsdMiddleware'
-    config.middleware.use 'Rack::Attack'
+    config.middleware.use OliveBranch::Middleware
+    config.middleware.use StatsdMiddleware
+    config.middleware.use Rack::Attack
     config.middleware.use ActionDispatch::Cookies
     config.middleware.insert_after ActionDispatch::Cookies,
                                    ActionDispatch::Session::CookieStore,

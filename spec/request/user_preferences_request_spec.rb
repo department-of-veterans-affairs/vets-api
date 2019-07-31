@@ -47,7 +47,7 @@ describe 'user_preferences', type: :request do
 
   describe 'POST /v0/user/preferences' do
     it 'returns the expected shape of attributes', :aggregate_failures do
-      post '/v0/user/preferences', request_body.to_json, headers
+      post '/v0/user/preferences', params: request_body.to_json, headers: headers
 
       expect(response).to have_http_status(:ok)
       expect(response).to match_response_schema('user_preferences')
@@ -56,10 +56,14 @@ describe 'user_preferences', type: :request do
     context 'current user does not have an Account record' do
       let(:user) { build(:user, :loa3) }
 
-      it 'creates an Account record for the current user', :aggregate_failures do
-        expect(user.account).to be_nil
+      before do
+        account = Account.find_by(idme_uuid: user.uuid)
 
-        post '/v0/user/preferences', request_body.to_json, headers
+        expect(account).to be_nil
+      end
+
+      it 'creates an Account record for the current user', :aggregate_failures do
+        post '/v0/user/preferences', params: request_body.to_json, headers: headers
 
         expect(user.account).to be_present
         expect(response).to have_http_status(:ok)
@@ -79,7 +83,7 @@ describe 'user_preferences', type: :request do
       end
 
       it 'returns a 404 not found', :aggregate_failures do
-        post '/v0/user/preferences', bad_request_body, headers
+        post '/v0/user/preferences', params: bad_request_body, headers: headers
 
         expect(response).to have_http_status(:not_found)
         expect(error_details_for(response, key: 'title')).to eq 'Record not found'
@@ -101,7 +105,7 @@ describe 'user_preferences', type: :request do
       end
 
       it 'returns a 404 not found', :aggregate_failures do
-        post '/v0/user/preferences', bad_request_body, headers
+        post '/v0/user/preferences', params: bad_request_body, headers: headers
 
         expect(response).to have_http_status(:not_found)
         expect(error_details_for(response, key: 'title')).to eq 'Record not found'
@@ -124,7 +128,7 @@ describe 'user_preferences', type: :request do
       end
 
       it 'returns a 400 bad request with details', :aggregate_failures do
-        post '/v0/user/preferences', empty_user_preference_request.to_json, headers
+        post '/v0/user/preferences', params: empty_user_preference_request.to_json, headers: headers
 
         body  = JSON.parse response.body
         error = body['errors'].first
@@ -146,7 +150,7 @@ describe 'user_preferences', type: :request do
       end
 
       it 'returns a 400 bad request with details', :aggregate_failures do
-        post '/v0/user/preferences', empty_preference_request.to_json, headers
+        post '/v0/user/preferences', params: empty_preference_request.to_json, headers: headers
 
         body  = JSON.parse response.body
         error = body['errors'].first
@@ -164,7 +168,7 @@ describe 'user_preferences', type: :request do
           ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
         )
 
-        post '/v0/user/preferences', request_body.to_json, headers
+        post '/v0/user/preferences', params: request_body.to_json, headers: headers
 
         body  = JSON.parse response.body
         error = body['errors'].first
@@ -191,7 +195,7 @@ describe 'user_preferences', type: :request do
 
     context 'when a user has UserPreferences' do
       it 'deletes all of a User\'s UserPreferences', :aggregate_failures do
-        delete '/v0/user/preferences/notifications/delete_all', {}, headers
+        delete '/v0/user/preferences/notifications/delete_all', headers: headers
 
         expect(response).to have_http_status(:ok)
         expect(response).to match_response_schema('delete_all_user_preferences')
@@ -201,7 +205,7 @@ describe 'user_preferences', type: :request do
 
     context 'when given a non existant code' do
       it 'returns a 404 not found', :aggregate_failures do
-        delete '/v0/user/preferences/garbagecode/delete_all', {}, headers
+        delete '/v0/user/preferences/garbagecode/delete_all', headers: headers
 
         expect(response).to have_http_status(:not_found)
         expect(error_details_for(response, key: 'title')).to eq 'Record not found'
@@ -215,7 +219,7 @@ describe 'user_preferences', type: :request do
           ActiveRecord::RecordNotDestroyed.new('Cannot destroy this record')
         )
 
-        delete '/v0/user/preferences/notifications/delete_all', {}, headers
+        delete '/v0/user/preferences/notifications/delete_all', headers: headers
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response).to match_response_schema('errors')
@@ -244,7 +248,7 @@ describe 'user_preferences', type: :request do
     end
 
     it 'returns an index of all of the user\'s preferences' do
-      get '/v0/user/preferences', {}, headers
+      get '/v0/user/preferences', headers: headers
 
       expect(response).to be_ok
       expect(response).to match_response_schema('user_preferences')

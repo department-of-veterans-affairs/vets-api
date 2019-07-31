@@ -1,21 +1,17 @@
 # frozen_string_literal: true
 
+require_dependency 'vba_documents/upload_error'
+
 module VBADocuments
-  class UploadSubmission < ActiveRecord::Base
+  class UploadSubmission < ApplicationRecord
     include SetGuid
     include SentryLogging
 
-    IN_FLIGHT_STATUSES = %w[received processing].freeze
+    IN_FLIGHT_STATUSES = %w[received processing success].freeze
+
+    scope :in_flight, -> { where(status: IN_FLIGHT_STATUSES) }
 
     after_save :report_errors
-
-    def self.refresh_and_get_statuses!(guids)
-      submissions = where(guid: guids)
-      in_flights = submissions.select { |sub| sub.send(:status_in_flight?) }
-      refresh_statuses!(in_flights)
-      missing = guids - submissions.map(&:guid)
-      submissions.to_a + missing.map { |id| fake_status(id) }
-    end
 
     def self.fake_status(guid)
       empty_submission = OpenStruct.new(guid: guid,
@@ -105,8 +101,10 @@ module VBADocuments
         self.status = 'received'
       when 'In Process', 'Processing Success'
         self.status = 'processing'
-      when 'Success', 'VBMS Success'
+      when 'Success'
         self.status = 'success'
+      when 'VBMS Complete'
+        self.status = 'vbms'
       when 'Error', 'Processing Error'
         self.status = 'error'
         self.code = 'DOC202'
@@ -121,7 +119,7 @@ module VBADocuments
 
     def report_errors
       key = VBADocuments::UploadError::STATSD_UPLOAD_FAIL_KEY
-      StatsD.increment key, tags: ["status:#{code}"] if status_changed? && status == 'error'
+      StatsD.increment key, tags: ["status:#{code}"] if saved_change_to_attribute?(:status) && status == 'error'
     end
   end
 end

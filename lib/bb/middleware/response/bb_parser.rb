@@ -3,15 +3,24 @@
 module BB
   module Middleware
     module Response
-      # class responsible for customizing parsing
+      ##
+      # Middleware class responsible for customizing MHV BB response parsing
+      #
       class BBParser < Faraday::Response::Middleware
+        ##
+        # Override the Faraday #on_complete method to filter body through custom #parse
+        # @param env [Faraday::Env] the request environment
+        # @return [Faraday::Env]
+        #
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\bjson/
+          return unless env.response_headers['content-type']&.match?(/\bjson/)
           # If POST is successful message body is irrelevant
           # if it was not successul an exception would have already been raised
           return if env.method == :post
           env[:body] = parse(env.body) if env.body.present?
         end
+
+        private
 
         def parse(body = nil)
           @parsed_json = body

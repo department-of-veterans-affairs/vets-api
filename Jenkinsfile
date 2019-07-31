@@ -1,3 +1,7 @@
+dev_branch = 'master'
+staging_branch = 'master'
+main_branch = 'master'
+
 pipeline {
   environment {
     DOCKER_IMAGE = env.BUILD_TAG.replaceAll(/[%\/]/, '')
@@ -52,8 +56,8 @@ pipeline {
       }
     }
 
-    stage('Deploy dev and staging') {
-      when { branch 'master' }
+    stage('Build AMI') {
+      when { anyOf { branch dev_branch; branch staging_branch; branch main_branch } }
 
       steps {
         // hack to get the commit hash, some plugin is swallowing git variables and I can't figure out which one
@@ -66,23 +70,35 @@ pipeline {
           stringParam(name: 'ref', value: commit),
           booleanParam(name: 'release', value: false),
         ], wait: true
+      }
+    }
 
-        build job: 'deploys/vets-api-server-dev', parameters: [
+    stage('Deploy dev') {
+      when { branch dev_branch }
+
+      steps {
+        build job: 'deploys/vets-api-server-vagov-dev', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-worker-dev', parameters: [
+        build job: 'deploys/vets-api-worker-vagov-dev', parameters: [
+          booleanParam(name: 'notify_slack', value: true),
+          stringParam(name: 'ref', value: commit),
+        ], wait: false
+      }
+    }
+
+    stage('Deploy staging') {
+      when { branch staging_branch }
+
+      steps {
+        build job: 'deploys/vets-api-server-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false
 
-        build job: 'deploys/vets-api-server-staging', parameters: [
-          booleanParam(name: 'notify_slack', value: true),
-          stringParam(name: 'ref', value: commit),
-        ], wait: false
-
-        build job: 'deploys/vets-api-worker-staging', parameters: [
+        build job: 'deploys/vets-api-worker-vagov-staging', parameters: [
           booleanParam(name: 'notify_slack', value: true),
           stringParam(name: 'ref', value: commit),
         ], wait: false

@@ -10,12 +10,9 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
 
   describe 'POST create' do
     subject do
-      post(
-        v0_pension_claims_path,
-        params.to_json,
-        'CONTENT_TYPE' => 'application/json',
-        'HTTP_X_KEY_INFLECTION' => 'camel'
-      )
+      post(v0_pension_claims_path,
+           params: params.to_json,
+           headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
     end
 
     context 'with invalid params' do
@@ -39,7 +36,7 @@ RSpec.describe 'Pension Claim Integration', type: %i[request serializer] do
         expect(response.code).to eq('422')
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
-            "The property '#/bankAccount' of type String"
+            "The property '#/bankAccount' of type string"
           )
         ).to eq(true)
       end

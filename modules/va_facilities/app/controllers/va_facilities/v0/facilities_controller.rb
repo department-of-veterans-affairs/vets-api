@@ -6,18 +6,21 @@ require_dependency 'va_facilities/application_controller'
 require_dependency 'va_facilities/pagination_headers'
 require_dependency 'va_facilities/geo_serializer'
 require_dependency 'va_facilities/csv_serializer'
+require_dependency 'va_facilities/param_validators'
 
 module VaFacilities
   module V0
     class FacilitiesController < ApplicationController
       include ActionController::MimeResponds
       include VaFacilities::PaginationHeaders
+      include VaFacilities::ParamValidators
       skip_before_action(:authenticate)
       before_action :set_default_format
       before_action :validate_params, only: [:index]
 
-      TYPE_SERVICE_ERR = 'Filtering by services is not allowed unless a facility type is specified'
-      LAT_AND_LONG_OR_ID_ERR = 'Must supply lat and long, bounding box, or ids parameter to query facilities data.'
+      REQUIRE_ONE_PARAM = %i[bbox long lat zip ids state].freeze
+      MISSING_PARAMS_ERR =
+        'Must supply lat and long, bounding box, zip code, or ids parameter to query facilities data.'
 
       def all
         resource = BaseFacility.where.not(facility_type: BaseFacility::DOD_HEALTH).order(:unique_id)
@@ -32,7 +35,8 @@ module VaFacilities
       end
 
       def index
-        resource = BaseFacility.query(params).paginate(page: params[:page], per_page: params[:per_page])
+        resource = BaseFacility.query(params).paginate(page: params[:page],
+                                                       per_page: params[:per_page] || BaseFacility.per_page)
         respond_to do |format|
           format.json do
             render json: resource,
@@ -68,22 +72,23 @@ module VaFacilities
       private
 
       def validate_params
-        validate_bbox_lat_and_long_or_ids
+        validate_a_param_exists
         validate_bbox
+        validate_state_code
         %i[lat long].each { |param| verify_float(param) } if params.key?(:lat) && params.key?(:long)
         validate_no_services_without_type
         validate_type_and_services_known unless params[:type].nil?
+        validate_zip
+        valid_location_query?
       end
 
-      def validate_bbox_lat_and_long_or_ids
-        bbox = params.key?(:bbox)
+      def validate_a_param_exists
         lat_and_long = params.key?(:lat) && params.key?(:long)
-        ids = params.key? :ids
 
-        if !bbox && !lat_and_long && !ids
-          %i[bbox long lat ids].each do |param|
+        if !lat_and_long && REQUIRE_ONE_PARAM.none? { |param| params.key? param }
+          REQUIRE_ONE_PARAM.each do |param|
             unless params.key? param
-              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: LAT_AND_LONG_OR_ID_ERR)
+              raise Common::Exceptions::ParameterMissing.new(param.to_s, detail: MISSING_PARAMS_ERR)
             end
           end
         end
@@ -104,17 +109,24 @@ module VaFacilities
         raise Common::Exceptions::InvalidFieldValue.new('bbox', params[:bbox])
       end
 
-      def validate_no_services_without_type
-        if params[:type].nil? && params[:services].present?
-          raise Common::Exceptions::ParameterMissing.new('type', detail: TYPE_SERVICE_ERR)
+      def valid_location_query?
+        case location_keys
+        when [] then true
+        when %i[lat long] then true
+        when [:state]     then true
+        when [:zip]       then true
+        when [:bbox]      then true
+        else
+          # There can only be one
+          render json: {
+            errors: ['You may only use ONE of these distance query parameter sets: lat/long, zip, state, or bbox']
+          },
+                 status: 422
         end
       end
 
-      def validate_type_and_services_known
-        raise Common::Exceptions::InvalidFieldValue.new('type', params[:type]) unless
-          BaseFacility::TYPES.include?(params[:type])
-        unknown = params[:services].to_a - BaseFacility::SERVICE_WHITELIST[params[:type]]
-        raise Common::Exceptions::InvalidFieldValue.new('services', unknown) unless unknown.empty?
+      def location_keys
+        (%i[lat long state zip bbox] & params.keys.map(&:to_sym)).sort
       end
 
       def metadata(resource)

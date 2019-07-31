@@ -6,21 +6,31 @@ module OpenidAuth
   module V0
     class MviUsersController < ApplicationController
       skip_before_action :authenticate
-      before_action :check_required_headers
+      before_action :check_required_headers, only: :show
 
-      # Allows MVI lookups based on user identity traits (presumably obtained from the upstream
-      # identity provider). Returns a 200 response when the MVI lookup succeeds. Raises an error
-      # otherwise.
+      def search
+        user_attributes = params
+        check_level_of_assurance user_attributes
+        user_identity = build_identity_from_attributes(user_attributes)
+        process_identity(user_identity)
+      end
+
+      # DEPRECATED. GET method that parses user identity from header values. Because
+      # HTTP headers do not handle UTF-8 values (they are encoded as Latin-1 strings),
+      # the POST search action using JSON is preferred.
       def show
-        user_identity = save_requested_identity
-        service = MVI::Service.new
-        mvi_response = service.find_profile(user_identity)
-        raise mvi_response.error if mvi_response.error
-
-        render json: mvi_response, serializer: MviLookupSerializer
+        user_identity = build_identity_from_headers
+        process_identity(user_identity)
       end
 
       private
+
+      def process_identity(user_identity)
+        service = MVI::Service.new
+        mvi_response = service.find_profile(user_identity)
+        raise mvi_response.error if mvi_response.error
+        render json: mvi_response, serializer: MviLookupSerializer
+      end
 
       def check_required_headers
         raise Common::Exceptions::ParameterMissing, 'x-va-level-of-assurance' if missing_loa
@@ -30,11 +40,31 @@ module OpenidAuth
         request.headers['x-va-level-of-assurance'].blank?
       end
 
-      def save_requested_identity
-        # In addition to constructing the the identity object, we save it in order to prime the
-        # identity cache. This is done because this endpoint is primarily called by the saml-proxy
-        # during the login process. If a user is logging in, usually a client app will make use of
-        # the openid token soon.
+      def check_level_of_assurance(user_attributes)
+        has_loa = !user_attributes[:level_of_assurance].nil?
+        raise Common::Exceptions::ParameterMissing, 'level_of_assurance' unless has_loa
+      end
+
+      def build_identity_from_attributes(user_attributes)
+        OpenidUserIdentity.new(
+          uuid: user_attributes[:idp_uuid],
+          email: user_attributes[:user_email],
+          first_name: user_attributes[:first_name],
+          last_name: user_attributes[:last_name],
+          gender: user_attributes[:gender]&.chars&.first&.upcase,
+          birth_date: user_attributes[:dob],
+          ssn: user_attributes[:ssn],
+          mhv_icn: user_attributes[:mhv_icn],
+          dslogon_edipi: user_attributes[:dslogon_edipi],
+          loa:
+          {
+            current: user_attributes[:level_of_assurance].to_i,
+            highest: user_attributes[:level_of_assurance].to_i
+          }
+        )
+      end
+
+      def build_identity_from_headers
         OpenidUserIdentity.new(
           uuid: request.headers['x-va-idp-uuid'],
           email: request.headers['x-va-user-email'],

@@ -3,6 +3,8 @@
 require 'rails_helper'
 module Facilities
   RSpec.describe PPMSClient do
+    let(:bbox_bounds) { [-79, 38, -77, 39] }
+
     it 'should be an PPMSClient object' do
       expect(described_class.new).to be_an(PPMSClient)
     end
@@ -12,7 +14,30 @@ module Facilities
     }
 
     describe 'route_fuctions' do
-      it 'should afind at least one provider' do
+      context 'with an http timeout' do
+        before do
+          allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+        end
+
+        it 'should log an error and raise GatewayTimeout' do
+          expect do
+            PPMSClient.new.provider_locator('bbox': bbox_bounds)
+          end.to raise_error(Common::Exceptions::GatewayTimeout)
+        end
+      end
+
+      context 'with an unknown error from PPMS' do
+        it 'raises BackendUnhandledException when errors happen' do
+          VCR.use_cassette('facilities/va/ppms_500', match_requests_on: [regex_matcher]) do
+            expect { PPMSClient.new.provider_locator('bbox': bbox_bounds) }
+              .to raise_error(Common::Exceptions::BackendServiceException) do |e|
+                expect(e.message).to match(/PPMS_502/)
+              end
+          end
+        end
+      end
+
+      it 'should find at least one provider' do
         VCR.use_cassette('facilities/va/ppms', match_requests_on: [regex_matcher]) do
           r = PPMSClient.new.provider_locator('bbox': [-79, 38, -77, 39])
           expect(r.length).to be > 0

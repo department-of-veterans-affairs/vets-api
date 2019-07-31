@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'services/sso_service'
-
 host = Settings.statsd.host
 port = Settings.statsd.port
 
@@ -16,7 +14,7 @@ StatsD.backend = if host.present? && port.present?
 StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_TOTAL_KEY, 0)
 StatsD.increment(V0::SessionsController::STATSD_LOGIN_NEW_USER_KEY, 0)
 
-SAML::Response::ERRORS.merge(SSOService::ERRORS).each_value do |known_error|
+SAML::Responses::Base::ERRORS.merge(UserSessionForm::ERRORS).each_value do |known_error|
   StatsD.increment(V0::SessionsController::STATSD_SSO_CALLBACK_FAILED_KEY, 0, tags: ["error:#{known_error[:tag]}"])
 end
 
@@ -28,6 +26,14 @@ end
       tags: ["status:#{s}", "context:#{ctx}"]
     )
   end
+end
+
+V0::SessionsController::REDIRECT_URLS.each do |ctx|
+  StatsD.increment(
+    V0::SessionsController::STATSD_SSO_NEW_KEY,
+    0,
+    tags: ["context:#{ctx}"]
+  )
 end
 
 # init GiBillStatus stats to 0
@@ -94,3 +100,14 @@ StatsD.increment(SentryJob::STATSD_ERROR_KEY, 0)
 
 # init Search
 StatsD.increment("#{Search::Service::STATSD_KEY_PREFIX}.exceptions", 0, tags: ['exception:429'])
+
+ActiveSupport::Notifications.subscribe('process_action.action_controller') do |_, _, _, _, payload|
+  tags = ["controller:#{payload.dig(:params, :controller)}", "action:#{payload.dig(:params, :action)}",
+          "status:#{payload[:status]}"]
+  StatsD.measure('api.request.db_runtime', payload[:db_runtime].to_i, tags: tags)
+  StatsD.measure('api.request.view_runtime', payload[:view_runtime].to_i, tags: tags)
+end
+
+# init gibft
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.total", 0)
+StatsD.increment("#{Gibft::Service::STATSD_KEY_PREFIX}.submit.fail", 0)

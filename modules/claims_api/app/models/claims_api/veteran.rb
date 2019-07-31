@@ -43,8 +43,12 @@ module ClaimsApi
       @mvi ||= Mvi.for_user(self)
     end
 
+    def mvi_record?
+      mvi.mvi_response.ok?
+    end
+
     def ssn=(new_ssn)
-      raise Common::Exceptions::ParameterMissing 'X-VA-SSN' unless SSN_REGEX.match(new_ssn)
+      raise Common::Exceptions::ParameterMissing 'X-VA-SSN' unless SSN_REGEX.match?(new_ssn)
       super(new_ssn)
     end
 
@@ -76,6 +80,20 @@ module ClaimsApi
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
       veteran.edipi = headers['X-VA-EDIPI'] if headers['X-VA-EDIPI'].present?
       veteran
+    end
+
+    def self.from_identity(identity:)
+      new(
+        uuid: identity.uuid,
+        ssn: identity.ssn,
+        first_name: identity.first_name,
+        last_name: identity.last_name,
+        va_profile: OpenStruct.new(birth_date: identity.birth_date),
+        last_signed_in: Time.now.utc,
+        loa: identity.loa,
+        gender: identity.gender,
+        edipi: identity.edipi
+      )
     end
 
     def self.build_profile(headers)

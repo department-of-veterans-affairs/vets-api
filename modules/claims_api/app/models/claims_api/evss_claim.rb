@@ -39,5 +39,27 @@ module ClaimsApi
     def status_from_phase(phase)
       PHASE_TO_STATUS[phase]
     end
+
+    def supporting_documents
+      auto_established_claim = ClaimsApi::AutoEstablishedClaim.find_by evss_id: evss_id
+      if auto_established_claim.present?
+        auto_established_claim.supporting_documents.map do |document|
+          {
+            id: document.id,
+            type: 'claim_supporting_document',
+            md5: document.file_data['filename'].present? ? Digest::MD5.hexdigest(document.file_data['filename']) : '',
+            filename: document.file_data['filename'],
+            uploaded_at: document.created_at
+          }
+        end
+      else
+        []
+      end
+    end
+
+    def self.services_are_healthy?
+      # TODO: we should add check for Okta and SAML Proxies being up as well
+      MVI::Service.service_is_up? && EVSS::Service.service_is_up?
+    end
   end
 end

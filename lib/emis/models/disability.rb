@@ -2,6 +2,11 @@
 
 module EMIS
   module Models
+    # EMIS veteran disability pay data
+    # @!attribute disability_percent
+    #   @return [Float] code that represents the rating of percentage of disability.
+    # @!attribute pay_amount
+    #   @return [Float] amount of pay the veteran receives for the disability.
     class Disability
       include Virtus.model
 

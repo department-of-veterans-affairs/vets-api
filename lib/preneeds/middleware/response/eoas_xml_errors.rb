@@ -3,12 +3,19 @@
 module Preneeds
   module Middleware
     module Response
+      # Faraday response middleware that checks the EOAS service response for errors and raises the appropirate
+      # exception for our application.
+      #
       class EoasXmlErrors < Faraday::Response::Middleware
         include SentryLogging
         attr_reader :status, :fault, :code, :detail
 
+        # Checks the response for service errors and raises an exception if appropriate
+        #
+        # @return [Faraday::Env]
+        #
         def on_complete(env)
-          return unless env.response_headers['content-type'] =~ /\b(xml)/
+          return unless env.response_headers['content-type']&.match?(/\b(xml)/)
 
           @fault = fault_string(env)
           @code = return_code(env)
