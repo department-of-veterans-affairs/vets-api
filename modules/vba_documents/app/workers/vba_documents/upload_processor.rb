@@ -24,7 +24,7 @@ module VBADocuments
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
     def perform(guid)
-      upload = VBADocuments::UploadSubmission.find_by(guid: guid)
+      upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
       tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(guid)
       begin
         Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
