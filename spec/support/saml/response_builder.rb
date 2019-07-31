@@ -197,6 +197,7 @@ module SAML
           'va_eauth_lastname' => ['MHV'],
           'va_eauth_middlename' => [''],
           'va_eauth_pnid' => ['111223333'],
+          'va_eauth_pnidtype' => ['SSN'],
           'va_eauth_postalcode' => ['12345'],
           'va_eauth_icn' => ['0000'],
           'va_eauth_mhvien' => ['0000']
