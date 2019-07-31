@@ -181,7 +181,7 @@ module SAML
           'va_eauth_pnid' => [],
           'va_eauth_postalcode' => [],
           'va_eauth_icn' => [],
-          'va_eauth_mhvien' => [],
+          'va_eauth_mhvien' => []
         )
       else
         OneLogin::RubySaml::Attributes.new(
@@ -199,11 +199,10 @@ module SAML
           'va_eauth_pnid' => ['111223333'],
           'va_eauth_postalcode' => ['12345'],
           'va_eauth_icn' => ['0000'],
-          'va_eauth_mhvien' => ['0000'],
+          'va_eauth_mhvien' => ['0000']
         )
       end
     end
-
 
     def build_mhv_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       OneLogin::RubySaml::Attributes.new(
