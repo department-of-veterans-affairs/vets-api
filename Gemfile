@@ -2,6 +2,7 @@
 
 source 'https://rubygems.org'
 
+# Modules
 gem 'appeals_api', path: 'modules/appeals_api'
 gem 'claims_api', path: 'modules/claims_api'
 gem 'openid_auth', path: 'modules/openid_auth'
@@ -34,8 +35,11 @@ gem 'clam_scan'
 gem 'config'
 gem 'connect_vbms', git: 'https://github.com/department-of-veterans-affairs/connect_vbms.git', branch: 'master'
 gem 'date_validator'
+gem 'dry-struct'
+gem 'dry-types'
 gem 'faraday'
 gem 'faraday_middleware'
+gem 'fast_jsonapi'
 gem 'fastimage'
 gem 'figaro'
 gem 'flipper'
@@ -58,7 +62,7 @@ gem 'levenshtein-ffi'
 gem 'liquid'
 gem 'mail', '2.6.6'
 gem 'memoist'
-gem 'mini_magick'
+gem 'mini_magick', '~> 4.9.4'
 gem 'net-sftp'
 gem 'nokogiri', '~> 1.10', '>= 1.10.3'
 gem 'octokit'
@@ -82,7 +86,6 @@ gem 'savon'
 gem 'sentry-raven', '2.9.0' # don't change gem version unless sentry server is also upgraded
 gem 'shrine'
 gem 'sidekiq-instrument'
-gem 'sidekiq-unique-jobs'
 gem 'staccato'
 gem 'statsd-instrument'
 gem 'swagger-blocks'
@@ -95,6 +98,7 @@ gem 'will_paginate'
 gem 'zero_downtime_migrations'
 
 group :development do
+  gem 'benchmark-ips'
   gem 'guard-rubocop'
   gem 'seedbank'
   gem 'socksify'
@@ -130,6 +134,7 @@ group :development, :test do
   gem 'brakeman'
   gem 'bundler-audit'
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  gem 'database_cleaner'
   gem 'factory_bot_rails'
   gem 'pry-byebug'
   gem 'rainbow' # Used to colorize output for rake tasks

@@ -15,7 +15,7 @@
                 "type": "object",
                 "properties": {
                     "service": { "type": "string" },
-                    "short_name": { "type": "string" },
+                    "service_id": { "type": "string" },
                     "status": { "type": "string" },
                     "last_incident_timestamp": { "type": ["string", null] }
                 }
