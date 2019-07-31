@@ -50,7 +50,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   # rubocop:enable Style/DateTime
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, consumer_name: 'test consumer') }
+    let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
 
     it 'parses and uploads a valid multipart payload' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
@@ -335,7 +335,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
         .and_raise(Faraday::TimeoutError.new)
       expect { described_class.new.perform(upload.guid) }.to raise_error(Faraday::TimeoutError)
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
-      expect(updated.status).to eq('pending')
+      expect(updated.status).to eq('uploaded')
     end
   end
 end
