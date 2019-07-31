@@ -256,6 +256,7 @@ module SAML
       end
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity
     def build_saml_attributes(authn_context:, account_type:, level_of_assurance:, multifactor:)
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
@@ -302,5 +303,5 @@ module SAML
       end
     end
   end
-  # rubocop:enable Metrics/MethodLength, Metrics/ModuleLength
+  # rubocop:enable Metrics/MethodLength, Metrics/ModuleLength, Metrics/CyclomaticComplexity
 end
