@@ -83,6 +83,10 @@ module SAML
         attributes['multifactor']
       end
 
+      def account_type
+        attributes['level_of_assurance']
+      end
+
       def sign_in
         if existing_user_identity?
           existing_user_identity.sign_in
