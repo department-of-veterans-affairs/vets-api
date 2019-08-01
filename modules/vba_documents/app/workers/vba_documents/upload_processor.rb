@@ -24,14 +24,8 @@ module VBADocuments
       'or 9 digits in XXXXX-XXXX format. Specify \'00000\' for non-US addresses.'
 
     def perform(guid)
-      upload = VBADocuments::UploadSubmission.where(status: 'uploaded').find_by(guid: guid)
-      download_and_process(upload) if upload
-    end
-
-    private
-
-    def download_and_process(upload)
-      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(upload.guid)
+      upload = VBADocuments::UploadSubmission.find_by(guid: guid)
+      tempfile, timestamp = VBADocuments::PayloadManager.download_raw_file(guid)
       begin
         Rails.logger.info("VBADocuments: Start Processing: #{upload.inspect}")
         parts = VBADocuments::MultipartParser.parse(tempfile.path)
@@ -43,7 +37,7 @@ module VBADocuments
         log_submission(metadata, upload)
       rescue VBADocuments::UploadError => e
         upload.update(status: 'error', code: e.code, detail: e.detail)
-        UploadProcessor.perform_in(30.minutes, upload.guid) if e.code == 'DOC201'
+        UploadProcessor.perform_in(30.minutes, guid) if e.code == 'DOC201'
         log_error(e, upload)
       ensure
         Rails.logger.info("VBADocuments: Stop Processing: #{upload.inspect}")
@@ -51,6 +45,8 @@ module VBADocuments
         close_part_files(parts) if parts.present?
       end
     end
+
+    private
 
     def log_error(e, upload)
       Rails.logger.info('VBADocuments: Submission failure',
