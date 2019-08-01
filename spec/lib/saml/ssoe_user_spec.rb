@@ -39,7 +39,7 @@ RSpec.describe SAML::User do
           email: 'kam+tristanmhv@adhocteam.us',
           multifactor: false,
           loa: { current: 1, highest: 3 },
-          sign_in: { service_name: 'ssoe', account_type: '1' },
+          sign_in: { service_name: 'ssoe', account_type: '3' },
           authn_context: 'ssoe'
         )
       end
