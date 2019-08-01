@@ -26,7 +26,7 @@ module VBADocuments
       def show
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
 
-        if submission.nil?
+        if submission.nil? || submission.status == 'expired'
           return render status: :not_found,
                         json: VBADocuments::UploadSubmission.fake_status(params[:id]),
                         serializer: VBADocuments::UploadSerializer,
@@ -35,7 +35,7 @@ module VBADocuments
           submission.status = request.headers['Status-Override']
           submission.save
         else
-          submission.refresh_status! unless submission.status == 'expired'
+          submission.refresh_status!
         end
 
         render json: submission,
