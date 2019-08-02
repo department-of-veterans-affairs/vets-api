@@ -79,7 +79,7 @@ module SAML
       raise
     end
 
-    # TODO: add SSOe class here
+    # TODO: validate that the AuthN attribute name for SSOe case is 'ssoe'
     def user_attributes_class
       case authn_context
       when 'myhealthevet', 'myhealthevet_multifactor'
