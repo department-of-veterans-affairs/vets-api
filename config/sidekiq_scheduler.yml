@@ -109,6 +109,11 @@ VBADocuments::UploadRemover:
   class: VBADocuments::UploadRemover
   description: "Clean up submitted documents from S3"
 
+VBADocuments::UploadStatusBatch:
+  every: "60m"
+  class: VBADocuments::UploadStatusBatch
+  description: "Cache Statuses for VBA Documents"
+
 TransactionalEmailAnalyticsJob:
   cron: "0 1 * * * America/New_York"
   description: "posts Transactional email (HCA Failure and Direct Deposit Update) sends and failures to Google Analytics"

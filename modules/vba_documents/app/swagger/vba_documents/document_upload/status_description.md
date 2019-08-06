@@ -12,3 +12,4 @@ change to “error”.
 * `processing` - Indicates document package is being processed by ICMHS or a downstream system.
 * `success` - Indicates document package has been received by DHMS.
 * `error` - Indicates that there was an error. See the `code` and `message` for further information.
+* `expired` - Indicates that the submission was not submitted in the 15 minute window of creation
