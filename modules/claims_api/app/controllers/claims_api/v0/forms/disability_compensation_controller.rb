@@ -8,10 +8,10 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < BaseFormController
         FORM_NUMBER = '526'
-        before_action :verification_itf_expiration, only: %i[submit_form_526]
-        before_action :validate_526_payload, only: %i[submit_form_526]
         skip_before_action(:authenticate)
         skip_before_action(:verify_power_of_attorney)
+        before_action :verification_itf_expiration, only: %i[submit_form_526]
+        before_action :validate_526_payload, only: %i[submit_form_526]
         skip_before_action :validate_json_schema, only: %i[upload_supporting_documents]
         skip_before_action :verify_mvi, only: %i[submit_form_526 validate_form_526]
         skip_before_action :log_request, only: %i[validate_form_526]
@@ -44,7 +44,12 @@ module ClaimsApi
 
         def validate_form_526
           service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
-          service.validate_form526(form_attributes.to_json)
+          auto_claim = ClaimsApi::AutoEstablishedClaim.new(
+            status: ClaimsApi::AutoEstablishedClaim::PENDING,
+            auth_headers: auth_headers,
+            form_data: form_attributes
+          )
+          service.validate_form526(auto_claim.form.to_internal)
           render json: valid_526_response
         rescue EVSS::ErrorMiddleware::EVSSError => e
           render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
