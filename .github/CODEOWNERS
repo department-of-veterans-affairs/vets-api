@@ -3,6 +3,4 @@
 #  @department-of-veterans-affairs/backend-review-group will be requested for
 # review when someone opens a pull request.
 
-*       @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/ad-hoc-devops
-
-*.md    @department-of-veterans-affairs/teams/ad-hoc-general @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/ad-hoc-devops
+*       @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
