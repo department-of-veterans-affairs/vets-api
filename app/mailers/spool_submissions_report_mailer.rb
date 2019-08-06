@@ -8,15 +8,22 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     Jennifer.Waltz2@va.gov
     shay.norton@va.gov
     Darla.VanNieukerk@va.gov
-    Ricardo.DaSilva@va.gov
-  ].freeze
+    Ricardo.DaSilva@va.gov  ]
+
+  STEM_RECIPIENTS = %w[]
+
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
     Turner_Desiree@bah.com
     Delli-Gatti_Michael@bah.com
-  ].freeze
+  ]
 
-  def build(report_file)
+  STAGING_STEM_RECIPIENTS = %w[
+    shay.norton-leonard@va.gov
+    hughes_dustin@bah.com
+  ]
+
+  def build(report_file, stem_exists)
     url = Reports::Uploader.get_s3_link(report_file)
 
     opt = {}
@@ -27,6 +34,14 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
       else
         RECIPIENTS.clone
       end
+
+     if stem_exists
+       if FeatureFlipper.staging_email?
+         opt[:to] << STAGING_STEM_RECIPIENTS.clone
+       else
+         opt[:to] << STEM_RECIPIENTS.clone
+       end
+     end
 
     mail(
       opt.merge(

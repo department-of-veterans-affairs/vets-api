@@ -17,13 +17,19 @@ module EducationForm
 
     def create_csv_array
       csv_array = []
+      data = {
+          csv_array: csv_array,
+          stem_exists: false,
+      }
       csv_array << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
 
       EducationBenefitsClaim.where(
         processed_at: processed_at_range
       ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
-
+        if (education_benefits_claim.form_type = '1995' && parsed_form['isEdithNourseRogersScholarship'])
+          data[:stem_exists] = true
+        end
         csv_array << [
           format_name(parsed_form['relativeFullName']),
           format_name(parsed_form['veteranFullName']),
@@ -32,8 +38,7 @@ module EducationForm
           education_benefits_claim.regional_processing_office
         ]
       end
-
-      csv_array
+      data
     end
 
     def perform
@@ -42,15 +47,17 @@ module EducationForm
       folder = 'tmp/spool_reports'
       FileUtils.mkdir_p(folder)
       filename = "#{folder}/#{@time.to_date}.csv"
-
+      csv_array_data = create_csv_array
+      stem_exists = csv_array_data[:stem_exists]
+      csv_array = csv_array_data[:csv_array]
       CSV.open(filename, 'wb') do |csv|
-        create_csv_array.each do |row|
+        csv_array.each do |row|
           csv << row
         end
       end
 
       return unless FeatureFlipper.send_edu_report_email?
-      SpoolSubmissionsReportMailer.build(filename).deliver_now
+      SpoolSubmissionsReportMailer.build(filename, stem_exists).deliver_now
     end
   end
 end
