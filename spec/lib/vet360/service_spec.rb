@@ -66,6 +66,44 @@ describe Vet360::Service do
     end
   end
 
+  describe '#log_dates' do
+    it 'should log dates in the request' do
+      expect(Raven).to receive(:extra_context).with(
+        request_dates: {
+          'effectiveStartDate' => '2018-06-06T15:35:55.000Z',
+          'effectiveEndDate' => nil, 'sourceDate' => '2018-06-06T15:35:55.000Z'
+        }
+      )
+
+      subject.send(
+        :log_dates,
+        { 'bio' =>
+          { 'addressId' => 42,
+            'addressLine1' => '1493 Martin Luther King Rd',
+            'addressLine2' => nil,
+            'addressLine3' => nil,
+            'addressPOU' => 'RESIDENCE/CHOICE',
+            'addressType' => 'DOMESTIC',
+            'cityName' => 'Fulton',
+            'countryCodeISO2' => nil,
+            'countryCodeISO3' => 'USA',
+            'countryName' => 'USA',
+            'county' => { 'countyCode' => nil, 'countyName' => nil },
+            'intPostalCode' => nil,
+            'provinceName' => nil,
+            'stateCode' => 'MS',
+            'zipCode5' => '38843',
+            'zipCode4' => nil,
+            'originatingSourceSystem' => 'VETSGOV',
+            'sourceSystemUser' => '1234',
+            'sourceDate' => '2018-06-06T15:35:55.000Z',
+            'vet360Id' => '123456789',
+            'effectiveStartDate' => '2018-06-06T15:35:55.000Z',
+            'effectiveEndDate' => nil } }.to_json
+      )
+    end
+  end
+
   describe '#raise_backend_exception' do
     context 'regarding its reporting' do
       it 'increments the StatsD error counter', :aggregate_failures do
