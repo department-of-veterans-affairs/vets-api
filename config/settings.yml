@@ -35,6 +35,7 @@ binaries:
 db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
+test_database_url: postgis:///vets-api-test
 
 relative_url_root: /
 
