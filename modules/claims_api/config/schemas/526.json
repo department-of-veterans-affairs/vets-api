@@ -33,11 +33,13 @@
           "properties": {
             "addressLine1": {
               "type": "string",
-              "format": "address-line-pattern"
+              "format": "address-line-pattern",
+              "maxLength": 20
             },
             "addressLine2": {
               "type": "string",
-              "format": "address-line-pattern"
+              "format": "address-line-pattern",
+              "maxLength": 20
             },
             "city": {
               "type": "string",
@@ -83,10 +85,12 @@
               "type": "string"
             },
             "addressLine1": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 20
             },
             "addressLine2": {
-              "type": "string"
+              "type": "string",
+              "maxLength": 20
             },
             "city": {
               "type": "string"
