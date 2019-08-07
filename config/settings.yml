@@ -375,3 +375,7 @@ search:
 bing:
   base_api_url: 'https://dev.virtualearth.net/REST/v1/Routes'
   key: fake_key
+
+flipper:
+  username: SUPER_SECRET_USERNAME
+  password: SUPER_SECRET_PASSWORD
