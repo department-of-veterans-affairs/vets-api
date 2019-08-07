@@ -29,8 +29,11 @@ module Swagger
               property :data, type: :object do
                 key :required, %i[features]
                 property :features, type: :array do
-                  property :name, type: :string, example: 'facility_locator'
-                  property :value, type: :boolean
+                  items do
+                    key :required, %i[code title user_preferences]
+                    property :name, type: :string, example: 'facility_locator'
+                    property :value, type: :boolean
+                  end
                 end
               end
             end
