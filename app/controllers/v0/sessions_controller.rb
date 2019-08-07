@@ -66,6 +66,24 @@ module V0
       stats(:total)
     end
 
+    def saml_callback_v2
+      saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+
+      if saml_response.valid?
+        user_login(saml_response)
+      else
+        log_error(saml_response)
+        redirect_to url_service.login_redirect_url(auth: 'fail', code: auth_error_code(saml_response.error_code))
+        stats(:failure, saml_response, saml_response.error_instrumentation_code)
+      end
+    rescue StandardError => e
+      log_exception_to_sentry(e, {}, {}, :error)
+      redirect_to url_service.login_redirect_url(auth: 'fail', code: '007') unless performed?
+      stats(:failed_unknown)
+    ensure
+      stats(:total)
+    end
+
     private
 
     def auth_error_code(code)

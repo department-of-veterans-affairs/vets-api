@@ -4,6 +4,7 @@ require 'feature_flipper'
 require 'common/exceptions'
 require 'common/client/errors'
 require 'saml/settings_service'
+require 'saml/settings_service_v2'
 require 'sentry_logging'
 require 'aes_256_cbc_encryptor'
 
