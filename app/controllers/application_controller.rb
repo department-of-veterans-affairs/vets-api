@@ -31,7 +31,6 @@ class ApplicationController < ActionController::API
   skip_before_action :authenticate, only: %i[cors_preflight routing_error]
   before_action :set_tags_and_extra_context
 
-
   def cors_preflight
     head(:ok)
   end
