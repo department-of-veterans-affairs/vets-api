@@ -2,13 +2,13 @@
 
 require 'memoist'
 require 'sentry_logging'
-require 'saml/health_status_v2'
+require 'saml/ssoe_health_status'
 
 module SAML
   # This class is responsible for putting together a complete ruby-saml
   # SETTINGS object, meaning, our static SP settings + the IDP settings
   # which must be fetched once and only once via IDP metadata.
-  module SettingsServiceV2
+  module SSOeSettingsService
     class << self
       include SentryLogging
       extend Memoist
@@ -36,16 +36,16 @@ module SAML
       end
 
       def base_settings
-        if HealthStatus.healthy?
+        if SSOeHealthStatus.healthy?
           merged_saml_settings
         else
-          log_message_to_sentry(HealthStatus.error_message, :error) unless fetch_attempted.nil?
+          log_message_to_sentry(SSOeHealthStatus.error_message, :error) unless fetch_attempted.nil?
           refresh_saml_settings
         end
       end
 
       def merged_saml_settings
-        metadata = get_metadata
+\        metadata = get_metadata
         return nil if metadata.nil?
         begin
           merged_settings = OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
@@ -95,11 +95,11 @@ module SAML
       def settings
         settings = OneLogin::RubySaml::Settings.new
 
-        settings.certificate = Settings.saml_v2.certificate
-        settings.private_key = Settings.saml_v2.key
-        settings.issuer = Settings.saml_v2.issuer
-        settings.assertion_consumer_service_url = Settings.saml_v2.callback_url
-        settings.certificate_new = Settings.saml_v2.certificate_new
+        settings.certificate = Settings.saml_ssoe.certificate
+        settings.private_key = Settings.saml_ssoe.key
+        settings.issuer = Settings.saml_ssoe.issuer
+        settings.assertion_consumer_service_url = Settings.saml_ssoe.callback_url
+        settings.certificate_new = Settings.saml_ssoe.certificate_new
 
         settings.security[:authn_requests_signed] = true
         settings.security[:logout_requests_signed] = true

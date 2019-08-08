@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'saml/settings_service_v2'
+require 'saml/ssoe_settings_service'
 require 'sentry_logging'
 
 module SAML
@@ -10,7 +10,7 @@ module SAML
     CERT_INVALID  = 'IDP certificate is invalid'
   end
 
-  class HealthStatus
+  class SSOeHealthStatus
     class << self
       include SentryLogging
       include StatusMessages
@@ -31,20 +31,20 @@ module SAML
       private
 
       def fetch_attempted?
-        SettingsService.fetch_attempted == true
+        SSOeSettingsService.fetch_attempted == true
       end
 
       def metadata_received?
         # guard against actually going and retrieving SAML metadata within the check itself
         return false unless fetch_attempted?
-        SettingsService.merged_saml_settings&.idp_sso_target_url&.blank? == false
+        SSOeSettingsService.merged_saml_settings&.idp_sso_target_url&.blank? == false
       end
 
       def idp_certs_valid?
         return false unless fetch_attempted? && metadata_received?
         begin
-          signing_cert    = SettingsService.merged_saml_settings&.idp_cert_multi[:signing].first
-          encryption_cert = SettingsService.merged_saml_settings&.idp_cert_multi[:encryption].first
+          signing_cert    = SSOeSettingsService.merged_saml_settings&.idp_cert_multi[:signing].first
+          encryption_cert = SSOeSettingsService.merged_saml_settings&.idp_cert_multi[:encryption].first
 
           formatted_signing_cert    = OneLogin::RubySaml::Utils.format_cert(encryption_cert)
           formatted_encryption_cert = OneLogin::RubySaml::Utils.format_cert(signing_cert)

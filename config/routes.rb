@@ -5,12 +5,18 @@ Rails.application.routes.draw do
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 
   get '/saml/metadata', to: 'saml#metadata'
-  get '/saml/metadata_v2', to: 'saml#metadata_v2'
   get '/auth/saml/logout', to: 'v0/sessions#saml_logout_callback', as: 'saml_logout'
   post '/auth/saml/callback', to: 'v0/sessions#saml_callback', module: 'v0'
   get '/sessions/:type/new',
       to: 'v0/sessions#new',
       constraints: ->(request) { V0::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
+
+  get '/v1/sessions/metadata', to: 'v1/sessions#metadata'
+  get '/v1/sessions/logout', to: 'v1/sessions#saml_logout_callback'
+  post '/v1/sessions/callback', to: 'v1/sessions#callback', module: 'v1'
+  get '/v1/sessions/:type/new',
+      to: 'v1/sessions#new',
+      constraints: ->(request) { V1::SessionsController::REDIRECT_URLS.include?(request.path_parameters[:type]) }
 
   namespace :v0, defaults: { format: 'json' } do
     resources :appointments, only: :index

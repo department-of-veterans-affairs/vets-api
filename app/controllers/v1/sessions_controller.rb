@@ -5,7 +5,7 @@ require 'saml/url_service'
 require 'saml/responses/login'
 require 'saml/responses/logout'
 
-module V0
+module V1
   class SessionsController < ApplicationController
     REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
 
@@ -66,7 +66,20 @@ module V0
       stats(:total)
     end
 
+    
+    def metadata
+      meta = OneLogin::RubySaml::Metadata.new
+      render xml: meta.generate(saml_settings), content_type: 'application/xml'
+    end
+
     private
+
+    def saml_settings(options = {})
+      callback_url = URI.parse(Settings.saml_ssoe.callback_url)
+      callback_url.host = request.host
+      options.reverse_merge!(assertion_consumer_service_url: callback_url.to_s)
+      SAML::SSOeSettingsService.saml_settings(options)
+    end
 
     def auth_error_code(code)
       if code == '005' && validate_session
