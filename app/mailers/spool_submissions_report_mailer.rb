@@ -21,6 +21,8 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
   ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
+    kyle.pietrosanto@va.gov
+    robert.shinners@va.gov
     shay.norton-leonard@va.gov
     hughes_dustin@bah.com
     sonntag_adam@bah.com
