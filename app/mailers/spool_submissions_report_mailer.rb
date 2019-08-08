@@ -8,40 +8,41 @@ class SpoolSubmissionsReportMailer < ApplicationMailer
     Jennifer.Waltz2@va.gov
     shay.norton@va.gov
     Darla.VanNieukerk@va.gov
-    Ricardo.DaSilva@va.gov  ]
+    Ricardo.DaSilva@va.gov
+  ].freeze
 
-  STEM_RECIPIENTS = %w[]
+  # Will add in Prod STEM recipients once 18815 approved in staging
+  STEM_RECIPIENTS = %w[].freeze
 
   STAGING_RECIPIENTS = %w[
     lihan@adhocteam.us
     Turner_Desiree@bah.com
     Delli-Gatti_Michael@bah.com
-  ]
+  ].freeze
 
   STAGING_STEM_RECIPIENTS = %w[
     shay.norton-leonard@va.gov
     hughes_dustin@bah.com
-  ]
+    sonntag_adam@bah.com
+  ].freeze
+
+  def add_stem_recipients
+    return STAGING_STEM_RECIPIENTS.dup if FeatureFlipper.staging_email?
+    STEM_RECIPIENTS.dup
+  end
 
   def build(report_file, stem_exists)
     url = Reports::Uploader.get_s3_link(report_file)
-
     opt = {}
 
     opt[:to] =
       if FeatureFlipper.staging_email?
-        STAGING_RECIPIENTS.clone
+        STAGING_RECIPIENTS.dup
       else
-        RECIPIENTS.clone
+        RECIPIENTS.dup
       end
 
-     if stem_exists
-       if FeatureFlipper.staging_email?
-         opt[:to] << STAGING_STEM_RECIPIENTS.clone
-       else
-         opt[:to] << STEM_RECIPIENTS.clone
-       end
-     end
+    opt[:to] << add_stem_recipients if stem_exists
 
     mail(
       opt.merge(

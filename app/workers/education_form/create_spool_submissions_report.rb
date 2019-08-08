@@ -16,21 +16,18 @@ module EducationForm
     end
 
     def create_csv_array
-      csv_array = []
       data = {
-          csv_array: csv_array,
-          stem_exists: false,
+        csv_array: [],
+        stem_exists: false
       }
-      csv_array << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
+      data[:csv_array] << ['Claimant Name', 'Veteran Name', 'Confirmation #', 'Time Submitted', 'RPO']
 
       EducationBenefitsClaim.where(
         processed_at: processed_at_range
       ).find_each do |education_benefits_claim|
         parsed_form = education_benefits_claim.parsed_form
-        if (education_benefits_claim.form_type = '1995' && parsed_form['isEdithNourseRogersScholarship'])
-          data[:stem_exists] = true
-        end
-        csv_array << [
+        data[:stem_exists] = check_claim_for_stem(education_benefits_claim, parsed_form, data[:stem_exists])
+        data[:csv_array] << [
           format_name(parsed_form['relativeFullName']),
           format_name(parsed_form['veteranFullName']),
           education_benefits_claim.confirmation_number,
@@ -39,6 +36,13 @@ module EducationForm
         ]
       end
       data
+    end
+
+    def check_claim_for_stem(education_benefits_claim, parsed_form, stem_exists)
+      if stem_exists || (education_benefits_claim.form_type == '1995' && parsed_form['isEdithNourseRogersScholarship'])
+        return true
+      end
+      false
     end
 
     def perform

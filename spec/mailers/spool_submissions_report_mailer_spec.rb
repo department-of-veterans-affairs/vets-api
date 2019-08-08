@@ -82,13 +82,15 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         subject
 
         expect(mail.to).to eq(
-            %w[
-              lihan@adhocteam.us
-              Turner_Desiree@bah.com
-              Delli-Gatti_Michael@bah.com
-              shay.norton-leonard@va.gov
-              hughes_dustin@bah.com
-          ])
+          %w[
+            lihan@adhocteam.us
+            Turner_Desiree@bah.com
+            Delli-Gatti_Michael@bah.com
+            shay.norton-leonard@va.gov
+            hughes_dustin@bah.com
+            sonntag_adam@bah.com
+          ]
+        )
       end
     end
 
@@ -101,16 +103,16 @@ RSpec.describe SpoolSubmissionsReportMailer, type: %i[mailer aws_helpers] do
         subject
 
         expect(mail.to).to eq(
-           %w[
-             lihan@adhocteam.us
-             dana.kuykendall@va.gov
-             Jennifer.Waltz2@va.gov
-             shay.norton@va.gov
-             Darla.VanNieukerk@va.gov
-             Ricardo.DaSilva@va.gov
-        ])
+          %w[
+            lihan@adhocteam.us
+            dana.kuykendall@va.gov
+            Jennifer.Waltz2@va.gov
+            shay.norton@va.gov
+            Darla.VanNieukerk@va.gov
+            Ricardo.DaSilva@va.gov
+          ]
+        )
       end
     end
   end
-
 end
