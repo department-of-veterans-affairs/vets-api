@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
-require 'saml/ssoe_settings_service'
 require 'sentry_logging'
 
 module SAML
-  module StatusMessages
-    NOT_ATTEMPTED = 'SAML Metadata retrieve not yet attempted'
-    MISSING       = 'SAML Metadata retrieve attempted, but none returned'
-    CERT_INVALID  = 'IDP certificate is invalid'
-  end
-
   class SSOeHealthStatus
     class << self
       include SentryLogging

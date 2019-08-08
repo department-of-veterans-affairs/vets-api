@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+require 'saml/ssoe_health_status'
 require 'memoist'
 require 'sentry_logging'
-require 'saml/ssoe_health_status'
 
 module SAML
   # This class is responsible for putting together a complete ruby-saml
@@ -45,7 +45,7 @@ module SAML
       end
 
       def merged_saml_settings
-\        metadata = get_metadata
+        metadata = get_metadata
         return nil if metadata.nil?
         begin
           merged_settings = OneLogin::RubySaml::IdpMetadataParser.new.parse(metadata, settings: settings)
