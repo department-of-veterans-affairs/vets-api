@@ -105,6 +105,8 @@ module SAML
         settings.security[:logout_requests_signed] = true
         settings.security[:embed_sign] = false
         settings.security[:signature_method] = XMLSecurity::Document::RSA_SHA1
+        # TODO: Enable this after initial integration with SSOe
+        # settings.security[:want_assertions_encrypted] = true
 
         settings
       end
