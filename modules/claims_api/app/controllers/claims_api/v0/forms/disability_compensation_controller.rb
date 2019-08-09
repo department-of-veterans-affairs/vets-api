@@ -16,10 +16,11 @@ module ClaimsApi
         skip_before_action :log_request, only: %i[validate_form_526]
 
         def submit_form_526
-          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
+          headers = auth_headers
+          service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(headers)
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
-            auth_headers: auth_headers,
+            auth_headers: headers,
             form_data: form_attributes
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
