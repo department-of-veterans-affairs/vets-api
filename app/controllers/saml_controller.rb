@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class SamlController < ApplicationController
-  skip_before_action :authenticate, only: [:metadata, :metadata_v2]
+  skip_before_action :authenticate, only: [:metadata]
 
   def metadata
     meta = OneLogin::RubySaml::Metadata.new
