@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'feature_flipper'
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
@@ -282,6 +281,14 @@ Rails.application.routes.draw do
     require 'sidekiq-scheduler/web'
     mount Sidekiq::Web, at: '/sidekiq'
   end
+
+  require 'feature_flipper'
+  flipper_app = Flipper::UI.app(Flipper.instance) do |builder|
+    builder.use Rack::Auth::Basic do |username, password|
+      username == Settings.flipper.username && password == Settings.flipper.password
+    end
+  end
+  mount flipper_app, at: '/flipper'
 
   # This globs all unmatched routes and routes them as routing errors
   match '*path', to: 'application#routing_error', via: %i[get post put patch delete]
