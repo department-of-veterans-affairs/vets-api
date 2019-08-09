@@ -2,9 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe VBADocuments::UploadStatusUpdater, type: :job do
+RSpec.describe VBADocuments::UploadStatusBatch, type: :job do
   let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:upload) { FactoryBot.create(:upload_submission, :status_received) }
+  let!(:upload) { FactoryBot.create(:upload_submission, :status_received) }
   let(:faraday_response) { instance_double('Faraday::Response') }
   let(:in_process_element) do
     [{ "uuid": 'ignored',
@@ -14,7 +14,7 @@ RSpec.describe VBADocuments::UploadStatusUpdater, type: :job do
   end
 
   describe '#perform' do
-    it 'updates the status of an inflight submission' do
+    it 'updates all the statuses' do
       expect(CentralMail::Service).to receive(:new) { client_stub }
       expect(client_stub).to receive(:status).and_return(faraday_response)
       expect(faraday_response).to receive(:success?).and_return(true)
@@ -23,7 +23,9 @@ RSpec.describe VBADocuments::UploadStatusUpdater, type: :job do
 
       with_settings(Settings.vba_documents,
                     updater_enabled: true) do
-        VBADocuments::UploadStatusUpdater.new.perform([upload.guid])
+        Sidekiq::Testing.inline! do
+          VBADocuments::UploadStatusBatch.new.perform
+        end
         upload.reload
         expect(upload.status).to eq('processing')
       end

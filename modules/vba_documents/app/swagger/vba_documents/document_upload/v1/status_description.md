@@ -13,3 +13,4 @@ change to “error”.
 * `success` - Indicates document package has been received by DHMS.
 * `vbms` - Indicates document package has been received by VBMS.
 * `error` - Indicates that there was an error. See the `code` and `message` for further information.
+* `expired` - Indicates that the submission was not submitted in the 15 minute window of creation

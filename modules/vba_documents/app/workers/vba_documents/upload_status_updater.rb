@@ -7,16 +7,15 @@ module VBADocuments
     include Sidekiq::Worker
 
     sidekiq_options(
-      queue: 'vba_documents',
       retry: true,
       unique_until: :success
     )
 
-    def perform
-      if Settings.vba_documents.updater_enabled
-        VBADocuments::UploadSubmission.in_flight.order(created_at: :asc).find_in_batches(batch_size: 100) do |batch|
-          VBADocuments::UploadSubmission.refresh_statuses!(batch)
-        end
+    BATCH_SIZE = 100
+
+    def perform(submission_guids)
+      VBADocuments::UploadSubmission.where(guid: submission_guids).find_in_batches(batch_size: BATCH_SIZE) do |slice|
+        VBADocuments::UploadSubmission.refresh_statuses!(slice)
       end
     end
   end
