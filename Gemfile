@@ -94,7 +94,6 @@ gem 'utf8-cleaner'
 gem 'vets_json_schema', git: 'https://github.com/department-of-veterans-affairs/vets-json-schema', branch: 'master'
 gem 'virtus'
 gem 'will_paginate'
-gem 'zero_downtime_migrations'
 
 group :development do
   gem 'benchmark-ips'
@@ -156,6 +155,7 @@ group :development, :test do
 end
 
 group :production do
+  gem 'zero_downtime_migrations'
   # sidekiq enterprise requires a license key to download but is only required in production.
   # for local dev environments, regular sidekiq works fine
   unless ENV['EXCLUDE_SIDEKIQ_ENTERPRISE'] == 'true'

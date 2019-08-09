@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateAutoEstablishedClaims < ActiveRecord::Migration
+class CreateAutoEstablishedClaims < ActiveRecord::Migration[5.1]
   def change
     enable_extension 'uuid-ossp'
 

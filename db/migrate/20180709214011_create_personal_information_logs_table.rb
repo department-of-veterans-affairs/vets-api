@@ -1,5 +1,5 @@
 class CreatePersonalInformationLogsTable < ActiveRecord::Migration[4.2]
-  safety_assured
+  # safety_assured
 
   def change
     create_table :personal_information_logs do |t|
