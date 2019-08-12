@@ -8,7 +8,6 @@ module EVSS
 
     # rubocop:disable Metrics/MethodLength
     def perform(app_id, form, user_uuid)
-      Sentry::TagRainbows.tag
       @app_id = app_id
       user = User.find(user_uuid)
       service = Dependents::Service.new(user)

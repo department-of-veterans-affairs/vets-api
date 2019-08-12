@@ -6,7 +6,6 @@ require 'vic/id_card_attribute_error'
 module V0
   class IdCardAttributesController < ApplicationController
     before_action :authorize
-    before_action(:tag_rainbows)
 
     def show
       id_attributes = IdCardAttributes.for_user(current_user)
