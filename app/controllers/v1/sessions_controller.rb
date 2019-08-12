@@ -66,7 +66,6 @@ module V1
       stats(:total)
     end
 
-    
     def metadata
       meta = OneLogin::RubySaml::Metadata.new
       render xml: meta.generate(saml_settings), content_type: 'application/xml'
@@ -176,13 +175,13 @@ module V1
 
     def originating_request_id
       JSON.parse(params[:RelayState] || '{}')['originating_request_id']
-    rescue
+    rescue StandardError
       'UNKNOWN'
     end
 
     def request_type
       JSON.parse(params[:RelayState] || '{}')['type']
-    rescue
+    rescue StandardError
       'UNKNOWN'
     end
 

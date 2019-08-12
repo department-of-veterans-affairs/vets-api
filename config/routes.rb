@@ -268,12 +268,12 @@ Rails.application.routes.draw do
     end
   end
 
-  namespace :v1, defaults: { format: 'json' } do 
+  namespace :v1, defaults: { format: 'json' } do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
-  end 
+  end
 
   root 'v0/example#index', module: 'v0'
 
