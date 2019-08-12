@@ -6,7 +6,6 @@ module Facilities
 
     def perform(type)
       @type = type
-      Raven.tags_context(job: "FacilityLocationDownloadJob:#{type}")
       ActiveRecord::Base.transaction do
         process_changes
         process_deletes
