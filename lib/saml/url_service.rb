@@ -69,6 +69,11 @@ module SAML
       build_sso_url('dslogon')
     end
 
+    def ssoe_url
+      @type = 'ssoe'
+      build_sso_url('ssoe')
+    end
+
     def idme_url
       @type = 'idme'
       build_sso_url(LOA::IDME_LOA1)

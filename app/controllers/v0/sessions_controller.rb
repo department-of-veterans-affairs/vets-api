@@ -7,7 +7,7 @@ require 'saml/responses/logout'
 
 module V0
   class SessionsController < ApplicationController
-    REDIRECT_URLS = %w[signup mhv dslogon idme mfa verify slo].freeze
+    REDIRECT_URLS = %w[signup mhv dslogon idme ssoe mfa verify slo].freeze
 
     STATSD_SSO_NEW_KEY = 'api.auth.new'
     STATSD_SSO_CALLBACK_KEY = 'api.auth.saml_callback'

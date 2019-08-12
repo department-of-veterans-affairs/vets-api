@@ -44,6 +44,12 @@ RSpec.describe SAML::URLService do
           .with_relay_state('originating_request_id' => '123', 'type' => 'idme')
       end
 
+      it 'has sign in url: ssoe_url' do
+        expect(subject.ssoe_url)
+          .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
+          .with_relay_state('originating_request_id' => '123', 'type' => 'ssoe')
+      end
+
       it 'has sign up url: signup_url' do
         expect(subject.signup_url)
           .to be_an_idme_saml_url('https://api.idmelabs.com/saml/SingleSignOnService?SAMLRequest=')
