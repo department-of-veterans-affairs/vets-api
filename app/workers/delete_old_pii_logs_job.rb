@@ -8,8 +8,6 @@ class DeleteOldPiiLogsJob
   EXPIRATION_TIME = 2.weeks
 
   def perform
-    Sentry::TagRainbows.tag
-
     PersonalInformationLog.where(
       'created_at < ?', EXPIRATION_TIME.ago
     ).delete_all

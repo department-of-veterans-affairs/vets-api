@@ -19,7 +19,7 @@ module EVSS
       #
       def get_current_info(addtional_headers = {})
         with_monitoring_and_error_handling do
-          perform(:post, 'getCurrentInfo', nil, request_headers(addtional_headers)).body
+          perform(:post, 'getCurrentInfo', {}, request_headers(addtional_headers)).body
         end
       end
 
