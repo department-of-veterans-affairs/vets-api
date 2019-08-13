@@ -84,7 +84,7 @@ module ClaimsApi
     def track_526_validation_errors
       StatsD.increment STATSD_VALIDATION_FAIL_KEY
 
-      errors.map do |error|
+      errors.each do |error|
         key = error['key'].gsub(/\[(.*?)\]/, '')
         StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: [key: key]
       end
