@@ -108,8 +108,8 @@ RSpec.describe 'Disability Claims ', type: :request do
 
       it 'increment counters for statsd' do
         VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
+          expect(StatsD).to receive(:increment).exactly(6).times
           post '/services/claims/v0/forms/526/validate', params: data, headers: headers
-          expect(StatsD).to receive(:increment)
         end
       end
 
