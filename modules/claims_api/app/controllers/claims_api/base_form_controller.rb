@@ -81,7 +81,7 @@ module ClaimsApi
       end
     end
 
-    def track_526_validation_errors
+    def track_526_validation_errors(errors)
       StatsD.increment STATSD_VALIDATION_FAIL_KEY
 
       errors.each do |error|

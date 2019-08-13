@@ -52,6 +52,7 @@ module ClaimsApi
           service.validate_form526(auto_claim.form.to_internal)
           render json: valid_526_response
         rescue EVSS::ErrorMiddleware::EVSSError => e
+          track_526_validation_errors(e)
           render json: { errors: format_526_errors(e.details) }, status: :unprocessable_entity
         end
 
