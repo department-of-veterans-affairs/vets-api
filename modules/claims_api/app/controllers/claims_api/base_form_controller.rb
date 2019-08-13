@@ -85,7 +85,7 @@ module ClaimsApi
       StatsD.increment STATSD_VALIDATION_FAIL_KEY
 
       errors.map do |error|
-        key = error['key'].gsub /\[(.*?)\]/, ''
+        key = error['key'].gsub(/\[(.*?)\]/, '')
         StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: [key: key]
       end
     end
