@@ -4,8 +4,6 @@ module Preneeds
   class SubmissionsReport
     include Sidekiq::Worker
     def perform(start_date = Time.zone.today - 7, end_date = Time.zone.today)
-      Sentry::TagRainbows.tag
-
       submissions = PersonalInformationLog.where(error_class: 'PreneedsBurial').where('created_at > ?', start_date)
                                           .where('created_at < ?', end_date)
 

@@ -6,7 +6,6 @@ class GIBillFeedbackSubmissionJob
   sidekiq_options retry: false
 
   def perform(feedback_id, form, user_uuid)
-    Sentry::TagRainbows.tag
     @feedback_id = feedback_id
     gi_bill_feedback.form = form
     gi_bill_feedback.user = User.find(user_uuid) if user_uuid.present?
