@@ -15,7 +15,6 @@ module HCA
     end
 
     def perform(user_identifier, form, health_care_application_id, google_analytics_client_id)
-      Sentry::TagRainbows.tag
       Raven.tags_context(job: 'hca_submission')
       health_care_application = HealthCareApplication.find(health_care_application_id)
 
