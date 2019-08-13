@@ -60,7 +60,7 @@ module ClaimsApi
       service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
       service.validate_form526(form_attributes.to_json)
     rescue EVSS::ErrorMiddleware::EVSSError => e
-      track_526_validation_errors(e)
+      track_526_validation_errors(e.details)
       render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
     end
 
@@ -86,7 +86,7 @@ module ClaimsApi
 
       errors.each do |error|
         key = error['key'].gsub(/\[(.*?)\]/, '')
-        StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: [key: key]
+        StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
       end
     end
   end
