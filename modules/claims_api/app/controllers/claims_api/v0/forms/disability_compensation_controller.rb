@@ -29,8 +29,8 @@ module ClaimsApi
           ClaimsApi::ClaimEstablisher.perform_async(auto_claim.id)
 
           render json: auto_claim, serializer: ClaimsApi::AutoEstablishedClaimSerializer
-        rescue EVSS::ErrorMiddleware::EVSSError => e	
-          track_526_validation_errors(e.details)	
+        rescue EVSS::ErrorMiddleware::EVSSError => e
+          track_526_validation_errors(e.details)
           render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
         end
 
