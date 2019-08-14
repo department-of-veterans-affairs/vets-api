@@ -41,6 +41,13 @@ class BaseFacility < ApplicationRecord
     'dod_health' => 'Facilities::DODFacility'
   }.freeze
 
+  CLASS_MAP = {
+    'nca' => Facilities::NCAFacility,
+    'vha' => Facilities::VHAFacility,
+    'vba' => Facilities::VBAFacility,
+    'vc' => Facilities::VCFacility,
+  }
+
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
     HEALTH => 'Facilities::VHAFacility',
@@ -133,12 +140,6 @@ class BaseFacility < ApplicationRecord
 
     def sti_name
       FACILITY_MAPPINGS.invert[name]
-    end
-
-    def pull_source_data
-      metadata = Facilities::MetadataClient.new.get_metadata(FACILITY_SORT_FIELDS[name].first)
-      max_record_count = metadata['maxRecordCount']
-      Facilities::Client.new.get_all_facilities(*FACILITY_SORT_FIELDS[name], max_record_count).map(&method(:new))
     end
 
     def find_facility_by_id(id)
