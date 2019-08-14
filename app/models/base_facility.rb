@@ -45,8 +45,8 @@ class BaseFacility < ApplicationRecord
     'nca' => Facilities::NCAFacility,
     'vha' => Facilities::VHAFacility,
     'vba' => Facilities::VBAFacility,
-    'vc' => Facilities::VCFacility,
-  }
+    'vc' => Facilities::VCFacility
+  }.freeze
 
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
@@ -163,7 +163,6 @@ class BaseFacility < ApplicationRecord
   end
 
   DAYS = DateTime::DAYNAMES.rotate.each_with_index.map { |day, index| [day, index] }.to_h.freeze
-
 
   PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility::NCA_MAP,
               'VBA_Facilities' => Facilities::VBAFacility::VBA_MAP,
