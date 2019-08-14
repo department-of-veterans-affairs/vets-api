@@ -120,7 +120,7 @@ RSpec.describe 'Disability Claims ', type: :request do
       it 'increment counters for statsd' do
         with_okta_user(scopes) do |auth_header|
           VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
-            expect(StatsD).to receive(:increment).exactly(6).times
+            expect(StatsD).to receive(:increment).at_least(:once)
             post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
           end
         end
