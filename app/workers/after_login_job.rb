@@ -14,7 +14,6 @@ class AfterLoginJob
   end
 
   def perform(opt)
-    Sentry::TagRainbows.tag
     user_uuid = opt['user_uuid']
     return if user_uuid.blank?
     @current_user = User.find(user_uuid)

@@ -46,7 +46,6 @@ module EducationForm
     end
 
     def perform
-      Sentry::TagRainbows.tag
       @time = Time.zone.now
       folder = 'tmp/spool_reports'
       FileUtils.mkdir_p(folder)
