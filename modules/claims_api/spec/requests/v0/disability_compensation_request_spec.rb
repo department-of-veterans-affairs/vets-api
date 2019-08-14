@@ -106,6 +106,13 @@ RSpec.describe 'Disability Claims ', type: :request do
         end
       end
 
+      it 'increment counters for statsd' do
+        VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
+          expect(StatsD).to receive(:increment).at_least(:once)
+          post '/services/claims/v0/forms/526/validate', params: data, headers: headers
+        end
+      end
+
       it 'should return a list of errors when invalid via internal validation' do
         json_data = JSON.parse data
         params = json_data
