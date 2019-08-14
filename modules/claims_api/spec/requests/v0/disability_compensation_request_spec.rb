@@ -49,7 +49,7 @@ RSpec.describe 'Disability Claims ', type: :request do
     it 'should build the auth headers' do
       VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
         auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-        expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
+        expect(EVSS::DisabilityCompensationAuthHeaders).to (receive(:new) { auth_header_stub }).twice
         expect(auth_header_stub).to receive(:add_headers)
         post path, params: data, headers: headers
       end
