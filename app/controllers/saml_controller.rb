@@ -7,24 +7,4 @@ class SamlController < ApplicationController
     meta = OneLogin::RubySaml::Metadata.new
     render xml: meta.generate(saml_settings), content_type: 'application/xml'
   end
-
-  def okta_callback
-    # return JSON object
-    return {
-      "commands": [
-        {
-          "type": "com.okta.assertion.patch",
-          "value": [
-            {
-              "op": "replace", # or add
-              "path": "path/to/key",
-              "value": {
-                "attributeName": "attributeValue"
-              }
-            }
-          ]
-        }
-      ]
-    }.to_json
-  end
 end
