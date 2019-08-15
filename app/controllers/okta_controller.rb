@@ -10,64 +10,36 @@ class OktaController < ApplicationController
 
   # TODO: parse through claims and construct user object
   # TODO: reference MviUsersController
-  def modify_okta_response(json_response)
-    json_attributes = json_response
+  def construct_okta_response(json_response)
+    user_attributes = JSON.parse(json_response)
 
-    # check if user exists
-    existing_user = User.find(json_attributes.user_attributes.uuid)
-    @user_identity = UserIdentity.new(json_attributes.to_hash) # need to match the keynames in /app/models/user_identity.rb
-    @user = User.new(uuid: @user_identity.attributes[:uuid])
-    @user.instance_variable_set(:@identity, @user_identity)
-
-    if json_attributes.changing_multifactor?
-      @user.mhv_last_signed_in = existing_user.last_signed_in
-      @user.last_signed_in = existing_user.last_signed_in
-    else
-      @user.last_signed_in = Time.current.utc
-    end
-
-    if user_session_form.valid?
-      user = user_session_form.user
-      # TODO: compare Okta response and augment with attributes from user object
-    else
-      # log_message_to_sentry(
-      #   user_session_form.errors_message, user_session_form.errors_hash[:level], user_session_form.errors_context
-      # ) TBD error logging
-    end
+    user_identity = build_identity_from_attributes(user_attributes)
+    service = MVI::Service.new
+    mvi_response = service.find_profile(user_identity)
+    raise mvi_response.error if mvi_response.error # TODO: add error logging
+    mvi_response
   end
 
-  # receives SAML response, and sends commands to modify
+  # TODO: receive and parse JSON request, and send commands to modify
   def okta_callback
-    saml_response = SAML::Responses::Login.new(params[:SAMLResponse], settings: saml_settings)
+    construct_okta_response(params)
 
-    if saml_response.valid?
-      modify_okta_response(saml_response)
-
-      # return JSON object
-      return {
-        "commands": [
-          {
-            "type": "com.okta.assertion.patch",
-            "value": [
-              {
-                "op": "replace", # or add
-                "path": "path/to/key",
-                "value": {
-                  "attributeName": "attributeValue"
-                }
+    # return JSON object
+    return {
+      "commands": [
+        {
+          "type": "com.okta.assertion.patch",
+          "value": [
+            {
+              "op": "replace", # or add
+              "path": "path/to/key",
+              "value": {
+                "attributeName": "attributeValue"
               }
-            ]
-          }
-        ]
-      }.to_json
-    else
-      log_error(saml_response)
-      # stats(:failure, saml_response, saml_response.error_instrumentation_code) TBD stats logging
-    end
-  rescue StandardError => e
-    log_exception_to_sentry(e, {}, {}, :error)
-    # stats(:failed_unknown) TBD stats logging
-  ensure
-    # stats(:total) TBD stats logging
+            }
+          ]
+        }
+      ]
+    }.to_json
   end
 end
