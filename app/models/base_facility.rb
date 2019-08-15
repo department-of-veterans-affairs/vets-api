@@ -115,10 +115,10 @@ class BaseFacility < ApplicationRecord
 
   DAYS = DateTime::DAYNAMES.rotate.each_with_index.map { |day, index| [day, index] }.to_h.freeze
 
-  PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility::NCA_MAP,
-              'VBA_Facilities' => Facilities::VBAFacility::VBA_MAP,
-              'VHA_VetCenters' => Facilities::VCFacility::VC_MAP,
-              'VHA_Facilities' => Facilities::VHAFacility::VHA_MAP }.freeze
+  PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility,
+              'VBA_Facilities' => Facilities::VBAFacility,
+              'VHA_VetCenters' => Facilities::VCFacility,
+              'VHA_Facilities' => Facilities::VHAFacility }
 
   def facility_type_prefix
     PREFIX_MAP[facility_type]

@@ -2,9 +2,6 @@
 
 module Facilities
   class VCFacility < BaseFacility
-  	def self.service_list
-  	  []
-  	end
 
     class << self
       attr_writer :validate_on_load
@@ -15,6 +12,10 @@ module Facilities
         Facilities::Client.new.get_all_facilities(arcgis_type, sort_field, max_record_count).map(&method(:new))
       end
 
+      def service_list
+      	[]
+      end
+
       def arcgis_type
         'VHA_VetCenters'
       end
@@ -22,19 +23,21 @@ module Facilities
       def sort_field
         'stationno'
       end
-    end
 
-    VC_MAP = {
-      'unique_id' => 'stationno',
-      'name' => 'stationname',
-      'classification' => 'vet_center',
-      'phone' => { 'main' => 'sta_phone' },
-      'physical' => { 'address_1' => 'address2', 'address_2' => 'address3',
-                      'address_3' => '', 'city' => 'city', 'state' => 'st',
-                      'zip' => 'zip' },
-      'hours' => HOURS_STANDARD_MAP.each_with_object({}) { |(k, v), h| h[k.downcase] = v.downcase },
-      'mapped_fields' => %w[stationno stationname lat lon address2 address3 city st zip sta_phone
-                            monday tuesday wednesday thursday friday saturday sunday]
-    }.freeze
+      def attribute_map
+		{
+		      'unique_id' => 'stationno',
+		      'name' => 'stationname',
+		      'classification' => 'vet_center',
+		      'phone' => { 'main' => 'sta_phone' },
+		      'physical' => { 'address_1' => 'address2', 'address_2' => 'address3',
+		                      'address_3' => '', 'city' => 'city', 'state' => 'st',
+		                      'zip' => 'zip' },
+		      'hours' => BaseFacility::HOURS_STANDARD_MAP.each_with_object({}) { |(k, v), h| h[k.downcase] = v.downcase },
+		      'mapped_fields' => %w[stationno stationname lat lon address2 address3 city st zip sta_phone
+		                            monday tuesday wednesday thursday friday saturday sunday]
+		 }
+      end
+    end
   end
 end
