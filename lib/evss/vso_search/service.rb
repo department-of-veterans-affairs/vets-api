@@ -19,7 +19,7 @@ module EVSS
       #
       def get_current_info(addtional_headers = {})
         with_monitoring_and_error_handling do
-          perform(:post, 'getCurrentInfo', nil, request_headers(addtional_headers)).body
+          perform(:post, 'getCurrentInfo', '', request_headers(addtional_headers)).body
         end
       end
 
@@ -28,7 +28,8 @@ module EVSS
       def request_headers(additional_headers)
         {
           'ssn' => @user.ssn,
-          'Authorization' => "Token token=#{Settings.appeals.app_token}"
+          'Authorization' => "Token token=#{Settings.appeals.app_token}",
+          'Content-Type' => 'application/json'
         }.merge(additional_headers)
       end
     end

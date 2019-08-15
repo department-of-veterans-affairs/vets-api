@@ -2,8 +2,6 @@
 
 module V0
   class DependentsApplicationsController < ApplicationController
-    before_action(:tag_rainbows)
-
     def create
       dependents_application = DependentsApplication.new(
         params.require(:dependents_application).permit(:form).merge(

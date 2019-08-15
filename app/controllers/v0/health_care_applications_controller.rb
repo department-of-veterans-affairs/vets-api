@@ -5,7 +5,6 @@ module V0
     FORM_ID = '1010ez'
 
     skip_before_action(:authenticate)
-    before_action(:tag_rainbows)
 
     def create
       validate_session
