@@ -9,6 +9,7 @@ class OktaController < ApplicationController
   end
 
   # TODO: parse through claims and construct user object
+  # TODO: reference MviUsersController
   def modify_okta_response(json_response)
     json_attributes = json_response
 
