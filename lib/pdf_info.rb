@@ -55,14 +55,14 @@ module PdfInfo
     def page_size_inches
       in_pts = page_size
       {
-        height: pts_to_inches(in_pts[:height]),
-        width: pts_to_inches(in_pts[:width])
+        height: convert_pts_to_inches(in_pts[:height]),
+        width: convert_pts_to_inches(in_pts[:width])
       }
     end
 
     private
 
-    def pts_to_inches(dimension)
+    def convert_pts_to_inches(dimension)
       dimension / 72.0
     end
 
