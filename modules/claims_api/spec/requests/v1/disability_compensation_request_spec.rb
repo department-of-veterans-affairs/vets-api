@@ -58,16 +58,18 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    # rubocop:disable Lint/AmbiguousBlockAssociation
     it 'should build the auth headers' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
           auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-          expect(EVSS::DisabilityCompensationAuthHeaders).to (receive(:new) { auth_header_stub }).twice
-          expect(auth_header_stub).to receive(:add_headers)
+          expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new).twice { auth_header_stub }
+          expect(auth_header_stub).to receive(:add_headers).twice
           post path, params: data, headers: headers.merge(auth_header)
         end
       end
     end
+    # rubocop:enable Lint/AmbiguousBlockAssociation
 
     context 'validation' do
       let(:json_data) { JSON.parse data }
