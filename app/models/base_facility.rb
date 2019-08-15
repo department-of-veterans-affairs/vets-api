@@ -45,8 +45,8 @@ class BaseFacility < ApplicationRecord
     'nca' => Facilities::NCAFacility,
     'vha' => Facilities::VHAFacility,
     'vba' => Facilities::VBAFacility,
-    'vc' => Facilities::VCFacility
-  }.freeze
+    'vc' => Facilities::VCFacility,
+  }
 
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
@@ -64,62 +64,13 @@ class BaseFacility < ApplicationRecord
     DOD_HEALTH => 'dod_health'
   }.freeze
 
-  SERVICE_WHITELIST = {
-    HEALTH => %w[PrimaryCare MentalHealthCare DentalServices UrgentCare EmergencyCare Audiology Cardiology Dermatology
-                 Gastroenterology Gynecology Ophthalmology Optometry Orthopedics Urology WomensHealth],
-    BENEFITS => %w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
-                   eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
-                   FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance Pensions
-                   InsuranceClaimAssistanceAndFinancialCounseling PreDischargeClaimAssistance
-                   IntegratedDisabilityEvaluationSystemAssistance TransitionAssistance
-                   VocationalRehabilitationAndEmploymentAssistance UpdatingDirectDepositInformation],
-    CEMETERY => [],
-    VET_CENTER => []
-  }.freeze
-
   PENSION_LOCATIONS = %w[310 330 335].freeze
 
   class << self
     attr_writer :validate_on_load
 
-    def mh_clinic_phone(attrs)
-      val = attrs['MHClinicPhone']
-      val = attrs['MHPhone'] if val.blank?
-      return '' if val.blank?
-      result = val.to_s
-      result << ' x ' + attrs['Extension'].to_s unless
-        (attrs['Extension']).blank? || (attrs['Extension']).zero?
-      result
-    end
-
     def to_date(dtstring)
       Date.iso8601(dtstring).iso8601
-    end
-
-    def satisfaction_data(attrs)
-      result = {}
-      datum = FacilitySatisfaction.find(attrs['StationNumber'].upcase)
-      if datum.present?
-        datum.metrics.each { |k, v| result[k.to_s] = v.present? ? v.round(2).to_f : nil }
-        result['effective_date'] = to_date(datum.source_updated)
-      end
-      result
-    end
-
-    def wait_time_data(attrs)
-      result = {}
-      datum = FacilityWaitTime.find(attrs['StationNumber'].upcase)
-      if datum.present?
-        datum.metrics.each { |k, v| result[k.to_s] = v }
-        result['effective_date'] = to_date(datum.source_updated)
-      end
-      result
-    end
-
-    def zip_plus_four(attrs)
-      zip = attrs['Zip']
-      zip << "-#{attrs['Zip4']}" unless attrs['Zip4'].to_s.strip.empty?
-      zip
     end
 
     def validate_on_load

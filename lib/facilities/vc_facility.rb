@@ -2,6 +2,10 @@
 
 module Facilities
   class VCFacility < BaseFacility
+  	def self.service_list
+  	  []
+  	end
+
     class << self
       attr_writer :validate_on_load
 

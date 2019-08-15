@@ -2,6 +2,13 @@
 
 module Facilities
   class VHAFacility < BaseFacility
+    
+    def self.service_list
+		%w[PrimaryCare MentalHealthCare DentalServices UrgentCare EmergencyCare Audiology Cardiology Dermatology
+                 Gastroenterology Gynecology Ophthalmology Optometry Orthopedics Urology WomensHealth]
+    end
+
+
     class << self
       attr_writer :validate_on_load
 

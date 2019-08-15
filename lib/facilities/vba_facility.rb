@@ -2,6 +2,17 @@
 
 module Facilities
   class VBAFacility < BaseFacility
+  
+  	def self.service_list
+   		%w[ApplyingForBenefits BurialClaimAssistance DisabilityClaimAssistance
+                   eBenefitsRegistrationAssistance EducationAndCareerCounseling EducationClaimAssistance
+                   FamilyMemberClaimAssistance HomelessAssistance VAHomeLoanAssistance Pensions
+                   InsuranceClaimAssistanceAndFinancialCounseling PreDischargeClaimAssistance
+                   IntegratedDisabilityEvaluationSystemAssistance TransitionAssistance
+                   VocationalRehabilitationAndEmploymentAssistance UpdatingDirectDepositInformation]
+   	end
+
+
     class << self
         attr_writer :validate_on_load
 
@@ -18,7 +29,7 @@ module Facilities
         def sort_field
           'Facility_Number'
         end
-      end
+    end
 
     VBA_MAP = {
       'unique_id' => 'Facility_Number',
