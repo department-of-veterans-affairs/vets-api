@@ -45,8 +45,8 @@ class BaseFacility < ApplicationRecord
     'nca' => Facilities::NCAFacility,
     'vha' => Facilities::VHAFacility,
     'vba' => Facilities::VBAFacility,
-    'vc' => Facilities::VCFacility,
-  }
+    'vc' => Facilities::VCFacility
+  }.freeze
 
   TYPE_MAP = {
     CEMETERY => 'Facilities::NCAFacility',
@@ -118,7 +118,7 @@ class BaseFacility < ApplicationRecord
   PATHMAP = { 'NCA_Facilities' => Facilities::NCAFacility,
               'VBA_Facilities' => Facilities::VBAFacility,
               'VHA_VetCenters' => Facilities::VCFacility,
-              'VHA_Facilities' => Facilities::VHAFacility }
+              'VHA_Facilities' => Facilities::VHAFacility }.freeze
 
   def facility_type_prefix
     PREFIX_MAP[facility_type]
