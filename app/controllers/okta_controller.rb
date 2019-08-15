@@ -8,8 +8,23 @@ class OktaController < ApplicationController
     render xml: meta.generate(saml_settings), content_type: 'application/xml'
   end
 
-  def modify_okta_response(saml_response)
-    user_session_form = UserSessionForm.new(saml_response)
+  # TODO: parse through claims and construct user object
+  def modify_okta_response(json_response)
+    json_attributes = json_response
+
+    # check if user exists
+    existing_user = User.find(json_attributes.user_attributes.uuid)
+    @user_identity = UserIdentity.new(json_attributes.to_hash) # need to match the keynames in /app/models/user_identity.rb
+    @user = User.new(uuid: @user_identity.attributes[:uuid])
+    @user.instance_variable_set(:@identity, @user_identity)
+
+    if json_attributes.changing_multifactor?
+      @user.mhv_last_signed_in = existing_user.last_signed_in
+      @user.last_signed_in = existing_user.last_signed_in
+    else
+      @user.last_signed_in = Time.current.utc
+    end
+
     if user_session_form.valid?
       user = user_session_form.user
       # TODO: compare Okta response and augment with attributes from user object
