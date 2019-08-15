@@ -208,7 +208,7 @@ module VBADocuments
     end
 
     def get_hash_and_pages(file_path, part)
-      metadata = PdfInfo::Metadata.read(file_path) 
+      metadata = PdfInfo::Metadata.read(file_path)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
         pages: metadata.pages,

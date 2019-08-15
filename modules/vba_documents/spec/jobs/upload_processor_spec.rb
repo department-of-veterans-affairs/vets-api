@@ -240,10 +240,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     context 'with invalid sizes' do
-      ['21x21', '18x22', '22x18'].each do |invalid_size|
+      %w[21x21 18x22 22x18].each do |invalid_size|
         it 'sets an error status for invalid size' do
           allow(VBADocuments::MultipartParser).to receive(:parse) {
-            { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf")}
+            { 'metadata' => valid_metadata, 'content' => get_fixture("#{invalid_size}.pdf") }
           }
           described_class.new.perform(upload.guid)
           updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
