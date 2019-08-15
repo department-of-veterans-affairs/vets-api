@@ -67,6 +67,10 @@ RSpec.describe 'the API documentation', type: %i[apivore request], order: :defin
       expect(subject).to validate(:get, '/v0/in_progress_forms', 401)
     end
 
+    it 'supports fetching feature_toggles' do
+      expect(subject).to validate(:get, '/v0/feature_toggles', 200, features: 'facility_locator')
+    end
+
     it 'supports fetching maintenance windows' do
       expect(subject).to validate(:get, '/v0/maintenance_windows', 200)
     end
