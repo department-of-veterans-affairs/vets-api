@@ -77,52 +77,61 @@ module Facilities
           'hours' => BaseFacility::HOURS_STANDARD_MAP,
           'access' => { 'health' => method(:wait_time_data) },
           'feedback' => { 'health' => method(:satisfaction_data) },
-          'services' => {
-            'Audiology' => [],
-            'ComplementaryAlternativeMed' => [],
-            'DentalServices' => [],
-            'DiagnosticServices' => %w[
-              ImagingAndRadiology LabServices
-            ],
-            'EmergencyDept' => [],
-            'EyeCare' => [],
-            'MentalHealthCare' => %w[
-              OutpatientMHCare OutpatientSpecMHCare VocationalAssistance
-            ],
-            'OutpatientMedicalSpecialty' => %w[
-              AllergyAndImmunology CardiologyCareServices DermatologyCareServices
-              Diabetes Dialysis Endocrinology Gastroenterology
-              Hematology InfectiousDisease InternalMedicine
-              Nephrology Neurology Oncology
-              PulmonaryRespiratoryDisease Rheumatology SleepMedicine
-            ],
-            'OutpatientSurgicalSpecialty' => %w[
-              CardiacSurgery ColoRectalSurgery ENT GeneralSurgery
-              Gynecology Neurosurgery Orthopedics PainManagement
-              PlasticSurgery Podiatry ThoracicSurgery Urology
-              VascularSurgery
-            ],
-            'PrimaryCare' => [],
-            'Rehabilitation' => [],
-            'UrgentCare' => [],
-            'WellnessAndPreventativeCare' => [],
-            'DirectPatientSchedulingFlag' => []
-          },
-          'mapped_fields' => %w[StationNumber StationName CocClassification FacilityDataDate Website_URL Latitude Longitude
-                                Street Building Suite City State Zip Zip4 MainPhone MainFax AfterHoursPhone
-                                PatientAdvocatePhone EnrollmentCoordinatorPhone PharmacyPhone MHPhone Extension Monday
-                                Tuesday Wednesday Thursday Friday Saturday Sunday SHEP_Primary_Care_Routine
-                                SHEP_Primary_Care_Urgent Hematology SHEP_Specialty_Care_Routine SHEP_Specialty_Care_Urgent
-                                SHEP_ScoreDateRange PrimaryCare MentalHealthCare DentalServices Audiology ENT
-                                ComplementaryAlternativeMed DiagnosticServices ImagingAndRadiology LabServices
-                                EmergencyDept EyeCare OutpatientMHCare OutpatientSpecMHCare VocationalAssistance
-                                OutpatientMedicalSpecialty AllergyAndImmunology CardiologyCareServices UrgentCare
-                                DermatologyCareServices Diabetes Dialysis Endocrinology Gastroenterology InfectiousDisease
-                                InternalMedicine Nephrology Neurology Oncology PulmonaryRespiratoryDisease Rheumatology
-                                SleepMedicine OutpatientSurgicalSpecialty CardiacSurgery ColoRectalSurgery
-                                GeneralSurgery Gynecology Neurosurgery Orthopedics PainManagement PlasticSurgery Podiatry
-                                ThoracicSurgery Urology VascularSurgery Rehabilitation WellnessAndPreventativeCare]
+          'services' => services_map,
+          'mapped_fields' => mapped_fields_list
         }
+      end
+
+      def services_map
+        {
+          'Audiology' => [],
+          'ComplementaryAlternativeMed' => [],
+          'DentalServices' => [],
+          'DiagnosticServices' => %w[ImagingAndRadiology LabServices],
+          'EmergencyDept' => [],
+          'EyeCare' => [],
+          'MentalHealthCare' => %w[OutpatientMHCare OutpatientSpecMHCare VocationalAssistance],
+          'OutpatientMedicalSpecialty' => outpatient_medical_specialty_list,
+          'OutpatientSurgicalSpecialty' => outpatient_surgical_specialty_list,
+          'PrimaryCare' => [],
+          'Rehabilitation' => [],
+          'UrgentCare' => [],
+          'WellnessAndPreventativeCare' => [],
+          'DirectPatientSchedulingFlag' => []
+        }
+      end
+
+      def outpatient_medical_specialty_list
+        %w[
+          AllergyAndImmunology CardiologyCareServices DermatologyCareServices
+          Diabetes Dialysis Endocrinology Gastroenterology Hematology InfectiousDisease InternalMedicine
+          Nephrology Neurology Oncology PulmonaryRespiratoryDisease Rheumatology SleepMedicine
+        ]
+      end
+
+      def outpatient_surgical_specialty_list
+        %w[CardiacSurgery ColoRectalSurgery ENT GeneralSurgery Gynecology Neurosurgery Orthopedics
+           PainManagement PlasticSurgery Podiatry ThoracicSurgery Urology VascularSurgery]
+      end
+
+      def mapped_fields_list
+        %w[StationNumber StationName CocClassification FacilityDataDate Website_URL Latitude
+           Longitude Street Building Suite City State Zip Zip4 MainPhone MainFax AfterHoursPhone
+           PatientAdvocatePhone EnrollmentCoordinatorPhone PharmacyPhone MHPhone Extension Monday
+           Tuesday Wednesday Thursday Friday Saturday Sunday SHEP_Primary_Care_Routine
+           SHEP_Primary_Care_Urgent Hematology SHEP_Specialty_Care_Routine
+           SHEP_Specialty_Care_Urgent SHEP_ScoreDateRange PrimaryCare MentalHealthCare
+           DentalServices Audiology ENT
+           ComplementaryAlternativeMed DiagnosticServices ImagingAndRadiology LabServices
+           EmergencyDept EyeCare OutpatientMHCare OutpatientSpecMHCare VocationalAssistance
+           OutpatientMedicalSpecialty AllergyAndImmunology CardiologyCareServices UrgentCare
+           DermatologyCareServices Diabetes Dialysis Endocrinology Gastroenterology
+           InfectiousDisease InternalMedicine Nephrology Neurology Oncology
+           PulmonaryRespiratoryDisease Rheumatology SleepMedicine OutpatientSurgicalSpecialty
+           CardiacSurgery ColoRectalSurgery
+           GeneralSurgery Gynecology Neurosurgery Orthopedics PainManagement
+           PlasticSurgery Podiatry
+           ThoracicSurgery Urology VascularSurgery Rehabilitation WellnessAndPreventativeCare]
       end
     end
   end

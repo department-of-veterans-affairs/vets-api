@@ -18,7 +18,7 @@ module Facilities
              InsuranceClaimAssistanceAndFinancialCounseling PreDischargeClaimAssistance
              IntegratedDisabilityEvaluationSystemAssistance TransitionAssistance
              VocationalRehabilitationAndEmploymentAssistance UpdatingDirectDepositInformation]
-       end
+        end
 
         def arcgis_type
           'VBA_Facilities'
@@ -39,31 +39,39 @@ module Facilities
                             'address_3' => '', 'city' => 'City', 'state' => 'State',
                             'zip' => 'Zip' },
             'hours' => BaseFacility::HOURS_STANDARD_MAP,
-            'benefits' => {
-              'ApplyingForBenefits' => 'Applying_for_Benefits',
-              'BurialClaimAssistance' => 'Burial_Claim_assistance',
-              'DisabilityClaimAssistance' => 'Disability_Claim_assistance',
-              'eBenefitsRegistrationAssistance' => 'eBenefits_Registration',
-              'EducationAndCareerCounseling' => 'Education_and_Career_Counseling',
-              'EducationClaimAssistance' => 'Education_Claim_Assistance',
-              'FamilyMemberClaimAssistance' => 'Family_Member_Claim_Assistance',
-              'HomelessAssistance' => 'Homeless_Assistance',
-              'VAHomeLoanAssistance' => 'VA_Home_Loan_Assistance',
-              'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance',
-              'IntegratedDisabilityEvaluationSystemAssistance' => 'IDES',
-              'PreDischargeClaimAssistance' => 'Pre_Discharge_Claim_Assistance',
-              'TransitionAssistance' => 'Transition_Assistance',
-              'UpdatingDirectDepositInformation' => 'Updating_Direct_Deposit_Informa',
-              'VocationalRehabilitationAndEmploymentAssistance' => 'Vocational_Rehabilitation_Emplo'
-            },
-            'mapped_fields' => %w[Facility_Number Facility_Name Facility_Type Website_URL Lat Long Other_Services
-                                  Address_1 Address_2 City State Zip Phone Fax Monday Tuesday Wednesday Thursday
-                                  Friday Saturday Sunday Applying_for_Benefits Burial_Claim_assistance
-                                  Disability_Claim_assistance eBenefits_Registration Education_and_Career_Counseling
-                                  Education_Claim_Assistance Family_Member_Claim_Assistance Homeless_Assistance
-                                  VA_Home_Loan_Assistance Insurance_Claim_Assistance IDES Pre_Discharge_Claim_Assistance
-                                  Transition_Assistance Updating_Direct_Deposit_Informa Vocational_Rehabilitation_Emplo]
+            'benefits' => benefits_mapping,
+            'mapped_fields' => mapped_fields_list
           }
+        end
+
+        def benefits_mapping
+          {
+            'ApplyingForBenefits' => 'Applying_for_Benefits',
+            'BurialClaimAssistance' => 'Burial_Claim_assistance',
+            'DisabilityClaimAssistance' => 'Disability_Claim_assistance',
+            'eBenefitsRegistrationAssistance' => 'eBenefits_Registration',
+            'EducationAndCareerCounseling' => 'Education_and_Career_Counseling',
+            'EducationClaimAssistance' => 'Education_Claim_Assistance',
+            'FamilyMemberClaimAssistance' => 'Family_Member_Claim_Assistance',
+            'HomelessAssistance' => 'Homeless_Assistance',
+            'VAHomeLoanAssistance' => 'VA_Home_Loan_Assistance',
+            'InsuranceClaimAssistanceAndFinancialCounseling' => 'Insurance_Claim_Assistance',
+            'IntegratedDisabilityEvaluationSystemAssistance' => 'IDES',
+            'PreDischargeClaimAssistance' => 'Pre_Discharge_Claim_Assistance',
+            'TransitionAssistance' => 'Transition_Assistance',
+            'UpdatingDirectDepositInformation' => 'Updating_Direct_Deposit_Informa',
+            'VocationalRehabilitationAndEmploymentAssistance' => 'Vocational_Rehabilitation_Emplo'
+          }
+        end
+
+        def mapped_fields_list
+          %w[Facility_Number Facility_Name Facility_Type Website_URL Lat Long Other_Services
+             Address_1 Address_2 City State Zip Phone Fax Monday Tuesday Wednesday Thursday
+             Friday Saturday Sunday Applying_for_Benefits Burial_Claim_assistance
+             Disability_Claim_assistance eBenefits_Registration Education_and_Career_Counseling
+             Education_Claim_Assistance Family_Member_Claim_Assistance Homeless_Assistance
+             VA_Home_Loan_Assistance Insurance_Claim_Assistance IDES Pre_Discharge_Claim_Assistance
+             Transition_Assistance Updating_Direct_Deposit_Informa Vocational_Rehabilitation_Emplo]
         end
     end
   end
