@@ -196,7 +196,7 @@ module VBADocuments
     def validate_page_size(doc_info)
       if doc_info[:size][:height] >= 21 || doc_info[:size][:width] >= 21
         raise VBADocuments::UploadError.new(code: 'DOC108',
-                                            detail: 'Maximum page size exceeded')
+                                            detail: VBADocuments::UploadError::DOC108)
       end
     end
 
