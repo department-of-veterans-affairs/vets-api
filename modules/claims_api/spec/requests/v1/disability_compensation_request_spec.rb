@@ -62,8 +62,8 @@ RSpec.describe 'Disability Claims ', type: :request do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
           auth_header_stub = instance_double('EVSS::DisabilityCompensationAuthHeaders')
-          expect(EVSS::DisabilityCompensationAuthHeaders).to receive(:new) { auth_header_stub }
-          expect(auth_header_stub).to receive(:add_headers)
+          expect(EVSS::DisabilityCompensationAuthHeaders).to(receive(:new).twice { auth_header_stub })
+          expect(auth_header_stub).to receive(:add_headers).twice
           post path, params: data, headers: headers.merge(auth_header)
         end
       end
@@ -113,6 +113,15 @@ RSpec.describe 'Disability Claims ', type: :request do
             parsed = JSON.parse(response.body)
             expect(response.status).to eq(422)
             expect(parsed['errors'].size).to eq(2)
+          end
+        end
+      end
+
+      it 'increment counters for statsd' do
+        with_okta_user(scopes) do |auth_header|
+          VCR.use_cassette('evss/disability_compensation_form/form_526_invalid_validation') do
+            expect(StatsD).to receive(:increment).at_least(:once)
+            post '/services/claims/v1/forms/526/validate', params: data, headers: headers.merge(auth_header)
           end
         end
       end

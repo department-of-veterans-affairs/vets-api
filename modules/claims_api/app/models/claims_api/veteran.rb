@@ -24,7 +24,6 @@ module ClaimsApi
 
     delegate :birls_id, to: :mvi, allow_nil: true
     delegate :participant_id, to: :mvi, allow_nil: true
-    alias_attribute :dslogon_edipi, :edipi
 
     def birth_date
       va_profile[:birth_date]
@@ -66,6 +65,10 @@ module ClaimsApi
       'authn'
     end
 
+    def set_edipi(edipi_header)
+      self.edipi = edipi_header.presence || mvi.profile&.edipi
+    end
+
     def self.from_headers(headers, with_gender: false)
       veteran = new(
         uuid: ensure_header(headers, 'X-VA-SSN'),
@@ -78,7 +81,7 @@ module ClaimsApi
       # commenting this out until the new non-veteran oauth flow is ready to replace this
       # veteran.loa = { current: 3, highest: 3 }
       veteran.gender = ensure_header(headers, 'X-VA-Gender') if with_gender
-      veteran.edipi = headers['X-VA-EDIPI'] if headers['X-VA-EDIPI'].present?
+      veteran.set_edipi(headers['X-VA-EDIPI'])
       veteran
     end
 
