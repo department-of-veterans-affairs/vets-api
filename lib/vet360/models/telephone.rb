@@ -86,6 +86,7 @@ module Vet360
       #
       # @return [String] JSON-encoded string suitable for requests to Vet360
       #
+      # rubocop:disable Metrics/MethodLength
       def in_json
         {
           bio: {
@@ -109,6 +110,7 @@ module Vet360
           }
         }.to_json
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Converts a decoded JSON response from Vet360 to an instance of the Telephone model
       # @param body [Hash] the decoded response body from Vet360
@@ -122,7 +124,7 @@ module Vet360
           id: body['telephone_id'],
           is_international: body['international_indicator'],
           is_textable: body['text_message_capable_ind'],
-          is_text_permitted: body['text_message_perm_ind'], #todo
+          is_text_permitted: body['text_message_perm_ind'],
           is_voicemailable: body['voice_mail_acceptable_ind'],
           phone_number: body['phone_number'],
           phone_type: body['phone_type'],
