@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'facilities/bulk_json_client'
+
 module Facilities
   RSpec.describe VHAFacility do
-    before(:each) { BaseFacility.validate_on_load = false }
+    before(:each) do
+      BaseFacility.validate_on_load = false
+      # Facilities::AccessDataDownload.new.perform
+    end
     after(:each) { BaseFacility.validate_on_load = true }
     it 'should be a VHAFacility object' do
       expect(described_class.new).to be_a(VHAFacility)
@@ -58,15 +63,40 @@ module Facilities
         end
 
         context 'services' do
+          let(:satisfaction_data) do
+            fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/satisfaction_data.json"
+            File.open(fixture_file_name, 'rb') do |f|
+              JSON.parse(f.read)
+            end
+          end
+
+          let(:wait_time_data) do
+            fixture_file_name = "#{::Rails.root}/spec/fixtures/facility_access/wait_time_data.json"
+            File.open(fixture_file_name, 'rb') do |f|
+              JSON.parse(f.read)
+            end
+          end
+
+          let(:sat_client_stub) { instance_double('Facilities::AccessSatisfactionClient') }
+          let(:wait_client_stub) { instance_double('Facilities::AccessWaitTimeClient') }
+
+          before(:each) do
+            allow(Facilities::AccessSatisfactionClient).to receive(:new) { sat_client_stub }
+            allow(Facilities::AccessWaitTimeClient).to receive(:new) { wait_client_stub }
+            allow(sat_client_stub).to receive(:download).and_return(satisfaction_data)
+            allow(wait_client_stub).to receive(:download).and_return(wait_time_data)
+            Facilities::AccessDataDownload.new.perform
+          end
+
           it 'should parse services' do
             VCR.use_cassette('facilities/va/vha_facilities_limit_results') do
               expect(facility.services.keys).to match(%w[last_updated health other])
               expect(facility.services['last_updated']).to eq('2018-02-09')
               expect(facility.services['health'].size).to eq(2)
               expect(facility.services['health'].first.keys).to eq(%w[sl1 sl2])
-              expect(facility.services['health'].first.values).to eq([['MentalHealthCare'], []])
+              expect(facility.services['health'].first.values).to eq([['PrimaryCare'], []])
               expect(facility.services['health'].second.keys).to eq(%w[sl1 sl2])
-              expect(facility.services['health'].second.values).to eq([['PrimaryCare'], []])
+              expect(facility.services['health'].second.values).to eq([['MentalHealthCare'], []])
               expect(facility.services['other']).to be_empty
             end
           end
@@ -79,9 +109,9 @@ module Facilities
               expect(facility_2.services['health'].first.keys).to eq(%w[sl1 sl2])
               expect(facility_2.services['health'].first.values).to eq([['DentalServices'], []])
               expect(facility_2.services['health'].second.keys).to eq(%w[sl1 sl2])
-              expect(facility_2.services['health'].second.values).to eq([['MentalHealthCare'], []])
+              expect(facility_2.services['health'].second.values).to eq([['PrimaryCare'], []])
               expect(facility_2.services['health'].third.keys).to eq(%w[sl1 sl2])
-              expect(facility_2.services['health'].third.values).to eq([['PrimaryCare'], []])
+              expect(facility_2.services['health'].third.values).to eq([['MentalHealthCare'], []])
               expect(facility_2.services['other']).to eq(['Online Scheduling'])
             end
           end

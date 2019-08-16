@@ -24,7 +24,7 @@ module Facilities
 
     WT_KEY_MAP = {
       'PRIMARY CARE' => 'primary_care',
-      'MENTAL HEALTH' => 'mental_health',
+      'MENTAL HEALTH' => 'mental_health_care',
       'COMP WOMEN\'S HLTH' => 'womens_health',
       'AUDIOLOGY' => 'audiology',
       'CARDIOLOGY' => 'cardiology',

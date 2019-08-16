@@ -12,8 +12,6 @@ class BaseFacility < ApplicationRecord
   YES = 'YES'
 
   APPROVED_SERVICES = %w[
-    MentalHealthCare
-    PrimaryCare
     DentalServices
   ].freeze
 
