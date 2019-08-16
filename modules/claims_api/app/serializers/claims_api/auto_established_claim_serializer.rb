@@ -6,4 +6,8 @@ module ClaimsApi
 
     type :claims_api_auto_established_claims
   end
+
+  def id
+    object&.evss_id || object.id
+  end
 end
