@@ -7,6 +7,9 @@ module ClaimsApi
   class BaseFormController < ClaimsApi::ApplicationController
     before_action :validate_json_schema
 
+    STATSD_VALIDATION_FAIL_KEY = 'api.claims_api.526.validation_fail'
+    STATSD_VALIDATION_FAIL_TYPE_KEY = 'api.claims_api.526.validation_fail_type'
+
     # schema endpoint should be wide open
     skip_before_action :validate_json_schema, only: %i[schema]
     skip_before_action :authenticate, only: %i[schema]
@@ -53,13 +56,6 @@ module ClaimsApi
       payload_attributes
     end
 
-    def validate_526_payload
-      service = EVSS::DisabilityCompensationForm::ServiceAllClaim.new(auth_headers)
-      service.validate_form526(form_attributes.to_json)
-    rescue EVSS::ErrorMiddleware::EVSSError => e
-      render json: { errors: format_errors(e.details) }, status: :unprocessable_entity
-    end
-
     def valid_526_response
       {
         data: {
@@ -74,6 +70,15 @@ module ClaimsApi
     def format_526_errors(errors)
       errors.map do |error|
         { status: 422, detail: "#{error['key']} #{error['detail']}", source: error['key'] }
+      end
+    end
+
+    def track_526_validation_errors(errors)
+      StatsD.increment STATSD_VALIDATION_FAIL_KEY
+
+      errors.each do |error|
+        key = error['key'].gsub(/\[(.*?)\]/, '')
+        StatsD.increment STATSD_VALIDATION_FAIL_TYPE_KEY, tags: ["key: #{key}"]
       end
     end
   end
