@@ -58,6 +58,19 @@ RSpec.describe 'Disability Claims ', type: :request do
       end
     end
 
+    it 'should assign a source' do
+      with_okta_user(scopes) do |auth_header|
+        VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
+          klass = EVSS::DisabilityCompensationForm::ServiceAllClaim
+          expect_any_instance_of(klass).to receive(:validate_form526).and_return(true)
+          post path, params: data, headers: headers.merge(auth_header)
+          token = JSON.parse(response.body)['data']['attributes']['token']
+          aec = ClaimsApi::AutoEstablishedClaim.find(token)
+          expect(aec.source).to eq('abraham lincoln')
+        end
+      end
+    end
+
     it 'should build the auth headers' do
       with_okta_user(scopes) do |auth_header|
         VCR.use_cassette('evss/intent_to_file/active_compensation_future_date') do
