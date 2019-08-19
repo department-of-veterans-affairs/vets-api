@@ -8,6 +8,7 @@ module ClaimsApi
     module Forms
       class DisabilityCompensationController < BaseFormController
         FORM_NUMBER = '526'
+        prepend_before_action :verify_loa, :log_request
         skip_before_action(:authenticate)
         skip_before_action(:verify_power_of_attorney)
         before_action :verification_itf_expiration, only: %i[submit_form_526]

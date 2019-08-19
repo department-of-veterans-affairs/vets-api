@@ -53,11 +53,18 @@ module ClaimsApi
     def target_veteran(with_gender: false)
       if poa_request?
         vet = ClaimsApi::Veteran.from_headers(request.headers, with_gender: with_gender)
-        vet.loa = @current_user.loa if @current_user
+        vet.loa = { current: @current_user.present? ? @current_user.loa : header_loa }
         vet
       else
         ClaimsApi::Veteran.from_identity(identity: @current_user)
       end
+    end
+
+    def header_loa
+      loa_value = header(key = 'X-VA-LOA') ? header(key) : raise_missing_header(key)
+      message = 'Loa is does not meet minumum requirements'
+      raise Common::Client::Errors::ClientError.new('LoaInsufficient', 401, message) unless loa_value == '3'
+      loa_value
     end
 
     def verify_power_of_attorney
@@ -76,6 +83,16 @@ module ClaimsApi
       # if any of the required headers are present we should attempt to use headers
       headers_to_check = ['HTTP_X_VA_SSN', 'HTTP_X_VA_Consumer-Username', 'HTTP_X_VA_Birth_Date']
       (request.headers.to_h.keys & headers_to_check).length.positive?
+    end
+
+    def verify_loa
+      loa_value = header(key = 'X-VA-LOA') ? header(key) : raise_missing_header(key)
+      unless loa_value == '3'
+        render json: [],
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: ClaimsApi::ClaimListSerializer,
+               status: :unauthorized
+      end
     end
   end
 end
