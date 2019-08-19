@@ -178,17 +178,26 @@ module VBADocuments
       metadata['uuid'] = upload.guid
       check_size(parts[DOC_PART_NAME])
       doc_info = get_hash_and_pages(parts[DOC_PART_NAME], DOC_PART_NAME)
+      validate_page_size(doc_info)
       metadata['hashV'] = doc_info[:hash]
       metadata['numberPages'] = doc_info[:pages]
       attachment_names = parts.keys.select { |k| k.match(/attachment\d+/) }
       metadata['numberAttachments'] = attachment_names.size
       attachment_names.each_with_index do |att, i|
         att_info = get_hash_and_pages(parts[att], att)
+        validate_page_size(att_info)
         check_size(parts[att])
         metadata["ahash#{i + 1}"] = att_info[:hash]
         metadata["numberPages#{i + 1}"] = att_info[:pages]
       end
       metadata
+    end
+
+    def validate_page_size(doc_info)
+      if doc_info[:size][:height] >= 21 || doc_info[:size][:width] >= 21
+        raise VBADocuments::UploadError.new(code: 'DOC108',
+                                            detail: VBADocuments::UploadError::DOC108)
+      end
     end
 
     def check_size(file_path)
@@ -199,9 +208,11 @@ module VBADocuments
     end
 
     def get_hash_and_pages(file_path, part)
+      metadata = PdfInfo::Metadata.read(file_path)
       {
         hash: Digest::SHA256.file(file_path).hexdigest,
-        pages: PdfInfo::Metadata.read(file_path).pages
+        pages: metadata.pages,
+        size: metadata.page_size_inches
       }
     rescue PdfInfo::MetadataReadError
       raise VBADocuments::UploadError.new(code: 'DOC103',
