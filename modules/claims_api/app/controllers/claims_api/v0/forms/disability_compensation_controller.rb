@@ -20,7 +20,8 @@ module ClaimsApi
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers: auth_headers,
-            form_data: form_attributes
+            form_data: form_attributes,
+            source: request.headers['X-Consumer-Username']
           )
           auto_claim = ClaimsApi::AutoEstablishedClaim.find_by(md5: auto_claim.md5) unless auto_claim.id
           service.validate_form526(auto_claim.form.to_internal)
