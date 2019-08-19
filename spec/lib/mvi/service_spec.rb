@@ -27,14 +27,14 @@ describe MVI::Service do
       :address_austin,
       given_names: %w[Mitchell G],
       vha_facility_ids: [],
-      sec_id: nil,
+      sec_id: "1008714701",
       historical_icns: nil,
       icn_with_aaid: icn_with_aaid,
       full_mvi_ids: [
         '1008714701V416111^NI^200M^USVHA^P',
         '796122306^PI^200BRLS^USVBA^A',
         '9100792239^PI^200CORP^USVBA^A',
-        '796122306^AN^200CORP^USVBA'
+        '1008714701^PN^200PROV^USDVA^A'
       ]
     )
   end
@@ -81,7 +81,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/valid_vet360_id') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile['vet360_id']).to eq('123456789')
+          expect(response.profile['vet360_id']).to eq('1000')
         end
       end
 
@@ -93,7 +93,10 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/historical_icns_with_icn', match) do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile['historical_icns']).to eq(%w[1008692852V724999 1008787485V229771])
+          expect(response.profile['historical_icns']).to eq(
+            %w[1008692852V724999 1008787550V443247 1008787485V229771 1008795715V162680
+               1008795714V030791 1008795629V076564 1008795718V643356]
+          )
         end
       end
 
