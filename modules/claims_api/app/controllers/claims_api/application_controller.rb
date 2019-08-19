@@ -62,8 +62,12 @@ module ClaimsApi
 
     def header_loa
       loa_value = header(key = 'X-VA-LOA') ? header(key) : raise_missing_header(key)
-      message = 'Loa is does not meet minumum requirements'
-      raise Common::Client::Errors::ClientError.new('LoaInsufficient', 401, message) unless loa_value == '3'
+      unless loa_value == '3'
+        render json: [],
+               serializer: ActiveModel::Serializer::CollectionSerializer,
+               each_serializer: ClaimsApi::ClaimListSerializer,
+               status: :unauthorized
+      end
       loa_value
     end
 
@@ -86,13 +90,7 @@ module ClaimsApi
     end
 
     def verify_loa
-      loa_value = header(key = 'X-VA-LOA') ? header(key) : raise_missing_header(key)
-      unless loa_value == '3'
-        render json: [],
-               serializer: ActiveModel::Serializer::CollectionSerializer,
-               each_serializer: ClaimsApi::ClaimListSerializer,
-               status: :unauthorized
-      end
+      header_loa
     end
   end
 end
