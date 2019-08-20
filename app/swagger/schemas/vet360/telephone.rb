@@ -44,11 +44,11 @@ module Swagger
                    type: :boolean,
                    example: true,
                    description: 'Indicates person has granted permission to receive text messages to phone number.'
-          property :is_tty, 
+          property :is_tty,
                    type: :boolean,
                    example: true,
                    description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of hearing individuals to utilize typing versus voice over a phone connection.'
-          property :is_voicemailable, 
+          property :is_voicemailable,
                    type: :boolean,
                    example: true,
                    description: 'Indicates person has granted consent to record a voice mail message on a phone number.'
@@ -69,16 +69,16 @@ module Swagger
                    format: 'date-time',
                    example: '2018-04-21T20:09:50Z',
                    description: 'The date the source system received the last update to this bio.'
-          property :vet360_id, 
-                   type: :integer, 
+          property :vet360_id,
+                   type: :integer,
                    example: 1,
                    description: 'Unique Identifier of individual within VET360. Created by VET360 after it is validated and accepted. May be considered PII.'
         end
 
         swagger_schema :PutVet360Telephone do
           key :required, %i[id phone_number area_code phone_type is_international country_code]
-          property :id, 
-                   type: :integer, 
+          property :id,
+                   type: :integer,
                    example: 1
           property :area_code,
                    type: :string,
@@ -116,11 +116,11 @@ module Swagger
                    type: :boolean,
                    example: true,
                    description: 'Indicates person has granted permission to receive text messages to phone number.'
-          property :is_tty, 
+          property :is_tty,
                    type: :boolean,
                    example: true,
                    description: 'Indicates phone number has TTY capability (TeleTypewriter). This allows deaf or hard of hearing individuals to utilize typing versus voice over a phone connection.'
-          property :is_voicemailable, 
+          property :is_voicemailable,
                    type: :boolean,
                    example: true,
                    description: 'Indicates person has granted consent to record a voice mail message on a phone number.'
@@ -141,8 +141,8 @@ module Swagger
                    format: 'date-time',
                    example: '2018-04-21T20:09:50Z',
                    description: 'The date the source system received the last update to this bio.'
-          property :vet360_id, 
-                   type: :integer, 
+          property :vet360_id,
+                   type: :integer,
                    example: 1,
                    description: 'Unique Identifier of individual within VET360. Created by VET360 after it is validated and accepted. May be considered PII.'
         end
