@@ -28,7 +28,7 @@ RSpec.describe ClaimsApi::Veteran, type: :model do
 
     it 'should set edipi if passed in headers' do
       veteran = ClaimsApi::Veteran.from_headers(headers.merge!('X-VA-EDIPI' => 1337))
-      expect(veteran.edipi).to eq('1337')
+      expect(veteran.edipi).to eq(1337)
     end
   end
 
