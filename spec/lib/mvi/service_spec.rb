@@ -81,7 +81,7 @@ describe MVI::Service do
         VCR.use_cassette('mvi/find_candidate/valid_vet360_id') do
           response = subject.find_profile(user)
           expect(response.status).to eq('OK')
-          expect(response.profile['vet360_id']).to eq('1000')
+          expect(response.profile['vet360_id']).to eq('80')
         end
       end
 
